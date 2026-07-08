@@ -11,21 +11,7 @@
 !!! warning "Disclaimer"
     This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [full disclaimer](disclaimer.md).
 
-## Before you start: License prerequisites
-
-Most implementations in this framework rely on a mix of Copilot Studio, Power Platform, and Microsoft 365 security/compliance licensing rather than a single SKU. Zone 3 scenarios commonly need Microsoft 365 E5 or Microsoft Purview Suite capabilities for audit, retention, investigation, and reporting controls, while some implementations also add Microsoft Defender for Cloud Apps, Microsoft Sentinel, or SharePoint Advanced Management. Validate the exact license mix for each control before rollout.
-
-- **Copilot Studio** is the baseline for agent development across the framework.
-- **Power Platform Premium** is commonly needed for managed environments, environment governance, and related PPAC controls.
-- **Microsoft 365 E5 or Microsoft Purview Suite** is commonly needed for Purview-heavy controls such as audit logging, data retention, eDiscovery, and Communication Compliance.
-- **Microsoft 365 E5 Security or full Microsoft 365 E5** may be needed when controls depend on Microsoft Defender for Cloud Apps or Microsoft Sentinel.
-- **SharePoint Advanced Management** is commonly needed for SharePoint governance controls in Pillar 4.
-
-For the full per-control breakdown, see the **[License Requirements Matrix](reference/license-requirements.md)**.
-
----
-
-## Is This the Right Repository?
+## Is this the right framework for you?
 
 ### Use this framework if you are:
 
@@ -36,14 +22,37 @@ For the full per-control breakdown, see the **[License Requirements Matrix](refe
 
 ### Start somewhere else if you are:
 
-- governing **Microsoft 365 Copilot** in Word, Excel, PowerPoint, Outlook, Teams, Copilot Chat, or Copilot Pages -> see [FSI-CopilotGov](https://github.com/judeper/FSI-CopilotGov)
+- governing **Microsoft 365 Copilot** in Word, Excel, PowerPoint, Outlook, Teams, Copilot Chat, or Copilot Pages — see [FSI-CopilotGov](https://github.com/judeper/FSI-CopilotGov)
 - looking for **prompt engineering guidance** or end-user productivity tips
 - working outside **regulated US financial services**
-- trying to learn basic product capabilities before thinking about governance -> start with [Microsoft Learn](https://learn.microsoft.com/)
+- trying to learn basic product capabilities before thinking about governance — start with [Microsoft Learn](https://learn.microsoft.com/)
 
 ---
 
-## Why FSI-AgentGov Exists
+!!! tip "Your first 15 minutes"
+    [Run the Readiness Assessment](assessment/index.md) — evaluates your organization's current state across all 79 controls and generates a personalized remediation roadmap. Runs entirely in your browser; nothing uploaded. Or read on to orient yourself first.
+
+## What you will need before you start
+
+A structured rollout requires both licensing and the right people in place.
+
+**Licensing:** Most controls rely on a mix of Copilot Studio, Power Platform, and Microsoft 365 security/compliance SKUs. See the [License Requirements Matrix](reference/license-requirements.md) for the full per-control breakdown.
+
+??? info "Common license requirements — expand for details"
+    - **Copilot Studio** is the baseline for agent development across the framework.
+    - **Power Platform Premium** is commonly needed for managed environments, environment governance, and related PPAC controls.
+    - **Microsoft 365 E5 or Microsoft Purview Suite** is commonly needed for Purview-heavy controls such as audit logging, data retention, eDiscovery, and Communication Compliance.
+    - **Microsoft 365 E5 Security or full Microsoft 365 E5** may be needed when controls depend on Microsoft Defender for Cloud Apps or Microsoft Sentinel.
+    - **SharePoint Advanced Management** is commonly needed for SharePoint governance controls in Pillar 4.
+
+**People and sponsorship:**
+
+- Confirm who holds Power Platform Admin, Purview Compliance Admin, Entra Global Admin, SharePoint Admin, and Exchange Online Admin roles — see [Role Catalog](reference/role-catalog.md) and [Operating Model](framework/operating-model.md).
+- Designate an **AI Governance Lead** and secure **executive sponsorship** before starting structured implementation.
+
+---
+
+## Why FSI-AgentGov exists
 
 Microsoft product documentation explains how to create and configure agents. It does not provide a complete financial-services-focused operating model for:
 
@@ -56,9 +65,9 @@ FSI-AgentGov packages those decisions into **79 controls**, **316 implementation
 
 ---
 
-## How This Repository Helps a New User
+## What this framework helps you accomplish
 
-If you are new to the repository, it helps you:
+If you are new to the framework, it helps you:
 
 - determine whether an agent belongs in **Zone 1, Zone 2, or Zone 3**
 - identify which **foundational controls** to implement first
@@ -67,7 +76,7 @@ If you are new to the repository, it helps you:
 
 ---
 
-## Scenario Guide — Where Should I Go?
+## Scenario guide — where should I go?
 
 | Your Situation | Where to Start |
 |---|---|
@@ -80,17 +89,21 @@ If you are new to the repository, it helps you:
 
 ---
 
-## Recommended First 30 Minutes
+## Your first 15 minutes
+
+**Orient (10 minutes)**
 
 1. **Read the [Executive Summary](framework/executive-summary.md)** to understand the governance problem and the operating model.
 2. **Confirm scope with [Relationship to FSI-CopilotGov](framework/relationship-to-copilotgov.md)** if your organization also uses Microsoft 365 Copilot.
 3. **Review [Zones and Tiers](framework/zones-and-tiers.md)** to understand the three-zone classification model.
-4. **Scan the [Control Catalog](controls/index.md)** to see the four pillars and foundational controls.
-5. **Open the [Quick Start Guide](getting-started/quick-start.md)** or the [Governance Readiness Assessment](assessment/index.md) to turn orientation into an action plan.
+
+**Act (5 minutes)**
+
+4. **[Run the Readiness Assessment](assessment/index.md)** to see where your organization currently stands — or **[classify one agent into a zone](framework/zones-and-tiers.md)** using the Zone Decision Matrix as your first concrete action.
 
 ---
 
-## How the Repository Is Organized
+## Find what you need
 
 | Layer | What it answers | Who uses it |
 |---|---|---|
@@ -100,6 +113,6 @@ If you are new to the repository, it helps you:
 
 ---
 
-## Next Step
+## Next step
 
 If you want the shortest path from orientation to action, continue to the [Quick Start Guide](getting-started/quick-start.md). If you first need to confirm whether this framework or the Copilot framework applies to your scenario, read [Relationship to FSI-CopilotGov](framework/relationship-to-copilotgov.md).

@@ -1,4 +1,4 @@
-﻿# Control 4.7 Verification & Testing Playbook
+# Control 4.7 — Verification & Testing: M365 Copilot Data Governance
 
 ## Microsoft 365 Copilot Data Governance - FSI Verification Bundle
 

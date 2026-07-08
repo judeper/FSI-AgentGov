@@ -19,6 +19,7 @@ Run this immediately after `python -m mkdocs build --strict` (or `mkdocs build
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,6 +29,14 @@ DEFAULT_MIN_REFERENCE_HTML = 20
 DEFAULT_MIN_CONTROLS_HTML = 60
 DEFAULT_MIN_SEARCH_BYTES = 100_000
 DEFAULT_MIN_INDEX_BYTES = 1_024
+# Home-hero render guard: the hero is authored as markdown-in-HTML. If the
+# outer wrapper loses its `markdown` attribute the whole block ships as raw
+# text (the `# headline` and `{ .md-button }` CTAs leak verbatim) while the
+# strict build still exits 0. Assert the rendered hero on every build.
+HERO_FORBIDDEN_LEAK = "{ .md-button"
+HERO_REQUIRED_H1 = re.compile(
+    r"<h1[^>]*>\s*Govern Microsoft 365 AI agents", re.IGNORECASE
+)
 SEARCH_INDEX_CANDIDATES = (
     Path("search/search_index.json"),
     Path("search/search_index.json.gz"),
@@ -89,6 +98,22 @@ def verify(site_root: Path, thresholds: Thresholds) -> list[CheckResult]:
             label="site index",
             ok=False,
             detail=f"expected {index_html} to exist after the MkDocs build",
+        ))
+
+    # Home-hero render guard (see HERO_* constants above).
+    if index_html.is_file():
+        index_text = index_html.read_text(encoding="utf-8", errors="ignore")
+        leaked = HERO_FORBIDDEN_LEAK in index_text
+        has_value_prop_h1 = bool(HERO_REQUIRED_H1.search(index_text))
+        results.append(CheckResult(
+            label="home hero render",
+            ok=(not leaked) and has_value_prop_h1,
+            detail=(
+                "expected the home hero to render: no raw "
+                f"'{HERO_FORBIDDEN_LEAK}' leak (found leak={leaked}) and a real "
+                f"value-proposition <h1> (found={has_value_prop_h1}). If this fails, "
+                "the outer hero wrapper in docs/index.md likely lost its `markdown` attribute."
+            ),
         ))
 
     reference_dir = site_root / "reference"

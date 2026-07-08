@@ -124,10 +124,10 @@ Assign the following canonical roles to **named individuals** (not group-only) b
 | Sign-off on Zone 3 blocking posture | CISO + AI Governance Lead | Tenant-level acceptance; documented in the agent risk register (Control 1.2) |
 
 !!! warning "Two-admin step at §4 (Defender XDR ↔ Power Platform)"
-    The Power Platform handshake at `admin.preview.powerplatform.microsoft.com/security/threatdetection` requires the **Power Platform Admin** role and is performed in a separate portal from the Defender XDR Security for AI toggle (which requires the **Security Administrator** role). These are typically two different humans. Schedule both to be available within the same change window — without the handshake, `AIAgentsInfo` returns no Copilot Studio rows and Plane 3 telemetry is incomplete.
+    The Power Platform handshake at `admin.preview.powerplatform.microsoft.com/security/threatdetection` requires the **Power Platform Admin** role and is performed in a separate portal from the Defender XDR Security for AI toggle (which requires the **Security Administrator** role). These are typically two different humans. Schedule both to be available within the same change window — without the handshake, `AIAgentInfo` returns no Copilot Studio rows and Plane 3 telemetry is incomplete.
 
-!!! note "Advanced Hunting table is migrating to `AgentsInfo` (Preview)"
-    The AI-agent Advanced Hunting table is transitioning from **`AIAgentsInfo`** to **`AgentsInfo`** (Preview), powered by Microsoft Agent 365 as the single source of truth. `AIAgentsInfo` (used in the KQL below) remains accessible until **July 1, 2026**, then is deprecated — migrate queries to `AgentsInfo` before that date. As a Preview schema the table and column names may still change; verify against the [`AgentsInfo` schema reference](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table). From July 1, 2026, Copilot Studio / Foundry agent inventory in Defender requires a **Microsoft Agent 365** license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
+!!! note "Advanced Hunting table is migrating to `Agentsinfo` (Preview)"
+    The AI-agent Advanced Hunting table is transitioning from **`AIAgentInfo`** to **`Agentsinfo`** (Preview), powered by Microsoft Agent 365 as the single source of truth. `AIAgentInfo` (used in the KQL below) remains accessible until **July 1, 2026**, then is deprecated — migrate queries to `Agentsinfo` before that date. As a Preview schema the table and column names may still change; verify against the [`Agentsinfo` schema reference](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table). From July 1, 2026, Copilot Studio / Foundry agent inventory in Defender requires a **Microsoft Agent 365** license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
 
 ### 1.3 Azure subscription scope gate
 
@@ -277,14 +277,14 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 3. Save. Note the timestamp.
 
 !!! warning "Up to 30 minutes to propagate"
-    The handshake can take **up to 30 minutes** to propagate. Until it does, Defender XDR Advanced Hunting queries against `AIAgentsInfo` will return zero rows for Copilot Studio agents and the Security for AI inventory page will show *Pending*. Do not retry the handshake; wait the full 30 minutes before troubleshooting.
+    The handshake can take **up to 30 minutes** to propagate. Until it does, Defender XDR Advanced Hunting queries against `AIAgentInfo` will return zero rows for Copilot Studio agents and the Security for AI inventory page will show *Pending*. Do not retry the handshake; wait the full 30 minutes before troubleshooting.
 
 ### 3.3 Verify Copilot UPIA / XPIA detections
 
 1. From the Defender portal, navigate to **Hunting** → **Advanced hunting**.
 2. Run the following query to confirm the agent inventory has populated:
     ```kusto
-    AIAgentsInfo
+    AIAgentInfo
     | where TimeGenerated > ago(1d)
     | summarize agents = dcount(AgentId) by AgentType, Tenant = tostring(parse_json(AdditionalFields).TenantId)
     ```
@@ -295,7 +295,7 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 
 ### 3.4 Common failure modes
 
-- **`AIAgentsInfo` returns zero rows** — handshake at §4.2 not complete; wait 30 min, then re-verify the Power Platform tenant ID matches the Defender XDR tenant.
+- **`AIAgentInfo` returns zero rows** — handshake at §4.2 not complete; wait 30 min, then re-verify the Power Platform tenant ID matches the Defender XDR tenant.
 - **Alerts appear for M365 Copilot but not for Copilot Studio** — Copilot Studio inventory depends on §4.2; M365 Copilot detection works independently.
 - **No alerts at all** — confirm test user is licensed for M365 Copilot, confirm Defender plan is assigned (typically M365 E5 Security or Defender for Office 365 P2), confirm the test SharePoint site is indexed by Copilot.
 
@@ -474,7 +474,7 @@ For each agent in each zone, confirm in writing (audit pack):
 
 1. Which Foundry / OpenAI deployment backs the agent — is Prompt Shields configured?
 2. Which Azure subscription hosts that deployment — is Defender for Cloud TP for AI Workloads on?
-3. Is the agent a Copilot Studio agent appearing in `AIAgentsInfo` after the §4.2 handshake?
+3. Is the agent a Copilot Studio agent appearing in `AIAgentInfo` after the §4.2 handshake?
 4. Is the agent's user population in scope of the Comm Compliance policy from §5?
 5. Is the agent listed in the Control 1.2 agent risk register, with its zone classification?
 6. If Zone 3, is the eDiscovery hold (Control 1.19) in place for the relevant custodian / SharePoint scope?
@@ -623,7 +623,7 @@ The troubleshooting playbook covers, at minimum:
 
 - Prompt Shields not blocking despite *Block* posture.
 - Defender for Cloud AI alerts not appearing.
-- `AIAgentsInfo` returning zero rows after the §4.2 handshake.
+- `AIAgentInfo` returning zero rows after the §4.2 handshake.
 - Comm Compliance Copilot policy stuck in *Draft*.
 - `CopilotInteraction` audit records missing or delayed.
 - Sentinel Content Hub rules installed but not triggering.
@@ -650,7 +650,7 @@ The audit pack is the per-deployment artifact set that proves the configured pla
 | 8 | Defender for Cloud → Defender XDR alert routing screenshot + sample alert ID | §3.2 | PNG / Text | Azure / Defender for Cloud Admin |
 | 9 | Defender XDR Security for AI settings screenshot | §4.1 | PNG | Defender XDR Admin |
 | 10 | Power Platform threat detection handshake screenshot + timestamp | §4.2 | PNG | Power Platform Admin |
-| 11 | `AIAgentsInfo` query result confirming inventory populated | §4.3 | CSV | Sentinel SOC Analyst |
+| 11 | `AIAgentInfo` query result confirming inventory populated | §4.3 | CSV | Sentinel SOC Analyst |
 | 12 | Defender XDR sample UPIA + XPIA incident IDs | §4.3 | Text | Defender XDR Admin |
 | 13 | Comm Compliance policy screenshot (active state, scope, classifiers, sample rate) | §5.2 | PNG | Purview Communication Compliance Admin |
 | 14 | Comm Compliance sample case ID + reviewer attestation timestamp | §5.4 | Text | Designated Supervisor |
@@ -687,7 +687,7 @@ The following patterns have surfaced in prior reviews and FSI audit findings aga
 
 1. **Querying `AuditLogs.TargetResources` for prompt body text.** Wrong table (Entra audit), wrong field. Prompt body is not in the standard `CopilotInteraction` schema. Source prompt-content signals from Prompt Shields, Defender for Cloud, Defender XDR, or Comm Compliance — never from KQL on `AuditLogs`.
 2. **Writing "real-time" or "ensures prevention" into the WSP.** Only Prompt Shields is synchronous. Defender alerts run seconds–minutes; Comm Compliance + audit run minutes–hours. Use the documented latencies; Microsoft surfaces *support* compliance but do not *guarantee* prevention.
-3. **Skipping the Power Platform handshake at §4.2.** Without it, Copilot Studio agents do not appear in `AIAgentsInfo` and Plane 3 telemetry is incomplete. The handshake takes up to 30 minutes — schedule it in the change window.
+3. **Skipping the Power Platform handshake at §4.2.** Without it, Copilot Studio agents do not appear in `AIAgentInfo` and Plane 3 telemetry is incomplete. The handshake takes up to 30 minutes — schedule it in the change window.
 4. **Authoring or modifying the Comm Compliance Copilot policy via PowerShell.** No public PowerShell authoring path exists for the *Detect Microsoft Copilot Interactions* template. Portal-only. Capture screenshots as the primary evidence artifact.
 5. **Group-only reviewer assignment in Comm Compliance.** FINRA Rule 3110 / RN 24-09 requires a *named* Designated Supervisor in the WSP. Group assignment is acceptable in the tenant model but the audit pack must name the human.
 6. **Promoting Zone 3 *Block* posture to production without sandbox pilot.** *Block* can deny legitimate prompts that share lexical features with attacks. Stage in a sandbox tenant or pilot user group, capture the false-positive rate in §13 artifact 24, then promote.

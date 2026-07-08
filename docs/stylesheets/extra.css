@@ -310,9 +310,16 @@
  * "pick your job" front door. Uses Material CSS custom properties so it adapts
  * to both the default and slate palettes without new contrast risk.
  */
-.home-hero {
-  max-width: 64ch;
+.home-hero-layout {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
   margin: 1.5rem 0 2.5rem;
+}
+
+.home-hero {
+  flex: 1 1 0;
+  min-width: 0;
 }
 .home-hero h1 {
   font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3rem);
@@ -320,6 +327,8 @@
   line-height: 1.14;
   letter-spacing: -0.01em;
   margin-bottom: 1rem;
+  /* UX-02 / UX-10: enforce full-strength color so h1 is never muted gray */
+  color: var(--md-default-fg-color);
 }
 .home-hero p {
   font-size: 1.08rem;
@@ -328,6 +337,69 @@
   margin-bottom: 1.5rem;
 }
 .home-hero .md-button { margin: 0 .5rem .5rem 0; }
+
+/* Hero stat panel — product visual on the right side of the hero (UX-02) */
+.hero-stat-panel {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-self: flex-start;
+  background: var(--brand-surface);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  min-width: 200px;
+  max-width: 240px;
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.stat-num {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--brand-primary);
+}
+.stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.2rem;
+}
+
+/* Slate overrides for stat panel */
+[data-md-color-scheme="slate"] .hero-stat-panel {
+  background: var(--brand-surface);
+  border-color: var(--md-default-fg-color--lightest);
+  border-left-color: var(--brand-primary);
+}
+[data-md-color-scheme="slate"] .stat-num {
+  color: var(--brand-primary);
+}
+
+/* Responsive: collapse to single-column hero at narrow viewports */
+@media (max-width: 860px) {
+  .home-hero-layout {
+    flex-direction: column;
+  }
+  .hero-stat-panel {
+    max-width: 100%;
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .hero-stat-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
 /* Job-router cards: Material .grid.cards enhanced into task entry points */
 .job-cards.cards > ul > li {
@@ -365,6 +437,86 @@
   .job-cards.cards > ul > li { transition: none; }
   .job-cards.cards > ul > li:hover,
   .job-cards.cards > ul > li:focus-within { transform: none; }
+}
+
+/* ── UX-10 / ONBOARD-12: Darken heading and body text (WCAG AA headroom) ──
+ * Material's light palette sets --md-default-fg-color to rgba(0,0,0,0.87)
+ * (~#222) which technically passes 4.5:1 on white, but the rendered value
+ * can vary with opacity compositing. Force explicit values so headings are
+ * always full-strength and comfortably exceed AA.
+ * Scoped to default (light) palette only — slate palette is already dark.
+ */
+[data-md-color-scheme="default"] {
+  --md-default-fg-color:        #1A1918;   /* near-black, 18.2:1 on white */
+  --md-default-fg-color--light: #4A4845;   /* medium-dark, 9.2:1 on white  */
+}
+
+/* Headings in typeset content — force full-strength so none inherit muted
+   grays from Material's variable resolution. */
+[data-md-color-scheme="default"] .md-typeset h1,
+[data-md-color-scheme="default"] .md-typeset h2,
+[data-md-color-scheme="default"] .md-typeset h3,
+[data-md-color-scheme="default"] .md-typeset h4 {
+  color: #1A1918;
+}
+
+/* ── CONTROLS-13: Control table and chip contrast / density ── */
+/*
+ * Dense control tables (Zone-Specific Requirements, Roles & Responsibilities):
+ * add subtle row striping, stronger header, and breathing room so examiners
+ * can scan without losing track of their row.
+ */
+.md-typeset table:not([class]) {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.md-typeset table:not([class]) th {
+  font-weight: 700;
+  background-color: var(--brand-surface);
+  color: var(--md-default-fg-color);
+  border-bottom: 2px solid var(--md-default-fg-color--lightest);
+  padding: 0.55rem 0.75rem;
+}
+.md-typeset table:not([class]) td {
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+.md-typeset table:not([class]) tr:nth-child(even) td {
+  background-color: var(--brand-surface);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: var(--brand-surface);
+  color: var(--md-default-fg-color);
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ── UX-08: Supplemental feedback link (feedback-extra.html) ── */
+.fsi-feedback-extra {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 0.82rem;
+}
+.fsi-feedback-mailto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: var(--md-default-fg-color--light);
+  transition: color 0.15s ease;
+}
+.fsi-feedback-mailto:hover {
+  color: var(--md-primary-fg-color);
+}
+/* Override body-link underline rule from AS5 for this link — it already
+   carries the emoji icon as a non-colour cue, so underline is redundant. */
+.fsi-feedback-extra .fsi-feedback-mailto {
+  text-decoration: none;
+}
+.fsi-feedback-extra .fsi-feedback-mailto:hover {
+  text-decoration: underline;
 }
 
 /* ── Reading experience (WS3): comfort typography — color-neutral (no AA impact) ── */
@@ -464,4 +616,52 @@
     list-style: none;
     margin-left: 0;
   }
+}
+
+/* ── UX-03/04: Mobile-responsive table scroll ──────────────────────────────
+ *
+ * Problem: wide multi-column tables (regulatory mapping, zone/RACI, Control
+ * Explorer) overflow the viewport on 390px devices. Verified via DOM
+ * measurement: regulatory/zone tables overflow 211px (UX-04) and the Control
+ * Explorer table overflows 546px (UX-03) at 390px viewport width.
+ *
+ * Root causes (two distinct sites):
+ *
+ *   1. Markdown-generated tables (UX-04) — MkDocs Material 9.x wraps each
+ *      table in `.md-typeset__scrollwrap` (overflow-x:auto) but the wrapper
+ *      can fail to contain wide tables when ancestor padding/negative-margin
+ *      expands the scrollable area beyond the visible column width. Explicitly
+ *      reinforcing overflow-x:auto on both the wrapper and the inner table
+ *      element closes this gap.
+ *
+ *   2. Control Explorer (UX-03) — `.ce-layout` is a CSS grid with column
+ *      track `1fr`. CSS grid tracks with implicit `auto` minimum refuse to
+ *      shrink below the track's min-content size; the `.ce-table` min-width
+ *      (46rem) sets that floor, forcing the page to scroll. The fix is
+ *      `minmax(0, 1fr)` on the track (applied in control-explorer.css) so the
+ *      track can shrink to 0 and let `.ce-results { overflow-x:auto }` do its
+ *      job. The reinforcement below covers the outer CE container.
+ *
+ * Fixes applied:
+ *   - `.md-typeset__scrollwrap`: reinforce overflow-x:auto + WebKit touch
+ *     momentum scroll (UX-04).
+ *   - `.md-typeset table:not([class])`: keeps `max-width:100%` so the table
+ *     can never widen the scroll container itself (UX-04).
+ *   - `.ce-root`: max-width:100% + overflow-x:auto as a hard outer stop so
+ *     the CE widget never breaks page-level scroll (UX-03 outer container).
+ */
+.md-typeset__scrollwrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent table from expanding its own scroll container beyond the column */
+.md-typeset table:not([class]) {
+  max-width: 100%;
+}
+
+/* CE outer container: clamp to available width so layout overflow stops here */
+.ce-root {
+  max-width: 100%;
+  overflow-x: auto;
 }

@@ -3,6 +3,8 @@ description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials desc
 ---
 # Frontier Transformation Patterns
 
+> **Framework layer — Advanced & Scaling track.** Maps the six CAPE Frontier Transformation Patterns to FSI governance zones, regulatory exposure profiles, and mandatory controls. M365 admins implementing controls can skip this page.
+
 !!! info "Audience"
     Primary: AI Governance Lead, CIO/CDO, AI Program Sponsor, FSI architect engaging with Microsoft FSI Customer Success Architects (CSAs).
     M365 admins implementing controls — you can safely skip this page and start with the [Adoption Roadmap](adoption-roadmap.md) or the [Control Catalog](../controls/index.md). Patterns name *what shape* an agent deployment takes; zones name *what regulatory exposure* it carries. Admin work is driven by zones and controls.
@@ -161,6 +163,8 @@ Pattern selection is a brief intake question, not a flowchart. Four questions an
 - [Zones and Tiers](zones-and-tiers.md) — the FSI zone classification system that determines control depth for any chosen pattern.
 - [Regulatory Framework](regulatory-framework.md) — full FSI regulatory mapping (FINRA, SEC, OCC, Fed, GLBA, SOX, CFTC, BSA/AML).
 - [Control Catalog](../controls/index.md) — the 79 controls across four pillars.
+
+**Next →** [Agentic Capability Drivers](agentic-capability-drivers.md) — The five organizational readiness dimensions that determine whether your organization can scale these patterns.
 
 ---
 

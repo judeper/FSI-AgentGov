@@ -1,0 +1,18 @@
+{#-
+  Override of Material 9.7.6 partials/logo.html.
+
+  Closes IA-14: Material's generated logo.html emits `alt="logo"` (a
+  generic, non-descriptive string). Screen-reader users hear "logo image"
+  with no context about which site they are on. Replacing with the full
+  framework name provides meaningful context without over-describing the
+  mark (WCAG 2.1 SC 1.1.1 non-text content).
+
+  Review on Material upgrade — the upstream partial is short but the
+  auto-generated tag means diffs are straightforward to apply.
+-#}
+{% if config.theme.logo %}
+  <img src="{{ config.theme.logo | url }}" alt="FSI Agent Governance Framework">
+{% else %}
+  {% set icon = config.theme.icon.logo or "material/library" %}
+  {% include ".icons/" ~ icon ~ ".svg" %}
+{% endif %}

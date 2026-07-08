@@ -3,6 +3,8 @@ description: "Roles, responsibilities, and governance structure for AI agent ove
 ---
 # Operating Model
 
+> **Framework layer — Core track.** Defines the RACI, roles, and governance committee structure — the organizational layer that makes the technical controls operational.
+
 Roles, responsibilities, and governance structure for AI agent oversight.
 
 ---
@@ -59,24 +61,24 @@ This document defines the organizational structure, roles, and accountability fo
 
 ### Zone 3: Enterprise Agent Deployment
 
-| Activity | AI Lead | Compliance | CISO | Legal | CRO | Board | Ext Auditor |
-|----------|---------|-----------|------|-------|-----|-------|-------------|
-| Strategic planning | R/A | C | C | I | C | C | I |
-| Business case | R | C | C | C | R | C | I |
-| Risk assessment | R | C | C | C | C | A | C |
-| Regulatory review | C | R/A | C | C | C | A | C |
-| Security testing | C | C | R/A | C | I | I | C |
-| Model risk assessment | R | C | C | I | A | A | C |
-| Bias/fairness testing | R/A | C | C | I | C | C | C |
-| Legal review | C | C | I | R/A | I | C | C |
-| Governance committee | R | A | A | A | A | A | I |
-| Change control | I | C | R | C | C | I | I |
-| Deploy to production | I | I | I | I | I | R/A | I |
-| Document in registry | I | R | I | I | I | I | I |
-| Train operators | C | I | I | I | I | I | I |
-| Monthly monitoring | R/A | A | C | I | C | I | C |
-| Quarterly review | R | A | C | C | A | A | I |
-| Annual validation | R | C | C | I | A | A | A |
+| Activity | AI Lead | Compliance | CISO | PP Admin | Legal | CRO | Board | Ext Auditor |
+|----------|---------|-----------|------|----------|-------|-----|-------|-------------|
+| Strategic planning | R/A | C | C | I | I | C | C | I |
+| Business case | R | C | C | I | C | R | C | I |
+| Risk assessment | R | C | C | I | C | C | A | C |
+| Regulatory review | C | R/A | C | I | C | C | A | C |
+| Security testing | C | C | R/A | C | C | I | I | C |
+| Model risk assessment | R | C | C | I | I | A | A | C |
+| Bias/fairness testing | R/A | C | C | I | I | C | C | C |
+| Legal review | C | C | I | I | R/A | I | C | C |
+| Governance committee | R | A | A | I | A | A | A | I |
+| Change control | I | C | R | C | C | C | I | I |
+| Deploy to production | I | I | I | R/A | I | I | I | I |
+| Document in registry | I | R | I | I | I | I | I | I |
+| Train operators | C | I | I | C | I | I | I | I |
+| Monthly monitoring | R/A | A | C | C | I | C | I | C |
+| Quarterly review | R | A | C | I | C | A | A | I |
+| Annual validation | R | C | C | I | I | A | A | A |
 
 **Summary:** Enterprise agent, comprehensive governance, board-level oversight, multiple approvals.
 
@@ -469,6 +471,14 @@ These functions can be organized in one of three structural shapes: **Centralize
 ### Cross-Link to the Full Blueprint
 
 For the full CoE blueprint — including function-by-function mandates, shape selection guidance, lifecycle ownership matrix, FSI-specific anti-patterns, and examiner-facing implications — see [Agentic Center of Excellence](agentic-coe.md). The CoE blueprint is **strategic** and belongs in executive sponsor and AI governance lead planning conversations. Admins implementing individual controls should start with the [control catalog](../controls/CONTROL-INDEX.md) instead.
+
+---
+
+!!! info "Key controls implementing the operating model"
+    **Accountability & access:** [2.8 — Access Control & Segregation of Duties](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) · [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)  
+    **Reporting & review:** [3.3 — Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) · [3.4 — Incident Reporting](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
+
+**Next →** [Governance Cadence](governance-cadence.md) — The structured review schedule that operationalizes the roles and accountabilities defined here.
 
 ---
 

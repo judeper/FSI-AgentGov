@@ -16,10 +16,13 @@
 
 ## Why This Matters for FSI
 
-- **[Regulation]:** [How this regulation requires or benefits from this control]
-- **[Regulation]:** [How this regulation requires or benefits from this control]
-- **[Regulation]:** [How this regulation requires or benefits from this control]
-- **[Regulation]:** [How this regulation requires or benefits from this control]
+??? note "Regulatory mapping — click to expand"
+    - **[Regulation]:** [Detailed explanation of how this regulation requires or benefits from this control]
+    - **[Regulation]:** [Detailed explanation]
+    - **[Regulation]:** [Detailed explanation]
+    - **[Regulation]:** [Detailed explanation]
+
+    > **Implementation note:** No single control guarantees compliance. This control supports the above obligations when paired with related controls and ongoing validation. Organizations should verify their specific regulatory obligations are met.
 
 ---
 
@@ -28,6 +31,14 @@
 [Detailed explanation of what the control does, how it works, and its role in the governance framework. Include technical context and strategic rationale. Describe the control mechanisms and implementation approach.]
 
 [If applicable, explain key features or components of the control implementation.]
+
+!!! warning "Prerequisites & Licensing"
+    Implementing this control end-to-end requires the following — verify each before starting, or expect partial enforcement:
+
+    | Prerequisite | Why | Where to verify |
+    |---|---|---|
+    | [Prerequisite 1] | [Why this is needed] | [Where to verify] |
+    | [Prerequisite 2] | [Why this is needed] | [Where to verify] |
 
 ---
 
@@ -43,6 +54,9 @@
 ---
 
 ## Zone-Specific Requirements
+
+!!! info "Zone cross-reference"
+    **Baseline** = Zone 1 (Personal Productivity) · **Recommended** = Zone 2 (Team Collaboration) · **Regulated** = Zone 3 (Enterprise Managed). Zone requirements below correspond to the Governance Level in the control header.
 
 | Zone | Requirement | Rationale |
 |------|-------------|-----------|

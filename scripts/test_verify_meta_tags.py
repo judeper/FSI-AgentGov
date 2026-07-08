@@ -33,6 +33,7 @@ def _full_meta_block(title: str = "Test Page", desc: str = "Test desc",
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">
+<script type="application/ld+json">{{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[]}}</script>
 </head><body></body></html>
 """
 
@@ -66,6 +67,7 @@ def test_meta_with_attribute_order_reversed_passes(tmp_path: Path):
 <meta content="summary" name="twitter:card">
 <meta content="Test" name="twitter:title">
 <meta content="Desc" name="twitter:description">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[]}</script>
 </head><body></body></html>"""
     files = {rel: page for rel in verify_meta_tags.SAMPLED_PAGES}
     _materialize(tmp_path, files)

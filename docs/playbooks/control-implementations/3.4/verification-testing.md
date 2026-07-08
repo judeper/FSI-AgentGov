@@ -1,4 +1,4 @@
-﻿# Verification & Testing — Control 3.4: Incident Reporting and Root Cause Analysis
+# Verification & Testing — Control 3.4: Incident Reporting and Root Cause Analysis
 
 > **Examiner-defensible evidence package** for Control 3.4. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, the SEC, NYDFS, the FFIEC member agencies (OCC, FDIC, Federal Reserve), the FTC, state attorneys general, and the firm's Audit Committee that AI-agent-related incidents are detected, classified, escalated, root-caused, and notified to every applicable regulator on every applicable clock — and that the resulting books-and-records survive examiner scrutiny under SEC Rules 17a-3 / 17a-4 and FINRA Rule 4511.
 >

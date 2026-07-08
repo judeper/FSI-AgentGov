@@ -1,92 +1,64 @@
 ---
-description: "Get up and running with the FSI Agent Governance Framework in 30 minutes."
+description: "Orient yourself to the FSI Agent Governance Framework in about 30 minutes."
 search:
   boost: 2
 ---
 # Quick Start Guide
 
-Get up and running with the FSI Agent Governance Framework in 30 minutes.
+Orient yourself to the FSI Agent Governance Framework in about 30 minutes. By the end you will have classified an agent into a zone, identified your applicable regulations, and taken a first concrete action.
+
+!!! tip "Prefer to act first?"
+    [Run the Readiness Assessment](../assessment/index.md) — about 15 minutes. It evaluates your organization's current state across all 79 controls and generates a personalized remediation roadmap.
 
 ---
 
-## Getting Started: 3-Phase Approach
-
-The framework recommends a structured 3-phase adoption approach:
-
-### Phase I: Form a Governance Team (Week 1-2)
-
-| Activity | Owner | Output |
-|----------|-------|--------|
-| Identify stakeholders | Executive Sponsor | Stakeholder list |
-| Assign roles per RACI | AI Governance Lead | Role assignments |
-| Establish communication channels | Project Lead | Teams channel/meetings |
-| Create initial policies | Compliance Officer | Draft governance policy |
-
-### Phase II: Train Employees (Week 2-4)
-
-| Training | Audience | Duration |
-|----------|----------|----------|
-| Zone overview and classification | All makers | 1 hour |
-| PPAC administration | Platform admins | 2 hours |
-| Compliance monitoring | Compliance team | 2 hours |
-| Security controls | Security team | 2 hours |
-
-!!! info "Platform/license overlay"
-    The framework's three-zone model — Personal Productivity, Team Collaboration, and Enterprise Managed — classifies agent risk, governance friction, and approval depth. License tier is an orthogonal axis: Microsoft 365 Copilot, Microsoft Agent 365, Microsoft 365 E7, and Power Platform entitlements determine which platform features are available to govern. Apply both axes to every agent: choose the zone first, then verify the tenant license enables the controls and evidence surfaces needed for that zone. See [License Requirements](../reference/license-requirements.md) and the [Agent 365 Capabilities Summary](../reference/agent-365-capabilities-summary.md) before writing implementation dependencies into policy.
-
-### Phase III: Deploy and Engage (Week 4+)
-
-| Activity | Priority | Control Reference |
-|----------|----------|-------------------|
-| Enable environment routing | Critical | [2.15](../controls/pillar-2-management/2.15-environment-routing.md) |
-| Configure environment groups | Critical | [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-| Deploy security controls | High | Pillar 1 controls |
-| Set up monitoring | High | [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
-| Iterate based on feedback | Ongoing | All controls |
-
----
-
-## For New Users (10 minutes)
-
-!!! tip "Quick Assessment"
-    Want a faster way to evaluate your readiness? Try the [Governance Readiness Assessment](../assessment/index.md) — an interactive tool that walks you through all 79 controls and generates a personalized remediation roadmap.
-
-### Step 1: Understand the Framework Structure (3 min)
+## Step 1: Understand the Framework Structure (3 min)
 
 The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
 
-1. Security (29 controls) - Protect data
-2. Management (27 controls) - Govern lifecycle
-3. Reporting (14 controls) - Monitor activities
-4. SharePoint (9 controls) - Govern SharePoint
+1. Security (29 controls) — Protect data and access
+2. Management (27 controls) — Govern the agent lifecycle
+3. Reporting (14 controls) — Monitor and report on activity
+4. SharePoint (9 controls) — Govern SharePoint-integrated agents
 
-**3 Zones (risk levels):**
+**3 Zones (governance depth by risk level):**
 
-1. Zone 1 - Personal development (low risk)
-2. Zone 2 - Team collaboration (medium risk)
-3. Zone 3 - Enterprise Managed (high risk)
+1. Zone 1 — Personal Productivity (low risk, ~1 day for foundational controls)
+2. Zone 2 — Team Collaboration (medium risk, ~1 week for baseline)
+3. Zone 3 — Enterprise Managed (high risk, 6–8 weeks for comprehensive coverage)
 
-### Step 2: Classify Your Agents (5 min)
+For a full explanation of how zones work, see [Zones and Tiers](../framework/zones-and-tiers.md).
+
+!!! info "Platform and license overlay"
+    The framework's three-zone model — Personal Productivity, Team Collaboration, and Enterprise Managed — classifies agent risk, governance friction, and approval depth. License tier is an orthogonal axis: Microsoft 365 Copilot, Microsoft Agent 365, Microsoft 365 E5, and Power Platform entitlements determine which platform features are available to govern. Apply both axes to every agent: choose the zone first, then verify the tenant license enables the controls and evidence surfaces needed for that zone. See [License Requirements](../reference/license-requirements.md) and the [Agent 365 Capabilities Summary](../reference/agent-365-capabilities-summary.md) before writing implementation dependencies into policy.
+
+---
+
+## Step 2: Classify Your First Agent (5 min)
 
 Ask these questions:
 
 **Q: Who uses this agent?**
+
 - Just me? → Zone 1
-- My team/department? → Zone 2
-- Organization-wide or customers? → Zone 3
+- My team or department? → Zone 2
+- Organization-wide or customer-facing? → Zone 3
 
 **Q: What data does it access?**
+
 - Only my personal data? → Zone 1
 - Departmental data? → Zone 2
-- Regulated/customer data? → Zone 3
+- Regulated or customer data? → Zone 3
 
-**Result:** You've classified your agent to a zone.
+**Result:** You've classified your first agent into a governance zone. Start with the controls for that zone.
 
-### Step 3: Find Applicable Regulations (2 min)
+---
 
-Check which regulations apply to your organization:
+## Step 3: Identify Your Applicable Regulations (2 min)
+
+Check which regulators apply to your organization:
 
 - FINRA? (broker-dealers)
 - SEC? (investment advisers, public companies)
@@ -94,59 +66,19 @@ Check which regulations apply to your organization:
 - GLBA? (all financial institutions)
 - OCC? (national banks)
 - Federal Reserve? (bank holding companies, state member banks)
+- CFTC? (futures commission merchants, swap dealers, commodity pools — Rule 1.31 recordkeeping)
 - FDIC? (state non-member banks, savings associations)
 - NCUA? (credit unions)
 - State insurance regulator? (insurers)
 - NYDFS Part 500? (NY-licensed institutions)
 
-Result: You've identified your primary US regulators. Consult your Compliance Officer to confirm.
-
----
-
-## For Implementation (20 minutes)
-
-### Quick Implementation Checklist
-
-**Week 1: Assessment**
-
-- [ ] Classify all existing agents to zones
-- [ ] Create agent inventory
-- [ ] Identify primary regulations
-- [ ] Assign governance roles
-
-**Week 2: Security Baseline**
-
-- [ ] Enable MFA for all agent creators
-- [ ] Implement basic DLP policy
-- [ ] Configure audit logging (1-year)
-- [ ] Document security procedures
-
-**Week 3: Governance**
-
-- [ ] Establish approval workflow for Zone 2+
-- [ ] Create agent registry
-- [ ] Document change control process
-- [ ] Assign Compliance Officer oversight
-
-**Week 4: Monitoring**
-
-- [ ] Set up compliance dashboard
-- [ ] Configure incident alerts
-- [ ] Schedule quarterly reviews
-- [ ] Document governance procedures
-
-**Week 5+: Continuous**
-
-- [ ] Monthly compliance reviews
-- [ ] Quarterly control assessments
-- [ ] Annual regulatory updates
-- [ ] Continuous improvement
+Consult your Compliance Officer to confirm which apply. Note: FDIC, NCUA, state insurance, and NYDFS Part 500 regulatees should apply the framework's analogous controls, but these regulations are not explicitly mapped in the Control Catalog. Then see the [Regulatory Framework](../framework/regulatory-framework.md) for the control-to-regulation mapping.
 
 ---
 
 ## Common Scenarios
 
-### Scenario 1: Single Zone 1 Agent (Personal)
+### Scenario 1: Zone 1 Agent (Personal Productivity)
 
 **Time Required:** 1 day
 
@@ -154,7 +86,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 1. Create agent in personal environment
 2. Document agent purpose
-3. Keep basic audit logs (30 days)
+3. Verify audit logging (platform default: 180 days Audit Standard / 1 year Audit Premium-E5; do not reduce below default)
 4. No approval needed
 
 **Controls Required:**
@@ -214,57 +146,30 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 - All 79 controls apply
 - Enhanced versions per regulation
 
-**Compliance:** 
+**Compliance:**
 
 - FINRA comprehensive
 - SEC Rule 17a-3/4
 - SOX 302/404
 - GLBA 501(b)
-- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly Fed SR 11-7) (if applicable)
+- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly Fed SR 11-7) (if applicable — note: both documents explicitly exclude generative AI and agentic AI from scope; apply analogous MRM principles as best practice and consult compliance counsel)
 
 ---
 
-## Where to Find Things
+## Where to Go Next
 
-| Question | Answer |
-|----------|--------|
-| "How do I get started?" | You're reading it! |
-| "What are the zones?" | [Zones Guide](../framework/zones-and-tiers.md) |
-| "Which regulations apply?" | [Regulatory Framework](../framework/regulatory-framework.md) |
-| "What's the full framework?" | [Overview](../index.md) |
-| "Who does what?" | [Operating Model](../framework/operating-model.md) |
-| "How do I implement?" | [Implementation Checklist](checklist.md) |
-| "What does this term mean?" | [Glossary](../reference/glossary.md) |
-| "Common questions?" | [FAQ](../reference/faq.md) |
-| "Tell me about control 1.5" | [1.5 Data Loss Prevention](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
-| "I need a policy" | [Control Index](../controls/index.md) - browse controls for policy guidance |
+| What you need | Where to go |
+|---------------|-------------|
+| Week-by-week deployment plan | [Implementation Checklist](checklist.md) |
+| Scenario-based routing guide | [Start Here](../start-here.md) |
+| Formal gap assessment | [Readiness Assessment](../assessment/index.md) |
+| Browse all 79 controls | [Control Index](../controls/index.md) |
+| Step-by-step implementation playbooks | [Playbooks](../playbooks/index.md) |
+| Term definitions | [Glossary](../reference/glossary.md) |
 
 ---
 
-## Key Terms (Quick Version)
-
-- **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (79 total)
-- **Pillar:** Control category (Security, Management, Reporting, SharePoint)
-- **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
-- **MFA:** Multi-Factor Authentication (login security)
-- **Audit:** Activity logging and monitoring
-- **Model Risk:** Risk of AI/algorithm failures
-- **Bias Testing:** Check for unfair treatment across demographics
-
----
-
-## Next Steps
-
-1. **Read [Zones Guide](../framework/zones-and-tiers.md)** (understand zones)
-2. **Review [Regulatory Framework](../framework/regulatory-framework.md)** (find your regulations)
-3. **Check [Implementation Checklist](checklist.md)** (get step-by-step tasks)
-4. **Reference individual controls** (implement details)
-5. **Document evidence** (compliance proof)
-
----
-
-## Still Questions?
+## Still Have Questions?
 
 - Check **[FAQ](../reference/faq.md)** for common questions
 - Review **[Glossary](../reference/glossary.md)** for terms
@@ -273,4 +178,4 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-*FSI Agent Governance Framework v1.6.2 - May 2026*
+*FSI Agent Governance Framework v1.6.2 — May 2026*

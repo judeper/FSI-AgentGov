@@ -1,0 +1,42 @@
+{#- jsonld-howto.html — HowTo JSON-LD for portal-walkthrough and powershell-setup
+    playbook pages (SEO-03).
+
+    Portal-walkthrough and PowerShell-setup pages map naturally to HowTo schema:
+    they have named steps (H2 headings), an estimated time (front matter or Mission
+    Brief table), and a defined audience. This enables Google step-list rich results.
+
+    Steps are derived from page.toc (top-level H2 entries). The HowTo "name" is
+    constructed with the parent control section context (mirrors the htmltitle block
+    logic) so the schema name matches the page <title>.
+
+    Security: all strings pass through tojson (escapes < > & ').
+    Condition: only injected for portal-walkthrough.md and powershell-setup.md paths;
+    see overrides/main.html for the inclusion guard.
+#}
+{%- set _in_playbook = page.parent and page.parent.title %}
+{%- set _base_title = page.title | striptags %}
+{%- if _in_playbook %}
+  {%- set _howto_name = page.parent.title | striptags ~ " — " ~ _base_title %}
+{%- else %}
+  {%- set _howto_name = _base_title %}
+{%- endif %}
+{%- set _howto_desc = page.meta.description | default(config.site_description) %}
+{%- if page.toc %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": {{ _howto_name | tojson }},
+  "description": {{ _howto_desc | tojson }},
+  "step": [
+    {%- for _step in page.toc %}
+    {
+      "@type": "HowToStep",
+      "name": {{ _step.title | striptags | tojson }},
+      "url": {{ (page.canonical_url ~ "#" ~ _step.id) | tojson }}
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ]
+}
+</script>
+{%- endif %}

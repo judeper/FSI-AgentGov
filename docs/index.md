@@ -1,4 +1,5 @@
 ---
+title: "M365 AI Agent Governance for Financial Services | FSI AgentGov"
 hide:
   - navigation
   - toc
@@ -6,32 +7,50 @@ search:
   boost: 2
 ---
 
+<div class="home-hero-layout" markdown>
 <div class="home-hero" markdown>
 
 # Govern Microsoft 365 AI agents — with evidence, not guesswork
 
-A practical governance framework for **Microsoft 365 AI agents** — Copilot Studio, Agent Builder,
-and custom agent deployments — built for US financial-services organizations. Move from
-experimentation to controlled, examination-ready deployment using a shared operating model your
-administrators, governance leads, and compliance teams can actually work from.
+79 controls, 316 playbooks, 4 pillars, 6 regulatory frameworks — operationalized for Copilot Studio and Agent Builder in US financial-services organizations.
 
-[Find a control](controls/explorer.md){ .md-button .md-button--primary }
-[Assess your tenant](assessment/index.md){ .md-button }
+[New here? Start here →](start-here.md){ .md-button .md-button--primary }
+[Assess your tenant](assessment/index.md){ .md-button .md-button--primary }
+[Find a control](controls/explorer.md){ .md-button }
 
+</div>
+<div class="hero-stat-panel" aria-label="Framework at a glance: 79 Controls, 4 Pillars, 3 Zones, 6 Regulations" role="img">
+  <div class="hero-stat">
+    <span class="stat-num">79</span>
+    <span class="stat-label">Controls</span>
+  </div>
+  <div class="hero-stat">
+    <span class="stat-num">4</span>
+    <span class="stat-label">Pillars</span>
+  </div>
+  <div class="hero-stat">
+    <span class="stat-num">3</span>
+    <span class="stat-label">Zones</span>
+  </div>
+  <div class="hero-stat">
+    <span class="stat-num">6</span>
+    <span class="stat-label">Regulations</span>
+  </div>
+</div>
 </div>
 
 ## What do you need to do today?
 
 <div class="grid cards job-cards" markdown>
 
--   **Start a governance program**
+-   **New to agent governance?**
 
     ---
 
-    New to agent governance? Follow a phased path — zones, operating model, and a
-    30/60/90-day adoption roadmap — to stand up controls without boiling the ocean.
+    Confirm this framework fits your situation, orient to zones and controls, and
+    take your first concrete action — in about 10 minutes.
 
-    [Begin from zero →](framework/adoption-roadmap.md)
+    [Start here →](start-here.md)
 
 -   **Prepare for an exam or audit**
 
@@ -55,10 +74,11 @@ administrators, governance leads, and compliance teams can actually work from.
 
     ---
 
-    Run the readiness assessment to see where your environment stands against the
-    framework and which controls to prioritize next.
+    Run the readiness assessment to see where your organization stands against all
+    79 controls and identify which to prioritize — runs entirely in your browser,
+    nothing uploaded.
 
-    [Start the assessment →](assessment/index.md)
+    [Start the free assessment →](assessment/index.md)
 
 </div>
 
@@ -79,7 +99,7 @@ AI rollout — and where being able to *show your work* matters as much as doing
 
 ## Explore the framework
 
-<div class="arch-diagram" markdown>
+<div class="arch-diagram" role="img" aria-label="FSI Agent Governance Framework: three governance zones feed into 79 controls across 4 pillars (Security, Management, Reporting, SharePoint), which map to 6 regulatory frameworks (FINRA, SEC, SOX, GLBA, OCC/Fed, CFTC)" markdown>
 <div class="arch-layer">
 <div class="arch-label">Governance Zones</div>
 <div class="arch-row">
@@ -97,7 +117,7 @@ High Risk · Committee Approval
 </div>
 </div>
 </div>
-<div class="arch-arrow">▼</div>
+<div class="arch-arrow" aria-hidden="true">▼</div>
 <div class="arch-layer">
 <div class="arch-label">79 Controls across 4 Pillars</div>
 <div class="arch-row">
@@ -119,7 +139,7 @@ High Risk · Committee Approval
 </div>
 </div>
 </div>
-<div class="arch-arrow">▼</div>
+<div class="arch-arrow" aria-hidden="true">▼</div>
 <div class="arch-layer">
 <div class="arch-label">Regulatory Coverage</div>
 <div class="arch-row">

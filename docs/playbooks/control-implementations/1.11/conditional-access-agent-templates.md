@@ -476,7 +476,7 @@ SigninLogs
 ### CA-WI-002 — Agent identity scoped via `AgentZone` custom security attribute
 
 **Purpose:** Apply Block when an agent service principal is rated `servicePrincipalRiskLevel = high`, scoped to Zone 2/Zone 3 agents via a custom security attribute filter so per-SP enumeration is not required.
-**Control mapping:** Control 1.11 → agent-identity risk response. Helps support Federal Reserve SR 26-2 (formerly SR 11-7) model risk management for agent-as-actor authorization decisions.
+**Control mapping:** Control 1.11 → agent-identity risk response. Reflects model-risk-equivalent principles analogous to Federal Reserve SR 26-2 (formerly SR 11-7) for agent-as-actor authorization decisions; note SR 26-2 / OCC 2026-13 expressly exclude generative and agentic AI from scope, so this is a gap the framework fills, not a direct mandate.
 
 **Prerequisite:** Define a custom security attribute set (e.g., `AgentGov`) with attribute `AgentZone` (string, allowed values `1` / `2` / `3`) and assign it to in-scope agent service principals.
 

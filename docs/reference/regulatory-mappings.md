@@ -3,7 +3,50 @@ description: "Mapping of framework controls to regulatory requirements."
 ---
 # Regulatory Mappings
 
-Mapping of framework controls to regulatory requirements.
+Mapping of framework controls to regulatory requirements. Jump to any regulation using the index below, or use the [Control Coverage Summary](#control-coverage-summary-by-regulation) for an implementation-status overview.
+
+---
+
+## Quick Regulation Index
+
+| Regulation | Scope | Key Controls |
+|-----------|-------|-------------|
+| [**FINRA 4511**](#finra-rule-4511-books-and-records) | Books and Records (broker-dealers) | 1.7, 1.9, 2.12, 3.1, 3.3 |
+| [**FINRA 3110**](#finra-rule-3110-supervision) | Supervision (broker-dealers) | 2.12, 3.3, 1.7, 2.19 |
+| [**FINRA 4530(d)**](#finra-rule-4530d-quarterly-customer-complaint-reporting) | Customer Complaint Reporting | 3.4, 2.12, 1.7 |
+| [**FINRA AI Governance**](#finra-ai-supervision-and-governance) | AI Supervision (Notice 24-09) | 2.12, 2.6, 2.19, 1.7 |
+| [**SEC 17a-3/4**](#sec-rule-17a-34-recordkeeping) | Recordkeeping (broker-dealers/RIAs) | 1.7, 1.9, 3.1, 3.3 |
+| [**SEC 10b-5 / Reg BI**](#sec-rule-10b-5-reg-bi-fair-dealing-and-disclosure) | Fair Dealing and Disclosure | 2.11, 2.19, 2.21 |
+| [**Reg BI**](#sec-regulation-best-interest-reg-bi-broker-dealer-recommendations) | Broker-Dealer Recommendations | 2.11, 2.12, 2.19 |
+| [**SEC Marketing Rule 206(4)-1**](#sec-marketing-rule-2064-1-ai-marketing-claims) | AI Marketing Claims (RIAs) | 2.21, 1.7, 3.3 |
+| [**SOX 302/404**](#sox-section-302404-internal-controls) | Internal Controls (public companies) | 2.8, 1.7, 3.3, 2.3 |
+| [**GLBA 501-505**](#glba-safeguards-rule-501-505) | Data Safeguards (all FSI) | 1.5, 1.7, 2.7, 1.8 |
+| [**Reg S-P**](#sec-regulation-s-p-privacy-of-consumer-financial-information) | Consumer Privacy (BD/RIA) | 1.5, 1.8, 3.4, 2.7 |
+| [**OCC 2026-13 / Fed SR 26-2**](#occ-bulletin-2026-13-fed-sr-26-2-model-risk-management) | Model Risk Management | 2.6, 2.11, 2.5, 3.2 |
+| [**ECOA / Reg B**](#federal-reserve-guidance-fair-lending-ecoa) | Fair Lending | 2.11, 2.12, 2.19 |
+| [**CFTC 1.31**](#cftc-rule-131-recordkeeping-requirements) | Recordkeeping (futures/swaps) | 1.7, 1.9, 3.1 |
+| [**NFA 2-9**](#nfa-compliance-rule-2-9-supervision) | Supervision (FCM/IB/CPO/CTA) | 2.12, 3.3, 1.1, 2.3 |
+| [**CFPB / UDAAP**](#cfpb-guidance-algorithmic-accountability-and-udaap) | Consumer Protection | 2.19, 2.11, 2.21 |
+| [**SEC Reg S-ID**](#sec-regulation-s-id-red-flags-rule) | Red Flags Rule | 1.8, 1.7, 2.9 |
+| [**SEC Reg SCI**](#sec-regulation-sci-systems-compliance-and-integrity) | Systems Compliance & Integrity | 1.7, 2.9, 3.9, 2.3 |
+| [**FDIC**](#fdic-supervised-institutions) | Interagency (state non-member banks) | All pillars |
+| [**NCUA Part 748**](#ncua-supervised-credit-unions) | Credit Union Security Programs | 1.7, 1.8, 2.9 |
+| [**State AI Laws**](#state-level-regulations-for-awareness) | CA SB 1001/243, UT SB 149, CO AI Act | 2.19, 2.23, 2.11 |
+| [**NAIC Model Bulletin**](#insurance-regulators-for-awareness) | Insurance AI Governance (Dec 2023) | 2.6, 2.11, 2.12, 2.19, 2.5 |
+| [**NYDFS Part 500**](#nydfs-23-nycrr-part-500-cybersecurity) | NY Cybersecurity (NYDFS-licensed) | 1.7, 1.8, 1.11, 2.9 |
+| [**FINOS AIGF v2.0**](#finos-ai-governance-framework-aigf-v20) | Open-source agentic AI governance | 1.14, 1.18, 2.17, 1.7 |
+
+> **Note:** "Key Controls" lists 3–5 primary controls only. See each regulation section for the complete Applicable Controls table. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
+
+---
+
+## How to Use This Document
+
+1. **Find your primary regulation** in the Quick Index above
+2. **Review applicable controls** for your regulation
+3. **Check governance zone** alignment (Zone 2 vs Zone 3 requirements)
+4. **Reference individual control files** for detailed implementation
+5. **Document compliance evidence** for audit purposes
 
 ---
 
@@ -629,7 +672,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 ### Required Safeguards Rule Elements (16 CFR 314.4)
 
 | # | Required Element | AI Agent Application | FSI-AgentGov Control |
-|---|-----------------|---------------------|---------------------|
+|-----------|-------|-------------|
 | 1 | **Qualified Individual** to oversee program | AI Governance Lead accountable for agent security | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | 2 | **Risk Assessment** - written, updated | Include AI agents in annual risk assessment | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | 3 | **Safeguards** - implement and test controls | DLP, access controls, encryption for agent data | Pillar 1 controls (1.1-1.24) |
@@ -803,7 +846,9 @@ Framework controls relevant to SEC Regulation S-P are listed in the Applicable C
 
 ---
 
-## OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) - Model Risk Management
+## OCC Bulletin 2026-13 / Fed SR 26-2 - Model Risk Management
+
+*OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7).*
 
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
@@ -1140,10 +1185,10 @@ Framework addresses consumer protection topics through 6 mapped controls. CFPB-s
 ## SEC Regulation S-ID (Red Flags Rule)
 
 ### Overview
-Identity theft prevention programs for covered accounts under 16 CFR Part 314.
+Identity theft prevention programs for covered accounts under 17 CFR Part 248 Subpart C (§§ 248.201–248.202).
 
 ### Framework Coverage
-SEC Regulation S-ID is not directly addressed by this framework. Organizations deploying agents that handle customer identity verification should implement red flags detection procedures per 16 CFR Part 314.
+SEC Regulation S-ID is not directly addressed by this framework. Organizations deploying agents that handle customer identity verification should implement red flags detection procedures per 17 CFR Part 248 Subpart C.
 
 **Related Controls:**
 - [1.8 - Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) - Synthetic identity detection
@@ -1311,14 +1356,11 @@ All current framework controls are applicable to credit unions. Adapt based on a
 
 ---
 
-## State-Level Regulations (For Awareness)
+## NYDFS 23 NYCRR Part 500 — Cybersecurity
+
+**Binding where NYDFS-licensed.** Entities licensed by NYDFS (banks, insurers, money transmitters) with New York operations are subject to 23 NYCRR Part 500 as a binding cybersecurity requirement — not merely for awareness. Consult legal counsel to confirm applicability to your charter type and operations.
 
 ### Overview
-State-level regulations may apply depending on where the institution is chartered, operates, or serves customers. The following are provided for awareness; institutions should consult legal counsel for applicability.
-
-### NYDFS Part 500 (23 NYCRR 500)
-
-**Applicability:** Entities licensed by NYDFS (banks, insurers, money transmitters) with New York operations.
 
 The framework's controls align with NYDFS Part 500 cybersecurity requirements:
 
@@ -1340,11 +1382,24 @@ The framework's controls align with NYDFS Part 500 cybersecurity requirements:
 
 **Note:** NYDFS Part 500 underwent significant amendments effective November 2023. Institutions should verify current requirements with legal counsel.
 
-**2024 Updates:**
+### 2024 Updates
 
 - **Dual-Signature Certification (April 15, 2024):** Annual certification must now be signed by BOTH the highest-ranking executive AND the CISO
 - **AI Cybersecurity Guidance (October 16, 2024):** NYDFS issued an industry letter clarifying that existing Part 500 requirements apply to AI-related cybersecurity risks, including covered entity's use of AI, vendor AI dependencies, and AI-enabled threats (deepfakes, enhanced phishing)
 - **24-Hour Extortion Reporting:** Covered entities must notify NYDFS within 24 hours of making any extortion/ransomware payment (in addition to 72-hour incident reporting)
+
+### Framework Coverage
+
+The framework provides mapped coverage for the NYDFS Part 500 section-level requirements shown above. Implementation and validation are required for compliance. See the [Control Coverage Summary](#control-coverage-summary-by-regulation) for status.
+
+---
+
+## State-Level Regulations (For Awareness)
+
+### Overview
+State-level regulations may apply depending on where the institution is chartered, operates, or serves customers. The following are provided for awareness; institutions should consult legal counsel for applicability.
+
+> **Note:** NYDFS 23 NYCRR Part 500 has been promoted to its own section above as a binding requirement for NYDFS-licensed entities. See [NYDFS 23 NYCRR Part 500 — Cybersecurity](#nydfs-23-nycrr-part-500-cybersecurity).
 
 ### CCPA/CPRA (California)
 
@@ -1534,49 +1589,6 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ---
 
-## Control Coverage Summary by Regulation
-
-!!! warning "Quantitative coverage figures temporarily withdrawn"
-    Numeric per-regulation control counts and coverage percentages previously published in this table reflected a hand-curated mapping against an earlier 72-control catalog. They have **not** been re-validated against the current v1.6.2 78-control catalog and were withdrawn pending Subject Matter Expert review. The detailed Applicable Controls tables in each regulation section above remain current and are the authoritative per-regulation control mapping.
-
-| Regulation | Implementation Status |
-|-----------|----------------------|
-| FINRA 4511 | Full coverage - implementation required |
-| FINRA 3110 | Partial - supervision focus |
-| FINRA 3110/2111 (AI) | Partial - supervision/suitability focus |
-| SEC 17a-3/4 | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | Limited - fairness + disclosure focus |
-| SEC Marketing Rule (206(4)-1) | AI marketing claims - Control 2.21 |
-| SOX 302/404 | Substantial coverage |
-| GLBA 501-505 | Substantial coverage |
-| Reg S-P (2024 amendments) | BD/RIA customer NPI / 30-day notification - Controls 1.5, 1.8, 3.4, 2.7 |
-| OCC Bulletin 2026-13 (formerly OCC 2011-12) | Partial - model risk focus |
-| Fed SR 26-2 (formerly SR 11-7) | Partial - model risk focus |
-| Fed ECOA | Minimal - bias testing only |
-| CFPB / UDAAP | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | Recordkeeping for derivatives/commodities |
-| NFA Compliance Rule 2-9 | FCM/IB/CPO/CTA supervision - Controls 2.12, 3.3, 1.1, 2.3 |
-| FDIC (Interagency) | Full applicability; align to interagency guidance |
-| NCUA Part 748 | Security program alignment |
-| NYDFS Part 500 | Detailed per-section mapping for NYDFS-licensed entities |
-| NAIC Model Law | Insurance awareness |
-| NAIC Model Bulletin on AI (Dec 2023) | Insurance AI governance - Controls 2.6, 2.11, 2.12, 2.19, 2.5 |
-| State AI Laws | Emerging - transparency, bias, human review |
-
-> **Note:** Implementation Status describes the qualitative scope of framework coverage for each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
-
----
-
-## How to Use This Document
-
-1. **Find your primary regulation** in the list above
-2. **Review applicable controls** for your regulation
-3. **Check governance zone** alignment (Zone 2 vs Zone 3 requirements)
-4. **Reference individual control files** for detailed implementation
-5. **Document compliance evidence** for audit purposes
-
----
-
 ## FINOS AI Governance Framework (AIGF v2.0)
 
 ### Overview
@@ -1622,6 +1634,41 @@ FINOS identifies that agentic AI systems may:
 The FSI-AgentGov framework addresses FINOS AIGF v2.0 risks through defense-in-depth controls across all four pillars. The Agent Action Authorization Matrix (AAM) template specifically addresses authorization bypass risks.
 
 **Reference:** [FINOS AI & Readiness Governance Framework v2.0](https://air-governance-framework.finos.org)
+
+---
+---
+
+## Control Coverage Summary by Regulation
+
+!!! warning "Quantitative coverage figures temporarily withdrawn"
+    Numeric per-regulation control counts and coverage percentages previously published in this table reflected a hand-curated mapping against an earlier 72-control catalog. They have **not** been re-validated against the current v1.6.2 79-control catalog and were withdrawn pending Subject Matter Expert review. The detailed Applicable Controls tables in each regulation section above remain current and are the authoritative per-regulation control mapping.
+
+| Regulation | Implementation Status |
+|-----------|----------------------|
+| FINRA 4511 | Full coverage - implementation required |
+| FINRA 3110 | Partial - supervision focus |
+| FINRA 3110/2111 (AI) | Partial - supervision/suitability focus |
+| SEC 17a-3/4 | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | AI marketing claims - Control 2.21 |
+| SOX 302/404 | Substantial coverage |
+| GLBA 501-505 | Substantial coverage |
+| Reg S-P (2024 amendments) | BD/RIA customer NPI / 30-day notification - Controls 1.5, 1.8, 3.4, 2.7 |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) | Partial - model risk focus |
+| Fed SR 26-2 (formerly SR 11-7) | Partial - model risk focus |
+| Fed ECOA | Minimal - bias testing only |
+| CFPB / UDAAP | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | Recordkeeping for derivatives/commodities |
+| NFA Compliance Rule 2-9 | FCM/IB/CPO/CTA supervision - Controls 2.12, 3.3, 1.1, 2.3 |
+| FDIC (Interagency) | Full applicability; align to interagency guidance |
+| NCUA Part 748 | Security program alignment |
+| NYDFS Part 500 | Detailed per-section mapping for NYDFS-licensed entities |
+| NAIC Model Law | Insurance awareness |
+| NAIC Model Bulletin on AI (Dec 2023) | Insurance AI governance - Controls 2.6, 2.11, 2.12, 2.19, 2.5 |
+| State AI Laws | Emerging - transparency, bias, human review |
+| FINOS AIGF v2.0 | Agentic AI defense-in-depth - Controls 1.4, 1.7, 1.8, 1.14, 1.18, 2.12, 2.17, 4.1-4.9 |
+
+> **Note:** Implementation Status describes the qualitative scope of framework coverage for each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
 ---
 

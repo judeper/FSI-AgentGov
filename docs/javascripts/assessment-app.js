@@ -2,7 +2,7 @@
  * FSI-AgentGov Governance Readiness Assessment Tool
  *
  * Client-side SPA that walks users through a scoped assessment of the
- * 78-control governance framework and produces scorecards, gap analysis,
+ * 79-control governance framework and produces scorecards, gap analysis,
  * and remediation roadmaps.
  *
  * @version 1.0.0
@@ -316,6 +316,18 @@
     return s || "assessment";
   }
 
+  // ASSESS-13: canonical export filename builder.
+  // All formats use: fsi-agentgov-{org-slug}-{yyyy-mm-dd}.{ext}
+  // The em-dash separator in assessmentName ("OrgName — 2026-06-27") is cleaned
+  // by _agendaSlug() which already handles Unicode → ASCII slug conversion.
+  function _buildExportFilename(orgName, ext, suffix) {
+    var slug = _agendaSlug(orgName || "assessment");
+    var date = _agendaIsoDate();
+    var base = "fsi-agentgov-" + slug + "-" + date;
+    if (suffix) base = base + "-" + suffix;
+    return _truncateFilename(base) + "." + ext;
+  }
+
   function downloadBlob(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -507,6 +519,9 @@
   };
 
   // Inject @page + print-only CSS once per page (spa-fix-print-hygiene).
+  // Also injects ASSESS-05 amber-color override (--ag-amber shifted from
+  // #bf360c — too close to --ag-red #c62828 — to #b45309, a distinct
+  // caramel-amber that reads clearly as mid-band, not failing).
   AssessmentApp.prototype._injectPrintStyles = function () {
     if (typeof document === "undefined") return;
     if (document.getElementById("ag-print-styles")) return;
@@ -519,9 +534,22 @@
       "  body, .md-main, .md-main__inner, .md-content, .md-content__inner, .ag-content { margin: 0 !important; padding: 0 !important; max-width: none !important; }\n" +
       "  a[href]:after { content: none !important; }\n" +
       "}\n" +
+      ".assessment-container { --ag-amber: #b45309; --ag-amber-bg: #fef3c7; }\n" +
       ".ag-quota-banner { position: sticky; top: 0; background: #fee; color: #800; padding: 8px 12px; z-index: 10000; border-bottom: 2px solid #800; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }\n" +
       ".ag-quota-banner button { background: #800; color: #fff; border: 0; padding: 4px 10px; cursor: pointer; border-radius: 3px; }\n" +
-      ".ag-phase2-rolefilter-banner { background: #fff8e1; color: #6d4c00; padding: 8px 12px; border-left: 4px solid #f59e0b; margin: 0 0 1rem; border-radius: 3px; }\n";
+      ".ag-phase2-rolefilter-banner { background: #fff8e1; color: #6d4c00; padding: 8px 12px; border-left: 4px solid #f59e0b; margin: 0 0 1rem; border-radius: 3px; }\n" +
+      ".ag-inline-error { color: #c62828; font-size: 0.78rem; margin-top: 2px; display: block; }\n" +
+      ".ag-field-error .ag-input, .ag-field-error .ag-select { border-color: #c62828; box-shadow: 0 0 0 2px rgba(198,40,40,0.15); }\n" +
+      ".ag-welcome-hero { background: var(--md-primary-fg-color--transparent, rgba(63,81,181,0.06)); border: 1px solid var(--md-primary-fg-color--transparent, rgba(63,81,181,0.15)); border-radius: 6px; padding: 1.2rem 1.4rem; margin: 0.75rem 0 1.25rem; }\n" +
+      ".ag-welcome-hero ul { margin: 0.4rem 0 0 1.2rem; padding: 0; }\n" +
+      ".ag-welcome-hero li { margin: 0.2rem 0; font-size: 0.9rem; }\n" +
+      ".ag-resume-banner { background: #e8f5e9; border: 1px solid #2e7d32; border-left: 4px solid #2e7d32; border-radius: 4px; padding: 0.8rem 1rem; margin: 0.75rem 0 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }\n" +
+      "[data-md-color-scheme='slate'] .ag-resume-banner { background: rgba(46,125,50,0.15); border-color: #66bb6a; }\n" +
+      ".ag-resume-banner-text { font-size: 0.9rem; }\n" +
+      ".ag-resume-banner-text strong { display: block; }\n" +
+      ".ag-scoring-collapsible summary { cursor: pointer; font-size: 0.82rem; color: var(--md-default-fg-color--light); margin-top: 0.75rem; user-select: none; }\n" +
+      ".ag-scoring-collapsible summary:hover { color: var(--md-default-fg-color); }\n" +
+      ".ag-scoring-collapsible .ag-scoring-summary { margin-top: 0.4rem; }\n";
     if (document.head) document.head.appendChild(style);
     if (typeof window !== "undefined" && window.addEventListener) {
       var self = this;
@@ -701,7 +729,7 @@
       return Promise.all([pManifest, pSolutionsLock, pI18n]).then(function () {
         self.mergeManifestIntoControls();
         // O(1) lookup so getGapControls / applyRoleFilter / drilldown hot paths
-        // don't linear-scan 78 controls per call (spa-fix-perf-loop).
+        // don't linear-scan 79 controls per call (spa-fix-perf-loop).
         if (self.data && Array.isArray(self.data.controls)) {
           self.controlsById = new Map();
           self.data.controls.forEach(function (c) {
@@ -1814,23 +1842,42 @@
 
   /**
    * Derive the assessmentStatus enum from current state. Snapshot at export time.
-   * Returns one of: "draft", "in-progress", "final".
-   *  - "final"        if completedSteps includes the explicit "full"/"complete"
-   *                   sentinel (set by Step 6 export confirmation in a future patch)
-   *  - "in-progress"  if any control has a response
-   *  - "draft"        otherwise
+   * Returns one of: "draft", "in-progress", "complete".
+   *
+   * Completion criteria: every applicable control (not zone-excluded by
+   * isControlExcluded()) has been answered (yes / partial / no / na).
+   * Zone-excluded controls that applyZoneExclusions() auto-set to N/A also
+   * count as answered — they have resp.answer = "na". N/A self-selections by
+   * the user also count. See completionCriteria in the export _metadata block.
+   *
+   *  - "complete"    all applicable controls have an answer
+   *  - "in-progress" at least one control answered but not all
+   *  - "draft"       no control answered yet
    */
   AssessmentApp.prototype.deriveAssessmentStatus = function () {
     if (!this.state) return "draft";
-    var steps = this.state.completedSteps || [];
-    if (steps.indexOf("full") >= 0 || steps.indexOf("complete") >= 0) return "final";
     var responses = this.state.responses || {};
+    var controls = (this.data && Array.isArray(this.data.controls)) ? this.data.controls : [];
+    var anyResponse = false;
     for (var k in responses) {
       if (Object.prototype.hasOwnProperty.call(responses, k) && responses[k] && responses[k].answer) {
-        return "in-progress";
+        anyResponse = true;
+        break;
       }
     }
-    return "draft";
+    if (!anyResponse) return "draft";
+    // Check whether all applicable controls are answered.
+    if (controls.length > 0) {
+      var self = this;
+      var allAnswered = controls.every(function (c) {
+        // Zone-excluded controls count as done (they are auto-set to N/A).
+        if (self.isControlExcluded(c)) return true;
+        var resp = responses[c.id];
+        return resp && resp.answer;
+      });
+      if (allAnswered) return "complete";
+    }
+    return "in-progress";
   };
 
   /**
@@ -1868,18 +1915,58 @@
       frameworkVersion: FRAMEWORK_VERSION,
       manifestSchemaVersion: (this.solutionsLock && this.solutionsLock.schemaVersion) || null,
       exportedAt: new Date().toISOString(),
-      exportedBy: (this.state && this.state.scoping && this.state.scoping.assessorName) || ""
+      exportedBy: (this.state && this.state.scoping && this.state.scoping.assessorName) || "",
+      completionCriteria: "assessmentStatus is 'complete' when all applicable controls " +
+        "(excluding zone-excluded controls) have been answered (yes/partial/no/na); " +
+        "'in-progress' when at least one control is answered; 'draft' when none answered"
     };
   };
 
   /* ================================================================
      RENDERING — MAIN ROUTER
      ================================================================ */
+  // ASSESS-14: infer which steps are "completed" from the current wizard
+  // position so the step indicator marks prior steps with ✓ without
+  // requiring the user to click through each step's explicit "Next" button.
+  // markStep() is still called on explicit navigation (it's idempotent),
+  // but tab-hopping (e.g. direct tab click to Results) left prior steps unmarked.
+  AssessmentApp.prototype._syncCompletedSteps = function () {
+    if (!this.state) return;
+    if (!this.state.completedSteps) this.state.completedSteps = [];
+    var cs = this.state.completedSteps;
+    var mark = function (id) {
+      if (cs.indexOf(id) < 0) cs.push(id);
+    };
+    var stepOrder = ["welcome", "scoping", "phase1", "phase2", "results", "export"];
+    var idx = stepOrder.indexOf(this.step);
+    // Mark every step before the current one as completed.
+    // Skip "welcome" — it's the starting point and typically not shown as
+    // a "completed" step in the indicator (its indicator slot shows the
+    // step number, not a checkmark, so we leave it out).
+    for (var i = 1; i < idx; i++) {
+      mark(stepOrder[i]);
+    }
+  };
+
   AssessmentApp.prototype.render = function () {
     this._resetRenderState(); // Per-render: charts/observers/search-guard only
+    // ASSESS-14: infer step completion from current wizard position so the
+    // step indicator marks prior steps as complete when navigating via tabs.
+    this._syncCompletedSteps();
     this.el.innerHTML = "";
     if (this._quotaError) this.el.appendChild(this._renderQuotaBanner());
     this.el.appendChild(this.renderSteps());
+    // A11Y-04: visually-hidden aria-live region so screen readers hear step
+    // transitions. goToStep() / _setStepFromHistory() both call render() and
+    // then call _announceStep() which sets this region's textContent.
+    var liveRegion = h("div", {
+      id: "ag-step-status",
+      role: "status",
+      "aria-live": "polite",
+      "aria-atomic": "true",
+      className: "ag-sr-only",
+    });
+    this.el.appendChild(liveRegion);
     var content = h("div", { className: "ag-content" });
     switch (this.step) {
       case "welcome": this.renderWelcome(content); break;
@@ -1890,6 +1977,23 @@
       case "export":  this.renderExport(content); break;
     }
     this.el.appendChild(content);
+  };
+
+  /** A11Y-04: Announce the current step to screen readers via the aria-live
+   *  region injected by render(). Called AFTER render() so the region exists.
+   *  Uses a 100ms delay to give AT time to register the newly-created region. */
+  AssessmentApp.prototype._announceStep = function () {
+    var self = this;
+    var stepData = null;
+    for (var i = 0; i < STEPS.length; i++) {
+      if (STEPS[i].id === this.step) { stepData = STEPS[i]; break; }
+    }
+    if (!stepData) return;
+    var msg = "Step " + stepData.num + ": " + stepData.label;
+    setTimeout(function () {
+      var lr = document.getElementById("ag-step-status");
+      if (lr) lr.textContent = msg;
+    }, 100);
   };
 
   AssessmentApp.prototype._renderQuotaBanner = function () {
@@ -1951,6 +2055,7 @@
       }
     }
     this.render();
+    this._announceStep(); // A11Y-04: announce new step to screen readers
     this.el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -1968,6 +2073,7 @@
       try { this.saveToStorage(); } catch (_) { /* */ }
     }
     this.render();
+    this._announceStep(); // A11Y-04: announce new step to screen readers
     if (this.el && this.el.scrollIntoView) {
       try { this.el.scrollIntoView({ behavior: "instant", block: "start" }); }
       catch (_) {
@@ -2071,7 +2177,7 @@
     content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Zone-Specific Scoring"));
     content.appendChild(h("p", null,
       "Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A. " +
-      "Approximately 10 controls are excluded from Zone 1 scoring, while all 78 apply to Zone 3."));
+      "Approximately 10 controls are excluded from Zone 1 scoring, while all 79 controls apply to Zone 3."));
 
     this.showModal("How Scoring Works", content);
   };
@@ -2085,38 +2191,57 @@
 
     wrap.appendChild(h("h2", null, "Governance Readiness Assessment"));
     wrap.appendChild(h("p", null,
-      "Assess your organization's readiness across the 78-control FSI Agent Governance Framework. " +
-      "This tool helps identify gaps and generates a personalized remediation roadmap."
+      "Evaluate your organization\u2019s readiness across the FSI Agent Governance Framework " +
+      "and generate a personalized scorecard, regulatory exposure view, prioritized roadmap, " +
+      "and Excel/JSON/PDF exports."
     ));
 
-    // Disclaimer
+    // ASSESS-01(a): Expectation block — time, steps, deliverables, privacy
+    var hero = h("div", { className: "ag-welcome-hero" });
+    hero.appendChild(h("strong", null, "What to expect"));
+    var heroList = h("ul");
+    [
+      "\u23F1 ~10 min with the 5-control starter set \u00B7 ~45\u201390 min for the full 79-control review",
+      "\uD83D\uDCCB 6 steps: Scoping \u2192 Phase\u00A01 rating \u2192 Phase\u00A02 drill-down \u2192 Results \u2192 Export",
+      "\uD83D\uDCCA You\u2019ll get: executive scorecard, regulatory exposure by framework, prioritized roadmap",
+      "\uD83D\uDD12 Runs entirely in your browser \u2014 nothing is uploaded or transmitted",
+    ].forEach(function (text) { heroList.appendChild(h("li", null, text)); });
+    hero.appendChild(heroList);
+    wrap.appendChild(hero);
+
+    // Compliance disclaimer
     wrap.appendChild(h("div", { className: "ag-disclaimer" },
-      "This assessment helps support governance readiness. It does not constitute legal advice " +
-      "and does not guarantee compliance with any regulation."
+      "Scores reflect self-reported implementation status and do not constitute a compliance " +
+      "certification. This tool helps support governance readiness assessment and is not a " +
+      "substitute for professional compliance guidance."
     ));
 
-    // Scoring summary
-    var scoringSummary = h("div", { className: "ag-scoring-summary" });
-    var scoringDl = document.createElement("dl");
-    scoringDl.style.margin = "0";
-    [["Yes", "1.0"], ["Partial", "0.5"], ["No", "0.0"], ["N/A", "excluded"]].forEach(function (pair) {
-      scoringDl.appendChild(h("dt", null, pair[0] + " ="));
-      scoringDl.appendChild(h("dd", null, pair[1]));
-    });
-    scoringSummary.appendChild(scoringDl);
-    var ragLine = h("div", { style: "margin-top:0.5rem" });
-    ragLine.appendChild(h("span", { style: "font-weight:600" }, "RAG: "));
-    ragLine.appendChild(h("span", { style: "color:var(--ag-green);font-weight:600" }, "Green 80%+ "));
-    ragLine.appendChild(h("span", { style: "color:var(--ag-amber);font-weight:600" }, "Amber 50\u201379% "));
-    ragLine.appendChild(h("span", { style: "color:var(--ag-red);font-weight:600" }, "Red <50%"));
-    scoringSummary.appendChild(ragLine);
-    var privacyNote = h("div", { className: "ag-privacy-note" },
-      "Data Privacy: All assessment data stays in your browser. No data is sent to any server. " +
-      "Use Save to File (JSON export) to share or archive results.");
-    scoringSummary.appendChild(privacyNote);
-    wrap.appendChild(scoringSummary);
+    // ASSESS-08/16: Resume banner — show prominently when saved work exists
+    var saved = this.getSavedList();
+    saved.sort(function (a, b) { return new Date(b.updatedAt) - new Date(a.updatedAt); });
+    if (saved.length > 0) {
+      var mostRecent = saved[0];
+      var resumeBanner = h("div", { className: "ag-resume-banner" });
+      var resumeText = h("div", { className: "ag-resume-banner-text" });
+      resumeText.appendChild(h("strong", null, "\u21AA Resume: " + (mostRecent.name || "Untitled")));
+      resumeText.appendChild(document.createTextNode(
+        " \u2014 last edited " + fmtDate(mostRecent.updatedAt) +
+        " \u00B7 " + (mostRecent.progress || 0) + "% complete"));
+      resumeBanner.appendChild(resumeText);
+      resumeBanner.appendChild(h("button", {
+        className: "ag-btn ag-btn-primary",
+        "aria-label": "Resume " + (mostRecent.name || "Untitled"),
+        onClick: function () {
+          if (self.loadFromStorage(mostRecent.id)) {
+            self.goToStep(self.step || "phase1");
+          }
+        }
+      }, "Resume"));
+      wrap.appendChild(resumeBanner);
+    }
 
-    var btns = h("div", { className: "ag-btn-group", style: "justify-content: center" });
+    // Primary CTA buttons
+    var btns = h("div", { className: "ag-btn-group", style: "justify-content: center; margin-top: 1rem;" });
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-primary",
       onClick: function () {
@@ -2125,30 +2250,64 @@
       }
     }, "Start New Assessment"));
 
-    // File import
+    // File import — secondary action. Keep the canonical accessible name
+    // ("Resume or Import Saved Assessment") that the e2e import specs target;
+    // the localStorage resume banner + saved list above are the ASSESS-08/16
+    // additions (not a rename of this import-from-file affordance).
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-secondary",
       onClick: function () { self.triggerImport(); }
     }, "Resume or Import Saved Assessment"));
     wrap.appendChild(btns);
 
-    // Import helper text
-    wrap.appendChild(h("p", { style: "font-size:0.78rem;color:var(--md-default-fg-color--light);max-width:600px;margin:0.5rem auto" },
-      "Import a previously exported JSON file to resume an assessment or review completed results. " +
-      "You can also import role-specific sections completed by other team members."));
+    wrap.appendChild(h("p", { style: "font-size:0.78rem;color:var(--md-default-fg-color--light);max-width:600px;margin:0.25rem auto" },
+      "Import a previously exported JSON to resume or review results. " +
+      "You can also import role-specific sections from team members."));
 
-    // Saved assessments from localStorage
-    var saved = this.getSavedList();
+    // ASSESS-01(c): Scoring methodology in a collapsible — demote from landing
+    var scoringDetails = document.createElement("details");
+    scoringDetails.className = "ag-scoring-collapsible";
+    var scoringSummaryEl = document.createElement("summary");
+    scoringSummaryEl.textContent = "\u2139\uFE0F How scoring works / For developers";
+    scoringDetails.appendChild(scoringSummaryEl);
+    var scoringSummary = h("div", { className: "ag-scoring-summary" });
+    var scoringDl = document.createElement("dl");
+    scoringDl.style.margin = "0";
+    [["Yes", "1.0 \u2014 fully implemented"],
+     ["Partial", "0.5 \u2014 refined by Phase 2 drill-down"],
+     ["No", "0.0 \u2014 not implemented"],
+     ["N/A", "excluded from scoring"]].forEach(function (pair) {
+      scoringDl.appendChild(h("dt", null, pair[0] + " ="));
+      scoringDl.appendChild(h("dd", null, pair[1]));
+    });
+    scoringSummary.appendChild(scoringDl);
+    var ragLine = h("div", { style: "margin-top:0.5rem" });
+    ragLine.appendChild(h("span", { style: "font-weight:600" }, "RAG bands: "));
+    ragLine.appendChild(h("span", { style: "color:var(--ag-green);font-weight:600" }, "\u2713 Green 80%+ "));
+    ragLine.appendChild(h("span", { style: "color:var(--ag-amber);font-weight:600" }, "\u26A0 Amber 50\u201379% "));
+    ragLine.appendChild(h("span", { style: "color:var(--ag-red);font-weight:600" }, "\u2716 Red <50%"));
+    scoringSummary.appendChild(ragLine);
+    scoringSummary.appendChild(h("p", { style: "font-size:0.8rem;margin:0.5rem 0 0" },
+      "JSON exports include a _metadata + _computedScores envelope (schema version, framework version, " +
+      "pre-computed pillar/overall scores, assessmentStatus) for downstream tools that consume scores " +
+      "without recomputing. The manifest pass_condition values drive the Python assessment engine; " +
+      "this SPA scores Yes/Partial/No self-assessments against the same 79 controls."
+    ));
+    scoringDetails.appendChild(scoringSummary);
+    wrap.appendChild(scoringDetails);
+
+    // Previous Assessments list (all saved, for full manage/delete access)
     if (saved.length > 0) {
-      wrap.appendChild(h("h3", { style: "margin-top:2rem;font-size:1rem" }, "Previous Assessments"));
+      var allSavedSection = h("div", { style: "margin-top:1.5rem" });
+      allSavedSection.appendChild(h("h3", { style: "font-size:0.95rem;margin-bottom:0.5rem" },
+        saved.length > 1 ? "All saved assessments" : "Saved assessment"));
       var list = h("ul", { className: "ag-saved-list" });
-      saved.sort(function (a, b) { return new Date(b.updatedAt) - new Date(a.updatedAt); });
       saved.forEach(function (s) {
         var item = h("li", { className: "ag-saved-item" });
         var info = h("div");
         info.appendChild(h("strong", null, s.name || "Untitled"));
         info.appendChild(h("div", { className: "ag-saved-meta" },
-          fmtDate(s.updatedAt) + " — " + (s.progress || 0) + "% complete"
+          fmtDate(s.updatedAt) + " \u2014 " + (s.progress || 0) + "% complete"
         ));
         item.appendChild(info);
         var actions = h("div", { className: "ag-btn-group", style: "margin:0" });
@@ -2159,9 +2318,6 @@
           onClick: function (e) {
             e.stopPropagation();
             if (self.loadFromStorage(s.id)) {
-              // spa-fix-resume-step: respect the saved step (welcome →
-              // scoping → phase1 → phase2 → results → export) instead of
-              // forcing every Resume back to phase1.
               self.goToStep(self.step || "phase1");
             }
           }
@@ -2180,21 +2336,24 @@
         item.appendChild(actions);
         list.appendChild(item);
       });
-      wrap.appendChild(list);
+      allSavedSection.appendChild(list);
+      wrap.appendChild(allSavedSection);
     }
 
-    // spa-fix-clear-data-button: privacy notice + Clear all data action.
+    // Footer: privacy note + Clear (demoted, not a primary CTA — ASSESS-08)
     var footer = h("div", { className: "ag-welcome-footer ag-no-print",
       style: "margin-top:2rem;padding-top:1rem;border-top:1px solid var(--md-default-fg-color--lightest);font-size:0.78rem;color:var(--md-default-fg-color--light);text-align:center" });
     footer.appendChild(h("p", { style: "margin:0 0 0.5rem" },
-      "This assessment is stored only in your browser localStorage. We do not transmit your responses."
+      "Assessment data is stored only in your browser (localStorage). Nothing is transmitted."
     ));
     var clearBtn = h("button", {
       type: "button",
       className: "ag-btn ag-btn-sm ag-btn-danger",
+      style: "opacity:0.7",
       onClick: function () {
         if (typeof confirm === "function" &&
-            !confirm("Clear all FSI Agent Governance assessment data from this browser? This cannot be undone — export any assessments you want to keep first.")) return;
+            !confirm("Clear all FSI Agent Governance assessment data from this browser? " +
+              "This cannot be undone \u2014 export any assessments you want to keep first.")) return;
         try {
           var prefix = STORAGE_KEY;
           var toRemove = [];
@@ -2243,7 +2402,7 @@
     wrap.appendChild(h("h2", { style: "font-size:1.3rem;margin-bottom:0.3rem" }, "Assessment Scoping"));
     wrap.appendChild(h("p", { className: "ag-card-subtitle" },
       "Configure the assessment scope for your organization. " +
-      "All 78 controls will be included but prioritized based on your profile."
+      "All 79 controls will be included but prioritized based on your profile."
     ));
 
     var form = h("div", { className: "ag-card" });
@@ -2256,7 +2415,10 @@
     form.appendChild(this.field("Assessor Role", "text", sc.assessorRole, function (v) { sc.assessorRole = v; },
       "e.g., AI Governance Lead, Compliance Officer"));
 
-    // Institution type
+    // Institution Type — ASSESS-03: keep the canonical "Institution Type"
+    // accessible label and disambiguate the sector-calibration selector below
+    // by its own name + hint instead. (Renaming this label broke the select's
+    // accessible-name contract — axe a11y and the e2e getByLabel both rely on it.)
     var instOptions = [
       { value: "", label: "Select institution type..." },
       { value: "broker-dealer", label: "Broker-Dealer (FINRA/SEC)" },
@@ -2265,12 +2427,33 @@
       { value: "dual-registered", label: "Dual-Registered (FINRA + SEC)" },
       { value: "insurance", label: "Insurance Company" },
     ];
-    form.appendChild(this.selectField("Institution Type", instOptions, sc.institutionType, function (v) {
-      sc.institutionType = v;
-      // Auto-populate regulations
-      var inst = self.data.institutionTypes[v];
+    // label htmlFor MUST equal the select id so the select has an accessible name.
+    var instSelectId = "ag-select-institution-type";
+    var instWrap = h("div", { className: "ag-field" });
+    instWrap.appendChild(h("label", { className: "ag-label", htmlFor: instSelectId },
+      "Institution Type"));
+    instWrap.appendChild(h("span", { className: "ag-hint", id: instSelectId + "-hint" },
+      "Drives regulatory mapping — determines which regulations (FINRA, SEC, OCC, GLBA\u2026) are prioritized in your assessment results."));
+    var instSel = h("select", {
+      className: "ag-select",
+      id: instSelectId,
+      name: "ag-select-institution-type-" + Math.random().toString(36).slice(2, 8),
+      autocomplete: "off",
+      "aria-describedby": instSelectId + "-hint",
+    });
+    instOptions.forEach(function (o) {
+      var opt = h("option", { value: o.value }, o.label);
+      if (o.value === sc.institutionType) opt.selected = true;
+      instSel.appendChild(opt);
+    });
+    instSel.value = sc.institutionType || "";
+    instSel.addEventListener("change", function () {
+      sc.institutionType = instSel.value;
+      var inst = self.data.institutionTypes[instSel.value];
       if (inst) sc.regulations = inst.regulations.slice();
-    }));
+    });
+    instWrap.appendChild(instSel);
+    form.appendChild(instWrap);
 
     // Zones
     var zoneHint = h("div", { className: "ag-check-hint" });
@@ -2316,14 +2499,15 @@
       style: "margin-bottom:0.75rem",
     }, t("privacy.banner", "All data stays in your browser — nothing is uploaded.")));
 
-    // E5 — Sector select
+    // E5 — Sector select (ASSESS-03: renamed to distinguish from institution type above)
     var sectorWrap = h("div", { className: "ag-field ag-sector-select" });
     var sectorId = "ag-sector-select";
     sectorWrap.appendChild(h("label", { className: "ag-label", htmlFor: sectorId },
-      t("scoping.sector.label", "Institution type (sector calibration)")));
+      t("scoping.sector.label", "Sector calibration (optional)")));
     sectorWrap.appendChild(h("span", { className: "ag-hint", id: sectorId + "-hint" },
       t("scoping.sector.hint",
-        "Used to surface sector-specific pass criteria in each control's verification drawer.")));
+        "Fine-tunes pass criteria in the Phase\u00A01 verification drawer for your specific sector. " +
+        "Different from the \u201CInstitution Type\u201D above, which drives regulatory mapping.")));
     var sectorSel = h("select", {
       className: "ag-select",
       id: sectorId,
@@ -2356,7 +2540,7 @@
     [
       { value: "starter", label: t("priorityRadio.starter",
           "Start with 5 Priority Foundation Controls (2.1, 1.4, 1.5, 1.7, 1.11)") },
-      { value: "full", label: t("priorityRadio.full", "Full 78-control Phase 1") },
+      { value: "full", label: t("priorityRadio.full", "Full 79-control Phase 1") },
     ].forEach(function (opt) {
       var lbl = h("label", null);
       var radio = h("input", { type: "radio", name: "ag-priority-mode", value: opt.value });
@@ -2396,9 +2580,57 @@
           var inst = self.data.institutionTypes[instSel.value];
           if (inst) sc.regulations = inst.regulations.slice();
         }
-        if (!sc.organizationName) { alert("Please enter an organization name."); return; }
-        if (!sc.institutionType) { alert("Please select an institution type."); return; }
-        if (sc.zones.length === 0) { alert("Please select at least one zone."); return; }
+        // ASMT-07: defensive sync for sector calibration select — same
+        // guard as instSel above so a missed change event doesn't export "".
+        var sectorSelDOM = document.getElementById("ag-sector-select");
+        if (sectorSelDOM && sectorSelDOM.value !== (self.state.selectedSector || "")) {
+          self.state.selectedSector = sectorSelDOM.value;
+          try {
+            var sectorAid = (self.state && self.state.assessmentId) || "unscoped";
+            localStorage.setItem(SECTOR_KEY + "-" + sectorAid, sectorSelDOM.value);
+          } catch (_sErr) { /* storage best-effort */ }
+        }
+        // ASSESS-07: inline field-level validation (no blocking alert()).
+        var errors = [];
+        var orgField = document.getElementById("ag-field-organization-name");
+        var orgWrap = orgField && orgField.closest(".ag-field");
+        var instWrap2 = instSel && instSel.closest(".ag-field");
+        var clearErr = function (el) {
+          if (!el) return;
+          el.classList.remove("ag-field-error");
+          var prev = el.querySelector(".ag-inline-error");
+          if (prev) prev.parentNode.removeChild(prev);
+        };
+        var showErr = function (wrapEl, inputEl, msg) {
+          if (!wrapEl) return;
+          clearErr(wrapEl);
+          wrapEl.classList.add("ag-field-error");
+          var errSpan = h("span", { className: "ag-inline-error", role: "alert" }, msg);
+          wrapEl.appendChild(errSpan);
+          errors.push(inputEl || wrapEl);
+        };
+        clearErr(orgWrap);
+        clearErr(instWrap2);
+        if (!sc.organizationName) {
+          showErr(orgWrap, orgField, "Organization name is required.");
+        }
+        if (!sc.institutionType) {
+          showErr(instWrap2, instSel, "Please select an institution type.");
+        }
+        if (sc.zones.length === 0) {
+          var zoneFieldset = wrap.querySelector(".ag-fieldset");
+          if (zoneFieldset) {
+            var prevZoneErr = zoneFieldset.querySelector(".ag-inline-error");
+            if (prevZoneErr) prevZoneErr.parentNode.removeChild(prevZoneErr);
+            var zoneErrEl = h("span", { className: "ag-inline-error", role: "alert" }, "Select at least one governance zone.");
+            zoneFieldset.appendChild(zoneErrEl);
+            errors.push(zoneFieldset);
+          }
+        }
+        if (errors.length > 0) {
+          try { errors[0].focus(); } catch (_) { /* focus may fail on non-focusable containers */ }
+          return;
+        }
         if (!self.state.assessmentName) {
           self.state.assessmentName = sc.organizationName + " — " + new Date().toISOString().slice(0, 10);
         }
@@ -2732,7 +2964,8 @@
       });
     }
 
-    // Navigation
+    // Navigation — ASSESS-02: when gap/partial controls exist, Phase 2 is the primary CTA
+    // and "View Results" is the secondary action. "Back to Scoping" is always present.
     var btns = h("div", { className: "ag-btn-group" });
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-secondary",
@@ -2740,7 +2973,14 @@
     }, "Back to Scoping"));
 
     var gaps = this.getGapControls();
-    if (gaps.length > 0) {
+    var partialCount = 0;
+    this.data.controls.forEach(function (c) {
+      var r = self.state.responses[c.id];
+      if (r && (r.answer === "partial" || r.answer === "no")) partialCount++;
+    });
+
+    if (partialCount > 0) {
+      // Primary: continue to Phase 2
       btns.appendChild(h("button", {
         className: "ag-btn ag-btn-primary",
         onClick: function () {
@@ -2748,24 +2988,41 @@
           self.saveToStorage();
           self.goToStep("phase2");
         }
-      }, "Phase 2: Drill-Down (" + gaps.length + " gaps)"));
-    }
-
-    btns.appendChild(h("button", {
-      className: "ag-btn ag-btn-primary",
-      onClick: function () {
-        self.markStep("phase1");
-        self.saveToStorage();
-        if (!self._savePrompted) {
-          self._savePrompted = true;
-          if (confirm("Would you like to save your assessment to a file before viewing results? " +
-            "You can also export later from the Export page.")) {
-            self.exportJSON();
+      }, "Continue to Phase 2 \u2014 refine " + partialCount + " partial/gap control" + (partialCount > 1 ? "s" : "")));
+      // Secondary: skip straight to results
+      btns.appendChild(h("button", {
+        className: "ag-btn ag-btn-secondary",
+        onClick: function () {
+          self.markStep("phase1");
+          self.saveToStorage();
+          if (!self._savePrompted) {
+            self._savePrompted = true;
+            if (confirm("Would you like to save your assessment to a file before viewing results? " +
+              "You can also export later from the Export page.")) {
+              self.exportJSON();
+            }
           }
+          self.goToStep("results");
         }
-        self.goToStep("results");
-      }
-    }, "View Results"));
+      }, "View Results"));
+    } else {
+      // No gaps: go straight to results
+      btns.appendChild(h("button", {
+        className: "ag-btn ag-btn-primary",
+        onClick: function () {
+          self.markStep("phase1");
+          self.saveToStorage();
+          if (!self._savePrompted) {
+            self._savePrompted = true;
+            if (confirm("Would you like to save your assessment to a file before viewing results? " +
+              "You can also export later from the Export page.")) {
+              self.exportJSON();
+            }
+          }
+          self.goToStep("results");
+        }
+      }, "View Results"));
+    }
     wrap.appendChild(btns);
 
     parent.appendChild(wrap);
@@ -2777,7 +3034,7 @@
   /**
    * Hide/show control cards based on the current role filter and refresh
    * the count badge. Cards are not removed — purely a CSS display toggle so
-   * the user can flip filters without re-rendering 78 rows.
+   * the user can flip filters without re-rendering 79 rows.
    */
   AssessmentApp.prototype.applyRoleFilter = function () {
     if (!this.el) return;
@@ -2801,8 +3058,15 @@
     });
     var badge = this.el.querySelector("#ag-role-filter-count");
     if (badge) {
-      badge.textContent = tFmt("filter.role.count", "Showing {n} of {total}",
-        { n: visible, total: total });
+      if (!roleFilter) {
+        // ASSESS-15: hide stray pill when "All roles" is selected
+        badge.textContent = "";
+        badge.style.display = "none";
+      } else {
+        badge.style.display = "";
+        badge.textContent = tFmt("filter.role.count", "Showing {n} of {total}",
+          { n: visible, total: total });
+      }
     }
   };
 
@@ -2950,6 +3214,8 @@
       if (isPressed) bcls += " " + a.cls;
       var btnAttrs = {
         className: bcls,
+        // A11Y-01: include control ID + title so each button has a unique accessible name
+        "aria-label": "Rate control " + ctrl.id + " " + ctrl.title + " \u2014 " + a.label,
         "aria-pressed": isPressed ? "true" : "false",
         type: "button",
       };
@@ -3258,8 +3524,16 @@
 
     questions.forEach(function (q, idx) {
       var qId = "q" + idx;
-      var row = h("div", { className: "ag-drilldown-q" });
-      row.appendChild(h("span", { style: "flex:1;margin-right:0.5rem" }, q));
+      // ASSESS-06: wrap each question in role="group" with aria-label to associate
+      // the Yes/No buttons with their sub-question (matches Phase 1's pattern).
+      var qGroupId = "ag-drilldown-q-" + ctrl.id.replace(/\./g, "-") + "-" + idx;
+      var row = h("div", {
+        className: "ag-drilldown-q",
+        role: "group",
+        "aria-labelledby": qGroupId,
+      });
+      var qLabel = h("span", { id: qGroupId, style: "flex:1;margin-right:0.5rem" }, q);
+      row.appendChild(qLabel);
       var btns = h("div", { className: "ag-drilldown-btns" });
 
       ["yes", "no"].forEach(function (val) {
@@ -3269,6 +3543,8 @@
         var btn = h("button", {
           className: bcls,
           "aria-pressed": isPressed ? "true" : "false",
+          // ASSESS-06: aria-label ties each button to the question text
+          "aria-label": (val === "yes" ? "Yes" : "No") + " \u2014 " + q,
           onClick: function () {
             dd[qId] = val;
             self.saveToStorage();
@@ -3337,15 +3613,29 @@
 
     wrap.appendChild(h("h2", { style: "font-size:1.3rem;margin-bottom:0.3rem" }, "Results Dashboard"));
 
-    // Disclaimer
+    // ASSESS-11: Lead with the compliance disclaimer; RTL/PDF note moved to Export step.
+    // Show the banner once here, not per tab.
     wrap.appendChild(h("div", { className: "ag-disclaimer" },
-      "This assessment helps support governance readiness. Scores reflect self-reported implementation " +
-      "status and do not constitute a compliance certification. " +
-      "Note: when printed to PDF via browser, Arabic and other right-to-left scripts " +
-      "may be saved as visual presentation-form glyphs rather than logical Unicode, " +
-      "which breaks text search and screen-reader access in archived PDFs. For RTL " +
-      "compliance archives, use the JSON or Markdown export and convert to PDF using " +
-      "a tool with proper complex-script support (e.g., LibreOffice, Pandoc with XeLaTeX)."
+      "Scores reflect self-reported implementation status and do not constitute a compliance " +
+      "certification. Results help support governance readiness review but are not a substitute " +
+      "for professional compliance guidance."
+    ));
+
+    // ASSESS-03: Coverage disclosure — mirrors the agenda export's "Score basis" line so the
+    // reader sees it before any score rather than only in the downloaded export.
+    var _answered = Object.keys(this.state.responses).length;
+    var _total = this.data.controls.length;
+    wrap.appendChild(h("div", {
+      className: "ag-coverage-notice",
+      style: "font-size:0.82rem;padding:0.4rem 0.75rem;margin-bottom:0.75rem;" +
+             "background:var(--md-code-bg-color,#f5f5f5);" +
+             "border-left:3px solid var(--md-primary-fg-color,#3f51b5);" +
+             "border-radius:2px;color:var(--md-default-fg-color,#333)",
+      role: "note",
+      "aria-label": "Assessment coverage notice"
+    },
+      "\u2139\uFE0F Based on " + _answered + " of " + _total + " controls assessed \u2014 " +
+      "self-reported; not comparable to the telemetry engine\u2019s maturity score."
     ));
 
     // Tabs
@@ -3517,20 +3807,51 @@
     barSection.appendChild(h("div", { className: "ag-card-title" }, "Score by Pillar"));
     [1, 2, 3, 4].forEach(function (p) {
       var score = self.getPillarScore(p);
-      var pct = score !== null ? score : 0;
+      // ASSESS-02: pass null directly; renderRagBar renders "Not assessed" in neutral grey
+      // when no controls in this pillar were evaluated — do NOT substitute 0 for null.
       barSection.appendChild(self.renderRagBar(
-        "Pillar " + p + " — " + self.data.pillars[String(p)].name, pct
+        "Pillar " + p + " — " + self.data.pillars[String(p)].name, score
       ));
     });
     panel.appendChild(barSection);
 
-    // Radar chart
+    // Radar chart — A11Y-01: canvas needs role="img" + aria-label so screen
+    // readers don't encounter an unlabelled interactive region.  A visually-
+    // hidden sibling <table> provides the equivalent data for AT users.
     var chartCard = h("div", { className: "ag-card", style: "margin-top:1rem" });
     chartCard.appendChild(h("div", { className: "ag-card-title" }, "Pillar Radar"));
-    var chartWrap = h("div", { className: "ag-chart-container" });
-    var canvas = h("canvas");
+    var chartWrap = h("div", { className: "ag-chart-container", tabindex: "0", role: "group", "aria-label": "Pillar radar chart" });
+    var radarTableId = "ag-radar-data-table";
+    var canvas = h("canvas", {
+      role: "img",
+      "aria-label": "Radar chart showing pillar readiness scores",
+      "aria-describedby": radarTableId,
+    });
     chartWrap.appendChild(canvas);
     chartCard.appendChild(chartWrap);
+
+    // Hidden data table — same data the radar renders visually.
+    var radarSrDiv = h("div", { className: "ag-sr-only", tabindex: "0" });
+    var radarTable = h("table", { id: radarTableId });
+    var radarThead = h("thead");
+    var radarHrow = h("tr");
+    radarHrow.appendChild(h("th", { scope: "col" }, "Pillar"));
+    radarHrow.appendChild(h("th", { scope: "col" }, "Score"));
+    radarThead.appendChild(radarHrow);
+    radarTable.appendChild(radarThead);
+    var radarTbody = h("tbody");
+    var self3 = this;
+    [1, 2, 3, 4].forEach(function (p) {
+      var radarRow = h("tr");
+      radarRow.appendChild(h("td", null, "Pillar " + p + " \u2014 " + self3.data.pillars[String(p)].name));
+      var ps = self3.getPillarScore(p);
+      radarRow.appendChild(h("td", null, ps !== null ? ps + "%" : "Not assessed"));
+      radarTbody.appendChild(radarRow);
+    });
+    radarTable.appendChild(radarTbody);
+    radarSrDiv.appendChild(radarTable);
+    chartCard.appendChild(radarSrDiv);
+
     panel.appendChild(chartCard);
 
     // Render chart after DOM append
@@ -3542,14 +3863,74 @@
     var bar = h("div", { className: "ag-rag-bar" });
     bar.appendChild(h("span", { className: "ag-rag-label" }, label));
     var track = h("div", { className: "ag-rag-track" });
-    track.appendChild(h("div", {
-      className: "ag-rag-fill " + ragClass(pct),
-      style: "width:" + clamp(pct, 0, 100) + "%"
-    }));
+    // ASSESS-02: only render a coloured fill when pct is a real score (not null).
+    // null means the pillar/control was never assessed — show an empty grey track.
+    if (pct !== null) {
+      track.appendChild(h("div", {
+        className: "ag-rag-fill " + ragClass(pct),
+        style: "width:" + clamp(pct, 0, 100) + "%"
+      }));
+    }
     bar.appendChild(track);
-    bar.appendChild(h("span", { className: "ag-rag-value" },
-      (pct !== null ? pct + "%" : "—")));
+    bar.appendChild(h("span", {
+      className: "ag-rag-value",
+      style: pct === null ? "color:var(--md-default-fg-color--light,#757575);font-weight:400" : ""
+    }, pct !== null ? pct + "%" : "Not assessed"));
     return bar;
+  };
+
+  /**
+   * ASSESS-01: Regulation-aware bar that shows assessed/total coverage and suppresses
+   * the percentage when coverage is below the 50% threshold — preventing authoritative-
+   * looking 100%/0% scores off a single answered control.
+   *
+   * @param {string}  label        Bar label (reg name + "(N controls)")
+   * @param {number|null} score    Aggregate score for the assessed subset (null = none assessed)
+   * @param {number}  assessedCount Controls in this regulation that were answered
+   * @param {number}  totalCount   Total controls mapped to this regulation
+   * @returns {HTMLElement}        Wrapper div: bar row + coverage sub-line
+   */
+  AssessmentApp.prototype.renderRegulationBar = function (label, score, assessedCount, totalCount) {
+    var wrapper = h("div");
+    var bar = h("div", { className: "ag-rag-bar" });
+    bar.appendChild(h("span", { className: "ag-rag-label" }, label));
+
+    var noData = assessedCount === 0;
+    var lowCoverage = !noData && totalCount > 0 && (assessedCount / totalCount) < 0.5;
+    var showScore = !noData && !lowCoverage;
+
+    var track = h("div", { className: "ag-rag-track" });
+    if (showScore && score !== null) {
+      track.appendChild(h("div", {
+        className: "ag-rag-fill " + ragClass(score),
+        style: "width:" + clamp(score, 0, 100) + "%"
+      }));
+    }
+    bar.appendChild(track);
+
+    var valueText, valueStyle;
+    if (noData) {
+      valueText = "Not assessed";
+      valueStyle = "color:var(--md-default-fg-color--light,#757575);font-weight:400";
+    } else if (lowCoverage) {
+      valueText = "\u2014";  // em dash — score withheld
+      valueStyle = "color:var(--md-default-fg-color--light,#757575);font-weight:400";
+    } else {
+      valueText = score !== null ? score + "%" : "\u2014";
+      valueStyle = "";
+    }
+    bar.appendChild(h("span", { className: "ag-rag-value", style: valueStyle }, valueText));
+    wrapper.appendChild(bar);
+
+    // Coverage sub-line aligned with the bar content (label min-width 120px + 0.5rem gap ≈ 130px)
+    var coverageText = assessedCount + " of " + totalCount + " mapped controls assessed";
+    if (lowCoverage) coverageText += " \u2014 insufficient coverage for a reliable score";
+    wrapper.appendChild(h("div", {
+      style: "font-size:0.72rem;color:var(--md-default-fg-color--light,#888);" +
+             "margin:-0.25rem 0 0.4rem 130px"
+    }, coverageText));
+
+    return wrapper;
   };
 
   AssessmentApp.prototype.renderRadarChart = function (canvas) {
@@ -3601,16 +3982,31 @@
   /* ---- Regulatory tab ---- */
   var REGULATION_NOTES = {
     "FINRA AI Supervision and Governance":
-      "Note: FINRA RN 25-07 addresses workplace modernization. " +
-      "Its AI governance scope is limited to recordkeeping for AI-generated communications.",
+      "Note: FINRA RN 25-07 (April 2025) is a Request for Comment on workplace modernization \u2014 " +
+      "it has NOT been adopted as binding rulemaking as of mid-2026. " +
+      "Its AI governance discussion is limited to recordkeeping for AI-generated communications. " +
+      "Firms should comply with existing FINRA supervision and recordkeeping rules, " +
+      "not RN 25-07 requirements, until a final rule is issued.",
+    "OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)":
+      "Note: OCC Bulletin 2026-13 / Fed SR 26-2 (April 2026) revised interagency model risk management guidance " +
+      "(superseding SR 11-7 / OCC 2011-12) but explicitly excluded generative and agentic AI from its scope " +
+      "pending dedicated AI guidance. These controls are mapped to MRM principles that remain best-practice " +
+      "expectations under pre-existing standards; they are not mapped as direct requirements under the new bulletin. " +
+      "Consult your regulatory counsel for current applicability.",
+    "Fed SR 26-2 (formerly Fed SR 11-7)":
+      "Note: Fed SR 26-2 (April 2026) explicitly excluded generative and agentic AI from its scope pending " +
+      "dedicated AI guidance. These controls reflect model-risk-equivalent best practices; they are not mapped " +
+      "as direct requirements under SR 26-2 for agentic AI. Consult your regulatory counsel for current applicability.",
   };
 
   AssessmentApp.prototype.renderRegulatory = function (panel) {
     var self = this;
     var card = h("div", { className: "ag-card" });
     card.appendChild(h("div", { className: "ag-card-title" }, "Compliance Score by Regulation"));
+    // ASSESS-01: updated subtitle — clarifies that % reflects only assessed mapped controls.
     card.appendChild(h("p", { className: "ag-card-subtitle" },
-      "Scores based on controls mapped to each regulation."
+      "Scores based on assessed controls mapped to each regulation. " +
+      "Percentages are withheld when fewer than half of a regulation\u2019s mapped controls have been answered."
     ));
 
     // Show regulations relevant to selected institution type first
@@ -3627,11 +4023,17 @@
     });
 
     sorted.forEach(function (regKey) {
-      var score = self.getRegulationScore(regKey);
-      if (score === null) score = 0;
       var mapping = self.data.regulatoryMappings[regKey];
-      card.appendChild(self.renderRagBar(
-        regKey + " (" + mapping.controls.length + " controls)", score
+      var totalCount = mapping.controls.length;
+      // ASSESS-01: count only controls that were actually answered (non-null score).
+      var assessedCount = mapping.controls.filter(function (cid) {
+        return self.getControlScore(cid) !== null;
+      }).length;
+      // getRegulationScore already excludes unanswered controls from the average;
+      // we surface the coverage here so users see the denominator mismatch.
+      var score = assessedCount > 0 ? self.getRegulationScore(regKey) : null;
+      card.appendChild(self.renderRegulationBar(
+        regKey + " (" + totalCount + " controls)", score, assessedCount, totalCount
       ));
       // Show contextual note if applicable
       if (REGULATION_NOTES[regKey]) {
@@ -3657,11 +4059,43 @@
     });
     panel.appendChild(card);
 
-    // Zone chart
+    // Zone chart — A11Y-01: canvas needs role="img" + aria-label so screen
+    // readers don't encounter an unlabelled interactive region.  A visually-
+    // hidden sibling <table> provides the equivalent data for AT users.
     var chartCard = h("div", { className: "ag-card", style: "margin-top:1rem" });
     chartCard.appendChild(h("div", { className: "ag-card-title" }, "Zone Comparison"));
-    var canvas = h("canvas", { style: "max-height:300px" });
+    var zoneTableId = "ag-zone-data-table";
+    var canvas = h("canvas", {
+      style: "max-height:300px",
+      role: "img",
+      "aria-label": "Bar chart comparing governance zone readiness scores",
+      "aria-describedby": zoneTableId,
+    });
     chartCard.appendChild(canvas);
+
+    // Hidden data table for AT users.
+    var zoneSrDiv = h("div", { className: "ag-sr-only", tabindex: "0" });
+    var zoneTable = h("table", { id: zoneTableId });
+    var zoneThead = h("thead");
+    var zoneHrow = h("tr");
+    zoneHrow.appendChild(h("th", { scope: "col" }, "Zone"));
+    zoneHrow.appendChild(h("th", { scope: "col" }, "Score"));
+    zoneThead.appendChild(zoneHrow);
+    zoneTable.appendChild(zoneThead);
+    var zoneTbody = h("tbody");
+    var zoneLabels2 = { 1: "Zone 1 \u2014 Personal Productivity", 2: "Zone 2 \u2014 Team Collaboration", 3: "Zone 3 \u2014 Enterprise Managed" };
+    var self3 = this;
+    [1, 2, 3].forEach(function (z) {
+      var zRow = h("tr");
+      zRow.appendChild(h("td", null, zoneLabels2[z]));
+      var zs = self3.getZoneScore(z);
+      zRow.appendChild(h("td", null, zs !== null ? zs + "%" : "Not assessed"));
+      zoneTbody.appendChild(zRow);
+    });
+    zoneTable.appendChild(zoneTbody);
+    zoneSrDiv.appendChild(zoneTable);
+    chartCard.appendChild(zoneSrDiv);
+
     panel.appendChild(chartCard);
 
     var self2 = this;
@@ -3961,6 +4395,13 @@
     wrap.appendChild(h("p", { className: "ag-card-subtitle" },
       "Download your assessment results in various formats."
     ));
+    // ASSESS-11: RTL/PDF note lives here (moved from Results disclaimer).
+    wrap.appendChild(h("div", { className: "ag-disclaimer", style: "font-size:0.82rem" },
+      "Print-to-PDF note: when using browser print-to-PDF, Arabic and other right-to-left scripts " +
+      "may render as presentation-form glyphs, breaking text search and screen-reader access in archived PDFs. " +
+      "For RTL compliance archives, use the JSON or Markdown export and convert with a tool that supports " +
+      "complex scripts (e.g., LibreOffice, Pandoc with XeLaTeX)."
+    ));
 
     var grid = h("div", { className: "ag-export-grid" });
 
@@ -4044,7 +4485,7 @@
    *   _metadata          { exportSchemaVersion, schemaType:"full", frameworkVersion,
    *                        manifestSchemaVersion, exportedAt, exportedBy }
    *   _computedScores    { overall, perPillar:{1..4}, perControl:{id:0..1|null} }
-   *   assessmentStatus   "draft" | "in-progress" | "final"  (snapshot at export)
+   *   assessmentStatus   "draft" | "in-progress" | "complete"  (snapshot at export)
    *   ...this.state      (responses, scoping, drilldown, overrides, completedSteps, etc.)
    *
    * NOTE: _metadata, _computedScores, and assessmentStatus are snapshot-only.
@@ -4064,8 +4505,7 @@
       }
     }
     var blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-    var name = _truncateFilename(_sanitizeFilenameStem(this.state.assessmentName));
-    downloadBlob(blob, name + ".json");
+    downloadBlob(blob, _buildExportFilename(this.state.scoping && this.state.scoping.organizationName, "json"));
   };
 
   /* ---- CSV export ---- */
@@ -4102,8 +4542,7 @@
     //   - Trailing CRLF: RFC 4180-compliant; harmless for Excel + SheetJS readers.
     var csv = rows.map(function (r) { return r.join(","); }).join("\r\n") + "\r\n";
     var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    var name = _truncateFilename(_sanitizeFilenameStem(this.state.assessmentName));
-    downloadBlob(blob, name + "-gaps.csv");
+    downloadBlob(blob, _buildExportFilename(this.state.scoping && this.state.scoping.organizationName, "csv", "gaps"));
   };
 
   /* ---- Excel export ---- */
@@ -4219,8 +4658,7 @@
       // Generate and download
       var buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       var blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      var name = _truncateFilename(_sanitizeFilenameStem(self.state.assessmentName));
-      downloadBlob(blob, name + ".xlsx");
+      downloadBlob(blob, _buildExportFilename(self.state.scoping && self.state.scoping.organizationName, "xlsx"));
     };
 
     if (typeof XLSX !== "undefined") {
@@ -4368,8 +4806,11 @@
       else if (ans === "partial") partialBucket.push(c);
     });
     var sortFn = function (a, b) {
-      var pa = _agendaPriorityWeight(a.priority);
-      var pb = _agendaPriorityWeight(b.priority);
+      // ASSESS-12: manifestPriority is set by mergeManifestIntoControls();
+      // c.priority alone is undefined. Check both so pre-merge and post-merge
+      // controls sort correctly.
+      var pa = _agendaPriorityWeight(a.manifestPriority || a.priority);
+      var pb = _agendaPriorityWeight(b.manifestPriority || b.priority);
       if (pa !== pb) return pa - pb;
       return _cmpAgendaControlId(a, b);
     };
@@ -4388,13 +4829,23 @@
     // HTML tags, and table-pipe injection so user-supplied control titles can
     // never break out of a table cell or render styled / linked content in
     // the generated agenda.
-    return String(v)
-      .replace(/\r?\n/g, " ")
-      .replace(/\\/g, "\\\\")
-      .replace(/\|/g, "\\|")
-      .replace(/[*_`~#>]/g, function (ch) { return "\\" + ch; })
-      .replace(/[\[\]\(\)\{\}<>!]/g, function (ch) { return "\\" + ch; })
-      .trim();
+      // ASSESS-12: removed blanket () {} escaping — it produced ugly
+      // "\(Exchange Online\)" in control titles. Instead, a second targeted
+      // pass escapes () only when they form the Markdown link-destination
+      // pattern \](url) → \]\(url\), which is the only context where
+      // parentheses are semantically meaningful in a table cell.
+      var s = String(v)
+        .replace(/\r?\n/g, " ")
+        .replace(/\\/g, "\\\\")
+        .replace(/\|/g, "\\|")
+        .replace(/[*_`~#>]/g, function (ch) { return "\\" + ch; })
+        .replace(/[\[\]<>!]/g, function (ch) { return "\\" + ch; })
+        .trim();
+      // After the [] pass, "[text](url)" becomes "\[text\](url)".
+      // Escape the () in "\](...)" to neutralize link syntax while
+      // leaving standalone "(Exchange Online)" untouched.
+      s = s.replace(/\\\]\(([^)]*)\)/g, "\\]\\($1\\)");
+      return s;
   }
 
   function _agendaSlug(s) {
@@ -4492,7 +4943,7 @@
           " | " + _agendaMdCell(c.title) +
           " | " + _agendaMdCell(c.pillarName || ("Pillar " + c.pillar)) +
           " | " + _agendaMdCell(resp.answer || "") +
-          " | " + _agendaMdCell(c.priority || "\u2014") +
+          " | " + _agendaMdCell(c.manifestPriority || c.priority || "\u2014") +
           " | " + _agendaMdCell(roles.join("; ")) +
           " |");
       });
@@ -4669,9 +5120,8 @@
       return;
     }
     var scoping = (this.state && this.state.scoping) || {};
-    var prefix = t("export_agenda_filename_prefix", "fsi-agentgov-agenda");
-    var slug = _agendaSlug(scoping.organizationName) || _agendaIsoDate();
-    var filename = prefix + "-" + slug + "-" + _agendaIsoDate() + ".md";
+    // ASSESS-13: align agenda filename with other exports: fsi-agentgov-{org-slug}-{date}.md
+    var filename = _buildExportFilename(scoping.organizationName, "md", "agenda");
     var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
     downloadBlob(blob, filename);
     var toastMsg = tFmt("export_agenda_toast",

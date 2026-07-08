@@ -3,6 +3,8 @@ description: "Microsoft's agent governance architecture represents a fundamental
 ---
 # Unified Agent Governance: Agent 365, Entra Agent ID, and Admin Center Settings
 
+> **Framework layer — Advanced & Scaling track.** Unified control plane architecture covering Entra Agent ID, Microsoft Agent 365, and Admin Center settings; addresses the identity and observability layer required for Zone 2–3 governance.
+
 **Last Updated:** June 2026
 
 !!! info "Generally Available — May 2026"
@@ -786,31 +788,26 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 
 ---
 
-### Phase 3: Adoption (Post-GA - Production)
+### Phase 3: Adoption (Production — GA as of May 2026)
 
 **Objective:** Migrate production agent governance to Agent 365 as unified control plane
 
 **Prerequisites:**
 
-- Agent 365 general availability announcement (expected Q1-Q2 2026)
+- Agent 365 reached general availability on **May 1, 2026** — no waiting required
 - Phase 2 evaluation complete with documented readiness
 - Executive approval for production governance migration
 - Compliance team sign-off on audit trail completeness
 
 **Key Actions:**
 
-1. **Wait for Agent 365 general availability** announcement
-   - Monitor Microsoft Learn documentation for GA announcement
-   - Review GA feature set and licensing model
-   - Confirm support commitments and SLAs
-
-2. **Validate GA feature set** against Phase 2 gap analysis
+1. **Validate GA feature set** against Phase 2 gap analysis
    - Confirm all identified gaps addressed or acceptable workarounds exist
    - Verify licensing model and cost implications (per-agent fees, capacity requirements)
    - Review Microsoft support commitments for GA features
    - Assess impact on existing FSI-AgentGov-Solutions deployments
 
-3. **Pilot production migration** with limited scope
+2. **Pilot production migration** with limited scope
    - Select low-risk agent population (Zone 1 personal agents recommended)
    - Migrate selected agents to Agent 365 unified governance
    - Run parallel governance (Agent 365 + per-platform) for 30 days
@@ -841,13 +838,13 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 - Incident response time improved through unified security view (measure before/after)
 - Regulatory examinations streamlined with single evidence source (examination response time reduced by 50%+)
 
-**Timeline:** 12-16 weeks post-GA
+**Timeline:** 12-16 weeks (Agent 365 is GA as of May 2026)
 
 ---
 
 ### Migration Readiness Checklist
 
-#### Pre-GA Actions (Available Now)
+#### Foundation Actions (Complete these before piloting production migration)
 
 - [ ] **Identity Audit:** Inventory all existing agents across platforms (PPAC, M365 Admin Center, Azure Portal, SharePoint Admin Center)
 - [ ] **Enable Entra Agent ID** in your tenant (Entra admin center > Identity Governance > Agent ID)
@@ -868,9 +865,9 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
   - [ ] Set allowed agent types by governance zone
   - [ ] Configure sharing controls (recommend "Specific Groups Only" or "None" for Zone 2/3)
   - [ ] Create custom templates for Zone 3 agents
-- [ ] **Provision Microsoft Agent 365 or Microsoft 365 E7 licensing** for users who will operate the unified governance plane (required for full Agent 365 capabilities post-GA)
+- [ ] **Provision Microsoft Agent 365 or Microsoft 365 E7 licensing** for users who will operate the unified governance plane (required for full Agent 365 capabilities)
 
-#### Post-GA Actions (After Agent 365 GA Announcement)
+#### Production Migration Actions (Agent 365 is GA — start now)
 
 - [ ] **Validate GA feature set** against Phase 2 gap analysis
   - [ ] Confirm identified gaps addressed or workarounds acceptable
@@ -898,7 +895,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 |-------|----------|-------------|---------------|
 | **Phase 1: Foundation** | Now (4-6 weeks) | Enable Entra Agent ID; assign sponsors; configure lifecycle workflows; implement Conditional Access; configure M365 Admin Center Agent Settings | M365 E5, Power Platform Premium |
 | **Phase 2: Evaluation** | GA — Pilot (6-8 weeks) | Register pilot agents in Agent 365; compare governance approaches; identify gaps; validate GA features in pilot environment | Phase 1 complete; Agent 365 or M365 E7 licensing provisioned; pilot environments available |
-| **Phase 3: Adoption** | Post-GA (12-16 weeks) | Validate GA features; pilot production migration; phased rollout by zone (Zone 1 → Zone 2 → Zone 3); sunset per-platform processes | Agent 365 GA; Phase 2 evaluation complete; compliance approval |
+| **Phase 3: Adoption** | Now (12-16 weeks; Agent 365 GA May 2026) | Validate GA features; pilot production migration; phased rollout by zone (Zone 1 → Zone 2 → Zone 3); sunset per-platform processes | Phase 2 evaluation complete; compliance approval |
 
 ---
 
@@ -1092,6 +1089,13 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 - New Capabilities for AI Admins from Ignite 2025 <!-- URL returned HTTP 400 as of March 2026; original link removed: https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-agent-and-ai-management-capabilities-from-ignite-2025/4314229 -->
 - [Four Priorities for AI-Powered Identity and Network Access Security in 2026](https://www.microsoft.com/en-us/security/blog/2026/01/20/four-priorities-for-ai-powered-identity-and-network-access-security-in-2026/)
 - [New Era of Agents, New Era of Posture](https://www.microsoft.com/en-us/security/blog/2026/01/21/new-era-of-agents-new-era-of-posture/)
+
+---
+
+!!! info "Key controls implementing unified agent governance"
+    [1.2 — Agent Registry](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) · [2.25 — Agent 365 Admin Center Governance](../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) · [2.26 — Entra Agent ID Identity Governance](../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [3.13 — Agent 365 Analytics](../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md)
+
+**Next →** [Solutions Integration](solutions-integration.md) — Companion automation that operationalizes the identity and observability controls described here.
 
 ---
 

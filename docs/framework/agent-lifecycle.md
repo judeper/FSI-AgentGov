@@ -3,6 +3,8 @@ description: "Complete guide to agent lifecycle governance from creation through
 ---
 # Agent Lifecycle
 
+> **Framework layer — Core track.** Governance requirements at each stage of the seven-stage CAPE lifecycle (Intake → Retire), with FSI regulatory hooks for examiner workpapers.
+
 Complete guide to agent lifecycle governance from creation through decommissioning.
 
 ---
@@ -508,6 +510,8 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 - [Control 2.15: Environment Routing](../controls/pillar-2-management/2.15-environment-routing.md)
 - [Control 3.1: Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
 - [Control 3.6: Orphaned Agent Detection](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
+
+**Next →** [Governance Cadence](governance-cadence.md) — The recurring review schedule that keeps lifecycle governance current and examination-ready.
 
 ---
 

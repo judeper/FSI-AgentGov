@@ -1,4 +1,4 @@
-# Playbook 3.13-C: Verification Testing — Confirming Analytics Visibility and Export Integrity
+# Control 3.13 — Verification & Testing: Agent 365 Admin Center Analytics and Reporting
 
 **Playbook ID:** 3.13-C
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting

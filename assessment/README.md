@@ -3,7 +3,7 @@
 Automated governance assessment for Microsoft 365 Copilot Studio deployments in
 Financial Services. Two complementary assessments share the same orchestrator:
 
-- **Controls assessment** — Collects tenant configuration via APIs, scores 78
+- **Controls assessment** — Collects tenant configuration via APIs, scores 79
   controls against zone-specific thresholds, and generates a pre-filled
   assessment with a focused manual questionnaire. Audience: M365
   administrators, compliance officers preparing for audit.
@@ -48,11 +48,11 @@ run-assessment.ps1                           ← Orchestrator (PowerShell, -Asse
 │   ├── Collect-Sentinel.ps1                 ← Controls assessment
 │   └── Collect-Frontier.ps1                 ← Frontier Readiness assessment
 ├── engine/
-│   ├── score.py                             ← 78-control scoring (0–4 maturity)
+│   ├── score.py                             ← 79-control scoring (0–4 maturity)
 │   ├── score_frontier.py                    ← 5-driver scoring (100–500)
 │   └── report.py                            ← --type controls | frontier | both
 ├── manifest/
-│   ├── controls.json                        ← authoritative source 78-control manifest
+│   ├── controls.json                        ← authoritative source 79-control manifest
 │   └── frontier-readiness.json             ← 25-question Frontier manifest
 ├── tests/
 │   ├── fixtures/

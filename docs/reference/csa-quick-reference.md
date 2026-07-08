@@ -49,7 +49,7 @@ One row per CAPE pattern. Pull canonical numbering and the autonomy guardrail fr
 !!! warning "Pattern 6 D3 guardrail (verbatim from `transformation-patterns.md`)"
     Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval.
 
-> **Note on critical controls.** The "Critical controls" column lists only controls flagged `pattern_critical` in [`assessment/manifest/controls.json`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/manifest/controls.json) — the source of truth for which controls are mission-critical per pattern. Each pattern carries a much wider mandatory-control set in its [crosswalk deep-dive](microsoft-cape-crosswalk.md#4-pattern-deep-dives); cite the deep-dive when the customer asks for the full Zone 3 baseline. The full 78×6 mapping is in the generated [Pattern Coverage matrix](pattern-coverage.md).
+> **Note on critical controls.** The "Critical controls" column lists only controls flagged `pattern_critical` in [`assessment/manifest/controls.json`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/manifest/controls.json) — the source of truth for which controls are mission-critical per pattern. Each pattern carries a much wider mandatory-control set in its [crosswalk deep-dive](microsoft-cape-crosswalk.md#4-pattern-deep-dives); cite the deep-dive when the customer asks for the full Zone 3 baseline. The full 79×6 mapping is in the generated [Pattern Coverage matrix](pattern-coverage.md).
 
 ---
 
@@ -75,7 +75,7 @@ Customers will push back: "We already have a framework — NIST AI RMF, internal
 
 1. **"It is the FSI translation layer for what Microsoft already gave you."** CAPE is industry-agnostic by design — it has to work for a manufacturer, a retailer, and a bank. FSI-AgentGov takes the same patterns Microsoft is already teaching you and adds the FINRA, SEC, OCC, Federal Reserve, and CFPB overlays you need to defend the deployment to your examiner. It is not a replacement for CAPE; it is the FSI extension that the M365 admin, the CCO, and the model risk function can all read in their own dialect.
 
-2. **"You don't pick one. Frontier (capability) and Controls (compliance) answer different questions."** The CAPE *Frontier Readiness* diagnostic and the FSI-AgentGov *78-control assessment* answer different questions. Frontier asks *"is your organization ready to scale?"* — it identifies the capability scale-breaker. Controls asks *"do your tenant configurations satisfy zone thresholds?"* — it identifies the technical compliance gaps. The two are complementary, not redundant. See [the assessment decision tree](#7-which-assessment-do-i-run-with-this-customer) and [`assessment/README.md`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/README.md).
+2. **"You don't pick one. Frontier (capability) and Controls (compliance) answer different questions."** The CAPE *Frontier Readiness* diagnostic and the FSI-AgentGov *79-control assessment* answer different questions. Frontier asks *"is your organization ready to scale?"* — it identifies the capability scale-breaker. Controls asks *"do your tenant configurations satisfy zone thresholds?"* — it identifies the technical compliance gaps. The two are complementary, not redundant. See [the assessment decision tree](#7-which-assessment-do-i-run-with-this-customer) and [`assessment/README.md`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/README.md).
 
 3. **"It runs on the materials your account team is already showing you."** The framework deliberately re-uses CAPE's six patterns, five drivers, and four CoE functions as its strategic vocabulary — see the [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) for the line-by-line alignment. Adopting FSI-AgentGov does not require your team to learn a new model; it requires them to *translate* CAPE statements into FSI Zones and into specific controls.
 
@@ -113,11 +113,11 @@ Mirror the language in [`assessment/README.md`](https://github.com/judeper/FSI-A
 |---|---|---|
 | You are an M365 admin conducting a technical compliance baseline. | You are a CIO / CDAO / AI Program Sponsor evaluating agent program maturity. | You want a comprehensive program assessment with both strategic (Frontier) and tactical (Controls) outputs. |
 | Preparing for an audit or examiner readiness review. | Deciding which Frontier Transformation Pattern to prioritize next. | Onboarding a customer at the start of a transformation engagement. |
-| You need a 78-control gap report with maturity scores and remediation backlog. | You need to identify the scale-breaker driver before investing in any pattern. | The customer wants the [`capability-driver-rollup.json`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/README.md#output-files) artifact that cross-references control maturity by driver tag — useful for board-level briefings. |
+| You need a 79-control gap report with maturity scores and remediation backlog. | You need to identify the scale-breaker driver before investing in any pattern. | The customer wants the [`capability-driver-rollup.json`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/README.md#output-files) artifact that cross-references control maturity by driver tag — useful for board-level briefings. |
 
 **Recommended sequencing.** Run **Frontier Readiness first** (25 questions, 15–30 minutes facilitator-led) to identify the scale-breaker. Then run **Controls** (2–4 hour collector run plus manual questionnaire) to remediate the specific control gaps that move the scale-breaker driver forward. Re-run Controls after remediation to confirm uplift.
 
-> **Honesty note for the customer.** The Frontier Readiness assessment is *facilitator-answered* (no auto-evaluators in v1) — it is a structured self-assessment, not auditor-grade evidence. The honest coverage report is at [`docs/reference/frontier-assessment-coverage.md`](frontier-assessment-coverage.md). The 78-control assessment carries the [`docs/reference/assessment-coverage.md`](assessment-coverage.md) honest report — every check is tagged `auto_evaluable`, `manual_only`, or `unimplemented_evaluator`. Lead with these reports — customers respect that we name the gaps.
+> **Honesty note for the customer.** The Frontier Readiness assessment is *facilitator-answered* (no auto-evaluators in v1) — it is a structured self-assessment, not auditor-grade evidence. The honest coverage report is at [`docs/reference/frontier-assessment-coverage.md`](frontier-assessment-coverage.md). The 79-control assessment carries the [`docs/reference/assessment-coverage.md`](assessment-coverage.md) honest report — every check is tagged `auto_evaluable`, `manual_only`, or `unimplemented_evaluator`. Lead with these reports — customers respect that we name the gaps.
 
 ---
 
@@ -127,7 +127,7 @@ Three openers, one per persona. Each gives the canonical opening sentence and th
 
 ### Opening with a CIO
 
-**Opener.** *"Most of your AI agent risk lives in the platform configuration — environments, DLP, identity isolation, audit logging, and the agent inventory. Microsoft CAPE gives you the strategic vocabulary to choose which patterns to invest in; FSI-AgentGov gives you the 78-control technical baseline that supports compliance with FINRA, SEC, OCC, and Federal Reserve obligations on the platform side. We can run a 78-control assessment against your tenant in 2–4 hours and hand you a maturity scorecard and remediation backlog that the M365 admin team can act on Monday morning."*
+**Opener.** *"Most of your AI agent risk lives in the platform configuration — environments, DLP, identity isolation, audit logging, and the agent inventory. Microsoft CAPE gives you the strategic vocabulary to choose which patterns to invest in; FSI-AgentGov gives you the 79-control technical baseline that supports compliance with FINRA, SEC, OCC, and Federal Reserve obligations on the platform side. We can run a 79-control assessment against your tenant in 2–4 hours and hand you a maturity scorecard and remediation backlog that the M365 admin team can act on Monday morning."*
 
 **If they redirect to "we're already a Microsoft shop, why do we need this":** "Exactly the point. The 79 controls are configurations of the M365, Power Platform, Purview, and Sentinel surfaces you already own. The framework tells you which configurations matter for which regulator and which zone. There is nothing here to buy."
 
@@ -191,7 +191,7 @@ Three short decision trees rendered as bullets — read them out loud in the mee
 - [Operating Model](../framework/operating-model.md) — RACI, governance committee, and canonical role assignments.
 - [Role Catalog](role-catalog.md) — canonical short role names (e.g., Entra Global Admin, AI Administrator, Power Platform Admin).
 - [Frontier Readiness Coverage](frontier-assessment-coverage.md) — honest 0% auto coverage report for the Frontier diagnostic.
-- [CAPE Pattern Coverage matrix](pattern-coverage.md) — generated 78×6 control-to-pattern matrix.
+- [CAPE Pattern Coverage matrix](pattern-coverage.md) — generated 79×6 control-to-pattern matrix.
 - [Assessment README](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/README.md) — when to run Controls vs Frontier vs Both.
 - [NIST AI RMF Crosswalk](nist-ai-rmf-crosswalk.md) — complementary GOVERN / MAP / MEASURE / MANAGE alignment.
 
