@@ -114,7 +114,7 @@ jobs:
         # The monitor step uses continue-on-error, so a fail-closed exit (2) leaves
         # the job green; alert on that explicitly, plus any real downstream failure.
         if: (failure() || steps.monitor.outputs.exit_code == '2') && github.event_name != 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = 'Change Radar monitor failed';
