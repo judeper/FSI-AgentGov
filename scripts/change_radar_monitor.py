@@ -341,7 +341,9 @@ def main(argv: list[str] | None = None) -> int:
     }
     ms.set_source_state(state, SOURCE_KEY, source_state)
     ms.save_state_atomic(state, state_path)
-    return 0
+    # Signal "changes staged" so the workflow opens/updates the gate PR (mirrors
+    # regulatory_monitor.py). 0 = baseline/no-change, 1 = changes, 2 = fail-closed.
+    return 1
 
 
 if __name__ == "__main__":
