@@ -107,7 +107,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Safe Sharing / Credential Oversharing [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enforce-safe-sharing-detecting-credential-oversharing | Mar 2026 |
 | Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/manage-copilot-security-enhanced-admin-controls | Mar 2026 |
 | Agentic Center of Enablement [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/automate-governance-agentic-center-enablement | Mar 2026 |
-| Agent Suggestions from M365 Copilot [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/get-365-copilot-agent-suggestions-based-work-copilot-studio | Mar 2026 |
+| Agent Suggestions from M365 Copilot [Preview] | https://www.microsoft.com/en-us/microsoft-365/roadmap?msockid=3e2528ce9674620625c73e4c970263de&filters=%5B%22Microsoft+Copilot+Studio%22%5D#Roadmap | Mar 2026 |
 | Copilot Studio Kit — Compliance Hub | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Mar 2026 |
 
 ---
