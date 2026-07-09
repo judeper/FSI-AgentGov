@@ -101,8 +101,8 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | What's New | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Jan 2026 |
 | Governance Guidance | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/sec-gov-intro | Mar 2026 |
 | Architecting Agent Solutions | https://learn.microsoft.com/en-us/agents/architecture/ | Mar 2026 |
-| Planned Features (2026 Wave 1) [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Mar 2026 |
-| Copilot Studio Planned Features (2026 Wave 1) | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Apr 2026 |
+| Planned Features (2026 Wave 1) [Preview] | https://www.microsoft.com/en-us/microsoft-365/roadmap?msockid=3e2528ce9674620625c73e4c970263de&filters=%5B%22Microsoft+Copilot+Studio%22%5D#Roadmap | Mar 2026 |
+| Copilot Studio Planned Features (2026 Wave 1) | https://www.microsoft.com/en-us/microsoft-365/roadmap?msockid=3e2528ce9674620625c73e4c970263de&filters=%5B%22Microsoft+Copilot+Studio%22%5D#Roadmap | Apr 2026 |
 | Create Custom MCP Server | https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server | Mar 2026 |
 | Safe Sharing / Credential Oversharing [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enforce-safe-sharing-detecting-credential-oversharing | Mar 2026 |
 | Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/manage-copilot-security-enhanced-admin-controls | Mar 2026 |
