@@ -14,10 +14,8 @@ Rationale (June 2026 autodoc council review, "who verifies the verifier"):
 unattended verification loops drift toward rubber-stamping. The pipeline must
 intermittently inject a blatant violation; if the gate ever *passes* a poison
 sample, autonomy must halt and a human must be paged. This module is that guard
-for the deterministic layer. When the independent cross-model review (a different
-GitHub Copilot model family, run by the local runner) lands, extend ``run_canary``
-to also run each poison sample through that reviewer and require a FAIL there too
-(see ``_LLM_VERIFIER_HOOK``).
+for the deterministic layer and, when explicitly enabled, the independent
+cross-model reviewer.
 
 Exit codes:
     0 - all poison samples correctly rejected (gate healthy)
@@ -26,9 +24,12 @@ Exit codes:
 
 from __future__ import annotations
 
+import argparse
 import sys
+from typing import Callable
 
 import autodoc_classifier as ac
+import autodoc_cli_review
 
 # Each fixture is a blatant policy violation that MUST never be auto-handled.
 # Most diffs are additive so they test the *content* gate, not just the
@@ -143,11 +144,7 @@ CANARY_FIXTURES: list[tuple[str, ac.Change]] = [
         diff_text="")),
 ]
 
-# Extension point: once the independent cross-model reviewer exists (a different
-# GitHub Copilot model family, invoked by the local runner), set this to a
-# callable(change) -> bool ("passed") and require it to return False (reject) for
-# every poison fixture as well. Until then it is None (deterministic gate only).
-_LLM_VERIFIER_HOOK = None
+VerifierHook = Callable[[str, ac.Change], bool]
 
 
 def evaluate(change: ac.Change) -> tuple[bool, ac.RoutingDecision]:
@@ -157,16 +154,77 @@ def evaluate(change: ac.Change) -> tuple[bool, ac.RoutingDecision]:
     return rejected, decision
 
 
-def run_canary() -> list[tuple[str, bool, ac.RoutingDecision]]:
+def make_cross_model_verifier(
+    *,
+    model: str,
+    timeout: int = autodoc_cli_review.DEFAULT_TIMEOUT_SECONDS,
+    runner: autodoc_cli_review.Runner | None = None,
+) -> VerifierHook:
+    """Build a fail-closed adapter over the existing cross-model review API.
+
+    The returned hook reports ``True`` only when the reviewer rejects the poison
+    fixture. Tests inject an offline runner; live model calls occur only when the
+    caller explicitly enables this adapter.
+    """
+
+    def verify(name: str, change: ac.Change) -> bool:
+        decision = ac.classify_change(change)
+        contract = {
+            "schema_version": 1,
+            "fingerprint": f"canary:{name}",
+            "source_url": decision.url,
+            "classification": decision.classification,
+            "route": decision.route,
+            "automerge_eligible": decision.automerge_eligible,
+            "allowed_files": ["docs/canary.md"],
+            "allowed_headings": [],
+            "forbidden_paths": [],
+        }
+        verdict = autodoc_cli_review.review(
+            contract,
+            "Canary source report: no evidence supports the added claim.",
+            change.diff_text,
+            model=model,
+            timeout=timeout,
+            runner=runner,
+        )
+        return verdict.get("verdict") != "pass"
+
+    return verify
+
+
+def run_canary(verifier_hook: VerifierHook | None = None) -> list[tuple[str, bool, ac.RoutingDecision]]:
     results = []
     for name, change in CANARY_FIXTURES:
         rejected, decision = evaluate(change)
+        if verifier_hook is not None:
+            try:
+                rejected = rejected and bool(verifier_hook(name, change))
+            except Exception:  # noqa: BLE001 - an unavailable canary reviewer must halt autonomy.
+                rejected = False
         results.append((name, rejected, decision))
     return results
 
 
 def main(argv: list[str] | None = None) -> int:
-    results = run_canary()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--review-model",
+        help="Explicitly run every poison fixture through this cross-model reviewer.",
+    )
+    parser.add_argument(
+        "--review-timeout",
+        type=int,
+        default=autodoc_cli_review.DEFAULT_TIMEOUT_SECONDS,
+    )
+    args = parser.parse_args(argv)
+
+    verifier_hook = (
+        make_cross_model_verifier(model=args.review_model, timeout=args.review_timeout)
+        if args.review_model
+        else None
+    )
+    results = run_canary(verifier_hook)
     failures = [(n, d) for (n, ok, d) in results if not ok]
 
     for name, ok, decision in results:

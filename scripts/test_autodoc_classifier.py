@@ -323,6 +323,62 @@ def test_parse_deduplicates_by_url_preferring_diff_block():
     assert changes[0].diff_text.strip()
 
 
+def test_regression_731_deduplicates_redirect_rows_by_canonical_source():
+    text = """## URL Redirects Detected
+
+| Original URL | Final URL |
+|---|---|
+| https://learn.microsoft.com/en-us/a?msockid=one | https://learn.microsoft.com/en-us/b?utm_source=monitor |
+| https://learn.microsoft.com/en-us/a?utm_campaign=two | https://learn.microsoft.com/en-us/b |
+"""
+    redirects = [change for change in ac.parse_report(text) if change.kind == "redirect"]
+    assert len(redirects) == 1
+    assert redirects[0].url == "https://learn.microsoft.com/en-us/a"
+    assert redirects[0].destination_url == "https://learn.microsoft.com/en-us/b"
+
+
+def test_conflicting_destinations_for_one_canonical_source_fail_closed():
+    text = """## URL Redirects Detected
+
+| Original URL | Final URL |
+|---|---|
+| https://learn.microsoft.com/en-us/a?msockid=one | https://learn.microsoft.com/en-us/b |
+| https://learn.microsoft.com/en-us/a?utm_campaign=two | https://learn.microsoft.com/en-us/c |
+"""
+    changes = ac.parse_report(text)
+    assert len(changes) == 1
+    assert changes[0].classification == "REDIRECT_CONFLICT"
+    assert ac.classify_change(changes[0]).route == "human"
+
+
+def test_regression_732_canonicalizes_msockid_before_routing():
+    text = """### 1. Tracked source
+
+**URL:** https://learn.microsoft.com/en-us/example?msockid=abc123
+**Classification:** MEDIUM
+
+**What Changed:**
+```diff
+--- +++ @@
++A neutral sentence.
+```
+"""
+    change = ac.parse_report(text)[0]
+    decision = ac.classify_change(change)
+    assert change.url == "https://learn.microsoft.com/en-us/example"
+    assert decision.url == change.url
+
+
+def test_regression_733_strips_all_known_tracking_but_preserves_functional_query_and_fragment():
+    url = (
+        "https://learn.microsoft.com/en-us/example?"
+        "view=power-platform&WT.mc_id=a&utm_source=b&ocid=c&lang=en-us#limits"
+    )
+    assert ac._canonicalize_url(url) == (
+        "https://learn.microsoft.com/en-us/example?view=power-platform&lang=en-us#limits"
+    )
+
+
 # ---------------------------------------------------------------------------
 # The narrow "autodraft" promotions; automerge remains redirect-only
 # ---------------------------------------------------------------------------

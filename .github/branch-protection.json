@@ -3,7 +3,18 @@
     "strict": true,
     "contexts": [
       "e2e-smoke",
-      "sri-check"
+      "gitleaks",
+      "dependency-review",
+      "Analyze (python)",
+      "Analyze (javascript)",
+      "mkdocs-strict",
+      "verify_version_stamps",
+      "ruff",
+      "pytest (assessment + scripts)",
+      "manifest / index / nav drift",
+      "FSI language rules",
+      "autodoc-redirect-verify",
+      "autodoc-verify"
     ]
   },
   "enforce_admins": false,

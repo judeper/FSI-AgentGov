@@ -21,6 +21,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout trusted base verifier
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 1
+
       - name: Resolve PR metadata (API only)
         id: meta
         env:
@@ -44,26 +50,10 @@ jobs:
 
           gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json
           gh api "repos/$REPO/issues/$PR_NUMBER/labels?per_page=100" > .autodoc/pr-labels.json
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          pr = json.loads(Path(".autodoc/pr-meta.json").read_text(encoding="utf-8"))
-          labels = json.loads(Path(".autodoc/pr-labels.json").read_text(encoding="utf-8"))
-          label_names = {label["name"] for label in labels if isinstance(label, dict) and "name" in label}
-          head_ref = pr["head"]["ref"]
-          is_autodoc = head_ref.startswith("copilot/") and "autodoc" in label_names
-
-          output = Path(os.environ["GITHUB_OUTPUT"])
-          with output.open("a", encoding="utf-8") as handle:
-              handle.write(f"pr={pr['number']}\n")
-              handle.write(f"head_ref={head_ref}\n")
-              handle.write(f"head_sha={pr['head']['sha']}\n")
-              handle.write(f"head_repo={pr['head']['repo']['full_name']}\n")
-              handle.write(f"is_autodoc={str(is_autodoc).lower()}\n")
-          print(f"PR #{pr['number']} head={head_ref} labels={sorted(label_names)} is_autodoc={is_autodoc}")
-          PY
+          python scripts/autodoc_workflow.py \
+            --pr-json .autodoc/pr-meta.json \
+            --labels-json .autodoc/pr-labels.json \
+            --github-output "$GITHUB_OUTPUT"
 
       - name: Shim success for non-autodoc PRs
         if: steps.meta.outputs.is_autodoc != 'true'
@@ -79,7 +69,7 @@ jobs:
       - name: Refuse forked autodoc PRs
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.meta.outputs.head_repo != github.repository
         run: |
-          echo "Autodoc verification only supports same-repository copilot/* PRs." >&2
+          echo "Autodoc verification only supports same-repository autodoc/* or copilot/* PRs." >&2
           exit 1
 
       - name: Generate GitHub App token
@@ -92,13 +82,6 @@ jobs:
           permission-contents: read
           permission-pull-requests: read
           permission-issues: write
-
-      - name: Checkout base scripts only
-        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
-        uses: actions/checkout@v7
-        with:
-          ref: main
-          fetch-depth: 1
 
       - name: Set up Python
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'

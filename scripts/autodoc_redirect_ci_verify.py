@@ -35,6 +35,25 @@ TARGET_FILE = "docs/reference/microsoft-learn-urls.md"
 # guard so the two agree on what a "URL" is, but is duplicated here on purpose so
 # the CI check stays independent of the runner module.
 _URL_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+_TRACKING_QUERY_KEYS = {"msockid", "wt.mc_id", "ocid"}
+
+
+def _canonicalize_url(url: str) -> str:
+    """Independent tracking-parameter canonicalization for the CI trust boundary."""
+
+    value = url.strip()
+    try:
+        parsed = urllib.parse.urlsplit(value)
+    except ValueError:
+        return value
+    filtered = [
+        (key, item)
+        for key, item in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+        if key.lower() not in _TRACKING_QUERY_KEYS and not key.lower().startswith("utm_")
+    ]
+    return urllib.parse.urlunsplit(
+        (parsed.scheme, parsed.netloc, parsed.path, urllib.parse.urlencode(filtered, doseq=True), parsed.fragment)
+    )
 
 
 def _host_allowed(url: str) -> bool:
@@ -137,9 +156,13 @@ def verify_redirect_diff(diff_text: str) -> tuple[str, str]:
         raise NotCleanRedirect(f"old cell value is not a well-formed URL: {old_url!r}")
     if not _URL_RE.match(new_url):
         raise NotCleanRedirect(f"new cell value is not a well-formed URL: {new_url!r}")
+    canonical_old = _canonicalize_url(old_url)
+    canonical_new = _canonicalize_url(new_url)
+    if new_url != canonical_new:
+        raise NotCleanRedirect("new URL still contains known tracking parameters")
     if not _host_allowed(new_url):
         raise NotCleanRedirect(f"new URL host is not a Microsoft domain (off-domain redirect target): {new_url!r}")
-    if old_url == new_url:
+    if canonical_old == canonical_new:
         raise NotCleanRedirect("old and new URLs are identical; nothing changed")
     return old_url, new_url
 

@@ -6,7 +6,8 @@
 > [`docs/reference/learn-monitor-ai-enhancement.md`](../docs/reference/learn-monitor-ai-enhancement.md).
 
 The pipeline turns Microsoft Learn documentation changes into **drafted** doc edits,
-**independently verified** by a different model before a **human merges** them. It is
+**independently verified** by a different model before **OceanSquad reviews and
+SHA-pinned merges** them. The owner is involved only after final automation escalation. It is
 **fail-closed** and **off by default**. The drafter is the **local GitHub Copilot CLI** run
 on a schedule — not GitHub's cloud coding agent (which can't run here: the enterprise Copilot
 license is on an EMU account barred from this public personal repo, and GitHub disallows
@@ -24,7 +25,7 @@ learn-monitor.yml (daily)
         ▼  deterministic verify (autodoc_verify_gate) + bounded fix loop             │
         ▼  independent cross-model review (autodoc_cli_review, --review-model =       │
         │  a DIFFERENT Copilot family); BOTH must pass, fail-closed                    │
-        │ pass → push (judeper) → open PR → HUMAN merges (CODEOWNERS)  │ repeat fail → escalate ─┘
+        │ pass → push (judeper) → open PR → OceanSquad review/merge    │ repeat fail → owner escalation ─┘
         ▼
    [backstop] autodoc-verify.yml — deterministic-only required check on autodoc PRs,
               shim-aware (success on normal PRs), hardened pull_request_target
@@ -35,13 +36,13 @@ learn-monitor.yml (daily)
 | Component | File | Role |
 |-----------|------|------|
 | Classifier | `scripts/autodoc_classifier.py` | Deterministic, fail-closed routing (autodraft vs human); `automerge_eligible` is **redirect-only** |
-| Canary | `scripts/autodoc_canary.py` | Poison-pill guard; asserts known-bad samples are never auto-merge-eligible and halts routing if one is mis-promoted |
+| Canary | `scripts/autodoc_canary.py` | Poison-pill guard; deterministic checks always run before routing. The existing cross-model review API is wired through a fail-closed adapter, but live model activation remains opt-in (`AUTODOC_CANARY_CROSS_MODEL_ENABLED=true`) so tests stay offline |
 | Router / contract builder | `scripts/autodoc_route.py` | Builds the per-change authoring contract (allowed files/headings, fingerprint); fingerprint-idempotent via `data/autodoc-ledger.json` |
 | Deterministic verifier | `scripts/autodoc_verify.py` | Path/section allowlist, diff-minimality, claim-support, FSI language; CommonMark heading parsing |
 | Verify gate (CI backstop) | `scripts/autodoc_verify_gate.py` + `.github/workflows/autodoc-verify.yml` | **Deterministic-only** required check `autodoc-verify`; shim-aware; hardened `pull_request_target` |
 | Cross-model reviewer | `scripts/autodoc_cli_review.py` | Independent faithfulness review by a **different** Copilot model family; strict fail-closed verdict parsing |
 | Retry/escalation decision | `scripts/autodoc_retry.py` | Offline, fail-closed bounded-retry-vs-escalate decision logic |
-| **Unattended runner** | `scripts/autodoc_runner.py` | Routes the latest report and, per autodraft change, drafts → verifies → cross-model-reviews → opens a human-merge PR; runs in a **disposable git worktree**; idempotent via the ledger |
+| **Unattended runner** | `scripts/autodoc_runner.py` | Routes the latest report and, per autodraft change, drafts → verifies → cross-model-reviews → opens an OceanSquad-reviewed PR; runs in a **disposable git worktree**; idempotent via the ledger |
 | **Scheduler** | `scripts/Register-AutodocTask.ps1` | Registers the daily Windows Scheduled Task that runs the runner |
 | Baseline-deferral ledger (F5) | `scripts/autodoc_defer.py` + `scripts/autodoc_advance.py` + `.github/workflows/learn-monitor-advance.yml` | Advances the monitor baseline only when the downstream doc task is terminal; **byte-identical no-op** unless `AUTODOC_ENABLED=true` |
 
@@ -50,8 +51,13 @@ learn-monitor.yml (daily)
 - **Fail-closed everywhere.** Classifier defaults to `human`; the deterministic verifier and the
   cross-model review default to fail / `needs_human` — never a silent pass. The reviewer rejects
   any non-conforming model output (extra keys, wrong types, multiple/echoed verdicts, etc.).
-- **Humans merge content.** Stage 1 is "agent drafts → verify → **human merges**" (CODEOWNERS).
-  `automerge_eligible` is **redirect-only**; no content change auto-merges.
+- **OceanSquad is the sole merge owner.** Routine verified documentation PRs are reviewed and
+  SHA-pinned merged by OceanSquad after required checks. The owner reviews only final escalations.
+  Target-native/agreement-ledger auto-merge remains disabled and observational.
+- **Canonical redirect identity.** Known tracking parameters (`msockid`, `WT.mc_id`, `utm_*`,
+  `ocid`) are stripped before matching, routing, fingerprinting, and PR generation. Functional
+  query parameters and fragments are preserved. Redirect rows deduplicate by canonical source,
+  while the canonical destination is part of the fingerprint so A→B and A→C remain distinct.
 - **Regulatory/compliance is triage-only** and never auto-authored.
 - **Isolation.** The runner drafts in a **disposable git worktree** (a fresh checkout of base with
   none of your ignored/local files), so an autonomous draft can never touch your main checkout.
@@ -107,9 +113,12 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
    > it to "run whether the user is logged on or not," the keyring/credential store is unreachable and
    > the task **fails closed** (it throws before the runner starts rather than writing as the wrong
    > account). For a fully headless host, supply a stored fine-grained PAT via `GH_TOKEN` instead.
-5. **(Optional backstop) Require the deterministic gate:** after `autodoc-verify.yml` has run once,
-   add `autodoc-verify` to `main` branch protection → Require status checks (shim-aware; will not
-   block normal PRs).
+5. **Required deterministic gates:** the committed `.github/branch-protection.json` preserves the
+   live strict 11-check baseline and adds `autodoc-verify` plus `autodoc-redirect-verify`.
+   `autodoc-verify` recognizes both `autodoc/*` and `copilot/*`; both checks self-shim on unrelated
+   PRs. `mkdocs-strict` already validates internal links and anchors through MkDocs 1.6 validation,
+   so no duplicate internal-link check is required. The network-dependent external-link workflow
+   remains non-required.
 6. **GO LIVE** — set BOTH switches (see the table above):
    ```powershell
    setx AUTODOC_ENABLED true                                                   # activates the runner
@@ -131,31 +140,32 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
   `Start-ScheduledTask -TaskName 'FSI-AgentGov-Autodoc'`; dry run with
   `python scripts/autodoc_runner.py --repo . --draft-model <m> --review-model <m> --dry-run` (with
   `AUTODOC_ENABLED=true` in the session).
-- **A draft escalated to you:** look for issues/PRs labeled `escalate` / `needs-review`; review,
-  fix, merge manually. Escalation is idempotent (it reuses an existing issue for the same change).
+- **A draft escalated to you:** look for issues/PRs labeled `escalate` / `needs-review`; this is a
+  final owner escalation after automation exhaustion. Escalation is idempotent (it reuses an
+  existing issue for the same change).
 - **Canary failed:** routing/CI halts on a poison sample mis-promotion — investigate before enabling.
 - **Stale worktrees:** the task prunes them each run (`git worktree prune`); a crashed run may leave a
   `.autodoc-worktree-<pid>` dir next to the repo — safe to delete.
 - **Audit trail:** every change carries a stable `AUTODOC-FINGERPRINT`; `data/autodoc-ledger.json`
   records routed changes; the cross-model review verdict appears in the PR body.
 
-## Stage 2: redirect auto-merge (built, gated OFF)
+## Redirect agreement telemetry (observational; native auto-merge disabled)
 
-Stage 2 lets the runner enable GitHub **auto-merge** on a deterministic redirect PR — but only for
-redirects, only behind an independent CI gate, and only once it has earned trust. It is **off by
-default** and stays inert until you deliberately activate it. Everything below is already merged.
+The redirect agreement ledger records whether deterministic redirect PRs were merged as-is,
+edited, closed, or later reverted. It remains useful calibration telemetry, but it cannot activate
+GitHub native auto-merge: OceanSquad owns the only final merge path.
 
 **What's built**
 - **Independent CI gate** (`scripts/autodoc_redirect_ci_verify.py` + `.github/workflows/autodoc-redirect-verify.yml`):
   re-derives the clean-swap verdict from the actual PR diff on GitHub's side; runs on every PR and
   self-shims success for non-redirect PRs (so it is safe to make a required check).
-- **Fail-closed unlock gate + agreement ledger** (`scripts/autodoc_automerge.py`,
-  `data/autodoc-automerge-ledger.json`): the runner records each redirect PR, reconciles its human
-  outcome each run (merged-as-is / edited / closed / reverted), and enables auto-merge ONLY when the
-  gate unlocks. "Merged-as-is" is re-verified with the same independent verifier; reverts are detected
-  via git (against the stored merge sha) and re-lock the gate.
+- **Agreement ledger** (`scripts/autodoc_automerge.py`,
+  `data/autodoc-automerge-ledger.json`): the runner records each redirect PR and reconciles its
+  outcome each run (merged-as-is / edited / closed / reverted). "Merged-as-is" is re-verified with
+  the independent verifier; reverts are detected via git against the stored merge SHA.
 
-**The unlock gate** (`autodoc_automerge.unlock_state`) requires ALL of:
+**The observational gate calculation** (`autodoc_automerge.unlock_state`) retains these calibration
+inputs, but its result is never used to call `gh pr merge --auto`:
 
 | Condition | Env var | Default |
 |-----------|---------|---------|
@@ -166,28 +176,13 @@ default** and stays inert until you deliberately activate it. Everything below i
 | Zero post-merge reverts in window | — | (always enforced) |
 | Window length (days) | `AUTOMERGE_WINDOW_DAYS` | 120 |
 
-Defaults are conservative placeholders — tune them with real data (decide-late). The agreement ledger
-is repo-local runtime state, not an anti-tamper boundary (see the `autodoc_automerge` module docstring).
+Defaults are conservative placeholders. The agreement ledger is repo-local runtime state, not an
+anti-tamper boundary (see the `autodoc_automerge` module docstring). Do not enable or document an
+activation path without a separately approved policy change; `AUTOMERGE_ENABLED` is observational
+only in the runner.
 
-**How to activate (only after weeks of human-merged redirect agreement):**
-1. **Make the CI gate required:** after `autodoc-redirect-verify` has run once, add it to `main`
-   branch protection → Require status checks (it self-shims, so it will not block normal PRs). This is
-   what makes auto-merge gate on an independent re-verification.
-2. **Set the master switch (and optionally tune thresholds)** in the scheduled-task environment:
-   ```powershell
-   setx AUTOMERGE_ENABLED true
-   # optional: setx AUTOMERGE_MIN_SAMPLES 10 ; setx AUTOMERGE_MIN_WEEKS 4 ; setx AUTOMERGE_MIN_AGREEMENT 1.0
-   ```
-   Auto-merge still won't fire until the ledger shows enough merged-as-is agreement with zero reverts.
-   **Kill-switch:** `setx AUTOMERGE_ENABLED false`.
-3. Auto-merge fires via `gh pr merge --auto --squash` — GitHub merges only when the required checks
-   (including `autodoc-redirect-verify`) are green, so CI is never bypassed.
-
-> **Not yet built (deferred by design):** the automated **auto-revert workflow** (auto-open + merge a
-> revert PR on a post-merge check failure). Revert *detection* is already in place (the gate re-locks
-> on any revert). Build the auto-revert workflow when auto-merge is closer to activation and the right
-> post-merge signal is clear — its trigger is low-value for clean 1-line redirect swaps that already
-> passed CI before merge.
+Revert detection remains useful telemetry. No automated auto-revert or native auto-merge workflow
+should be added while OceanSquad is the single merge owner.
 
 ## Portability to other Gov repos
 

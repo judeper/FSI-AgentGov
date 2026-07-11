@@ -48,6 +48,7 @@ import argparse
 import json
 import re
 import sys
+import urllib.parse
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -141,8 +142,29 @@ HARD_HUMAN_PATTERNS: dict[str, str] = {
 }
 
 KNOWN_TIERS = {"CRITICAL", "HIGH", "MEDIUM", "NOISE"}
+_TRACKING_QUERY_KEYS = {"msockid", "wt.mc_id", "ocid"}
 
 _COMPILED_HARD = {k: re.compile(v, re.IGNORECASE) for k, v in HARD_HUMAN_PATTERNS.items()}
+
+
+def _canonicalize_url(url: str) -> str:
+    """Strip known tracking parameters while preserving functional query data and fragments."""
+
+    value = url.strip()
+    try:
+        parsed = urllib.parse.urlsplit(value)
+    except ValueError:
+        return value
+
+    query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    filtered = [
+        (key, item)
+        for key, item in query
+        if key.lower() not in _TRACKING_QUERY_KEYS and not key.lower().startswith("utm_")
+    ]
+    return urllib.parse.urlunsplit(
+        (parsed.scheme, parsed.netloc, parsed.path, urllib.parse.urlencode(filtered, doseq=True), parsed.fragment)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -160,6 +182,7 @@ class Change:
     diff_text: str = ""
     kind: str = "content"  # "content" or "redirect"
     content_hash: str = ""  # sha256 identity of the change, from the report's Content-Hash line
+    destination_url: str = ""  # canonical redirect destination; empty for content changes
 
 
 @dataclass
@@ -176,6 +199,7 @@ class RoutingDecision:
     sensitive_categories: list     # which HARD_HUMAN groups matched
     reasons: list                  # human-readable explanation of the decision
     content_hash: str = ""         # sha256 identity propagated from the parsed Change
+    destination_url: str = ""      # canonical redirect destination; empty for content changes
 
 
 # ---------------------------------------------------------------------------
@@ -239,13 +263,16 @@ def classify_change(change: Change) -> RoutingDecision:
     # URL redirects are a pure URL-table update with no prose. They remain an
     # explicitly allowlisted unattended-merge special case.
     if change.kind == "redirect":
+        source_url = _canonicalize_url(change.url)
+        destination_url = _canonicalize_url(change.destination_url)
         return RoutingDecision(
-            topic=change.topic, url=change.url, classification="REDIRECT",
+            topic=change.topic, url=source_url, classification="REDIRECT",
             kind="redirect", route="autodraft", automerge_eligible=True,
             additive_only=True, affects_control=False, affected_controls=[],
             sensitive_categories=[],
             reasons=["URL redirect: update microsoft-learn-urls.md (no prose change)"],
             content_hash=change.content_hash,
+            destination_url=destination_url,
         )
 
     sensitive = match_sensitive(added)
@@ -284,12 +311,13 @@ def classify_change(change: Change) -> RoutingDecision:
     )
 
     return RoutingDecision(
-        topic=change.topic, url=change.url, classification=tier or change.classification,
+        topic=change.topic, url=_canonicalize_url(change.url), classification=tier or change.classification,
         kind=change.kind, route=route, automerge_eligible=automerge,
         additive_only=additive, affects_control=affects_control,
         affected_controls=list(change.affected_controls),
         sensitive_categories=sorted(sensitive.keys()), reasons=reasons,
         content_hash=change.content_hash,
+        destination_url=_canonicalize_url(change.destination_url),
     )
 
 
@@ -317,9 +345,10 @@ _REDIRECT_ROW_RE = re.compile(
 
 
 def _dedupe_changes_by_url(changes: list[Change]) -> list[Change]:
-    """Deduplicate content changes by URL, preferring the record with a diff block."""
+    """Deduplicate content changes by canonical URL, preferring the record with a diff block."""
     deduped: dict[str, Change] = {}
     for change in changes:
+        change.url = _canonicalize_url(change.url)
         existing = deduped.get(change.url)
         if existing is None:
             deduped[change.url] = change
@@ -353,7 +382,7 @@ def parse_report(text: str) -> list[Change]:
 
         changes.append(Change(
             topic=topic,
-            url=url_m.group(1).strip(),
+            url=_canonicalize_url(url_m.group(1)),
             section=section_m.group(1).strip() if section_m else "",
             classification=class_tier_m.group(1).strip().upper() if class_tier_m else "",
             reason=(
@@ -374,11 +403,33 @@ def parse_report(text: str) -> list[Change]:
     redirect_block = ""
     if "## URL Redirects Detected" in text:
         redirect_block = text.split("## URL Redirects Detected", 1)[1].split("\n## ", 1)[0]
+    redirects_by_source: dict[str, Change] = {}
     for orig, final in _REDIRECT_ROW_RE.findall(redirect_block):
-        changes.append(Change(
-            topic=f"URL redirect: {orig}", url=orig, classification="REDIRECT",
-            reason=f"redirects to {final}", kind="redirect",
-        ))
+        source_url = _canonicalize_url(orig)
+        destination_url = _canonicalize_url(final)
+        existing = redirects_by_source.get(source_url)
+        if existing is not None:
+            if existing.kind == "redirect" and existing.destination_url != destination_url:
+                redirects_by_source[source_url] = Change(
+                    topic=f"Conflicting URL redirects: {source_url}",
+                    url=source_url,
+                    classification="REDIRECT_CONFLICT",
+                    reason=(
+                        "report contains multiple canonical destinations for one source: "
+                        f"{existing.destination_url} and {destination_url}"
+                    ),
+                    kind="content",
+                )
+            continue
+        redirects_by_source[source_url] = Change(
+            topic=f"URL redirect: {source_url}",
+            url=source_url,
+            classification="REDIRECT",
+            reason=f"redirects to {destination_url}",
+            kind="redirect",
+            destination_url=destination_url,
+        )
+    changes.extend(redirects_by_source.values())
 
     return changes
 
