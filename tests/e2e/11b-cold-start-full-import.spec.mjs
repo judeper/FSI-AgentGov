@@ -8,6 +8,8 @@ import {
   clearPageStorage,
   expect,
   freezeTime,
+  getResumeBannerButton,
+  getSavedListResumeButton,
 } from "./_harness.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -104,9 +106,13 @@ test.describe("cold-start full-assessment import @regression", () => {
       .waitFor({ timeout: 15_000 });
 
     // Welcome list shows the imported assessment as resumable.
-    const resumeBtn = page.getByRole("button", {
-      name: "Resume " + (exported.assessmentName || "Untitled"),
-    });
+    await expect(
+      getResumeBannerButton(page, exported.assessmentName || "Untitled"),
+    ).toHaveCount(1);
+    const resumeBtn = getSavedListResumeButton(
+      page,
+      exported.assessmentName || "Untitled",
+    );
     await expect(resumeBtn).toHaveCount(1);
 
     // -- Phase 3: COLLISION PROBE --------------------------------------
@@ -142,7 +148,8 @@ test.describe("cold-start full-assessment import @regression", () => {
     writeFileSync(collisionPath, JSON.stringify(collidingPayload, null, 2));
 
     // Resume the original first so importState has `this.state` set.
-    await resumeBtn.dispatchEvent("click");
+    await getResumeBannerButton(page, exported.assessmentName || "Untitled")
+      .dispatchEvent("click");
     await page
       .getByRole("heading", { name: /Phase 1: Control-Level Assessment/ })
       .waitFor();

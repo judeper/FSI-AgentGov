@@ -2,6 +2,8 @@ import { test } from "@playwright/test";
 import {
   clearPageStorage,
   expect,
+  getSavedListResumeButton,
+  selectControlAnswer,
   navClick,
 } from "./_harness.mjs";
 
@@ -68,24 +70,6 @@ async function startNewAndScope(page, organizationName) {
   await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ }).waitFor();
 }
 
-/** Click the "Yes" / "Partial" / "No" / "N/A" answer for one control. */
-async function answerControl(page, controlId, label) {
-  const card = page.locator(`[data-control-id="${controlId}"]`);
-  await card.first().waitFor({ state: "attached" });
-  // Expand pillar group if collapsed.
-  const pillar = card.locator('xpath=ancestor::div[contains(@class,"ag-pillar-controls")]');
-  if ((await pillar.count()) > 0) {
-    const collapsed = await pillar.first().evaluate((el) => el.classList.contains("collapsed"));
-    if (collapsed) {
-      const header = pillar.locator(
-        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-      );
-      if ((await header.count()) > 0) await header.first().click();
-    }
-  }
-  await card.getByRole("button", { name: label, exact: true }).click();
-}
-
 /** Force a synchronous flush of the debounced save by going Phase1→Scoping→Back. */
 async function navigateBackToWelcome(page) {
   // Wait for the 500ms debounced save to flush.
@@ -116,17 +100,17 @@ test.describe("saved-list multi-assessment @regression", () => {
 
     // -- Assessment A -------------------------------------------------
     await startNewAndScope(page, "Bank A");
-    await answerControl(page, "1.1", "Yes");
-    await answerControl(page, "1.2", "Partial");
+    await selectControlAnswer(page, "1.1", "yes");
+    await selectControlAnswer(page, "1.2", "partial");
     const idA = await readCurrentAssessmentId(page);
     expect(idA, "assessment A id should exist after first save").toBeTruthy();
     await navigateBackToWelcome(page);
 
     // -- Assessment B (different org) ---------------------------------
     await startNewAndScope(page, "Bank B");
-    await answerControl(page, "1.3", "No");
-    await answerControl(page, "1.4", "Yes");
-    await answerControl(page, "1.5", "Partial");
+    await selectControlAnswer(page, "1.3", "no");
+    await selectControlAnswer(page, "1.4", "yes");
+    await selectControlAnswer(page, "1.5", "partial");
     const idB = await readCurrentAssessmentId(page);
     expect(idB, "assessment B id should exist after first save").toBeTruthy();
     expect(idB).not.toBe(idA);
@@ -136,7 +120,7 @@ test.describe("saved-list multi-assessment @regression", () => {
     // Resume buttons are labelled "Resume <assessmentName>" where the
     // assessmentName is "<org> — <YYYY-MM-DD>" (set by Begin Assessment).
     // We match by prefix to stay date-agnostic.
-    await page.getByRole("button", { name: /^Resume Bank A/ }).dispatchEvent("click");
+    await getSavedListResumeButton(page, /^Resume Bank A/).dispatchEvent("click");
     await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ }).waitFor();
     const slotA = await readPerIdSlot(page, idA);
     expect(slotA, "Per-id slot for A must exist").not.toBeNull();
@@ -150,7 +134,7 @@ test.describe("saved-list multi-assessment @regression", () => {
 
     // -- Resume B: assert B's 3 answers, A's absent -------------------
     await navigateBackToWelcome(page);
-    await page.getByRole("button", { name: /^Resume Bank B/ }).dispatchEvent("click");
+    await getSavedListResumeButton(page, /^Resume Bank B/).dispatchEvent("click");
     await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ }).waitFor();
     const slotB = await readPerIdSlot(page, idB);
     expect(slotB, "Per-id slot for B must exist").not.toBeNull();
@@ -186,15 +170,15 @@ test.describe("saved-list multi-assessment @regression", () => {
     page.on("dialog", defaultDialogHandler);
 
     // Welcome list now shows only B.
-    await expect(page.getByRole("button", { name: /^Resume Bank A/ })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /^Resume Bank B/ })).toHaveCount(1);
+    await expect(getSavedListResumeButton(page, /^Resume Bank A/)).toHaveCount(0);
+    await expect(getSavedListResumeButton(page, /^Resume Bank B/)).toHaveCount(1);
 
     // localStorage: exactly one -data- slot remains, and it's B's.
     const remainingDataKeys = await listDataSlotKeys(page);
     expect(remainingDataKeys).toEqual([STORAGE_KEY + "-data-" + idB]);
 
     // B is still resumable end-to-end.
-    await page.getByRole("button", { name: /^Resume Bank B/ }).dispatchEvent("click");
+    await getSavedListResumeButton(page, /^Resume Bank B/).dispatchEvent("click");
     await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ }).waitFor();
     const slotBAfterDelete = await readPerIdSlot(page, idB);
     expect(slotBAfterDelete.responses["1.3"]?.answer).toBe("no");

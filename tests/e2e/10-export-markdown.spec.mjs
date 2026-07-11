@@ -8,6 +8,7 @@ import {
   freezeTime,
   loadPersona,
   navClick,
+  selectControlAnswer,
   seedScoping,
 } from "./_harness.mjs";
 
@@ -18,7 +19,7 @@ import {
  * ~L4151):
  *   - The only Markdown export is the "Next Session Agenda" — top-N
  *     gap controls with remediation detail.
- *   - Filename: `fsi-agentgov-agenda-<slug>-<isodate>.md`.
+ *   - Filename: `fsi-agentgov-<slug>-<isodate>-agenda.md`.
  *   - Document structure:
  *       # FSI Agent Governance Assessment — Next Session Agenda
  *       **Customer:** <organization>
@@ -45,26 +46,6 @@ import {
  * gap rather than asserting against a non-existent shape.
  */
 
-async function answerControl(page, controlId, label) {
-  const card = page.locator(`[data-control-id="${controlId}"]`);
-  await card.first().waitFor({ state: "attached" });
-  const pillar = card.locator(
-    'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-  );
-  if ((await pillar.count()) > 0) {
-    const collapsed = await pillar
-      .first()
-      .evaluate((el) => el.classList.contains("collapsed"));
-    if (collapsed) {
-      const header = pillar.locator(
-        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-      );
-      if ((await header.count()) > 0) await header.first().click();
-    }
-  }
-  await card.getByRole("button", { name: label, exact: true }).click();
-}
-
 test.describe("export Markdown agenda @regression", () => {
   test("agenda structure + XSS escape on org name @regression", async ({
     page,
@@ -85,8 +66,8 @@ test.describe("export Markdown agenda @regression", () => {
     // Need at least one gap to populate the Top-N table + Remediation
     // section. Use the persona's "1.2" → "no" answer (its notes carry
     // unicode tricks — also useful coverage for _agendaMdCell).
-    await answerControl(page, "1.1", "Yes"); // not a gap
-    await answerControl(page, "1.2", "No"); // gap
+    await selectControlAnswer(page, "1.1", "yes"); // not a gap
+    await selectControlAnswer(page, "1.2", "no"); // gap
 
     await page.waitForTimeout(700);
 
@@ -98,10 +79,8 @@ test.describe("export Markdown agenda @regression", () => {
     const { suggestedName, path } = await expectDownload(page, async () => {
       await navClick(page, /Export as Next Session Agenda/);
     });
-    // Filename pattern: prefix-<slug>-<iso>.md. Slug strips non-alnum,
-    // so the malicious org "<script>alert(1)</script>" becomes
-    // "script-alert-1-script".
-    expect(suggestedName).toMatch(/^fsi-agentgov-agenda-.+-\d{4}-\d{2}-\d{2}\.md$/);
+    // Canonical ASSESS-13 pattern: fsi-agentgov-<slug>-<iso>-agenda.md.
+    expect(suggestedName).toMatch(/^fsi-agentgov-.+-\d{4}-\d{2}-\d{2}-agenda\.md$/);
 
     const md = readFileSync(path, "utf8");
 
@@ -186,11 +165,11 @@ test.describe("export Markdown agenda @regression", () => {
     await seedScoping(page, persona);
 
     // Three gap controls (partial + no): 1.5, 1.7, 2.1.
-    await answerControl(page, "1.4", "Yes");   // not a gap
-    await answerControl(page, "1.5", "Partial"); // gap
-    await answerControl(page, "1.7", "No");     // gap
-    await answerControl(page, "1.11", "Yes");  // not a gap
-    await answerControl(page, "2.1", "Partial"); // gap
+    await selectControlAnswer(page, "1.4", "yes"); // not a gap
+    await selectControlAnswer(page, "1.5", "partial"); // gap
+    await selectControlAnswer(page, "1.7", "no"); // gap
+    await selectControlAnswer(page, "1.11", "yes"); // not a gap
+    await selectControlAnswer(page, "2.1", "partial"); // gap
     await page.waitForTimeout(700);
 
     await navClick(page, "View Results");
@@ -201,7 +180,7 @@ test.describe("export Markdown agenda @regression", () => {
     const { suggestedName, path } = await expectDownload(page, async () => {
       await navClick(page, /Export as Next Session Agenda/);
     });
-    expect(suggestedName).toMatch(/^fsi-agentgov-agenda-.+-\d{4}-\d{2}-\d{2}\.md$/);
+    expect(suggestedName).toMatch(/^fsi-agentgov-.+-\d{4}-\d{2}-\d{2}-agenda\.md$/);
 
     const md = readFileSync(path, "utf8");
     const lines = md.split(/\r?\n/);

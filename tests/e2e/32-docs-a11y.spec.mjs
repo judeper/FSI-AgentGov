@@ -548,6 +548,70 @@ test.describe.serial("docs a11y axe (color-contrast ENABLED, DARK palette) @regr
 });
 
 // =============================================================================
+// Smoke-tier docs contrast guard for the regression-prone playbooks page.
+// Fast PR canary: one representative page, color-contrast rule only, both
+// palettes. The exhaustive multi-page sweep stays in the regression tests above.
+// =============================================================================
+test.describe("docs contrast smoke @smoke", () => {
+  test(
+    "playbooks page keeps representative color contrast in light and dark palettes @smoke",
+    async ({ page }) => {
+      test.setTimeout(45_000);
+      page.on("dialog", (d) => d.dismiss().catch(() => {}));
+
+      const collectBlockingContrast = async (paletteLabel) => {
+        const results = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+          .options({ runOnly: { type: "rule", values: ["color-contrast"] } })
+          .include("article.md-content__inner")
+          .exclude("[data-md-component='announce']")
+          .exclude(".md-search__overlay")
+          .analyze();
+
+        const failures = [];
+        for (const v of results.violations || []) {
+          if (v.impact !== "serious" && v.impact !== "critical") continue;
+          for (const node of v.nodes || []) {
+            const summary = summarizeNode(node);
+            failures.push(
+              `[${paletteLabel}] ${v.id} ${summary.target}`,
+            );
+          }
+        }
+        return failures;
+      };
+
+      await page.goto("/playbooks/", { waitUntil: "domcontentloaded" });
+      await waitForReady(page, "docs");
+      const lightFailures = await collectBlockingContrast("LIGHT");
+
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.evaluate(() => {
+        const radio = document.getElementById("__palette_1");
+        if (!radio) throw new Error("Slate palette radio (#__palette_1) not found");
+        radio.click();
+      });
+      await expect
+        .poll(
+          async () =>
+            await page.evaluate(() =>
+              document.body.getAttribute("data-md-color-scheme"),
+            ),
+          { timeout: 5_000, message: "Material did not apply slate palette to body" },
+        )
+        .toBe("slate");
+
+      const darkFailures = await collectBlockingContrast("DARK");
+      const allFailures = [...lightFailures, ...darkFailures];
+      expect(
+        allFailures,
+        `Representative docs color-contrast smoke failures (${allFailures.length}):\n${allFailures.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
+});
+
+// =============================================================================
 // Lightweight contrast probe — surfaces the *measured* contrast ratios on
 // representative page surfaces so reviewers can sanity-check axe findings
 // against ground-truth pixel values. Always passes (informational); writes

@@ -84,7 +84,7 @@ const SUPERSESSION_MARKER_RE =
 const WINDOW_CHARS = 100;
 
 test(
-  "search corpus contains no non-canonical regulatory shorthand @regression",
+  "search corpus contains no non-canonical regulatory shorthand @regression @smoke",
   async () => {
     const indexPath = path.join(REPO_ROOT, "site", "search", "search_index.json");
     if (!fs.existsSync(indexPath)) {
@@ -216,11 +216,25 @@ const TYPED_QUERIES = [
   },
 ];
 
+async function getSearchInput(page, timeoutMs = 15_000) {
+  const visibleInput = page
+    .locator('input[data-md-component="search-query"]:visible')
+    .first();
+  try {
+    await visibleInput.waitFor({ state: "visible", timeout: 2_000 });
+    return visibleInput;
+  } catch {
+    const toggle = page.locator('label[for="__search"]').first();
+    if (await toggle.count()) {
+      await toggle.click();
+    }
+    await visibleInput.waitFor({ state: "visible", timeout: timeoutMs });
+    return visibleInput;
+  }
+}
+
 async function waitForSearchReady(page, timeoutMs = 15_000) {
-  await page.locator('input[data-md-component="search-query"]').first().waitFor({
-    state: "attached",
-    timeout: timeoutMs,
-  });
+  await getSearchInput(page, timeoutMs);
 }
 
 async function waitForResults(page, timeoutMs = 15_000) {
@@ -239,6 +253,7 @@ async function waitForResults(page, timeoutMs = 15_000) {
 async function readTopHrefs(page, n = 5) {
   return await page.evaluate((max) => {
     return Array.from(document.querySelectorAll('a.md-search-result__link[href]'))
+      .filter((a) => a.offsetParent !== null)
       .slice(0, max)
       .map((a) => (a.getAttribute("href") || "").replace(/^https?:\/\/[^/]+/, "").split("?")[0]);
   }, n);
@@ -247,13 +262,16 @@ async function readTopHrefs(page, n = 5) {
 async function runQuery(page, query) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await waitForSearchReady(page);
-  const input = page.locator('input[data-md-component="search-query"]').first();
+  const input = await getSearchInput(page);
   await input.click();
   await input.fill(query);
   await waitForResults(page).catch(() => {});
-  // Allow a settle: Material debounces ~250ms and Lunr posts additional
-  // result batches after the first link renders.
-  await page.waitForTimeout(500);
+  await expect
+    .poll(async () => (await readTopHrefs(page, 5)).length, {
+      timeout: 10_000,
+      message: `Search did not return visible results for query "${query}"`,
+    })
+    .toBeGreaterThan(0);
   return await readTopHrefs(page, 5);
 }
 

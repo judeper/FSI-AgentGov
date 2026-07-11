@@ -2230,7 +2230,8 @@
       resumeBanner.appendChild(resumeText);
       resumeBanner.appendChild(h("button", {
         className: "ag-btn ag-btn-primary",
-        "aria-label": "Resume " + (mostRecent.name || "Untitled"),
+        // Keep distinct from saved-list actions ("Resume <name>") for unambiguous a11y targeting.
+        "aria-label": "Resume most recent assessment: " + (mostRecent.name || "Untitled"),
         onClick: function () {
           if (self.loadFromStorage(mostRecent.id)) {
             self.goToStep(self.step || "phase1");
@@ -3214,6 +3215,7 @@
       if (isPressed) bcls += " " + a.cls;
       var btnAttrs = {
         className: bcls,
+        "data-answer": a.value,
         // A11Y-01: include control ID + title so each button has a unique accessible name
         "aria-label": "Rate control " + ctrl.id + " " + ctrl.title + " \u2014 " + a.label,
         "aria-pressed": isPressed ? "true" : "false",
@@ -5150,6 +5152,7 @@
       _truncateFilename: _truncateFilename,
       _sanitizeFilenameStem: _sanitizeFilenameStem,
       _agendaSlug: _agendaSlug,
+      _buildExportFilename: _buildExportFilename,
     };
   }
 })();

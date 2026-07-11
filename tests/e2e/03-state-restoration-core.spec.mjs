@@ -2,7 +2,8 @@ import { test } from "@playwright/test";
 import {
   clearPageStorage,
   expect,
-  navClick,
+  expectControlAnswerSelected,
+  selectControlAnswer,
 } from "./_harness.mjs";
 
 /**
@@ -42,26 +43,6 @@ async function readCurrentId(page) {
   }, STORAGE_KEY);
 }
 
-async function answerControl(page, controlId, label) {
-  const card = page.locator(`[data-control-id="${controlId}"]`);
-  await card.first().waitFor({ state: "attached" });
-  const pillar = card.locator(
-    'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-  );
-  if ((await pillar.count()) > 0) {
-    const collapsed = await pillar
-      .first()
-      .evaluate((el) => el.classList.contains("collapsed"));
-    if (collapsed) {
-      const header = pillar.locator(
-        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-      );
-      if ((await header.count()) > 0) await header.first().click();
-    }
-  }
-  await card.getByRole("button", { name: label, exact: true }).click();
-}
-
 test.describe("state restoration core @regression", () => {
   test("partial Phase 1 (answers + notes + evidence) survives reload byte-for-byte @regression", async ({
     page,
@@ -97,10 +78,10 @@ test.describe("state restoration core @regression", () => {
       .waitFor();
 
     // 4 answers covering yes/partial/no/na.
-    await answerControl(page, "1.1", "Yes");
-    await answerControl(page, "1.2", "Partial");
-    await answerControl(page, "1.3", "No");
-    await answerControl(page, "1.4", "N/A");
+    await selectControlAnswer(page, "1.1", "yes");
+    await selectControlAnswer(page, "1.2", "partial");
+    await selectControlAnswer(page, "1.3", "no");
+    await selectControlAnswer(page, "1.4", "na");
 
     // Notes on 1.1.
     const noteText = "Encryption baseline reviewed by CISO 2025-Q4.";
@@ -177,16 +158,13 @@ test.describe("state restoration core @regression", () => {
     // The Yes/Partial/No/N/A buttons surface the active state via
     // `aria-pressed="true"` (rendered by renderControlCard). Verify each.
     const expected = {
-      "1.1": "Yes",
-      "1.2": "Partial",
-      "1.3": "No",
-      "1.4": "N/A",
+      "1.1": "yes",
+      "1.2": "partial",
+      "1.3": "no",
+      "1.4": "na",
     };
-    for (const [cid, label] of Object.entries(expected)) {
-      const btn = page
-        .locator(`[data-control-id="${cid}"]`)
-        .getByRole("button", { name: label, exact: true });
-      await expect(btn).toHaveAttribute("aria-pressed", "true");
+    for (const [cid, answer] of Object.entries(expected)) {
+      await expectControlAnswerSelected(page, cid, answer);
     }
   });
 });

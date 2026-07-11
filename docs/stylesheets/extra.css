@@ -173,6 +173,17 @@
   color: var(--brand-primary-dark);
 }
 
+/* A11y (WCAG 2.1 AA): assessment landing-page destructive mini button.
+   The app applies inline opacity:0.7 to "Clear all assessment data", which
+   drops white-on-red contrast below AA. Keep full opacity for readability. */
+.assessment-container .ag-btn-danger.ag-btn-sm {
+  opacity: 1 !important;
+}
+.assessment-container .ag-btn-danger.ag-btn-sm:hover,
+.assessment-container .ag-btn-danger.ag-btn-sm:focus-visible {
+  opacity: 1 !important;
+}
+
 /* ── A11y: WCAG 2.1 AA contrast overrides for slate (dark) palette (AS21) ── */
 /*
  * Closes F-A11Y-DARKMODE-VIOLATIONS-01 (P1, site-wide + 2 page-specific).
@@ -494,6 +505,22 @@
   background-color: rgba(255, 255, 255, 0.04);
 }
 
+/* A11y (WCAG 2.1 AA): table-body links on striped rows.
+   Light-mode stripe background (#F3F2F1) pulls default link blue (#0078D4)
+   under 4.5:1 in dense control/reference tables. Darken only table links so
+   global body-link behavior (underline, hover thickness, visited affordance)
+   stays intact. */
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink) {
+  color: var(--brand-primary-dark);
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink):visited {
+  color: #4b2e83;
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink):hover,
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink):focus-visible {
+  color: #004578;
+}
+
 /* ── UX-08: Supplemental feedback link (feedback-extra.html) ── */
 .fsi-feedback-extra {
   margin: 1.5rem 0 0.5rem;
@@ -587,10 +614,34 @@
   color: #005a9e;
 }
 
-/* A11y (WCAG 2.1 AA): the injected control print button is .md-button--primary,
-   whose slate background --md-primary-fg-color (#429CE3) leaves white button
-   text at only 2.95:1. Darken to #005A9E (white = 7.10:1) in dark mode. Light
-   mode passes (#0078D4 + white = 4.54:1) and is left unchanged. */
+/* A11y (WCAG 2.1 AA): slate primary-action buttons in docs content.
+   Material's slate primary background (#429CE3) leaves white button text at
+   2.95:1. Use brand-primary-dark for dark-mode content buttons; hover/focus
+   returns to brand-primary while staying >4.5:1 on white text. */
+[data-md-color-scheme="slate"] .md-button--primary {
+  background-color: #005a9e;
+  border-color: #005a9e;
+  color: #ffffff;
+}
+[data-md-color-scheme="slate"] .md-button--primary:hover,
+[data-md-color-scheme="slate"] .md-button--primary:focus-visible {
+  background-color: #0078d4;
+  border-color: #0078d4;
+  color: #ffffff;
+}
+
+/* Preserve the homepage pilot CTA palette in slate. */
+[data-md-color-scheme="slate"] .home-hero .md-button--primary {
+  background-color: var(--fsi-deep-blue);
+  border-color: var(--fsi-deep-blue);
+}
+[data-md-color-scheme="slate"] .home-hero .md-button--primary:hover,
+[data-md-color-scheme="slate"] .home-hero .md-button--primary:focus-visible {
+  background-color: var(--fsi-deep-blue-hover);
+  border-color: var(--fsi-deep-blue-hover);
+}
+
+/* Keep the injected print button aligned with the slate primary-action fix. */
 [data-md-color-scheme="slate"] #fsi-print-control-button {
   background-color: #005a9e;
   border-color: #005a9e;
