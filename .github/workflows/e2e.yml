@@ -114,6 +114,7 @@ jobs:
           # Without it every gh call fails with "fatal: not a git repository" and the
           # alert issue is never filed (the whole point of this visibility net).
           GH_REPO: ${{ github.repository }}
+          REPO_OWNER: ${{ github.repository_owner }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SHA: ${{ github.sha }}
           EVENT: ${{ github.event_name }}
@@ -130,6 +131,35 @@ jobs:
             gh issue comment "$EXISTING" --body "$BODY"
             echo "Commented on existing #$EXISTING"
           else
-            gh issue create --title "e2e-full failing on main" --label "$LABEL" --body "$BODY"
+            gh issue create --title "e2e-full failing on main" --label "$LABEL" --assignee "$REPO_OWNER" --body "$BODY"
             echo "Created a new e2e-full-broken issue"
           fi
+
+  close-e2e-failure-on-recovery:
+    name: close-e2e-failure-on-recovery
+    needs: e2e-full
+    if: needs.e2e-full.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Comment and close e2e-full-broken issue on green run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # This job has no checkout step, so gh must be told the repo explicitly.
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          LABEL="e2e-full-broken"
+          EXISTING=$(gh issue list --state open --label "$LABEL" --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            echo "No open $LABEL issue found; nothing to close."
+            exit 0
+          fi
+          BODY=$(printf 'e2e-full recovered on `main`.\n\n- Commit: `%s`\n- Run: %s\n\nClosing this visibility issue. A future failed `push` or `schedule` run will reopen the alert flow.\n' "$SHA" "$RUN_URL")
+          gh issue comment "$EXISTING" --body "$BODY"
+          gh issue close "$EXISTING"
+          echo "Commented and closed #$EXISTING"
