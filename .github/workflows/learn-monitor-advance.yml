@@ -10,7 +10,7 @@ on:
 
 permissions:
   contents: write
-  issues: read
+  issues: write
   pull-requests: write
 
 concurrency:
@@ -60,12 +60,31 @@ jobs:
             > closed-autodoc-issues.json
           python -c "import json,sys; print('Closed autodoc issues:', len(json.load(open('closed-autodoc-issues.json'))))"
 
+      - name: Snapshot autodoc issues (open + closed)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh issue list \
+            --state all \
+            --label autodoc \
+            --json number,url,state,stateReason,body \
+            --limit 500 \
+            > autodoc-issues-all.json
+
       - name: Advance terminal Learn baselines
         run: |
           python scripts/autodoc_advance.py \
             --state data/monitor-state.json \
             --pending-dir data/monitor-pending/learn \
             --closed-issues closed-autodoc-issues.json
+
+      - name: Consolidate stale open exact-source siblings
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          python scripts/autodoc_consolidate.py \
+            --issues-json autodoc-issues-all.json \
+            --apply
 
       - name: Create baseline advancement pull request
         id: create_pr

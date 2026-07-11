@@ -819,15 +819,172 @@ def test_escalate_reuses_existing_issue(monkeypatch: pytest.MonkeyPatch, tmp_pat
     assert runner._escalate(_config(tmp_path), _ctx(), "reason", "details") == "https://github.com/x/y/issues/3"
 
 
-def test_escalate_body_includes_source_url(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    # The escalation body must carry the source URL so learn-monitor-advance.yml can match a
-    # closed escalation via `{url} in:body` and advance its deferred baseline. Without it,
-    # content-review escalations never advance and their pending blobs accumulate forever.
+def test_existing_issue_url_reuses_same_fingerprint_from_open_snapshot(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    fingerprint = "sha256:deadbeefcafe0001"
+    payload = [
+        {
+            "number": 33,
+            "url": "https://github.com/x/y/issues/33",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                f"AUTODOC-FINGERPRINT: {fingerprint}\n"
+                "Source: https://learn.microsoft.com/en-us/example\n"
+                "Content-Hash: sha256:abc\n"
+            ),
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+    assert runner._existing_issue_url(_config(tmp_path), _ctx()) == "https://github.com/x/y/issues/33"
+
+
+def test_escalate_closes_exact_source_sibling_with_audit_comment(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    source = "https://learn.microsoft.com/en-us/power-platform/admin/example"
+    created_issue = "https://github.com/x/y/issues/101"
+    sibling = runner.autodoc_issue_identity.IssueRecord(
+        number=77,
+        url="https://github.com/x/y/issues/77",
+        state="OPEN",
+        state_reason="",
+        fingerprint="sha256:older",
+        source_url=source,
+        content_hash="sha256:older-hash",
+        source_kind="source_line",
+    )
     monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
-    captured: dict[str, Any] = {}
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [sibling])
+
+    calls: list[list[str]] = []
 
     def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
-        captured["args"] = list(args)
+        calls.append(list(args))
+        if args[:3] == ["gh", "issue", "create"]:
+            return _FakeCompleted(0, stdout=created_issue)
+        if args[:3] == ["gh", "issue", "close"]:
+            return _FakeCompleted(0, stdout="closed")
+        raise AssertionError(f"unexpected command: {args}")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    ctx = runner.ChangeContext(
+        fingerprint="sha256:newer",
+        route="human",
+        contract={"fingerprint": "sha256:newer", "source_url": source, "content_hash": "sha256:new-hash"},
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions="",
+        title="Autodoc human review: Example",
+        labels=["autodoc", "escalate"],
+    )
+
+    result = runner._escalate(_config(tmp_path), ctx, "route=human", "details")
+
+    assert result == created_issue
+    close_call = next(command for command in calls if command[:3] == ["gh", "issue", "close"])
+    assert "77" in close_call
+    assert "--reason" in close_call and "not planned" in close_call
+    comment = close_call[close_call.index("--comment") + 1]
+    assert created_issue in comment
+    assert source in comment
+    assert "sha256:newer" in comment
+
+
+def test_escalate_lookalike_source_does_not_close(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    source = "https://learn.microsoft.com/en-us/power-platform/admin/example"
+    lookalike = f"{source}-archive"
+    sibling = runner.autodoc_issue_identity.IssueRecord(
+        number=78,
+        url="https://github.com/x/y/issues/78",
+        state="OPEN",
+        state_reason="",
+        fingerprint="sha256:older",
+        source_url=lookalike,
+        content_hash="sha256:older-hash",
+        source_kind="source_line",
+    )
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [sibling])
+
+    calls: list[list[str]] = []
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        calls.append(list(args))
+        if args[:3] == ["gh", "issue", "create"]:
+            return _FakeCompleted(0, stdout="https://github.com/x/y/issues/102")
+        if args[:3] == ["gh", "issue", "close"]:
+            return _FakeCompleted(0, stdout="closed")
+        raise AssertionError(f"unexpected command: {args}")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    ctx = runner.ChangeContext(
+        fingerprint="sha256:newer",
+        route="human",
+        contract={"fingerprint": "sha256:newer", "source_url": source, "content_hash": "sha256:new-hash"},
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions="",
+        title="Autodoc human review: Example",
+        labels=["autodoc", "escalate"],
+    )
+    runner._escalate(_config(tmp_path), ctx, "route=human", "details")
+
+    assert not any(command[:3] == ["gh", "issue", "close"] for command in calls)
+
+
+def test_escalate_create_succeeds_even_when_sibling_close_fails(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    source = "https://learn.microsoft.com/en-us/power-platform/admin/example"
+    sibling = runner.autodoc_issue_identity.IssueRecord(
+        number=79,
+        url="https://github.com/x/y/issues/79",
+        state="OPEN",
+        state_reason="",
+        fingerprint="sha256:older",
+        source_url=source,
+        content_hash="sha256:older-hash",
+        source_kind="source_line",
+    )
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [sibling])
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        if args[:3] == ["gh", "issue", "create"]:
+            return _FakeCompleted(0, stdout="https://github.com/x/y/issues/103")
+        if args[:3] == ["gh", "issue", "close"]:
+            return _FakeCompleted(1, stderr="close failed")
+        raise AssertionError(f"unexpected command: {args}")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    ctx = runner.ChangeContext(
+        fingerprint="sha256:newer",
+        route="human",
+        contract={"fingerprint": "sha256:newer", "source_url": source, "content_hash": "sha256:new-hash"},
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions="",
+        title="Autodoc human review: Example",
+        labels=["autodoc", "escalate"],
+    )
+
+    assert runner._escalate(_config(tmp_path), ctx, "route=human", "details") == "https://github.com/x/y/issues/103"
+
+
+def test_escalate_body_includes_source_url(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # The escalation body must carry the exact Source URL so advance/consolidation can do
+    # exact-source matching from structured body fields instead of tokenized substring search.
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [])
+    captured: list[list[str]] = []
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        captured.append(list(args))
         return _FakeCompleted(0, stdout="https://github.com/x/y/issues/7")
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
@@ -842,9 +999,10 @@ def test_escalate_body_includes_source_url(monkeypatch: pytest.MonkeyPatch, tmp_
         labels=["autodoc", "escalate"],
     )
     assert runner._escalate(_config(tmp_path), ctx, "route=human", "details") == "https://github.com/x/y/issues/7"
-    body = captured["args"][captured["args"].index("--body") + 1]
+    create_call = next(command for command in captured if command[:3] == ["gh", "issue", "create"])
+    body = create_call[create_call.index("--body") + 1]
     assert f"Source: {url}" in body
-    assert url in body  # the `{url} in:body` advance search now matches this issue
+    assert url in body
 
 
 def test_escalate_body_includes_content_hash(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -852,10 +1010,11 @@ def test_escalate_body_includes_content_hash(monkeypatch: pytest.MonkeyPatch, tm
     # can match a closed COMPLETED issue to its specific pending blob by (Source, Content-Hash)
     # instead of GitHub's tokenized `{url} in:body` search (which can advance the wrong baseline).
     monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
-    captured: dict[str, Any] = {}
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [])
+    captured: list[list[str]] = []
 
     def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
-        captured["args"] = list(args)
+        captured.append(list(args))
         return _FakeCompleted(0, stdout="https://github.com/x/y/issues/9")
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
@@ -876,7 +1035,8 @@ def test_escalate_body_includes_content_hash(monkeypatch: pytest.MonkeyPatch, tm
         labels=["autodoc", "escalate"],
     )
     assert runner._escalate(_config(tmp_path), ctx, "route=human", "details") == "https://github.com/x/y/issues/9"
-    body = captured["args"][captured["args"].index("--body") + 1]
+    create_call = next(command for command in captured if command[:3] == ["gh", "issue", "create"])
+    body = create_call[create_call.index("--body") + 1]
     assert f"Source: {url}" in body
     assert f"Content-Hash: {content_hash}" in body
 
