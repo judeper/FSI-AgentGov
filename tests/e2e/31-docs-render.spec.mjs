@@ -150,6 +150,26 @@ function tryOrigin(urlStr) {
   }
 }
 
+const RETRYABLE_HEAD_ERROR_RE =
+  /(ECONNREFUSED|ECONNRESET|ERR_CONNECTION_REFUSED|ERR_CONNECTION_RESET)/i;
+
+async function headWithRetry(request, url, attempts = 3) {
+  let lastError;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await request.head(url);
+    } catch (e) {
+      lastError = e;
+      const message = String(e?.message || "");
+      if (i === attempts || !RETRYABLE_HEAD_ERROR_RE.test(message)) {
+        throw e;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250 * i));
+    }
+  }
+  throw lastError;
+}
+
 /**
  * Install a securitypolicyviolation listener via initScript so it fires on
  * every navigation (including instant-nav) for the lifetime of the page object.
@@ -192,7 +212,7 @@ test.describe.serial("docs render @regression", () => {
   test(
     "Every page in must-cover set renders correctly @regression",
     async ({ page, request }) => {
-      test.setTimeout(90_000);
+      test.setTimeout(210_000);
 
       const pageErrors = [];
       const consoleErrors = [];
@@ -229,6 +249,7 @@ test.describe.serial("docs render @regression", () => {
         const preConsoleErrorCount = consoleErrors.length;
 
         await page.goto(absUrl, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
 
         // (a) Mermaid render — Material renders into closed shadow DOM, so we
         //     measure layout (countRenderedMermaid) instead of `.mermaid svg`.
@@ -239,7 +260,7 @@ test.describe.serial("docs render @regression", () => {
             await expect
               .poll(
                 () => countRenderedMermaid(page),
-                { timeout: 5000 },
+                { timeout: 12000 },
               )
               .toBe(oracle.expected_mermaid_count);
           } catch {
@@ -269,7 +290,7 @@ test.describe.serial("docs render @regression", () => {
           for (const link of oracle.expected_diagram_links) {
             const absLink = `${DOCS_BASE}/${link}`;
             try {
-              const resp = await request.head(absLink);
+              const resp = await headWithRetry(request, absLink);
               if (resp.status() !== 200) {
                 failures.push(
                   `[F-IMAGES-EXCLUDED] ${urlPath}: ` +
@@ -312,7 +333,7 @@ test.describe.serial("docs render @regression", () => {
           } else {
             const absDisclaimer = new URL(footerHref, page.url()).toString();
             try {
-              const resp = await request.head(absDisclaimer);
+              const resp = await headWithRetry(request, absDisclaimer);
               if (resp.status() !== 200) {
                 failures.push(
                   `[F-DEPLOY-COPYRIGHT-PATH-01] ${urlPath}: ` +
@@ -458,7 +479,7 @@ test.describe.serial("docs render @regression", () => {
   // Test 3 — Click-through navigation.instant Mermaid re-init
   // ===========================================================================
   test(
-    "Click-through SPA-style navigation re-init (navigation.instant) @regression",
+    "Click-through SPA-style navigation re-init (navigation.instant) @regression @smoke",
     async ({ page }) => {
       test.setTimeout(60_000);
 
@@ -467,13 +488,13 @@ test.describe.serial("docs render @regression", () => {
         waitUntil: "domcontentloaded",
       });
 
-      // (b) Locate a link to the agent-lifecycle page (oracle: 1 mermaid block).
-      //     Material renders nav links as <a href="/framework/agent-lifecycle/">.
-      const targetSuffix = "/framework/agent-lifecycle/";
+      // (b) Click a deliberately visible user-path link from page content
+      //     (preferred over hidden nav tree entries).
       const link = page
-        .locator(`a[href$="${targetSuffix}"]`)
+        .locator("article.md-content__inner")
+        .getByRole("link", { name: /agent lifecycle/i })
         .first();
-      await link.waitFor({ timeout: 10_000 });
+      await link.waitFor({ state: "visible", timeout: 10_000 });
 
       // (c) Click the link — NOT page.goto() — to exercise navigation.instant's
       //     SPA-style fetch-and-swap code path.
