@@ -323,7 +323,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Device Control** | https://learn.microsoft.com/en-us/defender-endpoint/device-control-overview | Feb 2026 |
-| **Defender for Cloud Apps - AI Inventory** | https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory | Jan 2026 |
+| **Microsoft Defender - AI Agent Inventory** | https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory | Jan 2026 |
 
 ---
 
