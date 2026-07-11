@@ -26,8 +26,8 @@ It maps the 79 FSI-AgentGov controls to the 6 Microsoft CAPE Frontier Transforma
 | 1 — Employee AI Enablement | 79 | 2 | 16 |
 | 2 — Business Expert Empowerment | 79 | 1 | 10 |
 | 3 — Workplace & IT Services | 79 | 1 | 5 |
-| 4 — Core Business Process Transformation | 79 | 3 | 29 |
-| 5 — External Engagement | 79 | 6 | 21 |
+| 4 — Core Business Process Transformation | 79 | 3 | 30 |
+| 5 — External Engagement | 79 | 6 | 22 |
 | 6 — AI-First Capabilities | 79 | 4 | 12 |
 
 ## Pattern-critical controls
@@ -134,6 +134,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 - [`dr-testing-framework`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
 - [`early-release-validation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/early-release-validation)
 - [`environment-lifecycle-management`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
+- [`eval-gate`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/eval-gate)
 - [`finra-supervision-workflow`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)
 - [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor)
 - [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
@@ -161,6 +162,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 - [`deny-event-correlation-report`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
 - [`dr-testing-framework`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
 - [`early-release-validation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/early-release-validation)
+- [`eval-gate`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/eval-gate)
 - [`finra-supervision-workflow`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)
 - [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
 - [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance)
