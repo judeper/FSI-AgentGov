@@ -1,6 +1,6 @@
 # AGENTS.md - Instructions for AI Agents
 
-This file provides guidance for autonomous AI agents working on this repository. It is tool-neutral and readable by Codex CLI and GitHub Copilot.
+This file provides guidance for autonomous AI agents working on this repository. It is tool-neutral and written for GitHub Copilot surfaces.
 
 ## Project Overview
 
@@ -150,12 +150,9 @@ enough to cause silent truncation on PRs with many checks.
 
 ## Multi-Agent Coordination
 
-Two common tool surfaces operate on this repository:
+GitHub Copilot is the active AI guidance surface for this repository. Core repository context lives in `.github/copilot-instructions.md`, with workspace prompts and path-scoped instruction files under `.github/prompts/` and `.github/instructions/`.
 
-| Tool | Primary Role | Config Location |
-|------|-------------|-----------------|
-| **Codex CLI** | Documentation generation and repo maintenance | `.codex/config.toml` |
-| **GitHub Copilot** | Prompt-driven repo assistance | `.github/copilot-instructions.md`, `.github/prompts/`, `.github/instructions/` |
+**Platform scope note:** `.github/copilot-instructions.md` is the shared repository baseline; path-scoped instruction files and `AGENTS.md` are consumed where the client surface supports them (for example VS Code and cloud coding agents), and may not be applied identically by GitHub.com Copilot Chat.
 
 When multiple agents are active, prefer one branch/worktree per agent. Avoid concurrent edits to the same file and hand off work through branches, commits, or PRs rather than shared planning-state files.
 
@@ -201,36 +198,6 @@ Each worktree is a full working directory at `../FSI-AgentGov.{branch-name}/`.
 **Project hooks** (`.config/wt.toml`):
 - **post-create**: Copies `.venv/`, `site/`, and other gitignored files from the base worktree via `git-wt step copy-ignored`
 - **pre-merge**: Runs `mkdocs build --strict` and `python scripts/verify_controls.py` before merging
-
-
-### Codex CLI Model Selection
-
-Pick the cheapest model that can hold the relevant context in one pass and will not invent control IDs, file paths, or implementation steps. Three named profiles are defined in `.codex/config.toml`:
-
-| Profile | Model | Reasoning | Use When |
-|---------|-------|-----------|----------|
-| `budget` | gpt-5.1-codex-mini | low | Typos, single-file edits, heading normalization |
-| *(default)* | gpt-5.1-codex | high | Multi-file control + playbook updates, bounded solution work |
-| `quality` | gpt-5.3-codex | xhigh | Net-new solution design, cross-repo alignment, multi-control reasoning |
-
-Activate with `codex --profile budget` or `codex --profile quality`. The default (no flag) uses gpt-5.1-codex.
-
-**Task examples:**
-
-| Task | Profile |
-|------|---------|
-| Fix typos, normalize headings, tighten wording in framework docs | `--profile budget` |
-| Update a single control doc without touching playbooks | `--profile budget` |
-| Update a control and its 4 playbooks | Default |
-| Add a new solution folder patterned after an existing one | Default |
-| Net-new solution design mapped to multiple controls | `--profile quality` |
-| Cross-repo alignment (solution control mappings vs control catalog) | `--profile quality` (plan) → default (edit) |
-
-**Workflow:**
-1. Run a "plan-only" prompt first — get the file list and diff outline before generating changes
-2. Simple patches (1–2 files): `codex --profile budget`; multi-file: use the default
-3. One control (or one solution) per commit for reviewable diffs
-4. Run `mkdocs build --strict` / `verify_controls.py` after each change set; escalate to `--profile quality` when validation failures need cross-file reasoning
 
 
 ## Agent Workflows
@@ -367,7 +334,6 @@ If you encounter:
 
 | Tool | Config | Details |
 |------|--------|---------|
-| **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy (local only, gitignored) |
 | **Copilot Context** | `.github/copilot-instructions.md` | Repository structure, workflow guardrails, and design context |
 | **Copilot Prompts** | `.github/prompts/` | Workspace prompts, including `repo-health-check*.prompt.md` and `review-learn-changes.prompt.md` |
 | **Copilot Instructions** | `.github/instructions/` | Auto-included rules, including `fsi-language-rules`, `fsi-control-template`, `build-validation`, `git-integration`, and `commercial-scope` |
@@ -375,7 +341,7 @@ If you encounter:
 
 ### Copilot Tool Alias Notes
 
-Agent and prompt files use GitHub Copilot's recognized built-in aliases: `read`, `edit`, `search`, `execute`, `agent`, `web`, `todo`. Unrecognized names are silently ignored (falling back to unrestricted access).
+Agent and prompt files use GitHub Copilot's recognized built-in aliases: `read`, `edit`, `search`, `execute`, `agent`, `web`, `todo`. Unrecognized names are silently ignored.
 
 **Platform differences:** The `web` and `todo` aliases are supported in VS Code Copilot Chat but are currently not applicable to the GitHub.com Copilot coding agent. Prompts that reference these tools should be resilient without them — they enhance the workflow in VS Code but are safely ignored on GitHub.com.
 
@@ -390,10 +356,10 @@ If you type `/` in Copilot Chat and don't see the workspace prompt files from `.
 
 ## E2E Test Suite
 
-The customer-facing assessment SPA at `/assessment/` is gated by a Playwright suite under `tests/e2e/` (forthcoming in plan v3.1, Phase C). Until that lands, the suite covers:
+The customer-facing assessment SPA at `/assessment/` is covered by an implemented Playwright suite under `tests/e2e/`, including:
 
-- **Smoke set** (~90s wall): happy path, autofill defenses, PDF print spy, import roundtrip, axe a11y baseline.
-- **Full suite**: ~28 specs across exports (JSON/XLSX/CSV/PDF/MD), state restoration, hash routing, multi-tab race, XSS matrix, mobile viewport, keyboard nav, perf budget, CSP+asset-skew, collector injection, cross-origin localStorage.
+- **Smoke set**: happy path, autofill defenses, PDF print spy, import roundtrip, axe a11y baseline.
+- **Full suite**: exports (JSON/XLSX/CSV/PDF/MD), state restoration, hash routing, multi-tab race, XSS matrix, mobile viewport, keyboard nav, perf budget, CSP+asset-skew, collector injection, cross-origin localStorage.
 
 Vitest layer (`tests/spa/`) covers contracts: JSON envelope schema, CSV escape, MD anchor, persona-fixture parity, XLSX cell shape, prototype-pollution validator, filter-loop perf.
 
@@ -401,7 +367,7 @@ Vitest layer (`tests/spa/`) covers contracts: JSON envelope schema, CSV escape, 
 
 ```bash
 npm test                    # vitest contracts
-npm run test:e2e:smoke      # Playwright smoke (~90s)
+npm run test:e2e:smoke      # Playwright smoke
 npm run test:e2e            # Playwright full
 ```
 
@@ -411,7 +377,7 @@ PNG snapshots are Linux-baseline only. Regenerate via the manual-dispatch workfl
 
 ### CI gating
 
-PRs require `e2e/smoke` (Required Status Check) before merge. `prod-smoke.yml` runs after deploy, polling `/version.json` for the deployed SHA before exercising the production URL.
+PRs require `e2e-smoke` (Required Status Check) before merge. `prod-smoke.yml` runs after deploy, polling `/version.json` for the deployed SHA before exercising the production URL.
 
 ### Failure triage
 

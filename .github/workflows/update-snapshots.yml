@@ -1,10 +1,5 @@
 # Manual-dispatch workflow to regenerate Linux-baseline Playwright PNG snapshots.
 #
-# PARKED: depends on `npm run test:e2e:snapshots` and the Playwright suite
-# under tests/e2e/, both forthcoming in plan v3.1, Phase C scaffold.
-# Until that lands, dispatching this workflow will fail at the npm step;
-# that's intentional — no silent passes.
-#
 # Usage: GitHub UI → Actions → "Update Playwright Snapshots" → Run workflow.
 # Snapshots must only be generated on Linux to keep PNG diffs deterministic.
 # Do NOT regenerate snapshots on Windows or macOS.
@@ -65,7 +60,6 @@ jobs:
         run: mkdocs build --strict
 
       - name: Regenerate Playwright snapshots
-        # PARKED: this script is added in Phase C scaffold (tests/e2e/).
         run: npm run test:e2e:snapshots -- --update-snapshots
 
       - name: Upload snapshot diffs

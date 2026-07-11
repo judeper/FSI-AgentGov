@@ -5,7 +5,7 @@ tools: ["read", "search"]
 ---
 
 <objective>
-Analyze repository structural integrity and content quality through cross-file reasoning that automated scripts cannot perform. Do NOT re-check anything covered by validation scripts (language rules, control section structure, footer format, anchor links). Report issues only, one line per finding.
+Analyze repository structural integrity and content quality through cross-file reasoning that automated scripts cannot perform. Do NOT re-check anything covered by validation scripts (language rules, control section structure/footer checks, built-site internal-path validation, source-anchor validation). Report issues only, one line per finding.
 </objective>
 
 <instructions>
@@ -29,7 +29,8 @@ Analyze repository structural integrity and content quality through cross-file r
 These are already covered by `repo-health-check-scripts`. Do not duplicate:
 - Prohibited language phrases → `verify_language_rules.py`
 - Control 10-section structure and footer format → `verify_controls.py`
-- Broken anchor links → `validate_docs_anchors.py`
+- Built-site internal path coverage (authoritative for built paths, non-anchor) → `verify_doc_links.py site --json _broken-links.json`
+- Source-markdown anchor validation (authoritative for fragment anchors) → `validate_docs_anchors.py`
 - Template validity → `verify_templates.py`
 - Excel template integrity → `verify_excel_templates.py`
 

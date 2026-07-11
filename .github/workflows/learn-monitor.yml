@@ -180,12 +180,12 @@ jobs:
 
             ```bash
             # 1. Checkout this PR branch
-            gh pr checkout ' || '' }}${{ steps.monitor.outputs.exit_code == '1' && github.run_number || '' }}${{ steps.monitor.outputs.exit_code == '1' && '
+            gh pr checkout ' || '' }}${{ steps.monitor.outputs.exit_code == '1' && '<PR_NUMBER>' || '' }}${{ steps.monitor.outputs.exit_code == '1' && '
 
-            # 2. Run the review skill in Claude Code
+            # 2. Run the review skill in GitHub Copilot Chat or Copilot CLI
             /review-learn-changes
 
-            # 3. Claude will analyze the change report and:
+            # 3. Copilot will analyze the change report and:
             #    - Categorize changes (update/flag/skip)
             #    - Propose specific documentation edits
             #    - Apply edits with your confirmation
@@ -252,7 +252,7 @@ jobs:
             | View change report | Open `${{ steps.monitor.outputs.report_file }}` |
             | Merge without changes | Approve and merge this PR |
 
-            > 💡 **Tip:** Run `/review-learn-changes` in Claude Code to automatically analyze changes and draft documentation updates.
+            > 💡 **Tip:** Run `/review-learn-changes` in GitHub Copilot Chat or Copilot CLI to automatically analyze changes and draft documentation updates.
 
       # --- Stage 0: consolidation + auto-merge of state-only monitoring PRs ---
       # Learn-monitor PRs only ever touch data/monitor-state.json(.backup),
