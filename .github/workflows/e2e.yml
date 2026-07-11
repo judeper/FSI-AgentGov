@@ -128,8 +128,9 @@ jobs:
           # Idempotent: reuse an existing open issue if present; never spam duplicates.
           EXISTING=$(gh issue list --state open --label "$LABEL" --json number --jq '.[0].number // empty')
           if [ -n "$EXISTING" ]; then
+            gh issue edit "$EXISTING" --add-assignee "$REPO_OWNER"
             gh issue comment "$EXISTING" --body "$BODY"
-            echo "Commented on existing #$EXISTING"
+            echo "Assigned and commented on existing #$EXISTING"
           else
             gh issue create --title "e2e-full failing on main" --label "$LABEL" --assignee "$REPO_OWNER" --body "$BODY"
             echo "Created a new e2e-full-broken issue"
