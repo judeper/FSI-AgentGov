@@ -128,12 +128,22 @@ jobs:
           # Idempotent: reuse an existing open issue if present; never spam duplicates.
           EXISTING=$(gh issue list --state open --label "$LABEL" --json number --jq '.[0].number // empty')
           if [ -n "$EXISTING" ]; then
-            gh issue edit "$EXISTING" --add-assignee "$REPO_OWNER"
+            if ! gh issue edit "$EXISTING" --add-assignee "$REPO_OWNER"; then
+              echo "::warning::Failed to assign @$REPO_OWNER on existing #$EXISTING; continuing."
+            fi
             gh issue comment "$EXISTING" --body "$BODY"
-            echo "Assigned and commented on existing #$EXISTING"
+            echo "Commented on existing #$EXISTING"
           else
-            gh issue create --title "e2e-full failing on main" --label "$LABEL" --assignee "$REPO_OWNER" --body "$BODY"
-            echo "Created a new e2e-full-broken issue"
+            NEW_URL=$(gh issue create --title "e2e-full failing on main" --label "$LABEL" --body "$BODY")
+            NEW_NUMBER="${NEW_URL##*/}"
+            echo "Created new e2e-full-broken issue: $NEW_URL"
+            if [[ "$NEW_NUMBER" =~ ^[0-9]+$ ]]; then
+              if ! gh issue edit "$NEW_NUMBER" --add-assignee "$REPO_OWNER"; then
+                echo "::warning::Failed to assign @$REPO_OWNER on new #$NEW_NUMBER; continuing."
+              fi
+            else
+              echo "::warning::Could not parse issue number from '$NEW_URL'; skipping assignment."
+            fi
           fi
 
   close-e2e-failure-on-recovery:

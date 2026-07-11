@@ -158,15 +158,16 @@ test.describe("fetch failure resilience @regression", () => {
     // Restore network and visit fresh — assessment must be resumable.
     // page.goto("/assessment/") instead of page.reload() so AS8's URL routing
     // doesn't auto-resume back into the offline-saved phase1 step (which would
-    // bypass the welcome-list "Previous Assessments" surface this test asserts).
+    // bypass the welcome-list saved-assessments surface this test asserts).
     await context.setOffline(false);
     await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
     await page
       .getByRole("button", { name: "Start New Assessment" })
       .waitFor({ timeout: 15_000 });
-    // The "Previous Assessments" list surfaces our saved entry.
+    // The saved-assessments list surface shows our resumable entry.
+    await expect(page.locator(".ag-saved-list")).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /Previous Assessments/i }),
+      page.getByRole("heading", { name: /^(All saved assessments|Saved assessment)$/i }),
     ).toBeVisible();
   });
 });
