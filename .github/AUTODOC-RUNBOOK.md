@@ -45,6 +45,7 @@ learn-monitor.yml (daily)
 | **Unattended runner** | `scripts/autodoc_runner.py` | Routes the latest report and, per autodraft change, drafts → verifies → cross-model-reviews → opens an OceanSquad-reviewed PR; runs in a **disposable git worktree**; idempotent via the ledger |
 | **Scheduler** | `scripts/Register-AutodocTask.ps1` | Registers the daily Windows Scheduled Task that runs the runner |
 | Baseline-deferral ledger (F5) | `scripts/autodoc_defer.py` + `scripts/autodoc_advance.py` + `.github/workflows/learn-monitor-advance.yml` | Advances the monitor baseline only when the downstream doc task is terminal; **byte-identical no-op** unless `AUTODOC_ENABLED=true` |
+| Queue consolidation | `scripts/autodoc_consolidate.py` | Exact-source supersession planner/closer for stale sibling issues; **dry-run by default**, `--apply` performs `NOT_PLANNED` closes with audit comments |
 
 ## Safety model (do not weaken without review)
 
@@ -140,6 +141,16 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
   `Start-ScheduledTask -TaskName 'FSI-AgentGov-Autodoc'`; dry run with
   `python scripts/autodoc_runner.py --repo . --draft-model <m> --review-model <m> --dry-run` (with
   `AUTODOC_ENABLED=true` in the session).
+- **Consolidate stale queue siblings (exact-source):** snapshot issues then run the
+  consolidator in reviewed dry-run mode, then a guarded apply:
+  `gh issue list --state all --label autodoc --json number,url,state,stateReason,body --limit 500 > autodoc-issues-all.json`
+  then review the plan:
+  `python scripts/autodoc_consolidate.py --issues-json autodoc-issues-all.json > autodoc-consolidate-plan.json`
+  then capture reviewed guards from the plan:
+  `python -c "import json; p=json.load(open('autodoc-consolidate-plan.json', encoding='utf-8')); print('count=', p['snapshot']['count']); print('sha256=', p['snapshot']['sha256']); print('closures=', p['summary']['closures_planned'])"`
+  then apply with explicit guardrails:
+  `python scripts/autodoc_consolidate.py --issues-json autodoc-issues-all.json --apply --expected-count <count> --expected-snapshot-sha256 <sha256> --max-closures <approved_ceiling>`
+  (closes stale siblings as `NOT_PLANNED` with audit comments).
 - **A draft escalated to you:** look for issues/PRs labeled `escalate` / `needs-review`; this is a
   final owner escalation after automation exhaustion. Escalation is idempotent (it reuses an
   existing issue for the same change).

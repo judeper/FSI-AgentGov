@@ -41,6 +41,7 @@ if str(SCRIPT_DIR) not in sys.path:
 import autodoc_automerge
 import autodoc_canary
 import autodoc_classifier
+import autodoc_issue_identity
 import autodoc_retry
 import autodoc_route
 
@@ -59,6 +60,7 @@ _REDIRECT_TO_RE = re.compile(r"redirects to (\S[^\n]*)")
 # A well-formed redirect URL: scheme + only RFC 3986 URL characters. Excludes anything that would
 # break the markdown table or isn't URL-legal (|, quotes, <>, backtick, braces, control chars).
 _URL_WELL_FORMED_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+_ISSUE_URL_NUMBER_RE = re.compile(r"/issues/(\d+)(?:/)?$")
 
 
 def _redirect_host_allowed(url: str) -> bool:
@@ -1036,11 +1038,40 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     if completed.returncode != 0:
         # Must raise so the ledger is NOT marked escalated for an issue that was never created.
         raise RuntimeError(f"gh issue create failed (exit {completed.returncode}): {(completed.stderr or '').strip()}")
-    return (completed.stdout or "").strip()
+    created_issue_url = (completed.stdout or "").strip()
+
+    # Best-effort sibling supersession: once the new issue exists, close any OLDER open
+    # issue that tracks the same exact Source but a different fingerprint. This cleanup
+    # must never suppress creation success.
+    source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
+    if isinstance(source_url, str) and source_url.strip():
+        try:
+            _close_source_siblings_not_planned(
+                config=config,
+                source_url=source_url.strip(),
+                fingerprint=ctx.fingerprint,
+                superseding_issue_url=created_issue_url,
+            )
+        except Exception as exc:  # noqa: BLE001 - creation already succeeded; cleanup is best-effort.
+            print(
+                "warning: escalation issue was created but sibling supersession cleanup failed: "
+                f"{exc}",
+                file=sys.stderr,
+            )
+    return created_issue_url
 
 
 def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
-    """Return the URL of an open escalation issue already carrying this fingerprint, or None."""
+    """Return the URL of an open escalation issue already carrying this fingerprint."""
+
+    for issue in _list_open_autodoc_issues(config):
+        if issue.fingerprint == ctx.fingerprint and issue.url:
+            return issue.url
+    return None
+
+
+def _list_open_autodoc_issues(config: RunnerConfig) -> list[autodoc_issue_identity.IssueRecord]:
+    """Return parsed open autodoc issues for exact local matching."""
 
     completed = subprocess.run(
         [
@@ -1051,20 +1082,92 @@ def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
             _repo_slug(config),
             "--state",
             "open",
-            "--search",
-            f"AUTODOC-FINGERPRINT: {ctx.fingerprint} in:body",
+            "--label",
+            "autodoc",
             "--json",
-            "url",
-            "-q",
-            ".[0].url",
+            "number,url,state,stateReason,body",
+            "--limit",
+            "500",
         ],
         check=False,
         capture_output=True,
         text=True,
         cwd=str(config.repo_path),
     )
-    url = (completed.stdout or "").strip()
-    return url if completed.returncode == 0 and url else None
+    if completed.returncode != 0:
+        return []
+    try:
+        payload = json.loads(completed.stdout or "[]")
+    except ValueError:
+        return []
+    if not isinstance(payload, list):
+        return []
+    records: list[autodoc_issue_identity.IssueRecord] = []
+    for item in payload:
+        if isinstance(item, dict):
+            records.append(autodoc_issue_identity.parse_issue_record(item))
+    return [record for record in records if record.state == "OPEN"]
+
+
+def _close_source_siblings_not_planned(
+    *,
+    config: RunnerConfig,
+    source_url: str,
+    fingerprint: str,
+    superseding_issue_url: str,
+) -> None:
+    """Close older open same-source/different-fingerprint siblings as NOT_PLANNED."""
+
+    superseding_number = _issue_number_from_url(superseding_issue_url)
+    if superseding_number is None:
+        return
+
+    for issue in _list_open_autodoc_issues(config):
+        if issue.source_url != source_url:
+            continue
+        if issue.fingerprint == fingerprint:
+            continue
+        if issue.number is None:
+            continue
+        if issue.number >= superseding_number:
+            continue
+        comment = (
+            f"Superseded by {superseding_issue_url}.\n\n"
+            "Audit: exact-source sibling supersession\n"
+            f"- Exact Source: {source_url}\n"
+            f"- Superseded fingerprint: {issue.fingerprint or 'unknown'}\n"
+            f"- Active fingerprint: {fingerprint}\n"
+        )
+        completed = subprocess.run(
+            [
+                "gh",
+                "issue",
+                "close",
+                str(issue.number),
+                "--repo",
+                _repo_slug(config),
+                "--reason",
+                "not planned",
+                "--comment",
+                comment,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            cwd=str(config.repo_path),
+        )
+        if completed.returncode != 0:
+            raise RuntimeError(
+                "gh issue close failed "
+                f"(#{issue.number}, exit {completed.returncode}): {(completed.stderr or '').strip()}"
+            )
+
+
+def _issue_number_from_url(url: str) -> int | None:
+    match = _ISSUE_URL_NUMBER_RE.search(url.strip())
+    if not match:
+        return None
+    return int(match.group(1))
 
 
 def _create_worktree(config: RunnerConfig) -> Path:

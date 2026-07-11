@@ -9,9 +9,7 @@ on:
     types: [closed]
 
 permissions:
-  contents: write
-  issues: read
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: learn-monitor-advance
@@ -59,6 +57,17 @@ jobs:
             --limit 500 \
             > closed-autodoc-issues.json
           python -c "import json,sys; print('Closed autodoc issues:', len(json.load(open('closed-autodoc-issues.json'))))"
+
+      - name: Snapshot autodoc issues (open + closed)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh issue list \
+            --state all \
+            --label autodoc \
+            --json number,url,state,stateReason,body \
+            --limit 500 \
+            > autodoc-issues-all.json
 
       - name: Advance terminal Learn baselines
         run: |
@@ -115,3 +124,12 @@ jobs:
           fi
           gh pr merge "$NEW_PR" --auto --squash --delete-branch
           echo "Auto-merge enabled for deferred baseline advancement PR #$NEW_PR."
+
+      - name: Report stale open exact-source sibling consolidation plan (dry-run)
+        if: ${{ github.event_name != 'issues' }}
+        continue-on-error: true
+        run: |
+          python scripts/autodoc_consolidate.py \
+            --issues-json autodoc-issues-all.json \
+            > autodoc-consolidation-plan.json
+          python -c "import json; p=json.load(open('autodoc-consolidation-plan.json', encoding='utf-8')); print(f\"Consolidation dry-run: closures_planned={p['summary']['closures_planned']} snapshot_sha256={p['snapshot']['sha256']}\")"

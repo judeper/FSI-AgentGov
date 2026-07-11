@@ -17,10 +17,10 @@ from __future__ import annotations
 import argparse
 import copy
 import json
-import re
 from pathlib import Path
 from typing import Any
 
+import autodoc_issue_identity
 from autodoc_defer import PENDING_RELATIVE_DIR, load_pending
 from monitoring_shared import get_source_state, load_state, save_state_atomic, set_source_state
 
@@ -32,12 +32,6 @@ DEFAULT_PENDING_DIR = PENDING_RELATIVE_DIR
 # "not planned"/"duplicate" must NOT advance the baseline (that would dedupe a change whose doc
 # edit was never shipped).
 COMPLETED_STATE_REASON = "COMPLETED"
-
-_SOURCE_LINE_RE = re.compile(r"^Source:\s*(\S+)\s*$", re.MULTILINE)
-_CONTENT_HASH_LINE_RE = re.compile(r"^Content-Hash:\s*(\S+)\s*$", re.MULTILINE)
-# build_issue tracking issues (the autodraft path) carry identity ONLY inside the embedded
-# ```json``` contract (source_url / content_hash), not as plaintext lines — so parse that too.
-_JSON_CONTRACT_RE = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)
 
 # A terminal identity is the exact (url, content_hash) pair that uniquely names one change.
 Identity = tuple[str, str]
@@ -52,30 +46,12 @@ def parse_issue_identity(body: str | None) -> Identity | None:
     Both are recognized; otherwise the issue cannot be matched to a specific pending change and
     ``None`` is returned (the blob is left untouched).
     """
-    if not body:
-        return None
-    source_m = _SOURCE_LINE_RE.search(body)
-    content_hash_m = _CONTENT_HASH_LINE_RE.search(body)
-    if source_m and content_hash_m:
-        return (source_m.group(1).strip(), content_hash_m.group(1).strip())
-    # Fallback: autodraft/tracking issues embed identity only in the ```json``` contract.
-    for match in _JSON_CONTRACT_RE.finditer(body):
-        try:
-            contract = json.loads(match.group(1))
-        except (ValueError, TypeError):
-            continue
-        if not isinstance(contract, dict):
-            continue
-        url = contract.get("source_url")
-        content_hash = contract.get("content_hash")
-        if isinstance(url, str) and url.strip() and isinstance(content_hash, str) and content_hash.strip():
-            return (url.strip(), content_hash.strip())
-    return None
+    return autodoc_issue_identity.parse_issue_body_identity(body).identity
 
 
 def _normalize_state_reason(value: Any) -> str:
     """Normalize gh's ``stateReason`` (e.g. ``COMPLETED``/``completed``/None) to upper-case."""
-    return str(value or "").strip().upper()
+    return autodoc_issue_identity.normalize_state_reason(value)
 
 
 def terminal_identities_from_issues(closed_issues: list[dict[str, Any]]) -> set[Identity]:
@@ -87,9 +63,10 @@ def terminal_identities_from_issues(closed_issues: list[dict[str, Any]]) -> set[
     """
     identities: set[Identity] = set()
     for issue in closed_issues:
-        if _normalize_state_reason(issue.get("stateReason")) != COMPLETED_STATE_REASON:
+        record = autodoc_issue_identity.parse_issue_record(issue)
+        if _normalize_state_reason(record.state_reason) != COMPLETED_STATE_REASON:
             continue
-        identity = parse_issue_identity(issue.get("body"))
+        identity = record.identity
         if identity is not None:
             identities.add(identity)
     return identities
