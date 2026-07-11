@@ -82,13 +82,12 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
     if not body:
         return IssueBodyIdentity(fingerprint=None, source_url=None, content_hash=None, source_kind="missing")
 
-    fingerprint_line = _as_non_empty_string(_FINGERPRINT_LINE_RE.search(body).group(1)) if _FINGERPRINT_LINE_RE.search(body) else None
-    source_line = _as_non_empty_string(_SOURCE_LINE_RE.search(body).group(1)) if _SOURCE_LINE_RE.search(body) else None
-    content_hash_line = (
-        _as_non_empty_string(_CONTENT_HASH_LINE_RE.search(body).group(1))
-        if _CONTENT_HASH_LINE_RE.search(body)
-        else None
-    )
+    fingerprint_match = _FINGERPRINT_LINE_RE.search(body)
+    source_match = _SOURCE_LINE_RE.search(body)
+    content_hash_match = _CONTENT_HASH_LINE_RE.search(body)
+    fingerprint_line = _as_non_empty_string(fingerprint_match.group(1)) if fingerprint_match else None
+    source_line = _as_non_empty_string(source_match.group(1)) if source_match else None
+    content_hash_line = _as_non_empty_string(content_hash_match.group(1)) if content_hash_match else None
 
     contract_source: str | None = None
     contract_hash: str | None = None
@@ -109,15 +108,22 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
             contract_fingerprint = current_fingerprint
             break
 
-    source_url = source_line or contract_source
-    content_hash = content_hash_line or contract_hash
-    fingerprint = fingerprint_line or contract_fingerprint
-    if source_line:
+    plaintext_pair = source_line and content_hash_line
+    contract_pair = contract_source and contract_hash
+    if plaintext_pair:
+        source_url = source_line
+        content_hash = content_hash_line
         source_kind = "source_line"
-    elif contract_source:
+    elif contract_pair:
+        source_url = contract_source
+        content_hash = contract_hash
         source_kind = "contract"
     else:
+        source_url = None
+        content_hash = None
         source_kind = "missing"
+
+    fingerprint = fingerprint_line or contract_fingerprint
     return IssueBodyIdentity(
         fingerprint=fingerprint,
         source_url=source_url,

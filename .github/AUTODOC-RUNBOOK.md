@@ -142,13 +142,15 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
   `python scripts/autodoc_runner.py --repo . --draft-model <m> --review-model <m> --dry-run` (with
   `AUTODOC_ENABLED=true` in the session).
 - **Consolidate stale queue siblings (exact-source):** snapshot issues then run the
-  consolidator in dry-run (default) or apply mode:
+  consolidator in reviewed dry-run mode, then a guarded apply:
   `gh issue list --state all --label autodoc --json number,url,state,stateReason,body --limit 500 > autodoc-issues-all.json`
-  then
-  `python scripts/autodoc_consolidate.py --issues-json autodoc-issues-all.json` (plan only) or
-  `python scripts/autodoc_consolidate.py --issues-json autodoc-issues-all.json --apply`
-  (closes stale siblings as `NOT_PLANNED` with audit comments). Optional guards:
-  `--expected-count` and `--expected-snapshot-sha256`.
+  then review the plan:
+  `python scripts/autodoc_consolidate.py --issues-json autodoc-issues-all.json > autodoc-consolidate-plan.json`
+  then capture reviewed guards from the plan:
+  `python -c "import json; p=json.load(open('autodoc-consolidate-plan.json', encoding='utf-8')); print('count=', p['snapshot']['count']); print('sha256=', p['snapshot']['sha256']); print('closures=', p['summary']['closures_planned'])"`
+  then apply with explicit guardrails:
+  `python scripts/autodoc_consolidate.py --issues-json autodoc-issues-all.json --apply --expected-count <count> --expected-snapshot-sha256 <sha256> --max-closures <approved_ceiling>`
+  (closes stale siblings as `NOT_PLANNED` with audit comments).
 - **A draft escalated to you:** look for issues/PRs labeled `escalate` / `needs-review`; this is a
   final owner escalation after automation exhaustion. Escalation is idempotent (it reuses an
   existing issue for the same change).

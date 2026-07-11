@@ -13,6 +13,8 @@ from typing import Any
 
 import autodoc_issue_identity
 
+DEFAULT_MAX_CLOSURES = 10
+
 
 def _repo_slug() -> str:
     return os.environ.get("AUTODOC_REPO", "judeper/FSI-AgentGov")
@@ -172,20 +174,33 @@ def _close_issue_not_planned(repo: str, closure: dict[str, Any]) -> tuple[bool, 
 
 def _build_guard_errors(
     *,
+    apply_mode: bool,
     expected_count: int | None,
     expected_snapshot_sha256: str | None,
     actual_count: int,
     actual_snapshot_sha256: str,
 ) -> list[str]:
     errors: list[str] = []
+    if apply_mode and (expected_count is None or expected_snapshot_sha256 is None):
+        errors.append("apply mode requires both --expected-count and --expected-snapshot-sha256")
     if expected_count is not None and expected_count != actual_count:
         errors.append(f"expected_count mismatch: expected={expected_count} actual={actual_count}")
-    if expected_snapshot_sha256 and expected_snapshot_sha256.lower() != actual_snapshot_sha256.lower():
+    if (
+        expected_snapshot_sha256 is not None
+        and expected_snapshot_sha256.lower() != actual_snapshot_sha256.lower()
+    ):
         errors.append(
             "expected_snapshot_sha256 mismatch: "
             f"expected={expected_snapshot_sha256} actual={actual_snapshot_sha256}"
         )
     return errors
+
+
+def _non_negative_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be >= 0")
+    return parsed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -200,16 +215,23 @@ def main(argv: list[str] | None = None) -> int:
         "--expected-snapshot-sha256",
         help="Abort if snapshot SHA-256 differs from this value.",
     )
+    parser.add_argument(
+        "--max-closures",
+        type=_non_negative_int,
+        default=DEFAULT_MAX_CLOSURES,
+        help=f"Abort apply before writes if planned closures exceed this ceiling (default: {DEFAULT_MAX_CLOSURES}).",
+    )
     args = parser.parse_args(argv)
 
+    dry_run = not args.apply
     issues, snapshot_sha256 = load_issue_snapshot(args.issues_json)
     guard_errors = _build_guard_errors(
+        apply_mode=args.apply,
         expected_count=args.expected_count,
         expected_snapshot_sha256=args.expected_snapshot_sha256,
         actual_count=len(issues),
         actual_snapshot_sha256=snapshot_sha256,
     )
-    dry_run = not args.apply
     result: dict[str, Any] = {
         "mode": "dry_run" if dry_run else "apply",
         "snapshot": {
@@ -220,6 +242,7 @@ def main(argv: list[str] | None = None) -> int:
         "guards": {
             "expected_count": args.expected_count,
             "expected_snapshot_sha256": args.expected_snapshot_sha256,
+            "max_closures": args.max_closures if args.apply else None,
             "ok": not guard_errors,
             "errors": guard_errors,
         },
@@ -232,6 +255,15 @@ def main(argv: list[str] | None = None) -> int:
 
     plan = plan_supersession(issues)
     result.update(plan)
+    if args.apply and plan["summary"]["closures_planned"] > args.max_closures:
+        result["guards"]["ok"] = False
+        result["guards"]["errors"].append(
+            "max_closures exceeded: "
+            f"planned={plan['summary']['closures_planned']} limit={args.max_closures}"
+        )
+        result["aborted"] = True
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 2
 
     if dry_run:
         print(json.dumps(result, indent=2, sort_keys=True))

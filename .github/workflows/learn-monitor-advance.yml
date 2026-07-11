@@ -9,9 +9,7 @@ on:
     types: [closed]
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: learn-monitor-advance
@@ -78,14 +76,6 @@ jobs:
             --pending-dir data/monitor-pending/learn \
             --closed-issues closed-autodoc-issues.json
 
-      - name: Consolidate stale open exact-source siblings
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          python scripts/autodoc_consolidate.py \
-            --issues-json autodoc-issues-all.json \
-            --apply
-
       - name: Create baseline advancement pull request
         id: create_pr
         uses: peter-evans/create-pull-request@v8
@@ -134,3 +124,12 @@ jobs:
           fi
           gh pr merge "$NEW_PR" --auto --squash --delete-branch
           echo "Auto-merge enabled for deferred baseline advancement PR #$NEW_PR."
+
+      - name: Report stale open exact-source sibling consolidation plan (dry-run)
+        if: ${{ github.event_name != 'issues' }}
+        continue-on-error: true
+        run: |
+          python scripts/autodoc_consolidate.py \
+            --issues-json autodoc-issues-all.json \
+            > autodoc-consolidation-plan.json
+          python -c "import json; p=json.load(open('autodoc-consolidation-plan.json', encoding='utf-8')); print(f\"Consolidation dry-run: closures_planned={p['summary']['closures_planned']} snapshot_sha256={p['snapshot']['sha256']}\")"
