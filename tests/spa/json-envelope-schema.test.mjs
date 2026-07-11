@@ -37,7 +37,7 @@ const envelopeSchema = {
         perControl: { type: "object" },
       },
     },
-    assessmentStatus: { type: "string", enum: ["draft", "in-progress", "final"] },
+    assessmentStatus: { type: "string", enum: ["draft", "in-progress", "complete"] },
   },
 };
 
@@ -116,8 +116,18 @@ describe("export-JSON envelope schema", () => {
     expect(envelope._computedScores.perControl).toHaveProperty("1.2");
   });
 
-  it("assessmentStatus is one of {draft, in-progress, final}", () => {
-    expect(["draft", "in-progress", "final"]).toContain(envelope.assessmentStatus);
+  it("assessmentStatus is one of {draft, in-progress, complete}", () => {
+    expect(["draft", "in-progress", "complete"]).toContain(envelope.assessmentStatus);
+  });
+
+  it("assessmentStatus is complete when all controls are answered", async () => {
+    const { app, captured, manifest } = await bootApp();
+    for (const control of manifest) {
+      app.state.responses[control.id] = { answer: "yes", notes: "", evidenceRef: "" };
+    }
+    app.exportJSON();
+    const completeEnvelope = JSON.parse(captured[captured.length - 1].blob.__text);
+    expect(completeEnvelope.assessmentStatus).toBe("complete");
   });
 
   it("preserves all original state keys at top level (importer back-compat)", () => {

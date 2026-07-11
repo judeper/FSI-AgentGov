@@ -26,7 +26,7 @@ import {
  *                        frameworkVersion:"1.6.2", manifestSchemaVersion,
  *                        exportedAt, exportedBy }
  *   _computedScores    { overall, perPillar:{1..4}, perControl:{...} }
- *   assessmentStatus   "draft" | "in-progress" | "final"
+ *   assessmentStatus   "draft" | "in-progress" | "complete"
  *   ...this.state      (responses, scoping, assessmentId, assessmentName, ...)
  */
 test.describe("export JSON @regression", () => {
@@ -82,7 +82,7 @@ test.describe("export JSON @regression", () => {
     }
 
     // assessmentStatus is one of the allowed enum values.
-    expect(["draft", "in-progress", "final"]).toContain(parsed.assessmentStatus);
+    expect(["draft", "in-progress", "complete"]).toContain(parsed.assessmentStatus);
 
     // Top-level state keys (per importer compatibility contract).
     expect(parsed.assessmentId).toBeTruthy();
@@ -98,5 +98,40 @@ test.describe("export JSON @regression", () => {
     expect(parsed.responses["1.7"].answer).toBe("no");
     expect(parsed.responses["1.11"].answer).toBe("yes");
     expect(parsed.responses["2.1"].answer).toBe("partial");
+  });
+
+  test("assessmentStatus is complete for completed assessments @regression", async ({
+    page,
+  }) => {
+    page.on("dialog", (d) => d.dismiss().catch(() => {}));
+    await freezeTime(page, "2026-01-15T12:00:00.000Z");
+
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
+    await clearPageStorage(page);
+    await page.reload({ waitUntil: "domcontentloaded" });
+
+    const persona = loadPersona("minimal-ciso");
+    await seedScoping(page, persona);
+    await page.waitForFunction(() => !!window.__assessmentApp, null, { timeout: 15_000 });
+    await page.evaluate(() => {
+      const app = window.__assessmentApp;
+      if (!app || !app.state || !Array.isArray(app.data?.controls)) return;
+      app.state.responses = {};
+      for (const control of app.data.controls) {
+        if (typeof app.isControlExcluded === "function" && app.isControlExcluded(control)) continue;
+        app.state.responses[control.id] = { answer: "yes", notes: "", evidenceRef: "" };
+      }
+    });
+
+    await navClick(page, "View Results");
+    await page.locator(".ag-score-big").first().waitFor();
+    await navClick(page, "Export Results");
+    await page.getByRole("heading", { name: "Export Results" }).waitFor();
+    const { path } = await expectDownload(page, async () => {
+      await navClick(page, /Export as Full Assessment/);
+    });
+
+    const parsed = JSON.parse(readFileSync(path, "utf8"));
+    expect(parsed.assessmentStatus).toBe("complete");
   });
 });
