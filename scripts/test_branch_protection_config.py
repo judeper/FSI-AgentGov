@@ -13,6 +13,7 @@ def test_branch_protection_preserves_live_checks_and_adds_autodoc_gates() -> Non
     )
     required = protection["required_status_checks"]
     assert required["strict"] is True
+    assert protection["enforce_admins"] is True
     assert required["contexts"] == [
         "e2e-smoke",
         "gitleaks",
