@@ -4,7 +4,7 @@
  * Verifies the contract documented above exportJSON() in assessment-app.js:
  *   - _metadata envelope is present with required fields
  *   - _computedScores has overall + perPillar (1..4) + perControl
- *   - assessmentStatus enum is one of {draft, in-progress, final}
+ *   - assessmentStatus enum is one of {draft, in-progress, complete}
  *   - Original state keys remain at top level (importer compatibility)
  *   - Round-trip: importing then re-exporting drops snapshot fields and recomputes
  *
@@ -152,9 +152,28 @@ describe("v1.4.1 portal export envelope", () => {
 
   it("emits assessmentStatus enum derived from state", () => {
     const out = getExport();
-    expect(["draft", "in-progress", "final"]).toContain(out.assessmentStatus);
+    expect(["draft", "in-progress", "complete"]).toContain(out.assessmentStatus);
     // Two answered controls → in-progress
     expect(out.assessmentStatus).toBe("in-progress");
+  });
+
+  it("emits complete when all controls have answers", () => {
+    const capturedCount = captured.length;
+    const originalResponses = app.state.responses;
+    try {
+      app.state.responses = Object.fromEntries(
+        app.data.controls.map((control) => [
+          control.id,
+          { answer: "yes", notes: "", evidenceRef: "" },
+        ]),
+      );
+      app.exportJSON();
+      const out = getExport();
+      expect(out.assessmentStatus).toBe("complete");
+    } finally {
+      app.state.responses = originalResponses;
+      captured.length = capturedCount;
+    }
   });
 
   it("preserves original state keys at top level (importer back-compat)", () => {
