@@ -1,10 +1,10 @@
 import { test, devices } from "@playwright/test";
 import {
   clearPageStorage,
-  clickThroughPhase1,
   expect,
   expectDownload,
   loadPersona,
+  selectControlAnswer,
 } from "./_harness.mjs";
 
 /**
@@ -117,29 +117,7 @@ for (const profile of DEVICE_PROFILES) {
         0,
         3,
       )) {
-        const label = { yes: "Yes", partial: "Partial", no: "No", na: "N/A" }[
-          ans
-        ];
-        const card = page.locator(`[data-control-id="${id}"]`).first();
-        await card.waitFor({ state: "attached" });
-        // Cards may be inside a collapsed pillar; tap header to expand.
-        const pillar = card.locator(
-          'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-        );
-        if ((await pillar.count()) > 0) {
-          const collapsed = await pillar
-            .first()
-            .evaluate((el) => el.classList.contains("collapsed"));
-          if (collapsed) {
-            const header = pillar.locator(
-              'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-            );
-            if ((await header.count()) > 0) await header.first().tap();
-          }
-        }
-        await card
-          .getByRole("button", { name: label, exact: true })
-          .tap();
+        await selectControlAnswer(page, id, ans, { method: "tap" });
       }
 
       // View Results via tap.

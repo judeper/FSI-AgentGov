@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { expect } from "./_harness.mjs";
+import { expect, getResumeBannerButton, getSavedListResumeButton } from "./_harness.mjs";
 
 /**
  * 30 — Storage namespace migration (E2E regression)
@@ -156,8 +156,13 @@ test.describe("storage namespace migration @regression", () => {
     expect(after2.allKeys).toEqual(after1.allKeys);
 
     // -- Resume legacy-001 from welcome --------------------------------
-    await page.getByRole("button", { name: "Resume " + legacyState.assessmentName })
-      .dispatchEvent("click");
+    await expect(
+      getResumeBannerButton(page, "Legacy Bank — 2025-09-01"),
+    ).toHaveCount(1);
+    await expect(
+      getSavedListResumeButton(page, "Legacy Bank — 2025-09-01"),
+    ).toHaveCount(1);
+    await getSavedListResumeButton(page, "Legacy Bank — 2025-09-01").dispatchEvent("click");
     await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ })
       .waitFor();
 

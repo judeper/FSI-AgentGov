@@ -7,6 +7,7 @@ import {
   freezeTime,
   loadPersona,
   navClick,
+  selectControlAnswer,
   seedScoping,
 } from "./_harness.mjs";
 
@@ -79,26 +80,7 @@ test.describe("export XLSX @regression", () => {
     for (const [cid, ans] of Object.entries(persona.answers)) {
       const value = typeof ans === "string" ? ans : ans.value;
       const notes = typeof ans === "string" ? null : ans.notes;
-      const labelMap = { yes: "Yes", partial: "Partial", no: "No", na: "N/A" };
-      const card = page.locator(`[data-control-id="${cid}"]`);
-      await card.first().waitFor({ state: "attached" });
-      const pillar = card.locator(
-        'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-      );
-      if ((await pillar.count()) > 0) {
-        const collapsed = await pillar.first().evaluate((el) =>
-          el.classList.contains("collapsed"),
-        );
-        if (collapsed) {
-          const header = pillar.locator(
-            'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-          );
-          if ((await header.count()) > 0) await header.first().click();
-        }
-      }
-      await card
-        .getByRole("button", { name: labelMap[value], exact: true })
-        .click();
+      await selectControlAnswer(page, cid, value);
       if (notes != null) {
         const notesArea = page.locator(`[id="ag-notes-${cid}"]`);
         await notesArea.fill(notes);

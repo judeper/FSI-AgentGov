@@ -26,13 +26,14 @@ async function focusSnapshot(page) {
     if (!el || el === document.body) return "body";
     const tag = el.tagName;
     const role = el.getAttribute("role") || "";
+    const dataAnswer = el.getAttribute("data-answer") || "";
     const txt = (el.textContent || "").trim().slice(0, 40);
     const name =
       el.getAttribute("aria-label") ||
       el.getAttribute("name") ||
       el.id ||
       txt;
-    return `${tag}${role ? `[role=${role}]` : ""}:${name}`;
+    return `${tag}${role ? `[role=${role}]` : ""}${dataAnswer ? `[data-answer=${dataAnswer}]` : ""}:${name}`;
   });
 }
 
@@ -144,7 +145,7 @@ test.describe("keyboard navigation @regression", () => {
     await page.evaluate(() => document.body.focus());
     const ansSearch = await tabUntil(
       page,
-      (s) => /:Yes$|:Partial$|:No$|:N\/A$/.test(s),
+      (s) => /\[data-answer=(yes|partial|no|na)\]/.test(s),
       120,
     );
     expect(

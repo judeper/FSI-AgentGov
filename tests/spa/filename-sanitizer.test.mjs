@@ -242,3 +242,56 @@ describe("_agendaSlug (AS18b)", () => {
     expect(SPA._agendaSlug(long).length).toBe(60);
   });
 });
+
+function withFrozenDate(isoTime, run) {
+  const RealDate = globalThis.Date;
+  const fixed = new RealDate(isoTime).getTime();
+  function FrozenDate(...args) {
+    if (args.length === 0) return new RealDate(fixed);
+    return new RealDate(...args);
+  }
+  FrozenDate.now = () => fixed;
+  FrozenDate.UTC = RealDate.UTC;
+  FrozenDate.parse = RealDate.parse;
+  FrozenDate.prototype = RealDate.prototype;
+  globalThis.Date = FrozenDate;
+  try {
+    return run();
+  } finally {
+    globalThis.Date = RealDate;
+  }
+}
+
+describe("_buildExportFilename (ASSESS-13 canonical naming)", () => {
+  it("is exported from the SPA module", () => {
+    expect(typeof SPA._buildExportFilename).toBe("function");
+  });
+
+  it("builds canonical JSON filename with deterministic date", () => {
+    withFrozenDate("2026-01-15T12:00:00.000Z", () => {
+      expect(SPA._buildExportFilename("Acme Bank", "json"))
+        .toBe("fsi-agentgov-acme-bank-2026-01-15.json");
+    });
+  });
+
+  it("builds canonical CSV gap-list filename", () => {
+    withFrozenDate("2026-01-15T12:00:00.000Z", () => {
+      expect(SPA._buildExportFilename("Acme Bank", "csv", "gaps"))
+        .toBe("fsi-agentgov-acme-bank-2026-01-15-gaps.csv");
+    });
+  });
+
+  it("builds canonical XLSX filename", () => {
+    withFrozenDate("2026-01-15T12:00:00.000Z", () => {
+      expect(SPA._buildExportFilename("Acme Bank", "xlsx"))
+        .toBe("fsi-agentgov-acme-bank-2026-01-15.xlsx");
+    });
+  });
+
+  it("builds canonical agenda markdown filename", () => {
+    withFrozenDate("2026-01-15T12:00:00.000Z", () => {
+      expect(SPA._buildExportFilename("Acme Bank", "md", "agenda"))
+        .toBe("fsi-agentgov-acme-bank-2026-01-15-agenda.md");
+    });
+  });
+});

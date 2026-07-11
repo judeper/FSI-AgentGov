@@ -2,6 +2,9 @@ import { test } from "@playwright/test";
 import {
   clearPageStorage,
   expect,
+  getResumeBannerButton,
+  getSavedListResumeButton,
+  selectControlAnswer,
 } from "./_harness.mjs";
 
 /**
@@ -49,7 +52,9 @@ async function activeStep(page) {
 }
 
 async function startNewAndScope(page, organizationName) {
-  await page.getByRole("button", { name: "Start New Assessment" }).dispatchEvent("click");
+  const startBtn = page.getByRole("button", { name: "Start New Assessment" });
+  await startBtn.waitFor({ timeout: 15_000 });
+  await startBtn.dispatchEvent("click");
   await page.getByRole("heading", { name: "Assessment Scoping" }).waitFor();
   await page.getByLabel("Organization Name").fill(organizationName);
   await page.getByLabel("Assessor Name").fill("Test Assessor");
@@ -57,24 +62,10 @@ async function startNewAndScope(page, organizationName) {
   const zoneFieldset = page.getByRole("group", { name: "Active Governance Zones" });
   const zone1 = zoneFieldset.locator('input[type="checkbox"][value="1"]');
   if (!(await zone1.isChecked())) await zone1.check();
-  await page.getByRole("button", { name: "Begin Assessment" }).dispatchEvent("click");
+  const beginBtn = page.getByRole("button", { name: "Begin Assessment" });
+  await beginBtn.waitFor({ timeout: 15_000 });
+  await beginBtn.dispatchEvent("click");
   await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ }).waitFor();
-}
-
-async function answerControl(page, controlId, label) {
-  const card = page.locator(`[data-control-id="${controlId}"]`);
-  await card.first().waitFor({ state: "attached" });
-  const pillar = card.locator('xpath=ancestor::div[contains(@class,"ag-pillar-controls")]');
-  if ((await pillar.count()) > 0) {
-    const collapsed = await pillar.first().evaluate((el) => el.classList.contains("collapsed"));
-    if (collapsed) {
-      const header = pillar.locator(
-        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-      );
-      if ((await header.count()) > 0) await header.first().click();
-    }
-  }
-  await card.getByRole("button", { name: label, exact: true }).click();
 }
 
 async function navigateBackToWelcome(page) {
@@ -98,7 +89,7 @@ test.describe("Resume restores saved wizard step @regression", () => {
     await page.waitForFunction(() => !!window.__assessmentApp, null, { timeout: 15_000 });
 
     await startNewAndScope(page, "Bank Resume");
-    await answerControl(page, "1.1", "Yes");
+    await selectControlAnswer(page, "1.1", "yes");
     const id = await readCurrentAssessmentId(page);
     expect(id).toBeTruthy();
 
@@ -115,7 +106,10 @@ test.describe("Resume restores saved wizard step @regression", () => {
 
     // Go back to welcome and Resume.
     await navigateBackToWelcome(page);
-    await page.getByRole("button", { name: /^Resume Bank Resume/ }).dispatchEvent("click");
+    await expect(getResumeBannerButton(page, /^Resume most recent assessment: Bank Resume/)).toHaveCount(1);
+    await expect(getSavedListResumeButton(page, /^Resume Bank Resume/)).toHaveCount(1);
+    await getResumeBannerButton(page, /^Resume most recent assessment: Bank Resume/)
+      .dispatchEvent("click");
 
     // Assert Resume landed on Results (NOT Phase 1).
     await page.getByRole("heading", { name: /^Results/ }).waitFor();
@@ -154,7 +148,8 @@ test.describe("Resume restores saved wizard step @regression", () => {
     await page.waitForFunction(() => !!window.__assessmentApp, null, { timeout: 15_000 });
 
     // Click Resume on the legacy assessment.
-    await page.getByRole("button", { name: /^Resume Legacy Org/ }).dispatchEvent("click");
+    await expect(getSavedListResumeButton(page, /^Resume Legacy Org/)).toHaveCount(1);
+    await getSavedListResumeButton(page, /^Resume Legacy Org/).dispatchEvent("click");
     await page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/ }).waitFor();
     expect(await activeStep(page)).toBe("phase1");
   });

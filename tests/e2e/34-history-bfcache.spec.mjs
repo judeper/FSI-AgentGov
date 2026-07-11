@@ -40,6 +40,7 @@ import {
   clearPageStorage,
   clickThroughPhase1,
   expect,
+  expectControlAnswerSelected,
   loadPersona,
   navClick,
   seedScoping,
@@ -247,13 +248,8 @@ test.describe("history + BFCache @regression", () => {
       ).toBeVisible({ timeout: 10_000 });
 
       // (g) All 5 answered controls retain their selected answer.
-      const labelMap = { yes: "Yes", partial: "Partial", no: "No", na: "N/A" };
       for (const [id, answer] of Object.entries(MINI_PERSONA.answers)) {
-        const card = page.locator(`[data-control-id="${id}"]`);
-        await expect(
-          card.getByRole("button", { name: labelMap[answer], exact: true }),
-          `Control ${id}: answer button "${labelMap[answer]}" must remain selected`,
-        ).toBeVisible();
+        await expectControlAnswerSelected(page, id, answer);
       }
 
       // (h) Back ×1 more — restores Scoping with form values intact.

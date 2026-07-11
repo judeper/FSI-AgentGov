@@ -98,8 +98,9 @@ export async function expectDownload(page, action) {
  *                                      the `value` attr on the option)
  *   persona.scoping.zones[]          → checkboxes inside fieldset
  *                                      "Active Governance Zones"
- *   persona.answers[controlId]       → "Yes"/"Partial"/"No"/"N/A" button
- *                                      inside `[data-control-id]` card.
+ *   persona.answers[controlId]       → `button[data-answer="<value>"]`
+ *                                      inside `[data-control-id]` card,
+ *                                      with selected state on `aria-pressed`.
  */
 
 /** Map persona institutionType values → SPA option values. */
@@ -114,8 +115,111 @@ const INSTITUTION_TYPE_MAP = {
   insurance: "insurance",
 };
 
-/** Map persona answer strings → button accessible name. */
-const ANSWER_LABEL = { yes: "Yes", partial: "Partial", no: "No", na: "N/A" };
+const ANSWER_LABEL = Object.freeze({
+  yes: "Yes",
+  partial: "Partial",
+  no: "No",
+  na: "N/A",
+});
+
+/** Normalize answer aliases to canonical SPA `data-answer` values. */
+function normalizeAnswerValue(answer) {
+  const raw = String(answer ?? "").trim().toLowerCase();
+  const map = {
+    yes: "yes",
+    y: "yes",
+    partial: "partial",
+    "partially implemented": "partial",
+    no: "no",
+    n: "no",
+    na: "na",
+    "n/a": "na",
+    "not applicable": "na",
+  };
+  return map[raw] || null;
+}
+
+/** Ensure a control card exists and its pillar group is expanded. */
+export async function ensureControlCardVisible(page, controlId) {
+  const card = page.locator(`[data-control-id="${controlId}"]`).first();
+  await card.waitFor({ state: "attached" });
+  const pillar = card.locator(
+    'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
+  );
+  if ((await pillar.count()) > 0) {
+    const isCollapsed = await pillar
+      .first()
+      .evaluate((el) => el.classList.contains("collapsed"));
+    if (isCollapsed) {
+      const header = pillar.locator(
+        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
+      );
+      if ((await header.count()) > 0) {
+        await header.first().click();
+      }
+    }
+  }
+  return card;
+}
+
+/** Locator for a specific answer button using stable data-answer semantics. */
+export async function getControlAnswerButton(page, controlId, answer) {
+  const normalized = normalizeAnswerValue(answer);
+  if (!normalized) {
+    throw new Error(
+      `Unknown answer '${answer}' for control ${controlId}; expected yes/partial/no/na`,
+    );
+  }
+  const card = await ensureControlCardVisible(page, controlId);
+  return card.locator(`.ag-answer-btn[data-answer="${normalized}"]`);
+}
+
+/**
+ * Select a control answer via stable data-answer selector.
+ * options.method: "dispatch" (default) | "click" | "tap"
+ */
+export async function selectControlAnswer(page, controlId, answer, options = {}) {
+  const method = options.method || "dispatch";
+  const assertPressed = options.assertPressed !== false;
+  const btn = await getControlAnswerButton(page, controlId, answer);
+  const waitState = method === "dispatch" ? "attached" : "visible";
+  await btn.waitFor({ state: waitState, timeout: 15_000 });
+  if (method === "tap") {
+    await btn.scrollIntoViewIfNeeded();
+    await btn.tap();
+  } else if (method === "dispatch") {
+    await btn.dispatchEvent("click");
+  } else {
+    await btn.scrollIntoViewIfNeeded();
+    await btn.click();
+  }
+  if (assertPressed) await expect(btn).toHaveAttribute("aria-pressed", "true");
+  return btn;
+}
+
+/** Assert the selected answer state contract via aria-pressed. */
+export async function expectControlAnswerSelected(page, controlId, answer) {
+  const btn = await getControlAnswerButton(page, controlId, answer);
+  await expect(btn).toHaveAttribute("aria-pressed", "true");
+}
+
+/** Distinct welcome-banner resume action (most recent only). */
+export function getResumeBannerButton(page, assessmentNameOrRegex) {
+  const name =
+    assessmentNameOrRegex instanceof RegExp
+      ? assessmentNameOrRegex
+      : `Resume most recent assessment: ${assessmentNameOrRegex}`;
+  return page.getByRole("button", { name });
+}
+
+/** Saved-list resume action (excludes banner by scoping to `.ag-saved-list`). */
+export function getSavedListResumeButton(page, assessmentNameOrRegex) {
+  const name =
+    assessmentNameOrRegex instanceof RegExp
+      ? assessmentNameOrRegex
+      : `Resume ${assessmentNameOrRegex}`;
+  return page.locator(".ag-saved-list").getByRole("button", { name });
+}
 
 /**
  * Walk the welcome → scoping flow and submit, leaving the page on Phase 1.
@@ -199,34 +303,13 @@ export async function clickThroughPhase1(page, persona) {
 
   for (const id of ids) {
     const answer = answers[id];
-    const labelText = ANSWER_LABEL[answer];
-    if (!labelText) {
+    const normalized = normalizeAnswerValue(answer);
+    if (!normalized || !ANSWER_LABEL[normalized]) {
       throw new Error(
         `Unknown answer value '${answer}' for control ${id}; expected one of yes/partial/no/na`,
       );
     }
-    const card = page.locator(`[data-control-id="${id}"]`);
-    // Ensure the card is in the DOM. Pillar headers may be collapsed but
-    // the cards are still rendered (only `.collapsed` hides them via CSS),
-    // so we expand the parent if necessary.
-    await card.first().waitFor({ state: "attached" });
-    const pillar = card.locator(
-      'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-    );
-    if ((await pillar.count()) > 0) {
-      const isCollapsed = await pillar
-        .first()
-        .evaluate((el) => el.classList.contains("collapsed"));
-      if (isCollapsed) {
-        const header = pillar.locator(
-          'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-        );
-        if ((await header.count()) > 0) await header.first().click();
-      }
-    }
-    await card
-      .getByRole("button", { name: labelText })
-      .click();
+    await selectControlAnswer(page, id, normalized, { method: "click" });
   }
 }
 

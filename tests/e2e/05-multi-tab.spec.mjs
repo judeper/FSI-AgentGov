@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { clearPageStorage, expect } from "./_harness.mjs";
+import { clearPageStorage, expect, getSavedListResumeButton, selectControlAnswer } from "./_harness.mjs";
 
 /**
  * 05 — Multi-tab durability (E2E regression)
@@ -29,9 +29,9 @@ import { clearPageStorage, expect } from "./_harness.mjs";
 const STORAGE_KEY = "fsi-agentgov-assessment";
 
 async function startNewAndScope(page, organizationName) {
-  await page
-    .getByRole("button", { name: "Start New Assessment" })
-    .dispatchEvent("click");
+  const startBtn = page.getByRole("button", { name: "Start New Assessment" });
+  await startBtn.waitFor({ timeout: 15_000 });
+  await startBtn.dispatchEvent("click");
   await page.getByRole("heading", { name: "Assessment Scoping" }).waitFor();
   await page.getByLabel("Organization Name").fill(organizationName);
   await page.getByLabel("Assessor Name").fill("Multi-Tab Tester");
@@ -43,32 +43,12 @@ async function startNewAndScope(page, organizationName) {
   });
   const zone1 = zoneFieldset.locator('input[type="checkbox"][value="1"]');
   if (!(await zone1.isChecked())) await zone1.check();
-  await page
-    .getByRole("button", { name: "Begin Assessment" })
-    .dispatchEvent("click");
+  const beginBtn = page.getByRole("button", { name: "Begin Assessment" });
+  await beginBtn.waitFor({ timeout: 15_000 });
+  await beginBtn.dispatchEvent("click");
   await page
     .getByRole("heading", { name: /Phase 1: Control-Level Assessment/ })
     .waitFor();
-}
-
-async function answerControl(page, controlId, label) {
-  const card = page.locator(`[data-control-id="${controlId}"]`);
-  await card.first().waitFor({ state: "attached" });
-  const pillar = card.locator(
-    'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-  );
-  if ((await pillar.count()) > 0) {
-    const collapsed = await pillar
-      .first()
-      .evaluate((el) => el.classList.contains("collapsed"));
-    if (collapsed) {
-      const header = pillar.locator(
-        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-      );
-      if ((await header.count()) > 0) await header.first().click();
-    }
-  }
-  await card.getByRole("button", { name: label, exact: true }).click();
 }
 
 async function findIdForOrg(page, orgName) {
@@ -116,8 +96,8 @@ test.describe("multi-tab same-context durability @regression", () => {
     await clearPageStorage(pageA);
     await pageA.reload({ waitUntil: "domcontentloaded" });
     await startNewAndScope(pageA, "Bank A Multi");
-    await answerControl(pageA, "1.1", "Yes");
-    await answerControl(pageA, "1.2", "Partial");
+    await selectControlAnswer(pageA, "1.1", "yes");
+    await selectControlAnswer(pageA, "1.2", "partial");
     await pageA.waitForTimeout(700); // debounced save flush
     const idA = await findIdForOrg(pageA, "Bank A Multi");
     expect(idA, "Tab A assessment id").toBeTruthy();
@@ -140,12 +120,12 @@ test.describe("multi-tab same-context durability @regression", () => {
     // Concurrent edits: fire in parallel so the debounced save windows
     // overlap.
     await Promise.all([
-      answerControl(pageA, "1.3", "No"),
-      answerControl(pageB, "1.4", "Yes"),
+      selectControlAnswer(pageA, "1.3", "no"),
+      selectControlAnswer(pageB, "1.4", "yes"),
     ]);
     await Promise.all([
-      answerControl(pageA, "1.5", "Yes"),
-      answerControl(pageB, "1.5", "Partial"),
+      selectControlAnswer(pageA, "1.5", "yes"),
+      selectControlAnswer(pageB, "1.5", "partial"),
     ]);
 
     // Wait for both debounced saves to flush.
@@ -175,10 +155,10 @@ test.describe("multi-tab same-context durability @regression", () => {
       .getByRole("heading", { name: "Governance Readiness Assessment" })
       .waitFor({ timeout: 15_000 });
     await expect(
-      pageC.getByRole("button", { name: /^Resume Bank A Multi/ }),
+      getSavedListResumeButton(pageC, /^Resume Bank A Multi/),
     ).toHaveCount(1);
     await expect(
-      pageC.getByRole("button", { name: /^Resume Bank B Multi/ }),
+      getSavedListResumeButton(pageC, /^Resume Bank B Multi/),
     ).toHaveCount(1);
 
     // Slot integrity: A has 1.1/1.2/1.3/1.5, B has 1.4/1.5, no leakage.

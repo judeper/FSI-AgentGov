@@ -7,6 +7,7 @@ import {
   freezeTime,
   loadPersona,
   navClick,
+  selectControlAnswer,
   seedScoping,
 } from "./_harness.mjs";
 
@@ -60,26 +61,6 @@ import {
  */
 
 const ATTACK_NOTES = '=cmd|" /c calc"!A1';
-
-async function answerControl(page, controlId, label) {
-  const card = page.locator(`[data-control-id="${controlId}"]`);
-  await card.first().waitFor({ state: "attached" });
-  const pillar = card.locator(
-    'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-  );
-  if ((await pillar.count()) > 0) {
-    const collapsed = await pillar
-      .first()
-      .evaluate((el) => el.classList.contains("collapsed"));
-    if (collapsed) {
-      const header = pillar.locator(
-        'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-      );
-      if ((await header.count()) > 0) await header.first().click();
-    }
-  }
-  await card.getByRole("button", { name: label, exact: true }).click();
-}
 
 /** Minimal CSV parser — header-aware, handles quoted fields with escaped quotes. */
 function parseCsv(text) {
@@ -138,10 +119,10 @@ test.describe("export CSV @regression", () => {
 
     // Three "no" answers (= 3 gaps) and one "yes" (excluded). Note: 1.5
     // "partial" is also a gap per getGapControls (any non-yes/non-na).
-    await answerControl(page, "1.1", "Yes"); // not a gap
-    await answerControl(page, "1.2", "No"); // gap
-    await answerControl(page, "1.3", "No"); // gap (carries attack notes)
-    await answerControl(page, "1.4", "Partial"); // gap
+    await selectControlAnswer(page, "1.1", "yes"); // not a gap
+    await selectControlAnswer(page, "1.2", "no"); // gap
+    await selectControlAnswer(page, "1.3", "no"); // gap (carries attack notes)
+    await selectControlAnswer(page, "1.4", "partial"); // gap
 
     // Plant the formula-injection payload in 1.3's notes.
     await page.locator("#ag-notes-1\\.3").fill(ATTACK_NOTES);
@@ -215,8 +196,8 @@ test.describe("export CSV @regression", () => {
 
     // Two gap controls: 1.5 (partial) and 1.7 (no). Notes on 1.7 carry the
     // accented string so it appears in the exported CSV body.
-    await answerControl(page, "1.5", "Partial");
-    await answerControl(page, "1.7", "No");
+    await selectControlAnswer(page, "1.5", "partial");
+    await selectControlAnswer(page, "1.7", "no");
     await page.locator("#ag-notes-1\\.7").fill("Société Générale — review note");
     await page.waitForTimeout(700);
 

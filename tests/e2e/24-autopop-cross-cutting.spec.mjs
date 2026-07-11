@@ -1,5 +1,12 @@
 import { test } from "@playwright/test";
-import { clearPageStorage, expect, loadPersona, seedScoping } from "./_harness.mjs";
+import {
+  clearPageStorage,
+  expect,
+  expectControlAnswerSelected,
+  loadPersona,
+  seedScoping,
+  selectControlAnswer,
+} from "./_harness.mjs";
 
 /**
  * 24 — Autopop cross-cutting
@@ -40,23 +47,7 @@ test.describe("autopop cross-cutting @regression", () => {
     await seedScoping(page, persona);
 
     // Manually answer an in-zone control (1.1 — known zone-1 control).
-    const card = page.locator('[data-control-id="1.1"]').first();
-    await card.waitFor({ state: "attached" });
-    const pillar = card.locator(
-      'xpath=ancestor::div[contains(@class,"ag-pillar-controls")]',
-    );
-    if ((await pillar.count()) > 0) {
-      const collapsed = await pillar
-        .first()
-        .evaluate((el) => el.classList.contains("collapsed"));
-      if (collapsed) {
-        const header = pillar.locator(
-          'xpath=preceding-sibling::div[contains(@class,"ag-pillar-header")][1]',
-        );
-        if ((await header.count()) > 0) await header.first().click();
-      }
-    }
-    await card.getByRole("button", { name: "Yes", exact: true }).click();
+    await selectControlAnswer(page, "1.1", "yes");
 
     const before = await page.evaluate(
       () => window.__assessmentApp?.state?.responses?.["1.1"]?.answer,
@@ -76,6 +67,7 @@ test.describe("autopop cross-cutting @regression", () => {
       () => window.__assessmentApp?.state?.responses?.["1.1"]?.answer,
     );
     expect(after).toBe("yes");
+    await expectControlAnswerSelected(page, "1.1", "yes");
 
     // And the manual answer must not be marked as autoNa.
     const autoNa = await page.evaluate(
