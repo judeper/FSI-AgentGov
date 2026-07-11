@@ -176,12 +176,11 @@ Screenshots are stored locally for verifying portal instructions stay current.
 
 ## Multi-Agent Configuration
 
-This repository supports GitHub Copilot and Codex CLI, and uses [Worktrunk](https://worktrunk.dev/) for parallel agent runs via git worktrees:
+This repository supports GitHub Copilot and uses [Worktrunk](https://worktrunk.dev/) for parallel agent runs via git worktrees:
 
 | Tool | Config | Primary Role |
 |------|--------|-------------|
 | GitHub Copilot | `.github/prompts/`, `.github/instructions/` | Documentation support and repo health checks |
-| Codex CLI | `.codex/config.toml` | Documentation generation |
 | Worktrunk | `.config/wt.toml` | Worktree management for parallel agent runs |
 
 **Parallel agent runs:** Use `git-wt switch --create branch-name` to create isolated worktrees for each agent session. On Windows, use `git-wt` (winget installs it alongside `wt` to avoid the Windows Terminal conflict). See `AGENTS.md` "Parallel Agent Runs with Worktrunk" for full details.
@@ -274,7 +273,7 @@ python scripts/verify_language_rules.py
 | `spa-tests.yml` | PR / push (SPA) | Vitest suite for assessment SPA |
 | `learn-monitor.yml`, `regulatory-monitoring.yml` | Schedule | Source-of-truth drift detection. Both open state-only PRs (`data/monitor-state.json(.backup)` + `reports/monitoring/*.md`) and **auto-merge** them via the same fail-closed, `add-paths`-restricted pattern, gated by `LEARN_STATE_AUTOMERGE` / `REGULATORY_STATE_AUTOMERGE`. Regulatory auto-merges only when **0 CRITICAL/HIGH** items (fail-closed `automerge_eligible` — an unparseable count is never read as 0); CRITICAL/HIGH PRs keep `needs-review` and consolidation never closes a `needs-review` PR. |
 | `dependabot-automerge.yml` | PR (`pull_request_target`, Dependabot only) | Kill-switch-gated (`DEPENDABOT_AUTOMERGE`) auto-merge of **minor/patch + security** Dependabot PRs (majors → `needs-review`). Never checks out PR code; the merge is still gated on every required check, so semver level is not the safety boundary — the required checks (incl. the pin-drift guard) are. |
-| `e2e.yml` (`e2e-full`) | Push to `main` / schedule / PR only with `run-full-e2e` label | Full Playwright suite. **Not** a required check (label-gated off PRs so it can't deadlock unlabelled PRs). A `notify-e2e-failure` job opens/updates a deduped `e2e-full-broken` issue on a main-push/schedule failure. The container image pin must equal `@playwright/test` in `package.json` — enforced by `scripts/check_playwright_pin_drift.py` inside the required `manifest / index / nav drift` job. |
+| `e2e.yml` (`e2e-full`) | Push to `main` / schedule / PR only with `run-full-e2e` label | Full Playwright suite. **Not** a required check (label-gated off PRs so it can't deadlock unlabelled PRs). On main push/schedule, failure handling opens or updates one deduped, owner-assigned `e2e-full-broken` issue; after a successful full run, recovery handling comments and closes that issue. The container image pin must equal `@playwright/test` in `package.json` — enforced by `scripts/check_playwright_pin_drift.py` inside the required `manifest / index / nav drift` job. |
 | `required-check-shims.yml` (+ `required-check-shim-mkdocs.yml`) | PR / push (paths outside the real workflows) | Report success for `e2e-smoke`/`mkdocs-strict` on PRs that don't trigger the real workflows. Two separate shim files, one per required check; each shim's `paths-ignore:` is the EXACT complement (mirror) of its own real workflow's `paths:`, so neither-fires (the deadlock) is impossible. See `.github/AUDIT-METHODOLOGY.md` Lessons 17–18. A mixed PR (some paths matched, some not) fires both real + shim; benign for green runs, but the always-success shim can mask a failed real run under latest-run semantics, so keep each `paths-ignore:` exactly equal to its real `paths:`. |
 
 **Auto-merge kill-switches (repo variables):** `LEARN_STATE_AUTOMERGE`, `REGULATORY_STATE_AUTOMERGE`, and `DEPENDABOT_AUTOMERGE` each gate one unattended auto-merge stream (set to `false`/unset to disable); `AUTODOC_ENABLED` gates the autodoc pipeline. Autodoc target-native/agreement-ledger auto-merge is disabled and observational; OceanSquad is its sole merge owner. The committed branch-protection target preserves the live strict 11 named checks and adds `autodoc-verify` plus `autodoc-redirect-verify` (13 total once separately applied). `mkdocs-strict` already provides deterministic internal-link and anchor validation; external-link health remains non-required.
