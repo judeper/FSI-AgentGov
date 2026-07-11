@@ -7,6 +7,8 @@ tools: ["read", "edit", "search", "execute"]
 <objective>
 Analyze reports from the unified monitoring system (Microsoft Learn + Regulatory sources) and draft updates to FSI-AgentGov documentation. For Learn changes, auto-draft edits to affected controls and playbooks. For Regulatory changes, produce a triage summary only — never auto-edit regulatory content.
 
+This prompt is the manual-review complement to the `AUTODOC_ENABLED`-gated autodoc pipeline (`.github/workflows/autodoc-verify.yml`): use it for human-directed review and edits, while preserving regulatory triage-only behavior.
+
 This prompt handles both report types via the same invocation. The system detects which type of report is present and routes accordingly.
 </objective>
 
@@ -29,7 +31,7 @@ Reference files:
 3. **Stop and ask** if unsure about any change
 4. **Preserve existing admonition boxes** — add new ones, do not remove existing
 5. **Follow FSI language rules** — never use "ensures compliance", "guarantees", "will prevent", "eliminates risk"
-6. **Validate after edits** — run `mkdocs build --strict` before presenting results
+6. **Validate after edits** — run the applicable current docs gates (not only `mkdocs build --strict`) before presenting results
 </safety_rules>
 
 <process>
@@ -200,13 +202,23 @@ For regulatory reports, present the triage summary and stop.
 
 For each approved edit:
 1. Apply the change using the edit tool
-2. After all edits are applied, validate:
+2. After all edits are applied, run current docs-validation gates in order:
 
 ```powershell
-mkdocs build --strict 2>&1 | Select-Object -First 50
+mkdocs build --strict
+python scripts/verify_build_output.py site
+python scripts/verify_meta_tags.py site/
+python scripts/verify_doc_links.py site --json _broken-links.json
+python scripts/verify_language_rules.py
+python scripts/verify_commercial_scope.py
 ```
 
-If validation fails, report the error and attempt one fix cycle.
+3. Run applicable documentation/drift gates for touched files:
+   - Controls/nav surfaces: `python scripts/verify_controls.py`, `python scripts/verify_xref_graph.py`, `python scripts/check_manifest_doc_drift.py --check`
+   - Data/search/feed surfaces: `python scripts/check_explorer_data_drift.py --check`, `python scripts/check_change_radar_data_drift.py --check`, `python scripts/check_faq_jsonld_drift.py --check`
+   - Coverage/reporting surfaces: `python scripts/generate_coverage_matrix.py --check`, `python scripts/verify_learn_urls_count.py --check`, `python scripts/verify_version_stamps.py --check`, `python scripts/verify_prose_counts.py --check`, `python scripts/verify_solutions_docs.py --check`, `python scripts/verify_regulatory_naming.py --check`
+
+If any validation fails, report the error and attempt one fix cycle.
 </step>
 
 <step name="handle_url_redirects">

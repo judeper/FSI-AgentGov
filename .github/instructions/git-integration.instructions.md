@@ -77,6 +77,6 @@ Major changes should be recorded in `CHANGELOG.md`:
 - Minor: `1.X.0` — New controls, solutions, or significant features
 - Major: `X.0.0` — Breaking changes to framework structure
 
-## Atomic Commits During Plan Execution
+## Logical Commit Grouping
 
-During GSD plan execution, create one commit per logical unit of work. The SUMMARY.md should list all commits made during the plan.
+Create one commit per logical unit of work. Group files that deliver the same outcome, split unrelated changes into separate commits, and keep each commit reviewable and independently reversible.

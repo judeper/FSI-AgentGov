@@ -34,17 +34,47 @@ Run a 3-phase repository health check: automated scripts, structural/content ana
 
 ## Phase 1: Script Validation (fastest — run first)
 
-Run all validation scripts from the repo root. Report a pass/fail table. Show output ONLY for failures.
+Run workflow-aligned validation from the repo root. Treat these files as command sources:
 
-1. `mkdocs build --strict`
-2. `python scripts/verify_controls.py`
-3. `python scripts/verify_templates.py`
-4. `python scripts/verify_excel_templates.py`
-5. `python scripts/verify_language_rules.py`
-6. `python scripts/validate_docs_anchors.py`
-7. *(If Solutions repo available)* Parse every `.json` under `SOLUTIONS_REPO/*/src/` with `json.loads()` — report failures only
+- `.github/workflows/docs-validation.yml`
+- `.github/workflows/python-quality.yml`
+- `.github/workflows/commercial-scope.yml`
 
-**These scripts are authoritative.** Do NOT re-check their domains in Phase 2 (prohibited language, control section structure, footer format, anchor links).
+Build a dynamic command plan (no fixed script list), then execute applicable gates in this order:
+
+1. Determine changed paths from `git diff --name-only`.
+2. Build site first: `mkdocs build --strict`
+3. Run built-site gates with current args:
+   - `python scripts/verify_build_output.py site`
+   - `python scripts/verify_meta_tags.py site/`
+   - `python scripts/verify_doc_links.py site --json _broken-links.json`
+4. Run current documentation/drift gates when applicable:
+   - `python scripts/verify_controls.py`
+   - `python scripts/verify_xref_graph.py`
+   - `python scripts/check_manifest_doc_drift.py --check`
+   - `python scripts/check_explorer_data_drift.py --check`
+   - `python scripts/check_change_radar_data_drift.py --check`
+   - `python scripts/check_faq_jsonld_drift.py --check`
+   - `python scripts/generate_coverage_matrix.py --check`
+   - `python scripts/verify_language_rules.py`
+   - `python scripts/verify_commercial_scope.py`
+   - `python scripts/verify_learn_urls_count.py --check`
+   - `python scripts/verify_version_stamps.py --check`
+   - `python scripts/verify_prose_counts.py --check`
+   - `python scripts/verify_solutions_docs.py --check`
+   - `python scripts/verify_regulatory_naming.py --check`
+5. Run code/test gates only when relevant files changed:
+   - `ruff check assessment scripts`
+   - `pytest assessment/tests -v`
+   - `pytest scripts -v -p no:cacheprovider --ignore=scripts/private --ignore=scripts/governance -k "test_"`
+6. Keep these conditional and mark as **supplemental (non-authoritative CI gates)**:
+   - `python scripts/verify_templates.py`
+   - `python scripts/verify_excel_templates.py`
+   - `python scripts/compile_researcher_package.py`
+   - `python scripts/validate_docs_anchors.py`
+7. *(If Solutions repo available)* Conditionally parse `.json` under `SOLUTIONS_REPO/*/src/` with `json.loads()` and report parse failures.
+
+**These workflow-derived gates are authoritative.** Do NOT duplicate their domains in Phase 2 (language rules, control structure, built-site link/anchor validation, drift checks).
 
 ---
 
@@ -98,10 +128,10 @@ Run all validation scripts from the repo root. Report a pass/fail table. Show ou
 **Issues:** {total} (🔴 {n} critical, 🟡 {n} high, 🔵 {n} low)
 
 ## Phase 1: Script Validation
-| Script | Result |
-|--------|--------|
-| mkdocs build --strict | PASS/FAIL |
-| ... | ... |
+| Source Workflow | Gate | Command | Condition | Result |
+|-----------------|------|---------|-----------|--------|
+| docs-validation.yml | mkdocs-strict | mkdocs build --strict | always | PASS/FAIL |
+| ... | ... | ... | ... | ... |
 [Failure details only]
 
 ## Phase 2: Structural & Content
