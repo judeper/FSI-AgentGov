@@ -254,6 +254,7 @@ The framework covers compliance requirements for:
 - **GLBA**: Sections 501, 504, 505 (safeguards and privacy)
 - **OCC**: Bulletin 2026-13 (formerly Bulletin 2011-12) (model risk management)
 - **Federal Reserve**: SR 26-2 (formerly SR 11-7) (model risk, fair lending)
+- **FDIC**: FIL-15-2026 (FDIC adoption of revised interagency Model Risk Management guidance, April 17, 2026; rescinds FIL-22-2017)
 
 ---
 
