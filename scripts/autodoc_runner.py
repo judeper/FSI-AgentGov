@@ -7,7 +7,7 @@ each change (``autodoc_route``), and for every *autodraft* change drafts a minim
 edit with the GitHub Copilot CLI, gates it through the deterministic verifier
 (``autodoc_verify_gate``) **and** an independent cross-model review
 (``autodoc_cli_review``, a different Copilot model family), and — only when both pass —
-opens a pull request for a **human** to merge. Failures retry a bounded number of times
+opens a pull request for OceanSquad review and merge. Failures retry a bounded number of times
 (``autodoc_retry.decide``) and then escalate to a human. *human*-routed changes are never
 drafted; they get an escalation issue.
 
@@ -39,6 +39,8 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import autodoc_automerge
+import autodoc_canary
+import autodoc_classifier
 import autodoc_retry
 import autodoc_route
 
@@ -160,8 +162,11 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     if not _autodoc_enabled():
         return {"enabled": False, "outcomes": []}
 
+    _assert_canary(config)
+
     # Update the auto-merge agreement ledger with how past redirect PRs were resolved by
-    # humans (merged-as-is / edited / closed). Runs even when there are no new changes.
+    # OceanSquad/the owner (merged-as-is / edited / closed). This remains observational:
+    # target-native auto-merge activation is deliberately disabled.
     _reconcile_automerge(config)
 
     report_path = _latest_report(config)
@@ -289,13 +294,19 @@ def _is_redirect(ctx: ChangeContext) -> bool:
 
 def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
     """Apply a URL redirect deterministically: swap the old Learn URL for the new one in the
-    URL list, verify the diff is a clean URL-only change, and open a human-merge PR. No LLM and
-    no prose verifier are used — a redirect is a mechanical string replacement.
+    URL list, verify the diff is a clean URL-only change, and open an OceanSquad-reviewed PR.
+    No LLM and no prose verifier are used — a redirect is a mechanical string replacement.
     """
 
-    old_url = str(ctx.contract.get("source_url", "")).strip()
+    old_url = autodoc_classifier._canonicalize_url(  # noqa: SLF001 - shared routing identity rule.
+        str(ctx.contract.get("source_url", ""))
+    )
+    contract_destination = str(ctx.contract.get("destination_url", ""))
     match = _REDIRECT_TO_RE.search(ctx.instructions)
-    new_url = match.group(1).strip() if match else ""
+    evidence_destination = match.group(1).strip() if match else ""
+    new_url = autodoc_classifier._canonicalize_url(  # noqa: SLF001 - shared routing identity rule.
+        contract_destination or evidence_destination
+    )
     if not (old_url.startswith("http") and new_url.startswith("http")) or old_url == new_url:
         return _do_escalate(config, ctx, "redirect_parse_failed", f"could not resolve a URL swap (old={old_url!r} new={new_url!r})")
     # Reject URLs containing table-breaking or non-URL-legal characters before any file write, so a
@@ -324,31 +335,46 @@ def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
 
 def _apply_and_open_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str) -> Outcome:
     allowed = [rel for rel in ctx.contract.get("allowed_files", [])]
-    # Match old_url only as a COMPLETE URL — never as a prefix of a longer URL. Without this,
-    # `.../environment-groups` would also corrupt `.../environment-groups-rules`. The negative
-    # lookahead rejects a match immediately followed by any URL-continuation character.
-    url_pattern = re.compile(re.escape(old_url) + r"(?![A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%])")
-    # Same boundary rule for detecting the new URL already present, so a sibling that merely has
-    # new_url as a prefix (e.g. `.../x` vs `.../x-rules`) does not trigger a spurious escalation.
-    new_url_pattern = re.compile(re.escape(new_url) + r"(?![A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%])")
-    changed_any = False
+    matches: list[tuple[Path, str, str]] = []
+    new_url_present = False
     for rel in allowed:
         path = config.repo_path / rel
         try:
             before = path.read_text(encoding="utf-8")
         except OSError:
             continue
-        if not url_pattern.search(before):
-            continue
-        if new_url_pattern.search(before):
-            return _do_escalate(config, ctx, "redirect_ambiguous", f"new URL already present in {rel}; needs human review")
-        after, count = url_pattern.subn(new_url, before)
-        if count and after != before:
-            path.write_text(after, encoding="utf-8")
-            changed_any = True
+        lines = before.splitlines(keepends=True)
+        for line_index, line in enumerate(lines):
+            cells = line.split("|")
+            for cell_index, cell in enumerate(cells):
+                candidate = cell.strip()
+                if not _URL_WELL_FORMED_RE.fullmatch(candidate):
+                    continue
+                canonical = autodoc_classifier._canonicalize_url(candidate)  # noqa: SLF001
+                if canonical == new_url:
+                    new_url_present = True
+                if canonical != old_url:
+                    continue
+                updated_cells = list(cells)
+                updated_cells[cell_index] = cell.replace(candidate, new_url, 1)
+                updated_lines = list(lines)
+                updated_lines[line_index] = "|".join(updated_cells)
+                matches.append((path, before, "".join(updated_lines)))
 
-    if not changed_any:
+    if new_url_present:
+        return _do_escalate(config, ctx, "redirect_ambiguous", "canonical destination URL already exists; needs human review")
+    if not matches:
         return _do_escalate(config, ctx, "redirect_url_not_found", f"{old_url} not found as a complete URL in allowed file(s); nothing to update")
+    if len(matches) != 1:
+        return _do_escalate(
+            config,
+            ctx,
+            "redirect_ambiguous",
+            f"canonical source URL matched {len(matches)} rows; refusing a multi-row edit",
+        )
+
+    path, _before, after = matches[0]
+    path.write_text(after, encoding="utf-8")
 
     _git(config, "add", "-A")
     diff_text = _git(config, "diff", "--cached", "--unified=3")
@@ -375,11 +401,17 @@ def _swap_url_cell(line: str, old_url: str, new_url: str) -> str | None:
     """
 
     cells = line.split("|")
-    hits = [i for i, cell in enumerate(cells) if cell.strip() == old_url]
+    hits = [
+        i
+        for i, cell in enumerate(cells)
+        if autodoc_classifier._canonicalize_url(cell.strip())  # noqa: SLF001
+        == autodoc_classifier._canonicalize_url(old_url)  # noqa: SLF001
+    ]
     if len(hits) != 1:
         return None
     index = hits[0]
-    cells[index] = cells[index].replace(old_url, new_url)
+    actual_url = cells[index].strip()
+    cells[index] = cells[index].replace(actual_url, new_url, 1)
     return "|".join(cells)
 
 
@@ -415,25 +447,27 @@ def _redirect_diff_is_clean(changed_files: list[str], allowed: list[str], diff_t
 
 
 def _open_pr_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str) -> str:
-    """Commit the verified URL swap and open a human-merge PR (no review verdict — deterministic)."""
+    """Commit the verified URL swap and open an OceanSquad-reviewed PR."""
 
     if config.dry_run:
         return f"dry-run: would open redirect PR for {ctx.branch} ({old_url} -> {new_url})"
     commit_message = f"docs(autodoc): update redirected Learn URL\n\nAUTODOC-FINGERPRINT: {ctx.fingerprint}"
     _git(config, "commit", "-m", commit_message)
     pr_body = (
-        "Automated **deterministic** Learn-URL redirect update (human merge required).\n\n"
+        "Automated **deterministic** Learn-URL redirect update.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
         f"Source report: {ctx.report_path}\n\n"
         f"`{old_url}`\n→ `{new_url}`\n\n"
         "No LLM was involved: the runner applied the exact URL swap and verified the staged diff "
-        "is a clean URL-only change in the Learn URL list."
+        "is a clean URL-only change in the Learn URL list.\n\n"
+        "Merge policy: OceanSquad reviews and SHA-pinned merges after all required checks pass. "
+        "Owner review is required only if automation escalates the PR."
     )
     return _push_and_create_pr(config, ctx, pr_body)
 
 
 # --------------------------------------------------------------------------------------
-# Stage 2 redirect auto-merge (gated; OFF until the agreement gate unlocks)
+# Redirect agreement telemetry (observational; native auto-merge disabled)
 # --------------------------------------------------------------------------------------
 
 
@@ -447,11 +481,10 @@ def _pr_number_from_detail(detail: str) -> int | None:
 
 
 def _record_and_maybe_automerge(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str, detail: str) -> str:
-    """Record the drafted redirect in the agreement ledger and, ONLY if the fail-closed
-    unlock gate (``autodoc_automerge.unlock_state``) is open, enable GitHub auto-merge on
-    the PR. Otherwise the PR is left for a human to merge (the Stage 1 behaviour). Returns
-    an annotated detail string. Off by default: the gate requires ``AUTOMERGE_ENABLED=true``
-    plus accumulated merged-as-is agreement and zero reverts before it ever unlocks.
+    """Record the redirect outcome for agreement telemetry without enabling native auto-merge.
+
+    OceanSquad is the sole merge owner. The historical unlock calculation remains available
+    as observational metadata, but this target never calls ``gh pr merge --auto``.
     """
 
     if config.dry_run:
@@ -469,26 +502,13 @@ def _record_and_maybe_automerge(config: RunnerConfig, ctx: ChangeContext, old_ur
         new_url=new_url,
     )
     state = autodoc_automerge.unlock_state(ledger)
-    if not state.unlocked:
-        return f"{detail} (human-merge; auto-merge locked: {state.reason})"
-    _enable_automerge(config, ctx)
-    return f"{detail} (auto-merge enabled)"
+    return f"{detail} (OceanSquad merge; target-native auto-merge disabled; observed gate: {state.reason})"
 
 
 def _enable_automerge(config: RunnerConfig, ctx: ChangeContext) -> None:
-    """Enable GitHub auto-merge (squash) on the redirect PR. Isolated so tests monkeypatch it.
+    """Fail closed: OceanSquad, not GitHub native auto-merge, owns final merges."""
 
-    GitHub then merges the PR only when its required checks — including the independent
-    ``autodoc-redirect-verify`` gate — are green, so this never bypasses CI verification.
-    """
-
-    subprocess.run(
-        ["gh", "pr", "merge", ctx.branch, "--repo", _repo_slug(config), "--auto", "--squash"],
-        check=False,
-        capture_output=True,
-        text=True,
-        cwd=str(config.repo_path),
-    )
+    raise RuntimeError("target-native autodoc auto-merge is disabled")
 
 
 def _reconcile_automerge(config: RunnerConfig) -> None:
@@ -645,6 +665,20 @@ def _extract_contract(body: str, fingerprint: str) -> dict[str, Any]:
 
 def _autodoc_enabled() -> bool:
     return os.environ.get("AUTODOC_ENABLED", "").strip().lower() == "true"
+
+
+def _assert_canary(config: RunnerConfig) -> None:
+    """Halt routing if deterministic or explicitly enabled cross-model poison checks leak."""
+
+    verifier_hook = None
+    if os.environ.get("AUTODOC_CANARY_CROSS_MODEL_ENABLED", "").strip().lower() == "true":
+        verifier_hook = autodoc_canary.make_cross_model_verifier(
+            model=config.review_model,
+            timeout=config.review_timeout,
+        )
+    failures = [name for name, rejected, _decision in autodoc_canary.run_canary(verifier_hook) if not rejected]
+    if failures:
+        raise RuntimeError(f"autodoc canary failed closed: {', '.join(failures)}")
 
 
 def _latest_report(config: RunnerConfig) -> Path | None:
@@ -863,7 +897,7 @@ def _git(config: RunnerConfig, *args: str) -> str:
 
 
 def _open_pr(config: RunnerConfig, ctx: ChangeContext, draft: DraftResult, review_verdict: dict[str, Any]) -> str:
-    """Commit the verified draft, push as the owner, and open a human-merge PR."""
+    """Commit the verified draft, push as the owner, and open an OceanSquad-reviewed PR."""
 
     if config.dry_run:
         return f"dry-run: would open PR for {ctx.branch}"
@@ -872,11 +906,13 @@ def _open_pr(config: RunnerConfig, ctx: ChangeContext, draft: DraftResult, revie
     # deterministic verifier confirmed only allowed_files changed, so commit the staged set.
     _git(config, "commit", "-m", commit_message)
     pr_body = (
-        f"Automated documentation draft (human merge required).\n\n"
+        f"Automated documentation draft.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
         f"Source report: {ctx.report_path}\n\n"
         f"Independent cross-model review verdict: {review_verdict.get('verdict', 'n/a')} "
-        f"(confidence {review_verdict.get('confidence', 'n/a')}).\n"
+        f"(confidence {review_verdict.get('confidence', 'n/a')}).\n\n"
+        "Merge policy: OceanSquad reviews and SHA-pinned merges after all required checks pass. "
+        "Owner review is required only if automation exhausts its review/fix path and escalates."
     )
     return _push_and_create_pr(config, ctx, pr_body)
 

@@ -31,6 +31,24 @@ def test_clean_swap_returns_urls() -> None:
     assert (old, new) == (OLD, NEW)
 
 
+def test_clean_swap_accepts_tracked_old_but_requires_canonical_new() -> None:
+    tracked_old = OLD + "?msockid=abc&utm_source=monitor"
+    old, new = v.verify_redirect_diff(_diff(_row(tracked_old), _row(NEW)))
+    assert (old, new) == (tracked_old, NEW)
+
+
+def test_rejects_tracking_parameters_in_new_url() -> None:
+    tracked_new = NEW + "?view=power-platform&WT.mc_id=test#limits"
+    with pytest.raises(v.NotCleanRedirect, match="tracking"):
+        v.verify_redirect_diff(_diff(_row(OLD), _row(tracked_new)))
+
+
+def test_canonicalizer_preserves_functional_query_and_fragment() -> None:
+    assert v._canonicalize_url(
+        NEW + "?view=power-platform&utm_campaign=test&lang=en-us#limits"
+    ) == (NEW + "?view=power-platform&lang=en-us#limits")
+
+
 def test_rejects_wrong_file() -> None:
     diff = _diff(_row(OLD), _row(NEW), file="docs/controls/pillar-1-security/1.6-x.md")
     with pytest.raises(v.NotCleanRedirect, match="touch only"):

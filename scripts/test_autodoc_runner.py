@@ -138,6 +138,45 @@ def test_process_redirect_clean_swap_opens_pr(monkeypatch: pytest.MonkeyPatch, t
     assert old not in url_file.read_text(encoding="utf-8")
     assert ledger[-1][0] == "pr_open"
     assert old in pr_calls[0] and new in pr_calls[0]
+    assert "OceanSquad reviews and SHA-pinned merges" in pr_calls[0]
+    assert "human merge required" not in pr_calls[0].lower()
+
+
+def test_regression_734_tracking_urls_produce_one_clean_canonical_redirect(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    canonical_old = "https://learn.microsoft.com/en-us/old?view=power-platform#limits"
+    tracked_old = canonical_old.replace("?", "?msockid=abc&")
+    canonical_new = "https://learn.microsoft.com/en-us/new?view=power-platform#limits"
+    tracked_new = canonical_new.replace("?", "?utm_source=monitor&ocid=test&")
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text(f"| Redirect | {tracked_old} | Mar 2026 |\n", encoding="utf-8")
+    diff = (
+        "--- a/x\n+++ b/x\n@@ -1 +1 @@\n"
+        f"-| Redirect | {tracked_old} | Mar 2026 |\n"
+        f"+| Redirect | {canonical_new} | Mar 2026 |\n"
+    )
+    monkeypatch.setattr(runner, "_git", _redirect_git_mock(diff))
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, baseline: None)
+    bodies: list[str] = []
+    monkeypatch.setattr(runner, "_push_and_create_pr", lambda config, ctx, body: bodies.append(body) or "PR#734")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+
+    ctx = _redirect_ctx(canonical_old, tracked_new)
+    ctx.contract["destination_url"] = tracked_new
+    outcome = runner._process_redirect(
+        runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b"),
+        ctx,
+    )
+
+    assert outcome.status == "pr_opened"
+    assert canonical_new in url_file.read_text(encoding="utf-8")
+    assert "utm_source" not in url_file.read_text(encoding="utf-8")
+    assert canonical_new in bodies[0]
+    assert tracked_new not in bodies[0]
 
 
 def test_process_redirect_url_not_found_escalates(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -596,7 +635,61 @@ def test_feedback_text_lists_claims() -> None:
     assert "Independent review: fail" in text
 
 
+def test_content_pr_body_describes_oceansquad_merge_and_final_escalation(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(runner, "_git", lambda config, *args: "")
+    captured: list[str] = []
+    monkeypatch.setattr(
+        runner,
+        "_push_and_create_pr",
+        lambda config, ctx, body: captured.append(body) or "https://github.com/o/r/pull/1",
+    )
+    runner._open_pr(_config(tmp_path), _ctx(), _draft(), {"verdict": "pass", "confidence": 0.95})
+    assert "OceanSquad reviews and SHA-pinned merges" in captured[0]
+    assert "only if automation exhausts" in captured[0]
+    assert "human merge required" not in captured[0].lower()
+
+
 # --- run() guard + routing -------------------------------------------------------
+
+
+def test_assert_canary_cross_model_hook_is_disabled_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.delenv("AUTODOC_CANARY_CROSS_MODEL_ENABLED", raising=False)
+    monkeypatch.setattr(
+        runner.autodoc_canary,
+        "make_cross_model_verifier",
+        lambda **_kwargs: pytest.fail("must not activate cross-model canary by default"),
+    )
+    monkeypatch.setattr(
+        runner.autodoc_canary,
+        "run_canary",
+        lambda hook=None: [("safe", True, None)] if hook is None else pytest.fail("unexpected hook"),
+    )
+    runner._assert_canary(_config(tmp_path))
+
+
+def test_assert_canary_wires_explicit_cross_model_hook(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("AUTODOC_CANARY_CROSS_MODEL_ENABLED", "true")
+    verifier = object()
+    monkeypatch.setattr(
+        runner.autodoc_canary,
+        "make_cross_model_verifier",
+        lambda **kwargs: verifier if kwargs["model"] == "model-b" else None,
+    )
+    monkeypatch.setattr(
+        runner.autodoc_canary,
+        "run_canary",
+        lambda hook=None: [("safe", hook is verifier, None)],
+    )
+    runner._assert_canary(_config(tmp_path))
 
 
 def test_run_disabled_is_noop(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -931,17 +1024,17 @@ def test_record_and_maybe_automerge_dry_run_noop(tmp_path: Path) -> None:
     assert runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "x") == "x"
 
 
-def test_record_and_maybe_automerge_locked_human_merge(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: pytest.fail("must not auto-merge while locked"))
+def test_record_and_maybe_automerge_remains_observational(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: pytest.fail("target-native auto-merge is disabled"))
     cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
     ctx = _redirect_ctx("https://old/", "https://new/")
     detail = runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "https://github.com/o/r/pull/7")
-    assert "auto-merge locked" in detail
+    assert "target-native auto-merge disabled" in detail
     led = runner._automerge_ledger_file(cfg)
     assert "sha256:redir01" in runner.autodoc_automerge.load_ledger(led)["samples"]
 
 
-def test_record_and_maybe_automerge_unlocked_enables(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_record_and_maybe_automerge_unlocked_still_does_not_enable(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     calls: list[str] = []
     monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: calls.append(ctx.branch))
     monkeypatch.setattr(
@@ -952,8 +1045,9 @@ def test_record_and_maybe_automerge_unlocked_enables(monkeypatch: pytest.MonkeyP
     cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
     ctx = _redirect_ctx("https://old/", "https://new/")
     detail = runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "https://github.com/o/r/pull/7")
-    assert "auto-merge enabled" in detail
-    assert calls == [ctx.branch]
+    assert "target-native auto-merge disabled" in detail
+    assert "observed gate: unlocked" in detail
+    assert calls == []
 
 
 def test_record_and_maybe_automerge_no_pr_number_noop(tmp_path: Path) -> None:

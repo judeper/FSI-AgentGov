@@ -65,9 +65,21 @@ def _dedupe_keep_order(values: list[str]) -> list[str]:
     return out
 
 
-def compute_fingerprint(report_name: str, url: str, classification: str, allowed_files: list[str]) -> str:
+def compute_fingerprint(
+    report_name: str,
+    url: str,
+    classification: str,
+    allowed_files: list[str],
+    destination_url: str = "",
+) -> str:
     """Return a stable sha256 fingerprint for a routed Learn change."""
-    parts = [report_name, url, classification, *sorted(allowed_files)]
+    canonical_url = classifier._canonicalize_url(url)  # noqa: SLF001 - shared routing identity rule.
+    canonical_destination = classifier._canonicalize_url(  # noqa: SLF001 - shared routing identity rule.
+        destination_url
+    )
+    parts = [report_name, canonical_url, classification, *sorted(allowed_files)]
+    if canonical_destination:
+        parts.append(f"destination:{canonical_destination}")
     payload = "\n".join(parts)
     return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
@@ -106,7 +118,10 @@ def build_contract(
         "schema_version": 1,
         "fingerprint": fingerprint,
         "report_path": f"reports/monitoring/{Path(report_name).name}",
-        "source_url": decision.url,
+        "source_url": classifier._canonicalize_url(decision.url),  # noqa: SLF001
+        "destination_url": classifier._canonicalize_url(  # noqa: SLF001
+            getattr(decision, "destination_url", "")
+        ),
         "content_hash": getattr(decision, "content_hash", ""),
         "classification": decision.classification,
         "route": decision.route,
@@ -240,7 +255,7 @@ def _change_blocks_by_url(report_text: str) -> dict[str, str]:
         url_match = _URL_RE.search(block)
         if not url_match:
             continue
-        url = url_match.group(1).strip()
+        url = classifier._canonicalize_url(url_match.group(1))  # noqa: SLF001
         existing = blocks.get(url)
         if existing is None or (_DIFF_RE.search(block) and not _DIFF_RE.search(existing)):
             blocks[url] = block
@@ -266,7 +281,13 @@ def route_report(report_text: str, report_name: str, ledger: dict[str, Any], rep
 
     for change, decision in zip(changes, decisions, strict=True):
         allowed_files = _allowed_files_for_change(change, blocks_by_url.get(change.url, ""))
-        fingerprint = compute_fingerprint(report_name, decision.url, decision.classification, allowed_files)
+        fingerprint = compute_fingerprint(
+            report_name,
+            decision.url,
+            decision.classification,
+            allowed_files,
+            getattr(decision, "destination_url", ""),
+        )
         if already_processed(ledger, fingerprint):
             continue
 

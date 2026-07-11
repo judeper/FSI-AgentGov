@@ -44,6 +44,20 @@ def test_compute_fingerprint_is_stable_and_sorts_allowed_files():
     assert one != three
 
 
+def test_redirect_fingerprint_distinguishes_a_to_b_from_a_to_c():
+    common = (
+        "learn-changes-2026-06-18.md",
+        "https://learn.microsoft.com/a?msockid=tracked",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+    )
+    to_b = route.compute_fingerprint(*common, "https://learn.microsoft.com/b?utm_source=monitor")
+    to_b_untracked = route.compute_fingerprint(*common, "https://learn.microsoft.com/b")
+    to_c = route.compute_fingerprint(*common, "https://learn.microsoft.com/c")
+    assert to_b == to_b_untracked
+    assert to_b != to_c
+
+
 def test_extract_allowed_files_prefixes_docs_and_reads_playbooks():
     block = """
 ### 1. Synthetic
@@ -122,6 +136,7 @@ def test_build_contract_redirect_uses_target_file_headings(tmp_path):
         classification="REDIRECT",
         reason="redirects to https://new",
         kind="redirect",
+        destination_url="https://new?utm_source=test",
     )
     decision = ac.classify_change(change)
     assert decision.kind == "redirect"
@@ -133,6 +148,7 @@ def test_build_contract_redirect_uses_target_file_headings(tmp_path):
     assert "Copilot Studio" in contract["allowed_headings"]
     assert "Microsoft Purview" in contract["allowed_headings"]
     assert contract["allowed_headings"] != route.ALLOWED_HEADINGS
+    assert contract["destination_url"] == "https://new"
 
 
 def test_build_contract_redirect_missing_file_yields_empty_headings(tmp_path):
