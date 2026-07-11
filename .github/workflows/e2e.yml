@@ -110,6 +110,10 @@ jobs:
       - name: Open or update the e2e-full-broken issue
         env:
           GH_TOKEN: ${{ github.token }}
+          # This job has no checkout step, so gh must be told the repo explicitly.
+          # Without it every gh call fails with "fatal: not a git repository" and the
+          # alert issue is never filed (the whole point of this visibility net).
+          GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SHA: ${{ github.sha }}
           EVENT: ${{ github.event_name }}

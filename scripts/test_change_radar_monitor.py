@@ -121,7 +121,7 @@ def test_delta_writes_pending_blobs(tmp_path: Path):
     rc, pending, reports = _run(
         tmp_path, [item_a_changed, item_new, ITEM_NON_AGENT], "v2"
     )
-    assert rc == 0
+    assert rc == 1  # changes staged -> signals the workflow to open the gate PR
     blobs = sorted(p.name for p in pending.glob("*.json"))
     # 111 changed, 333 new, 222 withdrawn.
     assert any("roadmap-111-" in b for b in blobs)
