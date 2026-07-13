@@ -1,0 +1,45 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:455d77c763043ccb826a58db2336abceb97e4b3af9af891914b6f7119daf550c",
+  "detected_at": "2026-07-13T10:15:26Z",
+  "ga_date": "July CY2026",
+  "id": 494809,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft 365 admin center",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "For Admins, agents in the Frontier program can be managed through the Microsoft 365 Admin Center. They are listed under the agents & connectors tab in Copilot Control System, where you can view all agent inventory for your organization. Agents built by Microsoft and available in the Frontier program will be displayed in the Agent Store. This feature will support users to request these agents if blocked by organizational policies. Admins will have the opportunity to further approve and reject these user request. #copilotcontrolsystem",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=494809",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "1.2",
+      "source": "keyword:inventory"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:connector"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "3.1",
+      "source": "keyword:inventory"
+    },
+    {
+      "id": "3.11",
+      "source": "keyword:inventory"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Frontier and Microsoft agent user request approval flow in Microsoft 365 admin center"
+}

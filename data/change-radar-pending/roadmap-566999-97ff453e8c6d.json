@@ -1,0 +1,25 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:97ff453e8c6d95e180c12ce67056dadf6bd5c829c6407707367921675aaecbfc",
+  "detected_at": "2026-07-13T10:15:26Z",
+  "ga_date": "November CY2026",
+  "id": 566999,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2025",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "Express mode ensures agents and apps receive timely and reliable responses by dramatically accelerating flow run times. This reduces flow failures, improves user experience, and eliminates costly interruptions caused by timeout issues. Organizations benefit from more dependable automations, higher adoption, and smoother operational workflows.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=566999",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Enable express mode for flows invoked by an agent or app"
+}
