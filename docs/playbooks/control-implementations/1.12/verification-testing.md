@@ -345,10 +345,13 @@ FINRA 3110 · OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerl
 4. Pull the last 30-day alert volume by agent identity (Entra Agent ID) — see [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
 
 ```powershell
-# Read-only: list IRM policies via IPPS
-Connect-IPPSSession
-Get-InsiderRiskPolicy | Where-Object { $_.Name -like '*Agent*' -or $_.TemplateName -like '*Agent*' } |
-  Select-Object Name,TemplateName,Mode,Enabled,WhenChangedUTC
+# Policy inventory for Control 1.12 is portal/manual:
+# 1) Export Policies grid from Purview portal to CSV.
+# 2) Validate expected agent templates in the export.
+$policyExport = Import-Csv '.\evidence\tc04-risky-agents-policy.csv'
+$policyExport |
+  Where-Object { $_.TemplateName -like '*Agent*' -or $_.Name -like '*Agent*' } |
+  Select-Object Name, TemplateName, Status, Scope, LastModified
 ```
 
 #### Expected
@@ -1352,7 +1355,7 @@ Describe 'Control 1.12 · Verification (read-only)' {
     Context 'PRE gates' {
         It 'PRE-1 PowerShell baseline'   { $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7 }
         It 'PRE-3 Cloud environment known'  { $script:CloudCtx.GraphEnvironment | Should -Not -Be 'Unknown' }
-        It 'PRE-6 Pseudonymization on'  { (Get-InsiderRiskTenantSettings).PseudonymizationEnabled | Should -BeTrue }
+        It 'PRE-6 Tenant IRM configuration retrievable' { Get-IRMConfiguration | Should -Not -BeNullOrEmpty }
         It 'PRE-7 UAL ingestion on'     { (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled | Should -BeTrue }
     }
 

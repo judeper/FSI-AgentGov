@@ -99,12 +99,13 @@ foreach ($m in $modules) {
 ### 1.2 Role-group and permission matrix
 
 | Operation | Required role group / scope | Notes |
+|---|---|---|
 
-| `Get-InsiderRiskPolicy`, `Get-IRMConfiguration`, `Get-PolicyConfig` (read) | **Insider Risk Management Auditors** (recommended) or **Insider Risk Management Admins** | Use a dedicated read-only principal for evidence collection (§1.3) |
-| `New-InsiderRiskPolicy`, `Set-InsiderRiskPolicy` (write) | **Insider Risk Management Admins** | SOX 404: must NOT be the same principal as the auditor / reader |
+| `Get-IRMConfiguration`, `Get-PolicyConfig` (read) | **Insider Risk Management Auditors** (recommended) or **Insider Risk Management Admins** | Supported for tenant enablement verification only; does **not** enumerate Insider Risk policies |
+| Insider Risk policy create/update/list operations | **Insider Risk Management Admins** (portal) | Perform in Purview portal only and export evidence manually; do not rely on undocumented PowerShell cmdlets |
 | Forensic Evidence capture request | **Insider Risk Management Investigators** | Request only — approval is a separate role (Approvers) |
 | Forensic Evidence capture approval | **Insider Risk Management Approvers** | **Must be distinct** from Investigators (dual-authorization) |
-| Microsoft Graph IRM read (preferred) | `ThreatIntelligence.Read.All`, `SecurityEvents.Read.All`, `IdentityRiskyUser.Read.All` (verify on Learn at deployment) | Beta endpoints subject to change; pin SDK version |
+| Microsoft Graph IRM read (optional context) | `ThreatIntelligence.Read.All`, `SecurityEvents.Read.All`, `IdentityRiskyUser.Read.All` (verify on Learn at deployment) | Use for adjacent signal context only; not for policy inventory unless Microsoft documents a GA endpoint |
 | HR connector read | `User.Read.All`, `AuditLog.Read.All`, plus connector-specific app role | Read-only for assessment |
 
 ### 1.3 Separate audit-only principal (recommended)
@@ -160,57 +161,70 @@ function Get-FsiIrmCloudGate {
 
 ---
 
-## §2 — Helper: `Get-FsiIrmPolicyInventory`
+## §2 — Helper: `Get-FsiIrmPolicyEvidenceStatus` (manual evidence gate)
 
 ```powershell
-function Get-FsiIrmPolicyInventory {
+function Get-FsiIrmPolicyEvidenceStatus {
 <#
 .SYNOPSIS
-    Enumerates all Insider Risk Management policies, the templates they were instantiated from,
-    their scope (in-scope users / priority groups / administrative units), and their enabled state.
+    Validates that required manual Insider Risk evidence exports are present.
+.DESCRIPTION
+    Microsoft does not currently document a supported PowerShell or GA Graph endpoint
+    to inventory Insider Risk policies for Control 1.12. This helper fails closed until
+    reviewers provide portal exports.
 .OUTPUTS
-    [pscustomobject] with Status in {Clean, Anomaly, Pending, NotApplicable, Error}.
+    [pscustomobject] with Status in {Clean, Anomaly, Pending, Error}.
 #>
-    [CmdletBinding()] [OutputType([pscustomobject])] param()
-    $gate = Get-FsiIrmCloudGate
-    if ($gate) { return $gate }
+    [CmdletBinding()] [OutputType([pscustomobject])]
+    param(
+        [Parameter(Mandatory)] [string]$PolicyExportPath,
+        [Parameter(Mandatory)] [string]$AlertExportPath
+    )
+
+    $expectedTemplates = @(
+        'Data leaks',
+        'Data leaks by priority users',
+        'Data theft by departing users',
+        'General security policy violations',
+        'Risky AI usage'
+    )
+
+    if (-not (Test-Path $PolicyExportPath) -or -not (Test-Path $AlertExportPath)) {
+        return [pscustomobject]@{
+            Status               = 'Pending'
+            AutomationSupported  = $false
+            MissingEvidence      = @(
+                if (-not (Test-Path $PolicyExportPath)) { $PolicyExportPath }
+                if (-not (Test-Path $AlertExportPath))  { $AlertExportPath }
+            )
+            CheckedUtc           = (Get-Date).ToUniversalTime().ToString('o')
+            Note                 = 'Manual Purview exports are required; no supported policy-inventory cmdlet is available.'
+        }
+    }
 
     try {
-        $templates = Get-InsiderRiskPolicyTemplate -ErrorAction Stop
-        $policies  = Get-InsiderRiskPolicy -ErrorAction Stop |
-            Select-Object Name, Mode, Enabled, Template, InScopeUserGroups,
-                          PriorityUserGroups, ExcludedUserGroups, WhenChangedUTC
+        $policies = Import-Csv -Path $PolicyExportPath
+        $alerts = Import-Csv -Path $AlertExportPath
+        $presentTemplates = @($policies.Template | Where-Object { $_ } | Sort-Object -Unique)
+        $missingTemplates = @($expectedTemplates | Where-Object { $_ -notin $presentTemplates })
 
-        $expected = @(
-            'Data leaks',
-            'Data leaks by priority users',
-            'Data theft by departing users',
-            'General security policy violations',
-            'Risky AI usage'
-        )
-        $present  = @($policies | ForEach-Object { $_.Template })
-        $missing  = @($expected | Where-Object { $_ -notin $present })
-
-        $status = if ($missing.Count -eq 0 -and $policies.Count -gt 0) { 'Clean' }
-                  elseif ($policies.Count -eq 0)                       { 'Anomaly' }
-                  else                                                  { 'Anomaly' }
+        $status = if ($alerts.Count -eq 0 -or $missingTemplates.Count -gt 0) { 'Anomaly' } else { 'Clean' }
 
         return [pscustomobject]@{
-            Status            = $status
-            Cloud             = $script:FsiCloud
-            TemplateCount     = $templates.Count
-            PolicyCount       = $policies.Count
-            Policies          = $policies
-            ExpectedTemplates = $expected
-            MissingTemplates  = $missing
-            CheckedUtc        = (Get-Date).ToUniversalTime().ToString('o')
+            Status               = $status
+            AutomationSupported  = $false
+            PolicyCount          = $policies.Count
+            AlertCount           = $alerts.Count
+            ExpectedTemplates    = $expectedTemplates
+            MissingTemplates     = $missingTemplates
+            CheckedUtc           = (Get-Date).ToUniversalTime().ToString('o')
+            EvidenceSource       = 'Purview portal exports'
         }
     } catch {
         return [pscustomobject]@{
-            Status     = 'Error'
-            Cloud      = $script:FsiCloud
-            Error      = $_.Exception.Message
-            CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
+            Status      = 'Error'
+            Error       = $_.Exception.Message
+            CheckedUtc  = (Get-Date).ToUniversalTime().ToString('o')
         }
     }
 }
@@ -391,24 +405,27 @@ function Get-FsiIrmSignalCoverage {
             $mdcaConnectors = @($resp.value | Where-Object { $_.connectorType -match 'cloudApp|Box|Dropbox|GoogleDrive|S3' })
         } catch { }
 
-        # 4. Browser-signal indicators — required by Risky AI usage and Risky browser usage
-        $policies = Get-InsiderRiskPolicy -ErrorAction Stop
-        $needsBrowser = @($policies | Where-Object { $_.Template -in @('Risky AI usage','Risky browser usage') })
-
-        $status = if (-not $ualOn)                                            { 'Anomaly' }
-                  elseif ($needsBrowser -and -not $mdeOn)                     { 'Anomaly' }
-                  elseif (($policies.Template -contains 'Data theft by departing users') -and $mdcaConnectors.Count -eq 0) { 'Anomaly' }
-                  else                                                        { 'Clean'   }
+        # 4. Browser-dependent template verification is manual (portal evidence)
+        $browserDependentTemplates = @('Risky AI usage', 'Risky browser usage')
+        $status = if (-not $ualOn) { 'Anomaly' }
+                  elseif (-not $mdeOn) { 'Pending' }
+                  elseif ($mdcaConnectors.Count -eq 0) { 'Pending' }
+                  else { 'Clean' }
 
         return [pscustomobject]@{
-            Status                  = $status
-            Cloud                   = $script:FsiCloud
-            UnifiedAuditLogEnabled  = $ualOn
-            MdeIntegrated           = $mdeOn
-            McasConnectorCount      = $mcdaConnectors.Count
-            BrowserDependentPolicies = $needsBrowser.Name
-            Notes                   = if (-not $ualOn) { 'Unified Audit Log OFF — IRM policies will produce zero signal. Enable per Control 1.7.' } else { '' }
-            CheckedUtc              = (Get-Date).ToUniversalTime().ToString('o')
+            Status                     = $status
+            Cloud                      = $script:FsiCloud
+            UnifiedAuditLogEnabled     = $ualOn
+            MdeIntegrated              = $mdeOn
+            McasConnectorCount         = $mdcaConnectors.Count
+            BrowserDependentTemplates  = $browserDependentTemplates
+            ManualVerificationRequired = $true
+            Notes                      = if (-not $ualOn) {
+                                            'Unified Audit Log OFF — IRM policies will produce zero signal. Enable per Control 1.7.'
+                                         } else {
+                                            'Use Purview portal exports to verify template assignment and policy scope.'
+                                         }
+            CheckedUtc                 = (Get-Date).ToUniversalTime().ToString('o')
         }
     } catch {
         return [pscustomobject]@{
@@ -600,56 +617,17 @@ function Get-FsiIrmAgentAbuseIndicators {
 
 ---
 
-## §9 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
+## §9 — Insider Risk policy changes (portal/manual only)
 
-> **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§3. Always invoke first with `-WhatIf`.
+Insider Risk policy create/update/list actions must be executed in the Purview portal.
+Do **not** rely on undocumented PowerShell cmdlets for policy lifecycle operations.
 
-```powershell
-function New-FsiIrmDataLeaksPolicy {
-<#
-.SYNOPSIS
-    Creates or updates the "Data leaks" IRM policy with FSI-appropriate scope, idempotently.
-#>
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
-    param(
-        [Parameter(Mandatory)] [string]$PolicyName,
-        [Parameter(Mandatory)] [string[]]$InScopeUserGroups,
-        [string[]]$PriorityUserGroups = @(),
-        [string]$EvidencePath = '.\evidence'
-    )
-    $gate = Get-FsiIrmCloudGate
-    if ($gate) {
-        return $gate
-    }
+Recommended evidence bundle for each change:
 
-    $ErrorActionPreference = 'Stop'
-    New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
-    $ts = Get-Date -Format 'yyyyMMdd-HHmmss'
-    Start-Transcript -Path "$EvidencePath\transcript-irm-$ts.log" -IncludeInvocationHeader
-
-    $existing = Get-InsiderRiskPolicy -Identity $PolicyName -ErrorAction SilentlyContinue
-    if ($existing) {
-        $existing | ConvertTo-Json -Depth 10 | Set-Content "$EvidencePath\before-$PolicyName-$ts.json"
-        if ($PSCmdlet.ShouldProcess($PolicyName, 'Set-InsiderRiskPolicy (update scope)')) {
-            Set-InsiderRiskPolicy -Identity $PolicyName `
-                -InScopeUserGroups $InScopeUserGroups `
-                -PriorityUserGroups $PriorityUserGroups
-        }
-    } else {
-        if ($PSCmdlet.ShouldProcess($PolicyName, 'New-InsiderRiskPolicy (Data leaks template)')) {
-            New-InsiderRiskPolicy -Name $PolicyName -InsiderRiskScenario 'DataLeaks' `
-                -InScopeUserGroups $InScopeUserGroups `
-                -PriorityUserGroups $PriorityUserGroups `
-                -Enabled $true
-        }
-    }
-
-    Get-InsiderRiskPolicy -Identity $PolicyName |
-        ConvertTo-Json -Depth 10 | Set-Content "$EvidencePath\after-$PolicyName-$ts.json"
-
-    Stop-Transcript
-}
-```
+1. Change ticket / approval reference.
+2. Purview portal screenshots or CSV export before and after the change.
+3. Alert disposition export showing post-change reviewer activity.
+4. Reviewer attestation mapping changes to control objective (Control 1.12).
 
 **Adaptive Protection enablement** (separate from any single policy — tenant-level toggle):
 

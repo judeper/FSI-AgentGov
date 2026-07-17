@@ -118,6 +118,38 @@ def test_capability_driver_tags_provide_rollup_signal():
         )
 
 
+def test_control_1_12_requires_manual_portal_review():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.12")
+
+    assert ctrl["automation"] == "manual"
+    assert ctrl["collection_methods"] == []
+    assert ctrl["checks"] == []
+    assert "Purview portal evidence" in ctrl["manual_question"]
+
+
+def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    banned = {
+        "Get-InsiderRiskPolicy",
+        "New-InsiderRiskPolicy",
+        "Set-InsiderRiskPolicy",
+        "Get-InsiderRiskPolicyTemplate",
+        "Get-InsiderRiskTenantSettings",
+    }
+    offenders: list[str] = []
+    for ctrl in controls:
+        for check in ctrl.get("checks", []):
+            api = check.get("api_call")
+            if api in banned:
+                offenders.append(f"{ctrl['id']}:{check.get('check_id')}")
+
+    assert offenders == [], (
+        "Unsupported Insider Risk automation surface must not appear in manifest checks: "
+        + ", ".join(offenders)
+    )
+
+
 # ---------------------------------------------------------------------------
 # Negative tests — write a mutated manifest and verify the validator catches it
 # ---------------------------------------------------------------------------

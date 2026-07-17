@@ -317,13 +317,15 @@ If the KQL returns **zero rows** while you know IRM admins were active in the wi
 
 *Portal.* Microsoft Purview → **Insider Risk Management** → **Policies** — view the **All policies** tab from an **unrestricted** Insider Risk Management Admin context. If still absent, check **What's new** / **Roadmap** within the Purview portal; check the **Microsoft 365 Roadmap** at `microsoft.com/microsoft-365/roadmap` for the Risky Agents feature ID and rollout phase. Microsoft Purview → **Insider Risk Management** → **Settings** → **Analytics** — confirm analytics is on with ≥ 7-day baseline.
 
-*PowerShell.*
+*PowerShell (supported tenant checks only).*
 
 ```powershell
 # Confirm IRM is initialized at the tenant
 Connect-IPPSSession -ShowBanner:$false
-Get-InsiderRiskPolicy | Select-Object Name, Type, Enabled, CreatedTime, LastModifiedTime
-# Look for a policy with Type that resolves to a Risky Agents template name on current Learn
+Get-IRMConfiguration | Select-Object AzureADJoinedEndpointStatus, PseudonymizationEnabled
+Get-PolicyConfig      | Select-Object AdaptiveProtectionEnabled
+# Policy inventory is portal/manual: export the Policies grid from Purview and
+# confirm the Risky AI agent activity template there.
 ```
 
 *Microsoft Graph (license / region check).*
@@ -478,15 +480,15 @@ DeviceEvents
 
 Open **Insider Risk Management → Alerts** — filter by the policy; export the last 14 d to CSV (`Export` button). Pivot in Excel by `User`, `Indicator`, `Risk score`, `Detected source` to identify which user populations and which indicators are driving the volume.
 
-*PowerShell.*
+*PowerShell + exported evidence.*
 
 ```powershell
 Connect-IPPSSession -ShowBanner:$false
-# Inventory priority user group memberships (verify cmdlet names against current Learn)
-Get-InsiderRiskPolicy | Where-Object { $_.Name -match 'priority' } |
-  Select-Object Name, Enabled, PriorityUserGroups, ContentExpansion
+# Inventory priority policy evidence from portal export
+$priorityPolicies = Import-Csv '.\evidence\irm-priority-policies.csv'
+$priorityPolicies | Select-Object PolicyName, Status, PriorityUserGroups, ContentExpansion
 
-# Membership of a named priority user group (via Microsoft Graph if the IRM cmdlet does not expose it)
+# Membership of a named priority user group (Microsoft Graph)
 Connect-MgGraph -Scopes 'Group.Read.All','User.Read.All' -NoWelcome
 $priGroup = Get-MgGroup -Filter "displayName eq 'IRM-Priority-FrontOffice'"
 Get-MgGroupMember -GroupId $priGroup.Id -All | Measure-Object

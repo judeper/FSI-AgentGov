@@ -1266,37 +1266,24 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.12-insider-risk-detection-and-response.md",
-    "automation": "partial",
-    "collection_methods": [
-      "Purview_PowerShell"
-    ],
-    "checks": [
-      {
-        "check_id": "1.12.a",
-        "description": "Insider risk policy exists with Copilot interactions in scope",
-        "api_call": "Get-InsiderRiskPolicy",
-        "pass_condition": "insider_risk_policy_exists",
-        "zone_required": [
-          2,
-          3
-        ]
-      }
-    ],
+    "automation": "manual",
+    "collection_methods": [],
+    "checks": [],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 1,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 1,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": "Have any insider risk alerts related to agent use been reviewed and dispositioned this quarter?",
+    "manual_question": "Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned.",
     "name": "Insider Risk Detection and Response",
     "zonesApplicable": [
       2,

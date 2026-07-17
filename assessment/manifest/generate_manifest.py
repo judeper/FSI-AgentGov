@@ -28,7 +28,7 @@ CONTROLS = [
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
     ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"),
     ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"full",["Graph_API"],None),
-    ("1.12","1.12-insider-risk-detection-and-response.md",1,"partial",["Purview_PowerShell"],"Have any insider risk alerts related to agent use been reviewed and dispositioned this quarter?"),
+    ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
     ("1.14","1.14-data-minimization-and-agent-scope-control.md",1,"manual",[],"Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?"),
     ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"full",["Graph_API"],None),
@@ -147,9 +147,7 @@ CHECKS_DB = {
         ("1.11.b","Sign-in frequency policy set for agent sessions","Get-MgIdentityConditionalAccessPolicy","signin_frequency_set",[2,3]),
         ("1.11.c","Phishing-resistant MFA required for Zone 3","Get-MgIdentityConditionalAccessPolicy","phishing_resistant_mfa",[3]),
     ],
-    "1.12": [
-        ("1.12.a","Insider risk policy exists with Copilot interactions in scope","Get-InsiderRiskPolicy","insider_risk_policy_exists",[2,3]),
-    ],
+    "1.12": [],  # manual only (portal evidence required)
     "1.13": [
         ("1.13.a","SIT count in Purview covers regulated data types","Get-DlpCompliancePolicy","sit_count_adequate",[2,3]),
         ("1.13.b","Agent DLP policy references SITs","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),

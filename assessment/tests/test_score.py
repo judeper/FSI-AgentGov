@@ -237,6 +237,42 @@ class TestPartialAutomationControl:
 
 
 # ---------------------------------------------------------------------------
+# Test: Control 1.12 must remain manual/fail-closed
+# ---------------------------------------------------------------------------
+
+class TestControl112ManualGate:
+    """Control 1.12 cannot pass via unsupported automation surfaces."""
+
+    def test_control_1_12_is_manual_only_in_real_manifest(
+        self, tmp_path: Path, collected_dir: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.12")
+
+        assert ctrl["needs_manual"] is True
+        assert ctrl["checks"] == []
+        assert ctrl["checks_applicable"] == 0
+        assert ctrl["maturity_score"] == 0
+        assert ctrl["evaluator_state"] == "manual_only"
+
+
+# ---------------------------------------------------------------------------
 # Test: missing data → confidence low
 # ---------------------------------------------------------------------------
 
@@ -1299,6 +1335,23 @@ class TestCollectorFailureModes:
                 )
         # Sentinel had no warnings/errors -> excluded from rollup.
         assert "sentinel" not in warnings
+
+    def test_insider_risk_warning_classification_not_mislabeled_as_licensing(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """Missing Insider Risk cmdlet must surface as command_not_found, not E5/licensing."""
+        collected = self._empty_collected_dir(tmp_path)
+        write_json(collected / "purview.json", load_fixture("purview_with_errors.json"))
+        for name in ("ppac", "graph", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        result = self._run(tmp_path, manifest, collected)
+        warnings = result["_metadata"]["collector_warnings"]
+        assert "purview" in warnings
+        assert any("command_not_found" in w for w in warnings["purview"]), warnings["purview"]
+        assert not any(
+            "command_not_found" in w and "licens" in w.lower() for w in warnings["purview"]
+        ), warnings["purview"]
 
     def test_collector_warnings_schema_shape(
         self, tmp_path: Path, manifest: dict, collected_dir: Path

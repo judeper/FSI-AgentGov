@@ -111,7 +111,7 @@ Capture, do **not** mutate first:
 
 | Requirement | Verification |
 |---|---|
-| IRM policy created and active | `Get-InsiderRiskPolicy` (where exposed) / portal |
+| IRM policy created and active | Purview portal policy export + reviewer attestation (manual evidence) |
 | Minimum baseline window observed | ≥ 7 days per Learn |
 | Risk-level thresholds configured in IRM | Insider Risk > Settings |
 | User in scope of IRM policy | IRM policy scope |

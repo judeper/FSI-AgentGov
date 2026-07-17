@@ -63,13 +63,7 @@
       "CaseType": "Standard"
     }
   ],
-  "insiderRiskPolicies": [
-    {
-      "Name": "Agent Data Exfiltration",
-      "Enabled": true,
-      "Mode": "Enforce"
-    }
-  ],
+  "insiderRiskPolicies": [],
   "dspmForAi": {
     "Available": true,
     "AlertsEnabled": true,
@@ -89,5 +83,28 @@
       "Workload": "Endpoint",
       "Enabled": true
     }
-  ]
+  ],
+  "insiderRiskEvidence": {
+    "policyInventory": {
+      "status": "manual_required",
+      "automationSupported": false,
+      "classification": "command_not_found",
+      "detail": "Get-InsiderRiskPolicy cmdlet not present in current module set. Treat as unsupported automation surface. Do not map this to licensing. Collect Insider Risk policy evidence manually from the Purview portal.",
+      "manualEvidenceRequired": [
+        "Purview portal export: Insider Risk Management > Policies (name, template, status, scope).",
+        "Purview portal export: Alerts reviewed/dispositioned for the current quarter.",
+        "Reviewer attestation linking alert dispositions to case records."
+      ]
+    },
+    "tenantEnablement": {
+      "status": "collected",
+      "command": "Get-IRMConfiguration",
+      "commandAvailable": true,
+      "unifiedAuditDependencyMet": true,
+      "adaptiveProtectionEnabled": null,
+      "pseudonymizationEnabled": null,
+      "classification": null,
+      "detail": "Tenant enablement checks are informative only and do not prove Insider Risk policy coverage."
+    }
+  }
 }
