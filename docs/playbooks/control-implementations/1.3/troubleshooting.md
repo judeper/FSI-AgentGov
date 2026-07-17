@@ -46,8 +46,9 @@
     ```powershell
     Get-SPOSite -Identity $SiteUrl -Detailed | Select-Object Url, SharingCapability, SensitivityLabel, RestrictedAccessControl, RestrictContentOrgWideSearch
     ```
-4. Confirm whether the site is in the Restricted SharePoint Search allow-list:
+4. Confirm whether the site is in the Restricted SharePoint Search allow-list (note: RSS is retiring — new enablement blocked from July 31, 2026; prefer RCD):
     ```powershell
+    Get-SPOTenantRestrictedSearchMode
     Get-SPOTenantRestrictedSearchAllowedList
     ```
 
@@ -74,7 +75,7 @@
 ### Diagnostic steps
 1. Confirm RAC binding:
     ```powershell
-    (Get-SPOSite -Identity $SiteUrl -Detailed).RestrictedAccessControl
+    Get-SPOSite -Identity $SiteUrl | Select-Object RestrictedAccessControl, RestrictedAccessControlGroups
     # Then inspect the bound group membership in Entra
     Get-MgGroupMember -GroupId <bound-group-id>
     ```
@@ -160,11 +161,13 @@ Check the SharePoint audit log for `SharingInvitationCreated` and `SharingSet` o
 3. The site is not eligible for RAC (must be group-connected with stable membership).
 
 ### Fix
-1. Upgrade to a CAB-approved version of SPO Management Shell that exposes the RAC parameter:
+1. Upgrade to a CAB-approved version of SPO Management Shell that exposes the RAC parameters:
     ```powershell
     Get-Module Microsoft.Online.SharePoint.PowerShell -ListAvailable
     Get-Help Set-SPOSite -Parameter RestrictedAccessControl -ErrorAction SilentlyContinue
+    Get-Help Set-SPOSite -Parameter AddRestrictedAccessControlGroups -ErrorAction SilentlyContinue
     ```
+    Enable and bind with `Set-SPOSite -Identity $SiteUrl -RestrictedAccessControl $true` followed by `Set-SPOSite -Identity $SiteUrl -AddRestrictedAccessControlGroups <GUIDs>` (up to 10 groups). The legacy `Set-SPOSiteGroup -Identity 'RestrictedAccessControlGroups'` approach is **not** the supported surface — use the `-AddRestrictedAccessControlGroups` / `-RestrictedAccessControlGroups` / `-RemoveRestrictedAccessControlGroups` parameters.
 2. Verify SAM licensing in the Microsoft 365 admin center → **Billing** → **Licenses**. SAM ships with Microsoft 365 Copilot or as a standalone SKU.
 3. If the site is non-group-connected, fall back to the SharePoint admin center flyout UI (which uses the same back-end API but accepts a wider input set) or convert the site to a group-connected site.
 
@@ -235,12 +238,13 @@ $broad  = Get-SPOUser -Site $Url -Limit All | Where-Object LoginName -match 'spo
     SiteSharingCapability        = $site.SharingCapability
     SiteSensitivityLabel         = $site.SensitivityLabel
     RestrictedAccessControl      = $site.RestrictedAccessControl
+    RestrictedAccessControlGroups = ($site.RestrictedAccessControlGroups -join ', ')
     RestrictContentOrgWideSearch = $site.RestrictContentOrgWideSearch
     BroadClaimCount              = ($broad | Measure-Object).Count
 } | Format-List
 ```
 
-A healthy Zone 3 site returns: tenant `Disabled`, site `Disabled`, label set, `RestrictedAccessControl=$true`, `RestrictContentOrgWideSearch=$true`, `BroadClaimCount=0`.
+A healthy Zone 3 site returns: tenant `Disabled`, site `Disabled`, label set, `RestrictedAccessControl=$true` with at least one bound group in `RestrictedAccessControlGroups`, `RestrictContentOrgWideSearch=$true`, `BroadClaimCount=0`.
 
 ---
 

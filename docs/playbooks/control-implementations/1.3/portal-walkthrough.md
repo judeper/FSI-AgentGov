@@ -110,7 +110,7 @@
 **Path:** SharePoint admin center → **Active sites** → select site → **Settings** flyout → **Restricted access control** → **Manage**
 
 1. Toggle **Restricted access control** to **On**.
-2. Add the **single** Microsoft 365 group or Entra security group that should be allowed to access the site.
+2. Add the Microsoft 365 group(s) or Entra security group(s) that should be allowed to access the site. The platform supports **up to 10** groups per site; FSI hardening recommends binding to a **single** named group for least privilege and simpler recertification.
 3. Click **Save**. SharePoint will:
     - Block all users not in the group from opening the site, even if they have direct permissions.
     - Strip the site's content from Microsoft 365 Copilot grounding for users outside the group.
@@ -141,12 +141,14 @@ RCD does not change site permissions — users with direct permission to the sit
 
 **Path:** SharePoint admin center → **Settings** → **Search** → **Restricted SharePoint Search**
 
+> **Retirement notice:** Restricted SharePoint Search (RSS) is retiring — **from July 31, 2026, new enablement is blocked**. Use it only as a short-lived bridge in tenants where it is already enabled, and plan the move to **Restricted Content Discovery** (Step 6) for durable content-discoverability governance.
+
 Use this only as a temporary safeguard while remediation of broader oversharing is in flight. It limits Microsoft 365 Copilot grounding to a curated allow-list of up to 100 sites tenant-wide, plus the user's own OneDrive content.
 
 1. Toggle **Restricted SharePoint Search** to **On**.
 2. Add up to 100 site URLs that are sanctioned for Copilot grounding.
 3. Click **Save**. Effect is tenant-wide and applies on the next Copilot request per user.
-4. Set a calendar reminder to revisit and disable once Steps 4–6 are fully applied — Restricted SharePoint Search is not intended as a permanent control.
+4. Set a calendar reminder to revisit and disable once Steps 4–6 are fully applied — Restricted SharePoint Search is not intended as a permanent control and is being retired.
 
 ---
 

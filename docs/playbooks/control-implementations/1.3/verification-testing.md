@@ -13,7 +13,7 @@ A control 1.3 implementation is operating as intended when **all** of the follow
 1. Tenant `SharingCapability` matches the documented zone baseline (`Disabled` for Zone 3, `ExistingExternalUserSharingOnly` for Zone 2 with vetted partner allow-list).
 2. The site has a container sensitivity label applied that matches the site's zone classification.
 3. No `Everyone` or `Everyone except external users` claim appears in `Get-SPOUser` output for the site.
-4. For Zone 3: Restricted Access Control is enabled and bound to a single named group; Restricted Content Discovery is enabled unless the site is intentionally part of the Copilot grounding surface.
+4. For Zone 3: Restricted Access Control is enabled and bound to a small named group set (the platform allows up to 10 Microsoft 365 / Entra security groups; FSI hardening prefers a single group for least privilege); Restricted Content Discovery is enabled unless the site is intentionally part of the Copilot grounding surface.
 5. A least-privileged test user cannot retrieve content from any unauthorized site through Microsoft 365 Copilot or a Microsoft Copilot Studio agent.
 6. The most recent Entra access review on the M365 group backing the site completed within the documented cadence with documented outcomes.
 7. SharePoint Advanced Management Data Access Governance reports show no unexpected oversharing for the site.
@@ -45,9 +45,11 @@ A control 1.3 implementation is operating as intended when **all** of the follow
 
 ### Test 4 — Restricted Access Control (Zone 3)
 
-1. SharePoint admin center → site → **Settings** flyout → **Restricted access control** → confirm **On** with one bound group.
-2. **Negative test:** sign in as a user **not** in the bound group; attempt to open the site URL directly.
-3. **Expected:** access denied; the site does not appear in the user's Microsoft 365 Copilot grounding results.
+1. SharePoint admin center → site → **Settings** flyout → **Restricted access control** → confirm **On** with the bound group(s).
+2. Cross-check via PowerShell: `Get-SPOSite -Identity $url | Select-Object RestrictedAccessControl, RestrictedAccessControlGroups`.
+3. **Expected:** `RestrictedAccessControl` is `True` and `RestrictedAccessControlGroups` lists the sanctioned group GUID(s) (at most 10; FSI recommends a single group).
+4. **Negative test:** sign in as a user **not** in any bound group; attempt to open the site URL directly.
+5. **Expected:** access denied even if the user has direct site permissions; the site does not appear in the user's Microsoft 365 Copilot grounding results.
 
 ### Test 5 — Restricted Content Discovery (where applicable)
 
@@ -99,14 +101,14 @@ A control 1.3 implementation is operating as intended when **all** of the follow
 | TC-1.3-02 | Per-site `Everyone` claims removed | `Get-SPOUser` | Zero matches | |
 | TC-1.3-03 | Container label applied | `Get-SPOSite -Detailed` | `SensitivityLabel` set | |
 | TC-1.3-04 | Default library label applied | Library settings | Label set; new files inherit | |
-| TC-1.3-05 | RAC enabled on Zone 3 | Portal + `Get-SPOSite` | Bound to single group; non-members denied | |
+| TC-1.3-05 | RAC enabled on Zone 3 | Portal + `Get-SPOSite \| Select RestrictedAccessControl, RestrictedAccessControlGroups` | Bound to ≤10 named groups (FSI: one); non-members denied | |
 | TC-1.3-06 | RCD enabled where required | Portal + `Get-SPOSite` | Site suppressed from search/Copilot | |
 | TC-1.3-07 | M365 Copilot boundary | Test user prompt | No unauthorized content surfaced | |
 | TC-1.3-08 | Copilot Studio agent boundary | Test user prompt | Security-trimmed correctly | |
 | TC-1.3-09 | DLP block on external share | Synthetic SSN | Share blocked, incident recorded | |
 | TC-1.3-10 | Access review completion | Entra portal | Completed in cadence with auto-apply | |
 | TC-1.3-11 | DAG oversharing reports | Portal export | No unexpected entries | |
-| TC-1.3-12 | Restricted SharePoint Search (if used) | `Get-SPOTenant` | Allow-list ≤ 100 sites; flagged for sunset | |
+| TC-1.3-12 | Restricted SharePoint Search (if used) | `Get-SPOTenantRestrictedSearchMode` + `Get-SPOTenantRestrictedSearchAllowedList` | Mode `Enabled`; allow-list ≤ 100 sites; flagged for sunset (RSS retiring 2026-07-31) | |
 | TC-1.3-13 | Drift detection job | Scheduled run output | Exit 0 with no violations | |
 
 ---
@@ -173,7 +175,7 @@ $results   = foreach ($row in $inventory) {
         SharingCheck       = if ($row.Zone -eq 'Zone3') { $site.SharingCapability -eq 'Disabled' } else { $true }
         BroadClaimCheck    = -not $broad
         LabelCheck         = [string]::IsNullOrEmpty($row.ExpectedLabel) -or $site.SensitivityLabel -eq $row.ExpectedLabel
-        RACCheck           = if ($row.Zone -eq 'Zone3') { [bool]$site.RestrictedAccessControl } else { $true }
+        RACCheck           = if ($row.Zone -eq 'Zone3') { [bool]$site.RestrictedAccessControl -and ($site.RestrictedAccessControlGroups | Measure-Object).Count -ge 1 } else { $true }
         OverallPass        = $true
     }
 }
