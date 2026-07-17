@@ -19,18 +19,18 @@ It is the honest answer to *what does the assessment engine actually automate to
 | State | Count | Share |
 |-------|-------|-------|
 | ✅ Auto | 7 | 8.9% |
-| 📝 Manual | 38 | 48.1% |
-| ⚠️ Unimplemented | 34 | 43.0% |
+| 📝 Manual | 39 | 49.4% |
+| ⚠️ Unimplemented | 33 | 41.8% |
 | **Total** | **79** | 100% |
 
 ### By check
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 10 | 10.2% |
-| 📝 Manual | 20 | 20.4% |
-| ⚠️ Unimplemented | 68 | 69.4% |
-| **Total** | **98** | 100% |
+| ✅ Auto | 10 | 10.3% |
+| 📝 Manual | 20 | 20.6% |
+| ⚠️ Unimplemented | 67 | 69.1% |
+| **Total** | **97** | 100% |
 
 ### Registered evaluators
 
@@ -63,7 +63,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 1.1 | Control 1.1: Restrict Agent Publishing by Authorization | ✅ Auto | 3 | 0 | 0 | Graph_API, PPAC_PowerShell |  |
 | 1.10 | Control 1.10: Communication Compliance Monitoring | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: comm_compliance_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 1.11 | Control 1.11: Conditional Access and Phishing-Resistant MFA | ✅ Auto | 1 | 2 | 0 | Graph_API | `pass_condition: signin_frequency_set` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: phishing_resistant_mfa` declared in manifest but no bespoke evaluator registered in s… |
-| 1.12 | Control 1.12: Insider Risk Detection and Response | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: insider_risk_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
+| 1.12 | Control 1.12: Insider Risk Detection and Response | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.13 | Control 1.13: Sensitive Information Types (SITs) and Pattern Recognition | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, Purview_PowerShell | `pass_condition: sit_count_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: dlp_references_sits` declared in manifest but no bespoke evaluator registered in score.… |
 | 1.14 | Control 1.14: Data Minimization and Agent Scope Control | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.15 | Control 1.15: Encryption: Data in Transit and at Rest | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API | `pass_condition: tls_12_enforced` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: at_rest_encryption_verified` declared in manifest but no bespoke evaluator registered in s… |

@@ -99,12 +99,13 @@ foreach ($m in $modules) {
 ### 1.2 Role-group and permission matrix
 
 | Operation | Required role group / scope | Notes |
+|---|---|---|
 
-| `Get-InsiderRiskPolicy`, `Get-IRMConfiguration`, `Get-PolicyConfig` (read) | **Insider Risk Management Auditors** (recommended) or **Insider Risk Management Admins** | Use a dedicated read-only principal for evidence collection (§1.3) |
-| `New-InsiderRiskPolicy`, `Set-InsiderRiskPolicy` (write) | **Insider Risk Management Admins** | SOX 404: must NOT be the same principal as the auditor / reader |
+| `Get-AdminAuditLogConfig` (read) | **Exchange Online Admin** or **Compliance Administrator** | Supported only for audit-status dependency evidence (`UnifiedAuditLogIngestionEnabled`). Insider Risk policy inventory remains portal/manual evidence. |
+| Insider Risk policy create/update/list operations | **Insider Risk Management Admins** (portal) | Perform in Purview portal only and export evidence manually; do not rely on undocumented PowerShell cmdlets |
 | Forensic Evidence capture request | **Insider Risk Management Investigators** | Request only — approval is a separate role (Approvers) |
 | Forensic Evidence capture approval | **Insider Risk Management Approvers** | **Must be distinct** from Investigators (dual-authorization) |
-| Microsoft Graph IRM read (preferred) | `ThreatIntelligence.Read.All`, `SecurityEvents.Read.All`, `IdentityRiskyUser.Read.All` (verify on Learn at deployment) | Beta endpoints subject to change; pin SDK version |
+| Microsoft Graph IRM read (optional context) | `ThreatIntelligence.Read.All`, `SecurityEvents.Read.All`, `IdentityRiskyUser.Read.All` (verify on Learn at deployment) | Use for adjacent signal context only; not for policy inventory unless Microsoft documents a GA endpoint |
 | HR connector read | `User.Read.All`, `AuditLog.Read.All`, plus connector-specific app role | Read-only for assessment |
 
 ### 1.3 Separate audit-only principal (recommended)
@@ -160,57 +161,70 @@ function Get-FsiIrmCloudGate {
 
 ---
 
-## §2 — Helper: `Get-FsiIrmPolicyInventory`
+## §2 — Helper: `Get-FsiIrmPolicyEvidenceStatus` (manual evidence gate)
 
 ```powershell
-function Get-FsiIrmPolicyInventory {
+function Get-FsiIrmPolicyEvidenceStatus {
 <#
 .SYNOPSIS
-    Enumerates all Insider Risk Management policies, the templates they were instantiated from,
-    their scope (in-scope users / priority groups / administrative units), and their enabled state.
+    Validates that required manual Insider Risk evidence exports are present.
+.DESCRIPTION
+    Microsoft does not currently document a supported PowerShell or GA Graph endpoint
+    to inventory Insider Risk policies for Control 1.12. This helper fails closed until
+    reviewers provide portal exports.
 .OUTPUTS
-    [pscustomobject] with Status in {Clean, Anomaly, Pending, NotApplicable, Error}.
+    [pscustomobject] with Status in {Clean, Anomaly, Pending, Error}.
 #>
-    [CmdletBinding()] [OutputType([pscustomobject])] param()
-    $gate = Get-FsiIrmCloudGate
-    if ($gate) { return $gate }
+    [CmdletBinding()] [OutputType([pscustomobject])]
+    param(
+        [Parameter(Mandatory)] [string]$PolicyExportPath,
+        [Parameter(Mandatory)] [string]$AlertExportPath
+    )
+
+    $expectedTemplates = @(
+        'Data leaks',
+        'Data leaks by priority users',
+        'Data theft by departing users',
+        'General security policy violations',
+        'Risky AI usage'
+    )
+
+    if (-not (Test-Path $PolicyExportPath) -or -not (Test-Path $AlertExportPath)) {
+        return [pscustomobject]@{
+            Status               = 'Pending'
+            AutomationSupported  = $false
+            MissingEvidence      = @(
+                if (-not (Test-Path $PolicyExportPath)) { $PolicyExportPath }
+                if (-not (Test-Path $AlertExportPath))  { $AlertExportPath }
+            )
+            CheckedUtc           = (Get-Date).ToUniversalTime().ToString('o')
+            Note                 = 'Manual Purview exports are required; no supported policy-inventory cmdlet is available.'
+        }
+    }
 
     try {
-        $templates = Get-InsiderRiskPolicyTemplate -ErrorAction Stop
-        $policies  = Get-InsiderRiskPolicy -ErrorAction Stop |
-            Select-Object Name, Mode, Enabled, Template, InScopeUserGroups,
-                          PriorityUserGroups, ExcludedUserGroups, WhenChangedUTC
+        $policies = Import-Csv -Path $PolicyExportPath
+        $alerts = Import-Csv -Path $AlertExportPath
+        $presentTemplates = @($policies.Template | Where-Object { $_ } | Sort-Object -Unique)
+        $missingTemplates = @($expectedTemplates | Where-Object { $_ -notin $presentTemplates })
 
-        $expected = @(
-            'Data leaks',
-            'Data leaks by priority users',
-            'Data theft by departing users',
-            'General security policy violations',
-            'Risky AI usage'
-        )
-        $present  = @($policies | ForEach-Object { $_.Template })
-        $missing  = @($expected | Where-Object { $_ -notin $present })
-
-        $status = if ($missing.Count -eq 0 -and $policies.Count -gt 0) { 'Clean' }
-                  elseif ($policies.Count -eq 0)                       { 'Anomaly' }
-                  else                                                  { 'Anomaly' }
+        $status = if ($alerts.Count -eq 0 -or $missingTemplates.Count -gt 0) { 'Anomaly' } else { 'Clean' }
 
         return [pscustomobject]@{
-            Status            = $status
-            Cloud             = $script:FsiCloud
-            TemplateCount     = $templates.Count
-            PolicyCount       = $policies.Count
-            Policies          = $policies
-            ExpectedTemplates = $expected
-            MissingTemplates  = $missing
-            CheckedUtc        = (Get-Date).ToUniversalTime().ToString('o')
+            Status               = $status
+            AutomationSupported  = $false
+            PolicyCount          = $policies.Count
+            AlertCount           = $alerts.Count
+            ExpectedTemplates    = $expectedTemplates
+            MissingTemplates     = $missingTemplates
+            CheckedUtc           = (Get-Date).ToUniversalTime().ToString('o')
+            EvidenceSource       = 'Purview portal exports'
         }
     } catch {
         return [pscustomobject]@{
-            Status     = 'Error'
-            Cloud      = $script:FsiCloud
-            Error      = $_.Exception.Message
-            CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
+            Status      = 'Error'
+            Error       = $_.Exception.Message
+            CheckedUtc  = (Get-Date).ToUniversalTime().ToString('o')
         }
     }
 }
@@ -224,53 +238,58 @@ function Get-FsiIrmPolicyInventory {
 function Get-FsiAdaptiveProtectionStatus {
 <#
 .SYNOPSIS
-    Reports whether Adaptive Protection is enabled and which DLP rules consume IRM risk tiers.
+    Produces evidence for Adaptive Protection using portal export + audit-status telemetry.
 .DESCRIPTION
-    Adaptive Protection is the bridge from IRM risk levels (Elevated / Moderate / Minor) to
-    enforcement in DLP, Data Lifecycle Management, and Conditional Access. A tenant can have
-    IRM policies in place WITHOUT Adaptive Protection enabled — in which case the risk signal
-    never propagates and the control is functionally inert. See Control 1.12 §0 defect 2.
+    Control 1.12 does not accept Get-PolicyConfig properties as authoritative Insider Risk evidence.
+    This helper reads a reviewer-exported portal file and pairs it with Unified Audit ingestion state.
+.PARAMETER PortalExportPath
+    CSV export captured manually from Purview portal settings.
 .OUTPUTS
     [pscustomobject] with Status in {Clean, Anomaly, Pending, NotApplicable, Error}.
 #>
-    [CmdletBinding()] [OutputType([pscustomobject])] param()
+    [CmdletBinding()] [OutputType([pscustomobject])]
+    param([string]$PortalExportPath = '.\evidence\adaptive-protection-portal.csv')
     $gate = Get-FsiIrmCloudGate
     if ($gate) { return $gate }
 
     try {
-        $policyConfig = Get-PolicyConfig -ErrorAction Stop
-        $apEnabled    = [bool]$policyConfig.AdaptiveProtectionEnabled
-
-        # DLP rules that escalate by IRM risk tier — must reference IRMSettings explicitly.
-        $dlpRules = Get-DlpComplianceRule -ErrorAction Stop |
-            Where-Object { $_.IRMSettings -or $_.AdaptiveProtectionRiskLevel } |
-            Select-Object Name, ParentPolicyName, Mode, IRMSettings,
-                          AdaptiveProtectionRiskLevel, Disabled
-
-        $tierCoverage = @{
-            Elevated = @($dlpRules | Where-Object { $_.AdaptiveProtectionRiskLevel -eq 'Elevated' }).Count
-            Moderate = @($dlpRules | Where-Object { $_.AdaptiveProtectionRiskLevel -eq 'Moderate' }).Count
-            Minor    = @($dlpRules | Where-Object { $_.AdaptiveProtectionRiskLevel -eq 'Minor'    }).Count
+        $audit = Get-AdminAuditLogConfig -ErrorAction Stop
+        $auditEnabled = if ($audit.PSObject.Properties.Name -contains 'UnifiedAuditLogIngestionEnabled') {
+            [bool]$audit.UnifiedAuditLogIngestionEnabled
+        } else {
+            $null
         }
 
-        $status = if (-not $apEnabled)                                        { 'Anomaly' }
-                  elseif ($tierCoverage.Elevated -eq 0)                       { 'Anomaly' }
-                  elseif ($dlpRules.Count -eq 0)                              { 'Anomaly' }
-                  else                                                        { 'Clean'   }
+        if (-not (Test-Path -LiteralPath $PortalExportPath)) {
+            return [pscustomobject]@{
+                Status                    = 'Pending'
+                Cloud                     = $script:FsiCloud
+                AdaptiveProtectionEnabled = $null
+                UnifiedAuditDependencyMet = $auditEnabled
+                EvidenceSource            = "Manual export required: $PortalExportPath"
+                CheckedUtc                = (Get-Date).ToUniversalTime().ToString('o')
+            }
+        }
+
+        $rows = Import-Csv -LiteralPath $PortalExportPath
+        $row = @($rows | Select-Object -First 1)
+        $apEnabled = if ($row -and $row[0].PSObject.Properties.Name -contains 'AdaptiveProtectionEnabled') {
+            [System.Convert]::ToBoolean($row[0].AdaptiveProtectionEnabled)
+        } else {
+            $null
+        }
+
+        $status = if ($null -eq $apEnabled) { 'Pending' }
+                  elseif ($apEnabled -and $auditEnabled) { 'Clean' }
+                  else { 'Anomaly' }
 
         return [pscustomobject]@{
-            Status                       = $status
-            Cloud                        = $script:FsiCloud
-            AdaptiveProtectionEnabled    = $apEnabled
-            DlpRuleCount                 = $dlpRules.Count
-            TierCoverage                 = $tierCoverage
-            Rules                        = $dlpRules
-            Notes                        = if (-not $apEnabled) {
-                                              'Adaptive Protection toggle is OFF — IRM risk tiers will not propagate to DLP/CA/DLM.'
-                                          } elseif ($tierCoverage.Elevated -eq 0) {
-                                              'No DLP rule scopes Elevated risk tier; high-risk users have no escalated enforcement.'
-                                          } else { '' }
-            CheckedUtc                   = (Get-Date).ToUniversalTime().ToString('o')
+            Status                    = $status
+            Cloud                     = $script:FsiCloud
+            AdaptiveProtectionEnabled = $apEnabled
+            UnifiedAuditDependencyMet = $auditEnabled
+            EvidenceSource            = "Purview portal export: $PortalExportPath"
+            CheckedUtc                = (Get-Date).ToUniversalTime().ToString('o')
         }
     } catch {
         return [pscustomobject]@{
@@ -391,24 +410,27 @@ function Get-FsiIrmSignalCoverage {
             $mdcaConnectors = @($resp.value | Where-Object { $_.connectorType -match 'cloudApp|Box|Dropbox|GoogleDrive|S3' })
         } catch { }
 
-        # 4. Browser-signal indicators — required by Risky AI usage and Risky browser usage
-        $policies = Get-InsiderRiskPolicy -ErrorAction Stop
-        $needsBrowser = @($policies | Where-Object { $_.Template -in @('Risky AI usage','Risky browser usage') })
-
-        $status = if (-not $ualOn)                                            { 'Anomaly' }
-                  elseif ($needsBrowser -and -not $mdeOn)                     { 'Anomaly' }
-                  elseif (($policies.Template -contains 'Data theft by departing users') -and $mdcaConnectors.Count -eq 0) { 'Anomaly' }
-                  else                                                        { 'Clean'   }
+        # 4. Browser-dependent template verification is manual (portal evidence)
+        $browserDependentTemplates = @('Risky AI usage', 'Risky browser usage')
+        $status = if (-not $ualOn) { 'Anomaly' }
+                  elseif (-not $mdeOn) { 'Pending' }
+                  elseif ($mdcaConnectors.Count -eq 0) { 'Pending' }
+                  else { 'Clean' }
 
         return [pscustomobject]@{
-            Status                  = $status
-            Cloud                   = $script:FsiCloud
-            UnifiedAuditLogEnabled  = $ualOn
-            MdeIntegrated           = $mdeOn
-            McasConnectorCount      = $mcdaConnectors.Count
-            BrowserDependentPolicies = $needsBrowser.Name
-            Notes                   = if (-not $ualOn) { 'Unified Audit Log OFF — IRM policies will produce zero signal. Enable per Control 1.7.' } else { '' }
-            CheckedUtc              = (Get-Date).ToUniversalTime().ToString('o')
+            Status                     = $status
+            Cloud                      = $script:FsiCloud
+            UnifiedAuditLogEnabled     = $ualOn
+            MdeIntegrated              = $mdeOn
+            McasConnectorCount         = $mdcaConnectors.Count
+            BrowserDependentTemplates  = $browserDependentTemplates
+            ManualVerificationRequired = $true
+            Notes                      = if (-not $ualOn) {
+                                            'Unified Audit Log OFF — IRM policies will produce zero signal. Enable per Control 1.7.'
+                                         } else {
+                                            'Use Purview portal exports to verify template assignment and policy scope.'
+                                         }
+            CheckedUtc                 = (Get-Date).ToUniversalTime().ToString('o')
         }
     } catch {
         return [pscustomobject]@{
@@ -498,30 +520,49 @@ function Test-FsiIrmAlertRouting {
 function Test-FsiIrmAnonymization {
 <#
 .SYNOPSIS
-    Confirms that IRM is configured to pseudonymize usernames in alerts by default — required to
-    support privacy expectations under NYDFS 23 NYCRR §500.06 (data minimization in monitoring),
-    GLBA 501(b) safeguards, and state employee-monitoring statutes (CT, DE, NY).
+    Verifies pseudonymization evidence using manual portal export + audit dependency.
+.DESCRIPTION
+    Do not use Get-IRMConfiguration as authoritative Control 1.12 evidence. Use Privacy settings
+    export from Purview portal and keep Unified Audit ingestion status attached.
 .OUTPUTS
     [pscustomobject] with Status in {Clean, Anomaly, Pending, NotApplicable, Error}.
 #>
-    [CmdletBinding()] [OutputType([pscustomobject])] param()
+    [CmdletBinding()] [OutputType([pscustomobject])]
+    param([string]$PortalExportPath = '.\evidence\irm-privacy-settings.csv')
     $gate = Get-FsiIrmCloudGate
     if ($gate) { return $gate }
 
     try {
-        $cfg = Get-IRMConfiguration -ErrorAction Stop
-        $anon = [bool]$cfg.AnonymizationEnabled
+        $audit = Get-AdminAuditLogConfig -ErrorAction Stop
+        $auditEnabled = [bool]$audit.UnifiedAuditLogIngestionEnabled
 
-        $status = if ($anon) { 'Clean' } else { 'Anomaly' }
+        if (-not (Test-Path -LiteralPath $PortalExportPath)) {
+            return [pscustomobject]@{
+                Status                    = 'Pending'
+                Cloud                     = $script:FsiCloud
+                PseudonymizationEnabled   = $null
+                UnifiedAuditDependencyMet = $auditEnabled
+                EvidenceSource            = "Manual export required: $PortalExportPath"
+                CheckedUtc                = (Get-Date).ToUniversalTime().ToString('o')
+            }
+        }
+
+        $rows = Import-Csv -LiteralPath $PortalExportPath
+        $row = @($rows | Select-Object -First 1)
+        $anon = if ($row -and $row[0].PSObject.Properties.Name -contains 'PseudonymizationEnabled') {
+            [System.Convert]::ToBoolean($row[0].PseudonymizationEnabled)
+        } else {
+            $null
+        }
+        $status = if ($null -eq $anon) { 'Pending' } elseif ($anon) { 'Clean' } else { 'Anomaly' }
+
         return [pscustomobject]@{
-            Status                = $status
-            Cloud                 = $script:FsiCloud
-            AnonymizationEnabled  = $anon
-            IntelligentDetection  = $cfg.IntelligentDetectionsEnabled
-            Rationale             = if (-not $anon) {
-                'Anonymization is OFF. Identifying analyst views require a documented privacy approval per NYDFS §500.06 and applicable state monitoring statutes.'
-            } else { 'Default privacy posture preserved.' }
-            CheckedUtc            = (Get-Date).ToUniversalTime().ToString('o')
+            Status                    = $status
+            Cloud                     = $script:FsiCloud
+            PseudonymizationEnabled   = $anon
+            UnifiedAuditDependencyMet = $auditEnabled
+            EvidenceSource            = "Purview portal export: $PortalExportPath"
+            CheckedUtc                = (Get-Date).ToUniversalTime().ToString('o')
         }
     } catch {
         return [pscustomobject]@{
@@ -541,20 +582,15 @@ function Test-FsiIrmAnonymization {
 function Get-FsiIrmAgentAbuseIndicators {
 <#
 .SYNOPSIS
-    Inventories custom IRM indicators configured for Copilot / agent abuse signals required by FSI
-    use cases — excessive prompt rate, sensitive grounding-source queries, MNPI extraction
-    attempts, off-hours access bursts. Cross-walks against expected indicator set.
+    Cross-walks expected indicators against a manual Purview export.
 .DESCRIPTION
-    Upstream telemetry for these indicators comes from:
-      * Control 1.5 (DLP) — sensitive-content prompt and response classification
-      * Control 1.6 (DSPM for AI) — agent interaction risk signal
-      * Control 1.21 (adversarial input logging) — prompt-injection / jailbreak attempts
-    IRM consumes the resulting signal via custom indicators registered in Settings -> Policy
-    indicators -> Custom indicators (Purview UI).
+    No documented PowerShell surface exists for Insider Risk policy indicator inventory.
+    Export indicator settings from Purview portal and validate coverage from that artifact.
 .OUTPUTS
     [pscustomobject] with Status in {Clean, Anomaly, Pending, NotApplicable, Error}.
 #>
-    [CmdletBinding()] [OutputType([pscustomobject])] param()
+    [CmdletBinding()] [OutputType([pscustomobject])]
+    param([string]$IndicatorExportPath = '.\evidence\irm-indicators.csv')
     $gate = Get-FsiIrmCloudGate
     if ($gate) { return $gate }
 
@@ -567,15 +603,21 @@ function Get-FsiIrmAgentAbuseIndicators {
     )
 
     try {
-        $cfg = Get-IRMConfiguration -ErrorAction Stop
-        # Custom indicators are exposed via Get-PolicyConfig CustomIndicators array on commercial.
-        $pc  = Get-PolicyConfig -ErrorAction Stop
-        $custom = @()
-        if ($pc.PSObject.Properties.Name -contains 'CustomIndicators') {
-            $custom = @($pc.CustomIndicators | Select-Object Name, Description, Enabled)
+        $audit = Get-AdminAuditLogConfig -ErrorAction Stop
+        $auditEnabled = [bool]$audit.UnifiedAuditLogIngestionEnabled
+
+        if (-not (Test-Path -LiteralPath $IndicatorExportPath)) {
+            return [pscustomobject]@{
+                Status                    = 'Pending'
+                Cloud                     = $script:FsiCloud
+                UnifiedAuditDependencyMet = $auditEnabled
+                EvidenceSource            = "Manual export required: $IndicatorExportPath"
+                CheckedUtc                = (Get-Date).ToUniversalTime().ToString('o')
+            }
         }
 
-        $present = @($custom | Where-Object { $_.Enabled } | ForEach-Object { $_.Name })
+        $custom = Import-Csv -LiteralPath $IndicatorExportPath
+        $present = @($custom | Where-Object { $_.Enabled -eq 'True' -or $_.Enabled -eq 'true' } | ForEach-Object { $_.Name })
         $missing = @($expected | Where-Object { $_ -notin $present })
 
         $status = if ($missing.Count -eq 0) { 'Clean' } else { 'Anomaly' }
@@ -585,6 +627,8 @@ function Get-FsiIrmAgentAbuseIndicators {
             ExpectedIndicators  = $expected
             PresentIndicators   = $present
             MissingIndicators   = $missing
+            UnifiedAuditDependencyMet = $auditEnabled
+            EvidenceSource      = "Purview portal export: $IndicatorExportPath"
             UpstreamControls    = @('1.5 (DLP)','1.6 (DSPM for AI)','1.21 (adversarial input)')
             CheckedUtc          = (Get-Date).ToUniversalTime().ToString('o')
         }
@@ -600,74 +644,26 @@ function Get-FsiIrmAgentAbuseIndicators {
 
 ---
 
-## §9 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
+## §9 — Insider Risk policy changes (portal/manual only)
 
-> **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§3. Always invoke first with `-WhatIf`.
+Insider Risk policy create/update/list actions must be executed in the Purview portal.
+Do **not** rely on undocumented PowerShell cmdlets for policy lifecycle operations.
 
-```powershell
-function New-FsiIrmDataLeaksPolicy {
-<#
-.SYNOPSIS
-    Creates or updates the "Data leaks" IRM policy with FSI-appropriate scope, idempotently.
-#>
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
-    param(
-        [Parameter(Mandatory)] [string]$PolicyName,
-        [Parameter(Mandatory)] [string[]]$InScopeUserGroups,
-        [string[]]$PriorityUserGroups = @(),
-        [string]$EvidencePath = '.\evidence'
-    )
-    $gate = Get-FsiIrmCloudGate
-    if ($gate) {
-        return $gate
-    }
+Recommended evidence bundle for each change:
 
-    $ErrorActionPreference = 'Stop'
-    New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
-    $ts = Get-Date -Format 'yyyyMMdd-HHmmss'
-    Start-Transcript -Path "$EvidencePath\transcript-irm-$ts.log" -IncludeInvocationHeader
-
-    $existing = Get-InsiderRiskPolicy -Identity $PolicyName -ErrorAction SilentlyContinue
-    if ($existing) {
-        $existing | ConvertTo-Json -Depth 10 | Set-Content "$EvidencePath\before-$PolicyName-$ts.json"
-        if ($PSCmdlet.ShouldProcess($PolicyName, 'Set-InsiderRiskPolicy (update scope)')) {
-            Set-InsiderRiskPolicy -Identity $PolicyName `
-                -InScopeUserGroups $InScopeUserGroups `
-                -PriorityUserGroups $PriorityUserGroups
-        }
-    } else {
-        if ($PSCmdlet.ShouldProcess($PolicyName, 'New-InsiderRiskPolicy (Data leaks template)')) {
-            New-InsiderRiskPolicy -Name $PolicyName -InsiderRiskScenario 'DataLeaks' `
-                -InScopeUserGroups $InScopeUserGroups `
-                -PriorityUserGroups $PriorityUserGroups `
-                -Enabled $true
-        }
-    }
-
-    Get-InsiderRiskPolicy -Identity $PolicyName |
-        ConvertTo-Json -Depth 10 | Set-Content "$EvidencePath\after-$PolicyName-$ts.json"
-
-    Stop-Transcript
-}
-```
+1. Change ticket / approval reference.
+2. Purview portal screenshots or CSV export before and after the change.
+3. Alert disposition export showing post-change reviewer activity.
+4. Reviewer attestation mapping changes to control objective (Control 1.12).
 
 **Adaptive Protection enablement** (separate from any single policy — tenant-level toggle):
 
 ```powershell
-function Enable-FsiAdaptiveProtection {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
-    param([string]$EvidencePath = '.\evidence')
-    $gate = Get-FsiIrmCloudGate
-    if ($gate) { Write-Warning "Adaptive Protection unavailable in $($gate.Cloud)."; return $gate }
-
-    $before = Get-PolicyConfig
-    if ($PSCmdlet.ShouldProcess('Tenant', 'Enable Adaptive Protection')) {
-        Set-PolicyConfig -AdaptiveProtectionEnabled $true
-    }
-    $after = Get-PolicyConfig
-    @{ Before = $before; After = $after } | ConvertTo-Json -Depth 10 |
-        Set-Content (Join-Path $EvidencePath "ap-toggle-$(Get-Date -f yyyyMMdd-HHmmss).json")
-}
+Connect-IPPSSession -ShowBanner:$false
+$audit = Get-AdminAuditLogConfig -ErrorAction Stop
+$audit | Select-Object UnifiedAuditLogIngestionEnabled, AdminAuditLogAgeLimit
+# Perform Adaptive Protection toggle in Purview portal (Settings -> Insider Risk -> Adaptive Protection),
+# then export before/after portal evidence and attach the change ticket in the same evidence bundle.
 ```
 
 ---
@@ -720,15 +716,34 @@ All helpers return `[pscustomobject]` shapes that flow into the canonical eviden
 # Save as: scripts/Invoke-Agt112Sweep.ps1
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)] [string]$EvidencePath,
+    [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$EvidencePath,
+    [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$PolicyExportPath,
+    [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$AlertExportPath,
     [string]$WorkspaceId
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+
+$resolvedEvidencePath    = [System.IO.Path]::GetFullPath($EvidencePath)
+$resolvedPolicyExport    = [System.IO.Path]::GetFullPath($PolicyExportPath)
+$resolvedAlertExport     = [System.IO.Path]::GetFullPath($AlertExportPath)
+$policyExportParentPath  = Split-Path -Path $resolvedPolicyExport -Parent
+$alertExportParentPath   = Split-Path -Path $resolvedAlertExport -Parent
+
+if (-not [string]::IsNullOrWhiteSpace($policyExportParentPath) -and
+    -not (Test-Path -LiteralPath $policyExportParentPath -PathType Container)) {
+    throw "PolicyExportPath parent directory not found: $policyExportParentPath"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($alertExportParentPath) -and
+    -not (Test-Path -LiteralPath $alertExportParentPath -PathType Container)) {
+    throw "AlertExportPath parent directory not found: $alertExportParentPath"
+}
+
+New-Item -ItemType Directory -Force -Path $resolvedEvidencePath | Out-Null
 
 $results = [ordered]@{
-    PolicyInventory      = Get-FsiIrmPolicyInventory
+    PolicyInventory      = Get-FsiIrmPolicyEvidenceStatus -PolicyExportPath $resolvedPolicyExport -AlertExportPath $resolvedAlertExport
     AdaptiveProtection   = Get-FsiAdaptiveProtectionStatus
     HrConnector          = Get-FsiIrmHrConnectorState
     SignalCoverage       = Get-FsiIrmSignalCoverage
@@ -740,21 +755,22 @@ $results = [ordered]@{
 # Emit each artifact with SHA-256 manifest per BL-§4
 foreach ($k in $results.Keys) {
     if ($null -ne $results[$k]) {
-        Write-FsiEvidence -Object $results[$k] -Name "agt112-$k" -EvidencePath $EvidencePath
+        Write-FsiEvidence -Object $results[$k] -Name "agt112-$k" -EvidencePath $resolvedEvidencePath
     }
 }
 
 # Aggregate posture
+$evaluatedComponents = @($results.Values | Where-Object { $null -ne $_ })
 $aggregate = [pscustomobject]@{
-    OverallStatus = if ($results.Values | Where-Object { $_.Status -eq 'Anomaly' }) { 'Anomaly' }
-                    elseif ($results.Values | Where-Object { $_.Status -eq 'Error' }) { 'Error' }
-                    elseif (($results.Values | Where-Object { $_.Status -eq 'NotApplicable' }).Count -eq $results.Count) { 'NotApplicable' }
+    OverallStatus = if ($evaluatedComponents | Where-Object { $_.Status -eq 'Anomaly' }) { 'Anomaly' }
+                    elseif ($evaluatedComponents | Where-Object { $_.Status -eq 'Error' }) { 'Error' }
+                    elseif ((@($evaluatedComponents | Where-Object { $_.Status -eq 'NotApplicable' }).Count -eq $evaluatedComponents.Count) -and $evaluatedComponents.Count -gt 0) { 'NotApplicable' }
                     else { 'Clean' }
     Components    = $results
     Cloud         = $script:FsiCloud
     GeneratedUtc  = (Get-Date).ToUniversalTime().ToString('o')
 }
-Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $EvidencePath
+Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $resolvedEvidencePath
 ```
 
 **Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§4 and SEC 17a-4(f).

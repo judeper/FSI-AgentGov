@@ -4,9 +4,10 @@
 
 .DESCRIPTION
     Enumerates audit log configuration, DLP compliance policies, retention policies,
-    communication compliance, eDiscovery cases, insider risk policies, DSPM for AI,
-    sensitivity label policies, and endpoint DLP settings via Security & Compliance
-    PowerShell (ExchangeOnlineManagement).
+    communication compliance, eDiscovery cases, insider risk evidence status
+    (manual policy inventory + audit dependency only), DSPM for AI, sensitivity label
+    policies, and endpoint DLP settings via Security & Compliance PowerShell
+    (ExchangeOnlineManagement).
 
     Outputs a structured JSON file (purview.json) consumed by the assessment engine.
 
@@ -31,8 +32,9 @@
     Mandatory. Root output directory. Collected JSON is written to $OutputDir\collected\purview.json.
 
 .OUTPUTS
-    purview.json — JSON file with audit config, DLP policies, retention, communication compliance,
-    eDiscovery, insider risk, DSPM, sensitivity labels, and endpoint DLP.
+    purview.json — JSON file with audit config, DLP policies, retention,
+    communication compliance, eDiscovery, insider risk manual-evidence status,
+    DSPM, sensitivity labels, and endpoint DLP.
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — Purview Collector.
@@ -89,6 +91,9 @@ function Invoke-CollectorOperation {
 
     & $ScriptBlock
 }
+
+$collectorRoot = Split-Path -Parent $PSCommandPath
+. (Join-Path $collectorRoot 'lib\InsiderRiskSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -304,32 +309,25 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 6: Insider Risk Policies
-# Supports: Control 3.5 (Insider Risk Management)
+# Section 6: Insider Risk evidence status (manual policy inventory + audit dependency)
+# Supports: Control 1.12 (manual review evidence), Control 3.5 context
 # ═══════════════════════════════════════════════════════════════════════
-$insiderRiskPolicies = $null
-try {
-    Write-Verbose "Section 6: Collecting insider risk policies..."
-    $rawInsider = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List insider risk policies' -ScriptBlock {
-        Get-InsiderRiskPolicy -ErrorAction Stop
-    }
-    $insiderRiskPolicies = $rawInsider | ForEach-Object {
-        $copilotIndicators = $false
-        if ($_.InsightTypes -match 'Copilot' -or $_.Name -match 'copilot|agent') {
-            $copilotIndicators = $true
-        }
-        [PSCustomObject]@{
-            Name               = $_.Name
-            Status             = $_.Enabled
-            Scope              = $_.Scope
-            CopilotIndicators  = $copilotIndicators
-        }
-    }
-    Write-Verbose "  Collected $(@($insiderRiskPolicies).Count) insider risk policy/policies."
+$insiderRiskPolicies = @()
+Write-Verbose "Section 6: Evaluating insider risk evidence support..."
+
+$insiderRiskEvidence = New-InsiderRiskEvidence -AuditConfig $auditConfig
+$policyInventory = $insiderRiskEvidence.policyInventory
+$auditDependency = $insiderRiskEvidence.auditDependency
+
+$warnings.Add("Section 6 (Insider Risk policy inventory) [$($policyInventory.classification)]: $($policyInventory.detail)")
+Write-Warning $warnings[-1]
+
+if ($auditDependency.classification -eq 'audit_dependency_not_met') {
+    $warnings.Add("Section 6 (Insider Risk audit dependency) [$($auditDependency.classification)]: $($auditDependency.detail)")
+    Write-Warning $warnings[-1]
 }
-catch {
-    # Insider Risk may require E5 Insider Risk Management add-on
-    $warnings.Add("Section 6 (Insider Risk) failed or unavailable: $($_.Exception.Message)")
+elseif ($auditDependency.classification -eq 'unknown') {
+    $warnings.Add("Section 6 (Insider Risk audit dependency) [unknown]: $($auditDependency.detail)")
     Write-Warning $warnings[-1]
 }
 
@@ -454,6 +452,7 @@ $result = [ordered]@{
     communicationCompliance  = $communicationCompliance
     eDiscoveryCases          = $eDiscoveryCases
     insiderRiskPolicies      = $insiderRiskPolicies
+    insiderRiskEvidence      = $insiderRiskEvidence
     dspmForAi                = $dspmForAi
     sensitivityLabelPolicies = $sensitivityLabelPolicies
     endpointDlp              = $endpointDlp
@@ -472,7 +471,7 @@ Write-Verbose "Output written to $outputFile"
 # ─── Exit Code ───────────────────────────────────────────────────────
 $sectionValues = @(
     $auditConfig, $dlpCompliancePolicies, $retentionPolicies,
-    $communicationCompliance, $eDiscoveryCases, $insiderRiskPolicies,
+    $communicationCompliance, $eDiscoveryCases, $insiderRiskEvidence,
     $dspmForAi, $sensitivityLabelPolicies, $endpointDlp
 )
 $nullSections = @($sectionValues | Where-Object { $null -eq $_ })

@@ -21,5 +21,25 @@
   "insiderRiskPolicies": [],
   "dspmForAi": null,
   "sensitivityLabelPolicies": [],
-  "endpointDlp": []
+  "endpointDlp": [],
+  "insiderRiskEvidence": {
+    "policyInventory": {
+      "status": "manual_required",
+      "automationSupported": false,
+      "classification": "unsupported_surface",
+      "detail": "Insider Risk policy inventory automation is not supported on a first-party documented GA surface. Use only first-party documented GA surfaces. Collect policy inventory through manual portal export.",
+      "manualEvidenceRequired": [
+        "Purview portal export: Insider Risk Management > Policies (name, template, status, scope).",
+        "Purview portal export: Alerts reviewed/dispositioned for the current quarter.",
+        "Reviewer attestation linking alert dispositions to case records."
+      ]
+    },
+    "auditDependency": {
+      "status": "collected",
+      "evidenceSource": "Section 1 auditConfig.UnifiedAuditLogIngestionEnabled",
+      "unifiedAuditDependencyMet": true,
+      "classification": null,
+      "detail": "Unified Audit Log ingestion is enabled; prerequisite audit signal for Insider Risk evidence is met."
+    }
+  }
 }

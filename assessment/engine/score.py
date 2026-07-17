@@ -112,7 +112,6 @@ API_SOURCE_MAP: dict[str, str] = {
     "Get-RetentionCompliancePolicy": "purview",
     "Get-DlpCompliancePolicy": "purview",
     "Get-Label": "purview",
-    "Get-InsiderRiskPolicy": "purview",
     "Get-ComplianceCase": "purview",
     # SharePoint
     "Get-PnPSiteSearchQueryResults": "sharepoint",

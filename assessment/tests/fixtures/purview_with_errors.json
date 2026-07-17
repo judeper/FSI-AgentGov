@@ -3,8 +3,13 @@
     "collector": "Collect-Purview",
     "timestamp": "2026-03-25T21:00:00Z",
     "tenant_id": "test-tenant",
-    "warnings": [],
-    "errors": ["Connect-ExchangeOnline failed: authentication timeout"]
+    "warnings": [
+      "Section 6 (Insider Risk policy inventory) [unsupported_surface]: Insider Risk policy inventory automation is not supported on a first-party documented GA surface. Use only first-party documented GA surfaces. Collect policy inventory through manual portal export.",
+      "Section 6 (Insider Risk audit dependency) [unknown]: Audit dependency could not be derived because Section 1 audit configuration is missing or incomplete."
+    ],
+    "errors": [
+      "Connect-ExchangeOnline failed: authentication timeout"
+    ]
   },
   "auditConfig": null,
   "dlpCompliancePolicies": [],
@@ -14,5 +19,25 @@
   "insiderRiskPolicies": [],
   "dspmForAi": null,
   "sensitivityLabelPolicies": [],
-  "endpointDlp": []
+  "endpointDlp": [],
+  "insiderRiskEvidence": {
+    "policyInventory": {
+      "status": "manual_required",
+      "automationSupported": false,
+      "classification": "unsupported_surface",
+      "detail": "Insider Risk policy inventory automation is not supported on a first-party documented GA surface. Use only first-party documented GA surfaces. Collect policy inventory through manual portal export.",
+      "manualEvidenceRequired": [
+        "Purview portal export: Insider Risk Management > Policies (name, template, status, scope).",
+        "Purview portal export: Alerts reviewed/dispositioned for the current quarter.",
+        "Reviewer attestation linking alert dispositions to case records."
+      ]
+    },
+    "auditDependency": {
+      "status": "unknown",
+      "evidenceSource": "Section 1 auditConfig.UnifiedAuditLogIngestionEnabled",
+      "unifiedAuditDependencyMet": null,
+      "classification": "unknown",
+      "detail": "Audit dependency could not be derived because Section 1 audit configuration is missing or incomplete."
+    }
+  }
 }
