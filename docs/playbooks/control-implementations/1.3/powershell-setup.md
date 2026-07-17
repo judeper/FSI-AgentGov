@@ -4,7 +4,7 @@
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
-**Modules Required:** `Microsoft.Online.SharePoint.PowerShell`, `PnP.PowerShell` (v2+ — requires Entra app registration), `Microsoft.Graph` (Identity.Governance, Sites, Groups), `ExchangeOnlineManagement` (only if pairing with retention)
+**Modules Required:** `Microsoft.Online.SharePoint.PowerShell`, `PnP.PowerShell` (v2+ — requires Entra app registration), `Microsoft.Graph` (Identity.Governance, Sites, Groups), `Microsoft.Graph.Beta` (Identity.SignIns — provides `Get-MgBetaInformationProtectionPolicyLabel` used in §4b), `ExchangeOnlineManagement` (only if pairing with retention)
 **PowerShell Edition:** PowerShell 7.2+ for `PnP.PowerShell` v2 and `Microsoft.Graph`. `Microsoft.Online.SharePoint.PowerShell` runs on both Desktop 5.1 and Core 7+.
 
 ---
@@ -16,13 +16,16 @@
 Install-Module -Name Microsoft.Online.SharePoint.PowerShell -RequiredVersion '16.0.25515.12000' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 Install-Module -Name PnP.PowerShell                         -RequiredVersion '2.12.0'           -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 Install-Module -Name Microsoft.Graph                        -RequiredVersion '2.25.0'           -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+Install-Module -Name Microsoft.Graph.Beta                    -RequiredVersion '2.25.0'           -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense   # Get-MgBetaInformationProtectionPolicyLabel (Microsoft.Graph.Beta.Identity.SignIns)
 
 # Commercial connection
 $TenantName  = 'contoso'
 $AdminUrl    = "https://$TenantName-admin.sharepoint.com"
 
 Connect-SPOService -Url $AdminUrl                                  # interactive MFA in browser
-Connect-MgGraph -Scopes 'Sites.Read.All','Group.Read.All','AccessReview.ReadWrite.All' -NoWelcome
+# Group.ReadWrite.All: required to write container labels via Update-MgGroup (assignedLabels).
+# InformationProtectionPolicy.Read: required to read published sensitivity labels (Get-MgBetaInformationProtectionPolicyLabel).
+Connect-MgGraph -Scopes 'Sites.Read.All','Group.ReadWrite.All','InformationProtectionPolicy.Read','AccessReview.ReadWrite.All' -NoWelcome
 # For PnP v2, pre-register an Entra app and consent the SharePoint scopes you intend to use:
 # Connect-PnPOnline -Url $AdminUrl -ClientId $PnPClientId -Interactive
 ```
@@ -146,7 +149,7 @@ function Set-AgentGroundingSite {
         [Parameter(Mandatory)][string]$SiteUrl,
         [Parameter(Mandatory)][ValidateSet('Zone1','Zone2','Zone3')][string]$Zone,
         [string]$SensitivityLabelName,        # e.g. 'Confidential-FSI'
-        [string]$RestrictAccessGroupId,       # required for Zone3 RAC
+        [string[]]$RestrictAccessGroupIds,    # required for Zone3 RAC; up to 10 group GUIDs (FSI recommends one)
         [switch]$EnableRCD
     )
 
@@ -177,13 +180,14 @@ function Set-AgentGroundingSite {
 
     # 4c — Restricted Access Control (Zone 3)
     if ($Zone -eq 'Zone3') {
-        if (-not $RestrictAccessGroupId) { throw "RestrictAccessGroupId is mandatory for Zone3." }
-        if ($PSCmdlet.ShouldProcess($SiteUrl, "Enable RAC bound to group $RestrictAccessGroupId")) {
+        if (-not $RestrictAccessGroupIds) { throw "RestrictAccessGroupIds is mandatory for Zone3." }
+        if ($RestrictAccessGroupIds.Count -gt 10) { throw "Restricted Access Control binds at most 10 groups per site." }
+        if ($PSCmdlet.ShouldProcess($SiteUrl, "Enable RAC bound to $($RestrictAccessGroupIds.Count) group(s)")) {
+            # Enable site access restriction, then bind the allowed Microsoft 365 / Entra security group GUID(s).
             Set-SPOSite -Identity $SiteUrl -RestrictedAccessControl $true
-            Add-SPOSiteCollectionAppCatalog -Site $SiteUrl -ErrorAction SilentlyContinue | Out-Null
-            Set-SPOSiteGroup -Site $SiteUrl -Identity 'RestrictedAccessControlGroups' -Users @($RestrictAccessGroupId) -ErrorAction SilentlyContinue
-            # SAM RAC API surface evolves; if Set-SPOSiteGroup is unavailable, manage via the SharePoint admin UI flyout.
-            Write-Host "[DONE] RAC enabled on $SiteUrl" -ForegroundColor Yellow
+            Set-SPOSite -Identity $SiteUrl -AddRestrictedAccessControlGroups $RestrictAccessGroupIds
+            # Use -RestrictedAccessControlGroups to replace the full set; -RemoveRestrictedAccessControlGroups to unbind.
+            Write-Host "[DONE] RAC enabled on $SiteUrl bound to $($RestrictAccessGroupIds.Count) group(s)." -ForegroundColor Yellow
         }
     }
 
@@ -198,16 +202,19 @@ function Set-AgentGroundingSite {
 Set-AgentGroundingSite -SiteUrl 'https://contoso.sharepoint.com/sites/Agent-CustomerService' `
                        -Zone Zone3 `
                        -SensitivityLabelName 'Confidential-FSI' `
-                       -RestrictAccessGroupId 'a3f1c2b4-...' `
+                       -RestrictAccessGroupIds 'a3f1c2b4-...' `
                        -EnableRCD `
                        -WhatIf
 ```
 
-> The exact RAC parameter surface on `Set-SPOSite` shipped over multiple SharePoint Online Management Shell releases. Verify with `Get-Help Set-SPOSite -Parameter RestrictedAccessControl` after each module update; if the parameter is not present, fall back to the SharePoint admin center flyout (Step 5 of the Portal Walkthrough).
+> Restricted Access Control binds **up to 10** Microsoft 365 / Entra security groups per site; FSI hardening prefers a **single** named group for least privilege. Verify the parameter surface with `Get-Help Set-SPOSite -Parameter AddRestrictedAccessControlGroups` after each module update, and read back the binding with `Get-SPOSite -Identity $SiteUrl | Select-Object RestrictedAccessControl, RestrictedAccessControlGroups`. If the parameter is not present, upgrade the SharePoint Online Management Shell or fall back to the SharePoint admin center flyout (Step 5 of the Portal Walkthrough).
 
 ---
 
 ## 5. Restricted SharePoint Search allow-list (temporary safeguard)
+
+!!! warning "Restricted SharePoint Search is retiring"
+    Per Microsoft Learn, Restricted SharePoint Search (RSS) is retiring: **starting July 31, 2026, new enablement is blocked**. Treat RSS strictly as a short-lived bridge and plan the migration to comprehensive data controls — primarily **Restricted Content Discovery (RCD)** (§4d / Portal Step 6) — for durable content-discoverability governance. Do not adopt RSS as a new control after the retirement date.
 
 ```powershell
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -218,19 +225,21 @@ param(
     )
 )
 
-if ($AllowedSites.Count -gt 100) { throw "Restricted SharePoint Search supports at most 100 sites." }
+if ($AllowedSites.Count -gt 100) { throw "Restricted SharePoint Search supports at most 100 sites in the allow list." }
+
+# Confirm current mode before changing it.
+Get-SPOTenantRestrictedSearchMode
 
 if ($PSCmdlet.ShouldProcess('Tenant', 'Enable Restricted SharePoint Search')) {
-    Set-SPOTenant -RestrictedSharePointSearchEnabled $true
-    foreach ($url in $AllowedSites) {
-        Add-SPOTenantRestrictedSearchAllowedList -SitesList $url
-    }
+    # Enabling starts with an empty allow list; add the sanctioned sites afterwards.
+    Set-SPOTenantRestrictedSearchMode -Mode Enabled
+    Add-SPOTenantRestrictedSearchAllowedList -SitesList $AllowedSites
     Write-Host "[DONE] Restricted SharePoint Search enabled with $($AllowedSites.Count) sites." -ForegroundColor Green
-    Write-Warning "Restricted SharePoint Search is a temporary safeguard. Schedule a follow-up to disable once sites are remediated."
+    Write-Warning "Restricted SharePoint Search is retiring (new enablement blocked from 2026-07-31). Schedule the move to Restricted Content Discovery (RCD)."
 }
 ```
 
-> Cmdlet names (`Add-SPOTenantRestrictedSearchAllowedList`, `Set-SPOTenant -RestrictedSharePointSearchEnabled`) shipped during the Microsoft 365 Copilot rollout. Confirm with `Get-Command -Module Microsoft.Online.SharePoint.PowerShell *RestrictedSearch*` against your pinned module version.
+> Confirm the RSS cmdlet surface with `Get-Command -Module Microsoft.Online.SharePoint.PowerShell *RestrictedSearch*` against your pinned module version. The mode is set with `Set-SPOTenantRestrictedSearchMode -Mode {Disabled|Enabled}` (read back with `Get-SPOTenantRestrictedSearchMode`); the allow list is managed with `Add-SPOTenantRestrictedSearchAllowedList` / `Remove-SPOTenantRestrictedSearchAllowedList` and inspected with `Get-SPOTenantRestrictedSearchAllowedList`. The older `Set-SPOTenant -RestrictedSharePointSearchEnabled` toggle is superseded by the mode cmdlet.
 
 ---
 
