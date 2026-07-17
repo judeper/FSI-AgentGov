@@ -51,6 +51,10 @@ IPPS_DOMAIN = "ps.compliance.protection.outlook.com"  # IPPS endpoint (host or s
 # A URL is a scheme followed by ':' and one-or-more slash/backslash separators.
 # Backslashes are tolerated because some parsers/browsers treat them as slashes.
 _URL_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.\-]*:[\\/]+[^\s`)\]<>\"']*")
+# Scheme-relative URLs (e.g. ``//host/path``) are parsed as authorities too.
+# This blocks userinfo tricks like ``//outlook.office365.com@evil.com/...`` from
+# leaking ``outlook.office365.com`` into the bare-host scan.
+_SCHEME_REL_URL_RE = re.compile(r"(?<!:)(?<![A-Za-z0-9+.\-])[\\/]{2,}[^\s`)\]<>\"']*")
 # A bare hostname: optional wildcard label, >=2 dot-separated labels, alpha TLD.
 _BARE_HOST_RE = re.compile(
     r"(?<![\w.\-])(?:\*\.)?(?:[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,63}(?![\w\-])"
@@ -80,7 +84,10 @@ def _normalize_host(host: str | None) -> str | None:
 def _hostname_from_url(token: str) -> str | None:
     """Parse a URL token to its real hostname (handles userinfo / backslashes)."""
     candidate = token.replace("\\", "/")
-    parts = urlsplit(candidate)
+    try:
+        parts = urlsplit(candidate)
+    except ValueError:
+        return None
     return _normalize_host(parts.hostname)
 
 
@@ -93,11 +100,13 @@ def _extract_hosts(text: str) -> set[str]:
     (``https://outlook.office365.com@evil.com``) is never mistaken for a host.
     """
     hosts: set[str] = set()
-    for match in _URL_RE.finditer(text):
-        host = _hostname_from_url(match.group(0))
-        if host:
-            hosts.add(host)
+    for pattern in (_URL_RE, _SCHEME_REL_URL_RE):
+        for match in pattern.finditer(text):
+            host = _hostname_from_url(match.group(0))
+            if host:
+                hosts.add(host)
     residual = _URL_RE.sub(" ", text)
+    residual = _SCHEME_REL_URL_RE.sub(" ", residual)
     for match in _BARE_HOST_RE.finditer(residual):
         host = _normalize_host(match.group(0))
         if host:
@@ -209,6 +218,7 @@ EXO_NEGATIVE = [
     "outlook.office365.com.evil.com",
     "https://outlook.office365.com.evil.com/x",
     "https://outlook.office365.com@evil.com/psession",
+    "//outlook.office365.com@evil.com/psession",
     "https://evil.com/outlook.office365.com",
     "outlook-office365.com",
     "Connect to Exchange Online later in the runbook",
@@ -265,6 +275,18 @@ def test_subdomain_check_is_label_bounded() -> None:
 
 def test_userinfo_authority_wins_over_label() -> None:
     hosts = _extract_hosts("https://outlook.office365.com@evil.com/psession")
-    assert "evil.com" in hosts
-    assert EXO_HOST not in hosts
+    evil_host = _normalize_host("evil.com")
+    assert evil_host is not None
+    assert hosts == {evil_host}
 
+
+def test_scheme_relative_userinfo_authority_wins_over_label() -> None:
+    hosts = _extract_hosts("//outlook.office365.com@evil.com/psession")
+    evil_host = _normalize_host("evil.com")
+    assert evil_host is not None
+    assert hosts == {evil_host}
+
+
+def test_malformed_ipv6_url_token_fails_closed() -> None:
+    assert _hostname_from_url("https://[::1/x") is None
+    assert _extract_hosts("https://[::1/x outlook.office365.com") == {EXO_HOST}
