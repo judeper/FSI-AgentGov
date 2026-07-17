@@ -91,14 +91,24 @@ AUDIT_PREMIUM_EQUIVALENT_SKUS: dict[str, str] = {
 }
 
 # Map api_call values from controls.json → collected-data source key.
+# Keep both current manifest tokens and legacy aliases used by fixtures / older
+# manifests so source resolution is backward compatible.
 API_SOURCE_MAP: dict[str, str] = {
     # Power Platform Admin Center
     "Get-AdminPowerAppEnvironmentRoleAssignment": "ppac",
     "Get-AdminPowerAppEnvironment": "ppac",
+    "Get-AdminPowerAppEnvironmentSetting": "ppac",
+    "Get-AdminFlow": "ppac",
     "Get-AdminPowerAppDlpPolicy": "ppac",
+    "Get-DlpPolicy": "ppac",
     "Get-AdminPowerAppTenantSetting": "ppac",
     "Get-TenantSettings": "ppac",
     "Get-AdminPowerAppConnector": "ppac",
+    "Get-CopilotStudioAgentConfig": "ppac",
+    "Get-CbgAgentCaps": "ppac",
+    "Invoke-EntitlementEvaluation.ps1": "ppac",
+    "Get-FsiMimeConfig": "ppac",
+    "Test-FsiMimeCompliance": "ppac",
     # Microsoft Graph
     "Get-MgGroup": "graph",
     "Get-MgIdentityConditionalAccessPolicy": "graph",
@@ -107,19 +117,34 @@ API_SOURCE_MAP: dict[str, str] = {
     "Get-MgApplication": "graph",
     "Get-MgServicePrincipal": "graph",
     "Get-MgSubscribedSku": "graph",
+    "Get-MgOrganization": "graph",
+    "Get-MgRoleManagementDirectoryRoleAssignment": "graph",
+    "Get-MgIdentityGovernanceLifecycleWorkflow": "graph",
+    "Get-MgEntitlementManagementAccessPackage": "graph",
     # Purview / Compliance Center
     "Get-AdminAuditLogConfig": "purview",
     "Get-RetentionCompliancePolicy": "purview",
     "Get-DlpCompliancePolicy": "purview",
     "Get-Label": "purview",
+    "Get-LabelPolicy": "purview",
+    "Get-InformationBarrierPolicy": "purview",
+    "Get-SupervisoryReviewPolicyV2": "purview",
     "Get-ComplianceCase": "purview",
     # SharePoint
+    "Get-MgSite": "sharepoint",
+    "Get-MgSitePermission": "sharepoint",
+    "Get-MgSiteList": "sharepoint",
+    "Get-MgSiteDriveItem": "sharepoint",
+    "Get-MgSiteDriveItemPermission": "sharepoint",
     "Get-PnPSiteSearchQueryResults": "sharepoint",
     "Get-PnPTenantSite": "sharepoint",
     "Get-PnPSite": "sharepoint",
     "Get-PnPSiteCollectionAdmin": "sharepoint",
     "Get-PnPListItem": "sharepoint",
     # Sentinel
+    "Get-AzOperationalInsightsWorkspace": "sentinel",
+    "Invoke-AzOperationalInsightsQuery": "sentinel",
+    "Get-AzPrivateEndpointConnection": "sentinel",
     "Get-AzSentinelWorkspace": "sentinel",
     "Get-AzSentinelDataConnector": "sentinel",
     "Get-AzSentinelAlertRule": "sentinel",
@@ -131,8 +156,11 @@ COLLECTION_METHOD_SOURCE: dict[str, str | None] = {
     "PPAC_REST": "ppac",
     "Graph_API": "graph",
     "Purview_PowerShell": "purview",
+    "SharePoint_Graph": "sharepoint",
     "SharePoint_PnP": "sharepoint",
+    "Sentinel_KQL": "sentinel",
     "Sentinel": "sentinel",
+    "Azure_API": "sentinel",
     "Manual": None,
 }
 
@@ -676,6 +704,62 @@ def _resolve_source_key(
     return None
 
 
+def _is_explicit_manual_check(
+    control_automation: str,
+    condition: str,
+    collection_methods: list[str] | None,
+) -> bool:
+    """True when a check is manual by manifest declaration (not by token drift)."""
+    if control_automation == "manual":
+        return True
+    if not condition:
+        return True
+    methods = [
+        str(m).strip().lower()
+        for m in (collection_methods or [])
+        if isinstance(m, str) and str(m).strip()
+    ]
+    return bool(methods) and set(methods) == {"manual"}
+
+
+def lint_manifest_source_resolution(controls: list[dict]) -> list[str]:
+    """Validate non-manual checks resolve to a source or are explicitly manual/unimplemented.
+
+    Guards against silent source-map drift where automatable checks are
+    misclassified as manual_only because collection method tokens no longer map
+    to a known source key.
+    """
+    issues: list[str] = []
+    for control in controls:
+        control_id = str(control.get("id", "<missing-id>"))
+        control_automation = str(control.get("automation", "full"))
+        control_methods = control.get("collection_methods", [])
+        for check in control.get("checks", []):
+            check_id = str(check.get("check_id", "<missing-check-id>"))
+            condition = str((check.get("pass_condition") or "")).strip()
+            api_call = str((check.get("api_call") or "")).strip()
+            methods = check.get("collection_methods") or control_methods or []
+            state = classify_check_evaluator_state(
+                check, control_automation, control_methods
+            )
+            source_key = _resolve_source_key(api_call, methods)
+
+            if source_key is not None:
+                continue
+            if state == "unimplemented_evaluator":
+                continue
+            if state == "manual_only" and _is_explicit_manual_check(
+                control_automation, condition, methods
+            ):
+                continue
+
+            issues.append(
+                f"{control_id}:{check_id} state={state} api_call={api_call or 'n/a'} "
+                f"methods={methods!r} has no resolvable source"
+            )
+    return issues
+
+
 def _source_has_data(collected: dict, source_key: str | None) -> bool:
     return source_key is not None and collected.get(source_key) is not None
 
@@ -903,6 +987,44 @@ def _eval_ca_policy_targets_copilot_studio(
     return False, "No enabled CA policy targets Copilot Studio app ID"
 
 
+def _ca_policy_targets_copilot_app(policy: dict) -> tuple[bool, str]:
+    """Evaluate whether a normalized CA policy targets Copilot Studio.
+
+    Supports explicit app targeting and ``includeApplications = ["All"]`` while
+    honoring ``excludeApplications``. This function is intentionally strict: it
+    never treats report-only/disabled state as enforcement; callers must gate on
+    state separately.
+    """
+    applications = (
+        policy.get("conditions", {})
+        .get("applications", {})
+    )
+    include = applications.get("includeApplications", [])
+    exclude = applications.get("excludeApplications", [])
+    if not isinstance(include, list) or not isinstance(exclude, list):
+        return False, "application target shape invalid (fail closed)"
+
+    include_set = {
+        str(x).strip().lower()
+        for x in include
+        if isinstance(x, str) and str(x).strip()
+    }
+    exclude_set = {
+        str(x).strip().lower()
+        for x in exclude
+        if isinstance(x, str) and str(x).strip()
+    }
+    app_id = COPILOT_STUDIO_APP_ID.lower()
+
+    if app_id in exclude_set:
+        return False, "Copilot Studio explicitly excluded"
+    if app_id in include_set:
+        return True, "Copilot Studio explicitly included"
+    if "all" in include_set:
+        return True, "All cloud apps included"
+    return False, "Copilot Studio not targeted"
+
+
 def _eval_ca_policy_requires_mfa(
     collected: dict, _source_key: str | None
 ) -> tuple[bool | None, str]:
@@ -912,20 +1034,51 @@ def _eval_ca_policy_requires_mfa(
     policies = graph.get("conditional_access_policies")
     if policies is None:
         return None, "conditional_access_policies not collected"
+    targeted_enabled = 0
+    targeting_diagnostics: list[str] = []
     for policy in policies:
-        if policy.get("state") != "enabled":
+        state = (policy.get("state") or "").strip().lower()
+        if state != "enabled":
             continue
-        apps = (
-            policy.get("conditions", {})
-            .get("applications", {})
-            .get("includeApplications", [])
-        )
-        if COPILOT_STUDIO_APP_ID not in apps:
+        targets_copilot, reason = _ca_policy_targets_copilot_app(policy)
+        if not targets_copilot:
+            if "excluded" in reason.lower() or "fail closed" in reason.lower():
+                name = policy.get("displayName", "unnamed")
+                targeting_diagnostics.append(f"{name}: {reason}")
             continue
+        targeted_enabled += 1
         controls = policy.get("grantControls", {}).get("builtInControls", [])
-        if "mfa" in controls:
-            return True, "CA policy includes 'mfa' in builtInControls"
-    return False, "No CA policy targeting Copilot Studio requires MFA"
+        if not isinstance(controls, list):
+            name = policy.get("displayName", "unnamed")
+            targeting_diagnostics.append(
+                f"{name}: builtInControls missing/invalid (fail closed)"
+            )
+            continue
+        if any(
+            isinstance(control, str) and control.strip().lower() == "mfa"
+            for control in controls
+        ):
+            name = policy.get("displayName", "unnamed")
+            return (
+                True,
+                f"CA policy '{name}' targets Copilot Studio and includes "
+                "'mfa' in builtInControls",
+            )
+    if targeted_enabled == 0:
+        if targeting_diagnostics:
+            return (
+                False,
+                "No enabled CA policy targeting Copilot Studio requires MFA; "
+                + "; ".join(targeting_diagnostics),
+            )
+        return False, "No enabled CA policy targets Copilot Studio app ID"
+    if targeting_diagnostics:
+        return (
+            False,
+            "Enabled CA policy targets Copilot Studio but MFA cannot be "
+            "verified (fail closed): " + "; ".join(targeting_diagnostics),
+        )
+    return False, "Enabled CA policies target Copilot Studio but none require MFA"
 
 
 def _eval_prod_env_has_security_group(
@@ -1266,13 +1419,19 @@ def compute_maturity(
     threshold = zone_thresholds.get(zone_key, {})
     min_required: int = threshold.get("min_checks_passed", 0)
     target_maturity: int = threshold.get("maturity_score", 0)
+    has_supported_attestation = threshold.get("supported_attestation") is True
 
-    if min_required > 0 and checks_passed >= min_required:
-        score = target_maturity
-    elif min_required == 0:
-        # Threshold of zero means no checks needed — award the maturity.
+    if min_required > 0:
+        score = target_maturity if checks_passed >= min_required else 0
+    elif target_maturity == 0:
+        # Legitimate manual controls intentionally pin maturity to 0.
+        score = 0
+    elif has_supported_attestation:
+        # Explicitly allow an attested zero-threshold maturity target.
         score = target_maturity
     else:
+        # Safety fail-closed: min_checks_passed=0 must never auto-award nonzero
+        # maturity unless the manifest explicitly sets supported_attestation=true.
         score = 0
 
     label = MATURITY_LABELS.get(score, "Unknown")
@@ -1560,6 +1719,17 @@ def run(
     log.info("Loading manifest from %s", manifest_p)
     manifest = load_json(manifest_p)
     controls: list[dict] = normalize_manifest_controls(manifest)
+    lint_issues = lint_manifest_source_resolution(controls)
+    if lint_issues:
+        preview = "\n".join(f"  - {issue}" for issue in lint_issues[:20])
+        remaining = len(lint_issues) - 20
+        if remaining > 0:
+            preview += f"\n  - ... {remaining} additional issue(s)"
+        raise ValueError(
+            "Manifest source-resolution lint failed. Every non-manual check "
+            "must resolve to a source or be explicitly manual/unimplemented:\n"
+            f"{preview}"
+        )
     manifest_version = (
         manifest.get("version", "unknown")
         if isinstance(manifest, dict)

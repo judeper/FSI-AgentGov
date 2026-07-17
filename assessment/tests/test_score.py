@@ -388,6 +388,64 @@ class TestZoneThresholdBoundary:
 
 
 # ---------------------------------------------------------------------------
+# Test: zero-threshold maturity safety guard (fail closed)
+# ---------------------------------------------------------------------------
+
+
+class TestZeroThresholdMaturitySafety:
+    """min_checks_passed=0 must not auto-award nonzero maturity without attestation."""
+
+    def test_zero_threshold_nonzero_target_fails_closed_without_attestation(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        maturity_score, maturity_label, min_required = score.compute_maturity(
+            checks_passed=999,
+            zone=2,
+            zone_thresholds={
+                "zone2": {"min_checks_passed": 0, "maturity_score": 3}
+            },
+        )
+
+        assert min_required == 0
+        assert maturity_score == 0
+        assert maturity_label == "Not Implemented"
+
+    def test_zero_threshold_nonzero_target_requires_supported_attestation(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        maturity_score, maturity_label, min_required = score.compute_maturity(
+            checks_passed=0,
+            zone=3,
+            zone_thresholds={
+                "zone3": {
+                    "min_checks_passed": 0,
+                    "maturity_score": 4,
+                    "supported_attestation": True,
+                }
+            },
+        )
+
+        assert min_required == 0
+        assert maturity_score == 4
+        assert maturity_label == "Fully Governed"
+
+    def test_zero_threshold_target_zero_remains_valid_for_manual_controls(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        maturity_score, maturity_label, min_required = score.compute_maturity(
+            checks_passed=0,
+            zone=1,
+            zone_thresholds={
+                "zone1": {"min_checks_passed": 0, "maturity_score": 0}
+            },
+        )
+
+        assert min_required == 0
+        assert maturity_score == 0
+        assert maturity_label == "Not Implemented"
+
+
+# ---------------------------------------------------------------------------
 # Test: 1.1.c tenant setting evaluator (fail-closed behavior)
 # ---------------------------------------------------------------------------
 
@@ -660,6 +718,151 @@ class TestAuditPlanTierEvaluator:
         assert "fail closed" in ctrl["evidence"]["1.7.b"]["value"]
         assert ctrl["confidence"] == "high"
         assert ctrl["maturity_score"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.11.a CA MFA evaluator (All-app + exclusion/report-only safety)
+# ---------------------------------------------------------------------------
+
+
+class TestConditionalAccessMfaEvaluator:
+    """Adversarial tests for ca_policy_requires_mfa fail-closed behavior."""
+
+    @staticmethod
+    def _policy(
+        *,
+        name: str,
+        state: str,
+        include_apps: list[str],
+        exclude_apps: list[str] | None = None,
+        controls: list[str] | str | None = None,
+    ) -> dict:
+        return {
+            "displayName": name,
+            "state": state,
+            "conditions": {
+                "applications": {
+                    "includeApplications": include_apps,
+                    "excludeApplications": exclude_apps or [],
+                }
+            },
+            "grantControls": {
+                "builtInControls": controls if controls is not None else []
+            },
+        }
+
+    def test_ca_mfa_accepts_all_cloud_apps_when_not_excluded(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="Require MFA for all cloud apps",
+                state="enabled",
+                include_apps=["All"],
+                controls=["mfa"],
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is True
+        assert "targets Copilot Studio" in evidence
+
+    def test_ca_mfa_fails_when_all_cloud_apps_policy_excludes_copilot(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="All apps except Copilot Studio",
+                state="enabled",
+                include_apps=["All"],
+                exclude_apps=[score.COPILOT_STUDIO_APP_ID],  # noqa: SLF001
+                controls=["mfa"],
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "excluded" in evidence.lower()
+
+    def test_ca_mfa_ignores_report_only_and_disabled_policies(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="Report-only all apps MFA",
+                state="enabledforreportingbutnotenforced",
+                include_apps=["All"],
+                controls=["mfa"],
+            ),
+            self._policy(
+                name="Disabled direct-app MFA",
+                state="disabled",
+                include_apps=[score.COPILOT_STUDIO_APP_ID],  # noqa: SLF001
+                controls=["mfa"],
+            ),
+            self._policy(
+                name="Enabled policy without MFA",
+                state="enabled",
+                include_apps=[score.COPILOT_STUDIO_APP_ID],  # noqa: SLF001
+                controls=["compliantDevice"],
+            ),
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "none require mfa" in evidence.lower()
+
+    def test_ca_mfa_fails_closed_when_built_in_controls_shape_is_invalid(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="Malformed controls",
+                state="enabled",
+                include_apps=[score.COPILOT_STUDIO_APP_ID],  # noqa: SLF001
+                controls="mfa",
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_ca_mfa_fails_closed_when_include_applications_shape_is_invalid(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            {
+                "displayName": "Malformed app targets",
+                "state": "enabled",
+                "conditions": {
+                    "applications": {
+                        "includeApplications": "All",  # invalid shape
+                        "excludeApplications": [],
+                    }
+                },
+                "grantControls": {"builtInControls": ["mfa"]},
+            }
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
 
 
 # ---------------------------------------------------------------------------
