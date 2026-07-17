@@ -40,6 +40,35 @@ This playbook provides:
 !!! warning "Language and liability"
     This playbook helps meet — and is required for — supervisory expectations across FINRA, SEC, OCC, Federal Reserve, NYDFS, and FTC Safeguards regimes. It does **not** by itself constitute compliance. Implementation requires legal, compliance, and risk review tailored to your firm's business activities and regulatory profile. Organizations should verify every assertion against their own examination history.
 
+### 1.1 Lifecycle Workflow taskDefinitionId gate (fail closed)
+
+Before deploying any workflow JSON from Sections 8–10, validate task definitions in **your tenant**. `taskDefinitionId` values are not inferred: built-ins must resolve exactly, and every `<...-extension>` placeholder must be replaced with your deployed extension task definition IDs.
+
+| Task | Expected built-in `taskDefinitionId` |
+|---|---|
+| Send email notification | `aab41899-9972-422a-9a53-f4bb8b36b8ae` |
+| Request approval | `22085229-5809-45e8-97fd-270d28d66910` |
+| Disable user account | `1dfdfcc7-52fa-4c2e-bf3a-e3919cc12950` |
+
+```powershell
+# Fail closed if required built-ins are missing in tenant catalog
+$required = @{
+    'aab41899-9972-422a-9a53-f4bb8b36b8ae' = 'Send email notification'
+    '22085229-5809-45e8-97fd-270d28d66910' = 'Request approval'
+    '1dfdfcc7-52fa-4c2e-bf3a-e3919cc12950' = 'Disable user account'
+}
+
+$defs = @(Get-MgIdentityGovernanceLifecycleWorkflowTaskDefinition -All)
+$missing = foreach ($id in $required.Keys) {
+    if (-not ($defs | Where-Object Id -eq $id)) { "$id ($($required[$id]))" }
+}
+if ($missing) {
+    throw "Missing Lifecycle Workflow taskDefinitionId(s): $($missing -join ', '). Stop and verify API availability before rollout."
+}
+```
+
+If any workflow payload still contains `<...-extension>` placeholders at deploy time, stop and open a remediation item — that workflow is incomplete by definition.
+
 ---
 
 ## 2. Examiner Readiness Framing
@@ -136,6 +165,8 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 ### 3.3 Backup Owner (Continuity)
 
 **Role summary.** Named secondary technical custodian who provides operational continuity when the Agent Owner is unavailable, departs, or is reassigned. Mandatory for Z2 and Z3.
+
+**Verification binding.** A Backup Owner claim counts only when both are true: (1) the governance register field is populated, and (2) the same person is a resolvable owner on the underlying Entra app/service principal object. This matches test `1.2-OWN-02` in [`verification-testing.md`](./verification-testing.md).
 
 **Required role / seniority.** Same profile as Agent Owner; **must not** report to the Agent Owner (independent reporting line for Z3 to maintain effective challenge per OCC Bulletin 2026-13 (formerly OCC 2011-12)).
 

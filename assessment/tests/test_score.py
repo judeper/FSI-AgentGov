@@ -302,6 +302,7 @@ class TestMissingDataLowConfidence:
             "securityPosture": None,
             "agentFeatureFlags": None,
             "environmentGroups": None,
+            "copilotStudioBotInventory": None,
         }
         write_json(collected / "ppac.json", null_ppac)
 
@@ -487,6 +488,113 @@ class TestShareWithEveryoneEvaluator:
 
         assert ctrl["evidence"]["1.1.c"]["result"] == "fail"
         assert "fail closed" in ctrl["evidence"]["1.1.c"]["value"]
+        assert ctrl["maturity_score"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.2.a Copilot Studio inventory evaluator (Dataverse fail-closed)
+# ---------------------------------------------------------------------------
+
+
+class TestAgentInventoryEvaluator:
+    """Control 1.2.a must fail closed unless Dataverse bot inventory is collected."""
+
+    @staticmethod
+    def _agent_inventory_manifest() -> dict:
+        return build_manifest_with_controls(
+            [
+                {
+                    "id": "1.2",
+                    "title": "Control 1.2: Agent Registry and Integrated Apps Management",
+                    "pillar": 1,
+                    "pillar_name": "Security",
+                    "source_file": "docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md",
+                    "automation": "full",
+                    "collection_methods": ["Graph_API", "PPAC_PowerShell"],
+                    "checks": [
+                        {
+                            "check_id": "1.2.a",
+                            "description": "Agent inventory maintained with all agents registered",
+                            "api_call": "Get-MgServicePrincipal",
+                            "pass_condition": "agent_inventory_exists",
+                            "zone_required": [1, 2, 3],
+                        }
+                    ],
+                    "zone_thresholds": {
+                        "zone1": {"min_checks_passed": 1, "maturity_score": 1},
+                        "zone2": {"min_checks_passed": 1, "maturity_score": 2},
+                        "zone3": {"min_checks_passed": 1, "maturity_score": 4},
+                    },
+                    "manual_question": None,
+                }
+            ]
+        )
+
+    def _write_supporting_collectors(self, collected: Path) -> None:
+        for name in ("purview", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+    def test_agent_inventory_passes_with_collected_dataverse_inventory(
+        self, tmp_path: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        self._write_supporting_collectors(collected)
+
+        write_json(collected / "graph.json", load_fixture("graph_collector_contract.json"))
+        write_json(collected / "ppac.json", load_fixture("ppac_collector_contract.json"))
+
+        manifest_path = tmp_path / "controls-1.2.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._agent_inventory_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=3,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.2")
+
+        assert ctrl["evidence"]["1.2.a"]["result"] == "pass"
+        assert "Dataverse bot row(s)" in ctrl["evidence"]["1.2.a"]["value"]
+        assert ctrl["maturity_score"] == 4
+
+    def test_agent_inventory_fails_closed_on_incomplete_status(
+        self, tmp_path: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        self._write_supporting_collectors(collected)
+
+        write_json(collected / "graph.json", load_fixture("graph_collector_contract.json"))
+        ppac_data = load_fixture("ppac_collector_contract.json")
+        ppac_data["copilotStudioBotInventory"][0]["Status"] = "QueryFailed"
+        write_json(collected / "ppac.json", ppac_data)
+
+        manifest_path = tmp_path / "controls-1.2.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._agent_inventory_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=3,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.2")
+
+        assert ctrl["evidence"]["1.2.a"]["result"] == "fail"
+        assert "fail closed" in ctrl["evidence"]["1.2.a"]["value"]
+        assert "queryfailed" in ctrl["evidence"]["1.2.a"]["value"].lower()
         assert ctrl["maturity_score"] == 0
 
 

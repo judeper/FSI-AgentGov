@@ -5,8 +5,8 @@
 .DESCRIPTION
     Enumerates Power Platform environments, DLP policies, role assignments, tenant
     settings, environment routing rules, inactivity timeout settings, security posture
-    score, agent feature flags, environment groups, and per-environment tags and group
-    membership via the PowerApps Administration module and BAP REST API.
+    score, agent feature flags, environment groups, per-environment tags and group
+    membership, and Copilot Studio bot inventory via Dataverse Web API.
 
     Outputs a structured JSON file (ppac.json) consumed by the assessment engine.
 
@@ -34,7 +34,8 @@
 .OUTPUTS
     ppac.json — JSON file with environments, DLP policies, role assignments, tenant
     settings, routing rules, inactivity timeout, security posture, agent feature flags,
-    environment groups, and per-environment tags/group membership.
+    environment groups, per-environment tags/group membership, and Copilot Studio bot
+    inventory from Dataverse `bot` rows.
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — PPAC Collector.
@@ -165,6 +166,30 @@ function Invoke-BapApi {
     }
 }
 
+function Get-DataverseApiToken {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$ResourceUrl,
+        [Parameter(Mandatory)][string]$EnvironmentName
+    )
+
+    try {
+        $tokenResult = Invoke-CollectorOperation -Target $EnvironmentName -Action 'Acquire Dataverse access token' -ScriptBlock {
+            Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop
+        }
+        if ($null -eq $tokenResult) {
+            return $null
+        }
+        if ($tokenResult.Token -is [securestring]) {
+            return $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+        }
+        return $tokenResult.Token
+    }
+    catch {
+        throw "Failed to acquire Dataverse token for '$EnvironmentName'. Ensure Connect-AzAccount has been completed. Error: $($_.Exception.Message)"
+    }
+}
+
 # Acquire BAP token once for all REST API calls.
 $bapToken = $null
 try {
@@ -188,6 +213,13 @@ try {
         Get-AdminPowerAppEnvironment
     }
     $environments = $rawEnvs | ForEach-Object {
+        $dataverseUrl = $null
+        if ($_.Properties -and $_.Properties.linkedEnvironmentMetadata -and $_.Properties.linkedEnvironmentMetadata.instanceUrl) {
+            $dataverseUrl = $_.Properties.linkedEnvironmentMetadata.instanceUrl
+        }
+        elseif ($_.Internal -and $_.Internal.properties -and $_.Internal.properties.linkedEnvironmentMetadata -and $_.Internal.properties.linkedEnvironmentMetadata.instanceUrl) {
+            $dataverseUrl = $_.Internal.properties.linkedEnvironmentMetadata.instanceUrl
+        }
         [PSCustomObject]@{
             DisplayName              = $_.DisplayName
             EnvironmentName          = $_.EnvironmentName
@@ -195,6 +227,7 @@ try {
             EnvironmentSku           = $_.Properties.environmentSku
             LinkedEnvironmentType    = $_.Properties.linkedEnvironmentMetadata.type
             SecurityGroupId          = $_.Properties.linkedEnvironmentMetadata.securityGroupId
+            DataverseUrl             = $dataverseUrl
             States                   = $_.States
         }
     }
@@ -572,6 +605,150 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
+# Section 11: Copilot Studio Bot Inventory (Dataverse Web API)
+# Supports: Controls 1.2 / 3.1 inventory reconciliation
+# Pattern: Dataverse `bot` table query (authoritative for Copilot Studio)
+# ═══════════════════════════════════════════════════════════════════════
+$copilotStudioBotInventory = $null
+try {
+    Write-Verbose "Section 11: Collecting Copilot Studio bot inventory via Dataverse Web API..."
+    if ($environments) {
+        $copilotStudioBotInventory = @(foreach ($env in $environments) {
+            $envId = $env.EnvironmentName
+            $dataverseUrl = $env.DataverseUrl
+            $linkedEnvironmentType = [string]$env.LinkedEnvironmentType
+            $linkedTypeNormalized = $linkedEnvironmentType.Trim().ToLowerInvariant()
+            $isDataverseLinked = $linkedTypeNormalized -in @('dataverse', 'commondataservice')
+            if ([string]::IsNullOrWhiteSpace($dataverseUrl)) {
+                $status = if ($isDataverseLinked) { 'MissingDataverseUrl' } else { 'NoDataverse' }
+                [PSCustomObject]@{
+                    EnvironmentName      = $envId
+                    DisplayName          = $env.DisplayName
+                    LinkedEnvironmentType = $linkedEnvironmentType
+                    DataverseUrl         = $null
+                    Status               = $status
+                    BotCount             = 0
+                    Bots                 = @()
+                }
+                continue
+            }
+
+            $resourceUrl = $dataverseUrl.TrimEnd('/')
+            $dataverseToken = $null
+            try {
+                $dataverseToken = Get-DataverseApiToken -ResourceUrl $resourceUrl -EnvironmentName $envId
+            }
+            catch {
+                $warnings.Add("Section 11 (Bot Inventory): Token acquisition failed for environment '$envId': $($_.Exception.Message)")
+                Write-Warning $warnings[-1]
+                [PSCustomObject]@{
+                    EnvironmentName      = $envId
+                    DisplayName          = $env.DisplayName
+                    LinkedEnvironmentType = $linkedEnvironmentType
+                    DataverseUrl         = $resourceUrl
+                    Status               = 'TokenFailed'
+                    BotCount             = 0
+                    Bots                 = $null
+                }
+                continue
+            }
+
+            if ([string]::IsNullOrWhiteSpace($dataverseToken)) {
+                $warnings.Add("Section 11 (Bot Inventory): Empty Dataverse token for environment '$envId'.")
+                Write-Warning $warnings[-1]
+                [PSCustomObject]@{
+                    EnvironmentName      = $envId
+                    DisplayName          = $env.DisplayName
+                    LinkedEnvironmentType = $linkedEnvironmentType
+                    DataverseUrl         = $resourceUrl
+                    Status               = 'TokenFailed'
+                    BotCount             = 0
+                    Bots                 = $null
+                }
+                continue
+            }
+
+            $headers = @{
+                Authorization  = "Bearer $dataverseToken"
+                'Content-Type' = 'application/json'
+            }
+            $nextLink = "$resourceUrl/api/data/v9.2/bots?`$select=botid,name,statecode,statuscode,createdon,modifiedon,schemaname,_ownerid_value"
+            $rows = New-Object System.Collections.Generic.List[object]
+            $pageGuard = 0
+
+            try {
+                while ($nextLink) {
+                    $pageGuard++
+                    if ($pageGuard -gt 200) {
+                        throw "Pagination guard hit while collecting Dataverse bots for '$envId'."
+                    }
+
+                    $response = Invoke-CollectorOperation -Target $envId -Action 'List Dataverse bot rows' -ScriptBlock {
+                        Invoke-RestMethod -Uri $nextLink -Method GET -Headers $headers -ErrorAction Stop
+                    }
+
+                    if ($null -eq $response) {
+                        break
+                    }
+
+                    if ($response.value) {
+                        foreach ($row in @($response.value)) {
+                            if ($row -is [psobject]) {
+                                $rows.Add([PSCustomObject]@{
+                                    BotId       = $row.botid
+                                    Name        = $row.name
+                                    OwnerId     = $row.'_ownerid_value'
+                                    StateCode   = $row.statecode
+                                    StatusCode  = $row.statuscode
+                                    CreatedOn   = $row.createdon
+                                    ModifiedOn  = $row.modifiedon
+                                    SchemaName  = $row.schemaname
+                                })
+                            }
+                        }
+                    }
+
+                    $nextLink = $response.'@odata.nextLink'
+                }
+
+                [PSCustomObject]@{
+                    EnvironmentName      = $envId
+                    DisplayName          = $env.DisplayName
+                    LinkedEnvironmentType = $linkedEnvironmentType
+                    DataverseUrl         = $resourceUrl
+                    Status               = 'Collected'
+                    BotCount             = $rows.Count
+                    Bots                 = @($rows)
+                }
+            }
+            catch {
+                $warnings.Add("Section 11 (Bot Inventory): Dataverse bot query failed for environment '$envId': $($_.Exception.Message)")
+                Write-Warning $warnings[-1]
+                [PSCustomObject]@{
+                    EnvironmentName      = $envId
+                    DisplayName          = $env.DisplayName
+                    LinkedEnvironmentType = $linkedEnvironmentType
+                    DataverseUrl         = $resourceUrl
+                    Status               = 'QueryFailed'
+                    BotCount             = 0
+                    Bots                 = $null
+                }
+            }
+        })
+
+        Write-Verbose "  Collected Copilot Studio bot inventory for $($copilotStudioBotInventory.Count) environment record(s)."
+    }
+    else {
+        $warnings.Add("Section 11 (Bot Inventory): Skipped — no environments collected.")
+        Write-Warning $warnings[-1]
+    }
+}
+catch {
+    $warnings.Add("Section 11 (Bot Inventory) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
 # Build Output
 # ═══════════════════════════════════════════════════════════════════════
 $result = [ordered]@{
@@ -584,6 +761,7 @@ $result = [ordered]@{
     securityPosture    = $securityPosture
     agentFeatureFlags  = $agentFeatureFlags
     environmentGroups  = $environmentGroups
+    copilotStudioBotInventory = $copilotStudioBotInventory
     _metadata          = [ordered]@{
         collector               = 'Collect-PPAC'
         timestamp               = (Get-Date -Format 'o')
@@ -600,15 +778,16 @@ Write-Verbose "Output written to $outputFile"
 # ─── Exit Code ───────────────────────────────────────────────────────
 $nullSections = @(
     $environments, $dlpPolicies, $roleAssignments, $tenantSettings, $routingRules,
-    $inactivityTimeout, $securityPosture, $agentFeatureFlags, $environmentGroups
+    $inactivityTimeout, $securityPosture, $agentFeatureFlags, $environmentGroups,
+    $copilotStudioBotInventory
 ) | Where-Object { $null -eq $_ }
 
-if ($nullSections.Count -eq 9) {
+if ($nullSections.Count -eq 10) {
     Write-Error "All sections failed to collect data. See warnings for details."
     exit 2
 }
 elseif ($nullSections.Count -gt 0) {
-    Write-Warning "Partial collection: $($nullSections.Count)/9 sections returned null."
+    Write-Warning "Partial collection: $($nullSections.Count)/10 sections returned null."
     exit 1
 }
 else {

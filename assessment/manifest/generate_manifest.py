@@ -18,7 +18,7 @@ PILLAR_DIRS = {
 CONTROLS = [
     # Pillar 1 - Security (29)
     ("1.1","1.1-restrict-agent-publishing-by-authorization.md",1,"full",["PPAC_PowerShell","Graph_API"],None),
-    ("1.2","1.2-agent-registry-and-integrated-apps-management.md",1,"full",["Graph_API"],None),
+    ("1.2","1.2-agent-registry-and-integrated-apps-management.md",1,"full",["Graph_API","PPAC_PowerShell"],None),
     ("1.3","1.3-sharepoint-content-governance-and-permissions.md",1,"partial",["SharePoint_Graph"],"Have site permission reviews been completed in the last 90 days for all agent knowledge sources?"),
     ("1.4","1.4-advanced-connector-policies-acp.md",1,"full",["PPAC_PowerShell"],None),
     ("1.5","1.5-data-loss-prevention-dlp-and-sensitivity-labels.md",1,"full",["PPAC_PowerShell","Purview_PowerShell"],None),
