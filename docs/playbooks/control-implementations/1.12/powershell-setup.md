@@ -760,10 +760,11 @@ foreach ($k in $results.Keys) {
 }
 
 # Aggregate posture
+$evaluatedComponents = @($results.Values | Where-Object { $null -ne $_ })
 $aggregate = [pscustomobject]@{
-    OverallStatus = if ($results.Values | Where-Object { $_.Status -eq 'Anomaly' }) { 'Anomaly' }
-                    elseif ($results.Values | Where-Object { $_.Status -eq 'Error' }) { 'Error' }
-                    elseif (($results.Values | Where-Object { $_.Status -eq 'NotApplicable' }).Count -eq $results.Count) { 'NotApplicable' }
+    OverallStatus = if ($evaluatedComponents | Where-Object { $_.Status -eq 'Anomaly' }) { 'Anomaly' }
+                    elseif ($evaluatedComponents | Where-Object { $_.Status -eq 'Error' }) { 'Error' }
+                    elseif ((@($evaluatedComponents | Where-Object { $_.Status -eq 'NotApplicable' }).Count -eq $evaluatedComponents.Count) -and $evaluatedComponents.Count -gt 0) { 'NotApplicable' }
                     else { 'Clean' }
     Components    = $results
     Cloud         = $script:FsiCloud
