@@ -759,7 +759,7 @@ A FINRA, SEC, OCC, Fed, NYDFS, or state examiner identifies that a specific surf
 - [Control 1.15 — Encryption Key Custody](../1.15/troubleshooting.md) ... DKE trade-offs vs Copilot
 - [Control 2.1 — Copilot Studio Governance](../2.1/troubleshooting.md) ... Power Platform DLP precedence
 - [Control 2.3 — Change Management and Release Planning](../2.3/troubleshooting.md) ... incremental enablement gates
-- [Control 2.6 — Records Management and Effective Challenge (Fed SR 26-2 (formerly SR 11-7))](../2.6/troubleshooting.md) ... exam-driven gap closure
+- [Control 2.6 — Effective Challenge (Fed SR 26-2 (formerly SR 11-7))](../2.6/troubleshooting.md) ... exam-driven gap closure
 - [Control 2.16 — Agent Publishing Channels](../2.16/troubleshooting.md) ... channel-level DLP enforcement
 - [Control 3.4 — Incident Reporting and RCA](../3.4/troubleshooting.md) ... Reg S-P 2024 notification clocks
 - [Control 3.9 — Sentinel Forwarding and Analytics](../3.9/troubleshooting.md) ... DLP → Sentinel ingestion
