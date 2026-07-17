@@ -141,6 +141,18 @@ try {
         Get-MgIdentityConditionalAccessPolicy -All -ErrorAction Stop
     }
     $conditionalAccessPolicies = $rawPolicies | ForEach-Object {
+        $authStrength = $_.GrantControls.AuthenticationStrength
+        $normalizedAuthStrength = $null
+        if ($null -ne $authStrength) {
+            $normalizedAuthStrength = [PSCustomObject]@{
+                Id                    = $authStrength.Id
+                DisplayName           = $authStrength.DisplayName
+                PolicyType            = $authStrength.PolicyType
+                RequirementsSatisfied = $authStrength.RequirementsSatisfied
+                AllowedCombinations   = $authStrength.AllowedCombinations
+            }
+        }
+
         [PSCustomObject]@{
             Id                    = $_.Id
             DisplayName           = $_.DisplayName
@@ -153,6 +165,7 @@ try {
             ExcludeGroups         = $_.Conditions.Users.ExcludeGroups
             BuiltInControls       = $_.GrantControls.BuiltInControls
             Operator              = $_.GrantControls.Operator
+            AuthenticationStrength = $normalizedAuthStrength
             SignInFrequency       = $_.SessionControls.SignInFrequency
             PersistentBrowser     = $_.SessionControls.PersistentBrowser
         }

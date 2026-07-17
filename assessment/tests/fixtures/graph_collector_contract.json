@@ -18,6 +18,7 @@
       "ExcludeGroups": [],
       "BuiltInControls": ["mfa"],
       "Operator": "OR",
+      "AuthenticationStrength": null,
       "SignInFrequency": {
         "value": 4,
         "type": "hours"

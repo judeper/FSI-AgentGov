@@ -186,6 +186,33 @@ def test_source_resolution_lint_flags_non_manual_unknown_method_token():
     assert any("4.4:4.4.a" in issue for issue in issues), issues
 
 
+def test_source_resolution_separates_azure_network_from_sentinel():
+    """Azure network checks must not borrow Sentinel source availability."""
+    score = _load_score_module()
+
+    assert score._resolve_source_key(  # noqa: SLF001
+        "Get-AzOperationalInsightsWorkspace", ["Sentinel"]
+    ) == "sentinel"
+    assert score._resolve_source_key(  # noqa: SLF001
+        "Get-AzPrivateEndpointConnection", ["Azure_API"]
+    ) == "azure/network"
+    assert "azure/network" in score.UNCOLLECTED_SOURCE_KEYS
+    assert "azure/network" not in score.SOURCE_FILENAMES
+
+
+def test_manifest_control_1_20_resolves_to_uncollected_azure_network_source():
+    """Control 1.20 source mapping should stay truthful until collector exists."""
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    control = next(c for c in controls if c["id"] == "1.20")
+    for check in control.get("checks", []):
+        source = score._resolve_source_key(  # noqa: SLF001
+            str(check.get("api_call", "")),
+            check.get("collection_methods") or control.get("collection_methods"),
+        )
+        assert source == "azure/network"
+
+
 # ---------------------------------------------------------------------------
 # Negative tests — write a mutated manifest and verify the validator catches it
 # ---------------------------------------------------------------------------
