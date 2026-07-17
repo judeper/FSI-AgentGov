@@ -4,7 +4,8 @@
     "timestamp": "2026-03-25T21:00:00Z",
     "tenant_id": "test-tenant",
     "warnings": [
-      "Section 6 (Insider Risk policy inventory) [command_not_found]: Get-InsiderRiskPolicy cmdlet not present in current module set."
+      "Section 6 (Insider Risk policy inventory) [unsupported_surface]: Insider Risk policy inventory automation is not supported on a first-party documented GA surface. Use only first-party documented GA surfaces. Collect policy inventory through manual portal export.",
+      "Section 6 (Insider Risk audit dependency) [unknown]: Audit dependency could not be derived because Section 1 audit configuration is missing or incomplete."
     ],
     "errors": [
       "Connect-ExchangeOnline failed: authentication timeout"
@@ -23,23 +24,20 @@
     "policyInventory": {
       "status": "manual_required",
       "automationSupported": false,
-      "classification": "command_not_found",
-      "detail": "Get-InsiderRiskPolicy cmdlet not present in current module set. Treat as unsupported automation surface. Do not map this to licensing. Collect Insider Risk policy evidence manually from the Purview portal.",
+      "classification": "unsupported_surface",
+      "detail": "Insider Risk policy inventory automation is not supported on a first-party documented GA surface. Use only first-party documented GA surfaces. Collect policy inventory through manual portal export.",
       "manualEvidenceRequired": [
         "Purview portal export: Insider Risk Management > Policies (name, template, status, scope).",
         "Purview portal export: Alerts reviewed/dispositioned for the current quarter.",
         "Reviewer attestation linking alert dispositions to case records."
       ]
     },
-    "tenantEnablement": {
-      "status": "collected",
-      "command": "Get-IRMConfiguration",
-      "commandAvailable": true,
-      "unifiedAuditDependencyMet": true,
-      "adaptiveProtectionEnabled": null,
-      "pseudonymizationEnabled": null,
-      "classification": null,
-      "detail": "Tenant enablement checks are informative only and do not prove Insider Risk policy coverage."
+    "auditDependency": {
+      "status": "unknown",
+      "evidenceSource": "Section 1 auditConfig.UnifiedAuditLogIngestionEnabled",
+      "unifiedAuditDependencyMet": null,
+      "classification": "unknown",
+      "detail": "Audit dependency could not be derived because Section 1 audit configuration is missing or incomplete."
     }
   }
 }

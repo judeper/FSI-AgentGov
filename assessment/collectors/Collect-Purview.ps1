@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     Enumerates audit log configuration, DLP compliance policies, retention policies,
-    communication compliance, eDiscovery cases, insider risk tenant-enablement
-    signals (manual policy evidence required), DSPM for AI, sensitivity label
+    communication compliance, eDiscovery cases, insider risk evidence status
+    (manual policy inventory + audit dependency only), DSPM for AI, sensitivity label
     policies, and endpoint DLP settings via Security & Compliance PowerShell
     (ExchangeOnlineManagement).
 
@@ -309,95 +309,26 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 6: Insider Risk evidence status (manual policy inventory)
+# Section 6: Insider Risk evidence status (manual policy inventory + audit dependency)
 # Supports: Control 1.12 (manual review evidence), Control 3.5 context
 # ═══════════════════════════════════════════════════════════════════════
 $insiderRiskPolicies = @()
-$insiderRiskEvidence = [ordered]@{
-    policyInventory = [ordered]@{
-        status                = 'manual_required'
-        automationSupported   = $false
-        classification        = 'unsupported_surface'
-        detail                = 'No Microsoft-documented PowerShell or Graph API is available to enumerate Insider Risk policy inventory for Control 1.12.'
-        manualEvidenceRequired = @(
-            'Purview portal export: Insider Risk Management > Policies (name, template, status, scope).',
-            'Purview portal export: Alerts reviewed/dispositioned for the current quarter.',
-            'Reviewer attestation linking alert dispositions to case records.'
-        )
-    }
-    tenantEnablement = [ordered]@{
-        status                    = 'not_attempted'
-        command                   = 'Get-IRMConfiguration'
-        commandAvailable          = $false
-        unifiedAuditDependencyMet = $null
-        adaptiveProtectionEnabled = $null
-        pseudonymizationEnabled   = $null
-        classification            = $null
-        detail                    = 'Tenant enablement checks are informative only and do not prove Insider Risk policy coverage.'
-    }
-}
-
 Write-Verbose "Section 6: Evaluating insider risk evidence support..."
 
-$unsupportedCmd = Get-Command -Name 'Get-InsiderRiskPolicy' -ErrorAction SilentlyContinue
-if ($null -eq $unsupportedCmd) {
-    $classification = Get-InsiderRiskFailureClassification -Message 'Get-InsiderRiskPolicy cmdlet not present in current module set.' -CommandName 'Get-InsiderRiskPolicy'
-}
-else {
-    $classification = Get-InsiderRiskFailureClassification -Message 'Get-InsiderRiskPolicy command is present but not accepted as a first-party documented automation surface for this assessment.' -CommandName 'Get-InsiderRiskPolicy'
-}
-$insiderRiskEvidence.policyInventory.classification = $classification.Category
-$insiderRiskEvidence.policyInventory.detail = "$($classification.Message) $($classification.Guidance)".Trim()
-$warnings.Add("Section 6 (Insider Risk policy inventory) [$($classification.Category)]: $($classification.Message)")
+$insiderRiskEvidence = New-InsiderRiskEvidence -AuditConfig $auditConfig
+$policyInventory = $insiderRiskEvidence.policyInventory
+$auditDependency = $insiderRiskEvidence.auditDependency
+
+$warnings.Add("Section 6 (Insider Risk policy inventory) [$($policyInventory.classification)]: $($policyInventory.detail)")
 Write-Warning $warnings[-1]
 
-$irmConfigCommand = Get-Command -Name 'Get-IRMConfiguration' -ErrorAction SilentlyContinue
-if ($null -eq $irmConfigCommand) {
-    $tenantClassification = Get-InsiderRiskFailureClassification -Message 'Get-IRMConfiguration cmdlet not present in current module set.' -CommandName 'Get-IRMConfiguration'
-    $insiderRiskEvidence.tenantEnablement.status = 'failed'
-    $insiderRiskEvidence.tenantEnablement.classification = $tenantClassification.Category
-    $insiderRiskEvidence.tenantEnablement.detail = "$($tenantClassification.Message) $($tenantClassification.Guidance)".Trim()
-    $warnings.Add("Section 6 (Insider Risk tenant enablement) [$($tenantClassification.Category)]: $($tenantClassification.Message)")
+if ($auditDependency.classification -eq 'audit_dependency_not_met') {
+    $warnings.Add("Section 6 (Insider Risk audit dependency) [$($auditDependency.classification)]: $($auditDependency.detail)")
     Write-Warning $warnings[-1]
 }
-else {
-    try {
-        $insiderRiskEvidence.tenantEnablement.commandAvailable = $true
-        $irmConfig = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Read Insider Risk tenant configuration' -ScriptBlock {
-            Get-IRMConfiguration -ErrorAction Stop
-        }
-
-        $insiderRiskEvidence.tenantEnablement.status = 'collected'
-        $insiderRiskEvidence.tenantEnablement.unifiedAuditDependencyMet = $true
-        if ($irmConfig.PSObject.Properties.Name -contains 'PseudonymizationEnabled') {
-            $insiderRiskEvidence.tenantEnablement.pseudonymizationEnabled = [bool]$irmConfig.PseudonymizationEnabled
-        }
-
-        $policyConfigCommand = Get-Command -Name 'Get-PolicyConfig' -ErrorAction SilentlyContinue
-        if ($policyConfigCommand) {
-            try {
-                $policyConfig = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Read Purview policy configuration' -ScriptBlock {
-                    Get-PolicyConfig -ErrorAction Stop
-                }
-                if ($policyConfig.PSObject.Properties.Name -contains 'AdaptiveProtectionEnabled') {
-                    $insiderRiskEvidence.tenantEnablement.adaptiveProtectionEnabled = [bool]$policyConfig.AdaptiveProtectionEnabled
-                }
-            }
-            catch {
-                $policyClassification = Get-InsiderRiskFailureClassification -Message $_.Exception.Message -CommandName 'Get-PolicyConfig'
-                $warnings.Add("Section 6 (Insider Risk tenant enablement) [$($policyClassification.Category)]: $($_.Exception.Message)")
-                Write-Warning $warnings[-1]
-            }
-        }
-    }
-    catch {
-        $tenantClassification = Get-InsiderRiskFailureClassification -Message $_.Exception.Message -CommandName 'Get-IRMConfiguration'
-        $insiderRiskEvidence.tenantEnablement.status = 'failed'
-        $insiderRiskEvidence.tenantEnablement.classification = $tenantClassification.Category
-        $insiderRiskEvidence.tenantEnablement.detail = "$($_.Exception.Message) $($tenantClassification.Guidance)".Trim()
-        $warnings.Add("Section 6 (Insider Risk tenant enablement) [$($tenantClassification.Category)]: $($_.Exception.Message)")
-        Write-Warning $warnings[-1]
-    }
+elseif ($auditDependency.classification -eq 'unknown') {
+    $warnings.Add("Section 6 (Insider Risk audit dependency) [unknown]: $($auditDependency.detail)")
+    Write-Warning $warnings[-1]
 }
 
 # ═══════════════════════════════════════════════════════════════════════

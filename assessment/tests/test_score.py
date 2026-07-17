@@ -1339,7 +1339,7 @@ class TestCollectorFailureModes:
     def test_insider_risk_warning_classification_not_mislabeled_as_licensing(
         self, tmp_path: Path, manifest: dict
     ):
-        """Missing Insider Risk cmdlet must surface as command_not_found, not E5/licensing."""
+        """Insider Risk inventory warnings must surface as unsupported, not E5/licensing."""
         collected = self._empty_collected_dir(tmp_path)
         write_json(collected / "purview.json", load_fixture("purview_with_errors.json"))
         for name in ("ppac", "graph", "sharepoint", "sentinel"):
@@ -1348,9 +1348,9 @@ class TestCollectorFailureModes:
         result = self._run(tmp_path, manifest, collected)
         warnings = result["_metadata"]["collector_warnings"]
         assert "purview" in warnings
-        assert any("command_not_found" in w for w in warnings["purview"]), warnings["purview"]
+        assert any("unsupported_surface" in w for w in warnings["purview"]), warnings["purview"]
         assert not any(
-            "command_not_found" in w and "licens" in w.lower() for w in warnings["purview"]
+            "licens" in w.lower() for w in warnings["purview"]
         ), warnings["purview"]
 
     def test_collector_warnings_schema_shape(

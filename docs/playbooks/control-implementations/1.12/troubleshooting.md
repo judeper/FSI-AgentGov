@@ -317,15 +317,14 @@ If the KQL returns **zero rows** while you know IRM admins were active in the wi
 
 *Portal.* Microsoft Purview → **Insider Risk Management** → **Policies** — view the **All policies** tab from an **unrestricted** Insider Risk Management Admin context. If still absent, check **What's new** / **Roadmap** within the Purview portal; check the **Microsoft 365 Roadmap** at `microsoft.com/microsoft-365/roadmap` for the Risky Agents feature ID and rollout phase. Microsoft Purview → **Insider Risk Management** → **Settings** → **Analytics** — confirm analytics is on with ≥ 7-day baseline.
 
-*PowerShell (supported tenant checks only).*
+*PowerShell (supported audit-status checks only).*
 
 ```powershell
-# Confirm IRM is initialized at the tenant
+# Confirm Unified Audit dependency for Insider Risk evidence
 Connect-IPPSSession -ShowBanner:$false
-Get-IRMConfiguration | Select-Object AzureADJoinedEndpointStatus, PseudonymizationEnabled
-Get-PolicyConfig      | Select-Object AdaptiveProtectionEnabled
-# Policy inventory is portal/manual: export the Policies grid from Purview and
-# confirm the Risky AI agent activity template there.
+Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled, AdminAuditLogAgeLimit
+# Policy inventory + Adaptive Protection state are portal/manual evidence:
+# export Purview > Insider Risk > Policies and Settings pages for this cycle.
 ```
 
 *Microsoft Graph (license / region check).*
@@ -927,12 +926,13 @@ OfficeActivity
 
 *Portal.* Microsoft Purview → **Settings** → **Forensic Evidence** → **Settings** → confirm PAYG is **enabled** and storage cap is set. Microsoft Purview → **Settings** → **Device onboarding** → confirm in-scope devices are onboarded. Microsoft Intune → **Apps** → confirm the Microsoft Purview Client deployment profile and coverage report. Microsoft Intune → **Devices** → [test device] → **Discovered apps** → confirm `Microsoft Purview Client` is installed.
 
-*PowerShell.*
+*PowerShell (audit-status evidence only).*
 
 ```powershell
-# Confirm PAYG enrollment for Forensic Evidence
 Connect-IPPSSession -ShowBanner:$false
-Get-IRMConfiguration | Format-List ForensicEvidenceEnabled, PayAsYouGoEnabled, ForensicStorageCapGB
+Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled, AdminAuditLogAgeLimit
+# Capture Forensic Evidence PAYG/storage state from Purview portal:
+# Settings -> Forensic Evidence -> Settings (manual screenshot/export evidence).
 
 # Confirm Purview Client deployment via Intune (Microsoft Graph)
 Connect-MgGraph -Scopes 'DeviceManagementApps.Read.All' -NoWelcome
@@ -1189,11 +1189,17 @@ OfficeActivity
 
 *Portal.* Microsoft Purview → **Insider Risk Management** → **Settings** → **Privacy** → confirm pseudonymization toggle state and last-modified-by/UTC.
 
-*PowerShell.*
+*PowerShell (audit and actor evidence).*
 
 ```powershell
 Connect-IPPSSession -ShowBanner:$false
-Get-IRMConfiguration | Format-List PseudonymizationEnabled, LastConfigChangeUtc, LastConfigChangedBy
+$start = (Get-Date).AddDays(-30).ToUniversalTime()
+$end   = (Get-Date).ToUniversalTime()
+Search-UnifiedAuditLog -StartDate $start -EndDate $end `
+  -Operations 'InsiderRiskMgmtUserUnmasked','TenantSettingChanged' -ResultSize 5000 |
+  Select-Object CreationDate,UserIds,Operations,AuditData
+# Capture current pseudonymization toggle state from Purview portal:
+# Insider Risk Management -> Settings -> Privacy (manual screenshot/export).
 ```
 
 *KQL.*

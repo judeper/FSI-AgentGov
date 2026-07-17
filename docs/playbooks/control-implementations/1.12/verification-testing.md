@@ -123,9 +123,8 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 | PRE-3 | `(Get-MgContext).Environment` returns `Global` (commercial). Tagged in every evidence record. | Purview Compliance Admin | Halt cycle if `Unknown`. |
 | PRE-4 | UTC clock skew vs. `time.windows.com` < 2s (`w32tm /stripchart`). | Workstation owner | Re-sync NTP; rerun. |
 | PRE-5 | Evidence root path resolves to immutable / WORM-backed share with retention label `IRM-EvidenceLock-7y` (or firm equivalent). | Purview Compliance Admin | Halt cycle. |
-| PRE-6 | Pseudonymization is **enabled** in IRM settings (default: on). | Privacy Officer | Halt cycle; record incident under TC-18. |
-| PRE-7 | `UnifiedAuditLogIngestionEnabled = $true` for the tenant. | Exchange Online Admin | Halt cycle (TC-1 cannot pass). |
-| PRE-8 | Run identifier generated and bound to the cycle. | Test runner | Auto-generate. |
+| PRE-6 | `UnifiedAuditLogIngestionEnabled = $true` for the tenant. | Exchange Online Admin | Halt cycle (TC-1 cannot pass). |
+| PRE-7 | Run identifier generated and bound to the cycle. | Test runner | Auto-generate. |
 
 ### §0.4 Cloud context helper
 
@@ -175,7 +174,7 @@ Mutation operations (policy creation, role-group membership change, license assi
 
 #### Setup
 
-- PRE-1 → PRE-8 PASS.
+- PRE-1 → PRE-7 PASS.
 - Operator: Purview Compliance Admin with `View-Only Audit Logs` + `Audit Logs` Exchange roles.
 - Time window: previous 7 UTC days.
 
@@ -358,7 +357,7 @@ $policyExport |
 
 - Risky Agents policy exists, `Enabled = $true`, and scope includes **all** registered Copilot / Copilot Studio / Foundry agents reconciled against [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 - Reconciliation gap (agents in inventory but not in IRM scope) = `0`.
-- Pseudonymization on (re-asserted from PRE-6).
+- Pseudonymization on (verified in TC-18 evidence cycle).
 
 #### Evidence Capture
 
@@ -453,7 +452,7 @@ $conn | Select-Object Name,Status,LastImportTime,RecordsProcessed
 
 - HR connector `Status = Healthy`, drift = 0.
 - Policy `Active`, lookback/look-ahead windows match WSP.
-- Pseudonymization is on (PRE-6 holds).
+- Pseudonymization is on (verified in TC-18 evidence cycle).
 
 #### Evidence Capture
 
@@ -926,7 +925,7 @@ NYDFS 500.17(a) · Reg S-P 2024 · FINRA 3110 · GLBA 501(b).
 
 #### Steps
 
-1. Reconfirm PRE-6 (pseudonymization on).
+1. Reconfirm current pseudonymization state from Purview portal privacy evidence.
 2. Pull 90-day audit of `InsiderRiskMgmtUserUnmasked` operations:
 
 ```powershell
@@ -1355,8 +1354,7 @@ Describe 'Control 1.12 · Verification (read-only)' {
     Context 'PRE gates' {
         It 'PRE-1 PowerShell baseline'   { $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7 }
         It 'PRE-3 Cloud environment known'  { $script:CloudCtx.GraphEnvironment | Should -Not -Be 'Unknown' }
-        It 'PRE-6 Tenant IRM configuration retrievable' { Get-IRMConfiguration | Should -Not -BeNullOrEmpty }
-        It 'PRE-7 UAL ingestion on'     { (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled | Should -BeTrue }
+        It 'PRE-6 UAL ingestion on'     { (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled | Should -BeTrue }
     }
 
     Context 'TC-2 Role SoD' {
@@ -1627,10 +1625,10 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 
 | Failure mode | Detected by | Immediate action | Long-term action |
 |---|---|---|---|
-| UAL ingestion silently disabled | TC-1 (PRE-7 + 7-day operations check) | Re-enable; halt evidence cycle | Add Sentinel detection rule on `UnifiedAuditLogIngestionEnabled = false`; alert CISO |
+| UAL ingestion silently disabled | TC-1 (PRE-6 + 7-day operations check) | Re-enable; halt evidence cycle | Add Sentinel detection rule on `UnifiedAuditLogIngestionEnabled = false`; alert CISO |
 | Catch-all role group repopulated | TC-2 | Empty membership; quarantine in-flight cases | Add Sentinel detection rule on role-group membership changes |
 | Investigator ↔ Approver overlap | TC-2, TC-12 | Halt all FE captures; demote per SoD | Make role-group changes PIM-eligible only; require dual-approver |
-| Pseudonymization disabled | PRE-6, TC-18 | Re-enable; halt evidence cycle | Add Sentinel detection rule on `PseudonymizationEnabled = false` |
+| Pseudonymization disabled | TC-18 | Re-enable; halt evidence cycle | Add Sentinel detection rule on `PseudonymizationEnabled = false` |
 | Risky Agents policy missing or scope-incomplete | TC-4 | Recreate policy; reconcile inventory | Wire Control 3.1 inventory to a scheduled Risky Agents reconciliation job |
 | Risky AI extension coverage gap | TC-5 | Push Intune assignment | Add coverage SLO to operational dashboard |
 | HR connector stale > 24h | TC-6 | Manual sync; investigate field mapping | Add health-monitor alert on connector last-sync age |
