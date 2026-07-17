@@ -212,7 +212,7 @@ Operators must understand how long a portal-side change takes to surface in the 
 |---|---|---|---|
 | New Copilot Studio agent published → Plane 2 visibility | < 15 minutes | 1 hour | Refresh PPAC Resources view |
 | New Copilot Studio agent published → Plane 1 visibility (when published to M365 Copilot) | 1–4 hours | 24 hours | Re-open Copilot Hub Inventory |
-| Agent deletion in PPAC → removal from Plane 2 | Immediate visual; ledger row may persist | 48 hours | Confirm via the legacy Maker Inventory |
+| Agent deletion in PPAC → removal from Plane 2 | ~15 minutes (Power Platform inventory refreshes created, updated, and deleted resources within about 15 minutes) | 1 hour | Confirm via PPAC **Manage > Inventory** (and the legacy Maker Inventory) |
 | Owner change in Entra (UPN updated, manager-of-record updated) → Plane 1 / Plane 2 owner column | 1–24 hours | 48 hours | Re-open agent detail page |
 | License strip / user soft-delete → orphan signal in Plane 1 / Plane 2 | 1–4 hours | 24 hours | PPAC `Owner = System Account` filter |
 | Entra Enterprise apps refresh (new app installed) | Minutes | 1 hour | Refresh app list |

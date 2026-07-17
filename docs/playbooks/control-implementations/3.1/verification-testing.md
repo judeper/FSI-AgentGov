@@ -233,7 +233,7 @@ This playbook does **not invent SLAs**. Where Microsoft documentation is qualita
 | Signal or operation | Documentation-safe statement | Used by |
 |---|---|---|
 | PPAC Inventory refresh | ~15 minutes per Microsoft Learn ([Copilot Hub docs](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)); use this as the lower bound and capture observed lag in PRE-05 | DRIFT-01, COMP-01 |
-| PPAC deleted-agent visibility | Up to 48 hours retained-visibility window per Microsoft Learn; treat as documented behavior, not as an SLA | LIFE-03 |
+| PPAC deleted-agent reflection | Deletions appear on the same automatic refresh cadence rather than a fixed 48-hour window — about **15 minutes** for Power Platform inventory ([Power Platform inventory](https://learn.microsoft.com/power-platform/admin/power-platform-inventory)) and about **20 minutes** for Copilot Studio agent inventory ([admin-agent-inventory](https://learn.microsoft.com/microsoft-copilot-studio/admin-agent-inventory)); treat as documented behavior, not an SLA, and confirm current per-surface behavior against Microsoft Learn | LIFE-03 |
 | M365 admin center Copilot agent inventory propagation | No universal published SLA; use tenant baseline from PRE-04 | COMP-01, DRIFT-01 |
 | Entra Agent ID directory propagation | Eventually consistent per Entra documentation; use tenant baseline | COMP-01, OWN-01 |
 | Purview Audit (UAL) ingestion of agent lifecycle events | Eventual consistency; Microsoft documents up to 24 hours typical latency in Commercial; use tenant baseline | DRIFT-03, LIFE-03, REG-03 |
