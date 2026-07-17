@@ -91,14 +91,24 @@ AUDIT_PREMIUM_EQUIVALENT_SKUS: dict[str, str] = {
 }
 
 # Map api_call values from controls.json → collected-data source key.
+# Keep both current manifest tokens and legacy aliases used by fixtures / older
+# manifests so source resolution is backward compatible.
 API_SOURCE_MAP: dict[str, str] = {
     # Power Platform Admin Center
     "Get-AdminPowerAppEnvironmentRoleAssignment": "ppac",
     "Get-AdminPowerAppEnvironment": "ppac",
+    "Get-AdminPowerAppEnvironmentSetting": "ppac",
+    "Get-AdminFlow": "ppac",
     "Get-AdminPowerAppDlpPolicy": "ppac",
+    "Get-DlpPolicy": "ppac",
     "Get-AdminPowerAppTenantSetting": "ppac",
     "Get-TenantSettings": "ppac",
     "Get-AdminPowerAppConnector": "ppac",
+    "Get-CopilotStudioAgentConfig": "ppac",
+    "Get-CbgAgentCaps": "ppac",
+    "Invoke-EntitlementEvaluation.ps1": "ppac",
+    "Get-FsiMimeConfig": "ppac",
+    "Test-FsiMimeCompliance": "ppac",
     # Microsoft Graph
     "Get-MgGroup": "graph",
     "Get-MgIdentityConditionalAccessPolicy": "graph",
@@ -107,19 +117,34 @@ API_SOURCE_MAP: dict[str, str] = {
     "Get-MgApplication": "graph",
     "Get-MgServicePrincipal": "graph",
     "Get-MgSubscribedSku": "graph",
+    "Get-MgOrganization": "graph",
+    "Get-MgRoleManagementDirectoryRoleAssignment": "graph",
+    "Get-MgIdentityGovernanceLifecycleWorkflow": "graph",
+    "Get-MgEntitlementManagementAccessPackage": "graph",
     # Purview / Compliance Center
     "Get-AdminAuditLogConfig": "purview",
     "Get-RetentionCompliancePolicy": "purview",
     "Get-DlpCompliancePolicy": "purview",
     "Get-Label": "purview",
+    "Get-LabelPolicy": "purview",
+    "Get-InformationBarrierPolicy": "purview",
+    "Get-SupervisoryReviewPolicyV2": "purview",
     "Get-ComplianceCase": "purview",
     # SharePoint
+    "Get-MgSite": "sharepoint",
+    "Get-MgSitePermission": "sharepoint",
+    "Get-MgSiteList": "sharepoint",
+    "Get-MgSiteDriveItem": "sharepoint",
+    "Get-MgSiteDriveItemPermission": "sharepoint",
     "Get-PnPSiteSearchQueryResults": "sharepoint",
     "Get-PnPTenantSite": "sharepoint",
     "Get-PnPSite": "sharepoint",
     "Get-PnPSiteCollectionAdmin": "sharepoint",
     "Get-PnPListItem": "sharepoint",
     # Sentinel
+    "Get-AzOperationalInsightsWorkspace": "sentinel",
+    "Invoke-AzOperationalInsightsQuery": "sentinel",
+    "Get-AzPrivateEndpointConnection": "azure/network",
     "Get-AzSentinelWorkspace": "sentinel",
     "Get-AzSentinelDataConnector": "sentinel",
     "Get-AzSentinelAlertRule": "sentinel",
@@ -131,10 +156,18 @@ COLLECTION_METHOD_SOURCE: dict[str, str | None] = {
     "PPAC_REST": "ppac",
     "Graph_API": "graph",
     "Purview_PowerShell": "purview",
+    "SharePoint_Graph": "sharepoint",
     "SharePoint_PnP": "sharepoint",
+    "Sentinel_KQL": "sentinel",
     "Sentinel": "sentinel",
+    "Azure_API": "azure/network",
     "Manual": None,
 }
+
+# Source keys that are intentionally unresolved to a collected JSON file.
+# These methods are real/automatable surfaces in the manifest but do not yet
+# have a first-party collector in assessment/collectors.
+UNCOLLECTED_SOURCE_KEYS: frozenset[str] = frozenset({"azure/network"})
 
 # Source key → expected filename in the collected directory.
 SOURCE_FILENAMES: dict[str, str] = {
@@ -341,6 +374,23 @@ def _normalize_ppac_data(ppac: dict) -> dict:
     return normalized
 
 
+def _normalize_authentication_strength(value: object) -> object:
+    """Normalize authenticationStrength object casing from Graph collector payloads."""
+    if not isinstance(value, dict):
+        return value
+    return {
+        "id": _first_present(value, "id", "Id"),
+        "displayName": _first_present(value, "displayName", "DisplayName"),
+        "policyType": _first_present(value, "policyType", "PolicyType"),
+        "requirementsSatisfied": _first_present(
+            value, "requirementsSatisfied", "RequirementsSatisfied"
+        ),
+        "allowedCombinations": _first_present(
+            value, "allowedCombinations", "AllowedCombinations"
+        ),
+    }
+
+
 def _normalize_graph_policy(policy: dict) -> dict:
     """Normalize current Graph collector policy fields to evaluator shape."""
     conditions = policy.get("conditions") or {}
@@ -377,6 +427,12 @@ def _normalize_graph_policy(policy: dict) -> dict:
     operator = _first_present(policy, "Operator")
     if operator is None:
         operator = grant_controls.get("operator")
+    authentication_strength = _first_present(policy, "AuthenticationStrength")
+    if authentication_strength is None:
+        authentication_strength = grant_controls.get("authenticationStrength")
+    authentication_strength = _normalize_authentication_strength(
+        authentication_strength
+    )
     sign_in_frequency = _first_present(policy, "SignInFrequency")
     if sign_in_frequency is None:
         sign_in_frequency = session_controls.get("signInFrequency")
@@ -403,6 +459,7 @@ def _normalize_graph_policy(policy: dict) -> dict:
         "grantControls": {
             "builtInControls": built_in_controls or [],
             "operator": operator,
+            "authenticationStrength": authentication_strength,
         },
         "sessionControls": {
             "signInFrequency": sign_in_frequency,
@@ -676,6 +733,62 @@ def _resolve_source_key(
     return None
 
 
+def _is_explicit_manual_check(
+    control_automation: str,
+    condition: str,
+    collection_methods: list[str] | None,
+) -> bool:
+    """True when a check is manual by manifest declaration (not by token drift)."""
+    if control_automation == "manual":
+        return True
+    if not condition:
+        return True
+    methods = [
+        str(m).strip().lower()
+        for m in (collection_methods or [])
+        if isinstance(m, str) and str(m).strip()
+    ]
+    return bool(methods) and set(methods) == {"manual"}
+
+
+def lint_manifest_source_resolution(controls: list[dict]) -> list[str]:
+    """Validate non-manual checks resolve to a source or are explicitly manual/unimplemented.
+
+    Guards against silent source-map drift where automatable checks are
+    misclassified as manual_only because collection method tokens no longer map
+    to a known source key.
+    """
+    issues: list[str] = []
+    for control in controls:
+        control_id = str(control.get("id", "<missing-id>"))
+        control_automation = str(control.get("automation", "full"))
+        control_methods = control.get("collection_methods", [])
+        for check in control.get("checks", []):
+            check_id = str(check.get("check_id", "<missing-check-id>"))
+            condition = str((check.get("pass_condition") or "")).strip()
+            api_call = str((check.get("api_call") or "")).strip()
+            methods = check.get("collection_methods") or control_methods or []
+            state = classify_check_evaluator_state(
+                check, control_automation, control_methods
+            )
+            source_key = _resolve_source_key(api_call, methods)
+
+            if source_key in SOURCE_FILENAMES or source_key in UNCOLLECTED_SOURCE_KEYS:
+                continue
+            if state == "unimplemented_evaluator":
+                continue
+            if state == "manual_only" and _is_explicit_manual_check(
+                control_automation, condition, methods
+            ):
+                continue
+
+            issues.append(
+                f"{control_id}:{check_id} state={state} api_call={api_call or 'n/a'} "
+                f"methods={methods!r} has no resolvable source"
+            )
+    return issues
+
+
 def _source_has_data(collected: dict, source_key: str | None) -> bool:
     return source_key is not None and collected.get(source_key) is not None
 
@@ -903,6 +1016,200 @@ def _eval_ca_policy_targets_copilot_studio(
     return False, "No enabled CA policy targets Copilot Studio app ID"
 
 
+def _ca_policy_targets_copilot_app(policy: dict) -> tuple[bool, str]:
+    """Evaluate whether a normalized CA policy targets Copilot Studio.
+
+    Supports explicit app targeting and ``includeApplications = ["All"]`` while
+    honoring ``excludeApplications``. This function is intentionally strict: it
+    never treats report-only/disabled state as enforcement; callers must gate on
+    state separately.
+    """
+    applications = (
+        policy.get("conditions", {})
+        .get("applications", {})
+    )
+    include = applications.get("includeApplications", [])
+    exclude = applications.get("excludeApplications", [])
+    if not isinstance(include, list) or not isinstance(exclude, list):
+        return False, "application target shape invalid (fail closed)"
+
+    include_set = {
+        str(x).strip().lower()
+        for x in include
+        if isinstance(x, str) and str(x).strip()
+    }
+    exclude_set = {
+        str(x).strip().lower()
+        for x in exclude
+        if isinstance(x, str) and str(x).strip()
+    }
+    app_id = COPILOT_STUDIO_APP_ID.lower()
+
+    if app_id in exclude_set:
+        return False, "Copilot Studio explicitly excluded"
+    if app_id in include_set:
+        return True, "Copilot Studio explicitly included"
+    if "all" in include_set:
+        return True, "All cloud apps included"
+    return False, "Copilot Studio not targeted"
+
+
+def _operator_state(value: object) -> tuple[str | None, bool]:
+    """Return normalized operator and validity flag."""
+    if value is None:
+        return None, True
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized:
+            return normalized, True
+    return None, False
+
+
+def _mfa_requirement_tokens(value: object) -> set[str]:
+    """Extract normalized MFA requirement tokens from a scalar or list value."""
+    tokens: set[str] = set()
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized:
+            tokens.add(normalized)
+        return tokens
+    if isinstance(value, list):
+        for entry in value:
+            if isinstance(entry, str):
+                normalized = entry.strip().lower()
+                if normalized:
+                    tokens.add(normalized)
+    return tokens
+
+
+def _is_mfa_requirement_token(token: str) -> bool:
+    compact = token.replace("_", "").replace("-", "").replace(" ", "")
+    return compact in {
+        "mfa",
+        "multifactorauthentication",
+    }
+
+
+def _policy_has_verified_mfa_authentication_strength(
+    grant_controls: dict,
+) -> tuple[bool, str | None]:
+    auth_strength = grant_controls.get("authenticationStrength")
+    if auth_strength is None:
+        return False, None
+    if not isinstance(auth_strength, dict):
+        return (
+            False,
+            "authenticationStrength missing/invalid (fail closed)",
+        )
+    requirements = _first_present(
+        auth_strength, "requirementsSatisfied", "RequirementsSatisfied"
+    )
+    tokens = _mfa_requirement_tokens(requirements)
+    if not tokens:
+        return (
+            False,
+            "authenticationStrength requirementsSatisfied missing/invalid "
+            "(fail closed)",
+        )
+    if any(_is_mfa_requirement_token(token) for token in tokens):
+        return (
+            True,
+            "uses authenticationStrength with MFA requirement",
+        )
+    return (
+        False,
+        "authenticationStrength does not verify MFA requirement (fail closed)",
+    )
+
+
+def _policy_requires_mfa_enforcement(policy: dict) -> tuple[bool, str]:
+    """Fail-closed CA MFA requirement evaluation for one normalized policy."""
+    grant_controls = policy.get("grantControls", {})
+    if not isinstance(grant_controls, dict):
+        return False, "grantControls missing/invalid (fail closed)"
+
+    controls = grant_controls.get("builtInControls", [])
+    if not isinstance(controls, list):
+        return False, "builtInControls missing/invalid (fail closed)"
+
+    normalized_controls: list[str] = []
+    for control in controls:
+        if not isinstance(control, str):
+            return False, "builtInControls contains non-string values (fail closed)"
+        normalized = control.strip().lower()
+        if normalized:
+            normalized_controls.append(normalized)
+
+    has_built_in_mfa = "mfa" in normalized_controls
+    non_mfa_controls = [control for control in normalized_controls if control != "mfa"]
+
+    operator, operator_valid = _operator_state(grant_controls.get("operator"))
+    auth_strength_pass, auth_strength_reason = (
+        _policy_has_verified_mfa_authentication_strength(grant_controls)
+    )
+    auth_strength_present = auth_strength_reason is not None
+
+    if not operator_valid and (
+        (has_built_in_mfa and len(normalized_controls) > 1)
+        or (auth_strength_present and len(non_mfa_controls) > 0)
+    ):
+        return False, "operator missing/invalid (fail closed)"
+
+    if normalized_controls == ["mfa"]:
+        return True, "uses MFA as sole builtInControl"
+
+    if has_built_in_mfa:
+        if len(normalized_controls) > 1:
+            if operator == "and":
+                return True, "uses operator='AND' with MFA in builtInControls"
+            if operator == "or":
+                return False, "operator='OR' allows non-MFA alternatives (fail closed)"
+            if operator is None:
+                return (
+                    False,
+                    "operator missing for multi-control builtInControls "
+                    "(fail closed)",
+                )
+            return (
+                False,
+                f"operator '{operator}' unsupported for MFA verification "
+                "(fail closed)",
+            )
+        return True, "includes MFA in builtInControls"
+
+    if auth_strength_present and len(non_mfa_controls) > 0:
+        if operator == "and":
+            if auth_strength_pass:
+                return (
+                    True,
+                    "uses operator='AND' with authenticationStrength MFA requirement",
+                )
+            return (
+                False,
+                auth_strength_reason
+                or "authenticationStrength does not verify MFA requirement (fail closed)",
+            )
+        if operator == "or":
+            return False, "operator='OR' allows non-MFA alternatives (fail closed)"
+        if operator is None:
+            return (
+                False,
+                "operator missing for authenticationStrength with non-MFA "
+                "builtInControls (fail closed)",
+            )
+        return (
+            False,
+            f"operator '{operator}' unsupported for authenticationStrength "
+            "(fail closed)",
+        )
+
+    if auth_strength_reason:
+        if auth_strength_pass:
+            return True, auth_strength_reason or "authenticationStrength requires MFA"
+        return False, auth_strength_reason
+    return False, "No MFA requirement found in builtInControls or authenticationStrength"
+
+
 def _eval_ca_policy_requires_mfa(
     collected: dict, _source_key: str | None
 ) -> tuple[bool | None, str]:
@@ -912,20 +1219,49 @@ def _eval_ca_policy_requires_mfa(
     policies = graph.get("conditional_access_policies")
     if policies is None:
         return None, "conditional_access_policies not collected"
+    if not isinstance(policies, list):
+        return False, "conditional_access_policies malformed (fail closed)"
+    targeted_enabled = 0
+    targeting_diagnostics: list[str] = []
     for policy in policies:
-        if policy.get("state") != "enabled":
+        if not isinstance(policy, dict):
+            targeting_diagnostics.append(
+                "non-dict conditional access policy entry (fail closed)"
+            )
             continue
-        apps = (
-            policy.get("conditions", {})
-            .get("applications", {})
-            .get("includeApplications", [])
+        state = (policy.get("state") or "").strip().lower()
+        if state != "enabled":
+            continue
+        targets_copilot, reason = _ca_policy_targets_copilot_app(policy)
+        if not targets_copilot:
+            if "excluded" in reason.lower() or "fail closed" in reason.lower():
+                name = policy.get("displayName", "unnamed")
+                targeting_diagnostics.append(f"{name}: {reason}")
+            continue
+        targeted_enabled += 1
+        name = policy.get("displayName", "unnamed")
+        requires_mfa, reason = _policy_requires_mfa_enforcement(policy)
+        if requires_mfa:
+            return (
+                True,
+                f"CA policy '{name}' targets Copilot Studio and {reason}",
+            )
+        targeting_diagnostics.append(f"{name}: {reason}")
+    if targeted_enabled == 0:
+        if targeting_diagnostics:
+            return (
+                False,
+                "No enabled CA policy targeting Copilot Studio requires MFA; "
+                + "; ".join(targeting_diagnostics),
+            )
+        return False, "No enabled CA policy targets Copilot Studio app ID"
+    if targeting_diagnostics:
+        return (
+            False,
+            "Enabled CA policy targets Copilot Studio but MFA cannot be "
+            "verified (fail closed): " + "; ".join(targeting_diagnostics),
         )
-        if COPILOT_STUDIO_APP_ID not in apps:
-            continue
-        controls = policy.get("grantControls", {}).get("builtInControls", [])
-        if "mfa" in controls:
-            return True, "CA policy includes 'mfa' in builtInControls"
-    return False, "No CA policy targeting Copilot Studio requires MFA"
+    return False, "Enabled CA policies target Copilot Studio but none require MFA"
 
 
 def _eval_prod_env_has_security_group(
@@ -1266,13 +1602,19 @@ def compute_maturity(
     threshold = zone_thresholds.get(zone_key, {})
     min_required: int = threshold.get("min_checks_passed", 0)
     target_maturity: int = threshold.get("maturity_score", 0)
+    has_supported_attestation = threshold.get("supported_attestation") is True
 
-    if min_required > 0 and checks_passed >= min_required:
-        score = target_maturity
-    elif min_required == 0:
-        # Threshold of zero means no checks needed — award the maturity.
+    if min_required > 0:
+        score = target_maturity if checks_passed >= min_required else 0
+    elif target_maturity == 0:
+        # Legitimate manual controls intentionally pin maturity to 0.
+        score = 0
+    elif has_supported_attestation:
+        # Explicitly allow an attested zero-threshold maturity target.
         score = target_maturity
     else:
+        # Safety fail-closed: min_checks_passed=0 must never auto-award nonzero
+        # maturity unless the manifest explicitly sets supported_attestation=true.
         score = 0
 
     label = MATURITY_LABELS.get(score, "Unknown")
@@ -1560,6 +1902,17 @@ def run(
     log.info("Loading manifest from %s", manifest_p)
     manifest = load_json(manifest_p)
     controls: list[dict] = normalize_manifest_controls(manifest)
+    lint_issues = lint_manifest_source_resolution(controls)
+    if lint_issues:
+        preview = "\n".join(f"  - {issue}" for issue in lint_issues[:20])
+        remaining = len(lint_issues) - 20
+        if remaining > 0:
+            preview += f"\n  - ... {remaining} additional issue(s)"
+        raise ValueError(
+            "Manifest source-resolution lint failed. Every non-manual check "
+            "must resolve to a source or be explicitly manual/unimplemented:\n"
+            f"{preview}"
+        )
     manifest_version = (
         manifest.get("version", "unknown")
         if isinstance(manifest, dict)

@@ -10,6 +10,7 @@ These tests guard the v1.4 manifest contract:
 from __future__ import annotations
 
 import copy
+import importlib.util
 import json
 import subprocess
 import sys
@@ -21,6 +22,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 VALIDATOR = REPO_ROOT / "scripts" / "validate_manifest.py"
+SCORE_ENGINE = REPO_ROOT / "assessment" / "engine" / "score.py"
 
 
 def _run(args: list[str]) -> subprocess.CompletedProcess:
@@ -30,6 +32,14 @@ def _run(args: list[str]) -> subprocess.CompletedProcess:
         text=True,
         check=False,
     )
+
+
+def _load_score_module():
+    spec = importlib.util.spec_from_file_location("score", SCORE_ENGINE)
+    assert spec and spec.loader, "Failed to load assessment engine module"
+    score = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(score)
+    return score
 
 
 def test_manifest_validates_in_allow_todo_mode():
@@ -148,6 +158,59 @@ def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():
         "Unsupported Insider Risk automation surface must not appear in manifest checks: "
         + ", ".join(offenders)
     )
+
+
+def test_manifest_non_manual_checks_resolve_to_source_or_explicit_state():
+    """Manifest-wide lint: no silent source-map drift on non-manual checks."""
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    issues = score.lint_manifest_source_resolution(controls)
+    assert issues == [], (
+        "Non-manual checks must resolve to a source or be explicitly "
+        f"manual/unimplemented. Found: {issues}"
+    )
+
+
+def test_source_resolution_lint_flags_non_manual_unknown_method_token():
+    """Adversarial guard: unknown automatable method token must fail lint."""
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    mutated = copy.deepcopy(controls)
+    target = next(c for c in mutated if c["id"] == "4.4")
+    target["collection_methods"] = ["SharePoint_Graph_BROKEN"]
+    for check in target.get("checks", []):
+        check["api_call"] = f"{check.get('api_call')}_BROKEN"
+
+    issues = score.lint_manifest_source_resolution([target])
+    assert issues, "Expected source-resolution lint to catch broken method token"
+    assert any("4.4:4.4.a" in issue for issue in issues), issues
+
+
+def test_source_resolution_separates_azure_network_from_sentinel():
+    """Azure network checks must not borrow Sentinel source availability."""
+    score = _load_score_module()
+
+    assert score._resolve_source_key(  # noqa: SLF001
+        "Get-AzOperationalInsightsWorkspace", ["Sentinel"]
+    ) == "sentinel"
+    assert score._resolve_source_key(  # noqa: SLF001
+        "Get-AzPrivateEndpointConnection", ["Azure_API"]
+    ) == "azure/network"
+    assert "azure/network" in score.UNCOLLECTED_SOURCE_KEYS
+    assert "azure/network" not in score.SOURCE_FILENAMES
+
+
+def test_manifest_control_1_20_resolves_to_uncollected_azure_network_source():
+    """Control 1.20 source mapping should stay truthful until collector exists."""
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    control = next(c for c in controls if c["id"] == "1.20")
+    for check in control.get("checks", []):
+        source = score._resolve_source_key(  # noqa: SLF001
+            str(check.get("api_call", "")),
+            check.get("collection_methods") or control.get("collection_methods"),
+        )
+        assert source == "azure/network"
 
 
 # ---------------------------------------------------------------------------
