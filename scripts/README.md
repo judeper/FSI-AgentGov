@@ -14,6 +14,7 @@ scripts/
 │   ├── verify_controls.py              # Validate control structure and footers
 │   ├── verify_templates.py             # Validate template formats
 │   ├── verify_excel_templates.py       # Verify Excel template content and counts
+│   ├── verify_playbook_powershell_helpers.py # Validate runnable playbook helper calls
 │   ├── validate_docs_anchors.py        # Check internal links
 │   └── audit_control_metadata.py       # Audit control file metadata
 │
@@ -88,7 +89,8 @@ python scripts/validate_before_push.py
 This script runs:
 1. `mkdocs build --strict` - Validates internal links and markdown syntax
 2. `verify_controls.py` - Validates control file structure and footers
-3. `markdown-link-check` - Validates external URLs (requires: `npm install -g markdown-link-check`)
+3. `verify_playbook_powershell_helpers.py` - Validates helper call integrity in runnable playbook PowerShell artifacts
+4. `markdown-link-check` - Validates external URLs (requires: `npm install -g markdown-link-check`)
 
 Run this before every push to catch issues before CI fails.
 
@@ -219,13 +221,14 @@ All scripts should follow these standards:
 
 ## Script Inventory
 
-### Validation Scripts (6 scripts)
+### Validation Scripts (7 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
 | `validate_before_push.py` | Pre-push validation suite | Mar 2026 |
 | `verify_controls.py` | Control structure validation | Mar 2026 |
 | `verify_templates.py` | Template format validation | Mar 2026 |
 | `verify_excel_templates.py` | Excel template verification | Mar 2026 |
+| `verify_playbook_powershell_helpers.py` | Runnable playbook PowerShell helper integrity validation | Jul 2026 |
 | `validate_docs_anchors.py` | Internal link checking | Mar 2026 |
 | `audit_control_metadata.py` | Control metadata audit | Mar 2026 |
 

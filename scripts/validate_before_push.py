@@ -134,6 +134,13 @@ def main():
         cwd=repo_root
     ))
 
+    # 3b. Runnable PowerShell playbook helper integrity
+    checks.append(run_command(
+        [sys.executable, "scripts/verify_playbook_powershell_helpers.py"],
+        "Playbook PowerShell helper integrity validation",
+        cwd=repo_root
+    ))
+
     # 4. Assessment data extraction + URL validation
     checks.append(run_command(
         [sys.executable, "scripts/extract_assessment_data.py"],

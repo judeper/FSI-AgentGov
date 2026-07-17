@@ -716,15 +716,34 @@ All helpers return `[pscustomobject]` shapes that flow into the canonical eviden
 # Save as: scripts/Invoke-Agt112Sweep.ps1
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)] [string]$EvidencePath,
+    [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$EvidencePath,
+    [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$PolicyExportPath,
+    [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$AlertExportPath,
     [string]$WorkspaceId
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+
+$resolvedEvidencePath    = [System.IO.Path]::GetFullPath($EvidencePath)
+$resolvedPolicyExport    = [System.IO.Path]::GetFullPath($PolicyExportPath)
+$resolvedAlertExport     = [System.IO.Path]::GetFullPath($AlertExportPath)
+$policyExportParentPath  = Split-Path -Path $resolvedPolicyExport -Parent
+$alertExportParentPath   = Split-Path -Path $resolvedAlertExport -Parent
+
+if (-not [string]::IsNullOrWhiteSpace($policyExportParentPath) -and
+    -not (Test-Path -LiteralPath $policyExportParentPath -PathType Container)) {
+    throw "PolicyExportPath parent directory not found: $policyExportParentPath"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($alertExportParentPath) -and
+    -not (Test-Path -LiteralPath $alertExportParentPath -PathType Container)) {
+    throw "AlertExportPath parent directory not found: $alertExportParentPath"
+}
+
+New-Item -ItemType Directory -Force -Path $resolvedEvidencePath | Out-Null
 
 $results = [ordered]@{
-    PolicyInventory      = Get-FsiIrmPolicyInventory
+    PolicyInventory      = Get-FsiIrmPolicyEvidenceStatus -PolicyExportPath $resolvedPolicyExport -AlertExportPath $resolvedAlertExport
     AdaptiveProtection   = Get-FsiAdaptiveProtectionStatus
     HrConnector          = Get-FsiIrmHrConnectorState
     SignalCoverage       = Get-FsiIrmSignalCoverage
@@ -736,7 +755,7 @@ $results = [ordered]@{
 # Emit each artifact with SHA-256 manifest per BL-§4
 foreach ($k in $results.Keys) {
     if ($null -ne $results[$k]) {
-        Write-FsiEvidence -Object $results[$k] -Name "agt112-$k" -EvidencePath $EvidencePath
+        Write-FsiEvidence -Object $results[$k] -Name "agt112-$k" -EvidencePath $resolvedEvidencePath
     }
 }
 
@@ -750,7 +769,7 @@ $aggregate = [pscustomobject]@{
     Cloud         = $script:FsiCloud
     GeneratedUtc  = (Get-Date).ToUniversalTime().ToString('o')
 }
-Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $EvidencePath
+Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $resolvedEvidencePath
 ```
 
 **Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§4 and SEC 17a-4(f).
