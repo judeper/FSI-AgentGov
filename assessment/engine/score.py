@@ -834,17 +834,31 @@ def _eval_audit_plan_tier_adequate(
         )
 
     if qualified:
+        qualified_text = ", ".join(sorted(set(qualified)))
+        disqualified_text = (
+            " Additional relevant SKU records were ambiguous: "
+            + "; ".join(disqualified_reasons)
+            if disqualified_reasons
+            else ""
+        )
         return (
-            True,
-            "Audit plan tier evidence found via subscribed_skus: "
-            + ", ".join(sorted(set(qualified))),
+            None,
+            "Tenant-level subscribed_skus includes E5-equivalent SKU evidence ("
+            + qualified_text
+            + "), but Control 1.7.b requires per-Copilot-user entitlement "
+            "coverage. Current telemetry does not prove that the Copilot user "
+            "population is fully assigned qualifying licenses. Manual per-user "
+            "verification required: provide assigned-license export for "
+            "qualifying SKU(s) and reconcile it against the Copilot user "
+            "population before scoring pass."
+            + disqualified_text,
         )
 
     if seen_relevant:
         return (
             False,
             "Relevant E5-equivalent subscribed SKUs were found but evidence was "
-            "ambiguous/insufficient: "
+            "ambiguous/insufficient (fail closed): "
             + "; ".join(disqualified_reasons),
         )
 

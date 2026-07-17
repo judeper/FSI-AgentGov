@@ -402,7 +402,7 @@ class TestShareWithEveryoneEvaluator:
 
 
 class TestAuditPlanTierEvaluator:
-    """Control 1.7.b should evaluate E5-equivalent SKU evidence conservatively."""
+    """Control 1.7.b must fail closed unless per-user entitlement is proven."""
 
     @staticmethod
     def _audit_control_manifest() -> dict:
@@ -442,7 +442,9 @@ class TestAuditPlanTierEvaluator:
             ]
         )
 
-    def test_audit_plan_tier_passes_with_e5_equivalent_sku(self, tmp_path: Path):
+    def test_audit_plan_tier_requires_manual_verification_with_e5_sku(
+        self, tmp_path: Path
+    ):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         collected = tmp_path / "collected"
@@ -470,9 +472,78 @@ class TestAuditPlanTierEvaluator:
         result = json.loads(output_path.read_text(encoding="utf-8"))
         ctrl = next(c for c in result["controls"] if c["id"] == "1.7")
 
-        assert ctrl["evidence"]["1.7.b"]["result"] == "pass"
+        assert ctrl["evidence"]["1.7.b"]["result"] == "unknown"
         assert "SPE_E5" in ctrl["evidence"]["1.7.b"]["value"]
-        assert ctrl["maturity_score"] == 2
+        assert "Manual per-user verification required" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["maturity_score"] == 0
+        assert ctrl["confidence"] == "medium"
+
+    @pytest.mark.parametrize("zone", [2, 3])
+    def test_audit_plan_tier_one_e5_many_e3_copilot_still_unknown(
+        self, tmp_path: Path, zone: int
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / f"collected-zone{zone}"
+        collected.mkdir()
+        write_json(collected / "ppac.json", load_fixture("ppac.json"))
+        write_json(collected / "purview.json", load_fixture("purview.json"))
+        write_json(collected / "sharepoint.json", load_fixture("sharepoint.json"))
+        write_json(collected / "sentinel.json", load_fixture("sentinel.json"))
+
+        graph_data = load_fixture("graph.json")
+        graph_data["subscribedSkus"] = [
+            {
+                "SkuId": "06ebc4ee-1bb5-47dd-8120-11324bc54e06",
+                "SkuPartNumber": "SPE_E5",
+                "CapabilityStatus": "Enabled",
+                "ConsumedUnits": 1,
+                "PrepaidUnits": {"Enabled": 1, "Suspended": 0, "Warning": 0},
+            },
+            {
+                "SkuId": "6fd2c87f-b296-42f0-b197-1e91e994b900",
+                "SkuPartNumber": "ENTERPRISEPACK",
+                "CapabilityStatus": "Enabled",
+                "ConsumedUnits": 800,
+                "PrepaidUnits": {"Enabled": 1200, "Suspended": 0, "Warning": 0},
+            },
+            {
+                "SkuId": "a403ebcc-fae0-4ca2-8c8c-7a907fd6c235",
+                "SkuPartNumber": "MICROSOFT_COPILOT_STUDIO_VIRAL",
+                "CapabilityStatus": "Enabled",
+                "ConsumedUnits": 600,
+                "PrepaidUnits": {"Enabled": 1000, "Suspended": 0, "Warning": 0},
+            },
+            {
+                "SkuId": "c7df2760-2c81-4ef7-b578-5b5392b571df",
+                "SkuPartNumber": "MCOMEETADV",
+                "CapabilityStatus": "Enabled",
+                "ConsumedUnits": 250,
+                "PrepaidUnits": {"Enabled": 500, "Suspended": 0, "Warning": 0},
+            },
+        ]
+        write_json(collected / "graph.json", graph_data)
+
+        manifest_path = tmp_path / f"controls-1.7-zone{zone}.json"
+        output_path = tmp_path / f"scores-zone{zone}.json"
+        write_json(manifest_path, self._audit_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=zone,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.7")
+
+        assert ctrl["evidence"]["1.7.b"]["result"] == "unknown"
+        assert "SPE_E5" in ctrl["evidence"]["1.7.b"]["value"]
+        assert "Manual per-user verification required" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == 0
+        assert ctrl["confidence"] == "medium"
 
     def test_audit_plan_tier_fails_closed_when_sku_evidence_missing(
         self, tmp_path: Path
@@ -506,6 +577,8 @@ class TestAuditPlanTierEvaluator:
 
         assert ctrl["evidence"]["1.7.b"]["result"] == "fail"
         assert "not collected" in ctrl["evidence"]["1.7.b"]["value"]
+        assert "fail closed" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["confidence"] == "high"
         assert ctrl["maturity_score"] == 0
 
     def test_audit_plan_tier_fails_closed_when_sku_evidence_ambiguous(
@@ -548,6 +621,8 @@ class TestAuditPlanTierEvaluator:
 
         assert ctrl["evidence"]["1.7.b"]["result"] == "fail"
         assert "ambiguous/insufficient" in ctrl["evidence"]["1.7.b"]["value"]
+        assert "fail closed" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["confidence"] == "high"
         assert ctrl["maturity_score"] == 0
 
 
