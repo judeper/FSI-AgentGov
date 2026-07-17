@@ -289,6 +289,7 @@ def test_process_redirect_malformed_new_url_escalates(monkeypatch: pytest.Monkey
         "https://amicrosoft.com/x",                     # no dot boundary before microsoft.com
         "http://127.0.0.1/x",                           # raw IP literal
         "https:///x",                                   # empty/malformed host
+        "https://[::1/x",                               # malformed bracketed IPv6 (urlparse ValueError)
     ],
 )
 def test_process_redirect_off_domain_target_escalates(bad_new_url: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -344,6 +345,7 @@ def test_redirect_host_allowed_rule() -> None:
     assert not runner._redirect_host_allowed("https://learn.microsoft.com@evil.example/x")
     assert not runner._redirect_host_allowed("https://amicrosoft.com/x")
     assert not runner._redirect_host_allowed("https:///x")
+    assert not runner._redirect_host_allowed("https://[::1/x")
 
 
 def test_process_change_dispatches_redirect(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

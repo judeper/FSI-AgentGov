@@ -84,7 +84,7 @@ Install-Module -Name Microsoft.Graph -RequiredVersion '<approved-version>' `
     -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
 
-> CC policy creation and edit are **not supported via PowerShell** per Microsoft Learn (`communication-compliance-policies`) — only the Microsoft Purview portal can create and manage policies. PowerShell is **read** for inventory + activity, plus Exchange Online cmdlets `Get-SupervisoryReviewPolicyV2`, `Get-SupervisoryReviewRule`, and `Get-SupervisoryReviewActivity` for verification and evidence emit.
+> CC policy creation and edit are **not supported via PowerShell** per Microsoft Learn (`communication-compliance-policies`) — only the Microsoft Purview portal can create and manage policies. PowerShell is **read** for inventory + activity, plus the Security & Compliance PowerShell (IPPS) cmdlets `Get-SupervisoryReviewPolicyV2`, `Get-SupervisoryReviewRule`, and `Get-SupervisoryReviewActivity` for verification and evidence emit.
 
 ### 2.4 Roles and connections
 
@@ -94,9 +94,9 @@ Install-Module -Name Microsoft.Graph -RequiredVersion '<approved-version>' `
 | Communication Compliance Investigators | Open `Pending` queue, apply tags, escalate to eDiscovery | `Get-RoleGroupMember 'Communication Compliance Investigators'` |
 | Communication Compliance Analysts | Triage `Pending`, apply tags, notify user | `Get-RoleGroupMember 'Communication Compliance Analysts'` |
 | Reviewer mailbox | Receive notifications and act on items | Reviewer must have an Exchange Online mailbox (per Learn `communication-compliance-policies`) — verify via `Get-EXOMailbox -Identity <reviewer>` returns a result |
-| Exchange Online connection | Run `Get-Supervisory*` cmdlets | `(Get-ConnectionInformation).ConnectionUri` resolves to `outlook.office365.com` |
+| Security & Compliance (IPPS) connection | Run `Get-Supervisory*` cmdlets | `(Get-ConnectionInformation).ConnectionUri` resolves to `*.ps.compliance.protection.outlook.com` (from `Connect-IPPSSession`) |
 
-> **Wrong-shell trap.** `Get-SupervisoryReviewPolicyV2`, `Get-SupervisoryReviewRule`, and `Get-SupervisoryReviewActivity` live in **Exchange Online PowerShell** (`Connect-ExchangeOnline`). They are **not** in Security & Compliance PowerShell (`Connect-IPPSSession`). The wrong shell returns `CommandNotFoundException` or — worse, in some module versions — empty results without an error. Always verify the connection URI before each test.
+> **Wrong-shell trap.** `Get-SupervisoryReviewPolicyV2`, `Get-SupervisoryReviewRule`, and `Get-SupervisoryReviewActivity` live in **Security & Compliance PowerShell** (`Connect-IPPSSession`). They are **not** in Exchange Online PowerShell (`Connect-ExchangeOnline`). The wrong shell returns `CommandNotFoundException` or — worse, in some module versions — empty results without an error. Always verify the connection URI before each test.
 
 ### 2.5 Test users and test policies
 
@@ -528,7 +528,7 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 
 1. Record `T0` UTC.
 2. From the inventory CSV, confirm every active policy carries an explicit `PolicyMatchPreservation` value: `1 month`, `6 months`, `1 year`, or `7 years`.
-3. In the tester log, document for each policy the rationale for the chosen preservation period and confirm that the firm's Records Information Management (RIM) policy is **independent** of PMP (i.e., supervised messages are retained on WORM-eligible storage via Control 1.12).
+3. In the tester log, document for each policy the rationale for the chosen preservation period and confirm that the firm's Records Information Management (RIM) policy is **independent** of PMP (i.e., supervised messages are retained on WORM-eligible storage via Control 1.9).
 4. Capture portal screenshot of **Settings → Policy Match Preservation** showing the global default and any per-policy override (UTC clock visible).
 
 **Expected result.** Every active policy has an explicit per-policy PMP value or has consciously inherited the global setting (documented). RIM policy reference in the tester log.
@@ -751,7 +751,7 @@ and SHA-256 sidecars match the manifest at archival time.
 Caveats and scope limits:
   • Microsoft Purview Communication Compliance's Policy Match Preservation
     setting is NOT relied on as records retention under SEC 17a-4 — true
-    records retention is verified under Control 1.12.
+    records retention is verified under Control 1.9.
   • Inconclusive sub-cases (matches not observed before the documented
     processing window expired) have been re-run; "inconclusive" was not
     treated as "pass."
@@ -765,7 +765,7 @@ compliance with:
     communications and AI-assisted communications)
   • FINRA Rule 4511 (record preservation for supervised messages and policy
     state)
-  • SEC Rule 17a-4 (records retention — paired with Control 1.12)
+  • SEC Rule 17a-4 (records retention — paired with Control 1.9)
   • SEC Reg S-P / Reg S-ID (where customer information is detected)
   • GLBA 501(b) (safeguards for customer information)
   • OCC 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)
@@ -796,7 +796,7 @@ Date (UTC):                   _______________________________________
 9. **Missing PAYG enablement for non-M365 AI tests.** The Copilot interactions template's **Enterprise AI apps** and **Other AI apps** scopes are gated by the Microsoft 365 Copilot pay-as-you-go meter on a connected Azure subscription (preview status). Enabling these scopes without PAYG produces an enabled-but-silent policy for those locations. 1.10-LIC-01 and 1.10-COP-01 require the PAYG attestation file.
 10. **Running tests within the Teams 48-hour processing window and concluding "no match."** The documented Teams chat ceiling is 48 hours from message-send to `Pending` arrival. A test that waits 6 hours and concludes "no match = fail" is wrong — the result is **inconclusive**. §3 mandates per-source documented windows; §4 marks any sub-case that completed inside the window as inconclusive and requires re-run.
 11. **Using PowerShell to "create" or "modify" a CC policy.** Per Microsoft Learn `communication-compliance-policies`: *"PowerShell isn't supported for creating and managing Communication Compliance policies."* Read-only cmdlets (`Get-SupervisoryReviewPolicyV2`, `Get-SupervisoryReviewRule`, `Get-SupervisoryReviewActivity`) are supported and used throughout this catalog; mutations must be performed in the Microsoft Purview portal and tracked via `SupervisionPolicyUpdated` audit rows.
-12. **Wrong shell — Security & Compliance vs. Exchange Online.** `Get-Supervisory*` cmdlets live in **Exchange Online PowerShell**, not Security & Compliance PowerShell. The wrong shell returns `CommandNotFoundException` or empty results without an error in some module versions. Pre-flight §2.4 checks the connection URI before each test.
+12. **Wrong shell — Security & Compliance vs. Exchange Online.** `Get-Supervisory*` cmdlets live in **Security & Compliance PowerShell** (IPPS, `Connect-IPPSSession`), not Exchange Online PowerShell. The wrong shell returns `CommandNotFoundException` or empty results without an error in some module versions. Pre-flight §2.4 checks the connection URI before each test.
 13. **Treating "Customer Complaints" as a top-level template.** Customer complaints is a **classifier inside the Regulatory compliance template**, not one of the seven templates. Policies authored as if "Customer complaints" were a template are working from outdated guidance — 1.10-POL-01 enforces the seven-template list (`Conflict of Interest`, `Copilot interactions`, `Inappropriate content`, `Inappropriate images`, `Inappropriate text`, `Regulatory compliance`, `Sensitive information`).
 
 ---
@@ -804,12 +804,11 @@ Date (UTC):                   _______________________________________
 ## 8. Cross-links
 
 - [Control 1.5 — DLP and Sensitivity Labels](../1.5/verification-testing.md) — DLP signals and sensitivity-label state; required for SIT-driven CC matches and label-based scoping.
-- [Control 1.7 — Purview Audit Configuration](../1.7/verification-testing.md) — Unified audit ingestion, retention horizons; required for 1.10-AUD-01 to produce evidence.
+- [Control 1.7 — Comprehensive Audit Logging and Compliance](../1.7/verification-testing.md) — Unified audit ingestion, retention horizons, and the `CopilotInteraction` RecordType (distinct from CC operations; paired evidence for AI surfaces); required for 1.10-AUD-01 to produce evidence.
 - [Control 1.9 — Data Retention and Deletion Policies](../1.9/verification-testing.md) — True records retention path; CC's Policy Match Preservation is **not** a substitute.
 - [Control 1.12 — Insider Risk Detection and Response](../1.12/verification-testing.md) — Companion insider risk signal; CC matches can feed IRM indicators and vice versa.
-- [Control 1.13 — eDiscovery (Premium)](../1.13/verification-testing.md) — Escalation target for 1.10-EDC-01.
-- [Control 1.19 — Copilot Auditing](../1.19/verification-testing.md) — `CopilotInteraction` RecordType (distinct from CC operations); paired evidence for AI surfaces.
-- [Control 2.12 — Agent Lifecycle Governance](../2.12/verification-testing.md) — Supervisory population definition source (registered reps roster, role-based scoping inputs).
+- [Control 1.19 — eDiscovery for Agent Interactions](../1.19/verification-testing.md) — Escalation target for 1.10-EDC-01.
+- [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../2.12/verification-testing.md) — Supervisory population definition source (registered reps roster, role-based scoping inputs).
 - [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) — Mutation safety, evidence emit, and module pinning conventions.
 - [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Troubleshooting](troubleshooting.md).
 

@@ -151,6 +151,7 @@ def test_rejects_cell_count_mismatch() -> None:
         "https://learn.microsoft.com@evil.example/x",   # embedded-credentials host trick (host is evil.example)
         "https://amicrosoft.com/x",                     # no dot boundary before microsoft.com
         "http://127.0.0.1/x",                           # raw IP literal
+        "https://[::1/x",                               # malformed bracketed IPv6 (urlparse ValueError)
     ],
 )
 def test_rejects_off_domain_new_url(bad_new_url: str) -> None:
@@ -184,6 +185,7 @@ def test_host_allowed_rule() -> None:
     assert not v._host_allowed("https://learn.microsoft.com@evil.example/x")
     assert not v._host_allowed("https://amicrosoft.com/x")
     assert not v._host_allowed("https:///x")
+    assert not v._host_allowed("https://[::1/x")
 
 
 def test_main_clean(tmp_path, capsys) -> None:
