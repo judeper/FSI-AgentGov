@@ -818,12 +818,58 @@ class TestConditionalAccessMfaEvaluator:
         assert "operator='OR'" in evidence
         assert "fail closed" in evidence.lower()
 
-    def test_ca_mfa_accepts_verified_authentication_strength_requirement(self):
+    def test_ca_mfa_accepts_authentication_strength_when_it_is_sole_requirement(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         policies = [
             self._policy(
-                name="All apps auth strength MFA",
+                name="All apps auth strength MFA only",
+                state="enabled",
+                include_apps=["All"],
+                controls=[],
+                authentication_strength={"requirementsSatisfied": "mfa"},
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is True
+        assert "authenticationStrength" in evidence
+
+    def test_ca_mfa_accepts_authentication_strength_with_non_mfa_controls_only_when_operator_is_and(
+        self,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="All apps auth strength MFA and compliant device",
+                state="enabled",
+                include_apps=["All"],
+                controls=["compliantDevice"],
+                operator="AND",
+                authentication_strength={"requirementsSatisfied": "mfa"},
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is True
+        assert "operator='AND'" in evidence
+        assert "authenticationStrength" in evidence
+
+    def test_ca_mfa_fails_closed_when_authentication_strength_coexists_with_non_mfa_and_operator_is_or(
+        self,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="All apps auth strength MFA or compliant device",
                 state="enabled",
                 include_apps=["All"],
                 controls=["compliantDevice"],
@@ -836,8 +882,33 @@ class TestConditionalAccessMfaEvaluator:
             None,
         )
 
-        assert passed is True
-        assert "authenticationStrength" in evidence
+        assert passed is False
+        assert "operator='OR'" in evidence
+        assert "fail closed" in evidence.lower()
+
+    def test_ca_mfa_fails_closed_when_authentication_strength_has_multiple_non_mfa_alternatives_with_or(
+        self,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="All apps auth strength MFA or multiple alternatives",
+                state="enabled",
+                include_apps=["All"],
+                controls=["compliantDevice", "domainJoinedDevice"],
+                operator="OR",
+                authentication_strength={"requirementsSatisfied": "mfa"},
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "operator='OR'" in evidence
+        assert "fail closed" in evidence.lower()
 
     def test_ca_mfa_fails_when_all_cloud_apps_policy_excludes_copilot(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
@@ -920,6 +991,53 @@ class TestConditionalAccessMfaEvaluator:
                 include_apps=["All"],
                 controls=["mfa", "compliantDevice"],
                 operator=["AND"],
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "operator missing/invalid" in evidence.lower()
+        assert "fail closed" in evidence.lower()
+
+    def test_ca_mfa_fails_closed_when_authentication_strength_coexists_with_non_mfa_and_operator_missing(
+        self,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="Missing operator with auth strength and non-MFA control",
+                state="enabled",
+                include_apps=["All"],
+                controls=["compliantDevice"],
+                authentication_strength={"requirementsSatisfied": "mfa"},
+            )
+        ]
+        passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
+            {"graph": {"conditional_access_policies": policies}},
+            None,
+        )
+
+        assert passed is False
+        assert "operator missing for authenticationstrength" in evidence.lower()
+        assert "fail closed" in evidence.lower()
+
+    def test_ca_mfa_fails_closed_when_authentication_strength_coexists_with_non_mfa_and_operator_malformed(
+        self,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        policies = [
+            self._policy(
+                name="Malformed operator with auth strength and non-MFA control",
+                state="enabled",
+                include_apps=["All"],
+                controls=["compliantDevice"],
+                operator=["AND"],
+                authentication_strength={"requirementsSatisfied": "mfa"},
             )
         ]
         passed, evidence = score._eval_ca_policy_requires_mfa(  # noqa: SLF001
@@ -1132,7 +1250,23 @@ class TestConditionalAccessMfaEndToEnd:
                     name="Auth strength MFA",
                     include_apps=["All"],
                     controls=["compliantDevice"],
-                    operator="OR",
+                    operator="AND",
+                    authentication_strength={
+                        "Id": "auth-strength-001",
+                        "DisplayName": "Phishing-resistant MFA",
+                        "RequirementsSatisfied": "mfa",
+                        "PolicyType": "builtIn",
+                    },
+                ),
+                "pass",
+                "operator='AND' with authenticationStrength",
+            ),
+            (
+                lambda self: self._collector_policy(
+                    name="Auth strength MFA only",
+                    include_apps=["All"],
+                    controls=[],
+                    include_operator=False,
                     authentication_strength={
                         "Id": "auth-strength-001",
                         "DisplayName": "Phishing-resistant MFA",
@@ -1142,6 +1276,70 @@ class TestConditionalAccessMfaEndToEnd:
                 ),
                 "pass",
                 "authenticationStrength",
+            ),
+            (
+                lambda self: self._collector_policy(
+                    name="Auth strength MFA OR compliant device",
+                    include_apps=["All"],
+                    controls=["compliantDevice"],
+                    operator="OR",
+                    authentication_strength={
+                        "Id": "auth-strength-001",
+                        "DisplayName": "Phishing-resistant MFA",
+                        "RequirementsSatisfied": "mfa",
+                        "PolicyType": "builtIn",
+                    },
+                ),
+                "fail",
+                "operator='OR'",
+            ),
+            (
+                lambda self: self._collector_policy(
+                    name="Auth strength MFA OR multiple non-MFA alternatives",
+                    include_apps=["All"],
+                    controls=["compliantDevice", "domainJoinedDevice"],
+                    operator="OR",
+                    authentication_strength={
+                        "Id": "auth-strength-001",
+                        "DisplayName": "Phishing-resistant MFA",
+                        "RequirementsSatisfied": "mfa",
+                        "PolicyType": "builtIn",
+                    },
+                ),
+                "fail",
+                "operator='OR'",
+            ),
+            (
+                lambda self: self._collector_policy(
+                    name="Auth strength missing operator",
+                    include_apps=["All"],
+                    controls=["compliantDevice"],
+                    include_operator=False,
+                    authentication_strength={
+                        "Id": "auth-strength-001",
+                        "DisplayName": "Phishing-resistant MFA",
+                        "RequirementsSatisfied": "mfa",
+                        "PolicyType": "builtIn",
+                    },
+                ),
+                "fail",
+                "operator missing for authenticationStrength",
+            ),
+            (
+                lambda self: self._collector_policy(
+                    name="Auth strength malformed operator",
+                    include_apps=["All"],
+                    controls=["compliantDevice"],
+                    operator=["AND"],
+                    authentication_strength={
+                        "Id": "auth-strength-001",
+                        "DisplayName": "Phishing-resistant MFA",
+                        "RequirementsSatisfied": "mfa",
+                        "PolicyType": "builtIn",
+                    },
+                ),
+                "fail",
+                "operator missing/invalid",
             ),
             (
                 lambda self: self._collector_policy(
@@ -1172,6 +1370,23 @@ class TestConditionalAccessMfaEndToEnd:
                 ),
                 "fail",
                 "operator missing/invalid",
+            ),
+            (
+                lambda self: self._collector_policy(
+                    name="Report-only auth strength policy",
+                    include_apps=["All"],
+                    controls=[],
+                    state="enabledForReportingButNotEnforced",
+                    include_operator=False,
+                    authentication_strength={
+                        "Id": "auth-strength-001",
+                        "DisplayName": "Phishing-resistant MFA",
+                        "RequirementsSatisfied": "mfa",
+                        "PolicyType": "builtIn",
+                    },
+                ),
+                "fail",
+                "No enabled CA policy targets Copilot Studio app ID",
             ),
         ],
     )

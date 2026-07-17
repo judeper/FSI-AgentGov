@@ -1140,14 +1140,25 @@ def _policy_requires_mfa_enforcement(policy: dict) -> tuple[bool, str]:
         if normalized:
             normalized_controls.append(normalized)
 
+    has_built_in_mfa = "mfa" in normalized_controls
+    non_mfa_controls = [control for control in normalized_controls if control != "mfa"]
+
     operator, operator_valid = _operator_state(grant_controls.get("operator"))
-    if not operator_valid:
+    auth_strength_pass, auth_strength_reason = (
+        _policy_has_verified_mfa_authentication_strength(grant_controls)
+    )
+    auth_strength_present = auth_strength_reason is not None
+
+    if not operator_valid and (
+        (has_built_in_mfa and len(normalized_controls) > 1)
+        or (auth_strength_present and len(non_mfa_controls) > 0)
+    ):
         return False, "operator missing/invalid (fail closed)"
 
     if normalized_controls == ["mfa"]:
         return True, "uses MFA as sole builtInControl"
 
-    if "mfa" in normalized_controls:
+    if has_built_in_mfa:
         if len(normalized_controls) > 1:
             if operator == "and":
                 return True, "uses operator='AND' with MFA in builtInControls"
@@ -1166,12 +1177,35 @@ def _policy_requires_mfa_enforcement(policy: dict) -> tuple[bool, str]:
             )
         return True, "includes MFA in builtInControls"
 
-    auth_strength_pass, auth_strength_reason = (
-        _policy_has_verified_mfa_authentication_strength(grant_controls)
-    )
-    if auth_strength_pass:
-        return True, auth_strength_reason or "authenticationStrength requires MFA"
+    if auth_strength_present and len(non_mfa_controls) > 0:
+        if operator == "and":
+            if auth_strength_pass:
+                return (
+                    True,
+                    "uses operator='AND' with authenticationStrength MFA requirement",
+                )
+            return (
+                False,
+                auth_strength_reason
+                or "authenticationStrength does not verify MFA requirement (fail closed)",
+            )
+        if operator == "or":
+            return False, "operator='OR' allows non-MFA alternatives (fail closed)"
+        if operator is None:
+            return (
+                False,
+                "operator missing for authenticationStrength with non-MFA "
+                "builtInControls (fail closed)",
+            )
+        return (
+            False,
+            f"operator '{operator}' unsupported for authenticationStrength "
+            "(fail closed)",
+        )
+
     if auth_strength_reason:
+        if auth_strength_pass:
+            return True, auth_strength_reason or "authenticationStrength requires MFA"
         return False, auth_strength_reason
     return False, "No MFA requirement found in builtInControls or authenticationStrength"
 
