@@ -78,6 +78,18 @@ ZONE_DESCRIPTIONS: dict[int, str] = {
     3: "Enterprise Managed",
 }
 
+# Conservative allow-list for Control 1.7.b evaluator.
+# Treat anything outside this list as ambiguous and fail closed.
+AUDIT_PREMIUM_EQUIVALENT_SKUS: dict[str, str] = {
+    "SPE_E5": "Microsoft 365 E5",
+    "ENTERPRISEPREMIUM": "Office 365 E5",
+    "SPE_A5": "Microsoft 365 A5",
+    "SPE_G5": "Microsoft 365 G5",
+    "INFORMATION_PROTECTION_COMPLIANCE": "Microsoft Purview Suite",
+    "M365_E5_COMPLIANCE": "Microsoft 365 E5 Compliance (legacy)",
+    "M365_E5_AUDIT": "E5 eDiscovery and Audit add-on",
+}
+
 # Map api_call values from controls.json → collected-data source key.
 API_SOURCE_MAP: dict[str, str] = {
     # Power Platform Admin Center
@@ -85,6 +97,7 @@ API_SOURCE_MAP: dict[str, str] = {
     "Get-AdminPowerAppEnvironment": "ppac",
     "Get-AdminPowerAppDlpPolicy": "ppac",
     "Get-AdminPowerAppTenantSetting": "ppac",
+    "Get-TenantSettings": "ppac",
     "Get-AdminPowerAppConnector": "ppac",
     # Microsoft Graph
     "Get-MgGroup": "graph",
@@ -93,6 +106,7 @@ API_SOURCE_MAP: dict[str, str] = {
     "Get-MgDirectoryRoleMember": "graph",
     "Get-MgApplication": "graph",
     "Get-MgServicePrincipal": "graph",
+    "Get-MgSubscribedSku": "graph",
     # Purview / Compliance Center
     "Get-AdminAuditLogConfig": "purview",
     "Get-RetentionCompliancePolicy": "purview",
@@ -320,6 +334,11 @@ def _normalize_ppac_data(ppac: dict) -> dict:
                 assignment_map[str(env_name)] = normalized_roles
             normalized["role_assignments"] = assignment_map
 
+    if normalized.get("tenant_settings") is None:
+        tenant_settings = _first_present(ppac, "tenantSettings")
+        if isinstance(tenant_settings, dict):
+            normalized["tenant_settings"] = tenant_settings
+
     return normalized
 
 
@@ -426,6 +445,42 @@ def _normalize_graph_data(graph: dict) -> dict:
                 }
                 for group in groups
                 if isinstance(group, dict)
+            ]
+
+    if normalized.get("subscribed_skus") is None:
+        skus = _first_present(graph, "subscribedSkus")
+        if isinstance(skus, list):
+            normalized["subscribed_skus"] = [
+                {
+                    "skuId": _first_present(sku, "skuId", "SkuId"),
+                    "skuPartNumber": _first_present(
+                        sku, "skuPartNumber", "SkuPartNumber"
+                    ),
+                    "capabilityStatus": _first_present(
+                        sku, "capabilityStatus", "CapabilityStatus"
+                    ),
+                    "consumedUnits": _first_present(
+                        sku, "consumedUnits", "ConsumedUnits"
+                    ),
+                    "prepaidUnits": (
+                        {
+                            "enabled": _first_present(
+                                prepaid_units, "enabled", "Enabled"
+                            ),
+                            "suspended": _first_present(
+                                prepaid_units, "suspended", "Suspended"
+                            ),
+                            "warning": _first_present(
+                                prepaid_units, "warning", "Warning"
+                            ),
+                        }
+                        if isinstance(prepaid_units, dict)
+                        else None
+                    ),
+                }
+                for sku in skus
+                if isinstance(sku, dict)
+                for prepaid_units in [_first_present(sku, "prepaidUnits", "PrepaidUnits")]
             ]
 
     return normalized
@@ -685,24 +740,142 @@ def _eval_share_everyone_disabled(
 ) -> tuple[bool | None, str]:
     ppac = collected.get("ppac")
     if not ppac:
-        return None, "PPAC data not available"
-    assignments = ppac.get("role_assignments")
-    if assignments is None:
-        return None, "role_assignments not collected"
-    if isinstance(assignments, dict):
-        for env_id, roles in assignments.items():
-            for role in roles:
-                principal = (role.get("PrincipalDisplayName") or "").lower()
-                ptype = (role.get("PrincipalType") or "").lower()
-                if principal in ("everyone", "all users") or ptype == "tenant":
-                    return (
-                        False,
-                        f"Share with Everyone found in environment {env_id}",
-                    )
-    settings = ppac.get("environment_settings") or {}
-    if settings.get("shareWithEveryone") is True:
-        return False, "shareWithEveryone is enabled in environment settings"
-    return True, "Share with Everyone is disabled"
+        return False, "PPAC data not available (fail closed)"
+    tenant_settings = ppac.get("tenant_settings")
+    if not isinstance(tenant_settings, dict):
+        return False, "tenant_settings not collected (fail closed)"
+
+    setting = _first_present(
+        tenant_settings,
+        "disableShareWithEveryone",
+    )
+    if setting is True:
+        return True, "tenant_settings.disableShareWithEveryone is true"
+    if setting is False:
+        return False, "tenant_settings.disableShareWithEveryone is false"
+
+    return (
+        False,
+        "tenant_settings.disableShareWithEveryone is missing/invalid "
+        f"({setting!r})",
+    )
+
+
+def _coerce_int(value: object) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _eval_audit_plan_tier_adequate(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    graph = collected.get("graph")
+    if not graph:
+        return False, "Graph data not available (fail closed)"
+
+    subscribed_skus = graph.get("subscribed_skus")
+    if not isinstance(subscribed_skus, list):
+        return False, "subscribed_skus not collected (fail closed)"
+    if not subscribed_skus:
+        return False, "No subscribed_skus records found (fail closed)"
+
+    qualified: list[str] = []
+    disqualified_reasons: list[str] = []
+    seen_relevant = False
+
+    for sku in subscribed_skus:
+        if not isinstance(sku, dict):
+            continue
+        part = _first_present(sku, "skuPartNumber", "SkuPartNumber")
+        if not isinstance(part, str) or not part.strip():
+            continue
+        part_norm = part.strip().upper()
+        if part_norm not in AUDIT_PREMIUM_EQUIVALENT_SKUS:
+            continue
+
+        seen_relevant = True
+        capability_status = _first_present(
+            sku, "capabilityStatus", "CapabilityStatus"
+        )
+        status_norm = (
+            capability_status.strip().lower()
+            if isinstance(capability_status, str)
+            else None
+        )
+        if status_norm != "enabled":
+            disqualified_reasons.append(
+                f"{part_norm} capabilityStatus={capability_status!r}"
+            )
+            continue
+
+        prepaid_units = _first_present(sku, "prepaidUnits", "PrepaidUnits")
+        enabled_units = (
+            _coerce_int(_first_present(prepaid_units, "enabled", "Enabled"))
+            if isinstance(prepaid_units, dict)
+            else None
+        )
+        if enabled_units is None:
+            disqualified_reasons.append(
+                f"{part_norm} missing PrepaidUnits.Enabled"
+            )
+            continue
+        if enabled_units <= 0:
+            disqualified_reasons.append(
+                f"{part_norm} PrepaidUnits.Enabled={enabled_units}"
+            )
+            continue
+
+        qualified.append(
+            f"{part_norm} ({AUDIT_PREMIUM_EQUIVALENT_SKUS[part_norm]})"
+        )
+
+    if qualified:
+        qualified_text = ", ".join(sorted(set(qualified)))
+        disqualified_text = (
+            " Additional relevant SKU records were ambiguous: "
+            + "; ".join(disqualified_reasons)
+            if disqualified_reasons
+            else ""
+        )
+        return (
+            None,
+            "Tenant-level subscribed_skus includes E5-equivalent SKU evidence ("
+            + qualified_text
+            + "), but Control 1.7.b requires per-Copilot-user entitlement "
+            "coverage. Current telemetry does not prove that the Copilot user "
+            "population is fully assigned qualifying licenses. Manual per-user "
+            "verification required: provide assigned-license export for "
+            "qualifying SKU(s) and reconcile it against the Copilot user "
+            "population before scoring pass."
+            + disqualified_text,
+        )
+
+    if seen_relevant:
+        return (
+            False,
+            "Relevant E5-equivalent subscribed SKUs were found but evidence was "
+            "ambiguous/insufficient (fail closed): "
+            + "; ".join(disqualified_reasons),
+        )
+
+    observed = sorted(
+        {
+            str(_first_present(sku, "skuPartNumber", "SkuPartNumber"))
+            for sku in subscribed_skus
+            if isinstance(sku, dict)
+            and _first_present(sku, "skuPartNumber", "SkuPartNumber")
+        }
+    )
+    observed_text = ", ".join(observed) if observed else "none"
+    return (
+        False,
+        "No conservative E5-equivalent SKU evidence found in subscribed_skus. "
+        f"Observed skuPartNumber values: {observed_text}",
+    )
 
 
 def _eval_ca_policy_targets_copilot_studio(
@@ -916,6 +1089,7 @@ EVALUATORS: dict[str, object] = {
     "prod_env_has_security_group": _eval_prod_env_has_security_group,
     "prod_env_is_managed": _eval_prod_env_is_managed,
     "audit_log_enabled": _eval_audit_log_enabled,
+    "audit_plan_tier_adequate": _eval_audit_plan_tier_adequate,
     "copilot_retention_policy_exists": _eval_copilot_retention_policy_exists,
     "grounding_sources_approved": _eval_grounding_sources_approved,
     "no_external_sharing_on_grounding": _eval_no_external_sharing_on_grounding,

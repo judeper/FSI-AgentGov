@@ -3,10 +3,10 @@
     Collects Power Platform Admin Center configuration data for FSI Agent Governance assessment.
 
 .DESCRIPTION
-    Enumerates Power Platform environments, DLP policies, role assignments, environment
-    routing rules, inactivity timeout settings, security posture score, agent feature
-    flags, environment groups, and per-environment tags and group membership via the
-    PowerApps Administration module and BAP REST API.
+    Enumerates Power Platform environments, DLP policies, role assignments, tenant
+    settings, environment routing rules, inactivity timeout settings, security posture
+    score, agent feature flags, environment groups, and per-environment tags and group
+    membership via the PowerApps Administration module and BAP REST API.
 
     Outputs a structured JSON file (ppac.json) consumed by the assessment engine.
 
@@ -32,9 +32,9 @@
     Mandatory. Root output directory. Collected JSON is written to $OutputDir\collected\ppac.json.
 
 .OUTPUTS
-    ppac.json — JSON file with environments, DLP policies, role assignments, routing rules,
-    inactivity timeout, security posture, agent feature flags, environment groups, and
-    per-environment tags/group membership.
+    ppac.json — JSON file with environments, DLP policies, role assignments, tenant
+    settings, routing rules, inactivity timeout, security posture, agent feature flags,
+    environment groups, and per-environment tags/group membership.
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — PPAC Collector.
@@ -306,13 +306,44 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 4: Environment Routing Rules (BAP REST API)
+# Section 4: Tenant Settings
+# Supports: Control 1.1.c (disableShareWithEveryone)
+# Pattern: Get-TenantSettings
+# ═══════════════════════════════════════════════════════════════════════
+$tenantSettings = $null
+try {
+    Write-Verbose "Section 4: Collecting tenant settings..."
+    $rawTenantSettings = Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'Get tenant settings' -ScriptBlock {
+        Get-TenantSettings -ErrorAction Stop
+    }
+
+    if ($null -ne $rawTenantSettings) {
+        $tenantSettings = [PSCustomObject]@{
+            disableShareWithEveryone = $rawTenantSettings.disableShareWithEveryone
+        }
+
+        if ($null -eq $tenantSettings.disableShareWithEveryone) {
+            $warnings.Add("Section 4 (Tenant Settings): disableShareWithEveryone was not present in Get-TenantSettings output.")
+            Write-Warning $warnings[-1]
+        }
+        else {
+            Write-Verbose "  disableShareWithEveryone captured as '$($tenantSettings.disableShareWithEveryone)'."
+        }
+    }
+}
+catch {
+    $warnings.Add("Section 4 (Tenant Settings) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Section 5: Environment Routing Rules (BAP REST API)
 # Supports: Control 2.1 (Managed Environments), routing configuration
 # Pattern: Invoke-HardeningBaselineCheck.ps1 Item 15 (Environment Routing)
 # ═══════════════════════════════════════════════════════════════════════
 $routingRules = $null
 try {
-    Write-Verbose "Section 4: Collecting environment routing rules via BAP API..."
+    Write-Verbose "Section 5: Collecting environment routing rules via BAP API..."
     if ($bapToken -and $environments) {
         $routingRules = foreach ($env in $rawEnvs) {
             $envId = $env.EnvironmentName
@@ -329,23 +360,23 @@ try {
         Write-Verbose "  Collected routing rules for $(@($routingRules).Count) environment(s)."
     }
     else {
-        $warnings.Add("Section 4 (Routing Rules): Skipped — BAP token or environments unavailable.")
+        $warnings.Add("Section 5 (Routing Rules): Skipped — BAP token or environments unavailable.")
         Write-Warning $warnings[-1]
     }
 }
 catch {
-    $warnings.Add("Section 4 (Routing Rules) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 5 (Routing Rules) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 5: Inactivity Timeout (BAP REST API)
+# Section 6: Inactivity Timeout (BAP REST API)
 # Supports: Control 2.22 (Inactivity Timeout Enforcement)
 # Pattern: Set-InactivityTimeout.ps1 GET privacy settings endpoint
 # ═══════════════════════════════════════════════════════════════════════
 $inactivityTimeout = $null
 try {
-    Write-Verbose "Section 5: Collecting inactivity timeout settings via BAP API..."
+    Write-Verbose "Section 6: Collecting inactivity timeout settings via BAP API..."
     if ($bapToken -and $environments) {
         $inactivityTimeout = foreach ($env in $rawEnvs) {
             $envId = $env.EnvironmentName
@@ -362,22 +393,22 @@ try {
         Write-Verbose "  Collected inactivity timeout for $(@($inactivityTimeout).Count) environment(s)."
     }
     else {
-        $warnings.Add("Section 5 (Inactivity Timeout): Skipped — BAP token or environments unavailable.")
+        $warnings.Add("Section 6 (Inactivity Timeout): Skipped — BAP token or environments unavailable.")
         Write-Warning $warnings[-1]
     }
 }
 catch {
-    $warnings.Add("Section 5 (Inactivity Timeout) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 6 (Inactivity Timeout) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 6: PPAC Security Posture Score (BAP REST API)
+# Section 7: PPAC Security Posture Score (BAP REST API)
 # Supports: Overall governance scoring
 # ═══════════════════════════════════════════════════════════════════════
 $securityPosture = $null
 try {
-    Write-Verbose "Section 6: Collecting PPAC Security Posture score via BAP API..."
+    Write-Verbose "Section 7: Collecting PPAC Security Posture score via BAP API..."
     if ($bapToken) {
         $postureUri = "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminAnalytics/securityPosture?api-version=2021-04-01"
         $securityPosture = Invoke-BapApi -Uri $postureUri -Token $bapToken
@@ -385,28 +416,28 @@ try {
             Write-Verbose "  Security Posture score collected."
         }
         else {
-            $warnings.Add("Section 6 (Security Posture): API returned no data — endpoint may not be available for this tenant.")
+            $warnings.Add("Section 7 (Security Posture): API returned no data — endpoint may not be available for this tenant.")
             Write-Warning $warnings[-1]
         }
     }
     else {
-        $warnings.Add("Section 6 (Security Posture): Skipped — BAP token unavailable.")
+        $warnings.Add("Section 7 (Security Posture): Skipped — BAP token unavailable.")
         Write-Warning $warnings[-1]
     }
 }
 catch {
-    $warnings.Add("Section 6 (Security Posture) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 7 (Security Posture) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 7: Agent Feature Flags (BAP REST API)
+# Section 8: Agent Feature Flags (BAP REST API)
 # Supports: Controls for generative AI features, external plugin toggles
 # Pattern: Invoke-HardeningBaselineCheck.ps1 tenant settings for AI features
 # ═══════════════════════════════════════════════════════════════════════
 $agentFeatureFlags = $null
 try {
-    Write-Verbose "Section 7: Collecting agent feature flags via BAP API..."
+    Write-Verbose "Section 8: Collecting agent feature flags via BAP API..."
     if ($bapToken -and $environments) {
         $agentFeatureFlags = foreach ($env in $rawEnvs) {
             $envId = $env.EnvironmentName
@@ -425,23 +456,23 @@ try {
         Write-Verbose "  Collected agent feature flags for $(@($agentFeatureFlags).Count) environment(s)."
     }
     else {
-        $warnings.Add("Section 7 (Agent Feature Flags): Skipped — BAP token or environments unavailable.")
+        $warnings.Add("Section 8 (Agent Feature Flags): Skipped — BAP token or environments unavailable.")
         Write-Warning $warnings[-1]
     }
 }
 catch {
-    $warnings.Add("Section 7 (Agent Feature Flags) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 8 (Agent Feature Flags) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 8: Environment Groups (BAP REST API)
+# Section 9: Environment Groups (BAP REST API)
 # Supports: Frontier Q17 (tagged_environments_with_basic_telemetry)
 # Pattern: BAP admin API for environment group enumeration
 # ═══════════════════════════════════════════════════════════════════════
 $environmentGroups = $null
 try {
-    Write-Verbose "Section 8: Collecting environment groups via BAP API..."
+    Write-Verbose "Section 9: Collecting environment groups via BAP API..."
     if ($bapToken) {
         $groupsUri = "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups?api-version=2021-04-01"
         $groupsResponse = Invoke-BapApi -Uri $groupsUri -Token $bapToken
@@ -470,27 +501,27 @@ try {
         }
         else {
             $environmentGroups = @()
-            $warnings.Add("Section 8 (Environment Groups): API returned no data — tenant may not have environment groups.")
+            $warnings.Add("Section 9 (Environment Groups): API returned no data — tenant may not have environment groups.")
             Write-Warning $warnings[-1]
         }
     }
     else {
-        $warnings.Add("Section 8 (Environment Groups): Skipped — BAP token unavailable.")
+        $warnings.Add("Section 9 (Environment Groups): Skipped — BAP token unavailable.")
         Write-Warning $warnings[-1]
     }
 }
 catch {
-    $warnings.Add("Section 8 (Environment Groups) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 9 (Environment Groups) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 9: Per-Environment Tags + Group Membership (BAP REST API)
+# Section 10: Per-Environment Tags + Group Membership (BAP REST API)
 # Supports: Frontier Q17 (tagged_environments_with_basic_telemetry)
 # Pattern: BAP admin API per-environment detail with $expand
 # ═══════════════════════════════════════════════════════════════════════
 try {
-    Write-Verbose "Section 9: Enriching environments with tags and group membership..."
+    Write-Verbose "Section 10: Enriching environments with tags and group membership..."
     if ($bapToken -and $environments) {
         foreach ($env in $environments) {
             $envId = $env.EnvironmentName
@@ -517,26 +548,26 @@ try {
                 else {
                     $env | Add-Member -NotePropertyName 'Tags' -NotePropertyValue @{} -Force
                     $env | Add-Member -NotePropertyName 'EnvironmentGroupId' -NotePropertyValue $null -Force
-                    $warnings.Add("Section 9 (Tags): Detail API returned null for environment '$envId'.")
+                    $warnings.Add("Section 10 (Tags): Detail API returned null for environment '$envId'.")
                     Write-Warning $warnings[-1]
                 }
             }
             catch {
                 $env | Add-Member -NotePropertyName 'Tags' -NotePropertyValue $null -Force
                 $env | Add-Member -NotePropertyName 'EnvironmentGroupId' -NotePropertyValue $null -Force
-                $warnings.Add("Section 9 (Tags) failed for environment '${envId}': $($_.Exception.Message)")
+                $warnings.Add("Section 10 (Tags) failed for environment '${envId}': $($_.Exception.Message)")
                 Write-Warning $warnings[-1]
             }
         }
         Write-Verbose "  Enriched $(@($environments).Count) environment(s) with tags and group membership."
     }
     else {
-        $warnings.Add("Section 9 (Tags): Skipped — BAP token or environments unavailable.")
+        $warnings.Add("Section 10 (Tags): Skipped — BAP token or environments unavailable.")
         Write-Warning $warnings[-1]
     }
 }
 catch {
-    $warnings.Add("Section 9 (Tags) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 10 (Tags) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
@@ -547,6 +578,7 @@ $result = [ordered]@{
     environments       = $environments
     dlpPolicies        = $dlpPolicies
     roleAssignments    = $roleAssignments
+    tenantSettings     = $tenantSettings
     routingRules       = $routingRules
     inactivityTimeout  = $inactivityTimeout
     securityPosture    = $securityPosture
@@ -567,16 +599,16 @@ Write-Verbose "Output written to $outputFile"
 
 # ─── Exit Code ───────────────────────────────────────────────────────
 $nullSections = @(
-    $environments, $dlpPolicies, $roleAssignments, $routingRules,
+    $environments, $dlpPolicies, $roleAssignments, $tenantSettings, $routingRules,
     $inactivityTimeout, $securityPosture, $agentFeatureFlags, $environmentGroups
 ) | Where-Object { $null -eq $_ }
 
-if ($nullSections.Count -eq 8) {
+if ($nullSections.Count -eq 9) {
     Write-Error "All sections failed to collect data. See warnings for details."
     exit 2
 }
 elseif ($nullSections.Count -gt 0) {
-    Write-Warning "Partial collection: $($nullSections.Count)/8 sections returned null."
+    Write-Warning "Partial collection: $($nullSections.Count)/9 sections returned null."
     exit 1
 }
 else {

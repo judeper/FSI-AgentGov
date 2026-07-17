@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     Enumerates Conditional Access policies, FSI-Agent security groups, privileged role
-    assignments, Copilot Studio service principals, tenant security settings, and
-    AI-leadership job titles via Microsoft Graph.
+    assignments, Copilot Studio service principals, tenant security settings,
+    subscribed SKUs, and AI-leadership job titles via Microsoft Graph.
 
     Outputs a structured JSON file (graph.json) consumed by the assessment engine.
 
@@ -31,7 +31,8 @@
 
 .OUTPUTS
     graph.json — JSON file with CA policies, security groups, privileged roles,
-    service principals, information barriers, tenant settings, and AI-leadership users.
+    service principals, information barriers, tenant settings, subscribed SKUs,
+    and AI-leadership users.
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — Graph Collector.
@@ -93,6 +94,7 @@ function Invoke-CollectorOperation {
 # ─── Module Imports ──────────────────────────────────────────────────
 Import-Module Microsoft.Graph.Authentication    -ErrorAction Stop
 Import-Module Microsoft.Graph.Identity.SignIns  -ErrorAction Stop
+Import-Module Microsoft.Graph.Identity.DirectoryManagement -ErrorAction Stop
 Import-Module Microsoft.Graph.Groups            -ErrorAction Stop
 Write-Verbose "Loaded Microsoft.Graph modules."
 
@@ -403,13 +405,43 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 7: AI Leadership Job Titles
+# Section 7: Subscribed SKUs
+# Supports: Control 1.7.b (Audit plan tier evidence)
+# ═══════════════════════════════════════════════════════════════════════
+$subscribedSkus = $null
+try {
+    Write-Verbose "Section 7: Collecting tenant subscribed SKUs..."
+    $rawSkus = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'List subscribed SKUs' -ScriptBlock {
+        Get-MgSubscribedSku -All -ErrorAction Stop
+    }
+    $subscribedSkus = $rawSkus | ForEach-Object {
+        [PSCustomObject]@{
+            SkuId            = $_.SkuId
+            SkuPartNumber    = $_.SkuPartNumber
+            CapabilityStatus = $_.CapabilityStatus
+            ConsumedUnits    = $_.ConsumedUnits
+            PrepaidUnits     = [PSCustomObject]@{
+                Enabled   = $_.PrepaidUnits.Enabled
+                Suspended = $_.PrepaidUnits.Suspended
+                Warning   = $_.PrepaidUnits.Warning
+            }
+        }
+    }
+    Write-Verbose "  Collected $(@($subscribedSkus).Count) subscribed SKU record(s)."
+}
+catch {
+    $warnings.Add("Section 7 (Subscribed SKUs) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Section 8: AI Leadership Job Titles
 # Supports: Frontier Q01 (ai_initiative_owner_identified) — AI Strategy L100
 # Prereq: User.Read.All Graph scope (incremental; Graph auth already required)
 # ═══════════════════════════════════════════════════════════════════════
 $aiLeadershipUsers = $null
 try {
-    Write-Verbose "Section 7: Enumerating AI-leadership job titles..."
+    Write-Verbose "Section 8: Enumerating AI-leadership job titles..."
 
     # AI-leadership keyword fragments for post-filtering
     $aiKeywords = @(
@@ -435,7 +467,7 @@ try {
         }
     }
     catch {
-        $warnings.Add("Section 7 filter 'Chief' failed: $($_.Exception.Message)")
+        $warnings.Add("Section 8 filter 'Chief' failed: $($_.Exception.Message)")
         Write-Warning $warnings[-1]
     }
     try {
@@ -448,7 +480,7 @@ try {
         }
     }
     catch {
-        $warnings.Add("Section 7 filter 'Head/VP/Director/AI' failed: $($_.Exception.Message)")
+        $warnings.Add("Section 8 filter 'Head/VP/Director/AI' failed: $($_.Exception.Message)")
         Write-Warning $warnings[-1]
     }
 
@@ -491,7 +523,7 @@ try {
     Write-Verbose "  Found $($aiLeadershipUsers.Count) user(s) with AI-leadership job titles."
 }
 catch {
-    $warnings.Add("Section 7 (AI Leadership Job Titles) failed: $($_.Exception.Message)")
+    $warnings.Add("Section 8 (AI Leadership Job Titles) failed: $($_.Exception.Message)")
     Write-Warning $warnings[-1]
 }
 
@@ -505,6 +537,7 @@ $result = [ordered]@{
     privilegedRoleAssignments  = $privilegedRoleAssignments
     copilotServicePrincipals   = $copilotServicePrincipals
     tenantSecuritySettings     = $tenantSecuritySettings
+    subscribedSkus             = $subscribedSkus
     aiLeadershipUsers          = $aiLeadershipUsers
     _metadata                  = [ordered]@{
         collector   = 'Collect-Graph'
@@ -525,7 +558,7 @@ try { Disconnect-MgGraph -ErrorAction SilentlyContinue } catch { }
 $sectionValues = @(
     $conditionalAccessPolicies, $fsiSecurityGroups, $informationBarriers,
     $privilegedRoleAssignments, $copilotServicePrincipals, $tenantSecuritySettings,
-    $aiLeadershipUsers
+    $subscribedSkus, $aiLeadershipUsers
 )
 $nullSections = @($sectionValues | Where-Object { $null -eq $_ })
 

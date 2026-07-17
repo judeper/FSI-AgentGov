@@ -35,7 +35,7 @@
       {
         "check_id": "1.1.c",
         "description": "Share with Everyone disabled across environments",
-        "api_call": "Get-AdminPowerAppEnvironmentRoleAssignment",
+        "api_call": "Get-TenantSettings",
         "pass_condition": "share_everyone_disabled",
         "zone_required": [
           3
@@ -708,7 +708,8 @@
     "source_file": "docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md",
     "automation": "full",
     "collection_methods": [
-      "Purview_PowerShell"
+      "Purview_PowerShell",
+      "Graph_API"
     ],
     "checks": [
       {
@@ -725,7 +726,7 @@
       {
         "check_id": "1.7.b",
         "description": "M365 Audit plan tier is E5 or equivalent",
-        "api_call": "Get-AdminAuditLogConfig",
+        "api_call": "Get-MgSubscribedSku",
         "pass_condition": "audit_plan_tier_adequate",
         "zone_required": [
           2,

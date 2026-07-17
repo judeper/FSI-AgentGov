@@ -45,6 +45,9 @@
       ]
     }
   ],
+  "tenantSettings": {
+    "disableShareWithEveryone": true
+  },
   "routingRules": [],
   "inactivityTimeout": null,
   "securityPosture": null,

@@ -70,6 +70,19 @@
     ],
     "OnPremisesSyncEnabled": true
   },
+  "subscribedSkus": [
+    {
+      "SkuId": "06ebc4ee-1bb5-47dd-8120-11324bc54e06",
+      "SkuPartNumber": "SPE_E5",
+      "CapabilityStatus": "Enabled",
+      "ConsumedUnits": 42,
+      "PrepaidUnits": {
+        "Enabled": 100,
+        "Suspended": 0,
+        "Warning": 0
+      }
+    }
+  ],
   "aiLeadershipUsers": [
     {
       "DisplayName": "Alex Kim",
