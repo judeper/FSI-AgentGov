@@ -43,12 +43,14 @@ Complete every item in this section **before** opening the policy wizard. A miss
 
 ### 1. License entitlement
 
-Per current Microsoft Learn, Communication Compliance is included in:
+Per the current [Microsoft Purview service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description), **base** Communication Compliance is included in:
 
-- **Microsoft 365 E5** or **Office 365 E5**
-- **Microsoft 365 E5 Compliance** add-on
-- **Microsoft 365 E5 Insider Risk Management** add-on
-- **Microsoft Purview Suite** per-user license
+- **Microsoft 365 E5/A5/G5**
+- **Microsoft Purview Suite** (formerly **Microsoft 365 E5 Compliance**) per-user license
+- **Microsoft 365 E5/A5/F5/G5 Insider Risk Management**
+- **Office 365 E5/A5/G5**
+
+> **Copilot-interaction analysis is separately gated.** The **Detect Microsoft Copilot interactions** template — the primary scope of this control — depends on **Microsoft Copilot for Microsoft 365 prompt and response analysis**, which per the service description is available **only** with **Microsoft 365 E5 + Microsoft 365 Copilot** or **Microsoft Purview Suite + Microsoft 365 Copilot**. **Office 365 E5** and the **Insider Risk Management** / **Purview Suite**-only paths grant **base CC only** and do **not** include Copilot prompt/response analysis. Monitoring Copilot interactions therefore requires **Microsoft 365 Copilot** licensing for the in-scope users **in addition** to a qualifying CC license.
 
 Per-user licensing is **required for every monitored user** (the user whose communications are scanned), not just for administrators or reviewers. Verify entitlement against the [current Microsoft 365 service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance) before each material change window — Microsoft licensing for compliance products has changed multiple times. Do not oversimplify in your evidence pack.
 
@@ -89,9 +91,12 @@ For reviewers with on-premises mailboxes (hybrid Exchange tenants), migrate the 
 
 Any policy whose **Locations** include **Enterprise AI apps**, **Other AI apps**, or non-Microsoft 365 generative AI data (Copilot in Fabric, Microsoft Security Copilot, connected external AI applications, Microsoft Copilot Studio non-M365 content) requires **Microsoft Purview pay-as-you-go (PAYG) billing** linked to an Azure subscription. The **Microsoft Copilot experiences** location (M365 Copilot and Copilot Chat) does **not** require PAYG.
 
-PAYG is also required for **OCR processing** on policy attachments (see Step 5).
+PAYG is **not** required for **OCR processing** on policy attachments — Communication Compliance has its own built-in OCR (see Step 5).
 
 Configure PAYG per [Microsoft Purview billing models](https://learn.microsoft.com/en-us/purview/purview-billing-models). Track PAYG usage in the **Purview Usage center**. Without PAYG enabled, the non-M365 AI locations either do not appear in the wizard or silently produce zero matches — a classic "false-clean" trap on your evidence pack.
+
+!!! note "OCR does not require PAYG"
+    Communication Compliance uses its **own built-in OCR** (integrated Azure AI services), which is enabled per-policy on the Conditions page and **does not** require pay-as-you-go billing. PAYG (Microsoft Syntex billing) applies to the separate tenant-level **Microsoft Purview OCR (preview)** used by DLP / Insider Risk / auto-labeling / records management — which CC does **not** use (per Microsoft Learn `communication-compliance-policies` and `ocr-learn-about`). Do not conflate the two when scoping cost.
 
 ### 5. Role group assignment (Communication Compliance)
 
@@ -157,21 +162,21 @@ The **Communication Compliance Investigators** role group has the highest conten
 
 ## Step 2 — Configure role groups (correct Permissions navigation)
 
-> **Portal navigation (verify before each session — it has changed):** Microsoft Purview portal → **Settings** (upper-right) → **Roles & scopes** → **Permissions** → **Microsoft Purview solutions** → **Communication compliance** → **Role groups**.
+> **Portal navigation (verify before each session — it has changed):** Microsoft Purview portal ([purview.microsoft.com](https://purview.microsoft.com)) → **Settings** (upper-right) → **Roles and groups** → **Role groups** (left navigation).
 >
 > The path is **Role groups**, not "Roles". A common cause of "I assigned the role but the user can't see CC" is assigning at the wrong level.
 
 ### Canonical role group inventory
 
-There are **six** Communication Compliance role groups. Use the **plural** names exactly as they appear in the portal — synonyms ("CC Admins", "Comms Compliance Investigator") will not match audit-log queries.
+There are **five** Communication Compliance role groups. Use the **plural** names exactly as they appear in the portal — synonyms ("CC Admins", "Comms Compliance Investigator") will not match audit-log queries. The capability matrix below is transcribed from Microsoft Learn ([Communication Compliance permissions](https://learn.microsoft.com/en-us/purview/communication-compliance-permissions)); verify against Learn before each change window.
 
-| Role group (canonical name) | Configure policies & settings | Access & investigate alerts | Advanced remediation (escalate, remove Teams msg, download, run flows) | Access reports | View Conversation / Translation tabs |
-|---|---|---|---|---|---|
-| **Communication Compliance** (catch-all) | Yes | Yes | Yes | Yes | Yes |
-| **Communication Compliance Admins** | Yes | No | No | No | No |
-| **Communication Compliance Analysts** | No | Yes | No | No | No |
-| **Communication Compliance Investigators** | No | Yes | Yes | No | Yes |
-| **Communication Compliance Viewers** | No | No | No | Yes | No |
+| Role group (canonical name) | Access & investigate alerts | Access reports | Configure policies & settings | Create message details report | Manage privacy settings & notice templates | Advanced remediation (escalate, remove Teams msg, download, run flows) | View Conversation / Translation tabs | View & export policy updates |
+|---|---|---|---|---|---|---|---|---|
+| **Communication Compliance** (catch-all) | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| **Communication Compliance Admins** | No | No | Yes | No | Yes | No | No | Yes |
+| **Communication Compliance Analysts** | Yes | No | No | No | No | No | No | No |
+| **Communication Compliance Investigators** | Yes | No | No | Yes | No | Yes | Yes | No |
+| **Communication Compliance Viewers** | No | Yes | No | No | No | No | No | Yes |
 
 > The **Communication Compliance** role group is the catch-all (everything). Use it only for very small teams or pilot deployments. For FSI separation-of-duties, prefer Option 2 (segmented assignment).
 
@@ -234,6 +239,7 @@ Effects matrix per role group when AU scoping is enforced:
 | Access reports | No | No | No | No | No |
 | Configure policies | Scoped | Scoped | No | No | No |
 | Configure settings | No | No | No | No | No |
+| View and export audit logs | No | No | No | No | No |
 
 > AUs and **adaptive scopes** **cannot be combined** in CC. Pick one. SharePoint sites and inactive mailboxes are out of scope for AU segmentation in CC.
 
@@ -439,9 +445,9 @@ If your firm's WSP requires a 24-hour analyst SLA and a 48-hour investigator SLA
 
 ---
 
-## Step 5 — Configure OCR (on the conditions page; PAYG required)
+## Step 5 — Configure OCR (built-in, on the conditions page)
 
-> OCR is **a checkbox on the policy's Conditions page**, not a separate `Settings → OCR` panel. Older guidance referencing `Settings > OCR` is incorrect for the current portal.
+> OCR is **a checkbox on the policy's Conditions page**, not a separate `Settings → OCR` panel. Communication Compliance uses its **own built-in OCR** and does **not** use the tenant-level Microsoft Purview OCR (preview) settings (per Microsoft Learn `communication-compliance-policies`). Older guidance referencing `Settings > OCR` for CC is incorrect for the current portal.
 
 ### Enable OCR on a policy
 
@@ -453,12 +459,12 @@ If your firm's WSP requires a 24-hour analyst SLA and a 48-hour investigator SLA
 
 ### What OCR does and does not do
 
-- OCR extracts printed and handwritten text from embedded or attached images (PNG, JPG, common image attachments) and feeds it through the **same conditions** configured on the policy
-- OCR **requires PAYG billing** linked to an Azure subscription (per current Microsoft Learn)
+- OCR extracts printed and handwritten text from embedded or attached images (**.jpg/.jpeg, .png, .bmp, .tiff**, sized **100 KB to 4 MB**) in email and Microsoft Teams chat messages, and feeds it through the **same conditions** configured on the policy. OCR of images embedded inside document files is **not** supported.
+- OCR uses Communication Compliance's **built-in** Azure AI scanning and **does not require PAYG billing** (unlike the separate tenant-level Purview OCR preview used by DLP / IRM / auto-labeling)
 - OCR processing typically takes approximately **1 hour** to take effect after enablement on a policy — early no-match results are inconclusive, not negative
 - OCR does not translate; it does not classify image content (use Inappropriate images for image classification); it does not OCR text inside encrypted attachments the service cannot resolve
 
-Document in your evidence pack: which policies have OCR enabled, the PAYG subscription ID, and the expected processing window.
+Document in your evidence pack: which policies have OCR enabled and the expected processing window.
 
 ---
 
@@ -586,14 +592,14 @@ The following are common configuration mistakes that produce silent failures, fa
 2. **Leaving Regulatory compliance at the 10% default for FINRA-supervised populations.** This produces only sampled review and is unlikely to satisfy 3110 supervisory expectations for registered reps.
 3. **Treating "Customer complaints" as a separate template.** It is a classifier inside the Regulatory compliance template. Searching for a "Customer complaints" template wastes time and produces a wrong-named policy.
 4. **Assigning reviewers without Exchange Online mailboxes.** Reviewer assignment fails or the reviewer never receives the queue assignment notification.
-5. **Assigning roles at the wrong place.** The path is **Settings → Roles & scopes → Permissions → Microsoft Purview solutions → Communication compliance → Role groups**, not "Roles" under any other path.
+5. **Assigning roles at the wrong place.** The path is **Settings → Roles and groups → Role groups**, not "Roles" under any other path.
 6. **Using the wrong (singular / synonym) role-group names.** Audit-log queries match the canonical plural names (`Communication Compliance Investigators`, not `CC Investigator`). Wrong names produce empty queries and false-clean evidence.
 7. **Using PowerShell to "create" CC policies.** PowerShell is not supported for CC policy management. Any script in this repo that purports to create CC policies via cmdlet is wrong.
 8. **Disabling pseudonymization without an audit trail.** The opt-out is a privileged action and must be auditable. An undocumented opt-out is an SOX 404 / privacy finding.
 9. **Adding users to Communication Compliance Investigators casually.** Investigators see non-pseudonymized identities and can download messages. Treat each addition as a privileged elevation with HR/Legal sign-off.
 10. **Configuring AUs and adaptive scopes together on CC.** Not supported. Pick one scoping model.
 11. **Treating Policy Match Preservation as records retention.** PMP retains the **policy-match metadata** in the supervisory store, not the underlying communications under SEC 17a-4(f) WORM. Records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
-12. **Assuming OCR is automatic.** OCR is a **checkbox on the policy Conditions page**, requires at least one text-type condition to enable, requires PAYG, and takes ~1 hour to take effect.
+12. **Assuming OCR is automatic.** OCR is a **checkbox on the policy Conditions page**, requires at least one text-type condition to enable, and takes ~1 hour to take effect. It uses CC's built-in OCR and does **not** require PAYG.
 13. **Validating by "I created the policy and it didn't error."** Validation requires a **seeded test message** + the documented Learn processing window + verification of both the Pending queue entry and the `SupervisionRuleMatch` / `SupervisoryReviewTag` audit rows.
 14. **Including non-M365 AI locations without PAYG.** Locations either do not appear in the wizard or silently produce zero matches.
 15. **Documenting fabricated SLA toggles** ("24h analyst, 48h investigator") as portal settings. They are organizational SLAs, tracked outside CC.
@@ -615,7 +621,7 @@ Control-1.10_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}.sha256
 |---|---|---|---|
 | Unified Audit Log status (`Get-AdminAuditLogConfig`) | Exchange Online PowerShell | JSON | Monthly + on change |
 | License entitlement snapshot for monitored users | Graph `Get-MgUserLicenseDetail` | JSON | Quarterly |
-| Role group membership (six CC role groups) | Purview portal export + Graph | CSV + JSON | Monthly + on change |
+| Role group membership (five CC role groups) | Purview portal export + Graph | CSV + JSON | Monthly + on change |
 | Pseudonymization setting state and opt-out audit trail | Purview Privacy tab + UAL search | PNG + CSV | On change |
 | Administrative Unit assignments per role-group member | Purview portal + Graph | JSON | On change |
 | Policy inventory (name, template, locations, direction, conditions, review %, PMP, OCR, scope, reviewers, mode) | Purview Policies page export | JSON + CSV | Weekly |

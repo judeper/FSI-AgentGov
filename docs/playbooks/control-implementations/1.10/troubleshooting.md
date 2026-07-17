@@ -188,7 +188,7 @@ The single most common cause of misdirected investigation in FSI is reaching for
 
 | Likely cause | Fix |
 |---|---|
-| OCR not enabled in CC global settings | Communication Compliance > Settings > enable OCR; allow propagation |
+| OCR not enabled on the policy | Enable OCR **per policy** on the **Conditions** page (Customize/Custom policy → **Optical character recognition (OCR)** → **Use OCR to extract text from images**); CC OCR is not a tenant/global toggle. Allow ~1 hour to take effect |
 | Image quality below threshold or unsupported image format | Verify the format is supported per current Learn; re-test with higher-quality sample |
 | Attachment over the supported size limit | Verify size limit on current Learn; surface large-file gap as a known limitation |
 | Image embedded in a Teams modern attachment that itself is not in the supported file list | Confirm container file type is in the supported modern-attachment list |
