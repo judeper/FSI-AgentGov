@@ -28,7 +28,7 @@
         {
           "check_id": "1.1.c",
           "description": "Share with Everyone disabled",
-          "api_call": "Get-AdminPowerAppEnvironmentRoleAssignment",
+          "api_call": "Get-TenantSettings",
           "pass_condition": "share_everyone_disabled",
           "zone_required": [3]
         }

@@ -23,7 +23,7 @@ CONTROLS = [
     ("1.4","1.4-advanced-connector-policies-acp.md",1,"full",["PPAC_PowerShell"],None),
     ("1.5","1.5-data-loss-prevention-dlp-and-sensitivity-labels.md",1,"full",["PPAC_PowerShell","Purview_PowerShell"],None),
     ("1.6","1.6-microsoft-purview-dspm-for-ai.md",1,"partial",["Purview_PowerShell"],"Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?"),
-    ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell"],None),
+    ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell","Graph_API"],None),
     ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"partial",["Sentinel_KQL"],"Have runtime protection alerts been reviewed and tuned in the last 30 days?"),
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
     ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"),
@@ -105,7 +105,7 @@ CHECKS_DB = {
     "1.1": [
         ("1.1.a","Environment Maker role not assigned to All Users","Get-AdminPowerAppEnvironmentRoleAssignment","no_everyone_assignment",[1,2,3]),
         ("1.1.b","Agent publisher security group exists (FSI-Agent-Publishers-Prod)","Get-MgGroup","fsi_publisher_group_exists",[2,3]),
-        ("1.1.c","Share with Everyone disabled across environments","Get-AdminPowerAppEnvironmentRoleAssignment","share_everyone_disabled",[3]),
+        ("1.1.c","Share with Everyone disabled across environments","Get-TenantSettings","share_everyone_disabled",[3]),
     ],
     "1.2": [
         ("1.2.a","Agent inventory maintained with all agents registered","Get-MgServicePrincipal","agent_inventory_exists",[1,2,3]),
@@ -130,7 +130,7 @@ CHECKS_DB = {
     ],
     "1.7": [
         ("1.7.a","Unified audit logging enabled","Get-AdminAuditLogConfig","audit_log_enabled",[1,2,3]),
-        ("1.7.b","M365 Audit plan tier is E5 or equivalent","Get-AdminAuditLogConfig","audit_plan_tier_adequate",[2,3]),
+        ("1.7.b","M365 Audit plan tier is E5 or equivalent","Get-MgSubscribedSku","audit_plan_tier_adequate",[2,3]),
     ],
     "1.8": [
         ("1.8.a","Sentinel alerts configured for agent anomalies","Invoke-AzOperationalInsightsQuery","sentinel_agent_alerts_exist",[2,3]),

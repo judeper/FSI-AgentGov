@@ -352,6 +352,206 @@ class TestZoneThresholdBoundary:
 
 
 # ---------------------------------------------------------------------------
+# Test: 1.1.c tenant setting evaluator (fail-closed behavior)
+# ---------------------------------------------------------------------------
+
+
+class TestShareWithEveryoneEvaluator:
+    """Control 1.1.c must use tenant disableShareWithEveryone evidence."""
+
+    def test_share_with_everyone_fails_closed_when_tenant_setting_missing(
+        self, tmp_path: Path, manifest: dict
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        ppac_data = load_fixture("ppac.json")
+        ppac_data.pop("tenantSettings", None)
+        write_json(collected / "ppac.json", ppac_data)
+
+        graph_data = load_fixture("graph_collector_contract.json")
+        write_json(collected / "graph.json", graph_data)
+
+        for name in ("purview", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=3,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.1")
+
+        assert ctrl["evidence"]["1.1.c"]["result"] == "fail"
+        assert "fail closed" in ctrl["evidence"]["1.1.c"]["value"]
+        assert ctrl["maturity_score"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.7.b audit plan evaluator (Graph subscribed SKU evidence)
+# ---------------------------------------------------------------------------
+
+
+class TestAuditPlanTierEvaluator:
+    """Control 1.7.b should evaluate E5-equivalent SKU evidence conservatively."""
+
+    @staticmethod
+    def _audit_control_manifest() -> dict:
+        return build_manifest_with_controls(
+            [
+                {
+                    "id": "1.7",
+                    "title": "Control 1.7: Comprehensive Audit Logging and Compliance",
+                    "pillar": 1,
+                    "pillar_name": "Security",
+                    "source_file": "docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md",
+                    "automation": "full",
+                    "collection_methods": ["Purview_PowerShell", "Graph_API"],
+                    "checks": [
+                        {
+                            "check_id": "1.7.a",
+                            "description": "Unified audit logging enabled",
+                            "api_call": "Get-AdminAuditLogConfig",
+                            "pass_condition": "audit_log_enabled",
+                            "zone_required": [1, 2, 3],
+                        },
+                        {
+                            "check_id": "1.7.b",
+                            "description": "M365 Audit plan tier is E5 or equivalent",
+                            "api_call": "Get-MgSubscribedSku",
+                            "pass_condition": "audit_plan_tier_adequate",
+                            "zone_required": [2, 3],
+                        },
+                    ],
+                    "zone_thresholds": {
+                        "zone1": {"min_checks_passed": 1, "maturity_score": 1},
+                        "zone2": {"min_checks_passed": 2, "maturity_score": 2},
+                        "zone3": {"min_checks_passed": 2, "maturity_score": 4},
+                    },
+                    "manual_question": None,
+                }
+            ]
+        )
+
+    def test_audit_plan_tier_passes_with_e5_equivalent_sku(self, tmp_path: Path):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        write_json(collected / "ppac.json", load_fixture("ppac.json"))
+        write_json(collected / "purview.json", load_fixture("purview.json"))
+        write_json(collected / "sharepoint.json", load_fixture("sharepoint.json"))
+        write_json(collected / "sentinel.json", load_fixture("sentinel.json"))
+        write_json(
+            collected / "graph.json",
+            load_fixture("graph_collector_contract.json"),
+        )
+
+        manifest_path = tmp_path / "controls-1.7.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._audit_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.7")
+
+        assert ctrl["evidence"]["1.7.b"]["result"] == "pass"
+        assert "SPE_E5" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["maturity_score"] == 2
+
+    def test_audit_plan_tier_fails_closed_when_sku_evidence_missing(
+        self, tmp_path: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        write_json(collected / "ppac.json", load_fixture("ppac.json"))
+        write_json(collected / "purview.json", load_fixture("purview.json"))
+        write_json(collected / "sharepoint.json", load_fixture("sharepoint.json"))
+        write_json(collected / "sentinel.json", load_fixture("sentinel.json"))
+
+        graph_data = load_fixture("graph.json")
+        graph_data.pop("subscribedSkus", None)
+        write_json(collected / "graph.json", graph_data)
+
+        manifest_path = tmp_path / "controls-1.7.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._audit_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.7")
+
+        assert ctrl["evidence"]["1.7.b"]["result"] == "fail"
+        assert "not collected" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["maturity_score"] == 0
+
+    def test_audit_plan_tier_fails_closed_when_sku_evidence_ambiguous(
+        self, tmp_path: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        write_json(collected / "ppac.json", load_fixture("ppac.json"))
+        write_json(collected / "purview.json", load_fixture("purview.json"))
+        write_json(collected / "sharepoint.json", load_fixture("sharepoint.json"))
+        write_json(collected / "sentinel.json", load_fixture("sentinel.json"))
+
+        graph_data = load_fixture("graph.json")
+        graph_data["subscribedSkus"] = [
+            {
+                "SkuId": "06ebc4ee-1bb5-47dd-8120-11324bc54e06",
+                "SkuPartNumber": "SPE_E5",
+                "CapabilityStatus": "Enabled",
+                "ConsumedUnits": 1,
+                "PrepaidUnits": {"Enabled": None, "Suspended": 0, "Warning": 0},
+            }
+        ]
+        write_json(collected / "graph.json", graph_data)
+
+        manifest_path = tmp_path / "controls-1.7.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._audit_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.7")
+
+        assert ctrl["evidence"]["1.7.b"]["result"] == "fail"
+        assert "ambiguous/insufficient" in ctrl["evidence"]["1.7.b"]["value"]
+        assert ctrl["maturity_score"] == 0
+
+
+# ---------------------------------------------------------------------------
 # Test: collector-real payloads keep engine contracts stable
 # ---------------------------------------------------------------------------
 
