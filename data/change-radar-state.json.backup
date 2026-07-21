@@ -2,8 +2,20 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-07-09T15:16:01Z",
+      "last_run": "2026-07-13T10:15:26Z",
       "items": {
+        "566999": {
+          "hash": "sha256:97ff453e8c6d95e180c12ce67056dadf6bd5c829c6407707367921675aaecbfc",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Enable express mode for flows invoked by an agent or app",
+          "detected_at": "2026-07-13T10:15:26Z"
+        },
+        "567472": {
+          "hash": "sha256:29efd4ad6e40067bb712d838b811e20250d52c8a3631081aa2badbedee896f04",
+          "status": "In development",
+          "title": "Microsoft Purview: Insider Risk Management - DS Triage Agent for IRM available in Defender",
+          "detected_at": "2026-07-13T10:15:26Z"
+        },
         "567003": {
           "hash": "sha256:4b6a9349691a7774fd00dbb4e0bf8bc80249b689c8d69e341fa2de5c24205804",
           "status": "In development",
@@ -833,8 +845,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "494809": {
-          "hash": "sha256:7522426ad7675daba88ec16d6a356f3ed41bbf117259302f99e9d9370fda3791",
-          "status": "In development",
+          "hash": "sha256:455d77c763043ccb826a58db2336abceb97e4b3af9af891914b6f7119daf550c",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Frontier and Microsoft agent user request approval flow in Microsoft 365 admin center",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -842,12 +854,6 @@
           "hash": "sha256:f311362cb6af30a4d6119f72ed1203e19f9c6b2ab6b18a52374ad45fb4fd4633",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Copilot Extensibility - Hebrew support in Agent builder",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "492613": {
-          "hash": "sha256:233de215bc53597688053d6220b0ed6a21eef8698935482d980f89ea3e6d73df",
-          "status": "Launched",
-          "title": "Microsoft 365 Admin Center: Pin agents in M365 Copilot Chat",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "490564": {
@@ -866,12 +872,6 @@
           "hash": "sha256:07fb48b875c59c7581ea582a1f045e54ebd69b16e8b8c95245774ac0827be84f",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): Access SharePoint agents in the Microsoft 365 Copilot app",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "481519": {
-          "hash": "sha256:9670ae5483d55a4b4721fac3b2d29257c807a2ac6ec6aaeaebd1fbfb5bc1ff6b",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): Admins can easily manage orphaned agents with comprehensive lifecycle functionality",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "487836": {
