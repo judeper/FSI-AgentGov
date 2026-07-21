@@ -564,6 +564,25 @@ def test_control_1_15_remains_manual_without_get_mgorganization_tls_claims():
     )
 
 
+def test_controls_1_15_and_1_16_rubric_fields_are_not_todo():
+    """Rubric fields for 1.15 and 1.16 must be authored content, not TODO placeholders."""
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    rubric_fields = ("priority", "yesBar", "partialBar", "noBar")
+    for cid in ("1.15", "1.16"):
+        ctrl = next(c for c in controls if c["id"] == cid)
+        for field in rubric_fields:
+            value = ctrl.get(field, "")
+            assert not str(value).startswith("TODO"), (
+                f"Control {cid}: rubric field '{field}' still contains a TODO placeholder: {value!r}"
+            )
+        fn = ctrl.get("facilitatorNotes", {})
+        for note_key in ("ask", "followUp"):
+            value = fn.get(note_key, "")
+            assert not str(value).startswith("TODO"), (
+                f"Control {cid}: facilitatorNotes.{note_key} still contains a TODO placeholder: {value!r}"
+            )
+
+
 def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():
     controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
     banned = {

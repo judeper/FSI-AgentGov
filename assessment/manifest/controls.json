@@ -1653,7 +1653,7 @@
       "SEC-17a-4",
       "SOX-404"
     ],
-    "priority": "TODO: critical|high|medium|low",
+    "priority": "critical",
     "applicable_drivers": [
       "technology_data"
     ],
@@ -1666,9 +1666,9 @@
       6
     ],
     "pattern_critical": [],
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "yesBar": "SSL Labs grade A/A+ on all public tenant endpoints (TLS 1.2+ only, no weak ciphers); Customer Key DEPs in Active state for Exchange Online and SharePoint/OneDrive workloads (Zone 2/3) with Key Vaults hardened (soft delete + purge protection enabled, >=90-day retention, wrapKey/unwrapKey/get access only); Power Platform CMK applied to every Managed Environment hosting agents (Zone 2/3); Double Key Encryption label published to MNPI scope and cryptographic isolation validated in a non-production tenant (Zone 3); key rotation within zone cadence (annual Zone 2, quarterly Zone 3) with dual-control approval records; and rehearsed Customer Key revocation runbook with dated non-production test (Zone 3).",
+    "partialBar": "Customer Key DEPs provisioned but one or more remain in PendingActivation state; Key Vaults exist but purge protection not yet enabled or key access over-granted beyond wrapKey/unwrapKey/get; Power Platform CMK applied to some but not all agent Managed Environments; Zone 3 DKE label missing or cryptographic isolation not yet tested; key rotation overdue or dual-control approval not documented; or revocation runbook not yet rehearsed in a non-production tenant.",
+    "noBar": "No Customer Key DEPs configured for Zone 2/3 environments; TLS posture not audited or weak cipher suites present on public tenant endpoints; Key Vaults absent or purge protection not enabled; no evidence that Copilot grounding sources are mapped to DEP-covered workloads; no key rotation records; or no revocation runbook exists for Zone 3.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1686,9 +1686,9 @@
       "other": null
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Share your most recent SSL Labs reports for public tenant endpoints and the PowerShell output from Get-M365DataAtRestEncryptionPolicy and Get-DataEncryptionPolicy — what is the PolicyState for each active DEP, and are both Key Vault key URIs resolving?",
+      "followUp": "For Zone 2/3: confirm purge protection and soft delete are enabled on each Key Vault (Get-AzKeyVault); check PPAC environment Encryption panel for CMK status; for Zone 3, open Purview sensitivity labels to confirm DKE encryption type is configured and show the revocation runbook with its dated non-production rehearsal record. Important: Customer Key, Power Platform CMK, and DKE protect content at the storage layer only — they do not propagate encryption into Microsoft 365 Copilot or Copilot Studio grounding/output paths. Sensitivity labels (Control 1.5/1.16) are the only supported AI-app encryption path; confirm that agent grounding sources are mapped to DEP-covered workloads separately from label coverage.",
+      "timeBudgetMinutes": 20
     },
     "solutions": []
   },
@@ -1735,7 +1735,7 @@
       "SOX-404",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
+    "priority": "high",
     "applicable_drivers": [
       "technology_data"
     ],
@@ -1748,9 +1748,9 @@
       6
     ],
     "pattern_critical": [],
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "yesBar": "Zone 1: IRM is optional — no IRM evidence required for a Zone 1 pass. Zone 2/3: Azure RMS reports Enabled (Get-AipService); at least one IRM-enabled sensitivity label is published with Assign permissions now and encryption configured (not content marking only); IRM enabled on every SharePoint agent knowledge-source library with zone-appropriate expiration and offline-access limits (Zone 2: 180-day/14-day; Zone 3: 90-day/7-day); agent service identity scoped to Viewer in label permissions (not Co-Author or Co-Owner); document tracking events confirmed in Purview within expected latency; super-user group membership restricted to named compliance personnel; and Zone 3: dynamic watermark with viewer email, auto-labeling deployed for all FSI-relevant sensitive information types.",
+    "partialBar": "Azure RMS enabled and labels exist but IRM not applied to all agent knowledge-source libraries; or labels deployed with content marking only (no encryption or rights enforcement configured — marking alone does not satisfy this control); or agent service identity granted Co-Author rights instead of Viewer; or document tracking not confirmed end-to-end in Purview or UAL; or Zone 3 requirements partially met (missing dynamic watermark, zone-appropriate expiration limits, or auto-labeling deployment).",
+    "noBar": "Azure RMS not activated; or no IRM-enabled sensitivity labels published (encryption not configured in label settings — content marking alone does not satisfy this control); or IRM not applied to any SharePoint agent knowledge-source library; or agent service identity holds Co-Owner or Co-Author label permissions.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1768,9 +1768,9 @@
       "other": null
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Run Get-AipService to confirm Azure RMS status, then open the encryption tab for your FSI IRM-enabled sensitivity label in Purview — is encryption configured with Assign permissions now, and is the agent service identity listed at Viewer (not Co-Author or Co-Owner)?",
+      "followUp": "Open SharePoint Admin Center > Policies > Access control > Information Rights Management to confirm tenant-level IRM is enabled; then open one Zone 3 agent knowledge-source library > Settings > Information Rights Management and verify the expiration and offline-access limits match zone requirements (90-day / 7-day for Zone 3, 180-day / 14-day for Zone 2).",
+      "timeBudgetMinutes": 15
     },
     "solutions": []
   },
