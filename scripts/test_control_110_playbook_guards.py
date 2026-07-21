@@ -3,12 +3,22 @@
 These regression tests lock in two classes of corrections made under
 OceanSquad#222 that generic validators do not catch:
 
-1. Shell attribution. The ``*-SupervisoryReview*`` cmdlet family
-   (``Get-SupervisoryReviewPolicyV2``/``-Rule``/``-Activity``) is available
-   **only** in Security & Compliance PowerShell (IPPS,
-   ``Connect-IPPSSession`` / ``*.ps.compliance.protection.outlook.com``).
-   It must never be attributed to Exchange Online
-   (``Connect-ExchangeOnline`` / ``outlook.office365.com``).
+1. Shell attribution. The ``*-SupervisoryReview*`` cmdlet family is split
+   across two shell surfaces:
+
+   * **IPPS-only (supervision management).** ``*-SupervisoryReviewPolicyV2``
+     and ``*-SupervisoryReviewRule`` are available exclusively in Security &
+     Compliance PowerShell (IPPS, ``Connect-IPPSSession`` /
+     ``*.ps.compliance.protection.outlook.com``). They must never be
+     attributed to Exchange Online (``Connect-ExchangeOnline`` /
+     ``outlook.office365.com``).
+
+   * **Dual-shell (reviewer-activity read).** ``Get-SupervisoryReviewActivity``
+     is available in **both** IPPS and Exchange Online PowerShell
+     (``module/exchange/`` on Microsoft Learn). The guard therefore does
+     **not** flag it as an error when it appears in the context of either
+     shell.  ``SUPERVISORY_MGMT_RE`` intentionally excludes it; use
+     ``SUPERVISORY_ACTIVITY_RE`` to match it by name.
 
 2. Cross-reference targets in verification-testing.md. Records-retention /
    SEC 17a-4 must point at Control 1.9 (never 1.12); the eDiscovery
@@ -38,7 +48,18 @@ PLAYBOOKS = [
     "verification-testing.md",
 ]
 
-SUPERVISORY_CMDLET_RE = re.compile(r"(?:New|Get|Set)-SupervisoryReview\w+", re.IGNORECASE)
+SUPERVISORY_MGMT_RE = re.compile(
+    # Supervision-management cmdlets (PolicyV2 and Rule) — IPPS only.  Must
+    # never be attributed to Exchange Online.  Intentionally excludes
+    # Get-SupervisoryReviewActivity, which has dual-shell (IPPS + EXO)
+    # availability and is covered separately by SUPERVISORY_ACTIVITY_RE.
+    r"(?:New|Get|Set)-SupervisoryReview(?:PolicyV2|Rule)\b",
+    re.IGNORECASE,
+)
+
+# Reviewer-activity cmdlet — available in both IPPS and Exchange Online.
+# Excluded from the IPPS-only enforcement in SUPERVISORY_MGMT_RE.
+SUPERVISORY_ACTIVITY_RE = re.compile(r"\bGet-SupervisoryReviewActivity\b", re.IGNORECASE)
 
 # Canonical endpoints. These are compared against *parsed hostnames*, never used
 # as substring probes against raw text — a substring test such as
@@ -147,23 +168,29 @@ def _read(name: str) -> str:
 
 @pytest.mark.parametrize("name", PLAYBOOKS)
 def test_supervisory_cmdlets_never_attributed_to_exchange_online(name: str) -> None:
-    """No line may positively bind a SupervisoryReview cmdlet to Exchange Online.
+    """No line may positively bind a supervision-management cmdlet to Exchange Online.
+
+    The guard covers only the IPPS-only management cmdlets
+    (``*-SupervisoryReviewPolicyV2`` and ``*-SupervisoryReviewRule``).
+    ``Get-SupervisoryReviewActivity`` is dual-shell (IPPS + Exchange Online)
+    and is intentionally excluded via ``SUPERVISORY_MGMT_RE`` — see module
+    docstring and the unit-level boundary tests at the bottom of this file.
 
     The corrected 'wrong-shell trap' legitimately names Exchange Online while
     *negating* it, so we only flag the affirmative-inversion signatures: the
     Exchange Online connection host (matched by exact parsed-hostname equality,
     not substring) or the phrase 'Exchange Online cmdlets' appearing on the
-    same line as a SupervisoryReview cmdlet.
+    same line as a supervision-management cmdlet.
     """
     offenders: list[str] = []
     for lineno, line in enumerate(_read(name).splitlines(), start=1):
-        if not SUPERVISORY_CMDLET_RE.search(line):
+        if not SUPERVISORY_MGMT_RE.search(line):
             continue
         if _references_exo_host(line) or "Exchange Online cmdlets" in line:
             offenders.append(f"{name}:{lineno}: {line.strip()}")
     assert not offenders, (
-        "SupervisoryReview cmdlets wrongly attributed to Exchange Online "
-        "(they are Security & Compliance PowerShell / IPPS only):\n"
+        "Supervision-management cmdlets (PolicyV2 / Rule) wrongly attributed "
+        "to Exchange Online (they are Security & Compliance PowerShell / IPPS only):\n"
         + "\n".join(offenders)
     )
 
@@ -290,3 +317,60 @@ def test_scheme_relative_userinfo_authority_wins_over_label() -> None:
 def test_malformed_ipv6_url_token_fails_closed() -> None:
     assert _hostname_from_url("https://[::1/x") is None
     assert _extract_hosts("https://[::1/x outlook.office365.com") == {EXO_HOST}
+
+
+# ---------------------------------------------------------------------------
+# Behavioral boundary: supervision-management guard vs. Activity dual-shell.
+#
+# These unit-level tests prove that SUPERVISORY_MGMT_RE catches PolicyV2/Rule
+# co-located with Exchange Online but does NOT catch Get-SupervisoryReviewActivity,
+# which has dual-shell (IPPS + Exchange Online) availability.
+# ---------------------------------------------------------------------------
+
+_MGMT_EXO_LINES = [
+    # PolicyV2 with a bare EXO hostname — should be flagged.
+    ("Get-SupervisoryReviewPolicyV2", f"Get-SupervisoryReviewPolicyV2 via {EXO_HOST}"),
+    # Rule with a full EXO URL — should be flagged.
+    ("New-SupervisoryReviewRule", f"New-SupervisoryReviewRule https://{EXO_HOST}/psession"),
+    # PolicyV2 with the phrase 'Exchange Online cmdlets' — should be flagged.
+    ("Set-SupervisoryReviewPolicyV2", "Set-SupervisoryReviewPolicyV2 — Exchange Online cmdlets"),
+]
+
+_ACTIVITY_EXO_LINES = [
+    # Activity with a bare EXO hostname — must NOT be caught by management guard.
+    f"Get-SupervisoryReviewActivity via {EXO_HOST}",
+    # Activity with a full EXO URL — must NOT be caught by management guard.
+    f"Get-SupervisoryReviewActivity https://{EXO_HOST}/liveid",
+    # Activity with 'Exchange Online cmdlets' phrase — must NOT be caught.
+    "Get-SupervisoryReviewActivity — Exchange Online cmdlets",
+]
+
+
+@pytest.mark.parametrize("cmdlet,line", _MGMT_EXO_LINES)
+def test_mgmt_guard_catches_policyv2_and_rule_with_exo(cmdlet: str, line: str) -> None:
+    """Supervision-management cmdlets co-located with an EXO attribution ARE flagged.
+
+    This confirms that SUPERVISORY_MGMT_RE still enforces IPPS-only for PolicyV2/Rule.
+    """
+    assert SUPERVISORY_MGMT_RE.search(line), (
+        f"SUPERVISORY_MGMT_RE should match '{cmdlet}' in: {line!r}"
+    )
+    is_offender = _references_exo_host(line) or "Exchange Online cmdlets" in line
+    assert is_offender, f"EXO attribution not detected in: {line!r}"
+
+
+@pytest.mark.parametrize("line", _ACTIVITY_EXO_LINES)
+def test_activity_not_caught_by_mgmt_guard_even_with_exo(line: str) -> None:
+    """Get-SupervisoryReviewActivity co-located with an EXO attribution is NOT flagged.
+
+    Activity has dual-shell (IPPS + Exchange Online) availability and is
+    intentionally excluded from the IPPS-only supervision-management guard.
+    """
+    # Activity IS a supervisory cmdlet (SUPERVISORY_ACTIVITY_RE matches it).
+    assert SUPERVISORY_ACTIVITY_RE.search(line), (
+        f"SUPERVISORY_ACTIVITY_RE should match Activity in: {line!r}"
+    )
+    # But it must NOT trigger the management guard.
+    assert not SUPERVISORY_MGMT_RE.search(line), (
+        f"SUPERVISORY_MGMT_RE must not match Get-SupervisoryReviewActivity: {line!r}"
+    )
