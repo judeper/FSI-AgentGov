@@ -23,6 +23,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 VALIDATOR = REPO_ROOT / "scripts" / "validate_manifest.py"
 SCORE_ENGINE = REPO_ROOT / "assessment" / "engine" / "score.py"
+EXPLORER_DATA = REPO_ROOT / "docs" / "javascripts" / "control-explorer-data.json"
+CHANGE_RADAR_DATA = REPO_ROOT / "docs" / "javascripts" / "change-radar-data.json"
+CONTROL_EXPLORER_JS = REPO_ROOT / "docs" / "javascripts" / "control-explorer.js"
+CONTROL_BLUF_JS = REPO_ROOT / "docs" / "javascripts" / "control-bluf.js"
+ASSESSMENT_APP_JS = REPO_ROOT / "docs" / "javascripts" / "assessment-app.js"
 
 
 def _run(args: list[str]) -> subprocess.CompletedProcess:
@@ -55,6 +60,35 @@ def test_manifest_has_79_controls():
     assert len(controls) == 79
     ids = [c["id"] for c in controls]
     assert len(set(ids)) == 79, "duplicate control ids"
+
+
+def test_primary_finra_notice_mapping_uses_finra_24_09():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    with_24_09 = [c["id"] for c in controls if "FINRA-24-09" in c.get("regulatory", [])]
+    with_25_07 = [c["id"] for c in controls if "FINRA-25-07" in c.get("regulatory", [])]
+
+    assert with_25_07 == [], (
+        "FINRA-25-07 is pending/nonbinding metadata and must not be used as a "
+        f"primary manifest mapping: {with_25_07}"
+    )
+    assert len(with_24_09) == 71, (
+        "Expected FINRA-24-09 to carry the corrected primary mapping footprint; "
+        f"found {len(with_24_09)} controls"
+    )
+    assert {"1.1", "2.1", "3.1", "4.1", "2.26"} <= set(with_24_09)
+
+
+def test_finra_25_07_stays_in_explicit_pending_metadata_surfaces():
+    assert "FINRA-25-07" not in MANIFEST.read_text(encoding="utf-8")
+    assert "FINRA-25-07" not in EXPLORER_DATA.read_text(encoding="utf-8")
+    assert "FINRA-25-07" not in CHANGE_RADAR_DATA.read_text(encoding="utf-8")
+
+    assert '"FINRA-25-07": true' in CONTROL_EXPLORER_JS.read_text(encoding="utf-8")
+    assert '"FINRA-25-07": true' in CONTROL_BLUF_JS.read_text(encoding="utf-8")
+
+    assessment_text = ASSESSMENT_APP_JS.read_text(encoding="utf-8")
+    assert "FINRA RN 25-07" in assessment_text
+    assert "NOT been adopted as binding rulemaking" in assessment_text
 
 
 def test_every_control_has_v14_keys():
@@ -136,6 +170,31 @@ def test_control_1_12_requires_manual_portal_review():
     assert ctrl["collection_methods"] == []
     assert ctrl["checks"] == []
     assert "Purview portal evidence" in ctrl["manual_question"]
+
+
+def test_control_1_15_remains_manual_without_get_mgorganization_tls_claims():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.15")
+
+    assert ctrl["automation"] == "manual"
+    assert ctrl["collection_methods"] == []
+    assert ctrl["checks"] == []
+    assert ctrl["manual_question"] is not None
+
+    unsupported_conditions = {
+        ("Get-MgOrganization", "tls_12_enforced"),
+        ("Get-MgOrganization", "at_rest_encryption_verified"),
+    }
+    offenders = [
+        f"{ctrl['id']}:{check.get('check_id')}"
+        for check in ctrl.get("checks", [])
+        if (check.get("api_call"), check.get("pass_condition"))
+        in unsupported_conditions
+    ]
+    assert offenders == [], (
+        "Control 1.15 must not claim Get-MgOrganization proves TLS or "
+        f"at-rest encryption settings: {offenders}"
+    )
 
 
 def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():
