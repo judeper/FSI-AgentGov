@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-14T23:33:01.181Z",
+  "generated_at": "2026-07-21T21:11:45.546Z",
   "source_root": "docs/",
   "site_url": "https://judeper.github.io/FSI-AgentGov/",
   "pages": {
@@ -891,6 +891,12 @@
       "expected_diagram_links": [],
       "expected_asset_links": []
     },
+    "/change-radar/": {
+      "source_md": "docs/change-radar.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
     "/changelog/": {
       "source_md": "docs/changelog.md",
       "expected_mermaid_count": 0,
@@ -899,6 +905,12 @@
     },
     "/controls/CONTROL-INDEX/": {
       "source_md": "docs/controls/CONTROL-INDEX.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/explorer/": {
+      "source_md": "docs/controls/explorer.md",
       "expected_mermaid_count": 0,
       "expected_diagram_links": [],
       "expected_asset_links": []
@@ -1206,6 +1218,12 @@
       "expected_diagram_links": [],
       "expected_asset_links": []
     },
+    "/controls/pillar-2-management/2.27-consumption-entitlement-governance/": {
+      "source_md": "docs/controls/pillar-2-management/2.27-consumption-entitlement-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
     "/controls/pillar-2-management/2.3-change-management-and-release-planning/": {
       "source_md": "docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md",
       "expected_mermaid_count": 0,
@@ -1504,7 +1522,6 @@
       "expected_diagram_links": [
         "images/diagrams/solutions-integration-integration-architecture.png",
         "images/diagrams/solutions-integration-integration-architecture.svg",
-        "images/diagrams/solutions-integration-overview.png",
         "images/diagrams/solutions-integration-overview.svg"
       ],
       "expected_asset_links": []
@@ -1547,6 +1564,12 @@
     },
     "/javascripts/lib/VENDOR-MANIFEST/": {
       "source_md": "docs/javascripts/lib/VENDOR-MANIFEST.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/_shared/playbook-authoring-guide/": {
+      "source_md": "docs/playbooks/_shared/playbook-authoring-guide.md",
       "expected_mermaid_count": 0,
       "expected_diagram_links": [],
       "expected_asset_links": []
@@ -3069,6 +3092,30 @@
       "expected_diagram_links": [],
       "expected_asset_links": []
     },
+    "/playbooks/control-implementations/2.27/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.27/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.27/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.27/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.27/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.27/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.27/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.27/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
     "/playbooks/control-implementations/2.2/portal-walkthrough/": {
       "source_md": "docs/playbooks/control-implementations/2.2/portal-walkthrough.md",
       "expected_mermaid_count": 0,
@@ -4045,10 +4092,23 @@
       "source_md": "docs/reference/index.md",
       "expected_mermaid_count": 0,
       "expected_diagram_links": [],
-      "expected_asset_links": []
+      "expected_asset_links": [
+        "downloads/compliance-officer-checklist.xlsx",
+        "downloads/entra-administrator-checklist.xlsx",
+        "downloads/governance-maturity-dashboard.xlsx",
+        "downloads/power-platform-administrator-checklist.xlsx",
+        "downloads/purview-administrator-checklist.xlsx",
+        "downloads/sharepoint-administrator-checklist.xlsx"
+      ]
     },
     "/reference/iso-42001-mapping/": {
       "source_md": "docs/reference/iso-42001-mapping.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/known-limitations/": {
+      "source_md": "docs/reference/known-limitations.md",
       "expected_mermaid_count": 0,
       "expected_diagram_links": [],
       "expected_asset_links": []
@@ -4097,6 +4157,12 @@
     },
     "/reference/nist-ai-rmf-crosswalk/": {
       "source_md": "docs/reference/nist-ai-rmf-crosswalk.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/owasp-llm-top10-crosswalk/": {
+      "source_md": "docs/reference/owasp-llm-top10-crosswalk.md",
       "expected_mermaid_count": 0,
       "expected_diagram_links": [],
       "expected_asset_links": []
@@ -4212,10 +4278,10 @@
     }
   },
   "summary": {
-    "total_pages": 688,
+    "total_pages": 697,
     "pages_with_mermaid": 26,
     "total_mermaid_blocks": 39,
-    "total_diagram_links": 64,
-    "total_asset_links": 0
+    "total_diagram_links": 63,
+    "total_asset_links": 6
   }
 }
