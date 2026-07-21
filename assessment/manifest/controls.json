@@ -72,7 +72,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -202,7 +202,7 @@
       "Purview Compliance Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "GLBA",
@@ -316,7 +316,7 @@
       "Site Collection Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -433,7 +433,7 @@
       "Security Team"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -549,7 +549,7 @@
     "regulatory": [
       "FINRA-4511",
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SEC-17a-4",
       "Reg-S-P",
       "SOX-404",
@@ -654,7 +654,7 @@
       "Purview Security Reader"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "GLBA",
       "Reg-S-P",
@@ -767,7 +767,7 @@
     "regulatory": [
       "FINRA-4511",
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SEC-17a-4",
       "SOX-404",
       "GLBA",
@@ -869,7 +869,7 @@
       "Security Operations"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "GLBA"
     ],
@@ -978,7 +978,7 @@
     ],
     "regulatory": [
       "CFTC-1.31",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-3",
@@ -1076,7 +1076,7 @@
       "Privacy Officer"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "FINRA-4530",
@@ -1207,7 +1207,7 @@
       "SOC Analyst (Sentinel / Defender XDR)"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "GLBA",
@@ -1301,7 +1301,7 @@
       "Role group"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -1415,7 +1415,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SEC-17a-4",
       "SEC-17a-3",
       "Reg-S-P",
@@ -1509,7 +1509,7 @@
     "regulatory": [
       "FINRA-4511",
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "Reg-S-P",
       "GLBA"
     ],
@@ -1591,7 +1591,7 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "NYDFS-500",
@@ -1677,7 +1677,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "Reg-S-P",
       "SOX-404",
       "GLBA"
@@ -1770,7 +1770,7 @@
       "Purview Compliance Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -1880,7 +1880,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -1992,7 +1992,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SEC-17a-4",
       "SOX-404",
       "GLBA"
@@ -2094,7 +2094,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "Fed-SR-26-2",
       "GLBA",
@@ -2199,7 +2199,7 @@
     "regulatory": [
       "FINRA-4511",
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SEC-17a-4",
       "GLBA",
       "OCC-2026-13",
@@ -2304,7 +2304,7 @@
       "Purview Compliance Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "Fed-SR-26-2",
       "OCC-2026-13",
       "Reg-S-P"
@@ -2395,7 +2395,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "FINRA-4530",
       "GLBA",
@@ -2483,7 +2483,7 @@
       "SOC Analyst"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "Fed-SR-26-2",
       "GLBA",
       "NIST-AI-RMF",
@@ -2591,7 +2591,7 @@
       "SOC Analyst"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -2699,7 +2699,7 @@
     ],
     "regulatory": [
       "CFTC-1.31",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -2818,7 +2818,7 @@
       "Security Operations"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "Fed-SR-26-2",
       "GLBA",
@@ -2928,7 +2928,7 @@
     ],
     "regulatory": [
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "OCC-2026-13",
       "Fed-SR-26-2"
@@ -3034,7 +3034,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "GLBA",
       "OCC-2026-13"
@@ -3141,7 +3141,7 @@
       "Power Platform Admin (or Dynamics 365 Admin)"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -3258,7 +3258,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -3358,7 +3358,7 @@
       "Security Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "GLBA",
@@ -3461,7 +3461,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "OCC-2026-13",
@@ -3549,7 +3549,7 @@
       "Purview Records Manager"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -3640,7 +3640,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -3729,7 +3729,7 @@
       "Security Team"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -3836,7 +3836,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -3937,7 +3937,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "GLBA",
@@ -4038,7 +4038,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SEC-17a-4",
       "SOX-404",
       "GLBA"
@@ -4299,7 +4299,7 @@
     ],
     "regulatory": [
       "CFTC-1.31",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
@@ -4388,7 +4388,7 @@
       "Manager"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "GLBA",
       "OCC-2026-13",
@@ -4494,7 +4494,7 @@
     ],
     "regulatory": [
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "GLBA",
       "OCC-2026-13"
@@ -4588,7 +4588,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "OCC-2026-13",
       "Fed-SR-26-2"
     ],
@@ -4683,7 +4683,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "OCC-2026-13",
       "Fed-SR-26-2"
@@ -4767,7 +4767,7 @@
       "Model Risk Manager"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -4848,7 +4848,7 @@
       "Legal Counsel"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-4"
@@ -4932,7 +4932,7 @@
       "Security Team"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "Fed-SR-26-2",
       "NIST-AI-RMF",
@@ -5117,7 +5117,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-4",
@@ -5203,7 +5203,7 @@
       "Purview Compliance Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "GLBA",
       "SEC-17a-4",
@@ -5316,7 +5316,7 @@
     "regulatory": [
       "FINRA-4511",
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "GLBA",
       "OCC-2026-13",
@@ -5428,7 +5428,7 @@
       "Technology Risk Manager"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -5542,7 +5542,7 @@
     ],
     "regulatory": [
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "GLBA",
       "OCC-2026-13"
@@ -5781,7 +5781,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "GLBA",
@@ -5870,7 +5870,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-3",
@@ -5969,7 +5969,7 @@
       "SharePoint Site Owner"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "OCC-2026-13",
@@ -6073,7 +6073,7 @@
       "Privacy Officer"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "FINRA-4530",
       "GLBA",
@@ -6187,7 +6187,7 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "OCC-2026-13",
@@ -6276,7 +6276,7 @@
       "Purview Compliance Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "GLBA",
@@ -6388,7 +6388,7 @@
     ],
     "regulatory": [
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "GLBA",
       "OCC-2026-13"
@@ -6472,7 +6472,7 @@
       "Supervisor"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-3",
@@ -6584,7 +6584,7 @@
       "Sentinel Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "NYDFS-500",
@@ -6672,7 +6672,7 @@
       "QA Lead"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "SEC-17a-4",
@@ -6759,7 +6759,7 @@
       "Security Operations"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "Fed-SR-26-2",
       "OCC-2026-13",
@@ -6845,7 +6845,7 @@
     ],
     "regulatory": [
       "FINRA-3110",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "SOX-404",
       "OCC-2026-13",
       "Fed-SR-26-2"
@@ -7122,7 +7122,7 @@
       "SharePoint Site Collection Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "Reg-S-P",
@@ -7220,7 +7220,7 @@
       "SharePoint Site Collection Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "NYDFS-500",
@@ -7328,7 +7328,7 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-3",
@@ -7437,7 +7437,7 @@
     ],
     "regulatory": [
       "FINRA-4511",
-      "FINRA-25-07",
+      "FINRA-24-09",
       "Reg-S-P",
       "SOX-404",
       "GLBA"
@@ -7532,7 +7532,7 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "SEC-17a-3",
@@ -7641,7 +7641,7 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-4511",
       "GLBA",
       "OCC-2026-13",
@@ -7734,7 +7734,7 @@
       "eDiscovery Manager"
     ],
     "regulatory": [
-      "FINRA-25-07",
+      "FINRA-24-09",
       "FINRA-3110",
       "FINRA-4511",
       "Fed-SR-26-2",
