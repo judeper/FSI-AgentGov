@@ -68,6 +68,13 @@ def ids_from_controls(path: Path) -> tuple[list[str], int | None]:
     return ids, declared_count
 
 
+def regulatory_set(control: dict[str, Any], key: str) -> set[str]:
+    raw = control.get(key, [])
+    if not isinstance(raw, list):
+        return set()
+    return {str(value).strip() for value in raw if str(value).strip()}
+
+
 def duplicate_ids(ids: list[str]) -> list[str]:
     counts = Counter(ids)
     return sorted(cid for cid, count in counts.items() if count > 1)
@@ -91,6 +98,10 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest_set = set(manifest_ids)
     explorer_set = set(explorer_ids)
+    manifest_controls, _ = load_controls(MANIFEST)
+    explorer_controls, _ = load_controls(EXPLORER_DATA)
+    manifest_by_id = {str(control.get("id")): control for control in manifest_controls}
+    explorer_by_id = {str(control.get("id")): control for control in explorer_controls}
     sources = {
         "manifest (controls.json)": manifest_ids,
         "Control Explorer data": explorer_ids,
@@ -149,6 +160,44 @@ def main(argv: list[str] | None = None) -> int:
     if malformed:
         drift = True
         print(f"DRIFT: malformed control IDs detected: {malformed}")
+
+    promoted_2507_manifest = sorted(
+        cid
+        for cid, control in manifest_by_id.items()
+        if "FINRA-25-07" in regulatory_set(control, "regulatory")
+    )
+    if promoted_2507_manifest:
+        drift = True
+        print(
+            "DRIFT: manifest contains FINRA-25-07 in primary regulatory mappings "
+            f"(must remain pending/nonbinding only): {promoted_2507_manifest}"
+        )
+
+    promoted_2507_explorer = sorted(
+        cid
+        for cid, control in explorer_by_id.items()
+        if "FINRA-25-07" in regulatory_set(control, "regulations")
+    )
+    if promoted_2507_explorer:
+        drift = True
+        print(
+            "DRIFT: Control Explorer data still publishes FINRA-25-07 as a regulation "
+            f"facet for control(s): {promoted_2507_explorer}"
+        )
+
+    for cid in sorted(manifest_set & explorer_set):
+        manifest_regs = regulatory_set(manifest_by_id[cid], "regulatory")
+        if not manifest_regs:
+            # Controls with empty authoritative mappings may derive fallback facets
+            # from markdown headers. Skip parity checks for those controls.
+            continue
+        explorer_regs = regulatory_set(explorer_by_id[cid], "regulations")
+        if manifest_regs != explorer_regs:
+            drift = True
+            print(
+                f"DRIFT: regulation facet mismatch for control {cid}: "
+                f"manifest={sorted(manifest_regs)} explorer={sorted(explorer_regs)}"
+            )
 
     if drift:
         print(
