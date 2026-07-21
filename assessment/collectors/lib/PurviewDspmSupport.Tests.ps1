@@ -199,6 +199,103 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
 
+    It 'qualifies documented loose location scope syntax with nested inclusions' {
+        $policy = @{
+            Name              = 'Loose documented scope'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = (
+                "{Workload:Applications, Location:$copilotLocation, " +
+                'Inclusions:[{Type:Tenant,Identity:All}], Exclusions:[]}'
+            )
+            EnforcementPlanes = 'CopilotExperiences'
+        }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
+    }
+
+    It 'qualifies PowerShell hashtable-style loose location scope syntax' {
+        $policy = @{
+            Name              = 'PowerShell loose scope'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = (
+                "@{ Workload = 'Applications'; Location = '$copilotLocation'; " +
+                'Inclusions = @(@{ Type = Tenant; Identity = All }) }'
+            )
+            EnforcementPlanes = 'CopilotExperiences'
+        }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
+    }
+
+    It 'does not qualify a loose scope with the Copilot GUID only in exclusions' {
+        $policy = @{
+            Name              = 'Loose exclusion-only GUID'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = (
+                "{Workload:Applications, Location:other-location, " +
+                "Exclusions:[{Type:Location,Location:$copilotLocation}]}"
+            )
+            EnforcementPlanes = 'CopilotExperiences'
+        }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
+    It 'does not harvest Workload or Location from loose nested diagnostics' {
+        $policy = @{
+            Name              = 'Loose nested diagnostics'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = (
+                '{Workload:Exchange, Location:other-location, ' +
+                "Diagnostics:{Workload:Applications,Location:$copilotLocation}}"
+            )
+            EnforcementPlanes = 'CopilotExperiences'
+        }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
+    It 'does not combine workload and location from different loose scopes' {
+        $policy = @{
+            Name              = 'Separate loose scopes'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = (
+                "[{Workload:Applications,Location:other-location}," +
+                "{Workload:Exchange,Location:$copilotLocation}]"
+            )
+            EnforcementPlanes = 'CopilotExperiences'
+        }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
+    It 'rejects malformed loose location scope strings' -ForEach @(
+        @{ Locations = '{Workload:Applications,Location:' }
+        @{ Locations = '{Workload:Applications Location:470f2276-e011-4e9d-a6ec-20768be3a4b0}' }
+        @{ Locations = '{Workload:Applications,Workload:Exchange,Location:470f2276-e011-4e9d-a6ec-20768be3a4b0}' }
+    ) {
+        $policy = @{
+            Name              = 'Malformed loose scope'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = $Locations
+            EnforcementPlanes = 'CopilotExperiences'
+        }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
     It 'accepts the existing top-level Workload and Location representation' {
         $policy = @{
             Name              = 'Singular location'

@@ -1429,10 +1429,21 @@ def _eval_dspm_policy_exists(
     if not isinstance(dspm, dict):
         return None, "dspmForAi not collected"
 
-    collection_status = str(dspm.get("CollectionStatus") or "").lower()
-    if collection_status in {"failed", "unavailable", "error", "unknown"}:
-        note = dspm.get("Note") or "DSPM DLP collection unavailable"
+    collection_status = str(dspm.get("CollectionStatus") or "").strip().lower()
+    if collection_status != "collected":
+        note = dspm.get("Note") or "DSPM DLP collection state is unavailable"
         return None, note
+
+    diagnostic_count = dspm.get("DiagnosticPolicyCount")
+    diagnostics = dspm.get("PolicyDiagnostics")
+    if (
+        not isinstance(diagnostic_count, int)
+        or isinstance(diagnostic_count, bool)
+        or not isinstance(diagnostics, list)
+        or diagnostic_count != len(diagnostics)
+        or not all(isinstance(diagnostic, dict) for diagnostic in diagnostics)
+    ):
+        return None, "dspmForAi canonical policy diagnostics are unavailable or malformed"
 
     detected = dspm.get("Detected")
     count = dspm.get("PolicyCount")
@@ -1440,9 +1451,20 @@ def _eval_dspm_policy_exists(
         policy_count = int(count or 0)
     except (TypeError, ValueError):
         return None, "dspmForAi PolicyCount is malformed"
+    if policy_count < 0:
+        return None, "dspmForAi PolicyCount is malformed"
 
-    if detected is True and policy_count > 0:
+    qualifying_diagnostics = [
+        diagnostic for diagnostic in diagnostics if diagnostic.get("Qualifies") is True
+    ]
+    if (
+        detected is True
+        and policy_count > 0
+        and len(qualifying_diagnostics) == policy_count
+    ):
         policy_names = dspm.get("PolicyNames") or []
+        if not isinstance(policy_names, list):
+            policy_names = []
         names = ", ".join(str(name) for name in policy_names if name)
         suffix = f": {names}" if names else ""
         return (
@@ -1452,8 +1474,8 @@ def _eval_dspm_policy_exists(
             f"Copilot location, and EnforcementPlane=CopilotExperiences{suffix}",
         )
 
-    if detected is None and collection_status != "collected":
-        return None, dspm.get("Note") or "DSPM DLP collection state is unavailable"
+    if qualifying_diagnostics or policy_count > 0:
+        return None, "dspmForAi summary is inconsistent with policy diagnostics"
 
     note = dspm.get("Note") or (
         "DLP collection succeeded; no qualifying actively enforced "

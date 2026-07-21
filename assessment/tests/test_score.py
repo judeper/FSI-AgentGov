@@ -2278,6 +2278,8 @@ class TestDspmPolicyEvaluator:
                 "Detected": True,
                 "PolicyCount": 1,
                 "PolicyNames": ["Active Microsoft 365 Copilot DLP"],
+                "DiagnosticPolicyCount": 1,
+                "PolicyDiagnostics": [{"Qualifies": True}],
                 "RetentionCoverage": False,
             }
         }
@@ -2299,6 +2301,8 @@ class TestDspmPolicyEvaluator:
                 "Detected": False,
                 "PolicyCount": 0,
                 "PolicyNames": [],
+                "DiagnosticPolicyCount": 0,
+                "PolicyDiagnostics": [],
                 "RetentionCoverage": False,
                 "Note": "DLP collection succeeded; no qualifying active Copilot DLP policy.",
             }
@@ -2319,6 +2323,8 @@ class TestDspmPolicyEvaluator:
                 "Detected": False,
                 "PolicyCount": 0,
                 "PolicyNames": [],
+                "DiagnosticPolicyCount": 0,
+                "PolicyDiagnostics": [],
                 "RetentionCoverage": True,
                 "RetentionPolicyNames": ["Copilot Retention"],
                 "Note": (
@@ -2343,6 +2349,8 @@ class TestDspmPolicyEvaluator:
                 "Detected": True,
                 "PolicyCount": 0,
                 "PolicyNames": [],
+                "DiagnosticPolicyCount": 0,
+                "PolicyDiagnostics": [],
                 "RetentionCoverage": True,
             }
         }
@@ -2395,6 +2403,66 @@ class TestDspmPolicyEvaluator:
 
         assert passed is None
         assert "rule evidence failed or was unavailable" in evidence
+
+    def test_dspm_evaluator_returns_unknown_for_legacy_positive_summary(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "Detected": True,
+                "PolicyCount": 1,
+                "PolicyNames": ["Legacy substring match"],
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is None
+        assert "state is unavailable" in evidence
+
+    @pytest.mark.parametrize("collection_status", [None, "", "partial"])
+    def test_dspm_evaluator_returns_unknown_for_noncanonical_collection_status(
+        self, collection_status: str | None
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "CollectionStatus": collection_status,
+                "Detected": True,
+                "PolicyCount": 1,
+                "PolicyNames": ["Untrusted positive"],
+                "DiagnosticPolicyCount": 1,
+                "PolicyDiagnostics": [{"Qualifies": True}],
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is None
+        assert "state is unavailable" in evidence
+
+    def test_dspm_evaluator_requires_canonical_diagnostics_for_collected_summary(
+        self,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "CollectionStatus": "collected",
+                "Detected": True,
+                "PolicyCount": 1,
+                "PolicyNames": ["Summary without diagnostics"],
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is None
+        assert "canonical policy diagnostics" in evidence
 
     # ---- Unit: normalizer handles camelCase → snake_case --------------------
 

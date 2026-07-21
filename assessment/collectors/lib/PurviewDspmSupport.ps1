@@ -202,6 +202,221 @@ function ConvertTo-PurviewDspmDirectStringValues {
     return @([string]$InputObject)
 }
 
+function Split-PurviewDspmLooseTopLevel {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Text,
+
+        [Parameter(Mandatory)]
+        [char[]]$Separators
+    )
+
+    $parts = [System.Collections.Generic.List[string]]::new()
+    $current = [System.Text.StringBuilder]::new()
+    $curlyDepth = 0
+    $squareDepth = 0
+    $parenthesisDepth = 0
+    $quote = [char]0
+    $escaped = $false
+
+    foreach ($character in $Text.ToCharArray()) {
+        if ($quote -ne [char]0) {
+            [void]$current.Append($character)
+            if ($escaped) {
+                $escaped = $false
+                continue
+            }
+            if ($character -eq '\' -or $character -eq '`') {
+                $escaped = $true
+                continue
+            }
+            if ($character -eq $quote) {
+                $quote = [char]0
+            }
+            continue
+        }
+
+        if ($character -eq '"' -or $character -eq "'") {
+            $quote = $character
+            [void]$current.Append($character)
+            continue
+        }
+
+        switch ($character) {
+            '{' { $curlyDepth++ }
+            '}' {
+                $curlyDepth--
+                if ($curlyDepth -lt 0) {
+                    return [PSCustomObject]@{ Valid = $false; Parts = @() }
+                }
+            }
+            '[' { $squareDepth++ }
+            ']' {
+                $squareDepth--
+                if ($squareDepth -lt 0) {
+                    return [PSCustomObject]@{ Valid = $false; Parts = @() }
+                }
+            }
+            '(' { $parenthesisDepth++ }
+            ')' {
+                $parenthesisDepth--
+                if ($parenthesisDepth -lt 0) {
+                    return [PSCustomObject]@{ Valid = $false; Parts = @() }
+                }
+            }
+        }
+
+        if (
+            $curlyDepth -eq 0 -and
+            $squareDepth -eq 0 -and
+            $parenthesisDepth -eq 0 -and
+            $Separators -contains $character
+        ) {
+            $parts.Add($current.ToString().Trim())
+            [void]$current.Clear()
+            continue
+        }
+
+        [void]$current.Append($character)
+    }
+
+    if (
+        $quote -ne [char]0 -or
+        $curlyDepth -ne 0 -or
+        $squareDepth -ne 0 -or
+        $parenthesisDepth -ne 0
+    ) {
+        return [PSCustomObject]@{ Valid = $false; Parts = @() }
+    }
+
+    $parts.Add($current.ToString().Trim())
+    return [PSCustomObject]@{ Valid = $true; Parts = @($parts) }
+}
+
+function ConvertFrom-PurviewDspmLooseScalar {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Text
+    )
+
+    $value = $Text.Trim()
+    if (-not $value) {
+        return $null
+    }
+
+    if ($value.StartsWith('"') -or $value.StartsWith("'")) {
+        $quote = $value[0]
+        if ($value.Length -lt 2 -or $value[$value.Length - 1] -ne $quote) {
+            return $null
+        }
+        $value = $value.Substring(1, $value.Length - 2).Trim()
+    }
+
+    if (
+        -not $value -or
+        $value.IndexOfAny([char[]]'{}[]()') -ge 0
+    ) {
+        return $null
+    }
+
+    return $value
+}
+
+function ConvertFrom-PurviewDspmLooseLocationScopes {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Text
+    )
+
+    $textValue = $Text.Trim()
+    $scopeTexts = @()
+    if ($textValue.StartsWith('[') -and $textValue.EndsWith(']')) {
+        $arrayParts = Split-PurviewDspmLooseTopLevel `
+            -Text $textValue.Substring(1, $textValue.Length - 2) `
+            -Separators @(',')
+        if (-not $arrayParts.Valid -or @($arrayParts.Parts).Count -eq 0) {
+            return @()
+        }
+        $scopeTexts = @($arrayParts.Parts)
+    }
+    elseif (
+        ($textValue.StartsWith('{') -or $textValue.StartsWith('@{')) -and
+        $textValue.EndsWith('}')
+    ) {
+        $scopeTexts = @($textValue)
+    }
+    else {
+        return @()
+    }
+
+    $scopes = [System.Collections.Generic.List[object]]::new()
+    foreach ($scopeText in $scopeTexts) {
+        $scope = $scopeText.Trim()
+        if ($scope.StartsWith('@{') -and $scope.EndsWith('}')) {
+            $body = $scope.Substring(2, $scope.Length - 3)
+        }
+        elseif ($scope.StartsWith('{') -and $scope.EndsWith('}')) {
+            $body = $scope.Substring(1, $scope.Length - 2)
+        }
+        else {
+            return @()
+        }
+
+        $fields = Split-PurviewDspmLooseTopLevel -Text $body -Separators @(',', ';')
+        if (-not $fields.Valid -or @($fields.Parts).Count -eq 0) {
+            return @()
+        }
+
+        $workload = $null
+        $location = $null
+        foreach ($field in $fields.Parts) {
+            if (-not $field) {
+                return @()
+            }
+            $pair = Split-PurviewDspmLooseTopLevel -Text $field -Separators @(':', '=')
+            if (-not $pair.Valid -or @($pair.Parts).Count -ne 2) {
+                return @()
+            }
+
+            $key = ConvertFrom-PurviewDspmLooseScalar -Text $pair.Parts[0]
+            if (-not $key) {
+                return @()
+            }
+            if ([string]::Equals($key, 'Workload', [System.StringComparison]::OrdinalIgnoreCase)) {
+                if ($null -ne $workload) {
+                    return @()
+                }
+                $workload = ConvertFrom-PurviewDspmLooseScalar -Text $pair.Parts[1]
+                if (-not $workload) {
+                    return @()
+                }
+            }
+            elseif ([string]::Equals($key, 'Location', [System.StringComparison]::OrdinalIgnoreCase)) {
+                if ($null -ne $location) {
+                    return @()
+                }
+                $location = ConvertFrom-PurviewDspmLooseScalar -Text $pair.Parts[1]
+                if (-not $location) {
+                    return @()
+                }
+            }
+        }
+
+        if ($null -eq $workload -or $null -eq $location) {
+            return @()
+        }
+        $scopes.Add([PSCustomObject]@{
+            Workloads = @($workload)
+            Locations = @($location)
+        })
+    }
+
+    return @($scopes)
+}
+
 function ConvertTo-PurviewDspmLocationScopes {
     [CmdletBinding()]
     param(
@@ -227,7 +442,12 @@ function ConvertTo-PurviewDspmLocationScopes {
             return @()
         }
 
-        if ($text.StartsWith('[') -or $text.StartsWith('{') -or $text.StartsWith('"')) {
+        if (
+            $text.StartsWith('[') -or
+            $text.StartsWith('{') -or
+            $text.StartsWith('@{') -or
+            $text.StartsWith('"')
+        ) {
             try {
                 $parsed = $text | ConvertFrom-Json -ErrorAction Stop
                 return @(
@@ -238,7 +458,7 @@ function ConvertTo-PurviewDspmLocationScopes {
                 )
             }
             catch {
-                return @()
+                return @(ConvertFrom-PurviewDspmLooseLocationScopes -Text $text)
             }
         }
 
