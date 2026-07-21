@@ -4946,3 +4946,103 @@ class TestDspmPolicyEvaluator:
         # Checks should be scored, not left as unknown with unimplemented evidence
         chk = ctrl["checks"][0]
         assert chk["evaluator_state"] == "auto_evaluable"
+
+
+# ---------------------------------------------------------------------------
+# Test: Control 1.13.a — SIT collection command and manual-only evidence
+# ---------------------------------------------------------------------------
+
+ASSESSMENT_ROOT_113 = Path(__file__).resolve().parent.parent
+
+
+def _load_control_113() -> dict:
+    real_manifest = ASSESSMENT_ROOT_113 / "manifest" / "controls.json"
+    controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+    ctrl = next((c for c in controls if c["id"] == "1.13"), None)
+    assert ctrl is not None, "Control 1.13 not found in manifest"
+    return ctrl
+
+
+class TestControl113aSITCommand:
+    """1.13.a must target Get-DlpSensitiveInformationType, not Get-DlpCompliancePolicy."""
+
+    def test_1_13_a_uses_get_dlp_sensitive_information_type_in_manifest(self):
+        """Regression: SIT inventory is collected with the SIT cmdlet, not the DLP cmdlet."""
+        check_a = next(
+            (ch for ch in _load_control_113().get("checks", []) if ch["check_id"] == "1.13.a"),
+            None,
+        )
+        assert check_a is not None, "Check 1.13.a not found"
+        assert check_a["api_call"] == "Get-DlpSensitiveInformationType", (
+            f"1.13.a api_call must be Get-DlpSensitiveInformationType, "
+            f"got: {check_a['api_call']!r}"
+        )
+
+    def test_1_13_b_still_uses_get_dlp_compliance_policy(self):
+        """Verify 1.13.b was not accidentally changed (still targets DLP policy)."""
+        check_b = next(
+            (ch for ch in _load_control_113().get("checks", []) if ch["check_id"] == "1.13.b"),
+            None,
+        )
+        assert check_b is not None, "Check 1.13.b not found"
+        assert check_b["api_call"] == "Get-DlpCompliancePolicy", (
+            f"1.13.b api_call must remain Get-DlpCompliancePolicy, "
+            f"got: {check_b['api_call']!r}"
+        )
+
+    def test_1_13_a_remains_manual_only(self):
+        """A raw SIT count cannot prove FSI-specific coverage, so 1.13.a stays manual.
+
+        Guards the OCEAN-252 (#1021) decision against re-automation: collecting the
+        SIT inventory supplies evidence for the human attestation, it does not
+        replace it. Re-adding a pass_condition here would also break the 1.13
+        zone-threshold overrides and the manual-gate maturity cap.
+        """
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        ctrl = _load_control_113()
+        check_a = next(ch for ch in ctrl["checks"] if ch["check_id"] == "1.13.a")
+        assert not (check_a.get("pass_condition") or "").strip(), (
+            "1.13.a must not carry a pass_condition — it is manual-evidence only"
+        )
+        state = score.classify_check_evaluator_state(
+            check_a,
+            control_automation=ctrl["automation"],
+            control_collection_methods=ctrl.get("collection_methods"),
+        )
+        assert state == "manual_only", f"Expected manual_only, got {state!r}"
+
+
+class TestSITInventoryNormalization:
+    """The collector emits sensitiveInformationTypes; the normalizer canonicalizes it."""
+
+    def test_normalizer_backfills_from_camel_case_key(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        sits = [
+            {"Name": "Credit Card Number", "Publisher": "Microsoft Corporation", "Type": "builtin"},
+            {"Name": "Contoso CRD Number", "Publisher": "Contoso", "Type": "custom"},
+        ]
+        normalized = score._normalize_purview_data({"sensitiveInformationTypes": sits})
+        assert normalized["sensitive_information_types"] == sits
+
+    def test_normalizer_preserves_existing_snake_case_key(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        existing = [{"Name": "Already normalized"}]
+        normalized = score._normalize_purview_data(
+            {"sensitive_information_types": existing, "sensitiveInformationTypes": []}
+        )
+        assert normalized["sensitive_information_types"] == existing
+
+    def test_normalizer_ignores_malformed_sit_payload(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        normalized = score._normalize_purview_data({"sensitiveInformationTypes": "not-a-list"})
+        assert normalized.get("sensitive_information_types") is None
+
+    def test_sit_count_adequate_is_not_a_registered_evaluator(self):
+        """Fail closed: no auto-evaluator may claim SIT adequacy."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        assert "sit_count_adequate" not in score.EVALUATORS

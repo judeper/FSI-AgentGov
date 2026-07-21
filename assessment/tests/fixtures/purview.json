@@ -36,6 +36,29 @@
   },
   "sensitivityLabelPolicies": [],
   "endpointDlp": [],
+  "sensitiveInformationTypes": [
+    {
+      "Name": "U.S. Social Security Number (SSN)",
+      "Id": "a44669fe-0d48-453d-a9b1-2cc83f2cba77",
+      "Publisher": "Microsoft Corporation",
+      "RulePackId": "00000000-0000-0000-0000-000000000000",
+      "Type": "builtin"
+    },
+    {
+      "Name": "Credit Card Number",
+      "Id": "50842eb7-edc8-4019-85dd-5a5c1f2bb085",
+      "Publisher": "Microsoft Corporation",
+      "RulePackId": "00000000-0000-0000-0000-000000000000",
+      "Type": "builtin"
+    },
+    {
+      "Name": "FSI Custom CRD Number",
+      "Id": "c1e8c5f2-1234-4d6b-9a4c-aabbccdd1234",
+      "Publisher": "Contoso Financial",
+      "RulePackId": "custom-pack-001",
+      "Type": "custom"
+    }
+  ],
   "insiderRiskEvidence": {
     "policyInventory": {
       "status": "manual_required",
