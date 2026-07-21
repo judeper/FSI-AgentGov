@@ -188,7 +188,7 @@ try {
     }
     $dlpCompliancePolicies = @(
         foreach ($policy in $rawDlp) {
-            # Retrieve associated rules with blocking, plane, SIT, and label evidence.
+            # Retrieve associated rules with blocking, plane, and condition evidence.
             $policyName = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Name', 'Identity')
             $rules = @()
             $ruleCollectionSucceeded = $false
@@ -202,9 +202,11 @@ try {
                             Priority                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Priority')
                             Disabled                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Disabled')
                             BlockAccess                         = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('BlockAccess')
+                            RestrictAccess                      = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictAccess')
                             EnforcementPlanes                   = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('EnforcementPlanes')
                             ContentContainsSensitiveInformation = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitiveInformation')
                             ContentContainsSensitivityLabel     = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitivityLabel')
+                            AdvancedRule                        = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('AdvancedRule')
                         }
                     }
                 )

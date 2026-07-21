@@ -30,16 +30,17 @@
           "Name": "Block public sharing of sensitive content",
           "Priority": 0,
           "Disabled": false,
-          "BlockAccess": true,
-          "EnforcementPlanes": [
-            "CopilotExperiences"
-          ],
-          "ContentContainsSensitiveInformation": [
+          "BlockAccess": null,
+          "RestrictAccess": [
             {
-              "Name": "U.S. Social Security Number"
+              "setting": "ExcludeContentProcessing",
+              "value": "Block"
             }
           ],
-          "ContentContainsSensitivityLabel": []
+          "EnforcementPlanes": null,
+          "ContentContainsSensitiveInformation": null,
+          "ContentContainsSensitivityLabel": null,
+          "AdvancedRule": "{\"Version\":\"1.0\",\"Condition\":{\"Operator\":\"And\",\"SubConditions\":[{\"ConditionName\":\"ContentContainsSensitiveInformation\",\"Value\":[{\"groups\":[{\"Operator\":\"Or\",\"name\":\"Default\",\"sensitivetypes\":[{\"confidencelevel\":\"Low\",\"name\":\"U.S. Social Security Number\"}]}]}]}]}}"
         }
       ],
       "RuleCollectionSucceeded": true,
@@ -104,19 +105,25 @@
             "Qualifies": true,
             "ActiveRule": true,
             "Disabled": false,
-            "BlockAccess": true,
+            "BlockAccess": null,
+            "RestrictAccessMatched": true,
+            "BlockingMatched": true,
+            "EnforcementPlaneSpecified": false,
             "EnforcementPlaneMatched": true,
-            "SensitiveInformationMatched": true,
+            "SensitiveInformationMatched": false,
             "SensitivityLabelMatched": false,
-            "EnforcementPlanes": [
-              "CopilotExperiences"
-            ],
-            "ContentContainsSensitiveInformation": [
+            "AdvancedRuleSensitiveInformationMatched": true,
+            "AdvancedRuleSensitivityLabelMatched": false,
+            "EnforcementPlanes": [],
+            "RestrictAccess": [
               {
-                "Name": "U.S. Social Security Number"
+                "setting": "ExcludeContentProcessing",
+                "value": "Block"
               }
             ],
-            "ContentContainsSensitivityLabel": [],
+            "AdvancedRule": "{\"Version\":\"1.0\",\"Condition\":{\"Operator\":\"And\",\"SubConditions\":[{\"ConditionName\":\"ContentContainsSensitiveInformation\",\"Value\":[{\"groups\":[{\"Operator\":\"Or\",\"name\":\"Default\",\"sensitivetypes\":[{\"confidencelevel\":\"Low\",\"name\":\"U.S. Social Security Number\"}]}]}]}]}}",
+            "ContentContainsSensitiveInformation": null,
+            "ContentContainsSensitivityLabel": null,
             "Diagnostic": "Qualifying active Microsoft 365 Copilot blocking rule."
           }
         ],

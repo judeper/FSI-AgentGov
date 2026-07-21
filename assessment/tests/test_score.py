@@ -2452,12 +2452,19 @@ class TestDspmPolicyEvaluator:
                 "Name": "Block public sharing of sensitive content",
                 "Priority": 0,
                 "Disabled": False,
-                "BlockAccess": True,
-                "EnforcementPlanes": ["CopilotExperiences"],
-                "ContentContainsSensitiveInformation": [
-                    {"Name": "U.S. Social Security Number"}
+                "BlockAccess": None,
+                "RestrictAccess": [
+                    {"setting": "ExcludeContentProcessing", "value": "Block"}
                 ],
-                "ContentContainsSensitivityLabel": [],
+                "EnforcementPlanes": None,
+                "ContentContainsSensitiveInformation": None,
+                "ContentContainsSensitivityLabel": None,
+                "AdvancedRule": (
+                    '{"Version":"1.0","Condition":{"Operator":"And","SubConditions":['
+                    '{"ConditionName":"ContentContainsSensitiveInformation","Value":'
+                    '[{"groups":[{"Operator":"Or","name":"Default","sensitivetypes":'
+                    '[{"confidencelevel":"Low","name":"U.S. Social Security Number"}]}]}]}]}}'
+                ),
             }
         ]
         write_json(collected / "purview.json", fixture)

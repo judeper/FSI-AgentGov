@@ -342,6 +342,182 @@ function Test-PurviewDspmCriteriaPresent {
     ).Count -gt 0
 }
 
+function ConvertFrom-PurviewDspmSerializedJson {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [object]$InputObject
+    )
+
+    if ($InputObject -isnot [string]) {
+        return $InputObject
+    }
+
+    $text = $InputObject.Trim()
+    if (-not $text -or -not (
+        $text.StartsWith('{') -or
+        $text.StartsWith('[') -or
+        $text.StartsWith('"')
+    )) {
+        return $InputObject
+    }
+
+    try {
+        return $text | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        return $null
+    }
+}
+
+function Test-PurviewDspmRestrictAccessBlock {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [object]$InputObject
+    )
+
+    $value = ConvertFrom-PurviewDspmSerializedJson -InputObject $InputObject
+    if ($value -is [string]) {
+        return [string]::Equals(
+            $value.Trim(),
+            'Block',
+            [System.StringComparison]::OrdinalIgnoreCase
+        )
+    }
+
+    foreach ($entry in @($value)) {
+        if ($entry -isnot [System.Collections.IDictionary] -and $entry -isnot [PSCustomObject]) {
+            continue
+        }
+
+        if (Test-PurviewDspmPropertyPresent -InputObject $entry -Name 'ExcludeContentProcessing') {
+            $processingRestrictions = @(
+                ConvertTo-PurviewDspmDirectStringValues -InputObject (
+                    Get-PurviewDspmPropertyValue -InputObject $entry -Name @('ExcludeContentProcessing')
+                )
+            )
+            if ($processingRestrictions | Where-Object {
+                [string]::Equals($_, 'Block', [System.StringComparison]::OrdinalIgnoreCase)
+            }) {
+                return $true
+            }
+        }
+
+        $setting = Get-PurviewDspmPropertyValue -InputObject $entry -Name @('Setting')
+        $settingValues = @(
+            ConvertTo-PurviewDspmDirectStringValues -InputObject $setting
+        )
+        $settingMatched = [bool]($settingValues | Where-Object {
+            [string]::Equals(
+                $_,
+                'ExcludeContentProcessing',
+                [System.StringComparison]::OrdinalIgnoreCase
+            )
+        })
+        if (-not $settingMatched) {
+            continue
+        }
+
+        $restrictionValues = @(
+            ConvertTo-PurviewDspmDirectStringValues -InputObject (
+                Get-PurviewDspmPropertyValue -InputObject $entry -Name @('Value')
+            )
+        )
+        if ($restrictionValues | Where-Object {
+            [string]::Equals($_, 'Block', [System.StringComparison]::OrdinalIgnoreCase)
+        }) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+function Test-PurviewDspmAdvancedRuleConditionNode {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [object]$InputObject,
+
+        [Parameter(Mandatory)]
+        [string]$ConditionName,
+
+        [Parameter()]
+        [ValidateRange(0, 6)]
+        [int]$Depth = 0
+    )
+
+    if (
+        $null -eq $InputObject -or
+        $Depth -ge 6 -or
+        ($InputObject -isnot [System.Collections.IDictionary] -and $InputObject -isnot [PSCustomObject])
+    ) {
+        return $false
+    }
+
+    $nodeConditionName = Get-PurviewDspmPropertyValue -InputObject $InputObject -Name @('ConditionName')
+    $criterionValues = Get-PurviewDspmPropertyValue -InputObject $InputObject -Name @('Value', 'Values')
+    if (
+        $null -ne $nodeConditionName -and
+        [string]::Equals(
+            ([string]$nodeConditionName).Trim(),
+            $ConditionName,
+            [System.StringComparison]::OrdinalIgnoreCase
+        ) -and
+        (Test-PurviewDspmCriteriaPresent -InputObject $criterionValues)
+    ) {
+        return $true
+    }
+
+    $subConditions = Get-PurviewDspmPropertyValue -InputObject $InputObject -Name @('SubConditions')
+    foreach ($subCondition in @($subConditions)) {
+        if (
+            Test-PurviewDspmAdvancedRuleConditionNode `
+                -InputObject $subCondition `
+                -ConditionName $ConditionName `
+                -Depth ($Depth + 1)
+        ) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+function Test-PurviewDspmAdvancedRuleCriterion {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [object]$InputObject,
+
+        [Parameter(Mandatory)]
+        [string]$ConditionName
+    )
+
+    $advancedRule = ConvertFrom-PurviewDspmSerializedJson -InputObject $InputObject
+    if (
+        $advancedRule -isnot [System.Collections.IDictionary] -and
+        $advancedRule -isnot [PSCustomObject]
+    ) {
+        return $false
+    }
+
+    if (-not (Test-PurviewDspmPropertyPresent -InputObject $advancedRule -Name 'Condition')) {
+        return $false
+    }
+
+    return Test-PurviewDspmAdvancedRuleConditionNode `
+        -InputObject (
+            Get-PurviewDspmPropertyValue -InputObject $advancedRule -Name @('Condition')
+        ) `
+        -ConditionName $ConditionName
+}
+
 function Get-PurviewCopilotDlpRuleClassification {
     [CmdletBinding()]
     param(
@@ -355,14 +531,37 @@ function Get-PurviewCopilotDlpRuleClassification {
     $blockAccess = ConvertTo-PurviewDspmBoolean -InputObject (
         Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('BlockAccess')
     )
+    $restrictAccess = Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('RestrictAccess')
+    $restrictAccessMatched = Test-PurviewDspmRestrictAccessBlock -InputObject $restrictAccess
+    $blockingMatched = $blockAccess -eq $true -or $restrictAccessMatched
+    $enforcementPlanesInput = Get-PurviewDspmPropertyValue `
+        -InputObject $Rule `
+        -Name @('EnforcementPlanes')
     $enforcementPlanes = @(
-        ConvertTo-PurviewDspmStringValues -InputObject (
-            Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('EnforcementPlanes')
-        )
+        ConvertTo-PurviewDspmDirectStringValues -InputObject $enforcementPlanesInput
     )
-    $enforcementPlaneMatched = [bool]($enforcementPlanes | Where-Object {
-        [string]::Equals($_, 'CopilotExperiences', [System.StringComparison]::OrdinalIgnoreCase)
-    })
+    $enforcementPlaneSpecified = if ($null -eq $enforcementPlanesInput) {
+        $false
+    }
+    elseif ($enforcementPlanesInput -is [string]) {
+        [bool]$enforcementPlanesInput.Trim()
+    }
+    elseif (
+        $enforcementPlanesInput -is [System.Collections.IEnumerable] -and
+        $enforcementPlanesInput -isnot [System.Collections.IDictionary] -and
+        $enforcementPlanesInput -isnot [PSCustomObject]
+    ) {
+        @($enforcementPlanesInput).Count -gt 0
+    }
+    else {
+        $true
+    }
+    $enforcementPlaneMatched = (
+        -not $enforcementPlaneSpecified -or
+        [bool]($enforcementPlanes | Where-Object {
+            [string]::Equals($_, 'CopilotExperiences', [System.StringComparison]::OrdinalIgnoreCase)
+        })
+    )
     $sensitiveInformation = Get-PurviewDspmPropertyValue `
         -InputObject $Rule `
         -Name @('ContentContainsSensitiveInformation')
@@ -371,26 +570,39 @@ function Get-PurviewCopilotDlpRuleClassification {
         -Name @('ContentContainsSensitivityLabel')
     $sensitiveInformationMatched = Test-PurviewDspmCriteriaPresent -InputObject $sensitiveInformation
     $sensitivityLabelMatched = Test-PurviewDspmCriteriaPresent -InputObject $sensitivityLabels
+    $advancedRule = Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('AdvancedRule')
+    $advancedRuleSensitiveInformationMatched = Test-PurviewDspmAdvancedRuleCriterion `
+        -InputObject $advancedRule `
+        -ConditionName 'ContentContainsSensitiveInformation'
+    $advancedRuleSensitivityLabelMatched = Test-PurviewDspmAdvancedRuleCriterion `
+        -InputObject $advancedRule `
+        -ConditionName 'ContentContainsSensitivityLabel'
+    $criteriaMatched = (
+        $sensitiveInformationMatched -or
+        $sensitivityLabelMatched -or
+        $advancedRuleSensitiveInformationMatched -or
+        $advancedRuleSensitivityLabelMatched
+    )
     $activeRule = $disabled -eq $false
     $qualifies = (
         $activeRule -and
-        $blockAccess -eq $true -and
+        $blockingMatched -and
         $enforcementPlaneMatched -and
-        ($sensitiveInformationMatched -or $sensitivityLabelMatched)
+        $criteriaMatched
     )
 
     $reasons = [System.Collections.Generic.List[string]]::new()
     if (-not $activeRule) {
         $reasons.Add('Rule is disabled or does not prove Disabled=false.')
     }
-    if ($blockAccess -ne $true) {
-        $reasons.Add('Rule does not prove BlockAccess=true.')
+    if (-not $blockingMatched) {
+        $reasons.Add('Rule does not prove BlockAccess=true or RestrictAccess ExcludeContentProcessing=Block.')
     }
     if (-not $enforcementPlaneMatched) {
         $reasons.Add('Rule EnforcementPlanes does not include CopilotExperiences.')
     }
-    if (-not ($sensitiveInformationMatched -or $sensitivityLabelMatched)) {
-        $reasons.Add('Rule does not contain sensitive-information or sensitivity-label criteria.')
+    if (-not $criteriaMatched) {
+        $reasons.Add('Rule does not contain structured or AdvancedRule sensitive-information or sensitivity-label criteria.')
     }
     if ($qualifies) {
         $reasons.Add('Qualifying active Microsoft 365 Copilot blocking rule.')
@@ -403,13 +615,20 @@ function Get-PurviewCopilotDlpRuleClassification {
         ActiveRule                          = [bool]$activeRule
         Disabled                            = $disabled
         BlockAccess                         = $blockAccess
+        RestrictAccessMatched               = [bool]$restrictAccessMatched
+        BlockingMatched                     = [bool]$blockingMatched
+        EnforcementPlaneSpecified           = [bool]$enforcementPlaneSpecified
         EnforcementPlaneMatched             = [bool]$enforcementPlaneMatched
         SensitiveInformationMatched         = [bool]$sensitiveInformationMatched
         SensitivityLabelMatched             = [bool]$sensitivityLabelMatched
-        EnforcementPlanes                   = @($enforcementPlanes | Sort-Object -Unique)
-        ContentContainsSensitiveInformation = $sensitiveInformation
-        ContentContainsSensitivityLabel     = $sensitivityLabels
-        Diagnostic                          = $reasons -join ' '
+        AdvancedRuleSensitiveInformationMatched = [bool]$advancedRuleSensitiveInformationMatched
+        AdvancedRuleSensitivityLabelMatched     = [bool]$advancedRuleSensitivityLabelMatched
+        EnforcementPlanes                       = @($enforcementPlanes | Sort-Object -Unique)
+        RestrictAccess                           = $restrictAccess
+        AdvancedRule                             = $advancedRule
+        ContentContainsSensitiveInformation     = $sensitiveInformation
+        ContentContainsSensitivityLabel         = $sensitivityLabels
+        Diagnostic                              = $reasons -join ' '
     }
 }
 
@@ -537,7 +756,7 @@ function Get-PurviewCopilotDlpClassification {
         $reasons.Add('Rule evidence collection failed or was unavailable for this otherwise matching policy.')
     }
     elseif ($policyLevelMatched -and $qualifyingRules.Count -eq 0) {
-        $reasons.Add('No collected rule was active, blocking, scoped to CopilotExperiences, and conditioned on sensitive information or sensitivity labels.')
+        $reasons.Add('No collected rule was active, blocking, compatible with the policy Copilot scope, and conditioned on sensitive information or sensitivity labels.')
     }
 
     $qualifies = $policyLevelMatched -and $ruleEvidenceAvailable -and $qualifyingRules.Count -gt 0

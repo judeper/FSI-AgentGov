@@ -20,6 +20,31 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             }
         }
 
+        function New-TestPurviewAdvancedRule {
+            param(
+                [Parameter(Mandatory)]
+                [ValidateSet(
+                    'ContentContainsSensitiveInformation',
+                    'ContentContainsSensitivityLabel'
+                )]
+                [string]$ConditionName
+            )
+
+            [PSCustomObject]@{
+                Version   = '1.0'
+                Condition = [PSCustomObject]@{
+                    Operator      = 'And'
+                    SubConditions = @(
+                        [PSCustomObject]@{
+                            ConditionName = $ConditionName
+                            Operator      = 'Include'
+                            Value         = @('criterion-id')
+                        }
+                    )
+                }
+            }
+        }
+
         function Add-TestPurviewQualifyingRuleEvidence {
             param(
                 [Parameter(Mandatory)]
@@ -74,6 +99,75 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.Enabled | Should -BeNullOrEmpty
         $result.QualifyingRuleCount | Should -Be 1
         $result.RuleDiagnostics[0].ContentContainsSensitiveInformation.Count | Should -Be 1
+    }
+
+    It 'qualifies the documented policy-level plane with RestrictAccess and AdvancedRule SIT evidence' {
+        $policy = @{
+            Name                    = 'Documented Copilot rule shape'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Name              = 'Block sensitive Copilot processing'
+                    Disabled          = $false
+                    BlockAccess       = $null
+                    RestrictAccess    = '[{"setting":"ExcludeContentProcessing","value":"Block"}]'
+                    EnforcementPlanes = $null
+                    AdvancedRule      = (
+                        New-TestPurviewAdvancedRule `
+                            -ConditionName 'ContentContainsSensitiveInformation' |
+                            ConvertTo-Json -Depth 6 -Compress
+                    )
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+        $ruleResult = $result.RuleDiagnostics[0]
+
+        $result.Qualifies | Should -BeTrue
+        $ruleResult.BlockAccess | Should -BeNullOrEmpty
+        $ruleResult.RestrictAccessMatched | Should -BeTrue
+        $ruleResult.BlockingMatched | Should -BeTrue
+        $ruleResult.EnforcementPlaneSpecified | Should -BeFalse
+        $ruleResult.EnforcementPlaneMatched | Should -BeTrue
+        $ruleResult.AdvancedRuleSensitiveInformationMatched | Should -BeTrue
+    }
+
+    It 'qualifies an AdvancedRule sensitivity-label criterion' {
+        $policy = @{
+            Name                    = 'AdvancedRule label policy'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Name           = 'Block labeled Copilot processing'
+                    Disabled       = $false
+                    RestrictAccess = [PSCustomObject]@{ ExcludeContentProcessing = 'Block' }
+                    AdvancedRule   = New-TestPurviewAdvancedRule `
+                        -ConditionName 'ContentContainsSensitivityLabel'
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeTrue
+        $result.RuleDiagnostics[0].AdvancedRuleSensitivityLabelMatched | Should -BeTrue
+    }
+
+    It 'supports direct, dictionary, object, and serialized RestrictAccess Block shapes' -ForEach @(
+        @{ RestrictAccess = 'Block' }
+        @{ RestrictAccess = @{ ExcludeContentProcessing = 'Block' } }
+        @{ RestrictAccess = [PSCustomObject]@{ Setting = 'ExcludeContentProcessing'; Value = 'Block' } }
+        @{ RestrictAccess = @(@{ Setting = 'ExcludeContentProcessing'; Value = 'Block' }) }
+        @{ RestrictAccess = '[{"setting":"ExcludeContentProcessing","value":"Block"}]' }
+    ) {
+        Test-PurviewDspmRestrictAccessBlock -InputObject $RestrictAccess | Should -BeTrue
     }
 
     It 'supports dictionary and PSCustomObject location scope entries' {
@@ -293,6 +387,167 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.Qualifies | Should -BeTrue
         $result.RuleDiagnostics[0].SensitivityLabelMatched | Should -BeTrue
         $result.RuleDiagnostics[0].ContentContainsSensitivityLabel.Count | Should -Be 1
+    }
+
+    It 'rejects unrelated or malformed AdvancedRule content' -ForEach @(
+        @{
+            Description  = 'generic JSON'
+            AdvancedRule = '{"Condition":{"Operator":"And","SubConditions":[{"ConditionName":"OtherCondition","Value":["x"]}]}}'
+        }
+        @{
+            Description  = 'malformed JSON'
+            AdvancedRule = '{"Condition":{"SubConditions":['
+        }
+        @{
+            Description  = 'random text'
+            AdvancedRule = 'ContentContainsSensitiveInformation'
+        }
+        @{
+            Description  = 'generic non-empty object'
+            AdvancedRule = @{ Version = '1.0'; Comment = 'configured' }
+        }
+        @{
+            Description  = 'known name without criterion values'
+            AdvancedRule = @{
+                Condition = @{
+                    SubConditions = @(
+                        @{ ConditionName = 'ContentContainsSensitiveInformation'; Value = @() }
+                    )
+                }
+            }
+        }
+    ) {
+        $policy = @{
+            Name                    = $Description
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Disabled       = $false
+                    RestrictAccess = @{ ExcludeContentProcessing = 'Block' }
+                    AdvancedRule   = $AdvancedRule
+                }
+            )
+        }
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
+    It 'rejects RestrictAccess values other than Block' -ForEach @(
+        @{ RestrictAccess = 'Allow' }
+        @{ RestrictAccess = @{ ExcludeContentProcessing = 'Allow' } }
+        @{ RestrictAccess = '[{"setting":"ExcludeContentProcessing","value":"Audit"}]' }
+        @{ RestrictAccess = @{ OtherAction = 'Block' } }
+        @{ RestrictAccess = @(@{ Setting = 'OtherSetting'; Value = 'Block' }) }
+    ) {
+        $policy = @{
+            Name                    = 'Nonblocking RestrictAccess'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Disabled       = $false
+                    RestrictAccess = $RestrictAccess
+                    AdvancedRule   = New-TestPurviewAdvancedRule `
+                        -ConditionName 'ContentContainsSensitiveInformation'
+                }
+            )
+        }
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
+    It 'rejects an explicitly unrelated rule plane while allowing the policy plane when omitted' {
+        $baseRule = @{
+            Disabled       = $false
+            RestrictAccess = @{ ExcludeContentProcessing = 'Block' }
+            AdvancedRule   = New-TestPurviewAdvancedRule `
+                -ConditionName 'ContentContainsSensitiveInformation'
+        }
+        $policy = @{
+            Name                    = 'Rule plane behavior'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @($baseRule.Clone())
+        }
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
+
+        $policy.Rules[0].EnforcementPlanes = @('EndpointDlp')
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeFalse
+        $result.RuleDiagnostics[0].EnforcementPlaneSpecified | Should -BeTrue
+        $result.RuleDiagnostics[0].EnforcementPlaneMatched | Should -BeFalse
+    }
+
+    It 'does not accept CopilotExperiences text in an unrelated nested rule-plane property' {
+        $policy = @{
+            Name                    = 'Nested rule plane'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Disabled          = $false
+                    RestrictAccess    = @{ ExcludeContentProcessing = 'Block' }
+                    EnforcementPlanes = @{ Diagnostics = 'CopilotExperiences' }
+                    AdvancedRule      = New-TestPurviewAdvancedRule `
+                        -ConditionName 'ContentContainsSensitiveInformation'
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeFalse
+        $result.RuleDiagnostics[0].EnforcementPlaneSpecified | Should -BeTrue
+        $result.RuleDiagnostics[0].EnforcementPlaneMatched | Should -BeFalse
+    }
+
+    It 'does not accept known words in unrelated nested RestrictAccess or AdvancedRule properties' {
+        $policy = @{
+            Name                    = 'Nested text false positive'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Disabled       = $false
+                    RestrictAccess = @{
+                        Diagnostics = @{ ExcludeContentProcessing = 'Block' }
+                    }
+                    AdvancedRule   = @{
+                        Diagnostics = @{
+                            Text = 'ContentContainsSensitiveInformation'
+                        }
+                        Condition = @{
+                            SubConditions = @(
+                                @{
+                                    ConditionName = 'OtherCondition'
+                                    Value         = @('ContentContainsSensitivityLabel')
+                                }
+                            )
+                        }
+                    }
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeFalse
+        $result.RuleDiagnostics[0].RestrictAccessMatched | Should -BeFalse
+        $result.RuleDiagnostics[0].AdvancedRuleSensitiveInformationMatched | Should -BeFalse
+        $result.RuleDiagnostics[0].AdvancedRuleSensitivityLabelMatched | Should -BeFalse
     }
 
     It 'rejects <Description> as successfully collected negative rule evidence' -ForEach @(
