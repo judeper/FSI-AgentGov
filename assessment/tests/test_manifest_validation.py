@@ -138,6 +138,31 @@ def test_control_1_12_requires_manual_portal_review():
     assert "Purview portal evidence" in ctrl["manual_question"]
 
 
+def test_control_1_15_remains_manual_without_get_mgorganization_tls_claims():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.15")
+
+    assert ctrl["automation"] == "manual"
+    assert ctrl["collection_methods"] == []
+    assert ctrl["checks"] == []
+    assert ctrl["manual_question"] is not None
+
+    unsupported_conditions = {
+        ("Get-MgOrganization", "tls_12_enforced"),
+        ("Get-MgOrganization", "at_rest_encryption_verified"),
+    }
+    offenders = [
+        f"{ctrl['id']}:{check.get('check_id')}"
+        for check in ctrl.get("checks", [])
+        if (check.get("api_call"), check.get("pass_condition"))
+        in unsupported_conditions
+    ]
+    assert offenders == [], (
+        "Control 1.15 must not claim Get-MgOrganization proves TLS or "
+        f"at-rest encryption settings: {offenders}"
+    )
+
+
 def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():
     controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
     banned = {

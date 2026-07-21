@@ -1560,49 +1560,24 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md",
-    "automation": "full",
-    "collection_methods": [
-      "Graph_API"
-    ],
-    "checks": [
-      {
-        "check_id": "1.15.a",
-        "description": "TLS 1.2+ enforced for all connections",
-        "api_call": "Get-MgOrganization",
-        "pass_condition": "tls_12_enforced",
-        "zone_required": [
-          1,
-          2,
-          3
-        ]
-      },
-      {
-        "check_id": "1.15.b",
-        "description": "At-rest encryption verified via tenant settings",
-        "api_call": "Get-MgOrganization",
-        "pass_condition": "at_rest_encryption_verified",
-        "zone_required": [
-          1,
-          2,
-          3
-        ]
-      }
-    ],
+    "automation": "manual",
+    "collection_methods": [],
+    "checks": [],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 2,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 2,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide manual evidence that TLS 1.2+ (or stronger) is enforced for agent data in transit and that at-rest encryption is enabled for Microsoft 365 and any connected customer-managed data stores.",
     "name": "Encryption: Data in Transit and at Rest",
     "zonesApplicable": [
       1,

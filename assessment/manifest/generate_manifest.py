@@ -31,7 +31,7 @@ CONTROLS = [
     ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
     ("1.14","1.14-data-minimization-and-agent-scope-control.md",1,"manual",[],"Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?"),
-    ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"full",["Graph_API"],None),
+    ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"manual",[],"Provide manual evidence that TLS 1.2+ (or stronger) is enforced for agent data in transit and that at-rest encryption is enabled for Microsoft 365 and any connected customer-managed data stores."),
     ("1.16","1.16-information-rights-management-irm-for-documents.md",1,"manual",[],"Are IRM protections applied to sensitive documents accessible to agents, and has IRM labeling been validated end-to-end?"),
     ("1.17","1.17-endpoint-data-loss-prevention-endpoint-dlp.md",1,"partial",["Purview_PowerShell"],"Is endpoint DLP enforced on all endpoints from which agents are accessed, including unmanaged devices?"),
     ("1.18","1.18-application-level-authorization-and-role-based-access-control-rbac.md",1,"partial",["Graph_API"],"Has a least-privilege access review for all agent administrative roles been completed in the last 90 days?"),
@@ -153,10 +153,7 @@ CHECKS_DB = {
         ("1.13.b","Agent DLP policy references SITs","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
     ],
     "1.14": [],  # manual only
-    "1.15": [
-        ("1.15.a","TLS 1.2+ enforced for all connections","Get-MgOrganization","tls_12_enforced",[1,2,3]),
-        ("1.15.b","At-rest encryption verified via tenant settings","Get-MgOrganization","at_rest_encryption_verified",[1,2,3]),
-    ],
+    "1.15": [],  # manual only (tenant/org surface does not expose TLS/at-rest proof)
     "1.16": [],  # manual only
     "1.17": [
         ("1.17.a","Endpoint DLP policy exists in Purview","Get-DlpCompliancePolicy","endpoint_dlp_policy_exists",[2,3]),

@@ -272,6 +272,38 @@ class TestControl112ManualGate:
         assert ctrl["evaluator_state"] == "manual_only"
 
 
+class TestControl115ManualGate:
+    """Control 1.15 cannot claim unsupported tenant-level TLS/at-rest automation."""
+
+    def test_control_1_15_is_manual_only_in_real_manifest(
+        self, tmp_path: Path, collected_dir: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.15")
+
+        assert ctrl["needs_manual"] is True
+        assert ctrl["checks"] == []
+        assert ctrl["checks_applicable"] == 0
+        assert ctrl["maturity_score"] == 0
+        assert ctrl["evaluator_state"] == "manual_only"
+
+
 # ---------------------------------------------------------------------------
 # Test: missing data → confidence low
 # ---------------------------------------------------------------------------
