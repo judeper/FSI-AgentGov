@@ -369,7 +369,7 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md",
-    "automation": "full",
+    "automation": "partial",
     "collection_methods": [
       "PPAC_PowerShell"
     ],
@@ -388,7 +388,7 @@
       {
         "check_id": "1.4.b",
         "description": "ACP allowlist configured for approved connectors",
-        "api_call": "Get-DlpPolicy",
+        "api_call": "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01",
         "pass_condition": "acp_allowlist_configured",
         "zone_required": [
           2,
@@ -398,7 +398,7 @@
       {
         "check_id": "1.4.c",
         "description": "Blocked connector list enforced",
-        "api_call": "Get-DlpPolicy",
+        "api_call": "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01",
         "pass_condition": "blocked_connectors_enforced",
         "zone_required": [
           3
@@ -419,7 +419,7 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide Power Platform governance API or admin center evidence that ConnectorManagement allowlist rules and blocked connector enforcement are configured and assigned to all required Zone 2 and Zone 3 environment groups.",
     "name": "Advanced Connector Policies (ACP)",
     "zonesApplicable": [
       1,

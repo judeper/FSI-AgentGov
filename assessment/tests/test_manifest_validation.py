@@ -272,6 +272,40 @@ def test_manifest_control_1_20_resolves_to_uncollected_azure_network_source():
         assert source == "azure/network"
 
 
+def test_manifest_control_1_4_acp_metadata_stays_honest():
+    """Control 1.4 ACP checks must not claim classic DLP collection coverage."""
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    control = next(c for c in controls if c["id"] == "1.4")
+    checks = {check["check_id"]: check for check in control.get("checks", [])}
+
+    assert control["automation"] == "partial"
+    assert control["manual_question"] is not None
+    assert "allowlist" in control["manual_question"].lower()
+    assert "blocked connector" in control["manual_question"].lower()
+
+    assert checks["1.4.a"]["api_call"] == "Get-DlpPolicy"
+
+    acp_api = (
+        "https://api.powerplatform.com/governance/ruleBasedPolicies"
+        "?api-version=2024-10-01"
+    )
+    for check_id in ("1.4.b", "1.4.c"):
+        check = checks[check_id]
+        assert check["api_call"] == acp_api
+        source = score._resolve_source_key(  # noqa: SLF001
+            str(check.get("api_call", "")),
+            check.get("collection_methods") or control.get("collection_methods"),
+        )
+        assert source == "powerplatform/governance/ruleBasedPolicies"
+
+    assert "powerplatform/governance/ruleBasedPolicies" in score.UNCOLLECTED_SOURCE_KEYS
+    assert (
+        "powerplatform/governance/ruleBasedPolicies"
+        not in score.SOURCE_FILENAMES
+    )
+
+
 # ---------------------------------------------------------------------------
 # Negative tests — write a mutated manifest and verify the validator catches it
 # ---------------------------------------------------------------------------

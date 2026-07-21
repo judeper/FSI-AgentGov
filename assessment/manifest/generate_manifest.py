@@ -4,8 +4,9 @@ import json
 import os
 import re
 
-BASE = r"C:\Dev\FSI-AgentGov\docs\controls"
-OUTPUT = r"C:\Dev\FSI-AgentGov\assessment\manifest\controls.json"
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BASE = os.path.join(REPO_ROOT, "docs", "controls")
+OUTPUT = os.path.join(REPO_ROOT, "assessment", "manifest", "controls.json")
 
 PILLAR_DIRS = {
     1: ("pillar-1-security", "Security"),
@@ -20,7 +21,7 @@ CONTROLS = [
     ("1.1","1.1-restrict-agent-publishing-by-authorization.md",1,"full",["PPAC_PowerShell","Graph_API"],None),
     ("1.2","1.2-agent-registry-and-integrated-apps-management.md",1,"full",["Graph_API"],None),
     ("1.3","1.3-sharepoint-content-governance-and-permissions.md",1,"partial",["SharePoint_Graph"],"Have site permission reviews been completed in the last 90 days for all agent knowledge sources?"),
-    ("1.4","1.4-advanced-connector-policies-acp.md",1,"full",["PPAC_PowerShell"],None),
+    ("1.4","1.4-advanced-connector-policies-acp.md",1,"partial",["PPAC_PowerShell"],"Provide Power Platform governance API or admin center evidence that ConnectorManagement allowlist rules and blocked connector enforcement are configured and assigned to all required Zone 2 and Zone 3 environment groups."),
     ("1.5","1.5-data-loss-prevention-dlp-and-sensitivity-labels.md",1,"full",["PPAC_PowerShell","Purview_PowerShell"],None),
     ("1.6","1.6-microsoft-purview-dspm-for-ai.md",1,"partial",["Purview_PowerShell"],"Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?"),
     ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell","Graph_API"],None),
@@ -73,6 +74,7 @@ CONTROLS = [
     ("2.24","2.24-agent-feature-enablement-and-restriction-governance.md",2,"full",["PPAC_PowerShell"],None),
     ("2.25","2.25-agent-365-admin-center-governance-console.md",2,"full",["Graph_API"],None),
     ("2.26","2.26-entra-agent-id-identity-governance.md",2,"full",["Graph_API"],None),
+    ("2.27","2.27-consumption-entitlement-governance.md",2,"partial",["Graph_API","PPAC_PowerShell"],None),
     # Pillar 3 - Reporting (14)
     ("3.1","3.1-agent-inventory-and-metadata-management.md",3,"full",["Graph_API"],None),
     ("3.2","3.2-usage-analytics-and-activity-monitoring.md",3,"manual",[],"Is agent usage reported to compliance and risk leadership on a regular schedule, with anomalies flagged?"),
@@ -118,8 +120,8 @@ CHECKS_DB = {
     ],
     "1.4": [
         ("1.4.a","DLP policy exists covering agent environments","Get-DlpPolicy","dlp_policy_exists",[1,2,3]),
-        ("1.4.b","ACP allowlist configured for approved connectors","Get-DlpPolicy","acp_allowlist_configured",[2,3]),
-        ("1.4.c","Blocked connector list enforced","Get-DlpPolicy","blocked_connectors_enforced",[3]),
+        ("1.4.b","ACP allowlist configured for approved connectors","https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01","acp_allowlist_configured",[2,3]),
+        ("1.4.c","Blocked connector list enforced","https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01","blocked_connectors_enforced",[3]),
     ],
     "1.5": [
         ("1.5.a","DLP policy scoped to agent environments","Get-DlpPolicy","dlp_scope_covers_agents",[1,2,3]),
@@ -264,6 +266,12 @@ CHECKS_DB = {
     "2.26": [
         ("2.26.a","Entra Agent ID identities registered with sponsors","Get-MgIdentityGovernanceLifecycleWorkflow","agent_ids_registered",[2,3]),
         ("2.26.b","Access packages configured for agent resource bundles","Get-MgEntitlementManagementAccessPackage","access_packages_configured",[3]),
+    ],
+    "2.27": [
+        ("2.27.a","Entitlement contract evaluated and each metered agent classified to a consumption pathway","Invoke-EntitlementEvaluation.ps1","entitlement_contract_evaluated",[2,3]),
+        ("2.27.b","Per-agent metered spend caps configured (enforce or detect-and-alert), evidenced by reading the fsi_cbgagentcap records (caps are authored separately from the entitlement engine)","Get-CbgAgentCaps","per_agent_caps_configured",[3]),
+        ("2.27.c","Pre-enforcement coverage-gap analysis run in monitor-only mode","Invoke-EntitlementEvaluation.ps1","coverage_gap_analysis_run",[2,3]),
+        ("2.27.d","Credit/PAYG policy-scope groups registered in the admission-gated registry (securityEnabled, not mailEnabled)","Get-MgGroup","policy_scope_groups_registered",[2,3]),
     ],
     # Pillar 3
     "3.1": [
@@ -417,9 +425,33 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
 
 
 def main():
+    existing_by_id = {}
+    if os.path.exists(OUTPUT):
+        try:
+            with open(OUTPUT, "r", encoding="utf-8") as f:
+                existing_controls = json.load(f)
+            if isinstance(existing_controls, list):
+                existing_by_id = {
+                    str(ctrl.get("id")): ctrl
+                    for ctrl in existing_controls
+                    if isinstance(ctrl, dict) and ctrl.get("id") is not None
+                }
+        except (json.JSONDecodeError, OSError):
+            existing_by_id = {}
+
     controls = []
     for cid, filename, pillar, automation, methods, manual_q in CONTROLS:
         entry = build_control(cid, filename, pillar, automation, methods, manual_q)
+        prior = existing_by_id.get(cid)
+        if isinstance(prior, dict):
+            merged = dict(prior)
+            merged.update(entry)
+            if cid != "1.4":
+                if "title" in prior:
+                    merged["title"] = prior["title"]
+                if "manual_question" in prior:
+                    merged["manual_question"] = prior["manual_question"]
+            entry = merged
         controls.append(entry)
 
     print(f"Generated {len(controls)} controls")
@@ -433,6 +465,7 @@ def main():
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
         json.dump(controls, f, indent=2, ensure_ascii=False)
+        f.write("\n")
     print(f"\nWritten to {OUTPUT}")
     print(f"File size: {os.path.getsize(OUTPUT):,} bytes")
 

@@ -109,6 +109,7 @@ API_SOURCE_MAP: dict[str, str] = {
     "Invoke-EntitlementEvaluation.ps1": "ppac",
     "Get-FsiMimeConfig": "ppac",
     "Test-FsiMimeCompliance": "ppac",
+    "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01": "powerplatform/governance/ruleBasedPolicies",
     # Microsoft Graph
     "Get-MgGroup": "graph",
     "Get-MgIdentityConditionalAccessPolicy": "graph",
@@ -167,7 +168,9 @@ COLLECTION_METHOD_SOURCE: dict[str, str | None] = {
 # Source keys that are intentionally unresolved to a collected JSON file.
 # These methods are real/automatable surfaces in the manifest but do not yet
 # have a first-party collector in assessment/collectors.
-UNCOLLECTED_SOURCE_KEYS: frozenset[str] = frozenset({"azure/network"})
+UNCOLLECTED_SOURCE_KEYS: frozenset[str] = frozenset(
+    {"azure/network", "powerplatform/governance/ruleBasedPolicies"}
+)
 
 # Source key → expected filename in the collected directory.
 SOURCE_FILENAMES: dict[str, str] = {
