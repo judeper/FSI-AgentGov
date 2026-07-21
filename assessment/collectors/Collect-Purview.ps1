@@ -203,6 +203,7 @@ try {
                             Disabled                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Disabled')
                             BlockAccess                         = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('BlockAccess')
                             RestrictAccess                      = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictAccess')
+                            RestrictWebGrounding                 = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictWebGrounding')
                             EnforcementPlanes                   = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('EnforcementPlanes')
                             ContentContainsSensitiveInformation = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitiveInformation')
                             ContentContainsSensitivityLabel     = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitivityLabel')

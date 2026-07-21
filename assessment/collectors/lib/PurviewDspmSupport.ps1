@@ -753,7 +753,15 @@ function Get-PurviewCopilotDlpRuleClassification {
     )
     $restrictAccess = Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('RestrictAccess')
     $restrictAccessMatched = Test-PurviewDspmRestrictAccessBlock -InputObject $restrictAccess
-    $blockingMatched = $blockAccess -eq $true -or $restrictAccessMatched
+    $restrictWebGrounding = ConvertTo-PurviewDspmBoolean -InputObject (
+        Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('RestrictWebGrounding')
+    )
+    $restrictWebGroundingMatched = $restrictWebGrounding -eq $true
+    $blockingMatched = (
+        $blockAccess -eq $true -or
+        $restrictAccessMatched -or
+        $restrictWebGroundingMatched
+    )
     $enforcementPlanesInput = Get-PurviewDspmPropertyValue `
         -InputObject $Rule `
         -Name @('EnforcementPlanes')
@@ -816,7 +824,7 @@ function Get-PurviewCopilotDlpRuleClassification {
         $reasons.Add('Rule is disabled or does not prove Disabled=false.')
     }
     if (-not $blockingMatched) {
-        $reasons.Add('Rule does not prove BlockAccess=true or RestrictAccess ExcludeContentProcessing=Block.')
+        $reasons.Add('Rule does not prove BlockAccess=true, RestrictAccess ExcludeContentProcessing=Block, or RestrictWebGrounding=true.')
     }
     if (-not $enforcementPlaneMatched) {
         $reasons.Add('Rule EnforcementPlanes does not include CopilotExperiences.')
@@ -825,7 +833,7 @@ function Get-PurviewCopilotDlpRuleClassification {
         $reasons.Add('Rule does not contain structured or AdvancedRule sensitive-information or sensitivity-label criteria.')
     }
     if ($qualifies) {
-        $reasons.Add('Qualifying active Microsoft 365 Copilot blocking rule.')
+        $reasons.Add('Qualifying active Microsoft 365 Copilot blocking/restrictive rule.')
     }
 
     [PSCustomObject]@{
@@ -836,6 +844,8 @@ function Get-PurviewCopilotDlpRuleClassification {
         Disabled                            = $disabled
         BlockAccess                         = $blockAccess
         RestrictAccessMatched               = [bool]$restrictAccessMatched
+        RestrictWebGrounding                 = $restrictWebGrounding
+        RestrictWebGroundingMatched          = [bool]$restrictWebGroundingMatched
         BlockingMatched                     = [bool]$blockingMatched
         EnforcementPlaneSpecified           = [bool]$enforcementPlaneSpecified
         EnforcementPlaneMatched             = [bool]$enforcementPlaneMatched

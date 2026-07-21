@@ -160,6 +160,136 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.RuleDiagnostics[0].AdvancedRuleSensitivityLabelMatched | Should -BeTrue
     }
 
+    It 'qualifies a sensitive-information rule with RestrictWebGrounding=true' {
+        $policy = @{
+            Name                    = 'Restrict Copilot web grounding'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Name                                = 'Restrict sensitive web grounding'
+                    Disabled                            = $false
+                    RestrictWebGrounding                = $true
+                    ContentContainsSensitiveInformation = @(@{ Name = 'U.S. Social Security Number' })
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+        $ruleResult = $result.RuleDiagnostics[0]
+
+        $result.Qualifies | Should -BeTrue
+        $ruleResult.RestrictWebGrounding | Should -BeTrue
+        $ruleResult.RestrictWebGroundingMatched | Should -BeTrue
+        $ruleResult.BlockingMatched | Should -BeTrue
+    }
+
+    It 'qualifies a sensitivity-label rule with boolean or string RestrictWebGrounding true' -ForEach @(
+        @{ RestrictWebGrounding = $true }
+        @{ RestrictWebGrounding = 'true' }
+    ) {
+        $policy = @{
+            Name                    = 'Restrict labeled web grounding'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Disabled                        = $false
+                    RestrictWebGrounding            = $RestrictWebGrounding
+                    ContentContainsSensitivityLabel = @(@{ Name = 'Confidential' })
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeTrue
+        $result.RuleDiagnostics[0].RestrictWebGrounding | Should -BeTrue
+        $result.RuleDiagnostics[0].RestrictWebGroundingMatched | Should -BeTrue
+    }
+
+    It 'rejects false, missing, arbitrary, or ambiguous RestrictWebGrounding without another action' -ForEach @(
+        @{ Description = 'false'; Present = $true; Value = $false; Expected = $false }
+        @{ Description = 'missing'; Present = $false; Value = $null; Expected = $null }
+        @{ Description = 'arbitrary'; Present = $true; Value = 'restricted'; Expected = $null }
+        @{ Description = 'ambiguous'; Present = $true; Value = @($true, $false); Expected = $null }
+    ) {
+        $rule = @{
+            Disabled                            = $false
+            ContentContainsSensitiveInformation = @(@{ Name = 'U.S. Social Security Number' })
+        }
+        if ($Present) {
+            $rule.RestrictWebGrounding = $Value
+        }
+        $policy = @{
+            Name                    = "Nonqualifying $Description web grounding"
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @($rule)
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+        $ruleResult = $result.RuleDiagnostics[0]
+
+        $result.Qualifies | Should -BeFalse
+        $ruleResult.RestrictWebGrounding | Should -Be $Expected
+        $ruleResult.RestrictWebGroundingMatched | Should -BeFalse
+        $ruleResult.BlockingMatched | Should -BeFalse
+    }
+
+    It 'retains BlockAccess and RestrictAccess action compatibility' -ForEach @(
+        @{ Action = 'BlockAccess'; Value = $true }
+        @{ Action = 'RestrictAccess'; Value = @{ ExcludeContentProcessing = 'Block' } }
+    ) {
+        $rule = @{
+            Disabled                            = $false
+            ContentContainsSensitiveInformation = @(@{ Name = 'U.S. Social Security Number' })
+        }
+        $rule[$Action] = $Value
+        $policy = @{
+            Name                    = "$Action compatibility"
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @($rule)
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeTrue
+        $result.RuleDiagnostics[0].BlockingMatched | Should -BeTrue
+    }
+
+    It 'does not harvest RestrictWebGrounding from an unrelated nested value' {
+        $policy = @{
+            Name                    = 'Nested web grounding diagnostic'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Disabled                            = $false
+                    Diagnostics                         = @{ RestrictWebGrounding = $true }
+                    ContentContainsSensitiveInformation = @(@{ Name = 'U.S. Social Security Number' })
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeFalse
+        $result.RuleDiagnostics[0].RestrictWebGrounding | Should -BeNullOrEmpty
+        $result.RuleDiagnostics[0].RestrictWebGroundingMatched | Should -BeFalse
+    }
+
     It 'supports direct, dictionary, object, and serialized RestrictAccess Block shapes' -ForEach @(
         @{ RestrictAccess = 'Block' }
         @{ RestrictAccess = @{ ExcludeContentProcessing = 'Block' } }

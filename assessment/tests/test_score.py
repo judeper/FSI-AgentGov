@@ -2517,13 +2517,12 @@ class TestDspmPolicyEvaluator:
         assert policy["RuleCollectionStatus"] == "collected"
         assert policy["Rules"] == [
             {
-                "Name": "Block public sharing of sensitive content",
+                "Name": "Restrict web grounding for sensitive content",
                 "Priority": 0,
                 "Disabled": False,
                 "BlockAccess": None,
-                "RestrictAccess": [
-                    {"setting": "ExcludeContentProcessing", "value": "Block"}
-                ],
+                "RestrictAccess": None,
+                "RestrictWebGrounding": True,
                 "EnforcementPlanes": None,
                 "ContentContainsSensitiveInformation": None,
                 "ContentContainsSensitivityLabel": None,

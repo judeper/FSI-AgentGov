@@ -27,16 +27,12 @@
       "Enabled": null,
       "Rules": [
         {
-          "Name": "Block public sharing of sensitive content",
+          "Name": "Restrict web grounding for sensitive content",
           "Priority": 0,
           "Disabled": false,
           "BlockAccess": null,
-          "RestrictAccess": [
-            {
-              "setting": "ExcludeContentProcessing",
-              "value": "Block"
-            }
-          ],
+          "RestrictAccess": null,
+          "RestrictWebGrounding": true,
           "EnforcementPlanes": null,
           "ContentContainsSensitiveInformation": null,
           "ContentContainsSensitivityLabel": null,
@@ -96,17 +92,19 @@
         "RuleCount": 1,
         "QualifyingRuleCount": 1,
         "QualifyingRuleNames": [
-          "Block public sharing of sensitive content"
+          "Restrict web grounding for sensitive content"
         ],
         "RuleDiagnostics": [
           {
-            "Name": "Block public sharing of sensitive content",
+            "Name": "Restrict web grounding for sensitive content",
             "Priority": 0,
             "Qualifies": true,
             "ActiveRule": true,
             "Disabled": false,
             "BlockAccess": null,
-            "RestrictAccessMatched": true,
+            "RestrictAccessMatched": false,
+            "RestrictWebGrounding": true,
+            "RestrictWebGroundingMatched": true,
             "BlockingMatched": true,
             "EnforcementPlaneSpecified": false,
             "EnforcementPlaneMatched": true,
@@ -115,16 +113,11 @@
             "AdvancedRuleSensitiveInformationMatched": true,
             "AdvancedRuleSensitivityLabelMatched": false,
             "EnforcementPlanes": [],
-            "RestrictAccess": [
-              {
-                "setting": "ExcludeContentProcessing",
-                "value": "Block"
-              }
-            ],
+            "RestrictAccess": null,
             "AdvancedRule": "{\"Version\":\"1.0\",\"Condition\":{\"Operator\":\"And\",\"SubConditions\":[{\"ConditionName\":\"ContentContainsSensitiveInformation\",\"Value\":[{\"groups\":[{\"Operator\":\"Or\",\"name\":\"Default\",\"sensitivetypes\":[{\"confidencelevel\":\"Low\",\"name\":\"U.S. Social Security Number\"}]}]}]}]}}",
             "ContentContainsSensitiveInformation": null,
             "ContentContainsSensitivityLabel": null,
-            "Diagnostic": "Qualifying active Microsoft 365 Copilot blocking rule."
+            "Diagnostic": "Qualifying active Microsoft 365 Copilot blocking/restrictive rule."
           }
         ],
         "Mode": "Enable",
