@@ -2229,8 +2229,8 @@ class TestDspmPolicyEvaluator:
     """Regression tests for dspm_policy_exists evaluator (control 1.6.a).
 
     Verifies the evaluator, normalizer, and collector contract alignment
-    corrected in issue #250: canonical AI interaction workload tokens,
-    fixed field shapes, and end-to-end collector→normalizer→evaluator path.
+    corrected in issue #250: official DLP field shapes, active enforcement,
+    and the end-to-end collector→normalizer→evaluator path.
     """
 
     @staticmethod
@@ -2248,7 +2248,10 @@ class TestDspmPolicyEvaluator:
                     "checks": [
                         {
                             "check_id": "1.6.a",
-                            "description": "DSPM for AI policy exists in Purview",
+                            "description": (
+                                "Actively enforced Microsoft 365 Copilot DLP policy "
+                                "matches all documented signals"
+                            ),
                             "api_call": "Get-DlpCompliancePolicy",
                             "pass_condition": "dspm_policy_exists",
                             "zone_required": [2, 3],
@@ -2266,16 +2269,16 @@ class TestDspmPolicyEvaluator:
 
     # ---- Unit: evaluator function -------------------------------------------
 
-    def test_dspm_evaluator_passes_when_detected_with_record_types(self):
+    def test_dspm_evaluator_passes_for_qualifying_active_copilot_dlp(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         purview = {
             "dspm_for_ai": {
+                "CollectionStatus": "collected",
                 "Detected": True,
-                "AiInteractionRecordTypesCovered": ["CopilotInteraction", "AzureOpenAI"],
-                "PolicyCount": 2,
-                "PolicyNames": ["DSPM Copilot Policy", "DSPM Azure OpenAI Policy"],
-                "RetentionCoverage": True,
+                "PolicyCount": 1,
+                "PolicyNames": ["Active Microsoft 365 Copilot DLP"],
+                "RetentionCoverage": False,
             }
         }
         passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
@@ -2283,21 +2286,21 @@ class TestDspmPolicyEvaluator:
         )
 
         assert passed is True
-        assert "2" in evidence
-        assert "CopilotInteraction" in evidence
-        assert "AzureOpenAI" in evidence
+        assert "1 actively enforced" in evidence
+        assert "Workload=Applications" in evidence
+        assert "CopilotExperiences" in evidence
 
-    def test_dspm_evaluator_fails_when_detected_is_false(self):
+    def test_dspm_evaluator_fails_after_successful_negative_collection(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         purview = {
             "dspm_for_ai": {
+                "CollectionStatus": "collected",
                 "Detected": False,
-                "AiInteractionRecordTypesCovered": [],
                 "PolicyCount": 0,
                 "PolicyNames": [],
                 "RetentionCoverage": False,
-                "Note": "No DSPM for AI policies detected.",
+                "Note": "DLP collection succeeded; no qualifying active Copilot DLP policy.",
             }
         }
         passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
@@ -2305,7 +2308,50 @@ class TestDspmPolicyEvaluator:
         )
 
         assert passed is False
-        assert "No DSPM" in evidence
+        assert "no qualifying active" in evidence
+
+    def test_dspm_evaluator_fails_for_retention_only_evidence(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "CollectionStatus": "collected",
+                "Detected": False,
+                "PolicyCount": 0,
+                "PolicyNames": [],
+                "RetentionCoverage": True,
+                "RetentionPolicyNames": ["Copilot Retention"],
+                "Note": (
+                    "No qualifying active Copilot DLP policy. Retention coverage "
+                    "is informational only and does not satisfy control 1.6."
+                ),
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is False
+        assert "informational only" in evidence
+
+    def test_dspm_evaluator_rejects_inconsistent_detected_with_zero_policies(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "CollectionStatus": "collected",
+                "Detected": True,
+                "PolicyCount": 0,
+                "PolicyNames": [],
+                "RetentionCoverage": True,
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is False
+        assert "no qualifying" in evidence.lower()
 
     def test_dspm_evaluator_returns_unknown_when_dspm_field_is_none(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
@@ -2329,6 +2375,24 @@ class TestDspmPolicyEvaluator:
         assert passed is None
         assert "not available" in evidence
 
+    def test_dspm_evaluator_returns_unknown_when_collection_failed(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "CollectionStatus": "failed",
+                "Detected": None,
+                "PolicyCount": 0,
+                "Note": "DLP policy collection failed or was unavailable.",
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is None
+        assert "failed or was unavailable" in evidence
+
     # ---- Unit: normalizer handles camelCase → snake_case --------------------
 
     def test_purview_normalizer_maps_dspmForAi_to_dspm_for_ai(self):
@@ -2336,10 +2400,10 @@ class TestDspmPolicyEvaluator:
 
         payload = {
             "dspmForAi": {
+                "CollectionStatus": "collected",
                 "Detected": True,
-                "AiInteractionRecordTypesCovered": ["CopilotInteraction"],
                 "PolicyCount": 1,
-                "PolicyNames": ["Test Policy"],
+                "PolicyNames": ["Active Microsoft 365 Copilot DLP"],
                 "RetentionCoverage": False,
             }
         }
@@ -2347,7 +2411,7 @@ class TestDspmPolicyEvaluator:
 
         assert "dspm_for_ai" in normalized
         assert normalized["dspm_for_ai"]["Detected"] is True
-        assert normalized["dspm_for_ai"]["AiInteractionRecordTypesCovered"] == ["CopilotInteraction"]
+        assert normalized["dspm_for_ai"]["PolicyCount"] == 1
 
     def test_purview_normalizer_ignores_null_dspmForAi(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
@@ -2391,7 +2455,7 @@ class TestDspmPolicyEvaluator:
         ctrl = next(c for c in result["controls"] if c["id"] == "1.6")
 
         assert ctrl["evidence"]["1.6.a"]["result"] == "pass"
-        assert "CopilotInteraction" in ctrl["evidence"]["1.6.a"]["value"]
+        assert "Workload=Applications" in ctrl["evidence"]["1.6.a"]["value"]
         assert ctrl["checks_passed"] == 1
         assert ctrl["maturity_score"] == 2
         assert ctrl["evaluator_state"] == "auto_evaluable"
@@ -2423,6 +2487,38 @@ class TestDspmPolicyEvaluator:
         ctrl = next(c for c in result["controls"] if c["id"] == "1.6")
 
         assert ctrl["evidence"]["1.6.a"]["result"] == "fail"
+        assert ctrl["checks_passed"] == 0
+        assert ctrl["maturity_score"] == 0
+        assert "informational only" in ctrl["evidence"]["1.6.a"]["value"]
+
+    def test_purview_error_fixture_scores_control_1_6_unknown(self, tmp_path: Path):
+        """Failed DLP collection must remain unknown rather than a false negative."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        write_json(
+            collected / "purview.json",
+            load_fixture("purview_with_errors.json"),
+        )
+        for name in ("ppac", "graph", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls-1.6.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._dspm_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.6")
+
+        assert ctrl["evidence"]["1.6.a"]["result"] == "unknown"
         assert ctrl["checks_passed"] == 0
         assert ctrl["maturity_score"] == 0
 
@@ -2458,4 +2554,3 @@ class TestDspmPolicyEvaluator:
         # Checks should be scored, not left as unknown with unimplemented evidence
         chk = ctrl["checks"][0]
         assert chk["evaluator_state"] == "auto_evaluable"
-

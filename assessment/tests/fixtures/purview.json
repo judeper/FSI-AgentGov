@@ -20,12 +20,17 @@
   "eDiscoveryCases": [],
   "insiderRiskPolicies": [],
   "dspmForAi": {
+    "CollectionStatus": "collected",
     "Detected": false,
-    "AiInteractionRecordTypesCovered": [],
     "PolicyCount": 0,
     "PolicyNames": [],
-    "RetentionCoverage": false,
-    "Note": "No DSPM for AI policies detected. Check Microsoft Purview > Data Security Posture Management for AI."
+    "DiagnosticPolicyCount": 0,
+    "PolicyDiagnostics": [],
+    "RetentionCoverage": true,
+    "RetentionPolicyNames": [
+      "Copilot Retention"
+    ],
+    "Note": "DLP collection succeeded, but no actively enforced Microsoft 365 Copilot DLP policy matched all documented signals. Retention coverage is informational only and does not satisfy control 1.6."
   },
   "sensitivityLabelPolicies": [],
   "endpointDlp": [],

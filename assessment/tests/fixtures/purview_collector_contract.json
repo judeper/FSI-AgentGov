@@ -20,7 +20,17 @@
     {
       "Name": "Copilot Data Loss Prevention",
       "Mode": "Enable",
-      "Workload": "Exchange,SharePoint",
+      "Workload": "Applications",
+      "Locations": [
+        {
+          "Name": "Microsoft 365 Copilot",
+          "Id": "470f2276-e011-4e9d-a6ec-20768be3a4b0"
+        }
+      ],
+      "Location": null,
+      "EnforcementPlanes": [
+        "CopilotExperiences"
+      ],
       "Enabled": true,
       "Rules": [
         {
@@ -65,16 +75,41 @@
   ],
   "insiderRiskPolicies": [],
   "dspmForAi": {
+    "CollectionStatus": "collected",
     "Detected": true,
-    "AiInteractionRecordTypesCovered": [
-      "AzureOpenAI",
-      "CopilotInteraction"
-    ],
     "PolicyCount": 1,
     "PolicyNames": [
-      "DSPM AI Copilot Interaction Policy"
+      "Copilot Data Loss Prevention"
     ],
-    "RetentionCoverage": true
+    "DiagnosticPolicyCount": 1,
+    "PolicyDiagnostics": [
+      {
+        "Name": "Copilot Data Loss Prevention",
+        "Qualifies": true,
+        "WorkloadMatched": true,
+        "LocationMatched": true,
+        "EnforcementPlaneMatched": true,
+        "ActiveEnforcement": true,
+        "Mode": "Enable",
+        "Enabled": true,
+        "Workloads": [
+          "Applications"
+        ],
+        "Locations": [
+          "470f2276-e011-4e9d-a6ec-20768be3a4b0",
+          "Microsoft 365 Copilot"
+        ],
+        "EnforcementPlanes": [
+          "CopilotExperiences"
+        ],
+        "Diagnostic": "Qualifying actively enforced Microsoft 365 Copilot DLP policy."
+      }
+    ],
+    "RetentionCoverage": true,
+    "RetentionPolicyNames": [
+      "Copilot Interaction Retention"
+    ],
+    "Note": "Detected 1 actively enforced Microsoft 365 Copilot DLP policy with all documented signals."
   },
   "sensitivityLabelPolicies": [
     {

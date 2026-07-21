@@ -94,6 +94,7 @@ function Invoke-CollectorOperation {
 
 $collectorRoot = Split-Path -Parent $PSCommandPath
 . (Join-Path $collectorRoot 'lib\InsiderRiskSupport.ps1')
+. (Join-Path $collectorRoot 'lib\PurviewDspmSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -179,40 +180,48 @@ catch {
 # Pattern: restrict-agent-publishing.ps1 — DLP connector classification
 # ═══════════════════════════════════════════════════════════════════════
 $dlpCompliancePolicies = $null
+$dlpCollectionSucceeded = $false
 try {
     Write-Verbose "Section 2: Collecting DLP compliance policies..."
     $rawDlp = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List DLP compliance policies' -ScriptBlock {
         Get-DlpCompliancePolicy -ErrorAction Stop
     }
-    $dlpCompliancePolicies = foreach ($policy in $rawDlp) {
-        # Retrieve associated rules with SIT references
-        $rules = $null
-        try {
-            $rules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
-                Get-DlpComplianceRule -Policy $policy.Name -ErrorAction Stop
-            } | ForEach-Object {
-                [PSCustomObject]@{
-                    Name                       = $_.Name
-                    Disabled                   = $_.Disabled
-                    ContentContainsSensitiveInformation = $_.ContentContainsSensitiveInformation
-                    BlockAccess                = $_.BlockAccess
-                    Priority                   = $_.Priority
+    $dlpCompliancePolicies = @(
+        foreach ($policy in $rawDlp) {
+            # Retrieve associated rules with SIT references
+            $policyName = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Name', 'Identity')
+            $rules = $null
+            try {
+                $rules = Invoke-CollectorOperation -Target $policyName -Action 'List DLP compliance rules' -ScriptBlock {
+                    Get-DlpComplianceRule -Policy $policyName -ErrorAction Stop
+                } | ForEach-Object {
+                    [PSCustomObject]@{
+                        Name                       = $_.Name
+                        Disabled                   = $_.Disabled
+                        ContentContainsSensitiveInformation = $_.ContentContainsSensitiveInformation
+                        BlockAccess                = $_.BlockAccess
+                        Priority                   = $_.Priority
+                    }
                 }
             }
-        }
-        catch {
-            $warnings.Add("DLP rules for policy '$($policy.Name)' failed: $($_.Exception.Message)")
-            Write-Warning $warnings[-1]
-        }
+            catch {
+                $warnings.Add("DLP rules for policy '$policyName' failed: $($_.Exception.Message)")
+                Write-Warning $warnings[-1]
+            }
 
-        [PSCustomObject]@{
-            Name     = $policy.Name
-            Mode     = $policy.Mode
-            Workload = $policy.Workload
-            Enabled  = $policy.Enabled
-            Rules    = $rules
+            [PSCustomObject]@{
+                Name              = $policyName
+                Mode              = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Mode')
+                Workload          = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Workload')
+                Locations         = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Locations')
+                Location          = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Location')
+                EnforcementPlanes = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('EnforcementPlanes')
+                Enabled           = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Enabled')
+                Rules             = $rules
+            }
         }
-    }
+    )
+    $dlpCollectionSucceeded = $true
     Write-Verbose "  Collected $(@($dlpCompliancePolicies).Count) DLP compliance policy/policies."
 }
 catch {
@@ -333,80 +342,48 @@ elseif ($auditDependency.classification -eq 'unknown') {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 7: DSPM for AI (Data Security Posture Management)
-# Supports: Control 1.6 (DSPM for AI) — AI interaction record type coverage
+# Supports: Control 1.6 (DSPM for AI) — actively enforced Microsoft 365 Copilot DLP
 #
 # DSPM for AI does not have a dedicated cmdlet in ExchangeOnlineManagement.
-# Evidence is inferred from DLP and retention policies that target the
-# canonical AI interaction workload tokens documented by Microsoft Purview:
-#   - CopilotInteraction  : Microsoft 365 Copilot prompts and responses
-#   - AzureOpenAI         : Azure OpenAI Service interactions
-#   - MicrosoftCopilotApp : Microsoft Copilot (web/app) interactions
-#
-# Using exact workload token matching eliminates false positives from
-# name-based heuristics and captures all documented AI record types.
+# Control evidence is derived only from DLP policies matching all documented
+# New-DlpCompliancePolicy signals for Microsoft 365 Copilot:
+#   Workload=Applications
+#   Location=470f2276-e011-4e9d-a6ec-20768be3a4b0
+#   EnforcementPlanes=CopilotExperiences
+# The policy must also be actively enforced. Retention remains informational.
 # ═══════════════════════════════════════════════════════════════════════
 $dspmForAi = $null
 try {
-    Write-Verbose "Section 7: Checking DSPM for AI policy presence and AI interaction record type coverage..."
+    Write-Verbose 'Section 7: Checking actively enforced Microsoft 365 Copilot DLP policy presence...'
 
-    # Canonical AI interaction workload tokens used by DSPM for AI policies.
-    # These values correspond to the documented Microsoft Purview workload identifiers.
-    $aiInteractionWorkloads = @('CopilotInteraction', 'AzureOpenAI', 'MicrosoftCopilotApp')
-
-    # Scan DLP compliance policies for any that target a canonical AI workload.
-    $aiDlpPolicies = @()
-    if ($dlpCompliancePolicies) {
-        $aiDlpPolicies = @($dlpCompliancePolicies | Where-Object {
-            $policyWorkloads = @($_.Workload -split ',\s*' | ForEach-Object { $_.Trim() })
-            ($policyWorkloads | Where-Object { $aiInteractionWorkloads -contains $_ }).Count -gt 0
+    $copilotRetentionPolicies = @()
+    if ($null -ne $retentionPolicies) {
+        $copilotRetentionPolicies = @($retentionPolicies | Where-Object {
+            $retentionMode = ([string]$_.Mode).Trim().ToLowerInvariant()
+            $retentionEnabled = ConvertTo-PurviewDspmBoolean -InputObject $_.Enabled
+            $hasCopilotScope = $_.CopilotWorkloadFound -eq $true -or ($_.Workload -match 'CopilotInteraction')
+            $hasCopilotScope -and $retentionEnabled -eq $true -and
+                $retentionMode -in @('enable', 'enabled', 'enforce', 'enforced')
         })
     }
+    $retentionCoverage = $copilotRetentionPolicies.Count -gt 0
+    $retentionPolicyNames = @($copilotRetentionPolicies | ForEach-Object { $_.Name })
 
-    # Scan retention policies for CopilotInteraction workload coverage.
-    # Get-RetentionCompliancePolicy uses CopilotInteraction as the retention workload token.
-    $aiRetentionCoverage = $false
-    if ($retentionPolicies) {
-        $aiRetentionCoverage = [bool](@($retentionPolicies | Where-Object {
-            $_.CopilotWorkloadFound -eq $true -or ($_.Workload -match 'CopilotInteraction')
-        }).Count -gt 0)
-    }
+    $dspmForAi = New-PurviewDspmEvidence `
+        -Policies $dlpCompliancePolicies `
+        -DlpCollectionSucceeded $dlpCollectionSucceeded `
+        -RetentionCoverage $retentionCoverage `
+        -RetentionPolicyNames $retentionPolicyNames
 
-    # Determine which AI interaction record types have at least one policy covering them.
-    $coveredRecordTypes = [System.Collections.Generic.List[string]]::new()
-    foreach ($workload in $aiInteractionWorkloads) {
-        $coveredByDlp = [bool](@($aiDlpPolicies | Where-Object {
-            $_.Workload -match $workload
-        }).Count -gt 0)
-        if ($coveredByDlp) {
-            $coveredRecordTypes.Add($workload)
-        }
-    }
-    if ($aiRetentionCoverage -and -not $coveredRecordTypes.Contains('CopilotInteraction')) {
-        $coveredRecordTypes.Add('CopilotInteraction')
-    }
-
-    if ($aiDlpPolicies.Count -gt 0 -or $aiRetentionCoverage) {
-        $dspmForAi = [PSCustomObject]@{
-            Detected                        = $true
-            AiInteractionRecordTypesCovered = @($coveredRecordTypes | Sort-Object -Unique)
-            PolicyCount                     = $aiDlpPolicies.Count
-            PolicyNames                     = @($aiDlpPolicies | ForEach-Object { $_.Name })
-            RetentionCoverage               = $aiRetentionCoverage
-        }
-    }
-    else {
-        $dspmForAi = [PSCustomObject]@{
-            Detected                        = $false
-            AiInteractionRecordTypesCovered = @()
-            PolicyCount                     = 0
-            PolicyNames                     = @()
-            RetentionCoverage               = $false
-            Note                            = 'No DSPM for AI policies detected. Check Microsoft Purview > Data Security Posture Management for AI. Expected workloads: CopilotInteraction, AzureOpenAI, MicrosoftCopilotApp.'
-        }
-        $warnings.Add("Section 7 (DSPM for AI): No AI-specific interaction policies detected for workloads: $($aiInteractionWorkloads -join ', ').")
+    if ($dspmForAi.CollectionStatus -ne 'collected') {
+        $warnings.Add("Section 7 (DSPM for AI) unavailable: $($dspmForAi.Note)")
         Write-Warning $warnings[-1]
     }
-    Write-Verbose "  DSPM for AI check complete. Detected: $($dspmForAi.Detected). Record types covered: $($dspmForAi.AiInteractionRecordTypesCovered -join ', ')."
+    elseif (-not $dspmForAi.Detected) {
+        $warnings.Add("Section 7 (DSPM for AI): $($dspmForAi.Note)")
+        Write-Warning $warnings[-1]
+    }
+    Write-Verbose "  DSPM for AI check complete. Status: $($dspmForAi.CollectionStatus). Qualifying active policy count: $($dspmForAi.PolicyCount)."
 }
 catch {
     $warnings.Add("Section 7 (DSPM for AI) failed: $($_.Exception.Message)")

@@ -1421,27 +1421,44 @@ def _eval_no_external_sharing_on_grounding(
 def _eval_dspm_policy_exists(
     collected: dict, _source_key: str | None
 ) -> tuple[bool | None, str]:
-    """Control 1.6.a: DSPM for AI policy exists in Purview.
-
-    Passes when the collector detected at least one DLP or retention policy
-    covering a canonical AI interaction workload (CopilotInteraction,
-    AzureOpenAI, MicrosoftCopilotApp). Fails closed if the field is absent.
-    """
+    """Control 1.6.a: actively enforced Microsoft 365 Copilot DLP exists."""
     purview = collected.get("purview")
     if not purview:
         return None, "Purview data not available"
     dspm = purview.get("dspm_for_ai")
-    if dspm is None:
+    if not isinstance(dspm, dict):
         return None, "dspmForAi not collected"
-    if dspm.get("Detected") is True:
-        record_types = dspm.get("AiInteractionRecordTypesCovered") or []
-        count = dspm.get("PolicyCount", 0)
-        types_str = ", ".join(record_types) if record_types else "unknown"
+
+    collection_status = str(dspm.get("CollectionStatus") or "").lower()
+    if collection_status in {"failed", "unavailable", "error", "unknown"}:
+        note = dspm.get("Note") or "DSPM DLP collection unavailable"
+        return None, note
+
+    detected = dspm.get("Detected")
+    count = dspm.get("PolicyCount")
+    try:
+        policy_count = int(count or 0)
+    except (TypeError, ValueError):
+        return None, "dspmForAi PolicyCount is malformed"
+
+    if detected is True and policy_count > 0:
+        policy_names = dspm.get("PolicyNames") or []
+        names = ", ".join(str(name) for name in policy_names if name)
+        suffix = f": {names}" if names else ""
         return (
             True,
-            f"{count} DSPM policy/policies covering AI interaction record types: {types_str}",
+            f"{policy_count} actively enforced Microsoft 365 Copilot DLP "
+            f"policy/policies match Workload=Applications, the documented "
+            f"Copilot location, and EnforcementPlane=CopilotExperiences{suffix}",
         )
-    note = dspm.get("Note") or "No DSPM for AI policies detected"
+
+    if detected is None and collection_status != "collected":
+        return None, dspm.get("Note") or "DSPM DLP collection state is unavailable"
+
+    note = dspm.get("Note") or (
+        "DLP collection succeeded; no qualifying actively enforced "
+        "Microsoft 365 Copilot DLP policy was found"
+    )
     return False, note
 
 
