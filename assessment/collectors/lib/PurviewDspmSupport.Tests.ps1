@@ -27,6 +27,21 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.EnforcementPlaneMatched | Should -BeTrue
     }
 
+    It 'qualifies the documented Enable mode when the policy is enabled' {
+        $policy = [PSCustomObject]@{
+            Name              = 'Enabled M365 Copilot DLP'
+            Enabled           = $true
+            Mode              = 'Enable'
+            Locations         = "{`"Location`":`"$copilotLocation`",`"Workload`":`"Applications`"}"
+            EnforcementPlanes = @('CopilotExperiences')
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeTrue
+        $result.ActiveEnforcement | Should -BeTrue
+    }
+
     It 'supports dictionary and PSCustomObject location scope entries' {
         $policy = @{
             Name              = 'Object-shaped signals'
@@ -70,6 +85,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
     It 'keeps documented non-enforcing modes diagnostic but non-qualifying' -ForEach @(
         @{ Mode = 'Test' }
         @{ Mode = 'AuditAndNotify' }
+        @{ Mode = 'Other' }
     ) {
         $policy = @{
             Name              = "Non-enforcing $Mode"
@@ -86,16 +102,34 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.Diagnostic | Should -Match 'not proven actively enforced'
     }
 
-    It 'rejects a disabled policy even when all scope signals match' {
+    It 'rejects a disabled policy in either accepted active mode' -ForEach @(
+        @{ Mode = 'Enable' }
+        @{ Mode = 'Enforce' }
+    ) {
         $policy = @{
-            Name              = 'Disabled'
+            Name              = "Disabled $Mode"
             Enabled           = $false
-            Mode              = 'Enforce'
+            Mode              = $Mode
             Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
+    }
+
+    It 'rejects a missing mode even when all other signals match' {
+        $policy = @{
+            Name              = 'Missing mode'
+            Enabled           = $true
+            Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes = @('CopilotExperiences')
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeFalse
+        $result.ActiveEnforcement | Should -BeFalse
+        $result.Diagnostic | Should -Match 'Mode must be Enable or Enforce'
     }
 
     It 'rejects a malformed location' {

@@ -394,7 +394,7 @@ function Get-PurviewCopilotDlpClassification {
     })
     $activeEnforcement = (
         $enabled -eq $true -and
-        $normalizedMode -eq 'enforce'
+        $normalizedMode -in @('enable', 'enforce')
     )
 
     $reasons = [System.Collections.Generic.List[string]]::new()
@@ -414,7 +414,7 @@ function Get-PurviewCopilotDlpClassification {
         $reasons.Add('EnforcementPlanes does not include CopilotExperiences.')
     }
     if (-not $activeEnforcement) {
-        $reasons.Add('Policy is not proven actively enforced (Enabled=true and Mode=Enforce required).')
+        $reasons.Add('Policy is not proven actively enforced (Enabled=true and Mode must be Enable or Enforce).')
     }
 
     $qualifies = $locationScopeMatched -and $enforcementPlaneMatched -and $activeEnforcement
