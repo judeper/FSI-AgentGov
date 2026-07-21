@@ -2433,10 +2433,14 @@ class TestDspmPolicyEvaluator:
         collected = tmp_path / "collected"
         collected.mkdir()
 
-        write_json(
-            collected / "purview.json",
-            load_fixture("purview_collector_contract.json"),
-        )
+        fixture = load_fixture("purview_collector_contract.json")
+        policy = fixture["dlpCompliancePolicies"][0]
+        assert "Workload" not in policy
+        assert json.loads(policy["Locations"]) == {
+            "Location": "470f2276-e011-4e9d-a6ec-20768be3a4b0",
+            "Workload": "Applications",
+        }
+        write_json(collected / "purview.json", fixture)
         for name in ("ppac", "graph", "sharepoint", "sentinel"):
             write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
 

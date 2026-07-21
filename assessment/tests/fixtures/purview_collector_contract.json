@@ -19,15 +19,8 @@
   "dlpCompliancePolicies": [
     {
       "Name": "Copilot Data Loss Prevention",
-      "Mode": "Enable",
-      "Workload": "Applications",
-      "Locations": [
-        {
-          "Name": "Microsoft 365 Copilot",
-          "Id": "470f2276-e011-4e9d-a6ec-20768be3a4b0"
-        }
-      ],
-      "Location": null,
+      "Mode": "Enforce",
+      "Locations": "{\"Location\":\"470f2276-e011-4e9d-a6ec-20768be3a4b0\",\"Workload\":\"Applications\"}",
       "EnforcementPlanes": [
         "CopilotExperiences"
       ],
@@ -90,14 +83,13 @@
         "LocationMatched": true,
         "EnforcementPlaneMatched": true,
         "ActiveEnforcement": true,
-        "Mode": "Enable",
+        "Mode": "Enforce",
         "Enabled": true,
         "Workloads": [
           "Applications"
         ],
         "Locations": [
-          "470f2276-e011-4e9d-a6ec-20768be3a4b0",
-          "Microsoft 365 Copilot"
+          "470f2276-e011-4e9d-a6ec-20768be3a4b0"
         ],
         "EnforcementPlanes": [
           "CopilotExperiences"

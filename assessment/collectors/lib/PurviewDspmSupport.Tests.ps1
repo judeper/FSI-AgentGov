@@ -9,13 +9,12 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $copilotLocation = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
     }
 
-    It 'qualifies an active official-shape Microsoft 365 Copilot DLP policy' {
+    It 'qualifies the documented nested Locations JSON without top-level Workload' {
         $policy = [PSCustomObject]@{
             Name              = 'M365 Copilot DLP'
             Enabled           = $true
-            Mode              = 'Enable'
-            Workload          = 'Applications'
-            Locations         = @($copilotLocation)
+            Mode              = 'Enforce'
+            Locations         = "{`"Location`":`"$copilotLocation`",`"Workload`":`"Applications`"}"
             EnforcementPlanes = @('CopilotExperiences')
         }
 
@@ -28,37 +27,38 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.EnforcementPlaneMatched | Should -BeTrue
     }
 
-    It 'normalizes dictionary and PSCustomObject field values' {
+    It 'supports dictionary and PSCustomObject location scope entries' {
         $policy = @{
             Name              = 'Object-shaped signals'
             Enabled           = $true
             Mode              = 'Enforce'
-            Workload          = @([PSCustomObject]@{ Value = 'Applications' })
-            Locations         = @([PSCustomObject]@{ Name = 'Microsoft 365 Copilot'; Id = $copilotLocation })
+            Locations         = @(
+                [PSCustomObject]@{ Workload = 'Exchange'; Location = 'exchange-location' }
+                @{ Workload = 'Applications'; Location = $copilotLocation }
+            )
             EnforcementPlanes = @(@{ Value = 'CopilotExperiences' })
         }
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
 
-    It 'normalizes serialized JSON and delimited string field values' {
+    It 'supports serialized JSON arrays of location scope entries' {
         $policy = @{
             Name              = 'Serialized signals'
             Enabled           = 'true'
-            Mode              = 'Enable'
-            Workload          = '["Exchange","Applications"]'
-            Locations         = "[{`"Name`":`"Microsoft 365 Copilot`",`"Id`":`"$copilotLocation`"}]"
+            Mode              = 'Enforce'
+            Locations         = "[{`"Workload`":`"Applications`",`"Location`":`"$copilotLocation`"}]"
             EnforcementPlanes = 'EndpointDlp;CopilotExperiences'
         }
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
 
-    It 'accepts the singular Location field' {
+    It 'accepts the existing top-level Workload and Location representation' {
         $policy = @{
             Name              = 'Singular location'
             Enabled           = $true
-            Mode              = 'Enable'
+            Mode              = 'Enforce'
             Workload          = 'Applications'
             Location          = $copilotLocation
             EnforcementPlanes = 'CopilotExperiences'
@@ -67,17 +67,15 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
 
-    It 'keeps test and audit modes diagnostic but non-qualifying' -ForEach @(
-        @{ Mode = 'TestWithNotifications' }
-        @{ Mode = 'TestWithoutNotifications' }
-        @{ Mode = 'Audit' }
+    It 'keeps documented non-enforcing modes diagnostic but non-qualifying' -ForEach @(
+        @{ Mode = 'Test' }
+        @{ Mode = 'AuditAndNotify' }
     ) {
         $policy = @{
             Name              = "Non-enforcing $Mode"
             Enabled           = $true
             Mode              = $Mode
-            Workload          = 'Applications'
-            Locations         = @($copilotLocation)
+            Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
 
@@ -92,9 +90,8 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $policy = @{
             Name              = 'Disabled'
             Enabled           = $false
-            Mode              = 'Enable'
-            Workload          = 'Applications'
-            Locations         = @($copilotLocation)
+            Mode              = 'Enforce'
+            Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
 
@@ -105,7 +102,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $policy = @{
             Name              = 'Malformed location'
             Enabled           = $true
-            Mode              = 'Enable'
+            Mode              = 'Enforce'
             Workload          = 'Applications'
             Locations         = '["not-the-copilot-guid"'
             EnforcementPlanes = @('CopilotExperiences')
@@ -115,6 +112,72 @@ Describe 'Get-PurviewCopilotDlpClassification' {
 
         $result.Qualifies | Should -BeFalse
         $result.LocationMatched | Should -BeFalse
+    }
+
+    It 'inherits top-level Workload only for entries that omit Workload' {
+        $policy = @{
+            Name              = 'Inherited workload'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Workload          = 'Applications'
+            Locations         = @(
+                @{ Location = $copilotLocation }
+                @{ Workload = 'Exchange'; Location = 'exchange-location' }
+            )
+            EnforcementPlanes = @('CopilotExperiences')
+        }
+
+        (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
+    }
+
+    It 'does not mix workload and location signals from unrelated scopes' {
+        $policy = @{
+            Name              = 'Unrelated scopes'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Workload          = 'Applications'
+            Locations         = @(
+                @{ Location = 'other-location' }
+                @{ Workload = 'Exchange'; Location = $copilotLocation }
+            )
+            EnforcementPlanes = @('CopilotExperiences')
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.WorkloadMatched | Should -BeTrue
+        $result.LocationMatched | Should -BeTrue
+        $result.Qualifies | Should -BeFalse
+        $result.Diagnostic | Should -Match 'same location scope'
+    }
+
+    It 'ignores the Copilot GUID in exclusions and unrelated nested properties' -ForEach @(
+        @{
+            Locations = @{
+                Workload  = 'Applications'
+                Location  = 'other-location'
+                Exclusions = @(@{ Location = '470f2276-e011-4e9d-a6ec-20768be3a4b0' })
+            }
+        }
+        @{
+            Locations = @{
+                Workload   = 'Applications'
+                Diagnostics = @{ ObservedLocation = '470f2276-e011-4e9d-a6ec-20768be3a4b0' }
+            }
+        }
+    ) {
+        $policy = @{
+            Name              = 'Nested false positive'
+            Enabled           = $true
+            Mode              = 'Enforce'
+            Locations         = $Locations
+            EnforcementPlanes = @('CopilotExperiences')
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.LocationMatched | Should -BeFalse
+        $result.Qualifies | Should -BeFalse
     }
 
     It 'rejects missing required fields conservatively' {
@@ -137,9 +200,8 @@ Describe 'New-PurviewDspmEvidence' {
         $activePolicy = @{
             Name              = 'Active Copilot DLP'
             Enabled           = $true
-            Mode              = 'Enable'
-            Workload          = 'Applications'
-            Locations         = @($copilotLocation)
+            Mode              = 'Enforce'
+            Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
     }
@@ -147,7 +209,7 @@ Describe 'New-PurviewDspmEvidence' {
     It 'counts only qualifying actively enforced policies' {
         $testPolicy = $activePolicy.Clone()
         $testPolicy.Name = 'Test Copilot DLP'
-        $testPolicy.Mode = 'TestWithNotifications'
+        $testPolicy.Mode = 'Test'
 
         $evidence = New-PurviewDspmEvidence -Policies @($activePolicy, $testPolicy) -DlpCollectionSucceeded $true
 
