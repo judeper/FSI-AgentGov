@@ -19,7 +19,14 @@
   "communicationCompliance": [],
   "eDiscoveryCases": [],
   "insiderRiskPolicies": [],
-  "dspmForAi": null,
+  "dspmForAi": {
+    "Detected": false,
+    "AiInteractionRecordTypesCovered": [],
+    "PolicyCount": 0,
+    "PolicyNames": [],
+    "RetentionCoverage": false,
+    "Note": "No DSPM for AI policies detected. Check Microsoft Purview > Data Security Posture Management for AI."
+  },
   "sensitivityLabelPolicies": [],
   "endpointDlp": [],
   "insiderRiskEvidence": {

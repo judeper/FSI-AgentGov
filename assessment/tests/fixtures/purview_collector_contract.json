@@ -65,9 +65,16 @@
   ],
   "insiderRiskPolicies": [],
   "dspmForAi": {
-    "Available": true,
-    "AlertsEnabled": true,
-    "LastAssessment": "2026-05-18T12:00:00Z"
+    "Detected": true,
+    "AiInteractionRecordTypesCovered": [
+      "AzureOpenAI",
+      "CopilotInteraction"
+    ],
+    "PolicyCount": 1,
+    "PolicyNames": [
+      "DSPM AI Copilot Interaction Policy"
+    ],
+    "RetentionCoverage": true
   },
   "sensitivityLabelPolicies": [
     {

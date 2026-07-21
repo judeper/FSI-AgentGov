@@ -556,6 +556,11 @@ def _normalize_purview_data(purview: dict) -> dict:
         if isinstance(retention_policies, list):
             normalized["retention_policies"] = retention_policies
 
+    if normalized.get("dspm_for_ai") is None:
+        dspm_for_ai = _first_present(purview, "dspmForAi")
+        if isinstance(dspm_for_ai, dict):
+            normalized["dspm_for_ai"] = dspm_for_ai
+
     return normalized
 
 
@@ -1413,6 +1418,33 @@ def _eval_no_external_sharing_on_grounding(
     return True, "External sharing is 'Disabled' on all grounding sites"
 
 
+def _eval_dspm_policy_exists(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    """Control 1.6.a: DSPM for AI policy exists in Purview.
+
+    Passes when the collector detected at least one DLP or retention policy
+    covering a canonical AI interaction workload (CopilotInteraction,
+    AzureOpenAI, MicrosoftCopilotApp). Fails closed if the field is absent.
+    """
+    purview = collected.get("purview")
+    if not purview:
+        return None, "Purview data not available"
+    dspm = purview.get("dspm_for_ai")
+    if dspm is None:
+        return None, "dspmForAi not collected"
+    if dspm.get("Detected") is True:
+        record_types = dspm.get("AiInteractionRecordTypesCovered") or []
+        count = dspm.get("PolicyCount", 0)
+        types_str = ", ".join(record_types) if record_types else "unknown"
+        return (
+            True,
+            f"{count} DSPM policy/policies covering AI interaction record types: {types_str}",
+        )
+    note = dspm.get("Note") or "No DSPM for AI policies detected"
+    return False, note
+
+
 # --- Evaluator registry ---------------------------------------------------
 
 EVALUATORS: dict[str, object] = {
@@ -1428,6 +1460,7 @@ EVALUATORS: dict[str, object] = {
     "copilot_retention_policy_exists": _eval_copilot_retention_policy_exists,
     "grounding_sources_approved": _eval_grounding_sources_approved,
     "no_external_sharing_on_grounding": _eval_no_external_sharing_on_grounding,
+    "dspm_policy_exists": _eval_dspm_policy_exists,
 }
 
 

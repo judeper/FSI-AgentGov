@@ -679,10 +679,13 @@
     "noBar": "DSPM for AI not activated; no AI interaction visibility through Purview Activity Explorer.",
     "verifyIn": [],
     "verifyPowerShell": "",
-    "evidenceExpected": [],
+    "evidenceExpected": [
+      "dspmForAi.Detected",
+      "dspmForAi.AiInteractionRecordTypesCovered"
+    ],
     "controlDocUrl": "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.6/portal-walkthrough/",
-    "collectorField": "",
+    "collectorField": "dspmForAi",
     "sectorYesBar": {
       "bank": null,
       "broker-dealer": null,

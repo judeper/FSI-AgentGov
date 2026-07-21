@@ -333,41 +333,80 @@ elseif ($auditDependency.classification -eq 'unknown') {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 7: DSPM for AI (Data Security Posture Management)
-# Supports: AI data security posture evaluation
-# Note: DSPM may require Graph API fallback if no direct cmdlet exists.
+# Supports: Control 1.6 (DSPM for AI) — AI interaction record type coverage
+#
+# DSPM for AI does not have a dedicated cmdlet in ExchangeOnlineManagement.
+# Evidence is inferred from DLP and retention policies that target the
+# canonical AI interaction workload tokens documented by Microsoft Purview:
+#   - CopilotInteraction  : Microsoft 365 Copilot prompts and responses
+#   - AzureOpenAI         : Azure OpenAI Service interactions
+#   - MicrosoftCopilotApp : Microsoft Copilot (web/app) interactions
+#
+# Using exact workload token matching eliminates false positives from
+# name-based heuristics and captures all documented AI record types.
 # ═══════════════════════════════════════════════════════════════════════
 $dspmForAi = $null
 try {
-    Write-Verbose "Section 7: Checking DSPM for AI policy presence..."
+    Write-Verbose "Section 7: Checking DSPM for AI policy presence and AI interaction record type coverage..."
 
-    # DSPM for AI does not have a dedicated cmdlet in ExchangeOnlineManagement.
-    # Attempt to detect via DLP policies with AI-specific workloads or names,
-    # and check Graph beta endpoint if available.
-    $dspmRelatedPolicies = @()
+    # Canonical AI interaction workload tokens used by DSPM for AI policies.
+    # These values correspond to the documented Microsoft Purview workload identifiers.
+    $aiInteractionWorkloads = @('CopilotInteraction', 'AzureOpenAI', 'MicrosoftCopilotApp')
+
+    # Scan DLP compliance policies for any that target a canonical AI workload.
+    $aiDlpPolicies = @()
     if ($dlpCompliancePolicies) {
-        $dspmRelatedPolicies = @($dlpCompliancePolicies | Where-Object {
-            $_.Name -match 'DSPM|DataSecurity|AI' -or $_.Workload -match 'AI'
+        $aiDlpPolicies = @($dlpCompliancePolicies | Where-Object {
+            $policyWorkloads = @($_.Workload -split ',\s*' | ForEach-Object { $_.Trim() })
+            ($policyWorkloads | Where-Object { $aiInteractionWorkloads -contains $_ }).Count -gt 0
         })
     }
 
-    if ($dspmRelatedPolicies.Count -gt 0) {
+    # Scan retention policies for CopilotInteraction workload coverage.
+    # Get-RetentionCompliancePolicy uses CopilotInteraction as the retention workload token.
+    $aiRetentionCoverage = $false
+    if ($retentionPolicies) {
+        $aiRetentionCoverage = [bool](@($retentionPolicies | Where-Object {
+            $_.CopilotWorkloadFound -eq $true -or ($_.Workload -match 'CopilotInteraction')
+        }).Count -gt 0)
+    }
+
+    # Determine which AI interaction record types have at least one policy covering them.
+    $coveredRecordTypes = [System.Collections.Generic.List[string]]::new()
+    foreach ($workload in $aiInteractionWorkloads) {
+        $coveredByDlp = [bool](@($aiDlpPolicies | Where-Object {
+            $_.Workload -match $workload
+        }).Count -gt 0)
+        if ($coveredByDlp) {
+            $coveredRecordTypes.Add($workload)
+        }
+    }
+    if ($aiRetentionCoverage -and -not $coveredRecordTypes.Contains('CopilotInteraction')) {
+        $coveredRecordTypes.Add('CopilotInteraction')
+    }
+
+    if ($aiDlpPolicies.Count -gt 0 -or $aiRetentionCoverage) {
         $dspmForAi = [PSCustomObject]@{
-            Detected        = $true
-            PolicyCount     = $dspmRelatedPolicies.Count
-            PolicyNames     = @($dspmRelatedPolicies | ForEach-Object { $_.Name })
+            Detected                        = $true
+            AiInteractionRecordTypesCovered = @($coveredRecordTypes | Sort-Object -Unique)
+            PolicyCount                     = $aiDlpPolicies.Count
+            PolicyNames                     = @($aiDlpPolicies | ForEach-Object { $_.Name })
+            RetentionCoverage               = $aiRetentionCoverage
         }
     }
     else {
         $dspmForAi = [PSCustomObject]@{
-            Detected    = $false
-            PolicyCount = 0
-            PolicyNames = @()
-            Note        = 'No DSPM for AI policies detected. Check Microsoft Purview portal for DSPM configuration. Graph API beta endpoint may provide additional coverage.'
+            Detected                        = $false
+            AiInteractionRecordTypesCovered = @()
+            PolicyCount                     = 0
+            PolicyNames                     = @()
+            RetentionCoverage               = $false
+            Note                            = 'No DSPM for AI policies detected. Check Microsoft Purview > Data Security Posture Management for AI. Expected workloads: CopilotInteraction, AzureOpenAI, MicrosoftCopilotApp.'
         }
-        $warnings.Add("Section 7 (DSPM for AI): No AI-specific data security policies detected.")
+        $warnings.Add("Section 7 (DSPM for AI): No AI-specific interaction policies detected for workloads: $($aiInteractionWorkloads -join ', ').")
         Write-Warning $warnings[-1]
     }
-    Write-Verbose "  DSPM for AI check complete. Detected: $($dspmForAi.Detected)"
+    Write-Verbose "  DSPM for AI check complete. Detected: $($dspmForAi.Detected). Record types covered: $($dspmForAi.AiInteractionRecordTypesCovered -join ', ')."
 }
 catch {
     $warnings.Add("Section 7 (DSPM for AI) failed: $($_.Exception.Message)")

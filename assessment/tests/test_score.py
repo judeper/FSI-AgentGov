@@ -2186,3 +2186,244 @@ class TestCollectorFailureModes:
         warnings = result["_metadata"]["collector_warnings"]
         assert "ppac" in warnings
         assert "Lone warning that PowerShell unwrapped" in warnings["ppac"]
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.6 DSPM for AI evaluator (issue #250)
+# ---------------------------------------------------------------------------
+
+
+class TestDspmPolicyEvaluator:
+    """Regression tests for dspm_policy_exists evaluator (control 1.6.a).
+
+    Verifies the evaluator, normalizer, and collector contract alignment
+    corrected in issue #250: canonical AI interaction workload tokens,
+    fixed field shapes, and end-to-end collector→normalizer→evaluator path.
+    """
+
+    @staticmethod
+    def _dspm_control_manifest() -> dict:
+        return build_manifest_with_controls(
+            [
+                {
+                    "id": "1.6",
+                    "title": "Control 1.6: Microsoft Purview DSPM for AI",
+                    "pillar": 1,
+                    "pillar_name": "Security",
+                    "source_file": "docs/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md",
+                    "automation": "partial",
+                    "collection_methods": ["Purview_PowerShell"],
+                    "checks": [
+                        {
+                            "check_id": "1.6.a",
+                            "description": "DSPM for AI policy exists in Purview",
+                            "api_call": "Get-DlpCompliancePolicy",
+                            "pass_condition": "dspm_policy_exists",
+                            "zone_required": [2, 3],
+                        }
+                    ],
+                    "zone_thresholds": {
+                        "zone1": {"min_checks_passed": 1, "maturity_score": 1},
+                        "zone2": {"min_checks_passed": 1, "maturity_score": 2},
+                        "zone3": {"min_checks_passed": 1, "maturity_score": 4},
+                    },
+                    "manual_question": "Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?",
+                }
+            ]
+        )
+
+    # ---- Unit: evaluator function -------------------------------------------
+
+    def test_dspm_evaluator_passes_when_detected_with_record_types(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "Detected": True,
+                "AiInteractionRecordTypesCovered": ["CopilotInteraction", "AzureOpenAI"],
+                "PolicyCount": 2,
+                "PolicyNames": ["DSPM Copilot Policy", "DSPM Azure OpenAI Policy"],
+                "RetentionCoverage": True,
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is True
+        assert "2" in evidence
+        assert "CopilotInteraction" in evidence
+        assert "AzureOpenAI" in evidence
+
+    def test_dspm_evaluator_fails_when_detected_is_false(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = {
+            "dspm_for_ai": {
+                "Detected": False,
+                "AiInteractionRecordTypesCovered": [],
+                "PolicyCount": 0,
+                "PolicyNames": [],
+                "RetentionCoverage": False,
+                "Note": "No DSPM for AI policies detected.",
+            }
+        }
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is False
+        assert "No DSPM" in evidence
+
+    def test_dspm_evaluator_returns_unknown_when_dspm_field_is_none(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        # dspm_for_ai key present but value is None (collector failed for section 7)
+        purview = {"dspm_for_ai": None, "audit_config": {"UnifiedAuditLogIngestionEnabled": True}}
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {"purview": purview}, None
+        )
+
+        assert passed is None
+        assert "not collected" in evidence
+
+    def test_dspm_evaluator_returns_unknown_when_purview_missing(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
+            {}, None
+        )
+
+        assert passed is None
+        assert "not available" in evidence
+
+    # ---- Unit: normalizer handles camelCase → snake_case --------------------
+
+    def test_purview_normalizer_maps_dspmForAi_to_dspm_for_ai(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        payload = {
+            "dspmForAi": {
+                "Detected": True,
+                "AiInteractionRecordTypesCovered": ["CopilotInteraction"],
+                "PolicyCount": 1,
+                "PolicyNames": ["Test Policy"],
+                "RetentionCoverage": False,
+            }
+        }
+        normalized = score._normalize_purview_data(payload)  # noqa: SLF001
+
+        assert "dspm_for_ai" in normalized
+        assert normalized["dspm_for_ai"]["Detected"] is True
+        assert normalized["dspm_for_ai"]["AiInteractionRecordTypesCovered"] == ["CopilotInteraction"]
+
+    def test_purview_normalizer_ignores_null_dspmForAi(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        payload = {"dspmForAi": None}
+        normalized = score._normalize_purview_data(payload)  # noqa: SLF001
+
+        # null dspmForAi should not create a dspm_for_ai key (None is not a dict)
+        assert normalized.get("dspm_for_ai") is None
+
+    # ---- Integration: collector contract → evaluator path ------------------
+
+    def test_purview_collector_contract_shape_scores_control_1_6(
+        self, tmp_path: Path
+    ):
+        """Collector contract fixture with canonical shape passes 1.6.a via normalizer."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(
+            collected / "purview.json",
+            load_fixture("purview_collector_contract.json"),
+        )
+        for name in ("ppac", "graph", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls-1.6.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._dspm_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.6")
+
+        assert ctrl["evidence"]["1.6.a"]["result"] == "pass"
+        assert "CopilotInteraction" in ctrl["evidence"]["1.6.a"]["value"]
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == 2
+        assert ctrl["evaluator_state"] == "auto_evaluable"
+
+    def test_purview_base_fixture_fails_1_6_a_no_dspm_detected(
+        self, tmp_path: Path
+    ):
+        """Base purview.json (no DSPM detected) → 1.6.a fails, maturity 0."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        for name in ("ppac", "graph", "purview", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls-1.6.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, self._dspm_control_manifest())
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.6")
+
+        assert ctrl["evidence"]["1.6.a"]["result"] == "fail"
+        assert ctrl["checks_passed"] == 0
+        assert ctrl["maturity_score"] == 0
+
+    def test_control_1_6_is_auto_evaluable_in_real_manifest(
+        self, tmp_path: Path, collected_dir: Path
+    ):
+        """Real manifest check 1.6.a must be auto_evaluable after fix (not unimplemented)."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.6")
+
+        # After fix: 1.6.a has a registered evaluator → auto_evaluable
+        assert ctrl["evaluator_state"] == "auto_evaluable", (
+            f"Expected auto_evaluable after issue-250 fix; got {ctrl['evaluator_state']}. "
+            "Check that dspm_policy_exists is registered in EVALUATORS."
+        )
+        # Checks should be scored, not left as unknown with unimplemented evidence
+        chk = ctrl["checks"][0]
+        assert chk["evaluator_state"] == "auto_evaluable"
+
