@@ -1,0 +1,36 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:3e08c55977db7b852086aac2f2b795267d27a2c0f25f8ba0e612ec53bb7984a3",
+  "detected_at": "2026-07-20T09:49:11Z",
+  "ga_date": "June CY2026",
+  "id": 516032,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2025",
+  "products": [
+    "Microsoft Purview"
+  ],
+  "raw_description": "As AI agents become deeply embedded in enterprise ecosystems, they are evolving beyond simple tools or workflows into a digital workforce. These agents can interpret intent, access and manipulate enterprise data, execute actions and even make real-time decisions. In many ways, they operate like human insiders only with machine-speed data processing capabilities. To govern and protect these agents effectively, Microsoft Purview Insider Risk Management is being expanded to agents, with specific indicators and insider risk score built for agents based on agentic activities. Microsoft Purview Insider Risk Management correlates various signals to identify potential malicious or inadvertent insider risks, such as IP theft, data leakage, and security violations. Insider Risk Management enables customers to create policies based on their own internal policies, governance, and organizational requirements. Built with privacy by design, users are pseudonymized by default, and role-based access controls and audit logs are in place to help ensure user-level privacy. Updated January 30: This feature is still in development with a planned release of April 2026. We apologize for the inconvenience. ",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=516032",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.12",
+      "source": "keyword:insider risk"
+    },
+    {
+      "id": "1.7",
+      "source": "keyword:audit"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    },
+    {
+      "id": "3.3",
+      "source": "keyword:audit"
+    }
+  ],
+  "title": "Microsoft Purview: Insider Risk Management-Insider risk management for agents"
+}
