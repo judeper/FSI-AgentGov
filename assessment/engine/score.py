@@ -1368,6 +1368,92 @@ def _eval_copilot_retention_policy_exists(
     return False, "No enabled retention policy covering Copilot workload found"
 
 
+def _extract_sit_references(rule: dict) -> set[str]:
+    refs = _first_present(
+        rule,
+        "ContentContainsSensitiveInformation",
+        "contentContainsSensitiveInformation",
+    )
+    if not isinstance(refs, list):
+        return set()
+
+    names: set[str] = set()
+    for ref in refs:
+        if isinstance(ref, dict):
+            name = _first_present(ref, "Name", "name")
+            if isinstance(name, str) and name.strip():
+                names.add(name.strip())
+        elif isinstance(ref, str) and ref.strip():
+            names.add(ref.strip())
+    return names
+
+
+def _eval_dlp_references_sits(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    purview = collected.get("purview")
+    if not purview:
+        return None, "Purview data not available"
+
+    policies = _first_present(
+        purview,
+        "dlp_compliance_policies",
+        "dlpCompliancePolicies",
+    )
+    if policies is None:
+        return None, "dlpCompliancePolicies not collected"
+    if not isinstance(policies, list):
+        return False, "dlpCompliancePolicies malformed (fail closed)"
+
+    enabled_policy_count = 0
+    sit_names: set[str] = set()
+    policy_hits: list[str] = []
+
+    for policy in policies:
+        if not isinstance(policy, dict):
+            continue
+        if _first_present(policy, "Enabled", "enabled") is False:
+            continue
+
+        enabled_policy_count += 1
+        policy_name = str(_first_present(policy, "Name", "name") or "unnamed")
+        rules = _first_present(policy, "Rules", "rules")
+        if not isinstance(rules, list):
+            continue
+
+        policy_sits: set[str] = set()
+        for rule in rules:
+            if not isinstance(rule, dict):
+                continue
+            if _first_present(rule, "Disabled", "disabled") is True:
+                continue
+            policy_sits |= _extract_sit_references(rule)
+
+        if policy_sits:
+            sit_names |= policy_sits
+            policy_hits.append(policy_name)
+
+    if sit_names:
+        sample = ", ".join(sorted(sit_names)[:5])
+        overflow = ""
+        if len(sit_names) > 5:
+            overflow = f" (+{len(sit_names) - 5} more)"
+        return (
+            True,
+            "Enabled DLP policy rules reference "
+            f"{len(sit_names)} SIT(s) across {len(policy_hits)} policy/policies: "
+            f"{sample}{overflow}",
+        )
+
+    if enabled_policy_count == 0:
+        return False, "No enabled DLP compliance policies found (fail closed)"
+    return (
+        False,
+        "Enabled DLP compliance policies were found but active rules did not "
+        "reference any SIT conditions (fail closed)",
+    )
+
+
 def _eval_grounding_sources_approved(
     collected: dict, _source_key: str | None
 ) -> tuple[bool | None, str]:
@@ -1426,6 +1512,7 @@ EVALUATORS: dict[str, object] = {
     "audit_log_enabled": _eval_audit_log_enabled,
     "audit_plan_tier_adequate": _eval_audit_plan_tier_adequate,
     "copilot_retention_policy_exists": _eval_copilot_retention_policy_exists,
+    "dlp_references_sits": _eval_dlp_references_sits,
     "grounding_sources_approved": _eval_grounding_sources_approved,
     "no_external_sharing_on_grounding": _eval_no_external_sharing_on_grounding,
 }

@@ -27,11 +27,11 @@ CONTROLS = [
     ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"partial",["Sentinel_KQL"],"Have runtime protection alerts been reviewed and tuned in the last 30 days?"),
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
     ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"),
-    ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"full",["Graph_API"],None),
+    ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"partial",["Graph_API"],"Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA is enforced for maker/admin identities."),
     ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
     ("1.14","1.14-data-minimization-and-agent-scope-control.md",1,"manual",[],"Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?"),
-    ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"full",["Graph_API"],None),
+    ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"manual",[],"Provide current evidence for TLS 1.2+ posture validation and at-rest encryption controls (Customer Key/CMK/DKE where required by zone), including key-custody ownership and rotation records."),
     ("1.16","1.16-information-rights-management-irm-for-documents.md",1,"manual",[],"Are IRM protections applied to sensitive documents accessible to agents, and has IRM labeling been validated end-to-end?"),
     ("1.17","1.17-endpoint-data-loss-prevention-endpoint-dlp.md",1,"partial",["Purview_PowerShell"],"Is endpoint DLP enforced on all endpoints from which agents are accessed, including unmanaged devices?"),
     ("1.18","1.18-application-level-authorization-and-role-based-access-control-rbac.md",1,"partial",["Graph_API"],"Has a least-privilege access review for all agent administrative roles been completed in the last 90 days?"),
@@ -144,19 +144,16 @@ CHECKS_DB = {
     ],
     "1.11": [
         ("1.11.a","CA policy targeting Copilot Studio app enforces MFA","Get-MgIdentityConditionalAccessPolicy","ca_policy_requires_mfa",[1,2,3]),
-        ("1.11.b","Sign-in frequency policy set for agent sessions","Get-MgIdentityConditionalAccessPolicy","signin_frequency_set",[2,3]),
-        ("1.11.c","Phishing-resistant MFA required for Zone 3","Get-MgIdentityConditionalAccessPolicy","phishing_resistant_mfa",[3]),
+        ("1.11.b","Sign-in frequency policy set for agent sessions (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[2,3]),
+        ("1.11.c","Phishing-resistant MFA required for Zone 3 (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[3]),
     ],
     "1.12": [],  # manual only (portal evidence required)
     "1.13": [
-        ("1.13.a","SIT count in Purview covers regulated data types","Get-DlpCompliancePolicy","sit_count_adequate",[2,3]),
+        ("1.13.a","SIT inventory in Purview covers regulated data types (manual evidence required)","Get-DlpSensitiveInformationType","",[2,3]),
         ("1.13.b","Agent DLP policy references SITs","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
     ],
     "1.14": [],  # manual only
-    "1.15": [
-        ("1.15.a","TLS 1.2+ enforced for all connections","Get-MgOrganization","tls_12_enforced",[1,2,3]),
-        ("1.15.b","At-rest encryption verified via tenant settings","Get-MgOrganization","at_rest_encryption_verified",[1,2,3]),
-    ],
+    "1.15": [],  # manual evidence only (no collectible TLS/at-rest telemetry in current collectors)
     "1.16": [],  # manual only
     "1.17": [
         ("1.17.a","Endpoint DLP policy exists in Purview","Get-DlpCompliancePolicy","endpoint_dlp_policy_exists",[2,3]),

@@ -721,6 +721,55 @@ class TestAuditPlanTierEvaluator:
 
 
 # ---------------------------------------------------------------------------
+# Test: 1.13.b DLP SIT reference evaluator
+# ---------------------------------------------------------------------------
+
+
+class TestDlpReferencesSitsEvaluator:
+    """Control 1.13.b should only pass when active DLP rules reference SITs."""
+
+    def test_dlp_references_sits_passes_with_active_sit_conditions(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = load_fixture("purview_collector_contract.json")
+        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": purview},
+            None,
+        )
+
+        assert passed is True
+        assert "reference" in evidence.lower()
+        assert "sit" in evidence.lower()
+
+    def test_dlp_references_sits_fails_closed_when_no_sit_conditions(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        purview = load_fixture("purview_collector_contract.json")
+        for policy in purview.get("dlpCompliancePolicies", []):
+            for rule in policy.get("Rules", []):
+                rule["ContentContainsSensitiveInformation"] = []
+
+        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": purview},
+            None,
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_dlp_references_sits_is_unknown_when_purview_missing(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": None},
+            None,
+        )
+
+        assert passed is None
+        assert "not available" in evidence.lower()
+
+
+# ---------------------------------------------------------------------------
 # Test: 1.11.a CA MFA evaluator (All-app + exclusion/report-only safety)
 # ---------------------------------------------------------------------------
 

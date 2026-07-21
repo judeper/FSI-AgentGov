@@ -1133,7 +1133,7 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md",
-    "automation": "full",
+    "automation": "partial",
     "collection_methods": [
       "Graph_API"
     ],
@@ -1151,9 +1151,12 @@
       },
       {
         "check_id": "1.11.b",
-        "description": "Sign-in frequency policy set for agent sessions",
+        "description": "Sign-in frequency policy set for agent sessions (manual evidence required)",
         "api_call": "Get-MgIdentityConditionalAccessPolicy",
-        "pass_condition": "signin_frequency_set",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -1161,9 +1164,12 @@
       },
       {
         "check_id": "1.11.c",
-        "description": "Phishing-resistant MFA required for Zone 3",
+        "description": "Phishing-resistant MFA required for Zone 3 (manual evidence required)",
         "api_call": "Get-MgIdentityConditionalAccessPolicy",
-        "pass_condition": "phishing_resistant_mfa",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           3
         ]
@@ -1179,11 +1185,11 @@
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 3,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA (for example FIDO2, device-bound passkeys, Windows Hello for Business, or CBA) is enforced for maker/admin identities.",
     "name": "Conditional Access and Phishing-Resistant MFA",
     "zonesApplicable": [
       1,
@@ -1366,9 +1372,12 @@
     "checks": [
       {
         "check_id": "1.13.a",
-        "description": "SIT count in Purview covers regulated data types",
-        "api_call": "Get-DlpCompliancePolicy",
-        "pass_condition": "sit_count_adequate",
+        "description": "SIT inventory in Purview covers regulated data types (manual evidence required)",
+        "api_call": "Get-DlpSensitiveInformationType",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -1387,15 +1396,15 @@
     ],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 2,
+        "min_checks_passed": 1,
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 2,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
@@ -1560,49 +1569,24 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md",
-    "automation": "full",
-    "collection_methods": [
-      "Graph_API"
-    ],
-    "checks": [
-      {
-        "check_id": "1.15.a",
-        "description": "TLS 1.2+ enforced for all connections",
-        "api_call": "Get-MgOrganization",
-        "pass_condition": "tls_12_enforced",
-        "zone_required": [
-          1,
-          2,
-          3
-        ]
-      },
-      {
-        "check_id": "1.15.b",
-        "description": "At-rest encryption verified via tenant settings",
-        "api_call": "Get-MgOrganization",
-        "pass_condition": "at_rest_encryption_verified",
-        "zone_required": [
-          1,
-          2,
-          3
-        ]
-      }
-    ],
+    "automation": "manual",
+    "collection_methods": [],
+    "checks": [],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 2,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 2,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide current evidence for TLS 1.2+ posture validation and at-rest encryption controls (Customer Key/CMK/DKE where required by zone), including key-custody ownership and rotation records.",
     "name": "Encryption: Data in Transit and at Rest",
     "zonesApplicable": [
       1,

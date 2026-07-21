@@ -138,6 +138,44 @@ def test_control_1_12_requires_manual_portal_review():
     assert "Purview portal evidence" in ctrl["manual_question"]
 
 
+def test_control_1_11_marks_non_evaluable_subchecks_manual():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.11")
+    checks = {chk["check_id"]: chk for chk in ctrl["checks"]}
+
+    assert ctrl["automation"] == "partial"
+    assert isinstance(ctrl["manual_question"], str) and ctrl["manual_question"].strip()
+
+    assert checks["1.11.a"]["pass_condition"] == "ca_policy_requires_mfa"
+    assert checks["1.11.b"]["pass_condition"] == ""
+    assert checks["1.11.c"]["pass_condition"] == ""
+    assert checks["1.11.b"].get("collection_methods") == ["Manual"]
+    assert checks["1.11.c"].get("collection_methods") == ["Manual"]
+
+
+def test_control_1_13_corrects_sit_api_call_and_manual_gate():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.13")
+    checks = {chk["check_id"]: chk for chk in ctrl["checks"]}
+
+    assert ctrl["automation"] == "partial"
+    assert checks["1.13.a"]["api_call"] == "Get-DlpSensitiveInformationType"
+    assert checks["1.13.a"]["pass_condition"] == ""
+    assert checks["1.13.a"].get("collection_methods") == ["Manual"]
+    assert checks["1.13.b"]["pass_condition"] == "dlp_references_sits"
+    assert checks["1.13.b"]["api_call"] == "Get-DlpCompliancePolicy"
+
+
+def test_control_1_15_downgraded_to_manual_until_collectible():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.15")
+
+    assert ctrl["automation"] == "manual"
+    assert ctrl["collection_methods"] == []
+    assert ctrl["checks"] == []
+    assert isinstance(ctrl["manual_question"], str) and ctrl["manual_question"].strip()
+
+
 def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():
     controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
     banned = {
