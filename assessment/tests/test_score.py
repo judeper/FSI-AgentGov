@@ -2230,7 +2230,7 @@ class TestDspmPolicyEvaluator:
 
     Verifies the evaluator, normalizer, and collector contract alignment
     corrected in issue #250: official DLP field shapes, active enforcement,
-    and the end-to-end collector→normalizer→evaluator path.
+    relevant blocking-rule evidence, and the collector→normalizer→evaluator path.
     """
 
     @staticmethod
@@ -2375,7 +2375,7 @@ class TestDspmPolicyEvaluator:
         assert passed is None
         assert "not available" in evidence
 
-    def test_dspm_evaluator_returns_unknown_when_collection_failed(self):
+    def test_dspm_evaluator_returns_unknown_when_rule_evidence_failed(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         purview = {
@@ -2383,7 +2383,10 @@ class TestDspmPolicyEvaluator:
                 "CollectionStatus": "failed",
                 "Detected": None,
                 "PolicyCount": 0,
-                "Note": "DLP policy collection failed or was unavailable.",
+                "Note": (
+                    "DLP policy collection succeeded, but rule evidence failed or "
+                    "was unavailable for an otherwise matching Copilot policy."
+                ),
             }
         }
         passed, evidence = score._eval_dspm_policy_exists(  # noqa: SLF001
@@ -2391,7 +2394,7 @@ class TestDspmPolicyEvaluator:
         )
 
         assert passed is None
-        assert "failed or was unavailable" in evidence
+        assert "rule evidence failed or was unavailable" in evidence
 
     # ---- Unit: normalizer handles camelCase → snake_case --------------------
 
@@ -2436,10 +2439,27 @@ class TestDspmPolicyEvaluator:
         fixture = load_fixture("purview_collector_contract.json")
         policy = fixture["dlpCompliancePolicies"][0]
         assert "Workload" not in policy
+        assert policy["Mode"] == "Enable"
+        assert policy["Enabled"] is None
         assert json.loads(policy["Locations"]) == {
             "Location": "470f2276-e011-4e9d-a6ec-20768be3a4b0",
             "Workload": "Applications",
         }
+        assert policy["RuleCollectionSucceeded"] is True
+        assert policy["RuleCollectionStatus"] == "collected"
+        assert policy["Rules"] == [
+            {
+                "Name": "Block public sharing of sensitive content",
+                "Priority": 0,
+                "Disabled": False,
+                "BlockAccess": True,
+                "EnforcementPlanes": ["CopilotExperiences"],
+                "ContentContainsSensitiveInformation": [
+                    {"Name": "U.S. Social Security Number"}
+                ],
+                "ContentContainsSensitivityLabel": [],
+            }
+        ]
         write_json(collected / "purview.json", fixture)
         for name in ("ppac", "graph", "sharepoint", "sentinel"):
             write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))

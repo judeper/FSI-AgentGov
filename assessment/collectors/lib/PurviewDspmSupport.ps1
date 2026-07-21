@@ -329,6 +329,90 @@ function ConvertTo-PurviewDspmBoolean {
     return $null
 }
 
+function Test-PurviewDspmCriteriaPresent {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [object]$InputObject
+    )
+
+    return @(
+        ConvertTo-PurviewDspmStringValues -InputObject $InputObject
+    ).Count -gt 0
+}
+
+function Get-PurviewCopilotDlpRuleClassification {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [object]$Rule
+    )
+
+    $disabled = ConvertTo-PurviewDspmBoolean -InputObject (
+        Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('Disabled')
+    )
+    $blockAccess = ConvertTo-PurviewDspmBoolean -InputObject (
+        Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('BlockAccess')
+    )
+    $enforcementPlanes = @(
+        ConvertTo-PurviewDspmStringValues -InputObject (
+            Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('EnforcementPlanes')
+        )
+    )
+    $enforcementPlaneMatched = [bool]($enforcementPlanes | Where-Object {
+        [string]::Equals($_, 'CopilotExperiences', [System.StringComparison]::OrdinalIgnoreCase)
+    })
+    $sensitiveInformation = Get-PurviewDspmPropertyValue `
+        -InputObject $Rule `
+        -Name @('ContentContainsSensitiveInformation')
+    $sensitivityLabels = Get-PurviewDspmPropertyValue `
+        -InputObject $Rule `
+        -Name @('ContentContainsSensitivityLabel')
+    $sensitiveInformationMatched = Test-PurviewDspmCriteriaPresent -InputObject $sensitiveInformation
+    $sensitivityLabelMatched = Test-PurviewDspmCriteriaPresent -InputObject $sensitivityLabels
+    $activeRule = $disabled -eq $false
+    $qualifies = (
+        $activeRule -and
+        $blockAccess -eq $true -and
+        $enforcementPlaneMatched -and
+        ($sensitiveInformationMatched -or $sensitivityLabelMatched)
+    )
+
+    $reasons = [System.Collections.Generic.List[string]]::new()
+    if (-not $activeRule) {
+        $reasons.Add('Rule is disabled or does not prove Disabled=false.')
+    }
+    if ($blockAccess -ne $true) {
+        $reasons.Add('Rule does not prove BlockAccess=true.')
+    }
+    if (-not $enforcementPlaneMatched) {
+        $reasons.Add('Rule EnforcementPlanes does not include CopilotExperiences.')
+    }
+    if (-not ($sensitiveInformationMatched -or $sensitivityLabelMatched)) {
+        $reasons.Add('Rule does not contain sensitive-information or sensitivity-label criteria.')
+    }
+    if ($qualifies) {
+        $reasons.Add('Qualifying active Microsoft 365 Copilot blocking rule.')
+    }
+
+    [PSCustomObject]@{
+        Name                                = Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('Name', 'Identity')
+        Priority                            = Get-PurviewDspmPropertyValue -InputObject $Rule -Name @('Priority')
+        Qualifies                           = [bool]$qualifies
+        ActiveRule                          = [bool]$activeRule
+        Disabled                            = $disabled
+        BlockAccess                         = $blockAccess
+        EnforcementPlaneMatched             = [bool]$enforcementPlaneMatched
+        SensitiveInformationMatched         = [bool]$sensitiveInformationMatched
+        SensitivityLabelMatched             = [bool]$sensitivityLabelMatched
+        EnforcementPlanes                   = @($enforcementPlanes | Sort-Object -Unique)
+        ContentContainsSensitiveInformation = $sensitiveInformation
+        ContentContainsSensitivityLabel     = $sensitivityLabels
+        Diagnostic                          = $reasons -join ' '
+    }
+}
+
 function Get-PurviewCopilotDlpClassification {
     [CmdletBinding()]
     param(
@@ -373,6 +457,37 @@ function Get-PurviewCopilotDlpClassification {
         Get-PurviewDspmPropertyValue -InputObject $Policy -Name @('Enabled')
     )
     $normalizedMode = if ($null -eq $mode) { '' } else { ([string]$mode).Trim().ToLowerInvariant() }
+    $rulesInput = Get-PurviewDspmPropertyValue -InputObject $Policy -Name @('Rules')
+    $ruleCollectionStatusInput = Get-PurviewDspmPropertyValue -InputObject $Policy -Name @('RuleCollectionStatus')
+    $ruleCollectionSucceeded = ConvertTo-PurviewDspmBoolean -InputObject (
+        Get-PurviewDspmPropertyValue -InputObject $Policy -Name @('RuleCollectionSucceeded')
+    )
+    $normalizedRuleCollectionStatus = if ($null -eq $ruleCollectionStatusInput) {
+        ''
+    }
+    else {
+        ([string]$ruleCollectionStatusInput).Trim().ToLowerInvariant()
+    }
+    if ($null -eq $ruleCollectionSucceeded) {
+        if ($normalizedRuleCollectionStatus -eq 'collected') {
+            $ruleCollectionSucceeded = $true
+        }
+        elseif ($normalizedRuleCollectionStatus -in @('failed', 'unavailable', 'error', 'unknown')) {
+            $ruleCollectionSucceeded = $false
+        }
+        else {
+            $ruleCollectionSucceeded = Test-PurviewDspmPropertyPresent -InputObject $Policy -Name 'Rules'
+        }
+    }
+    $ruleCollectionStatus = if ($ruleCollectionSucceeded -eq $true) { 'collected' } else { 'failed' }
+    $ruleDiagnostics = @(
+        foreach ($rule in @($rulesInput)) {
+            if ($null -ne $rule) {
+                Get-PurviewCopilotDlpRuleClassification -Rule $rule
+            }
+        }
+    )
+    $qualifyingRules = @($ruleDiagnostics | Where-Object { $_.Qualifies })
 
     $workloadMatched = [bool]($workloads | Where-Object {
         [string]::Equals($_, 'Applications', [System.StringComparison]::OrdinalIgnoreCase)
@@ -393,9 +508,11 @@ function Get-PurviewCopilotDlpClassification {
         [string]::Equals($_, 'CopilotExperiences', [System.StringComparison]::OrdinalIgnoreCase)
     })
     $activeEnforcement = (
-        $enabled -eq $true -and
-        $normalizedMode -in @('enable', 'enforce')
+        $normalizedMode -in @('enable', 'enforce') -and
+        $enabled -ne $false
     )
+    $policyLevelMatched = $locationScopeMatched -and $enforcementPlaneMatched -and $activeEnforcement
+    $ruleEvidenceAvailable = $ruleCollectionSucceeded -eq $true
 
     $reasons = [System.Collections.Generic.List[string]]::new()
     if (-not $workloadMatched) {
@@ -414,12 +531,18 @@ function Get-PurviewCopilotDlpClassification {
         $reasons.Add('EnforcementPlanes does not include CopilotExperiences.')
     }
     if (-not $activeEnforcement) {
-        $reasons.Add('Policy is not proven actively enforced (Enabled=true and Mode must be Enable or Enforce).')
+        $reasons.Add('Policy is not proven actively enforced (Mode must be Enable or Enforce and Enabled must not be explicitly false).')
+    }
+    if ($policyLevelMatched -and -not $ruleEvidenceAvailable) {
+        $reasons.Add('Rule evidence collection failed or was unavailable for this otherwise matching policy.')
+    }
+    elseif ($policyLevelMatched -and $qualifyingRules.Count -eq 0) {
+        $reasons.Add('No collected rule was active, blocking, scoped to CopilotExperiences, and conditioned on sensitive information or sensitivity labels.')
     }
 
-    $qualifies = $locationScopeMatched -and $enforcementPlaneMatched -and $activeEnforcement
+    $qualifies = $policyLevelMatched -and $ruleEvidenceAvailable -and $qualifyingRules.Count -gt 0
     if ($qualifies) {
-        $reasons.Add('Qualifying actively enforced Microsoft 365 Copilot DLP policy.')
+        $reasons.Add('Qualifying actively enforced Microsoft 365 Copilot DLP policy with relevant active blocking rule evidence.')
     }
 
     [PSCustomObject]@{
@@ -429,6 +552,13 @@ function Get-PurviewCopilotDlpClassification {
         LocationMatched         = [bool]$locationMatched
         EnforcementPlaneMatched = [bool]$enforcementPlaneMatched
         ActiveEnforcement       = [bool]$activeEnforcement
+        PolicyLevelMatched      = [bool]$policyLevelMatched
+        RuleEvidenceAvailable   = [bool]$ruleEvidenceAvailable
+        RuleCollectionStatus    = $ruleCollectionStatus
+        RuleCount               = $ruleDiagnostics.Count
+        QualifyingRuleCount     = $qualifyingRules.Count
+        QualifyingRuleNames     = @($qualifyingRules | ForEach-Object { $_.Name })
+        RuleDiagnostics         = @($ruleDiagnostics)
         Mode                    = $mode
         Enabled                 = $enabled
         Workloads               = @($workloads | Sort-Object -Unique)
@@ -457,15 +587,17 @@ function New-PurviewDspmEvidence {
 
     if (-not $DlpCollectionSucceeded) {
         return [PSCustomObject]@{
-            CollectionStatus         = 'failed'
-            Detected                 = $null
-            PolicyCount              = 0
-            PolicyNames              = @()
-            DiagnosticPolicyCount    = 0
-            PolicyDiagnostics        = @()
-            RetentionCoverage        = $RetentionCoverage
-            RetentionPolicyNames     = @($RetentionPolicyNames)
-            Note                     = 'DLP policy collection failed or was unavailable; DSPM enforcement cannot be determined.'
+            CollectionStatus                   = 'failed'
+            Detected                           = $null
+            PolicyCount                        = 0
+            PolicyNames                        = @()
+            DiagnosticPolicyCount              = 0
+            PolicyDiagnostics                  = @()
+            RuleCollectionFailureCount         = 0
+            RelevantRuleCollectionFailureCount = 0
+            RetentionCoverage                  = $RetentionCoverage
+            RetentionPolicyNames               = @($RetentionPolicyNames)
+            Note                               = 'DLP policy collection failed or was unavailable; DSPM enforcement cannot be determined.'
         }
     }
 
@@ -477,23 +609,37 @@ function New-PurviewDspmEvidence {
         }
     )
     $qualifying = @($diagnostics | Where-Object { $_.Qualifies })
+    $ruleCollectionFailures = @($diagnostics | Where-Object { -not $_.RuleEvidenceAvailable })
+    $relevantRuleCollectionFailures = @($diagnostics | Where-Object {
+        $_.PolicyLevelMatched -and -not $_.RuleEvidenceAvailable
+    })
 
+    $collectionStatus = 'collected'
+    $detected = [bool]($qualifying.Count -gt 0)
     $note = if ($qualifying.Count -gt 0) {
-        "Detected $($qualifying.Count) actively enforced Microsoft 365 Copilot DLP policy/policies with all documented signals."
+        "Detected $($qualifying.Count) actively enforced Microsoft 365 Copilot DLP policy/policies with relevant active blocking rule evidence."
+    }
+    elseif ($relevantRuleCollectionFailures.Count -gt 0) {
+        $collectionStatus = 'failed'
+        $detected = $null
+        $failedNames = @($relevantRuleCollectionFailures | ForEach-Object { $_.Name }) -join ', '
+        "DLP policy collection succeeded, but rule evidence failed or was unavailable for otherwise matching Microsoft 365 Copilot DLP policy/policies: $failedNames. DSPM enforcement cannot be determined."
     }
     else {
-        "DLP collection succeeded, but no actively enforced Microsoft 365 Copilot DLP policy matched Workload=Applications, Location=$script:Microsoft365CopilotLocationId, and EnforcementPlane=CopilotExperiences. Retention coverage is informational only and does not satisfy control 1.6."
+        "DLP collection succeeded, but no actively enforced Microsoft 365 Copilot DLP policy had all policy-level signals and a relevant active blocking rule. Retention coverage is informational only and does not satisfy control 1.6."
     }
 
     [PSCustomObject]@{
-        CollectionStatus         = 'collected'
-        Detected                 = [bool]($qualifying.Count -gt 0)
-        PolicyCount              = $qualifying.Count
-        PolicyNames              = @($qualifying | ForEach-Object { $_.Name })
-        DiagnosticPolicyCount    = $diagnostics.Count
-        PolicyDiagnostics        = @($diagnostics)
-        RetentionCoverage        = $RetentionCoverage
-        RetentionPolicyNames     = @($RetentionPolicyNames)
-        Note                     = $note
+        CollectionStatus                   = $collectionStatus
+        Detected                           = $detected
+        PolicyCount                        = $qualifying.Count
+        PolicyNames                        = @($qualifying | ForEach-Object { $_.Name })
+        DiagnosticPolicyCount              = $diagnostics.Count
+        PolicyDiagnostics                  = @($diagnostics)
+        RuleCollectionFailureCount         = $ruleCollectionFailures.Count
+        RelevantRuleCollectionFailureCount = $relevantRuleCollectionFailures.Count
+        RetentionCoverage                  = $RetentionCoverage
+        RetentionPolicyNames               = @($RetentionPolicyNames)
+        Note                               = $note
     }
 }

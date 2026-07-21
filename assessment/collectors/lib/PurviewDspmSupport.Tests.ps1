@@ -7,9 +7,39 @@ Describe 'Get-PurviewCopilotDlpClassification' {
     BeforeAll {
         . "$PSScriptRoot\PurviewDspmSupport.ps1"
         $copilotLocation = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
+
+        function New-TestPurviewQualifyingRule {
+            [PSCustomObject]@{
+                Name                                = 'Block sensitive Copilot content'
+                Priority                            = 0
+                Disabled                            = $false
+                BlockAccess                         = $true
+                EnforcementPlanes                   = @('CopilotExperiences')
+                ContentContainsSensitiveInformation = @(@{ Name = 'U.S. Social Security Number' })
+                ContentContainsSensitivityLabel     = @()
+            }
+        }
+
+        function Add-TestPurviewQualifyingRuleEvidence {
+            param(
+                [Parameter(Mandatory)]
+                [object]$Policy
+            )
+
+            $rules = @(New-TestPurviewQualifyingRule)
+            if ($Policy -is [System.Collections.IDictionary]) {
+                $Policy['Rules'] = $rules
+                $Policy['RuleCollectionSucceeded'] = $true
+            }
+            else {
+                $Policy | Add-Member -NotePropertyName Rules -NotePropertyValue $rules -Force
+                $Policy | Add-Member -NotePropertyName RuleCollectionSucceeded -NotePropertyValue $true -Force
+            }
+            return $Policy
+        }
     }
 
-    It 'qualifies the documented nested Locations JSON without top-level Workload' {
+    It 'qualifies Enforce compatibility with documented nested Locations JSON' {
         $policy = [PSCustomObject]@{
             Name              = 'M365 Copilot DLP'
             Enabled           = $true
@@ -17,6 +47,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = "{`"Location`":`"$copilotLocation`",`"Workload`":`"Applications`"}"
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
@@ -27,19 +58,22 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.EnforcementPlaneMatched | Should -BeTrue
     }
 
-    It 'qualifies the documented Enable mode when the policy is enabled' {
+    It 'qualifies the documented Enable mode when Enabled is absent' {
         $policy = [PSCustomObject]@{
             Name              = 'Enabled M365 Copilot DLP'
-            Enabled           = $true
             Mode              = 'Enable'
             Locations         = "{`"Location`":`"$copilotLocation`",`"Workload`":`"Applications`"}"
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
         $result.Qualifies | Should -BeTrue
         $result.ActiveEnforcement | Should -BeTrue
+        $result.Enabled | Should -BeNullOrEmpty
+        $result.QualifyingRuleCount | Should -Be 1
+        $result.RuleDiagnostics[0].ContentContainsSensitiveInformation.Count | Should -Be 1
     }
 
     It 'supports dictionary and PSCustomObject location scope entries' {
@@ -53,6 +87,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             )
             EnforcementPlanes = @(@{ Value = 'CopilotExperiences' })
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
@@ -65,6 +100,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = "[{`"Workload`":`"Applications`",`"Location`":`"$copilotLocation`"}]"
             EnforcementPlanes = 'EndpointDlp;CopilotExperiences'
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
@@ -78,6 +114,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Location          = $copilotLocation
             EnforcementPlanes = 'CopilotExperiences'
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
@@ -94,6 +131,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
@@ -113,6 +151,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeFalse
     }
@@ -124,6 +163,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
@@ -141,6 +181,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = '["not-the-copilot-guid"'
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
@@ -160,6 +201,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             )
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         (Get-PurviewCopilotDlpClassification -Policy $policy).Qualifies | Should -BeTrue
     }
@@ -176,6 +218,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             )
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
@@ -207,6 +250,7 @@ Describe 'Get-PurviewCopilotDlpClassification' {
             Locations         = $Locations
             EnforcementPlanes = @('CopilotExperiences')
         }
+        $policy = Add-TestPurviewQualifyingRuleEvidence -Policy $policy
 
         $result = Get-PurviewCopilotDlpClassification -Policy $policy
 
@@ -225,18 +269,121 @@ Describe 'Get-PurviewCopilotDlpClassification' {
         $result.LocationMatched | Should -BeFalse
         $result.EnforcementPlaneMatched | Should -BeFalse
     }
+
+    It 'qualifies a sensitivity-label blocking rule without SIT criteria' {
+        $policy = @{
+            Name                    = 'Sensitivity label policy'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = @(
+                @{
+                    Name                            = 'Block Confidential'
+                    Disabled                        = $false
+                    BlockAccess                     = $true
+                    EnforcementPlanes               = @('CopilotExperiences')
+                    ContentContainsSensitivityLabel = @(@{ Name = 'Confidential' })
+                }
+            )
+        }
+
+        $result = Get-PurviewCopilotDlpClassification -Policy $policy
+
+        $result.Qualifies | Should -BeTrue
+        $result.RuleDiagnostics[0].SensitivityLabelMatched | Should -BeTrue
+        $result.RuleDiagnostics[0].ContentContainsSensitivityLabel.Count | Should -Be 1
+    }
+
+    It 'rejects <Description> as successfully collected negative rule evidence' -ForEach @(
+        @{
+            Description = 'an empty rule set'
+            Rules       = @()
+        }
+        @{
+            Description = 'a disabled blocking rule'
+            Rules       = @(
+                @{
+                    Disabled                            = $true
+                    BlockAccess                         = $true
+                    EnforcementPlanes                   = @('CopilotExperiences')
+                    ContentContainsSensitiveInformation = @('SIT')
+                }
+            )
+        }
+        @{
+            Description = 'a nonblocking rule'
+            Rules       = @(
+                @{
+                    Disabled                            = $false
+                    BlockAccess                         = $false
+                    EnforcementPlanes                   = @('CopilotExperiences')
+                    ContentContainsSensitiveInformation = @('SIT')
+                }
+            )
+        }
+        @{
+            Description = 'a rule on an unrelated enforcement plane'
+            Rules       = @(
+                @{
+                    Disabled                            = $false
+                    BlockAccess                         = $true
+                    EnforcementPlanes                   = @('EndpointDlp')
+                    ContentContainsSensitiveInformation = @('SIT')
+                }
+            )
+        }
+        @{
+            Description = 'a rule without SIT or sensitivity-label criteria'
+            Rules       = @(
+                @{
+                    Disabled              = $false
+                    BlockAccess           = $true
+                    EnforcementPlanes     = @('CopilotExperiences')
+                }
+            )
+        }
+    ) {
+        $policy = @{
+            Name                    = $Description
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            RuleCollectionSucceeded = $true
+            Rules                   = $Rules
+        }
+
+        $evidence = New-PurviewDspmEvidence -Policies @($policy) -DlpCollectionSucceeded $true
+
+        $evidence.CollectionStatus | Should -Be 'collected'
+        $evidence.Detected | Should -BeFalse
+        $evidence.PolicyCount | Should -Be 0
+    }
 }
 
 Describe 'New-PurviewDspmEvidence' {
     BeforeAll {
         . "$PSScriptRoot\PurviewDspmSupport.ps1"
         $copilotLocation = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
+        function New-TestPurviewQualifyingRule {
+            [PSCustomObject]@{
+                Name                                = 'Block sensitive Copilot content'
+                Priority                            = 0
+                Disabled                            = $false
+                BlockAccess                         = $true
+                EnforcementPlanes                   = @('CopilotExperiences')
+                ContentContainsSensitiveInformation = @(@{ Name = 'U.S. Social Security Number' })
+                ContentContainsSensitivityLabel     = @()
+            }
+        }
         $activePolicy = @{
             Name              = 'Active Copilot DLP'
             Enabled           = $true
             Mode              = 'Enforce'
             Locations         = @{ Workload = 'Applications'; Location = $copilotLocation }
             EnforcementPlanes = @('CopilotExperiences')
+            Rules             = @(New-TestPurviewQualifyingRule)
+            RuleCollectionSucceeded = $true
         }
     }
 
@@ -271,5 +418,46 @@ Describe 'New-PurviewDspmEvidence' {
         $evidence.CollectionStatus | Should -Be 'failed'
         $evidence.Detected | Should -BeNullOrEmpty
         $evidence.PolicyCount | Should -Be 0
+    }
+
+    It 'returns unknown when rule collection fails for an otherwise matching policy' {
+        $policy = @{
+            Name                    = 'Rules unavailable'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Applications'; Location = $copilotLocation }
+            EnforcementPlanes       = @('CopilotExperiences')
+            Rules                   = @()
+            RuleCollectionSucceeded = $false
+            RuleCollectionStatus    = 'failed'
+        }
+
+        $evidence = New-PurviewDspmEvidence -Policies @($policy) -DlpCollectionSucceeded $true
+
+        $evidence.CollectionStatus | Should -Be 'failed'
+        $evidence.Detected | Should -BeNullOrEmpty
+        $evidence.RelevantRuleCollectionFailureCount | Should -Be 1
+        $evidence.Note | Should -Match 'rule evidence failed or was unavailable'
+    }
+
+    It 'passes a fully qualifying policy despite an unrelated rule collection failure' {
+        $unrelatedPolicy = @{
+            Name                    = 'Unrelated policy with failed rules'
+            Mode                    = 'Enable'
+            Locations               = @{ Workload = 'Exchange'; Location = 'exchange-location' }
+            EnforcementPlanes       = @('CopilotExperiences')
+            Rules                   = @()
+            RuleCollectionSucceeded = $false
+            RuleCollectionStatus    = 'failed'
+        }
+
+        $evidence = New-PurviewDspmEvidence `
+            -Policies @($activePolicy, $unrelatedPolicy) `
+            -DlpCollectionSucceeded $true
+
+        $evidence.CollectionStatus | Should -Be 'collected'
+        $evidence.Detected | Should -BeTrue
+        $evidence.PolicyCount | Should -Be 1
+        $evidence.RuleCollectionFailureCount | Should -Be 1
+        $evidence.RelevantRuleCollectionFailureCount | Should -Be 0
     }
 }

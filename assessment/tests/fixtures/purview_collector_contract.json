@@ -19,25 +19,31 @@
   "dlpCompliancePolicies": [
     {
       "Name": "Copilot Data Loss Prevention",
-      "Mode": "Enforce",
+      "Mode": "Enable",
       "Locations": "{\"Location\":\"470f2276-e011-4e9d-a6ec-20768be3a4b0\",\"Workload\":\"Applications\"}",
       "EnforcementPlanes": [
         "CopilotExperiences"
       ],
-      "Enabled": true,
+      "Enabled": null,
       "Rules": [
         {
           "Name": "Block public sharing of sensitive content",
+          "Priority": 0,
           "Disabled": false,
+          "BlockAccess": true,
+          "EnforcementPlanes": [
+            "CopilotExperiences"
+          ],
           "ContentContainsSensitiveInformation": [
             {
               "Name": "U.S. Social Security Number"
             }
           ],
-          "BlockAccess": true,
-          "Priority": 0
+          "ContentContainsSensitivityLabel": []
         }
-      ]
+      ],
+      "RuleCollectionSucceeded": true,
+      "RuleCollectionStatus": "collected"
     }
   ],
   "retentionPolicies": [
@@ -83,8 +89,39 @@
         "LocationMatched": true,
         "EnforcementPlaneMatched": true,
         "ActiveEnforcement": true,
-        "Mode": "Enforce",
-        "Enabled": true,
+        "PolicyLevelMatched": true,
+        "RuleEvidenceAvailable": true,
+        "RuleCollectionStatus": "collected",
+        "RuleCount": 1,
+        "QualifyingRuleCount": 1,
+        "QualifyingRuleNames": [
+          "Block public sharing of sensitive content"
+        ],
+        "RuleDiagnostics": [
+          {
+            "Name": "Block public sharing of sensitive content",
+            "Priority": 0,
+            "Qualifies": true,
+            "ActiveRule": true,
+            "Disabled": false,
+            "BlockAccess": true,
+            "EnforcementPlaneMatched": true,
+            "SensitiveInformationMatched": true,
+            "SensitivityLabelMatched": false,
+            "EnforcementPlanes": [
+              "CopilotExperiences"
+            ],
+            "ContentContainsSensitiveInformation": [
+              {
+                "Name": "U.S. Social Security Number"
+              }
+            ],
+            "ContentContainsSensitivityLabel": [],
+            "Diagnostic": "Qualifying active Microsoft 365 Copilot blocking rule."
+          }
+        ],
+        "Mode": "Enable",
+        "Enabled": null,
         "Workloads": [
           "Applications"
         ],
@@ -94,14 +131,16 @@
         "EnforcementPlanes": [
           "CopilotExperiences"
         ],
-        "Diagnostic": "Qualifying actively enforced Microsoft 365 Copilot DLP policy."
+        "Diagnostic": "Qualifying actively enforced Microsoft 365 Copilot DLP policy with relevant active blocking rule evidence."
       }
     ],
+    "RuleCollectionFailureCount": 0,
+    "RelevantRuleCollectionFailureCount": 0,
     "RetentionCoverage": true,
     "RetentionPolicyNames": [
       "Copilot Interaction Retention"
     ],
-    "Note": "Detected 1 actively enforced Microsoft 365 Copilot DLP policy with all documented signals."
+    "Note": "Detected 1 actively enforced Microsoft 365 Copilot DLP policy/policies with relevant active blocking rule evidence."
   },
   "sensitivityLabelPolicies": [
     {

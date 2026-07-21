@@ -188,21 +188,27 @@ try {
     }
     $dlpCompliancePolicies = @(
         foreach ($policy in $rawDlp) {
-            # Retrieve associated rules with SIT references
+            # Retrieve associated rules with blocking, plane, SIT, and label evidence.
             $policyName = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Name', 'Identity')
-            $rules = $null
+            $rules = @()
+            $ruleCollectionSucceeded = $false
             try {
-                $rules = Invoke-CollectorOperation -Target $policyName -Action 'List DLP compliance rules' -ScriptBlock {
-                    Get-DlpComplianceRule -Policy $policyName -ErrorAction Stop
-                } | ForEach-Object {
-                    [PSCustomObject]@{
-                        Name                       = $_.Name
-                        Disabled                   = $_.Disabled
-                        ContentContainsSensitiveInformation = $_.ContentContainsSensitiveInformation
-                        BlockAccess                = $_.BlockAccess
-                        Priority                   = $_.Priority
+                $rules = @(
+                    Invoke-CollectorOperation -Target $policyName -Action 'List DLP compliance rules' -ScriptBlock {
+                        Get-DlpComplianceRule -Policy $policyName -ErrorAction Stop
+                    } | ForEach-Object {
+                        [PSCustomObject]@{
+                            Name                                = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Name', 'Identity')
+                            Priority                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Priority')
+                            Disabled                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Disabled')
+                            BlockAccess                         = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('BlockAccess')
+                            EnforcementPlanes                   = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('EnforcementPlanes')
+                            ContentContainsSensitiveInformation = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitiveInformation')
+                            ContentContainsSensitivityLabel     = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitivityLabel')
+                        }
                     }
-                }
+                )
+                $ruleCollectionSucceeded = $true
             }
             catch {
                 $warnings.Add("DLP rules for policy '$policyName' failed: $($_.Exception.Message)")
@@ -210,14 +216,16 @@ try {
             }
 
             [PSCustomObject]@{
-                Name              = $policyName
-                Mode              = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Mode')
-                Workload          = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Workload')
-                Locations         = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Locations')
-                Location          = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Location')
-                EnforcementPlanes = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('EnforcementPlanes')
-                Enabled           = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Enabled')
-                Rules             = $rules
+                Name                    = $policyName
+                Mode                    = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Mode')
+                Workload                = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Workload')
+                Locations               = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Locations')
+                Location                = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Location')
+                EnforcementPlanes       = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('EnforcementPlanes')
+                Enabled                 = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Enabled')
+                Rules                   = $rules
+                RuleCollectionSucceeded = $ruleCollectionSucceeded
+                RuleCollectionStatus    = if ($ruleCollectionSucceeded) { 'collected' } else { 'failed' }
             }
         }
     )
@@ -350,7 +358,8 @@ elseif ($auditDependency.classification -eq 'unknown') {
 #   Workload=Applications
 #   Location=470f2276-e011-4e9d-a6ec-20768be3a4b0
 #   EnforcementPlanes=CopilotExperiences
-# The policy must also be actively enforced. Retention remains informational.
+# The policy must be actively enforced and have a relevant active blocking rule.
+# Retention remains informational.
 # ═══════════════════════════════════════════════════════════════════════
 $dspmForAi = $null
 try {
