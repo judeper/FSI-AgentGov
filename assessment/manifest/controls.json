@@ -1769,7 +1769,7 @@
     },
     "facilitatorNotes": {
       "ask": "Run Get-AipService to confirm Azure RMS status, then open the encryption tab for your FSI IRM-enabled sensitivity label in Purview — is encryption configured with Assign permissions now, and is the agent service identity listed at Viewer (not Co-Author or Co-Owner)?",
-      "followUp": "Open SharePoint Admin Center > Policies > Access control > Information Rights Management to confirm tenant-level IRM is enabled; then open one Zone 3 agent knowledge-source library > Settings > Information Rights Management and verify the expiration and offline-access limits match zone requirements (90-day / 7-day for Zone 3, 180-day / 14-day for Zone 2).",
+      "followUp": "Open SharePoint Admin Center > Policies > Access control > Information Rights Management to confirm tenant-level IRM is enabled; then open one Zone 3 agent knowledge-source library > Settings > Information Rights Management and verify the expiration limit matches zone requirements (90-day Zone 3, 180-day Zone 2). Separately, open the FSI IRM-enabled sensitivity label encryption settings in Purview Compliance Portal and confirm the offline-access limit is set to 7 days (Zone 3) or 14 days (Zone 2).",
       "timeBudgetMinutes": 15
     },
     "solutions": []
