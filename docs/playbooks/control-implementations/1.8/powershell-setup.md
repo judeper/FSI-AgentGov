@@ -10,7 +10,7 @@
 - `Microsoft.PowerApps.Administration.PowerShell` — pinned per CAB. **Windows PowerShell 5.1 (Desktop edition) only**, per [PowerShell baseline § 2](../../_shared/powershell-baseline.md#2-powershell-edition-and-version-requirements). Provides `Add-PowerAppsAccount`, `Get-AdminPowerAppEnvironment`, `Get-DlpPolicy`.
 - `Microsoft.Graph.Authentication` ≥ 2.15.0 — provides `Connect-MgGraph` and `Invoke-MgGraphRequest` for application registration, federated identity credential creation, Defender XDR alerts, and Microsoft Sentinel hunting queries against the beta endpoint.
 - `Microsoft.Graph.Applications` ≥ 2.15.0 — typed cmdlets `New-MgApplication`, `Get-MgApplication`, `New-MgApplicationFederatedIdentityCredential`, `Remove-MgApplicationFederatedIdentityCredential`, `Remove-MgApplication`.
-- `Microsoft.Graph.Beta.Security` ≥ 2.15.0 — typed cmdlet `Get-MgBetaSecurityAlert_v2` and supporting types for Defender XDR AI agent alerts; this playbook also calls the raw `Invoke-MgGraphRequest` against `/beta/security/runHuntingQuery` to keep schema stable as the surface evolves.
+- `Microsoft.Graph.Beta.Security` ≥ 2.15.0 — typed cmdlet `Get-MgBetaSecurityAlertV2` and supporting types for Defender XDR AI agent alerts; this playbook also calls `Start-MgBetaSecurityHuntingQuery` (or the raw `Invoke-MgGraphRequest` against `/beta/security/runHuntingQuery`) to keep schema stable as the surface evolves.
 - `ExchangeOnlineManagement` ≥ 3.5.0 — provides `Connect-IPPSSession` and `Search-UnifiedAuditLog` (paged) for the Copilot Studio and Microsoft 365 Copilot audit families.
 
 !!! warning "Read the FSI PowerShell baseline first"
@@ -21,8 +21,8 @@
     Control 1.8 — *Runtime Protection and External Threat Detection* — covers four distinct runtime-security surfaces for Copilot Studio agents:
 
     1. **Native Microsoft Defender for Cloud Apps AI Agent Protection** — `Microsoft Defender — Copilot Studio AI Agents` toggle in the **Power Platform Admin Center** plus AI agent inventory, activity logging, and real-time protection in the **Microsoft Defender XDR portal**. Per [Defender for Cloud Apps — AI Agent Protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection), this surface is **portal-only for configuration**; PowerShell coverage is read-only via the Microsoft Graph beta security alerts endpoint and Microsoft Sentinel KQL.
-    2. **Additional Threat Detection — third-party security webhooks** — Power Platform Admin Center → Security → Threat protection → Additional threat detection. Configured by pasting the App ID of an Entra app registration with a **federated identity credential** that PPAC trusts to call out to your security provider on every Copilot Studio agent invocation. Per [Configure an external security provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider), the FIC `subject` and `issuer` values are **issued by the Power Platform service and copied from the PPAC UI by the operator** — they are **not** constructible by client-side script.
-    3. **Prompt Shields and content moderation (Azure AI Content Safety)** — per-agent settings in **Copilot Studio Maker** at *Settings → Generative AI → Content moderation*. There is **no** Microsoft-supported PowerShell cmdlet that creates, updates, or reads per-agent moderation level. Evidence comes from the audit log (`PromptInjectionDetected`, `ContentSafetyBlock`) and from solution-export inspection.
+    2. **Additional Threat Detection — third-party security webhooks** — Power Platform Admin Center → Security → Threat detection → Additional threat detection. Configured by pasting the App ID of an Entra app registration with a **federated identity credential** that PPAC trusts to call out to your security provider on every Copilot Studio agent invocation. Per [Configure an external security provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider), the FIC `subject` and `issuer` values are **issued by the Power Platform service and copied from the PPAC UI by the operator** — they are **not** constructible by client-side script.
+    3. **Prompt Shields and content moderation (Azure AI Content Safety)** — per-agent settings in **Copilot Studio Maker** at *Settings → Generative AI → Content moderation*. There is **no** Microsoft-supported PowerShell cmdlet that creates, updates, or reads per-agent moderation level. Microsoft does **not** document a native Purview Audit operation name for individual content-moderation block events; evidence for this surface comes from solution-export inspection (moderation level baked into the exported agent definition) and, where configured, Application Insights `ContentFiltered` telemetry (see [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events)).
     4. **Egress / DLP guardrails** — `Get-DlpPolicy`, `New-DlpPolicy`, `Set-DlpPolicy` for **environment-scoped DLP** that constrains the connectors Copilot Studio agents can reach at runtime. This is the only Control 1.8 surface with full PowerShell CRUD, and it is shared with [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md).
 
     **What PowerShell *can* do for Control 1.8:**
@@ -30,7 +30,7 @@
     - Pre-flight role / license / module / Managed-Environments / M365 App Connector status.
     - Inventory environments (with the **correct** managed-environment property path), webhook FIC bindings on the registered app, and DLP policies that govern connector egress.
     - **Mutate** the Entra app registration and federated identity credential that backs Additional Threat Detection — but only after the operator has copied the **PPAC-issued `subject` and `issuer`** from the portal.
-    - Collect audit-log evidence (`Search-UnifiedAuditLog`, paged) across **two** RecordType families that surface Copilot Studio runtime threat events, and reconcile them.
+    - Collect audit-log evidence (`Search-UnifiedAuditLog`, paged) using the documented `CopilotInteraction` RecordType (261) for usage events and Copilot Studio-specific `Bot*` operation names for admin/authoring events, and reconcile the coverage gap between them.
     - Read Defender XDR AI agent alerts (`/beta/security/alerts_v2`), and run Microsoft Sentinel KQL with the **correct** column name (`EventOriginalType`, **not** `Operation`) on `PowerPlatformAdminActivity`.
     - Roll back partial app-registration creation so a half-configured app does not become orphaned tenant debt.    **What PowerShell *cannot* do for Control 1.8:**
 
@@ -51,9 +51,9 @@ Control 1.8 cmdlets live across **four** PowerShell sessions and two PowerShell 
 |---|---|---|---|---|
 | `Add-PowerAppsAccount`, `Get-AdminPowerAppEnvironment`, `Get-DlpPolicy`, `New-DlpPolicy`, `Set-DlpPolicy` | `Add-PowerAppsAccount` (Power Platform) | `Microsoft.PowerApps.Administration.PowerShell` | **Windows PowerShell 5.1 (Desktop) only** | From PowerShell 7 (Core), import succeeds but cmdlets silently return null or throw schema-deserialization errors. Per [PowerShell baseline § 2](../../_shared/powershell-baseline.md#2-powershell-edition-and-version-requirements). |
 | `New-MgApplication`, `Get-MgApplication`, `New-MgApplicationFederatedIdentityCredential`, `Remove-MgApplicationFederatedIdentityCredential`, `Remove-MgApplication` | `Connect-MgGraph` (Graph v1.0) | `Microsoft.Graph.Applications` | PS 7.2+ (Core) | From `Connect-AzureAD` (deprecated) or with no Graph session, throws `AuthenticationException`. From a Graph session **without** `Application.ReadWrite.All`, throws **403 Insufficient privileges** at mutation time — no rollback unless the script catches and reverses. |
-| `Get-MgBetaSecurityAlert_v2`, `Invoke-MgGraphRequest -Uri /beta/security/runHuntingQuery` | `Connect-MgGraph` (Graph beta) | `Microsoft.Graph.Beta.Security`, `Microsoft.Graph.Authentication` | PS 7.2+ (Core) | From a v1.0-only Graph session, returns 404 on beta paths and **silently returns zero alerts** if the typed cmdlet swallows the error. |
-| `Search-UnifiedAuditLog` for **Copilot Studio runtime threat events** (`PromptInjectionDetected`, `ContentSafetyBlock`, `JailbreakAttemptDetected`, `ExternalThreatDetectionCallout`) | `Connect-IPPSSession` (Security & Compliance / IPPS) | `ExchangeOnlineManagement` | Both | From `Connect-ExchangeOnline`, the cmdlet exists but **silently misses** Copilot Studio operations indexed only on the IPPS endpoint. |
-| `Search-UnifiedAuditLog` for **Microsoft 365 Copilot user-side events** (`CopilotInteraction` RecordType) | `Connect-IPPSSession` (IPPS) | `ExchangeOnlineManagement` | Both | Same as above. **Critical:** `CopilotInteraction` is the M365 Copilot user-prompt audit surface — it is **adjacent to but distinct from** the Copilot Studio runtime threat events. Both are required for full Control 1.8 evidence (see [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events)). |
+| `Get-MgBetaSecurityAlertV2`, `Start-MgBetaSecurityHuntingQuery` / `Invoke-MgGraphRequest -Uri /beta/security/runHuntingQuery` | `Connect-MgGraph` (Graph beta) | `Microsoft.Graph.Beta.Security`, `Microsoft.Graph.Authentication` | PS 7.2+ (Core) | From a v1.0-only Graph session, returns 404 on beta paths and **silently returns zero alerts** if the typed cmdlet swallows the error. |
+| `Search-UnifiedAuditLog` for **Copilot Studio admin/authoring events** (`Bot*` operations, e.g. `BotCreate`, `BotUpdateOperation-BotPublish`) | `Connect-IPPSSession` (Security & Compliance / IPPS) | `ExchangeOnlineManagement` | Both | From `Connect-ExchangeOnline`, the cmdlet exists but **silently misses** Copilot Studio operations indexed only on the IPPS endpoint. Microsoft does not publish a RecordType number for these operations — do not filter on an assumed RecordType. |
+| `Search-UnifiedAuditLog -RecordType CopilotInteraction` for **Copilot Studio and Microsoft 365 Copilot usage events** (RecordType 261) | `Connect-IPPSSession` (IPPS) | `ExchangeOnlineManagement` | Both | Same as above. **Critical:** `CopilotInteraction` (RecordType 261) is the **same** documented event type for both Microsoft 365 Copilot and Copilot Studio agent usage interactions — it is not a Copilot-Studio-specific record type, and it does not carry a native jailbreak/content-safety-block field (see [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events)). |
 
 > Always assert session and edition state at the top of every script. The `Initialize-Agt18Session` helper in [Section 1](#1-pre-flight) does this for you. The PPAC inventory script (`Get-Agt18Inventory.ps1`) is a **separate Windows PowerShell 5.1 entrypoint** — do not attempt to call it from a PowerShell 7 host.
 
@@ -85,7 +85,7 @@ Every Control 1.8 PowerShell session **must** start with the same nine steps:
 6. Verify the caller has **Power Platform Administrator** (PPAC enumeration), **Application Administrator** or **Cloud Application Administrator** (Graph app + FIC mutation), and **Audit Reader** (UAL search) directory roles. Surface 403 / role-missing as a **PRE-FLIGHT FAIL**, not a silent skip.
 7. Verify the tenant has the licensing required for each surface — External Threat Detection requires **Managed Environments (Power Platform Premium add-on)**; UAL retention beyond 180 days requires **Microsoft 365 E5 Compliance** or the **Audit Premium** add-on. Surface SKU-denied as PRE-FLIGHT FAIL.
 8. Verify the **Microsoft 365 App Connector** is healthy in Defender for Cloud Apps (the connector that ingests Copilot Studio agent activity into the AI Agents Inventory).
-9. Verify the named test agents exist (`1.8-TEST-Agent-Z1-Control`, `1.8-TEST-Agent-Z2-Control`, `1.8-TEST-Agent-Z3-Control`) for the canary-prompt evidence loop in [Section 7](#7-reconciliation-ual-defender-alerts-webhook-callout-outcomes).
+9. Verify the named test agents exist (`1.8-TEST-Agent-Z1-Control`, `1.8-TEST-Agent-Z2-Control`, `1.8-TEST-Agent-Z3-Control`) for the canary-prompt evidence loop in [Section 7](#7-reconciliation-usage-and-admin-audit-events-vs-defender-alerts-time-windowed-not-per-event-correlation).
 
 Save the helper below as `Initialize-Agt18Session.ps1` in your evidence-collection module.
 
@@ -275,15 +275,15 @@ This is the single source of truth for what belongs in PowerShell vs the Power P
 
 | Capability | PowerShell? | Where it lives |
 |---|---|---|
-| Toggle `Microsoft Defender — Copilot Studio AI Agents` (the native DCA → Copilot Studio integration) | **No** | PPAC → Security → Threat protection → *Microsoft Defender* |
-| Toggle `Additional threat detection` (the third-party webhook surface) on a per-environment basis | **No** | PPAC → Security → Threat protection → *Additional threat detection* |
+| Toggle `Microsoft Defender — Copilot Studio AI Agents` (the native DCA → Copilot Studio integration) | **No** | PPAC → Security → Threat detection → *Microsoft Defender* (verify current UI label before each change window) |
+| Toggle `Additional threat detection` (the third-party webhook surface) on a per-environment basis | **No** | PPAC → Security → Threat detection → *Additional threat detection* |
 | Paste the Entra App ID for the registered third-party webhook provider into the environment binding | **No** — the App ID is **typed by the operator** into PPAC. PPAC then issues the FIC `subject` and `issuer` strings that the operator copies back into the Entra app registration. | PPAC (paste App ID + copy `subject` / `issuer`) |
 | Create the Entra app registration the webhook will run as | **Yes** — `New-MgApplication` | Microsoft Graph |
 | Create the federated identity credential on that app, **using the operator-supplied `subject` and `issuer` from PPAC** | **Yes** — `New-MgApplicationFederatedIdentityCredential` | Microsoft Graph |
-| Read AI agent inventory (Defender for Cloud Apps AI Agents) | **Yes — read-only.** Microsoft Graph beta `/beta/security/runHuntingQuery` against the `AIAppEvents` schema. No typed cmdlet. | Microsoft Graph beta |
-| Read Defender XDR alerts for AI agent runtime threats | **Yes — read-only.** `Get-MgBetaSecurityAlert_v2 -Filter "serviceSource eq 'microsoftDefenderForCloudApps' and category eq 'InitialAccess'"` (and similar). | Microsoft Graph beta |
-| Read Microsoft Sentinel logs for Power Platform admin activity | **Yes — read-only.** `Run-MgSecurityHuntingQuery` against the `PowerPlatformAdminActivity` table. **Critical:** the activity-name column is `EventOriginalType`, **not** `Operation`. | Microsoft Sentinel / Graph beta |
-| Audit-log evidence stream for Copilot Studio runtime threat events (`PromptInjectionDetected`, `ContentSafetyBlock`, `JailbreakAttemptDetected`, `ExternalThreatDetectionCallout`) and `CopilotInteraction` user-prompt events | **Yes** — `Search-UnifiedAuditLog` (paged) over **two** RecordType families | IPPS PowerShell |
+| Read AI agent inventory / activity signal (Defender for Cloud Apps AI Agents) | **Yes — read-only.** `Start-MgBetaSecurityHuntingQuery` (or `Invoke-MgGraphRequest -Uri /beta/security/runHuntingQuery`) against the documented `CloudAppEvents` advanced-hunting table; verify current `ActionType` values for Copilot Studio before hard-coding a filter. No typed cmdlet exists for AI agent inventory itself. | Microsoft Graph beta |
+| Read Defender XDR alerts for AI agent runtime threats | **Yes — read-only.** `Get-MgBetaSecurityAlertV2 -Filter "serviceSource eq 'microsoftDefenderForCloudApps' and category eq 'InitialAccess'"` (and similar). | Microsoft Graph beta |
+| Read Microsoft Sentinel logs for Power Platform admin activity | **Yes — read-only.** `PowerPlatformAdminActivity` is ingested into a Microsoft Sentinel **Log Analytics workspace**, not the Microsoft Graph security advanced-hunting schema — query it with `Invoke-AzOperationalInsightsQuery` (`Az.OperationalInsights` module) against that workspace, or via the Sentinel **Logs** blade. **Critical:** the activity-name column is `EventOriginalType`, **not** `Operation`. | Microsoft Sentinel / Log Analytics |
+| Audit-log evidence stream for Copilot Studio admin/authoring events (`Bot*` operations) and `CopilotInteraction` usage events (RecordType 261, shared with Microsoft 365 Copilot) | **Yes** — `Search-UnifiedAuditLog` (paged); there is no documented `CopilotStudio` RecordType and no documented `PromptInjectionDetected` / `ContentSafetyBlock` / `JailbreakAttemptDetected` / `ExternalThreatDetectionCallout` operation to filter on (see [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events)) | IPPS PowerShell |
 | Per-agent Prompt Shield strength, content moderation level, jailbreak-detection toggle | **No** | Copilot Studio Maker → Settings → Generative AI → Content moderation |
 | Environment-scoped DLP for connector egress (the Control-1.8 sliver of DLP) | **Yes** — `Get-DlpPolicy`, `New-DlpPolicy`, `Set-DlpPolicy` | Power Platform Admin (Desktop) |
 | Conditional Access policies that constrain who can run AI agents (signal source for AI Agent Protection) | **Read via Graph; write via Graph or Entra portal.** This is **Control 1.2** territory; Control 1.8 only consumes the signal. | Microsoft Graph / Entra portal |
@@ -297,8 +297,8 @@ Per [Configure an external security provider](https://learn.microsoft.com/en-us/
 
 - Power Platform sends an **HTTP POST** to your provider URL on every Copilot Studio agent invocation, authenticated via a federated identity credential whose **`subject` and `issuer`** are issued by the Power Platform service and copied into the Entra app registration by the operator.
 - The request body carries the user prompt, agent identifier, environment identifier, and tenant identifier (verify the current schema against Learn — it has changed during the Prerelease window).
-- Your provider responds with `allow` or `block` and an optional `reason` string surfaced in the audit log as `ExternalThreatDetectionCallout`.
-- The PPAC binding includes an **`errorBehavior`** setting. **Set `errorBehavior = "Block"`** when the provider is part of a regulated control story — otherwise provider downtime causes Copilot Studio to fall back to `allow`, producing exactly the behavior the control was meant to prevent. Document the chosen behavior in your change ticket and reference it from the Control 1.8 exception register.
+- Your provider responds with an allow/block decision per the documented webhook contract (verify the current response schema against [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider) at deploy time — do not hard-code a response field name that has not just been confirmed).
+- The PPAC binding includes a **"Set error behavior"** setting with two documented options: **"Allow the agent to respond"** (documented default) and **"Block the query"**. Choose **"Block the query"** when the provider is part of a regulated control story — otherwise provider downtime causes Copilot Studio to fall back to allowing the agent to respond, producing exactly the behavior the control was meant to prevent. Document the chosen setting in your change ticket and reference it from the Control 1.8 exception register. Microsoft does not publish this as a literal API key name (e.g., there is no confirmed `errorBehavior=` field) — reference the UI wording, not an assumed key.
 - The webhook callout is **synchronous** — it sits in the agent invocation latency budget. Per Learn, a typical end-to-end target is sub-second, but **specific SLA timing is variable; depends on provider region and tenant load** — measure for your provider and record in your runtime SLO.
 
 ---
@@ -578,7 +578,7 @@ function Get-Agt18WebhookFicInventory {
 > **Operator workflow (READ FIRST).** Per [Configure an external security provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider), the binding flow is:
 >
 > 1. **Run this script** to create the Entra app registration. It emits the new `AppId`.
-> 2. **Operator pastes the App ID into PPAC** at *Security → Threat protection → Additional threat detection*. PPAC then **displays the `subject` and `issuer`** that the federated identity credential must use. **Copy them from the PPAC UI.** They are issued by the Power Platform service per environment + tenant + app and **cannot be constructed client-side**.
+> 2. **Operator pastes the App ID into PPAC** at *Security → Threat detection → Additional threat detection*. PPAC then **displays the `subject` and `issuer`** that the federated identity credential must use. **Copy them from the PPAC UI.** They are issued by the Power Platform service per environment + tenant + app and **cannot be constructed client-side**.
 > 3. **Re-run this script with `-Issuer` and `-Subject`** populated from PPAC. The script creates the FIC bound to those exact values.
 > 4. **Operator returns to PPAC** and confirms the binding now shows green / connected. The first agent invocation will exercise the webhook.
 >
@@ -637,7 +637,7 @@ try {
             Write-Host "  DisplayName : $($app.DisplayName)"
             Write-Host ""
             Write-Host "NEXT STEPS (operator):" -ForegroundColor Yellow
-            Write-Host "  1. Open PPAC -> environment -> Settings -> Security -> Threat protection ->"
+            Write-Host "  1. Open PPAC -> environment -> Settings -> Security -> Threat detection ->"
             Write-Host "     Additional threat detection."
             Write-Host "  2. Paste this AppId: $($app.AppId)"
             Write-Host "  3. PPAC will display an Issuer URL and a Subject string."
@@ -711,9 +711,9 @@ try {
     Write-Host ""
     Write-Host "REMAINING STEPS (operator):" -ForegroundColor Yellow
     Write-Host "  - Return to PPAC and confirm the Additional Threat Detection binding shows green."
-    Write-Host "  - Set errorBehavior = 'Block' if this is a regulated control story."
-    Write-Host "  - Run a canary prompt against a test agent and confirm one ExternalThreatDetectionCallout"
-    Write-Host "    row appears in the unified audit log within 15 minutes (Section 5)."
+    Write-Host "  - Set 'Set error behavior' to 'Block the query' if this is a regulated control story."
+    Write-Host "  - Run a canary prompt against a test agent and confirm the invocation is visible in the"
+    Write-Host "    CopilotInteraction / Bot* audit trail within your tenant's ingestion latency (Section 5)."
 }
 finally {
     Stop-Transcript | Out-Null
@@ -726,12 +726,14 @@ finally {
 
 ## 5. Evidence collection — audit log and runtime threat events
 
-The Copilot Studio runtime threat surface produces audit events in **two RecordType families**:
+The Copilot Studio audit trail is collected from **two distinct, independently-documented surfaces** — not two variants of one fabricated `CopilotStudio` record family. There is **no** `CopilotStudio` RecordType, and Microsoft does not document `PromptInjectionDetected`, `ContentSafetyBlock`, `JailbreakAttemptDetected`, or `ExternalThreatDetectionCallout` as Copilot Studio audit operations. Querying for those literal values will silently return zero rows — a **false-clean** evidence pack that looks like "no threats detected" when it is really "the operation name does not exist."
 
-- `CopilotStudio` — the dedicated Copilot Studio audit family. Per [Copilot Studio admin logging](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio), this family carries operations such as `PromptInjectionDetected`, `ContentSafetyBlock`, `JailbreakAttemptDetected`, and `ExternalThreatDetectionCallout`. **Reverify the operation list against Learn before each change window** — the schema has expanded during the Prerelease window.
-- `CopilotInteraction` — the Microsoft 365 Copilot user-prompt audit family. Per [Microsoft 365 Copilot auditing](https://learn.microsoft.com/en-us/purview/audit-copilot), this family carries the user-side prompt + response correlation that pairs with the Copilot Studio runtime threat events.
+- **Usage interactions** — logged as `CopilotInteraction` (Purview Audit **RecordType 261**, [copilot-schema](https://learn.microsoft.com/en-us/office/office-365-management-api/copilot-schema)). This is the **same** event type used for Microsoft 365 Copilot; Copilot Studio agent usage turns are logged under it too, per [admin-logging-copilot-studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) ("Users" category). Query with `-RecordType CopilotInteraction`.
+- **Agent admin/authoring activity** — Copilot Studio-specific event labels documented in the same [admin-logging-copilot-studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) page: `BotCreate`, `BotDelete`, `BotDeleteCleanup`, `BotUpdateOperation-BotNameUpdate`, `BotUpdateOperation-BotAuthUpdate`, `BotUpdateOperation-BotIconUpdate`, `BotUpdateOperation-BotPublish`, `BotUpdateOperation-BotShare`, `BotAppInsightsUpdate`, `BotComponentCreate`, `BotComponentUpdate`, `BotComponentDelete`, `BotComponentCollectionCreate`, `BotComponentCollectionUpdate`, `BotComponentCollectionDelete`, `AIPluginOperationCreate`, `AIPluginOperationUpdate`, `AIPluginOperationDelete`, `EnvironmentVariableCreate`, `EnvironmentVariableUpdate`, `EnvironmentVariableDelete`. Microsoft's page does **not** publish a RecordType number for these operations. The general Office 365 Management Activity API schema separately defines `CopilotAgentManagement` (RecordType 384, "Microsoft Copilot agent admin activities"), but Microsoft has not documented that this RecordType is the one that carries every `Bot*` operation above — treat that mapping as unconfirmed. Because `Search-UnifiedAuditLog` accepts `-Operations` independently of `-RecordType`, query these operations **without** asserting an unverified RecordType.
 
-Always query **both** RecordTypes and reconcile in [Section 7](#7-reconciliation-ual-defender-alerts-webhook-callout-outcomes). Use an **operation-name allow-list** — never regex on English words like `"prompt"` or `"jailbreak"`, which trips on user content and produces both false positives and false negatives.
+Neither surface carries a native, per-event prompt-injection / jailbreak / content-safety-block field. If your organization needs that evidence, use Application Insights RAI telemetry (`ContentFiltered`, [portal walkthrough §4g](portal-walkthrough.md)) for model-layer blocks and Defender `CloudAppEvents` ([Section 6](#6-evidence-collection-defender-xdr-alerts-read-only-graph-beta)) for threat-analysis context — Purview Audit does not substitute for either.
+
+Always query **both** surfaces and reconcile in [Section 7](#7-reconciliation-usage-and-admin-audit-events-vs-defender-alerts-time-windowed-not-per-event-correlation). Use an **operation-name allow-list drawn from the current Purview Audit "Activities" picker** at the time of the run — never regex on English words like `"prompt"` or `"jailbreak"`, which trips on user content and produces both false positives and false negatives, and never hard-code an operation name that has not just been reconfirmed against Microsoft Learn or the live Activities picker.
 
 `Collect-RuntimeEvidence.ps1` — paged UAL collector with hard-fail at the documented 50 000-row session ceiling. Per [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog), `-SessionCommand ReturnLargeSet` returns rows in pages of up to 5 000 each; the same `SessionId` is capped at 50 000 rows total. Going past the ceiling without re-windowing produces silent truncation — the worst possible failure mode for an audit-log evidence script.
 
@@ -746,11 +748,28 @@ param(
     [Parameter(Mandatory)] [datetime] $StartUtc,
     [Parameter(Mandatory)] [datetime] $EndUtc,
     [Parameter(Mandatory)] [string]   $OutputDirectory,
-    [string[]] $RuntimeOperations = @(
-        'PromptInjectionDetected',
-        'ContentSafetyBlock',
-        'JailbreakAttemptDetected',
-        'ExternalThreatDetectionCallout'
+    [string[]] $AdminOperations = @(
+        'BotCreate',
+        'BotDelete',
+        'BotDeleteCleanup',
+        'BotUpdateOperation-BotNameUpdate',
+        'BotUpdateOperation-BotAuthUpdate',
+        'BotUpdateOperation-BotIconUpdate',
+        'BotUpdateOperation-BotPublish',
+        'BotUpdateOperation-BotShare',
+        'BotAppInsightsUpdate',
+        'BotComponentCreate',
+        'BotComponentUpdate',
+        'BotComponentDelete',
+        'BotComponentCollectionCreate',
+        'BotComponentCollectionUpdate',
+        'BotComponentCollectionDelete',
+        'AIPluginOperationCreate',
+        'AIPluginOperationUpdate',
+        'AIPluginOperationDelete',
+        'EnvironmentVariableCreate',
+        'EnvironmentVariableUpdate',
+        'EnvironmentVariableDelete'
     )
 )
 
@@ -766,7 +785,7 @@ Start-Transcript -Path (Join-Path $OutputDirectory "transcript-collect-$ts.log")
 function Invoke-Agt18PagedSearch {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [string]   $RecordType,
+        [string]   $RecordType,
         [Parameter(Mandatory)] [datetime] $StartUtc,
         [Parameter(Mandatory)] [datetime] $EndUtc,
         [string[]] $Operations
@@ -780,12 +799,16 @@ function Invoke-Agt18PagedSearch {
 
     do {
         $pages++
-        $page = Search-UnifiedAuditLog `
-            -StartDate $StartUtc -EndDate $EndUtc `
-            -RecordType $RecordType `
-            -Operations $Operations `
-            -SessionId $sessionId -SessionCommand ReturnLargeSet `
-            -ResultSize $resultSize
+        $searchParams = @{
+            StartDate      = $StartUtc
+            EndDate        = $EndUtc
+            SessionId      = $sessionId
+            SessionCommand = 'ReturnLargeSet'
+            ResultSize     = $resultSize
+        }
+        if ($RecordType) { $searchParams.RecordType = $RecordType }
+        if ($Operations) { $searchParams.Operations  = $Operations }
+        $page = Search-UnifiedAuditLog @searchParams
         if ($page) { $rows.AddRange($page) }
     } while ($page -and $page.Count -eq $resultSize -and $pages -lt $maxPages)
 
@@ -803,8 +826,10 @@ function Invoke-Agt18PagedSearch {
 }
 
 try {
-    $copilotStudio       = Invoke-Agt18PagedSearch -RecordType 'CopilotStudio'      -StartUtc $StartUtc -EndUtc $EndUtc -Operations $RuntimeOperations
-    $copilotInteraction  = Invoke-Agt18PagedSearch -RecordType 'CopilotInteraction' -StartUtc $StartUtc -EndUtc $EndUtc -Operations $RuntimeOperations
+    # Usage interactions — documented RecordType 261 (copilot-schema); shared with Microsoft 365 Copilot.
+    $copilotInteraction  = Invoke-Agt18PagedSearch -RecordType 'CopilotInteraction' -StartUtc $StartUtc -EndUtc $EndUtc
+    # Admin/authoring activity — no documented RecordType for these Bot* operations; filter on Operations only.
+    $agentAdminActivity  = Invoke-Agt18PagedSearch -StartUtc $StartUtc -EndUtc $EndUtc -Operations $AdminOperations
 
     function Save-Agt18AuditPage {
         param($Page, [string]$Stem)
@@ -823,8 +848,8 @@ try {
     }
 
     $outputs  = @()
-    $outputs += Save-Agt18AuditPage -Page $copilotStudio      -Stem 'ual-copilot-studio'
     $outputs += Save-Agt18AuditPage -Page $copilotInteraction -Stem 'ual-copilot-interaction'
+    $outputs += Save-Agt18AuditPage -Page $agentAdminActivity -Stem 'ual-agent-admin-activity'
 
     $manifest = [PSCustomObject]@{
         runId           = $runId
@@ -836,14 +861,14 @@ try {
         startUtc        = $StartUtc.ToUniversalTime().ToString('o')
         endUtc          = $EndUtc.ToUniversalTime().ToString('o')
         params          = @{
-            recordTypes = @('CopilotStudio','CopilotInteraction')
-            operations  = $RuntimeOperations
+            recordTypes = @('CopilotInteraction')
+            operations  = $AdminOperations
         }
         outputs         = $outputs
-        rowCount        = ($copilotStudio.Rows.Count + $copilotInteraction.Rows.Count)
-        pagesConsumed   = ($copilotStudio.Pages + $copilotInteraction.Pages)
-        sessionsCopilotStudio      = $copilotStudio.SessionId
-        sessionsCopilotInteraction = $copilotInteraction.SessionId
+        rowCount        = ($copilotInteraction.Rows.Count + $agentAdminActivity.Rows.Count)
+        pagesConsumed   = ($copilotInteraction.Pages + $agentAdminActivity.Pages)
+        sessionCopilotInteraction = $copilotInteraction.SessionId
+        sessionAgentAdminActivity = $agentAdminActivity.SessionId
         generatedUtc    = (Get-Date).ToUniversalTime().ToString('o')
     }
     $manifest | ConvertTo-Json -Depth 6 |
@@ -915,21 +940,20 @@ function Get-Agt18DefenderAlerts {
 
 ---
 
-## 7. Reconciliation — UAL ↔ Defender alerts ↔ webhook callout outcomes
+## 7. Reconciliation — usage and admin audit events vs. Defender alerts (time-windowed, not per-event correlation)
 
-For every Copilot Studio agent invocation that triggers a runtime threat detection, you should see **three correlated artifacts** within roughly 15 minutes (specific propagation timing is variable; depends on tenant load and cloud — measure for your tenant and record in your Control 1.8 SLO):
+No Microsoft Learn source documents a shared identifier that ties together a `CopilotInteraction` usage event, a `Bot*` admin/authoring event, a Defender XDR alert, and an Additional Threat Detection webhook callout outcome. In particular, the `CopilotInteraction` schema fields (`AppHost`, `Contexts`, `ThreadId`, `MessageIds`, `Messages`, `AccessedResources`, `ModelTransparencyDetails`, `AISystemPlugin`, `ClientRegion`, `CopilotLogVersion`) do not include a `correlationId`, and the [`alerts_v2` schema](https://learn.microsoft.com/en-us/graph/api/resources/security-alert) does not document one either. Do not invent a `correlationId` join key — an earlier draft of this script did, and it silently produced an all-orphan report because the field it read never existed on either side.
 
-1. A `CopilotStudio` audit record with `Operation` in your runtime allow-list.
-2. (Where the Defender for Cloud Apps AI Agent Protection toggle is on) a Defender XDR alert with `serviceSource = microsoftDefenderForCloudApps` and an AI-agent-related category.
-3. (Where Additional Threat Detection is bound) an `ExternalThreatDetectionCallout` audit record with the bound provider's response — `allow` or `block` plus optional `reason`.
+What the two evidence streams support is a **coarse, time-windowed volume reconciliation**: bucket both streams by hour and compare counts. A bucket with Defender alert activity but no corresponding Purview Audit rows (or vice versa) is a signal that one collection pipeline may be lagging or misconfigured — it is not proof that a specific invocation is missing evidence, because there is no documented per-event key to prove that.
 
-The reconciliation script joins these three streams on `correlationId` (Copilot Studio populates this on every invocation) and emits an exception report for any invocation that produced a runtime threat in one stream but not the others. Use it as the canary-loop verifier after every change window:
+Additional Threat Detection callout outcomes (**"Allow the agent to respond"** / **"Block the query"**) are enforced by the bound third-party webhook provider at runtime. Microsoft does not document that Purview Audit or Microsoft Graph Security alerts record these per-call outcomes. If your organization needs durable callout-outcome evidence, obtain and retain it from the security provider's own logging or API — this playbook's audit-log and Defender collectors do not substitute for that provider-side evidence.
 
 ```powershell
+#Requires -Version 7.0
 function Compare-Agt18Reconciliation {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [string] $UalCopilotStudioJson,
+        [Parameter(Mandatory)] [string] $UalJson,
         [Parameter(Mandatory)] [string] $DefenderAlertsJson,
         [Parameter(Mandatory)] [string] $OutputDirectory
     )
@@ -937,32 +961,42 @@ function Compare-Agt18Reconciliation {
     $ErrorActionPreference = 'Stop'
     $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
 
-    $ualRows = Get-Content $UalCopilotStudioJson -Raw | ConvertFrom-Json
-    $alerts  = Get-Content $DefenderAlertsJson  -Raw | ConvertFrom-Json
+    $ualRows = Get-Content $UalJson            -Raw | ConvertFrom-Json
+    $alerts  = Get-Content $DefenderAlertsJson -Raw | ConvertFrom-Json
 
-    # Normalize correlation IDs --------------------------------------------
-    $ualByCorr = @{}
+    # Bucket by UTC hour — no documented per-event key exists to join these streams 1:1.
+    function Get-HourBucket([datetime]$dt) { $dt.ToUniversalTime().ToString('yyyy-MM-ddTHH:00:00Z') }
+
+    $ualBuckets = @{}
     foreach ($r in $ualRows) {
-        $audit = $r.AuditData | ConvertFrom-Json -ErrorAction SilentlyContinue
-        $corr  = $audit.correlationId
-        if ($corr) { $ualByCorr[$corr] = $r }
+        if (-not $r.CreationTime) { continue }
+        $b = Get-HourBucket ([datetime]$r.CreationTime)
+        $ualBuckets[$b] = ($ualBuckets[$b] ?? 0) + 1
     }
-    $alertCorrs = @{}
+    $alertBuckets = @{}
     foreach ($a in $alerts) {
-        foreach ($e in @($a.evidence)) {
-            if ($e.correlationId) { $alertCorrs[$e.correlationId] = $a }
+        if (-not $a.createdDateTime) { continue }
+        $b = Get-HourBucket ([datetime]$a.createdDateTime)
+        $alertBuckets[$b] = ($alertBuckets[$b] ?? 0) + 1
+    }
+
+    $allBuckets = @($ualBuckets.Keys) + @($alertBuckets.Keys) | Sort-Object -Unique
+    $rows = foreach ($b in $allBuckets) {
+        [PSCustomObject]@{
+            HourUtc         = $b
+            AuditEventCount = [int]($ualBuckets[$b]    ?? 0)
+            DefenderAlertCount = [int]($alertBuckets[$b] ?? 0)
+            Flag            = if ((($alertBuckets[$b] ?? 0) -gt 0) -and (($ualBuckets[$b] ?? 0) -eq 0)) { 'ALERT-WITHOUT-AUDIT' }
+                               elseif ((($ualBuckets[$b] ?? 0) -gt 0) -and (($alertBuckets[$b] ?? 0) -eq 0)) { 'AUDIT-WITHOUT-ALERT' }
+                               else { 'OK' }
         }
     }
 
-    $orphanUal    = $ualByCorr.Keys | Where-Object { -not $alertCorrs.ContainsKey($_) }
-    $orphanAlert  = $alertCorrs.Keys | Where-Object { -not $ualByCorr.ContainsKey($_) }
-
     $report = [PSCustomObject]@{
-        ualCount             = $ualByCorr.Count
-        defenderAlertCount   = $alertCorrs.Count
-        ualRowsWithoutAlert  = @($orphanUal)
-        alertsWithoutUalRow  = @($orphanAlert)
-        generatedUtc         = (Get-Date).ToUniversalTime().ToString('o')
+        buckets      = $rows
+        flaggedCount = @($rows | Where-Object { $_.Flag -ne 'OK' }).Count
+        generatedUtc = (Get-Date).ToUniversalTime().ToString('o')
+        note         = 'Time-windowed volume comparison only. No documented per-event correlation key exists across these sources; a flagged bucket is a lead for manual review, not proof of a missing individual event.'
     }
     $reportPath = Join-Path $OutputDirectory "reconciliation-$ts.json"
     $report | ConvertTo-Json -Depth 6 | Set-Content -Path $reportPath -Encoding UTF8
@@ -973,55 +1007,45 @@ function Compare-Agt18Reconciliation {
 }
 ```
 
-> **Surface results as `[OK]` / `[WARN]` / `[ALERT]` based on the reconciliation report**, not as hardcoded `[PASS]`. `[OK]` means orphan counts are within tolerance for the tenant's known noise floor; `[WARN]` means orphans exceed tolerance but no high-severity Defender alerts are involved; `[ALERT]` means orphan Defender alerts of `high` severity exist (the most common indicator of a stale UAL ingestion or a missed Copilot Studio audit).
+> **Surface results as `[OK]` / `[WARN]` / `[ALERT]`** based on the `Flag` values above, not as a hardcoded `[PASS]`. `[OK]` means every hour bucket balanced within the tenant's known noise floor. `[WARN]` means some buckets show `AUDIT-WITHOUT-ALERT` (expected when Defender for Cloud Apps AI Agent Protection is off, or when the activity was admin/authoring rather than threat-relevant). `[ALERT]` means a bucket shows `ALERT-WITHOUT-AUDIT` — investigate whether Purview Audit ingestion for the tenant has a gap, since Defender alerts should not exist for agent activity that produced no audit trail at all.
 
 ---
 
 ## 8. Microsoft Sentinel KQL — `EventOriginalType`, NOT `Operation`
 
-If the tenant streams Power Platform admin activity into Microsoft Sentinel via the [Microsoft Power Platform connector for Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/business-applications/deploy-power-platform-solution), Control 1.8 evidence can also be queried via Sentinel KQL. Per the [`PowerPlatformAdminActivity` table reference](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/powerplatformadminactivity), the operation-name column is **`EventOriginalType`** — not `Operation`. Earlier drafts of this playbook used `Operation` and silently returned zero rows. **Do not.**
+If the tenant streams Power Platform admin activity into Microsoft Sentinel via the [Microsoft Power Platform connector for Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/business-applications/deploy-power-platform-solution), Control 1.8 evidence can also be queried via Sentinel KQL. Per the [`PowerPlatformAdminActivity` table reference](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/powerplatformadminactivity), the operation-name column is **`EventOriginalType`** — not `Operation`. Earlier drafts of this playbook used `Operation` and silently returned zero rows. **Do not.** Filter on the documented Copilot Studio event labels from [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events) — there is no `PromptInjectionDetected`/`ContentSafetyBlock`/`JailbreakAttemptDetected`/`ExternalThreatDetectionCallout` value to filter on.
 
 ```kql
-// All Copilot Studio runtime threat events surfaced in PowerPlatformAdminActivity
+// Copilot Studio agent admin/authoring activity surfaced in PowerPlatformAdminActivity
 PowerPlatformAdminActivity
 | where TimeGenerated >= ago(7d)
 | where EventOriginalType in (
-    "PromptInjectionDetected",
-    "ContentSafetyBlock",
-    "JailbreakAttemptDetected",
-    "ExternalThreatDetectionCallout"
+    "BotCreate",
+    "BotDelete",
+    "BotDeleteCleanup",
+    "BotUpdateOperation-BotPublish",
+    "BotUpdateOperation-BotShare",
+    "BotUpdateOperation-BotAuthUpdate"
   )
 | project TimeGenerated, EventOriginalType, EnvironmentName, AgentId = ResourceId,
-          UserPrincipalName, ResultType, CorrelationId, AdditionalProperties
+          UserPrincipalName, ResultType, AdditionalProperties
 | order by TimeGenerated desc
 ```
 
-Pair the table query with a Defender XDR alert join to surface high-severity, unreviewed AI agent alerts in the same window:
+Query Defender XDR alerts separately in Sentinel's `SecurityAlert` table for the same window. No documented field ties a `SecurityAlert` row to a `PowerPlatformAdminActivity` row 1:1 (see [Section 7](#7-reconciliation-usage-and-admin-audit-events-vs-defender-alerts-time-windowed-not-per-event-correlation)) — treat the two as independent evidence streams reviewed side by side, not as join partners:
 
 ```kql
-// Defender XDR AI agent alerts of high severity in the last 7 days
+// Defender XDR AI-agent-related alerts of high severity in the last 7 days
 SecurityAlert
 | where TimeGenerated >= ago(7d)
 | where ProductName == "Microsoft Defender for Cloud Apps"
 | where Severity == "High"
 | where AlertName has_any ("AI agent", "Copilot agent", "Prompt injection", "Jailbreak")
-| extend Correlation = tostring(parse_json(ExtendedProperties).CorrelationId)
-| join kind=leftouter (
-    PowerPlatformAdminActivity
-    | where TimeGenerated >= ago(7d)
-    | where EventOriginalType in (
-        "PromptInjectionDetected",
-        "ContentSafetyBlock",
-        "JailbreakAttemptDetected",
-        "ExternalThreatDetectionCallout"
-      )
-    | project Correlation = CorrelationId, EventOriginalType, EnvironmentName
-  ) on Correlation
-| project TimeGenerated, AlertName, Severity, EnvironmentName, EventOriginalType, Correlation, AlertLink
+| project TimeGenerated, AlertName, Severity, AlertLink, ExtendedProperties
 | order by TimeGenerated desc
 ```
 
-> The KQL queries also run through the Graph beta hunting endpoint when the tenant does not have Sentinel: `Invoke-MgGraphRequest -Method POST -Uri "$($ctx.Endpoint.GraphHost)/beta/security/runHuntingQuery" -Body (@{ Query = $kql } | ConvertTo-Json)`. The schema is the same; the column-name correctness rule (`EventOriginalType`, not `Operation`) is identical.
+> **This is a Log Analytics workspace query, not a Graph Security hunting query.** `PowerPlatformAdminActivity` and `SecurityAlert` (when populated via the Sentinel connector) live in a Microsoft Sentinel/Log Analytics workspace. Query them with `Invoke-AzOperationalInsightsQuery` (from the `Az.OperationalInsights` module) against that workspace — see [Section 2](#2-coverage-boundary-powershell-vs-portal-vs-maker) — or the Sentinel **Logs** blade in the Azure portal. Microsoft Graph Security `runHuntingQuery` / `Start-MgSecurityHuntingQuery` only queries the M365 Defender Advanced Hunting schema (tables such as `CloudAppEvents`, `BehaviorInfo`); it does not have access to Sentinel/Log Analytics workspace tables like `PowerPlatformAdminActivity`. An earlier draft of this playbook claimed the two were interchangeable — they are not, and pointing `Start-MgSecurityHuntingQuery` at `PowerPlatformAdminActivity` returns an error, not zero rows.
 
 ---
 
@@ -1039,8 +1063,8 @@ Every script in this playbook emits a `manifest-*.json` next to its outputs. The
   "runner":         "admin@contoso.com",
   "startUtc":       "2026-02-01T00:00:00Z",
   "endUtc":         "2026-02-08T00:00:00Z",
-  "params":         { "recordTypes": ["CopilotStudio","CopilotInteraction"], "operations": ["PromptInjectionDetected", "ContentSafetyBlock", "JailbreakAttemptDetected", "ExternalThreatDetectionCallout"] },
-  "outputs":        [ { "file": "ual-copilot-studio-20260208T010203Z.json", "sha256": "…", "bytes": 12345 } ],
+  "params":         { "recordTypes": ["CopilotInteraction"], "operations": ["BotCreate", "BotDelete", "BotUpdateOperation-BotPublish", "…"] },
+  "outputs":        [ { "file": "ual-copilot-interaction-20260208T010203Z.json", "sha256": "…", "bytes": 12345 } ],
   "rowCount":       42,
   "pagesConsumed":  3,
   "generatedUtc":   "2026-02-08T01:02:03Z"
@@ -1085,8 +1109,9 @@ About to remove federated identity credentials AND the app registration for:
   DisplayName : $($app.DisplayName)
 This will BREAK any PPAC Additional Threat Detection binding still pointing at
 this AppId. CONFIRM the binding has been removed in PPAC FIRST, otherwise the
-next Copilot Studio agent invocation will fail closed (if errorBehavior=Block)
-or fall through with no provider check (if errorBehavior=Allow).
+next Copilot Studio agent invocation will fail closed (if "Set error behavior"
+is "Block the query") or fall through with no provider check (if it is
+"Allow the agent to respond").
 "@
 
     $fics = Get-MgApplicationFederatedIdentityCredential -ApplicationId $AppObjectId -ErrorAction SilentlyContinue
@@ -1137,10 +1162,10 @@ Every item in this list maps to a real failure mode discovered during Control 1.
 1. **Constructing FIC `subject` or `issuer` client-side.** PPAC issues these per environment + tenant + app. Any script that hashes the App ID, concatenates GUIDs, or generates a "predictable" subject is **fabricating credentials** — PPAC will never trust them. Always pass `-Issuer` and `-Subject` from the PPAC UI on the second run of `Configure-AdditionalThreatDetection.ps1`.
 2. **`Search-UnifiedAuditLog` without `-SessionId` + `-SessionCommand ReturnLargeSet`.** A single-shot call returns at most 5 000 rows and **silently truncates** beyond that. The paged pattern in [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events) is non-negotiable for evidence runs.
 3. **Continuing past the 50 000-row session ceiling.** Per Learn, the same `SessionId` is capped at 50 000 rows. Past that point, additional calls return zero rows with no error. Hard-fail at 10 pages of 5 000 and force the operator to narrow the time window.
-4. **Querying only `RecordType = CopilotInteraction`.** That family carries Microsoft 365 Copilot user-prompt events; it does **not** carry Copilot Studio runtime threat operations. Always query `CopilotStudio` **and** `CopilotInteraction` and reconcile.
+4. **Assuming `RecordType = CopilotInteraction` covers Copilot Studio admin/authoring activity.** `CopilotInteraction` (RecordType 261) only covers usage interactions. Agent create/update/publish/delete events use separate `Bot*` operation names with no documented RecordType — query both surfaces (see [Section 5](#5-evidence-collection-audit-log-and-runtime-threat-events)) rather than assuming one covers the other.
 5. **Regexing on English words like `prompt` or `jailbreak` instead of an operation-name allow-list.** User content containing those words trips false positives; legitimate detections under operation names you did not enumerate are missed entirely. Use the explicit `-Operations` allow-list and reverify it against Learn before each change window.
 6. **Using the wrong KQL column.** `PowerPlatformAdminActivity` exposes activity names under `EventOriginalType`, not `Operation`. The query silently returns zero rows when the column is wrong — there is no schema error.
-7. **Hard-coded `[PASS]` / `[FAIL]` banners.** Verification scripts that always print `[PASS]` regardless of state are evidence theatre. Surface `[OK]` / `[WARN]` / `[ALERT]` based on the reconciliation report and the orphan-alert tolerance documented in your Control 1.8 SLO.
+7. **Hard-coded `[PASS]` / `[FAIL]` banners.** Verification scripts that always print `[PASS]` regardless of state are evidence theatre. Surface `[OK]` / `[WARN]` / `[ALERT]` based on the time-windowed reconciliation `Flag` values from [Section 7](#7-reconciliation-usage-and-admin-audit-events-vs-defender-alerts-time-windowed-not-per-event-correlation) and your Control 1.8 SLO's noise-floor tolerance.
 8. **Reading `$env.Properties.protectionLevel` to detect Managed Environments.** The current schema exposes the value at `$env.Internal.properties.governanceConfiguration.protectionLevel` (or `$env.Properties.governanceConfiguration.protectionLevel` depending on module version). The wrong path returns `$null`, which the script then false-clean reports as "not managed".
 9. **Mutation cmdlets without `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`.** No `-WhatIf` or `-Confirm` support means the change-management trail is missing. CAB will reject.
 10. **Removing app registrations without a provenance tag check.** `Remove-MgApplication` is irreversible. The rollback script must refuse to operate on apps without the `fsi:control:1.8:webhook-provider` tag (or whatever tag the Configure script set).
@@ -1166,4 +1191,4 @@ Every item in this list maps to a real failure mode discovered during Control 1.
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: July 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — this update corrected documentation-evidence accuracy (Microsoft Learn cross-checks); it did not include a live tenant/portal UI screenshot verification pass*
