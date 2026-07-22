@@ -305,6 +305,139 @@ class TestControl115ManualGate:
 
 
 # ---------------------------------------------------------------------------
+# Test: per-check Manual collection_methods override parent control methods
+# ---------------------------------------------------------------------------
+
+class TestPerCheckManualMethods:
+    """Checks that declare ``collection_methods: ["Manual"]`` must be scored as
+    manual-only even when their parent control is automatable and their
+    ``api_call`` maps to an automated source.
+
+    Regression for PR #1021: 1.11.b / 1.11.c / 1.13.a were emitted in zone 2/3
+    as 'unknown' automated checks carrying graph.json / purview.json evidence
+    instead of manual-only evidence, because evaluate_check resolved the source
+    from the parent control's methods (and the check's api_call) rather than
+    honoring the check-level Manual override. Their automated siblings
+    (1.11.a, 1.13.b) must keep their real collected source.
+    """
+
+    @staticmethod
+    def _real_control(control_id: str) -> dict:
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        return next(c for c in controls if c["id"] == control_id)
+
+    @classmethod
+    def _eval_real_check(cls, control_id: str, check_id: str, zone: int) -> dict:
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        control = cls._real_control(control_id)
+        check = next(c for c in control["checks"] if c["check_id"] == check_id)
+        # Non-empty collected sources so the automated path *would* resolve —
+        # this is exactly the condition under which the bug surfaced.
+        collected = {
+            "graph": {"conditional_access_policies": []},
+            "purview": {"dlpCompliancePolicies": []},
+        }
+        return score.evaluate_check(
+            check,
+            collected,
+            zone,
+            control.get("collection_methods", []),
+            "2026-01-01T00:00:00Z",
+            control.get("automation", "full"),
+        )
+
+    @pytest.mark.parametrize(
+        "control_id,check_id,zone",
+        [
+            ("1.11", "1.11.b", 2),
+            ("1.11", "1.11.b", 3),
+            ("1.11", "1.11.c", 3),
+            ("1.13", "1.13.a", 2),
+            ("1.13", "1.13.a", 3),
+        ],
+    )
+    def test_manual_check_is_manual_only_with_no_automated_source(
+        self, control_id: str, check_id: str, zone: int
+    ):
+        res = self._eval_real_check(control_id, check_id, zone)
+
+        assert res["applicable"] is True
+        assert res["evaluator_state"] == "manual_only"
+        # The api_call would otherwise resolve to graph.json / purview.json.
+        assert res["source"] is None
+        # No automated pass/fail — scoring/thresholds must be unaffected.
+        assert res["passed"] is None
+        assert res["data_available"] is False
+        assert "manual" in res["evidence"].lower()
+
+    @pytest.mark.parametrize(
+        "control_id,check_id,zone,expected_source",
+        [
+            ("1.11", "1.11.a", 2, "graph.json"),
+            ("1.11", "1.11.a", 3, "graph.json"),
+            ("1.13", "1.13.b", 2, "purview.json"),
+            ("1.13", "1.13.b", 3, "purview.json"),
+        ],
+    )
+    def test_automated_sibling_checks_remain_automated(
+        self, control_id: str, check_id: str, zone: int, expected_source: str
+    ):
+        res = self._eval_real_check(control_id, check_id, zone)
+
+        assert res["applicable"] is True
+        assert res["evaluator_state"] == "auto_evaluable"
+        assert res["source"] == expected_source
+
+    @pytest.mark.parametrize("zone", [2, 3])
+    def test_manual_checks_carry_no_automated_evidence_end_to_end(
+        self, tmp_path: Path, collected_dir: Path, zone: int
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=zone,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        controls_by_id = {c["id"]: c for c in result["controls"]}
+
+        # Manual checks applicable in this zone must present no automated source.
+        manual_expect = {"1.11": ["1.11.b"], "1.13": ["1.13.a"]}
+        if zone == 3:
+            manual_expect["1.11"].append("1.11.c")
+
+        for control_id, check_ids in manual_expect.items():
+            ctrl = controls_by_id[control_id]
+            evidence = ctrl["evidence"]
+            check_states = {c["check_id"]: c for c in ctrl["checks"]}
+            for check_id in check_ids:
+                assert evidence[check_id]["source"] is None
+                assert check_states[check_id]["evaluator_state"] == "manual_only"
+                assert check_states[check_id]["passed"] is None
+
+        # Automated siblings keep their real collected source in the same report.
+        ctrl_111 = controls_by_id["1.11"]
+        ctrl_113 = controls_by_id["1.13"]
+        assert ctrl_111["evidence"]["1.11.a"]["source"] == "graph.json"
+        assert ctrl_113["evidence"]["1.13.b"]["source"] == "purview.json"
+        sibling_111a = next(
+            c for c in ctrl_111["checks"] if c["check_id"] == "1.11.a"
+        )
+        assert sibling_111a["evaluator_state"] == "auto_evaluable"
+
+
+# ---------------------------------------------------------------------------
 # Test: missing data → confidence low
 # ---------------------------------------------------------------------------
 
@@ -828,6 +961,75 @@ class TestDlpReferencesSitsEvaluator:
 
         assert passed is True
         assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_singleton_sit_condition_dict(self):
+        # The Purview collector can serialize exactly one
+        # ContentContainsSensitiveInformation condition as a bare object
+        # (PowerShell singleton-collapse) instead of a one-element array. An
+        # enforced one-SIT policy must still pass rather than fail closed.
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Enforced one-SIT policy",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {"Name": "Test SIT"},
+                    }
+                ],
+            }
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_singleton_sit_condition_dict_all_the_way_down(
+        self,
+    ):
+        # Singleton collapse can occur simultaneously at the policy, rule and
+        # SIT-condition levels; all three normalizations must compose.
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Fully collapsed singleton",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": {"Name": "Test SIT"},
+                },
+            }
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    @pytest.mark.parametrize(
+        "sit_condition",
+        ["Test SIT", 1, True, None, {}, {"minCount": 1}],
+    )
+    def test_dlp_references_sits_rejects_scalar_or_nameless_sit_conditions(
+        self, sit_condition
+    ):
+        # A scalar / null / nameless SIT-condition payload must stay
+        # conservative: no SIT is extracted, so an otherwise-enforced policy
+        # fails closed rather than being credited with a phantom SIT.
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Enforced with malformed condition",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": sit_condition,
+                    }
+                ],
+            }
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
 
     @pytest.mark.parametrize(
         "policy",

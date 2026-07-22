@@ -1374,7 +1374,14 @@ def _extract_sit_references(rule: dict) -> set[str]:
         "ContentContainsSensitiveInformation",
         "contentContainsSensitiveInformation",
     )
-    if not isinstance(refs, list):
+    # PowerShell's ConvertTo-Json collapses a single-element collection to a
+    # bare object, so the Purview collector can serialize exactly one SIT
+    # condition as a dict instead of a one-item list. Normalize that shape so
+    # an enforced one-SIT policy is not falsely scored as referencing no SITs.
+    # Scalar / null values stay conservative (no SIT is extracted).
+    if isinstance(refs, dict):
+        refs = [refs]
+    elif not isinstance(refs, list):
         return set()
 
     names: set[str] = set()
@@ -1668,7 +1675,40 @@ def evaluate_check(
             "evaluator_state": evaluator_state,
         }
 
-    source_key = _resolve_source_key(api_call, collection_methods)
+    # Check-level collection_methods take precedence over the parent control's
+    # methods for source resolution — mirroring classify_check_evaluator_state
+    # and lint_manifest_source_resolution, which both resolve
+    # ``check.get("collection_methods") or <control methods>``. Without this,
+    # evaluate_check was the only place that ignored a check's own methods.
+    effective_methods = check.get("collection_methods") or collection_methods
+
+    # A check the manifest marks manual (evaluator_state == "manual_only") must
+    # not borrow an automated source from its api_call. Otherwise a manual-only
+    # check (e.g. 1.11.b / 1.11.c / 1.13.a) is emitted in a zone 2/3 report as
+    # an "unknown" automated check carrying graph.json / purview.json evidence
+    # instead of honest manual-only evidence. Short-circuit to manual evidence
+    # with no source; ``passed`` stays None so scoring/thresholds are unchanged.
+    if evaluator_state == "manual_only":
+        manual_evidence = (
+            "Manual attestation required; check is not automatically scored "
+            "(manual evidence only)."
+        )
+        return {
+            "check_id": check_id,
+            "description": description,
+            "zone_required": zone_required,
+            "applicable": True,
+            "result": "unknown",
+            "passed": None,
+            "value": manual_evidence,
+            "evidence": manual_evidence,
+            "source": None,
+            "timestamp": timestamp,
+            "data_available": False,
+            "evaluator_state": evaluator_state,
+        }
+
+    source_key = _resolve_source_key(api_call, effective_methods)
     source_file = SOURCE_FILENAMES.get(source_key or "") if source_key else None
     data_available = _source_has_data(collected, source_key)
 
