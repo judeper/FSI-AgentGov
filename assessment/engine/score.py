@@ -1409,7 +1409,82 @@ def _extract_grouped_sit_names(condition: dict) -> set[str]:
     return names
 
 
+def _extract_advanced_rule_sits(rule: dict) -> set[str]:
+    """Extract SIT names from an ``AdvancedRule``-backed DLP rule.
+
+    Control 1.13's ``New-FsiCopilotDlpPolicy.ps1`` binds sensitive-information
+    types to the Copilot workload with ``New-DlpComplianceRule -AdvancedRule
+    <json>`` rather than ``-ContentContainsSensitiveInformation``, and the
+    troubleshooting runbook filters ``$_.AdvancedRule`` for the SIT identity
+    (see docs/playbooks/control-implementations/1.13/powershell-setup.md §9 and
+    troubleshooting.md; control 1.5's verification parses the same
+    ``AdvancedRule`` JSON into ``Condition.SubConditions``). The collector
+    preserves the raw ``AdvancedRule`` — a JSON *string* of the shape::
+
+        {"Condition": {"SubConditions": [
+            {"ConditionName": "ContentContainsSensitiveInformation",
+             "Value": {"groups": [{"sensitivetypes": [{"name": "<SIT>"}]}]}}
+        ]}}
+
+    Only subconditions whose ``ConditionName`` is
+    ``ContentContainsSensitiveInformation`` are credited, and their SIT names are
+    read from the same grouped ``groups[].sensitivetypes[].name`` structure
+    parsed for direct conditions (via ``_extract_grouped_sit_names``). A sibling
+    ``ContentContainsSensitivityLabel`` subcondition — which control 1.5 warns
+    can coexist in the same rule — is therefore never mistaken for a SIT, and
+    neither are group labels or arbitrary ``Name`` fields. The payload may
+    already be a parsed dict (defensive); a malformed JSON string, or any
+    non-string/non-dict payload, yields no names (fail closed) so a broken
+    AdvancedRule never manufactures a phantom SIT and the caller can still fall
+    back to any direct condition evidence present on the rule. Nested
+    SubConditions (an undocumented shape for this repo) are intentionally not
+    walked, keeping extraction grounded and fail-closed rather than speculative.
+    """
+    advanced = _first_present(rule, "AdvancedRule", "advancedRule")
+    if isinstance(advanced, str):
+        text = advanced.strip()
+        if not text:
+            return set()
+        try:
+            advanced = json.loads(text)
+        except (ValueError, TypeError):
+            return set()
+    if not isinstance(advanced, dict):
+        return set()
+
+    condition = _first_present(advanced, "Condition", "condition")
+    if not isinstance(condition, dict):
+        return set()
+
+    subconditions = _first_present(
+        condition, "SubConditions", "subConditions", "subconditions"
+    )
+    # ConvertTo-Json can collapse a single-element SubConditions array to a bare
+    # object; normalize that the same way grouped conditions are normalized.
+    if isinstance(subconditions, dict):
+        subconditions = [subconditions]
+    elif not isinstance(subconditions, list):
+        return set()
+
+    names: set[str] = set()
+    for sub in subconditions:
+        if not isinstance(sub, dict):
+            continue
+        condition_name = _first_present(sub, "ConditionName", "conditionName")
+        if (
+            not isinstance(condition_name, str)
+            or condition_name.strip().lower() != "contentcontainssensitiveinformation"
+        ):
+            continue
+        value = _first_present(sub, "Value", "value")
+        if isinstance(value, dict):
+            names |= _extract_grouped_sit_names(value)
+    return names
+
+
 def _extract_sit_references(rule: dict) -> set[str]:
+    names: set[str] = set()
+
     refs = _first_present(
         rule,
         "ContentContainsSensitiveInformation",
@@ -1419,13 +1494,14 @@ def _extract_sit_references(rule: dict) -> set[str]:
     # bare object, so the Purview collector can serialize exactly one SIT
     # condition as a dict instead of a one-item list. Normalize that shape so
     # an enforced one-SIT policy is not falsely scored as referencing no SITs.
-    # Scalar / null values stay conservative (no SIT is extracted).
+    # Scalar / null / absent values contribute nothing here but must NOT short-
+    # circuit the AdvancedRule fallback below: an AdvancedRule-backed rule has
+    # no direct ContentContainsSensitiveInformation at all.
     if isinstance(refs, dict):
         refs = [refs]
     elif not isinstance(refs, list):
-        return set()
+        refs = []
 
-    names: set[str] = set()
     for ref in refs:
         if isinstance(ref, dict):
             name = _first_present(ref, "Name", "name")
@@ -1437,6 +1513,12 @@ def _extract_sit_references(rule: dict) -> set[str]:
             names |= _extract_grouped_sit_names(ref)
         elif isinstance(ref, str) and ref.strip():
             names.add(ref.strip())
+
+    # Control 1.13 binds SITs through New-DlpComplianceRule -AdvancedRule (a
+    # JSON string) rather than -ContentContainsSensitiveInformation, so fall
+    # back to the AdvancedRule condition tree before concluding a rule
+    # references no SITs. Names dedupe across both evidence sources.
+    names |= _extract_advanced_rule_sits(rule)
     return names
 
 

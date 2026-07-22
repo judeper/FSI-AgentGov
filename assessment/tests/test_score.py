@@ -1408,6 +1408,23 @@ class TestDlpReferencesSitsEvaluator:
         assert "not collected" in null_evidence.lower()
         assert empty_passed != null_passed
 
+    def test_dlp_references_sits_empty_policy_list_is_fail_but_null_is_unknown(self):
+        # PR #1021 (Codex PRRT_kwDOQpaCdc6TCfIY): the collector now serializes a
+        # *successfully collected* empty POLICY set as ``[]`` (distinct from a
+        # null/uncollected set), exactly parallel to the rule-set contract. An
+        # explicit empty policy list affirmatively observes "no DLP policies
+        # exist" and must score fail; a genuinely uncollected (null) set stays
+        # unknown. The two must resolve to DIFFERENT outcomes.
+        empty_passed, empty_evidence = self._evaluate([])
+        null_passed, null_evidence = self._evaluate(None)
+
+        assert empty_passed is False
+        assert "fail closed" in empty_evidence.lower()
+        assert "no mode=enable dlp compliance policies" in empty_evidence.lower()
+        assert null_passed is None
+        assert "not collected" in null_evidence.lower()
+        assert empty_passed != null_passed
+
     @pytest.mark.parametrize("policies", ["not-a-policy", 1, True])
     def test_dlp_references_sits_rejects_scalar_policy_values(self, policies):
         passed, evidence = self._evaluate(policies)
@@ -1739,6 +1756,291 @@ class TestDlpReferencesSitsGroupedEvaluator:
         assert passed is True
         assert "Direct SIT" in evidence
         assert "Grouped SIT" in evidence
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.13.b AdvancedRule-backed SIT condition parsing
+#   Control 1.13 binds SITs to the Copilot workload via
+#   New-DlpComplianceRule -AdvancedRule (a JSON string), not
+#   -ContentContainsSensitiveInformation — see
+#   docs/playbooks/control-implementations/1.13/powershell-setup.md §9 and
+#   troubleshooting.md, plus control 1.5's AdvancedRule/SubConditions parse. The
+#   evaluator must credit these as a fallback, extract SIT names only from
+#   ContentContainsSensitiveInformation subconditions (never from a sibling
+#   ContentContainsSensitivityLabel, group label, or arbitrary Name), and fail
+#   closed on malformed or unrelated payloads.
+# ---------------------------------------------------------------------------
+
+
+def _advanced_rule(*sit_names, condition_name="ContentContainsSensitiveInformation"):
+    """Build the grounded AdvancedRule document (dict) for the given SIT names.
+
+    Mirrors New-FsiCopilotDlpPolicy.ps1 §9: a Version-1 Condition whose
+    SubConditions carry a grouped ContentContainsSensitiveInformation match.
+    """
+    return {
+        "Version": "1.0",
+        "Condition": {
+            "Operator": "And",
+            "SubConditions": [
+                {
+                    "ConditionName": condition_name,
+                    "Value": {
+                        "groups": [
+                            {
+                                "name": "FSI-MNPI-Group",
+                                "operator": "Or",
+                                "sensitivetypes": [
+                                    {
+                                        "name": sit,
+                                        "confidencelevel": "High",
+                                        "mincount": 1,
+                                    }
+                                    for sit in sit_names
+                                ],
+                            }
+                        ]
+                    },
+                }
+            ],
+        },
+    }
+
+
+class TestExtractAdvancedRuleSits:
+    """_extract_advanced_rule_sits parses grounded AdvancedRule SIT bindings and
+    fails closed on malformed / unrelated shapes."""
+
+    @staticmethod
+    def _extract(advanced):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._extract_advanced_rule_sits(  # noqa: SLF001
+            {"Disabled": False, "AdvancedRule": advanced}
+        )
+
+    def test_valid_advanced_rule_json_string(self):
+        # The collector preserves AdvancedRule as the raw JSON *string* the rule
+        # was created with; the evaluator must json.loads and walk it.
+        advanced = json.dumps(_advanced_rule("CRD Number SIT"))
+        assert self._extract(advanced) == {"CRD Number SIT"}
+
+    def test_valid_advanced_rule_multiple_sits(self):
+        advanced = json.dumps(_advanced_rule("CRD Number SIT", "MNPI Keyword SIT"))
+        assert self._extract(advanced) == {"CRD Number SIT", "MNPI Keyword SIT"}
+
+    def test_already_parsed_dict_payload(self):
+        # Defensive: if a collector/fixture ever emits AdvancedRule as a nested
+        # object rather than a string, the same walk applies.
+        assert self._extract(_advanced_rule("CRD Number SIT")) == {"CRD Number SIT"}
+
+    def test_singleton_subconditions_collapse(self):
+        # ConvertTo-Json can collapse a one-element SubConditions array to a
+        # bare object; normalize it like grouped conditions.
+        advanced = {
+            "Condition": {
+                "SubConditions": {
+                    "ConditionName": "ContentContainsSensitiveInformation",
+                    "Value": {"groups": [{"sensitivetypes": [{"name": "Solo SIT"}]}]},
+                }
+            }
+        }
+        assert self._extract(advanced) == {"Solo SIT"}
+
+    def test_singleton_group_and_sensitivetype_collapse(self):
+        # Collapse can occur at group and sensitivetype levels simultaneously.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": {"groups": {"name": "G", "sensitivetypes": {"name": "CRD Number SIT"}}},
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"CRD Number SIT"}
+
+    @pytest.mark.parametrize(
+        "condition_name",
+        [
+            "contentcontainssensitiveinformation",
+            "CONTENTCONTAINSSENSITIVEINFORMATION",
+            "  ContentContainsSensitiveInformation  ",
+        ],
+    )
+    def test_conditionname_casing_and_whitespace_normalized(self, condition_name):
+        advanced = json.dumps(_advanced_rule("CRD Number SIT", condition_name=condition_name))
+        assert self._extract(advanced) == {"CRD Number SIT"}
+
+    def test_sensitivity_label_subcondition_is_not_credited(self):
+        # Control 1.5: a rule can also carry a ContentContainsSensitivityLabel
+        # subcondition. Its names must NEVER be mistaken for SITs.
+        advanced = json.dumps(
+            _advanced_rule("Should Not Appear", condition_name="ContentContainsSensitivityLabel")
+        )
+        assert self._extract(advanced) == set()
+
+    def test_mixed_sit_and_label_subconditions_credit_only_sit(self):
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitivityLabel",
+                        "Value": {"groups": [{"sensitivetypes": [{"name": "Label Only"}]}]},
+                    },
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": {"groups": [{"sensitivetypes": [{"name": "Real SIT"}]}]},
+                    },
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Real SIT"}
+
+    def test_group_label_name_is_not_credited(self):
+        # The group's own name is a label; only sensitivetypes[].name are SITs.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": {"groups": [{"name": "FSI-MNPI-Group", "sensitivetypes": [{"name": "Real SIT"}]}]},
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Real SIT"}
+
+    def test_malformed_json_string_yields_no_names(self):
+        assert self._extract("{ not valid json") == set()
+
+    @pytest.mark.parametrize("advanced", ["", "   ", "\n\t"])
+    def test_empty_or_whitespace_string_yields_no_names(self, advanced):
+        assert self._extract(advanced) == set()
+
+    @pytest.mark.parametrize("advanced", [None, 42, True, ["x"], 3.14])
+    def test_non_string_non_dict_payload_yields_no_names(self, advanced):
+        assert self._extract(advanced) == set()
+
+    @pytest.mark.parametrize(
+        "advanced",
+        [
+            {},
+            {"Condition": "not-a-dict"},
+            {"Condition": {}},
+            {"Condition": {"SubConditions": "not-a-list"}},
+            {"Condition": {"SubConditions": 1}},
+            {"Condition": {"SubConditions": []}},
+            {"Condition": {"SubConditions": [None, 42, "x"]}},
+            {"Condition": {"SubConditions": [{"Value": {"groups": [{"sensitivetypes": [{"name": "No ConditionName"}]}]}}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation"}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": "not-a-dict"}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": {"groups": [{"sensitivetypes": [{}]}]}}]}},
+        ],
+    )
+    def test_malformed_structures_yield_no_names(self, advanced):
+        assert self._extract(advanced) == set()
+
+
+class TestDlpReferencesSitsAdvancedRuleEvaluator:
+    """End-to-end _eval_dlp_references_sits behavior for AdvancedRule-backed
+    rules and the direct/advanced fallback contract."""
+
+    @staticmethod
+    def _evaluate(policies):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"dlpCompliancePolicies": policies}},
+            None,
+        )
+
+    @staticmethod
+    def _policy(rules):
+        return [{"Name": "Copilot MNPI DLP", "Mode": "Enable", "Enabled": True, "Rules": rules}]
+
+    def test_enforced_advanced_rule_backed_policy_passes(self):
+        # An AdvancedRule-backed rule has no direct ContentContainsSensitive
+        # Information; the SIT must be recovered from AdvancedRule.
+        passed, evidence = self._evaluate(
+            self._policy(
+                [{"Disabled": False, "AdvancedRule": json.dumps(_advanced_rule("CRD Number SIT"))}]
+            )
+        )
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+
+    def test_malformed_advanced_rule_without_other_evidence_fails_closed(self):
+        passed, evidence = self._evaluate(
+            self._policy([{"Disabled": False, "AdvancedRule": "{ broken json"}])
+        )
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_label_only_advanced_rule_fails_closed(self):
+        # A rule whose AdvancedRule only carries a sensitivity-label subcondition
+        # references no SITs and must not manufacture a phantom pass.
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "AdvancedRule": json.dumps(
+                            _advanced_rule("Label Only", condition_name="ContentContainsSensitivityLabel")
+                        ),
+                    }
+                ]
+            )
+        )
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_advanced_rule_fallback_when_direct_condition_absent(self):
+        # Direct condition present-but-null (AdvancedRule-backed rules) must still
+        # fall through to the AdvancedRule evidence rather than short-circuiting.
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": None,
+                        "AdvancedRule": json.dumps(_advanced_rule("CRD Number SIT")),
+                    }
+                ]
+            )
+        )
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+
+    def test_direct_and_advanced_rules_credited_together(self):
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {"Disabled": False, "ContentContainsSensitiveInformation": ["Direct SIT"]},
+                    {"Disabled": False, "AdvancedRule": json.dumps(_advanced_rule("Advanced SIT"))},
+                ]
+            )
+        )
+        assert passed is True
+        assert "Direct SIT" in evidence
+        assert "Advanced SIT" in evidence
+
+    def test_direct_evidence_survives_malformed_advanced_rule_on_same_rule(self):
+        # A single rule carrying valid direct evidence AND a malformed
+        # AdvancedRule must still pass on the direct evidence (fallback never
+        # discards good evidence).
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Direct SIT"],
+                        "AdvancedRule": "{ broken",
+                    }
+                ]
+            )
+        )
+        assert passed is True
+        assert "Direct SIT" in evidence
 
 
 # ---------------------------------------------------------------------------

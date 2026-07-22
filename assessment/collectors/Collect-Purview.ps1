@@ -185,7 +185,15 @@ try {
     $rawDlp = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List DLP compliance policies' -ScriptBlock {
         Get-DlpCompliancePolicy -ErrorAction Stop
     }
-    $dlpCompliancePolicies = foreach ($policy in $rawDlp) {
+    # Reaching this point means Get-DlpCompliancePolicy completed without
+    # throwing (even if it returned zero rows). Project each policy here, then
+    # normalize the whole set through Resolve-DlpPolicyEvidence below so a
+    # successful-but-empty collection serializes as [] (evaluator: fail) rather
+    # than $null (evaluator: unknown) — the same successful-empty-versus-
+    # collection-failure distinction the per-policy rule set already uses. A
+    # genuine query failure throws and is caught below, leaving
+    # $dlpCompliancePolicies $null (indeterminate/unknown) plus a warning.
+    $collectedPolicies = foreach ($policy in $rawDlp) {
         # Retrieve associated rules with SIT references. The evidence contract
         # (control 1.13.b) must keep three states distinct so the evaluator
         # never conflates "no active rules" with "not collected":
@@ -207,6 +215,15 @@ try {
                     Name                       = $_.Name
                     Disabled                   = $_.Disabled
                     ContentContainsSensitiveInformation = $_.ContentContainsSensitiveInformation
+                    # Control 1.13 binds SITs to the Copilot workload via
+                    # New-DlpComplianceRule -AdvancedRule (a JSON document)
+                    # rather than -ContentContainsSensitiveInformation (see
+                    # docs/playbooks/control-implementations/1.13/powershell-setup.md
+                    # §9 and troubleshooting.md, which filter $_.AdvancedRule for
+                    # the SIT identity). Preserve the raw AdvancedRule string so
+                    # the evaluator can extract SIT bindings from it as a fallback
+                    # before declaring a rule references no SITs.
+                    AdvancedRule               = $_.AdvancedRule
                     BlockAccess                = $_.BlockAccess
                     Priority                   = $_.Priority
                 }
@@ -231,6 +248,7 @@ try {
             Rules    = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
         }
     }
+    $dlpCompliancePolicies = Resolve-DlpPolicyEvidence -CollectedPolicies $collectedPolicies -CollectionSucceeded $true
     Write-Verbose "  Collected $(@($dlpCompliancePolicies).Count) DLP compliance policy/policies."
 }
 catch {

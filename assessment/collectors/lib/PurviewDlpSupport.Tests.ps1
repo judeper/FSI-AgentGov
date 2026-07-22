@@ -104,3 +104,102 @@ Describe 'Resolve-DlpRuleEvidence' {
         }
     }
 }
+
+Describe 'Resolve-DlpPolicyEvidence' {
+    BeforeAll {
+        . "$PSScriptRoot\PurviewDlpSupport.ps1"
+
+        # Helper: serialize a policy set into the same shape the collector emits
+        # (the dlpCompliancePolicies section of purview.json) so tests assert
+        # against the on-the-wire contract, not just in-memory types.
+        function ConvertTo-PoliciesJson {
+            param([Parameter()][AllowNull()][object]$Policies)
+            [PSCustomObject]@{
+                dlpCompliancePolicies = $Policies
+            } | ConvertTo-Json -Depth 10 -Compress
+        }
+    }
+
+    Context 'collection failure / unavailable' {
+        It 'returns $null so the evaluator stays indeterminate (unknown)' {
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies $null -CollectionSucceeded $false
+            ($null -eq $result) | Should -BeTrue
+        }
+
+        It 'ignores any captured payload when collection did not succeed' {
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies ([PSCustomObject]@{ Name = 'p1' }) -CollectionSucceeded $false
+            ($null -eq $result) | Should -BeTrue
+        }
+
+        It 'serializes a failed policy set as JSON null (distinct from [])' {
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies $null -CollectionSucceeded $false
+            (ConvertTo-PoliciesJson -Policies $result) | Should -Match '"dlpCompliancePolicies":null'
+        }
+    }
+
+    Context 'successful collection with zero rows' {
+        It 'returns an empty array (not $null) so the evaluator scores fail' {
+            # A pipeline capture over an empty result collapses to $null in
+            # PowerShell; the success flag must still yield an explicit [].
+            $emptyCapture = @() | ForEach-Object { $_ }
+            ($null -eq $emptyCapture) | Should -BeTrue
+
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies $emptyCapture -CollectionSucceeded $true
+            ($null -eq $result) | Should -BeFalse
+            ($result -is [array]) | Should -BeTrue
+            @($result).Count | Should -Be 0
+        }
+
+        It 'treats an already-empty array on success as an empty array' {
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies @() -CollectionSucceeded $true
+            ($null -eq $result) | Should -BeFalse
+            ($result -is [array]) | Should -BeTrue
+            @($result).Count | Should -Be 0
+        }
+
+        It 'serializes an empty successful policy set as JSON [] (distinct from null)' {
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies (@() | ForEach-Object { $_ }) -CollectionSucceeded $true
+            (ConvertTo-PoliciesJson -Policies $result) | Should -Match '"dlpCompliancePolicies":\[\]'
+        }
+    }
+
+    Context 'successful collection with policies (singleton normalization preserved)' {
+        It 'normalizes a single policy object to a one-item array' {
+            $policy = [PSCustomObject]@{ Name = 'p1'; Mode = 'Enable' }
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies $policy -CollectionSucceeded $true
+            ($result -is [array]) | Should -BeTrue
+            @($result).Count | Should -Be 1
+            $result[0].Name | Should -Be 'p1'
+        }
+
+        It 'serializes a single policy as a one-element JSON array' {
+            $policy = [PSCustomObject]@{ Name = 'p1'; Mode = 'Enable' }
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies $policy -CollectionSucceeded $true
+            (ConvertTo-PoliciesJson -Policies $result) | Should -Match '"dlpCompliancePolicies":\[\{'
+        }
+
+        It 'preserves a multi-policy array shape' {
+            $policies = @(
+                [PSCustomObject]@{ Name = 'p1' }
+                [PSCustomObject]@{ Name = 'p2' }
+            )
+            $result = Resolve-DlpPolicyEvidence -CollectedPolicies $policies -CollectionSucceeded $true
+            ($result -is [array]) | Should -BeTrue
+            @($result).Count | Should -Be 2
+            $result[1].Name | Should -Be 'p2'
+        }
+    }
+
+    Context 'the three evidence states are mutually distinct' {
+        It 'produces different JSON for empty-success, failure, and populated' {
+            $emptyJson = ConvertTo-PoliciesJson -Policies (Resolve-DlpPolicyEvidence -CollectedPolicies (@() | ForEach-Object { $_ }) -CollectionSucceeded $true)
+            $failJson = ConvertTo-PoliciesJson -Policies (Resolve-DlpPolicyEvidence -CollectedPolicies $null -CollectionSucceeded $false)
+            $fullJson = ConvertTo-PoliciesJson -Policies (Resolve-DlpPolicyEvidence -CollectedPolicies ([PSCustomObject]@{ Name = 'p1' }) -CollectionSucceeded $true)
+
+            $emptyJson | Should -Not -Be $failJson
+            $emptyJson | Should -Match '"dlpCompliancePolicies":\[\]'
+            $failJson | Should -Match '"dlpCompliancePolicies":null'
+            $fullJson | Should -Match '"dlpCompliancePolicies":\[\{'
+        }
+    }
+}
