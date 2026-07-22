@@ -247,9 +247,15 @@ try {
         # CopilotExperiences enforcement plane — so the evaluator (never a policy
         # name or unrelated string) decides scope. Enabled is preserved verbatim
         # but is not a reliable enforcement signal: Get-DlpCompliancePolicy has no
-        # dependable Enabled Boolean (it is often null), so enforcement is
-        # governed by Mode and the evaluator keeps Mode=Enable qualifying when
-        # Enabled is absent/null.
+        # dependable Enabled Boolean (it is often null, and some module versions
+        # omit the property entirely), so enforcement is governed by Mode and the
+        # evaluator keeps Mode=Enable qualifying when Enabled is absent/null. It is
+        # read through the same StrictMode-safe PSObject.Properties helper used for
+        # the scope fields (Get-DlpScopeProperty): a genuinely absent property
+        # yields $null instead of throwing PropertyNotFoundStrict — which would
+        # abort Section 2 and null the whole DLP evidence set — while an explicitly
+        # provided value (true/false, or a malformed present value) still reaches
+        # the evaluator verbatim so its Enabled truth table stays valid.
         $scope = Resolve-DlpPolicyScope -Policy $policy
         [PSCustomObject]@{
             Name              = $policy.Name
@@ -257,7 +263,7 @@ try {
             Workload          = $scope.Workload
             EnforcementPlanes = $scope.EnforcementPlanes
             Locations         = $scope.Locations
-            Enabled           = $policy.Enabled
+            Enabled           = (Get-DlpScopeProperty -InputObject $policy -Name 'Enabled')
             Rules             = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
         }
     }

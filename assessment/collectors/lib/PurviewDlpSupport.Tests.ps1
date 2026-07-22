@@ -360,3 +360,185 @@ Describe 'Resolve-DlpPolicyScope' {
         }
     }
 }
+
+Describe 'DLP policy Enabled projection is StrictMode-safe (control 1.13.b regression)' {
+    # Regression for the P1 blocker: Collect-Purview.ps1 Section 2 dereferenced
+    # $policy.Enabled directly. Real Get-DlpCompliancePolicy objects (older
+    # module builds) omit the Enabled property because Mode governs enforcement,
+    # so under Set-StrictMode -Version Latest the dereference threw
+    # PropertyNotFoundStrict before Resolve-DlpPolicyEvidence, nulling the whole
+    # DLP evidence set and making 1.13.b unscorable for otherwise-valid
+    # Copilot-scoped policies. Enabled is now read through the same
+    # PSObject.Properties helper as the scope fields (Get-DlpScopeProperty).
+    BeforeAll {
+        . "$PSScriptRoot\PurviewDlpSupport.ps1"
+
+        $script:CopilotGuid = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
+
+        # Faithful mirror of the Collect-Purview.ps1 Section 2 per-policy record
+        # projection: Name/Mode are read directly (always present on a
+        # Get-DlpCompliancePolicy object), scope via Resolve-DlpPolicyScope,
+        # rules via Resolve-DlpRuleEvidence, and Enabled via the StrictMode-safe
+        # Get-DlpScopeProperty helper. A scriptblock (not a function) keeps the
+        # analyzer's state-changing-verb rule quiet.
+        $script:NewPolicyRecord = {
+            param(
+                [Parameter(Mandatory)][AllowNull()][object]$Policy,
+                [Parameter()][AllowNull()][object]$CollectedRules,
+                [Parameter(Mandatory)][bool]$RulesCollected
+            )
+            $scope = Resolve-DlpPolicyScope -Policy $Policy
+            [PSCustomObject]@{
+                Name              = $Policy.Name
+                Mode              = $Policy.Mode
+                Workload          = $scope.Workload
+                EnforcementPlanes = $scope.EnforcementPlanes
+                Locations         = $scope.Locations
+                Enabled           = (Get-DlpScopeProperty -InputObject $Policy -Name 'Enabled')
+                Rules             = (Resolve-DlpRuleEvidence -CollectedRules $CollectedRules -CollectionSucceeded $RulesCollected)
+            }
+        }
+
+        # A Copilot-scoped, Mode=Enable policy that GENUINELY lacks an Enabled
+        # property. No Enabled key is added, so a direct $policy.Enabled throws
+        # PropertyNotFoundStrict under Set-StrictMode -Version Latest, exactly as
+        # the real-world objects the blocker describes.
+        $script:MakePolicyMissingEnabled = {
+            [PSCustomObject]@{
+                Name              = 'FSI-Copilot-Block-MNPI'
+                Mode              = 'Enable'
+                Workload          = 'Applications'
+                EnforcementPlanes = @('CopilotExperiences')
+                Locations         = @(
+                    [PSCustomObject]@{
+                        Workload = 'Applications'
+                        Location = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
+                    }
+                )
+            }
+        }
+
+        # A single collected rule with a SIT-bearing AdvancedRule, matching the
+        # collector's projected rule shape, so the regression proves rules are
+        # preserved alongside the absent Enabled.
+        $script:SampleRule = [PSCustomObject]@{
+            Name         = 'Block MNPI to Copilot'
+            Disabled     = $false
+            AdvancedRule = '{"Condition":{"SensitiveInformationType":"MNPI"}}'
+            BlockAccess  = $true
+            Priority     = 0
+        }
+    }
+
+    BeforeEach {
+        # The collector runs under StrictMode; reproduce that in every case so
+        # the absent-property throw (and its absence after the fix) is genuine.
+        Set-StrictMode -Version Latest
+    }
+
+    Context 'a policy object that truly lacks Enabled under StrictMode' {
+        It 'the raw policy genuinely omits Enabled (a direct dereference throws)' {
+            $policy = & $script:MakePolicyMissingEnabled
+            # Negative control: proves the fixture reproduces the failing shape.
+            $policy.PSObject.Properties['Enabled'] | Should -BeNullOrEmpty
+            { $policy.Enabled } | Should -Throw -ErrorId 'PropertyNotFoundStrict'
+        }
+
+        It 'projects without throwing and preserves Mode, Copilot scope, and rules' {
+            $policy = & $script:MakePolicyMissingEnabled
+            { & $script:NewPolicyRecord -Policy $policy -CollectedRules $script:SampleRule -RulesCollected $true | Out-Null } |
+                Should -Not -Throw
+            $record = & $script:NewPolicyRecord -Policy $policy -CollectedRules $script:SampleRule -RulesCollected $true
+            $record.Mode | Should -Be 'Enable'
+            $record.Workload | Should -Be 'Applications'
+            $record.EnforcementPlanes[0] | Should -Be 'CopilotExperiences'
+            $record.Locations[0].Location | Should -Be $script:CopilotGuid
+            @($record.Rules).Count | Should -Be 1
+            $record.Rules[0].Name | Should -Be 'Block MNPI to Copilot'
+        }
+
+        It 'serializes an absent Enabled as JSON null (evaluator: absent/null -> qualify)' {
+            $policy = & $script:MakePolicyMissingEnabled
+            $record = & $script:NewPolicyRecord -Policy $policy -CollectedRules $script:SampleRule -RulesCollected $true
+            ($record | ConvertTo-Json -Depth 10 -Compress) | Should -Match '"Enabled":null'
+        }
+    }
+
+    Context 'an explicitly provided Enabled reaches the evaluator verbatim (truth table preserved)' {
+        It 'passes an explicit $false through unchanged (evaluator: reject)' {
+            $policy = & $script:MakePolicyMissingEnabled |
+                Add-Member -NotePropertyName Enabled -NotePropertyValue $false -PassThru
+            $record = & $script:NewPolicyRecord -Policy $policy -CollectedRules $null -RulesCollected $false
+            ($record.Enabled -is [bool]) | Should -BeTrue
+            ($record | ConvertTo-Json -Depth 10 -Compress) | Should -Match '"Enabled":false'
+        }
+
+        It 'passes an explicit $true through unchanged (evaluator: qualify)' {
+            $policy = & $script:MakePolicyMissingEnabled |
+                Add-Member -NotePropertyName Enabled -NotePropertyValue $true -PassThru
+            $record = & $script:NewPolicyRecord -Policy $policy -CollectedRules $null -RulesCollected $false
+            ($record.Enabled -is [bool]) | Should -BeTrue
+            ($record | ConvertTo-Json -Depth 10 -Compress) | Should -Match '"Enabled":true'
+        }
+
+        It 'passes a malformed present value through unchanged (evaluator: malformed)' {
+            $policy = & $script:MakePolicyMissingEnabled |
+                Add-Member -NotePropertyName Enabled -NotePropertyValue 'yes' -PassThru
+            $record = & $script:NewPolicyRecord -Policy $policy -CollectedRules $null -RulesCollected $false
+            $record.Enabled | Should -Be 'yes'
+            ($record | ConvertTo-Json -Depth 10 -Compress) | Should -Match '"Enabled":"yes"'
+        }
+
+        It 'passes an explicit $null through as JSON null (evaluator: qualify)' {
+            $policy = & $script:MakePolicyMissingEnabled |
+                Add-Member -NotePropertyName Enabled -NotePropertyValue $null -PassThru
+            # The property is present (unlike the absent case) but still null.
+            $policy.PSObject.Properties['Enabled'] | Should -Not -BeNullOrEmpty
+            $record = & $script:NewPolicyRecord -Policy $policy -CollectedRules $null -RulesCollected $false
+            ($record | ConvertTo-Json -Depth 10 -Compress) | Should -Match '"Enabled":null'
+        }
+    }
+
+    Context 'the shipped collector reads Enabled through the safe helper' {
+        BeforeAll {
+            $script:CollectorPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'Collect-Purview.ps1'
+            $tokens = $null
+            $errors = $null
+            $script:CollectorAst = [System.Management.Automation.Language.Parser]::ParseFile(
+                $script:CollectorPath, [ref]$tokens, [ref]$errors)
+            $script:CollectorParseErrors = $errors
+        }
+
+        It 'parses without errors' {
+            Test-Path $script:CollectorPath | Should -BeTrue
+            @($script:CollectorParseErrors).Count | Should -Be 0
+        }
+
+        It 'contains no bare $policy.Enabled member access (regression guard)' {
+            $bareEnabled = $script:CollectorAst.FindAll({
+                param($node)
+                $node -is [System.Management.Automation.Language.MemberExpressionAst] -and
+                $node.Member -is [System.Management.Automation.Language.StringConstantExpressionAst] -and
+                $node.Member.Value -eq 'Enabled' -and
+                $node.Expression -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                $node.Expression.VariablePath.UserPath -eq 'policy'
+            }, $true)
+            @($bareEnabled).Count | Should -Be 0
+        }
+
+        It 'reads policy Enabled via Get-DlpScopeProperty' {
+            $helperCalls = $script:CollectorAst.FindAll({
+                param($node)
+                $node -is [System.Management.Automation.Language.CommandAst] -and
+                $node.GetCommandName() -eq 'Get-DlpScopeProperty' -and
+                @($node.CommandElements | Where-Object {
+                    $_ -is [System.Management.Automation.Language.StringConstantExpressionAst] -and $_.Value -eq 'Enabled'
+                }).Count -gt 0 -and
+                @($node.CommandElements | Where-Object {
+                    $_ -is [System.Management.Automation.Language.VariableExpressionAst] -and $_.VariablePath.UserPath -eq 'policy'
+                }).Count -gt 0
+            }, $true)
+            @($helperCalls).Count | Should -BeGreaterThan 0
+        }
+    }
+}
