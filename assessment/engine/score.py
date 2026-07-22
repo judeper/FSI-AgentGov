@@ -1402,7 +1402,9 @@ def _eval_dlp_references_sits(
     )
     if policies is None:
         return None, "dlpCompliancePolicies not collected"
-    if not isinstance(policies, list):
+    if isinstance(policies, dict):
+        policies = [policies]
+    elif not isinstance(policies, list):
         return False, "dlpCompliancePolicies malformed (fail closed)"
 
     enforced_policy_count = 0
@@ -1431,7 +1433,9 @@ def _eval_dlp_references_sits(
         if rules is None:
             uncertain_rules = True
             continue
-        if not isinstance(rules, list):
+        if isinstance(rules, dict):
+            rules = [rules]
+        elif not isinstance(rules, list):
             malformed_evidence = True
             continue
 

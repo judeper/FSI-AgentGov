@@ -777,6 +777,98 @@ class TestDlpReferencesSitsEvaluator:
         assert "reference" in evidence.lower()
         assert "sit" in evidence.lower()
 
+    def test_dlp_references_sits_accepts_singleton_policy_and_rule_dicts(self):
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Singleton policy and rule",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                },
+            }
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_singleton_policy_with_rule_list(self):
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Singleton policy",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Test SIT"],
+                    }
+                ],
+            }
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_policy_list_with_singleton_rule_dict(self):
+        passed, evidence = self._evaluate(
+            [
+                {
+                    "Name": "Singleton rule",
+                    "Mode": "Enable",
+                    "Enabled": True,
+                    "Rules": {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Test SIT"],
+                    },
+                }
+            ]
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    @pytest.mark.parametrize(
+        "policy",
+        [
+            {
+                "Name": "Test mode",
+                "Mode": "TestWithNotifications",
+                "Enabled": True,
+                "Rules": {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                },
+            },
+            {
+                "Name": "Disabled policy",
+                "Mode": "Enable",
+                "Enabled": False,
+                "Rules": {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                },
+            },
+            {
+                "Name": "No SIT",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": [],
+                },
+            },
+        ],
+    )
+    def test_dlp_references_sits_rejects_nonqualifying_singleton_policies(
+        self, policy
+    ):
+        passed, evidence = self._evaluate(policy)
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
     @pytest.mark.parametrize("mode", ["TestWithNotifications", "Audit", "Disable", None])
     def test_dlp_references_sits_rejects_non_enforced_or_missing_mode(self, mode):
         policy = {
@@ -853,17 +945,43 @@ class TestDlpReferencesSitsEvaluator:
         assert passed is False
         assert "fail closed" in evidence.lower()
 
+    @pytest.mark.parametrize("policies", ["not-a-policy", 1, True])
+    def test_dlp_references_sits_rejects_scalar_policy_values(self, policies):
+        passed, evidence = self._evaluate(policies)
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
+    @pytest.mark.parametrize("rules", ["not-rules", 1, True])
+    def test_dlp_references_sits_rejects_scalar_rule_values(self, rules):
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Scalar rules",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": rules,
+            }
+        )
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
     @pytest.mark.parametrize(
         "policies",
         [
-            "not-a-list",
             ["not-a-policy"],
-            [{"Name": "Malformed", "Mode": "Enable", "Rules": "not-a-list"}],
             [
                 {
                     "Name": "Malformed rule",
                     "Mode": "Enable",
                     "Rules": ["not-a-rule"],
+                }
+            ],
+            [
+                {
+                    "Name": "Nested arbitrary rule",
+                    "Mode": "Enable",
+                    "Rules": {"nested": {"Disabled": False}},
                 }
             ],
         ],
@@ -876,7 +994,18 @@ class TestDlpReferencesSitsEvaluator:
 
     def test_dlp_references_sits_is_unknown_when_rule_collection_failed(self):
         passed, evidence = self._evaluate(
-            [{"Name": "Enforced", "Mode": "Enable", "Enabled": True, "Rules": None}]
+            {"Name": "Enforced", "Mode": "Enable", "Enabled": True, "Rules": None}
+        )
+
+        assert passed is None
+        assert "not collected" in evidence.lower()
+
+    def test_dlp_references_sits_is_unknown_when_policy_collection_missing(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"audit_config": {}}},
+            None,
         )
 
         assert passed is None
