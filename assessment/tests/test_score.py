@@ -1358,6 +1358,56 @@ class TestDlpReferencesSitsEvaluator:
         assert passed is False
         assert "fail closed" in evidence.lower()
 
+    def test_dlp_references_sits_fails_when_rules_list_empty(self):
+        # PR #1021 (Codex PRRT_kwDOQpaCdc6TBvvO): the collector now serializes a
+        # *successfully collected* empty rule set as ``[]`` (distinct from a
+        # null/uncollected set). An enforced policy with zero active SIT-backed
+        # rules must score fail — not unknown — because the absence of rules was
+        # affirmatively observed, not indeterminate.
+        policy = {
+            "Name": "Enforced with zero collected rules",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Rules": [],
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_dlp_references_sits_empty_rules_singleton_policy_fails(self):
+        # Same contract via the singleton-policy (bare dict) shape that
+        # ConvertTo-Json can emit for exactly one collected policy.
+        passed, evidence = self._evaluate(
+            {
+                "Name": "Singleton enforced, empty rules",
+                "Mode": "Enable",
+                "Enabled": True,
+                "Rules": [],
+            }
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_dlp_references_sits_empty_list_is_fail_but_null_is_unknown(self):
+        # The empty-collected (``[]`` -> fail) and uncollected (``null`` ->
+        # unknown) states must resolve to DIFFERENT outcomes. This locks the
+        # collector/evaluator contract that keeps the two distinct: a
+        # successfully collected empty rule set is a hard fail, while a genuinely
+        # indeterminate (failed) collection remains unknown.
+        enforced = {"Name": "Enforced", "Mode": "Enable", "Enabled": True}
+
+        empty_passed, empty_evidence = self._evaluate([{**enforced, "Rules": []}])
+        null_passed, null_evidence = self._evaluate([{**enforced, "Rules": None}])
+
+        assert empty_passed is False
+        assert "fail closed" in empty_evidence.lower()
+        assert null_passed is None
+        assert "not collected" in null_evidence.lower()
+        assert empty_passed != null_passed
+
     @pytest.mark.parametrize("policies", ["not-a-policy", 1, True])
     def test_dlp_references_sits_rejects_scalar_policy_values(self, policies):
         passed, evidence = self._evaluate(policies)

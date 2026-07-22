@@ -331,6 +331,116 @@ def test_render_preserves_authored_only_control_wholesale():
     assert rendered["2.27"] == existing_by_id["2.27"]
 
 
+# ---------------------------------------------------------------------------
+# Generator completeness for *new* controls (PR #1021 Codex thread
+# PRRT_kwDOQpaCdc6TBvvV): render_manifest previously walked existing_controls
+# only, so a control added to CONTROLS but absent from the committed
+# controls.json was silently dropped on both ``generate`` (walks existing only)
+# and ``--check`` (compares the dropped render to the committed file). The
+# generator must append missing generated controls in deterministic generator
+# order so a brand-new control both enters the manifest and surfaces as drift.
+# ---------------------------------------------------------------------------
+
+
+def _controls_with_appended(gm, *rows):
+    """Return CONTROLS with extra generator rows appended (generator order)."""
+    return list(gm.CONTROLS) + list(rows)
+
+
+def test_render_appends_missing_generated_control(monkeypatch):
+    """A control added to CONTROLS but absent from controls.json is appended."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    assert "2.90" not in {c["id"] for c in existing}
+
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm, ("2.90", "2.90-newly-authored-control.md", 2, "manual", [], "New?")
+        ),
+    )
+
+    rendered = gm.render_manifest(existing)
+    ids = [c["id"] for c in rendered]
+
+    assert "2.90" in ids
+    # Appended at the end (generator order); existing controls keep their order.
+    assert ids[-1] == "2.90"
+    assert ids[: len(existing)] == [c["id"] for c in existing]
+    # The appended control carries the full generated-core contract.
+    new_control = next(c for c in rendered if c["id"] == "2.90")
+    assert set(gm.GENERATED_CORE_FIELDS) <= set(new_control.keys())
+
+
+def test_render_appends_multiple_missing_controls_in_generator_order(monkeypatch):
+    """Multiple new controls are appended in CONTROLS (generator) order."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm,
+            ("2.90", "2.90-new-a.md", 2, "manual", [], "A?"),
+            ("2.91", "2.91-new-b.md", 2, "full", ["PPAC_PowerShell"], None),
+        ),
+    )
+
+    ids = [c["id"] for c in gm.render_manifest(existing)]
+    assert ids[-2:] == ["2.90", "2.91"]
+
+
+def test_render_appends_missing_without_duplicates_or_disturbing_authored(monkeypatch):
+    """Appending new controls preserves authored-only 2.27 and adds no dups."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm, ("2.90", "2.90-new-a.md", 2, "manual", [], "A?")
+        ),
+    )
+
+    rendered = gm.render_manifest(existing)
+    ids = [c["id"] for c in rendered]
+
+    assert len(ids) == len(existing) + 1
+    assert len(ids) == len(set(ids)), "no duplicate control ids"
+    # Authored-only control is preserved verbatim and not duplicated.
+    assert ids.count("2.27") == 1
+    rendered_by_id = {c["id"]: c for c in rendered}
+    assert rendered_by_id["2.27"] == existing_by_id["2.27"]
+    # Authored enrichment on an ordinary control is still preserved.
+    assert rendered_by_id["1.5"]["regulatory"] == existing_by_id["1.5"]["regulatory"]
+
+
+def test_check_detects_missing_generated_control_drift(tmp_path, monkeypatch):
+    """``--check`` fails when CONTROLS gains a control absent from controls.json."""
+    gm = _load_generate_manifest_module()
+    committed = MANIFEST.read_text(encoding="utf-8")
+
+    # OUTPUT points at an unmodified copy of the committed manifest (no new
+    # control); CONTROLS gains a new control. render must append it, so the
+    # rendered text now differs from the committed file and --check fails.
+    output_path = tmp_path / "controls.json"
+    output_path.write_text(committed, encoding="utf-8")
+    monkeypatch.setattr(gm, "OUTPUT", output_path)
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm, ("2.90", "2.90-new-a.md", 2, "manual", [], "A?")
+        ),
+    )
+
+    assert gm.main(["--check"]) == 1
+
+
 def test_control_1_11_marks_non_evaluable_subchecks_manual():
     controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
     ctrl = next(c for c in controls if c["id"] == "1.11")

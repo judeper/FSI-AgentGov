@@ -94,6 +94,7 @@ function Invoke-CollectorOperation {
 
 $collectorRoot = Split-Path -Parent $PSCommandPath
 . (Join-Path $collectorRoot 'lib\InsiderRiskSupport.ps1')
+. (Join-Path $collectorRoot 'lib\PurviewDlpSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -185,10 +186,21 @@ try {
         Get-DlpCompliancePolicy -ErrorAction Stop
     }
     $dlpCompliancePolicies = foreach ($policy in $rawDlp) {
-        # Retrieve associated rules with SIT references
-        $rules = $null
+        # Retrieve associated rules with SIT references. The evidence contract
+        # (control 1.13.b) must keep three states distinct so the evaluator
+        # never conflates "no active rules" with "not collected":
+        #   - successful collection (0..n rows) -> array; an empty result stays
+        #     [] so an enforced policy with no SIT-backed active rules scores
+        #     fail rather than unknown.
+        #   - collection failure / unavailable  -> $null plus a diagnostic
+        #     warning, so the evaluator treats the rule set as indeterminate.
+        # PowerShell collapses an empty pipeline to $null, so the success flag —
+        # not the captured shape — drives the empty-vs-failure distinction, and
+        # Resolve-DlpRuleEvidence re-establishes a stable array on success.
+        $rawRules = $null
+        $rulesCollected = $false
         try {
-            $rules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
+            $rawRules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
                 Get-DlpComplianceRule -Policy $policy.Name -ErrorAction Stop
             } | ForEach-Object {
                 [PSCustomObject]@{
@@ -199,9 +211,15 @@ try {
                     Priority                   = $_.Priority
                 }
             }
+            $rulesCollected = $true
         }
         catch {
-            $warnings.Add("DLP rules for policy '$($policy.Name)' failed: $($_.Exception.Message)")
+            # Genuine collection failure: leave the rule set indeterminate (null)
+            # and record a diagnostic warning that propagates to
+            # _metadata.warnings, so a null rule set is only ever emitted when
+            # collection is genuinely indeterminate.
+            $rulesCollected = $false
+            $warnings.Add("DLP rules for policy '$($policy.Name)' failed to collect (recorded as indeterminate/unknown): $($_.Exception.Message)")
             Write-Warning $warnings[-1]
         }
 
@@ -210,7 +228,7 @@ try {
             Mode     = $policy.Mode
             Workload = $policy.Workload
             Enabled  = $policy.Enabled
-            Rules    = $rules
+            Rules    = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
         }
     }
     Write-Verbose "  Collected $(@($dlpCompliancePolicies).Count) DLP compliance policy/policies."

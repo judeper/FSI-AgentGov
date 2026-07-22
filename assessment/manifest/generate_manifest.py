@@ -478,6 +478,7 @@ def render_manifest(existing_controls=None):
         return list(generated_by_id.values())
 
     controls = []
+    seen_ids = set()
     for existing in existing_controls:
         entry = existing.copy()
         generated = generated_by_id.get(existing["id"])
@@ -493,6 +494,21 @@ def render_manifest(existing_controls=None):
         # Controls with no generator definition (authored-only, e.g. 2.27) are
         # preserved wholesale; the generator makes no core claim over them.
         controls.append(entry)
+        seen_ids.add(existing["id"])
+
+    # Append generator-defined controls that are absent from the committed
+    # controls.json, in deterministic generator (CONTROLS) order. Without this,
+    # adding a new control to CONTROLS would be silently dropped on both
+    # ``generate`` (which walks existing controls only) and ``--check`` (which
+    # would then compare the dropped render against the committed file and pass),
+    # so a brand-new control could never enter the manifest and its absence would
+    # never surface as drift. Existing controls keep their committed position and
+    # authored enrichment; only genuinely new IDs are appended, and ``seen_ids``
+    # guards against emitting a duplicate control id.
+    for cid, generated in generated_by_id.items():
+        if cid not in seen_ids:
+            controls.append(generated)
+            seen_ids.add(cid)
     return controls
 
 
