@@ -152,7 +152,7 @@ CHECKS_DB = {
     "1.12": [],  # manual only (portal evidence required)
     "1.13": [
         ("1.13.a","SIT inventory in Purview covers regulated data types (manual evidence required)","Get-DlpSensitiveInformationType","",[2,3],["Manual"]),
-        ("1.13.b","Enforced DLP policy rules reference SIT conditions","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
+        ("1.13.b","Enforced Copilot-scoped DLP policy rules reference SIT conditions","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
     ],
     "1.14": [],  # manual only
     "1.15": [],  # manual only (tenant/org surface does not expose TLS/at-rest proof)

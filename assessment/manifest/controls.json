@@ -1385,7 +1385,7 @@
       },
       {
         "check_id": "1.13.b",
-        "description": "Enforced DLP policy rules reference SIT conditions",
+        "description": "Enforced Copilot-scoped DLP policy rules reference SIT conditions",
         "api_call": "Get-DlpCompliancePolicy",
         "pass_condition": "dlp_references_sits",
         "zone_required": [

@@ -469,7 +469,7 @@ def test_control_1_13_corrects_sit_api_call_and_manual_gate():
     assert checks["1.13.a"]["pass_condition"] == ""
     assert checks["1.13.a"].get("collection_methods") == ["Manual"]
     assert checks["1.13.b"]["description"] == (
-        "Enforced DLP policy rules reference SIT conditions"
+        "Enforced Copilot-scoped DLP policy rules reference SIT conditions"
     )
     assert checks["1.13.b"]["pass_condition"] == "dlp_references_sits"
     assert checks["1.13.b"]["api_call"] == "Get-DlpCompliancePolicy"

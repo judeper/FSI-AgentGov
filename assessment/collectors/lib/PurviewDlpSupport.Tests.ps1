@@ -203,3 +203,160 @@ Describe 'Resolve-DlpPolicyEvidence' {
         }
     }
 }
+
+Describe 'Resolve-DlpPolicyScope' {
+    BeforeAll {
+        . "$PSScriptRoot\PurviewDlpSupport.ps1"
+
+        $script:CopilotGuid = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
+
+        # A Get-DlpCompliancePolicy object scoped to Microsoft 365 Copilot, per
+        # Microsoft Learn New-DlpCompliancePolicy Example 4 / 1.13 §9.
+        function New-CopilotScopedPolicy {
+            [PSCustomObject]@{
+                Name              = 'FSI-Copilot-Block-MNPI'
+                Mode              = 'Enable'
+                Enabled           = $null
+                Workload          = 'Applications'
+                EnforcementPlanes = @('CopilotExperiences')
+                Locations         = @(
+                    [PSCustomObject]@{
+                        Workload   = 'Applications'
+                        Location   = '470f2276-e011-4e9d-a6ec-20768be3a4b0'
+                        Inclusions = @([PSCustomObject]@{ Type = 'Tenant'; Identity = 'All' })
+                    }
+                )
+            }
+        }
+    }
+
+    Context 'StrictMode-safe property access (Get-DlpScopeProperty)' {
+        It 'returns $null for an absent property instead of throwing' {
+            $policy = [PSCustomObject]@{ Name = 'p'; Mode = 'Enable' }
+            (Get-DlpScopeProperty -InputObject $policy -Name 'EnforcementPlanes') | Should -BeNullOrEmpty
+        }
+
+        It 'returns the value for a present property' {
+            $policy = [PSCustomObject]@{ Workload = 'Applications' }
+            (Get-DlpScopeProperty -InputObject $policy -Name 'Workload') | Should -Be 'Applications'
+        }
+
+        It 'returns $null for a $null input object' {
+            (Get-DlpScopeProperty -InputObject $null -Name 'Workload') | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'EnforcementPlanes normalization (ConvertTo-DlpStringArray)' {
+        It 'wraps a single scalar plane into a one-element array' {
+            $result = ConvertTo-DlpStringArray -Value 'CopilotExperiences'
+            ($result -is [array]) | Should -BeTrue
+            @($result).Count | Should -Be 1
+            $result[0] | Should -Be 'CopilotExperiences'
+        }
+
+        It 'preserves a multi-value plane array' {
+            $result = ConvertTo-DlpStringArray -Value @('Browser', 'CopilotExperiences')
+            @($result).Count | Should -Be 2
+            $result[1] | Should -Be 'CopilotExperiences'
+        }
+
+        It 'drops null/blank entries' {
+            $result = ConvertTo-DlpStringArray -Value @('CopilotExperiences', $null, '   ')
+            @($result).Count | Should -Be 1
+            $result[0] | Should -Be 'CopilotExperiences'
+        }
+
+        It 'collapses an absent/all-blank value to $null' {
+            (ConvertTo-DlpStringArray -Value $null) | Should -BeNullOrEmpty
+            (ConvertTo-DlpStringArray -Value @()) | Should -BeNullOrEmpty
+            (ConvertTo-DlpStringArray -Value @('  ', $null)) | Should -BeNullOrEmpty
+        }
+
+        It 'serializes a single plane as a one-element JSON array (no collapse)' {
+            $json = [PSCustomObject]@{ EnforcementPlanes = (ConvertTo-DlpStringArray -Value 'CopilotExperiences') } |
+                ConvertTo-Json -Depth 5 -Compress
+            $json | Should -Match '"EnforcementPlanes":\["CopilotExperiences"\]'
+        }
+    }
+
+    Context 'Locations normalization (ConvertTo-DlpLocationArray)' {
+        It 'preserves an object-array Locations shape' {
+            $locations = @(
+                [PSCustomObject]@{ Workload = 'Applications'; Location = $script:CopilotGuid }
+            )
+            $result = ConvertTo-DlpLocationArray -Value $locations
+            ($result -is [array]) | Should -BeTrue
+            $result[0].Location | Should -Be $script:CopilotGuid
+        }
+
+        It 'wraps a singleton location object (ConvertTo-Json collapse) into an array' {
+            $single = [PSCustomObject]@{ Workload = 'Applications'; Location = $script:CopilotGuid }
+            $result = ConvertTo-DlpLocationArray -Value $single
+            ($result -is [array]) | Should -BeTrue
+            @($result).Count | Should -Be 1
+            $result[0].Location | Should -Be $script:CopilotGuid
+        }
+
+        It 'parses a raw -Locations JSON string into location objects' {
+            $json = '[{"Workload":"Applications","Location":"470f2276-e011-4e9d-a6ec-20768be3a4b0","Inclusions":[{"Type":"Tenant","Identity":"All"}]}]'
+            $result = ConvertTo-DlpLocationArray -Value $json
+            @($result).Count | Should -Be 1
+            $result[0].Location | Should -Be $script:CopilotGuid
+            $result[0].Workload | Should -Be 'Applications'
+        }
+
+        It 'collapses an empty/malformed/unparseable value to $null (fail closed)' {
+            (ConvertTo-DlpLocationArray -Value $null) | Should -BeNullOrEmpty
+            (ConvertTo-DlpLocationArray -Value '') | Should -BeNullOrEmpty
+            (ConvertTo-DlpLocationArray -Value '   ') | Should -BeNullOrEmpty
+            (ConvertTo-DlpLocationArray -Value '{ not json') | Should -BeNullOrEmpty
+            (ConvertTo-DlpLocationArray -Value @()) | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'a Copilot-scoped policy' {
+        It 'preserves all three documented scope signals verbatim' {
+            $scope = Resolve-DlpPolicyScope -Policy (New-CopilotScopedPolicy)
+            $scope.Workload | Should -Be 'Applications'
+            $scope.EnforcementPlanes[0] | Should -Be 'CopilotExperiences'
+            $scope.Locations[0].Location | Should -Be $script:CopilotGuid
+        }
+
+        It 'serializes to the on-the-wire purview.json scope contract' {
+            $policy = New-CopilotScopedPolicy
+            $scope = Resolve-DlpPolicyScope -Policy $policy
+            $json = [PSCustomObject]@{
+                Name              = $policy.Name
+                Mode              = $policy.Mode
+                Workload          = $scope.Workload
+                EnforcementPlanes = $scope.EnforcementPlanes
+                Locations         = $scope.Locations
+                Enabled           = $policy.Enabled
+            } | ConvertTo-Json -Depth 10 -Compress
+
+            $json | Should -Match '"Workload":"Applications"'
+            $json | Should -Match '"EnforcementPlanes":\["CopilotExperiences"\]'
+            $json | Should -Match "\`"Location\`":\`"$($script:CopilotGuid)\`""
+            $json | Should -Match '"Enabled":null'
+        }
+    }
+
+    Context 'a non-Copilot policy and absent scope evidence' {
+        It 'preserves an Exchange/SharePoint workload with no Copilot scope fields' {
+            $policy = [PSCustomObject]@{
+                Name = 'Exchange DLP'; Mode = 'Enable'; Workload = 'Exchange,SharePoint'
+            }
+            $scope = Resolve-DlpPolicyScope -Policy $policy
+            $scope.Workload | Should -Be 'Exchange,SharePoint'
+            $scope.EnforcementPlanes | Should -BeNullOrEmpty
+            $scope.Locations | Should -BeNullOrEmpty
+        }
+
+        It 'returns null scope fields for a $null policy' {
+            $scope = Resolve-DlpPolicyScope -Policy $null
+            $scope.Workload | Should -BeNullOrEmpty
+            $scope.EnforcementPlanes | Should -BeNullOrEmpty
+            $scope.Locations | Should -BeNullOrEmpty
+        }
+    }
+}

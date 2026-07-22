@@ -240,12 +240,25 @@ try {
             Write-Warning $warnings[-1]
         }
 
+        # Control 1.13.b credits a policy only when it binds the Microsoft 365
+        # Copilot scope. Resolve-DlpPolicyScope preserves the three documented
+        # structural signals from the policy object — Workload=Applications, a
+        # Locations entry carrying the Copilot location GUID, and the
+        # CopilotExperiences enforcement plane — so the evaluator (never a policy
+        # name or unrelated string) decides scope. Enabled is preserved verbatim
+        # but is not a reliable enforcement signal: Get-DlpCompliancePolicy has no
+        # dependable Enabled Boolean (it is often null), so enforcement is
+        # governed by Mode and the evaluator keeps Mode=Enable qualifying when
+        # Enabled is absent/null.
+        $scope = Resolve-DlpPolicyScope -Policy $policy
         [PSCustomObject]@{
-            Name     = $policy.Name
-            Mode     = $policy.Mode
-            Workload = $policy.Workload
-            Enabled  = $policy.Enabled
-            Rules    = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
+            Name              = $policy.Name
+            Mode              = $policy.Mode
+            Workload          = $scope.Workload
+            EnforcementPlanes = $scope.EnforcementPlanes
+            Locations         = $scope.Locations
+            Enabled           = $policy.Enabled
+            Rules             = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
         }
     }
     $dlpCompliancePolicies = Resolve-DlpPolicyEvidence -CollectedPolicies $collectedPolicies -CollectionSucceeded $true

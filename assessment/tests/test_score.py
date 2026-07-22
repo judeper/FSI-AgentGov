@@ -40,6 +40,55 @@ def write_json(path: Path, data: dict) -> None:
         json.dump(data, f, indent=2)
 
 
+# ---------------------------------------------------------------------------
+# DLP-for-Copilot scope evidence (control 1.13.b)
+#   The evaluator credits a policy only when it binds the Microsoft 365 Copilot
+#   scope via the three documented structural signals — Workload=Applications, a
+#   Locations entry carrying the Copilot location GUID, and the
+#   CopilotExperiences enforcement plane (Microsoft Learn New-DlpCompliancePolicy
+#   Example 4 / "DLP for Microsoft 365 Copilot location"; control 1.13
+#   powershell-setup.md §9). These helpers build valid-scope fixtures so the
+#   SIT-parsing tests exercise "direct/grouped/AdvancedRule rules under valid
+#   scope" and the scope tests can drop each signal in isolation.
+# ---------------------------------------------------------------------------
+COPILOT_LOCATION_GUID = "470f2276-e011-4e9d-a6ec-20768be3a4b0"
+
+
+def copilot_scope_fields() -> dict:
+    """The three structural Copilot-scope signals a qualifying policy carries."""
+    return {
+        "Workload": "Applications",
+        "EnforcementPlanes": ["CopilotExperiences"],
+        "Locations": [
+            {
+                "Workload": "Applications",
+                "Location": COPILOT_LOCATION_GUID,
+                "Inclusions": [{"Type": "Tenant", "Identity": "All"}],
+            }
+        ],
+    }
+
+
+def scoped_policy(**overrides) -> dict:
+    """A Mode=Enable, Copilot-scoped DLP policy with overridable fields.
+
+    Enabled is intentionally *absent* unless overridden so a bare
+    ``scoped_policy(...)`` exercises the "Mode governs, Enabled absent" P2 path.
+    """
+    policy = {"Name": "Copilot MNPI DLP", "Mode": "Enable"}
+    policy.update(copilot_scope_fields())
+    policy.update(overrides)
+    return policy
+
+
+def direct_sit_rule(*sit_names: str) -> dict:
+    """An active rule with a direct ContentContainsSensitiveInformation match."""
+    return {
+        "Disabled": False,
+        "ContentContainsSensitiveInformation": [{"Name": n} for n in sit_names],
+    }
+
+
 def setup_collected_dir(tmp_path: Path) -> Path:
     """Copy all collector fixture files into a temporary collected/ directory."""
     collected = tmp_path / "collected"
@@ -794,15 +843,14 @@ class TestManualGateMaturityCap:
             if src.exists():
                 write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
         purview = load_fixture("purview.json")
-        purview["dlpCompliancePolicies"] = {
-            "Name": "FSI regulated DLP",
-            "Mode": "Enable",
-            "Enabled": True,
-            "Rules": {
+        purview["dlpCompliancePolicies"] = scoped_policy(
+            Name="FSI regulated DLP",
+            Enabled=True,
+            Rules={
                 "Disabled": False,
                 "ContentContainsSensitiveInformation": ["CRD Number SIT"],
             },
-        }
+        )
         write_json(collected / "purview.json", purview)
 
         by_id = self._run_real(self._real_controls(), collected, tmp_path, zone)
@@ -1102,7 +1150,9 @@ class TestAuditPlanTierEvaluator:
 
 
 class TestDlpReferencesSitsEvaluator:
-    """Control 1.13.b passes only for enforced policies with active SIT rules."""
+    """Control 1.13.b passes only for enforced, Copilot-scoped policies with
+    active SIT rules (Microsoft Learn New-DlpCompliancePolicy Example 4 / control
+    1.13 powershell-setup.md §9)."""
 
     @staticmethod
     def _evaluate(policies):
@@ -1117,21 +1167,20 @@ class TestDlpReferencesSitsEvaluator:
         passed, evidence = self._evaluate(purview["dlpCompliancePolicies"])
 
         assert passed is True
-        assert "Mode=Enable" in evidence
+        assert "Copilot-scoped" in evidence
         assert "reference" in evidence.lower()
         assert "sit" in evidence.lower()
 
     def test_dlp_references_sits_accepts_singleton_policy_and_rule_dicts(self):
         passed, evidence = self._evaluate(
-            {
-                "Name": "Singleton policy and rule",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": {
+            scoped_policy(
+                Name="Singleton policy and rule",
+                Enabled=True,
+                Rules={
                     "Disabled": False,
                     "ContentContainsSensitiveInformation": ["Test SIT"],
                 },
-            }
+            )
         )
 
         assert passed is True
@@ -1139,17 +1188,16 @@ class TestDlpReferencesSitsEvaluator:
 
     def test_dlp_references_sits_accepts_singleton_policy_with_rule_list(self):
         passed, evidence = self._evaluate(
-            {
-                "Name": "Singleton policy",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": [
+            scoped_policy(
+                Name="Singleton policy",
+                Enabled=True,
+                Rules=[
                     {
                         "Disabled": False,
                         "ContentContainsSensitiveInformation": ["Test SIT"],
                     }
                 ],
-            }
+            )
         )
 
         assert passed is True
@@ -1158,15 +1206,14 @@ class TestDlpReferencesSitsEvaluator:
     def test_dlp_references_sits_accepts_policy_list_with_singleton_rule_dict(self):
         passed, evidence = self._evaluate(
             [
-                {
-                    "Name": "Singleton rule",
-                    "Mode": "Enable",
-                    "Enabled": True,
-                    "Rules": {
+                scoped_policy(
+                    Name="Singleton rule",
+                    Enabled=True,
+                    Rules={
                         "Disabled": False,
                         "ContentContainsSensitiveInformation": ["Test SIT"],
                     },
-                }
+                )
             ]
         )
 
@@ -1179,17 +1226,16 @@ class TestDlpReferencesSitsEvaluator:
         # (PowerShell singleton-collapse) instead of a one-element array. An
         # enforced one-SIT policy must still pass rather than fail closed.
         passed, evidence = self._evaluate(
-            {
-                "Name": "Enforced one-SIT policy",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": [
+            scoped_policy(
+                Name="Enforced one-SIT policy",
+                Enabled=True,
+                Rules=[
                     {
                         "Disabled": False,
                         "ContentContainsSensitiveInformation": {"Name": "Test SIT"},
                     }
                 ],
-            }
+            )
         )
 
         assert passed is True
@@ -1201,19 +1247,195 @@ class TestDlpReferencesSitsEvaluator:
         # Singleton collapse can occur simultaneously at the policy, rule and
         # SIT-condition levels; all three normalizations must compose.
         passed, evidence = self._evaluate(
-            {
-                "Name": "Fully collapsed singleton",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": {
+            scoped_policy(
+                Name="Fully collapsed singleton",
+                Enabled=True,
+                Rules={
                     "Disabled": False,
                     "ContentContainsSensitiveInformation": {"Name": "Test SIT"},
                 },
-            }
+            )
         )
 
         assert passed is True
         assert "Test SIT" in evidence
+
+    # -- Copilot-scope gate (P1, PRRT_kwDOQpaCdc6TDHOI) ---------------------
+
+    def test_dlp_references_sits_does_not_infer_scope_from_name_or_workload(self):
+        # An Exchange/SharePoint SIT policy — even one named "Copilot ..." — is
+        # not Copilot-scoped and must FAIL 1.13.b. Scope is structural, never
+        # inferred from the policy name or an unrelated workload string.
+        policy = {
+            "Name": "Copilot Data Loss Prevention",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Workload": "Exchange,SharePoint",
+            "Rules": [
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                }
+            ],
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+        assert "Test SIT" not in evidence
+
+    def test_dlp_references_sits_passes_when_fully_copilot_scoped(self):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=True, Rules=[direct_sit_rule("CRD Number SIT")])]
+        )
+
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+        assert "Copilot-scoped" in evidence
+
+    @pytest.mark.parametrize("dropped", ["Workload", "EnforcementPlanes", "Locations"])
+    def test_dlp_references_sits_fails_when_a_scope_signal_is_missing(self, dropped):
+        # Each of the three documented signals is individually required; drop any
+        # one and an otherwise-enforced SIT policy must fail closed.
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        del policy[dropped]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "workload",
+        ["Exchange", "Exchange,SharePoint", "SharePoint,OneDriveForBusiness,Teams"],
+    )
+    def test_dlp_references_sits_fails_for_non_applications_workload(self, workload):
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Workload"] = workload
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "planes",
+        [["Browser"], ["Application"], ["Network"], "Browser", []],
+    )
+    def test_dlp_references_sits_fails_for_non_copilot_enforcement_plane(self, planes):
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["EnforcementPlanes"] = planes
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_fails_when_location_guid_absent(self):
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Locations"] = [
+            {
+                "Workload": "Applications",
+                "Location": "00000000-0000-0000-0000-000000000000",
+            }
+        ]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_ignores_copilot_guid_in_inclusion_identity(self):
+        # A decoy: the Copilot GUID appears only as an Inclusions *Identity*, not
+        # as a Location. Structural matching must not treat that as a Copilot
+        # binding (no false positive from Inclusions/Exclusions or nested values).
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Locations"] = [
+            {
+                "Workload": "Applications",
+                "Location": "11111111-1111-1111-1111-111111111111",
+                "Inclusions": [{"Type": "Group", "Identity": COPILOT_LOCATION_GUID}],
+            }
+        ]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_ignores_copilot_guid_in_unrelated_nested_value(self):
+        # The GUID buried in an unrelated rule payload is not a location binding.
+        policy = scoped_policy(
+            Enabled=True,
+            Rules=[
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                    "Comment": f"related to location {COPILOT_LOCATION_GUID}",
+                }
+            ],
+        )
+        policy["Locations"] = [
+            {"Workload": "Applications", "Location": "not-the-copilot-location"}
+        ]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_scoped_policy_credited_beside_exchange_policy(self):
+        # An unscoped Exchange SIT policy must never contribute; only the
+        # genuinely Copilot-scoped policy is credited.
+        exchange = {
+            "Name": "Exchange DLP",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Workload": "Exchange",
+            "Rules": [direct_sit_rule("Exchange Only SIT")],
+        }
+        copilot = scoped_policy(
+            Name="Copilot DLP", Enabled=True, Rules=[direct_sit_rule("Copilot SIT")]
+        )
+
+        passed, evidence = self._evaluate([exchange, copilot])
+
+        assert passed is True
+        assert "Copilot SIT" in evidence
+        assert "Exchange Only SIT" not in evidence
+        assert "across 1 policy/policies" in evidence
+
+    # -- Documented singleton / string scope shapes -------------------------
+
+    def test_dlp_references_sits_accepts_singleton_scope_shapes(self):
+        # ConvertTo-Json collapses a one-element EnforcementPlanes array to a
+        # scalar and a one-element Locations array to a bare object.
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["EnforcementPlanes"] = "CopilotExperiences"
+        policy["Locations"] = {
+            "Workload": "Applications",
+            "Location": COPILOT_LOCATION_GUID,
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_locations_as_json_string(self):
+        # The raw -Locations input is a JSON string; accept a captured string too.
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Locations"] = json.dumps(
+            [{"Workload": "Applications", "Location": COPILOT_LOCATION_GUID}]
+        )
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    # -- SIT-condition and rule handling (under valid scope) ----------------
 
     @pytest.mark.parametrize(
         "sit_condition",
@@ -1223,60 +1445,46 @@ class TestDlpReferencesSitsEvaluator:
         self, sit_condition
     ):
         # A scalar / null / nameless SIT-condition payload must stay
-        # conservative: no SIT is extracted, so an otherwise-enforced policy
-        # fails closed rather than being credited with a phantom SIT.
+        # conservative: no SIT is extracted, so an otherwise-enforced (and
+        # Copilot-scoped) policy fails closed rather than being credited with a
+        # phantom SIT.
         passed, evidence = self._evaluate(
-            {
-                "Name": "Enforced with malformed condition",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": [
+            scoped_policy(
+                Name="Enforced with malformed condition",
+                Enabled=True,
+                Rules=[
                     {
                         "Disabled": False,
                         "ContentContainsSensitiveInformation": sit_condition,
                     }
                 ],
-            }
+            )
         )
 
         assert passed is False
         assert "fail closed" in evidence.lower()
 
     @pytest.mark.parametrize(
-        "policy",
+        "override",
         [
-            {
-                "Name": "Test mode",
-                "Mode": "TestWithNotifications",
-                "Enabled": True,
-                "Rules": {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": ["Test SIT"],
-                },
-            },
-            {
-                "Name": "Disabled policy",
-                "Mode": "Enable",
-                "Enabled": False,
-                "Rules": {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": ["Test SIT"],
-                },
-            },
-            {
-                "Name": "No SIT",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": [],
-                },
-            },
+            {"Mode": "TestWithNotifications"},
+            {"Enabled": False},
+            {"Rules": [{"Disabled": False, "ContentContainsSensitiveInformation": []}]},
         ],
     )
     def test_dlp_references_sits_rejects_nonqualifying_singleton_policies(
-        self, policy
+        self, override
     ):
+        policy = scoped_policy(
+            Name="Nonqualifying",
+            Enabled=True,
+            Rules={
+                "Disabled": False,
+                "ContentContainsSensitiveInformation": ["Test SIT"],
+            },
+        )
+        policy.update(override)
+
         passed, evidence = self._evaluate(policy)
 
         assert passed is False
@@ -1284,74 +1492,96 @@ class TestDlpReferencesSitsEvaluator:
 
     @pytest.mark.parametrize("mode", ["TestWithNotifications", "Audit", "Disable", None])
     def test_dlp_references_sits_rejects_non_enforced_or_missing_mode(self, mode):
-        policy = {
-            "Name": "Not enforced",
-            "Enabled": True,
-            "Rules": [
-                {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": ["Test SIT"],
-                }
-            ],
-        }
+        policy = scoped_policy(
+            Name="Not enforced",
+            Enabled=True,
+            Rules=[direct_sit_rule("Test SIT")],
+        )
+        policy.pop("Mode", None)
         if mode is not None:
             policy["Mode"] = mode
 
         passed, evidence = self._evaluate([policy])
 
         assert passed is False
-        assert "Mode=Enable" in evidence
+        assert "copilot-scoped" in evidence.lower()
+        assert "fail closed" in evidence.lower()
 
-    @pytest.mark.parametrize("enabled", [False, "false", 0, None])
-    def test_dlp_references_sits_rejects_disabled_or_malformed_enabled(self, enabled):
-        policy = {
-            "Name": "Disabled",
-            "Mode": "Enable",
-            "Enabled": enabled,
-            "Rules": [
-                {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": ["Test SIT"],
-                }
-            ],
-        }
+    # -- Enabled truth table (P2, PRRT_kwDOQpaCdc6TDHOR) --------------------
 
-        passed, evidence = self._evaluate([policy])
-
-        assert passed is False
-        assert "Mode=Enable" in evidence
-
-    def test_dlp_references_sits_does_not_infer_agent_scope_from_name(self):
-        policy = {
-            "Name": "Unrelated Exchange policy",
-            "Mode": "Enable",
-            "Enabled": True,
-            "Workload": "Exchange",
-            "Rules": [
-                {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": ["Test SIT"],
-                }
-            ],
-        }
+    def test_dlp_references_sits_qualifies_when_enabled_absent(self):
+        # Get-DlpCompliancePolicy has no reliable Enabled Boolean; a Mode=Enable
+        # policy with no Enabled key stays qualifying (Mode governs).
+        policy = scoped_policy(Rules=[direct_sit_rule("Test SIT")])
+        assert "Enabled" not in policy
 
         passed, evidence = self._evaluate([policy])
 
         assert passed is True
-        assert "Unrelated Exchange policy" not in evidence
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_qualifies_when_enabled_null(self):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=None, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_qualifies_when_enabled_true(self):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_rejects_explicit_false_enabled(self):
+        # An explicit strict boolean False disables the policy: reject it.
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=False, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+        assert "Test SIT" not in evidence
+
+    @pytest.mark.parametrize(
+        "enabled",
+        ["false", "true", "True", "yes", 0, 1, 3.14, {}, [], {"v": 1}],
+    )
+    def test_dlp_references_sits_treats_malformed_enabled_conservatively(
+        self, enabled
+    ):
+        # A present but non-boolean Enabled value is uninterpretable: the policy
+        # is not credited and the evidence is reported malformed (fail closed),
+        # never silently accepted.
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=enabled, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+        assert "Test SIT" not in evidence
+
+    def test_dlp_references_sits_missing_enabled_does_not_fail_valid_policy(self):
+        # Regression guard for P2: a valid scoped policy must not flip to fail
+        # merely because Enabled is absent or null.
+        for enabled_state in ("absent", "null"):
+            policy = scoped_policy(Rules=[direct_sit_rule("Test SIT")])
+            if enabled_state == "null":
+                policy["Enabled"] = None
+            passed, _ = self._evaluate([policy])
+            assert passed is True, enabled_state
+
+    # -- Empty / null and malformed contracts (preserved) -------------------
 
     def test_dlp_references_sits_fails_closed_when_no_sit_conditions(self):
-        policy = {
-            "Name": "Enforced without SIT",
-            "Mode": "Enable",
-            "Enabled": True,
-            "Rules": [
-                {
-                    "Disabled": False,
-                    "ContentContainsSensitiveInformation": [],
-                }
-            ],
-        }
+        policy = scoped_policy(
+            Name="Enforced without SIT",
+            Enabled=True,
+            Rules=[{"Disabled": False, "ContentContainsSensitiveInformation": []}],
+        )
 
         passed, evidence = self._evaluate([policy])
 
@@ -1359,17 +1589,12 @@ class TestDlpReferencesSitsEvaluator:
         assert "fail closed" in evidence.lower()
 
     def test_dlp_references_sits_fails_when_rules_list_empty(self):
-        # PR #1021 (Codex PRRT_kwDOQpaCdc6TBvvO): the collector now serializes a
-        # *successfully collected* empty rule set as ``[]`` (distinct from a
-        # null/uncollected set). An enforced policy with zero active SIT-backed
-        # rules must score fail — not unknown — because the absence of rules was
-        # affirmatively observed, not indeterminate.
-        policy = {
-            "Name": "Enforced with zero collected rules",
-            "Mode": "Enable",
-            "Enabled": True,
-            "Rules": [],
-        }
+        # A *successfully collected* empty rule set ([]) on an enforced,
+        # Copilot-scoped policy scores fail (absence affirmatively observed), not
+        # unknown.
+        policy = scoped_policy(
+            Name="Enforced, zero collected rules", Enabled=True, Rules=[]
+        )
 
         passed, evidence = self._evaluate([policy])
 
@@ -1377,27 +1602,19 @@ class TestDlpReferencesSitsEvaluator:
         assert "fail closed" in evidence.lower()
 
     def test_dlp_references_sits_empty_rules_singleton_policy_fails(self):
-        # Same contract via the singleton-policy (bare dict) shape that
-        # ConvertTo-Json can emit for exactly one collected policy.
         passed, evidence = self._evaluate(
-            {
-                "Name": "Singleton enforced, empty rules",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": [],
-            }
+            scoped_policy(
+                Name="Singleton enforced, empty rules", Enabled=True, Rules=[]
+            )
         )
 
         assert passed is False
         assert "fail closed" in evidence.lower()
 
-    def test_dlp_references_sits_empty_list_is_fail_but_null_is_unknown(self):
-        # The empty-collected (``[]`` -> fail) and uncollected (``null`` ->
-        # unknown) states must resolve to DIFFERENT outcomes. This locks the
-        # collector/evaluator contract that keeps the two distinct: a
-        # successfully collected empty rule set is a hard fail, while a genuinely
-        # indeterminate (failed) collection remains unknown.
-        enforced = {"Name": "Enforced", "Mode": "Enable", "Enabled": True}
+    def test_dlp_references_sits_empty_rules_is_fail_but_null_is_unknown(self):
+        # Empty-collected ([] -> fail) and uncollected (null -> unknown) rule sets
+        # must resolve to DIFFERENT outcomes on an enforced, Copilot-scoped policy.
+        enforced = scoped_policy(Name="Enforced", Enabled=True)
 
         empty_passed, empty_evidence = self._evaluate([{**enforced, "Rules": []}])
         null_passed, null_evidence = self._evaluate([{**enforced, "Rules": None}])
@@ -1409,18 +1626,18 @@ class TestDlpReferencesSitsEvaluator:
         assert empty_passed != null_passed
 
     def test_dlp_references_sits_empty_policy_list_is_fail_but_null_is_unknown(self):
-        # PR #1021 (Codex PRRT_kwDOQpaCdc6TCfIY): the collector now serializes a
-        # *successfully collected* empty POLICY set as ``[]`` (distinct from a
-        # null/uncollected set), exactly parallel to the rule-set contract. An
-        # explicit empty policy list affirmatively observes "no DLP policies
-        # exist" and must score fail; a genuinely uncollected (null) set stays
-        # unknown. The two must resolve to DIFFERENT outcomes.
+        # A *successfully collected* empty POLICY set ([]) affirmatively observes
+        # "no DLP policies exist" and scores fail; a genuinely uncollected (null)
+        # set stays unknown. The two must resolve to DIFFERENT outcomes.
         empty_passed, empty_evidence = self._evaluate([])
         null_passed, null_evidence = self._evaluate(None)
 
         assert empty_passed is False
         assert "fail closed" in empty_evidence.lower()
-        assert "no mode=enable dlp compliance policies" in empty_evidence.lower()
+        assert (
+            "no enforced, copilot-scoped dlp compliance policies"
+            in empty_evidence.lower()
+        )
         assert null_passed is None
         assert "not collected" in null_evidence.lower()
         assert empty_passed != null_passed
@@ -1435,46 +1652,33 @@ class TestDlpReferencesSitsEvaluator:
     @pytest.mark.parametrize("rules", ["not-rules", 1, True])
     def test_dlp_references_sits_rejects_scalar_rule_values(self, rules):
         passed, evidence = self._evaluate(
-            {
-                "Name": "Scalar rules",
-                "Mode": "Enable",
-                "Enabled": True,
-                "Rules": rules,
-            }
+            scoped_policy(Name="Scalar rules", Enabled=True, Rules=rules)
         )
 
         assert passed is False
         assert "malformed" in evidence.lower()
 
+    def test_dlp_references_sits_fails_closed_on_non_dict_policy(self):
+        passed, evidence = self._evaluate(["not-a-policy"])
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
     @pytest.mark.parametrize(
-        "policies",
-        [
-            ["not-a-policy"],
-            [
-                {
-                    "Name": "Malformed rule",
-                    "Mode": "Enable",
-                    "Rules": ["not-a-rule"],
-                }
-            ],
-            [
-                {
-                    "Name": "Nested arbitrary rule",
-                    "Mode": "Enable",
-                    "Rules": {"nested": {"Disabled": False}},
-                }
-            ],
-        ],
+        "rules",
+        [["not-a-rule"], {"nested": {"Disabled": False}}],
     )
-    def test_dlp_references_sits_fails_closed_on_malformed_shapes(self, policies):
-        passed, evidence = self._evaluate(policies)
+    def test_dlp_references_sits_fails_closed_on_malformed_rule_shapes(self, rules):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Name="Malformed rule", Enabled=True, Rules=rules)]
+        )
 
         assert passed is False
         assert "malformed" in evidence.lower()
 
     def test_dlp_references_sits_is_unknown_when_rule_collection_failed(self):
         passed, evidence = self._evaluate(
-            {"Name": "Enforced", "Mode": "Enable", "Enabled": True, "Rules": None}
+            scoped_policy(Name="Enforced", Enabled=True, Rules=None)
         )
 
         assert passed is None
@@ -1501,7 +1705,6 @@ class TestDlpReferencesSitsEvaluator:
 
         assert passed is None
         assert "not available" in evidence.lower()
-
 
 # ---------------------------------------------------------------------------
 # Test: 1.13.b grouped SIT condition parsing
@@ -1659,7 +1862,8 @@ class TestExtractSitReferencesGroupedShapes:
 
 
 class TestDlpReferencesSitsGroupedEvaluator:
-    """End-to-end _eval_dlp_references_sits behavior for grouped SIT rules."""
+    """End-to-end _eval_dlp_references_sits behavior for grouped SIT rules under
+    a valid Copilot scope."""
 
     @staticmethod
     def _evaluate(policies):
@@ -1669,35 +1873,34 @@ class TestDlpReferencesSitsGroupedEvaluator:
             None,
         )
 
+    @staticmethod
+    def _policy(rules):
+        return [scoped_policy(Enabled=True, Rules=rules)]
+
     def test_enforced_grouped_rule_passes(self):
         passed, evidence = self._evaluate(
-            [
-                {
-                    "Name": "Copilot MNPI DLP",
-                    "Mode": "Enable",
-                    "Enabled": True,
-                    "Rules": [
-                        {
-                            "Disabled": False,
-                            "ContentContainsSensitiveInformation": {
-                                "groups": [
-                                    {
-                                        "name": "FSI-MNPI-Group",
-                                        "operator": "Or",
-                                        "sensitivetypes": [
-                                            {
-                                                "name": "CRD Number SIT",
-                                                "confidencelevel": "High",
-                                                "mincount": 1,
-                                            }
-                                        ],
-                                    }
-                                ]
-                            },
-                        }
-                    ],
-                }
-            ]
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {
+                            "groups": [
+                                {
+                                    "name": "FSI-MNPI-Group",
+                                    "operator": "Or",
+                                    "sensitivetypes": [
+                                        {
+                                            "name": "CRD Number SIT",
+                                            "confidencelevel": "High",
+                                            "mincount": 1,
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            )
         )
 
         assert passed is True
@@ -1705,21 +1908,16 @@ class TestDlpReferencesSitsGroupedEvaluator:
 
     def test_enforced_grouped_rule_without_valid_names_fails_closed(self):
         passed, evidence = self._evaluate(
-            [
-                {
-                    "Name": "Broken grouped DLP",
-                    "Mode": "Enable",
-                    "Enabled": True,
-                    "Rules": [
-                        {
-                            "Disabled": False,
-                            "ContentContainsSensitiveInformation": {
-                                "groups": [{"sensitivetypes": [{}]}]
-                            },
-                        }
-                    ],
-                }
-            ]
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {
+                            "groups": [{"sensitivetypes": [{}]}]
+                        },
+                    }
+                ]
+            )
         )
 
         assert passed is False
@@ -1727,30 +1925,25 @@ class TestDlpReferencesSitsGroupedEvaluator:
 
     def test_grouped_and_direct_rules_credited_together(self):
         passed, evidence = self._evaluate(
-            [
-                {
-                    "Name": "Mixed DLP",
-                    "Mode": "Enable",
-                    "Enabled": True,
-                    "Rules": [
-                        {
-                            "Disabled": False,
-                            "ContentContainsSensitiveInformation": ["Direct SIT"],
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Direct SIT"],
+                    },
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {
+                            "groups": [
+                                {
+                                    "name": "G",
+                                    "sensitivetypes": [{"name": "Grouped SIT"}],
+                                }
+                            ]
                         },
-                        {
-                            "Disabled": False,
-                            "ContentContainsSensitiveInformation": {
-                                "groups": [
-                                    {
-                                        "name": "G",
-                                        "sensitivetypes": [{"name": "Grouped SIT"}],
-                                    }
-                                ]
-                            },
-                        },
-                    ],
-                }
-            ]
+                    },
+                ]
+            )
         )
 
         assert passed is True
@@ -1956,7 +2149,8 @@ class TestDlpReferencesSitsAdvancedRuleEvaluator:
 
     @staticmethod
     def _policy(rules):
-        return [{"Name": "Copilot MNPI DLP", "Mode": "Enable", "Enabled": True, "Rules": rules}]
+        # AdvancedRule-backed rules exercised under a valid Copilot scope.
+        return [scoped_policy(Name="Copilot MNPI DLP", Enabled=True, Rules=rules)]
 
     def test_enforced_advanced_rule_backed_policy_passes(self):
         # An AdvancedRule-backed rule has no direct ContentContainsSensitive

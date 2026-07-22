@@ -1522,6 +1522,137 @@ def _extract_sit_references(rule: dict) -> set[str]:
     return names
 
 
+# Microsoft 365 Copilot DLP location identity. A DLP policy protects Copilot
+# only when it binds this location under the Applications workload with the
+# CopilotExperiences enforcement plane (Microsoft Learn New-DlpCompliancePolicy
+# Example 4 / "DLP for Microsoft 365 Copilot location"; control 1.13
+# powershell-setup.md §9). Matched structurally, never inferred from names.
+_COPILOT_LOCATION_GUID = "470f2276-e011-4e9d-a6ec-20768be3a4b0"
+
+
+def _dlp_scope_tokens(value: object) -> set[str]:
+    """Normalize a Workload / EnforcementPlanes value into lowercase tokens.
+
+    A ``Get-DlpCompliancePolicy`` MultiValuedProperty can serialize as a JSON
+    array, a single scalar string (ConvertTo-Json singleton collapse), or a
+    delimited string (e.g. ``"Exchange,SharePoint"``). Only strings contribute
+    tokens; null / nested / non-string values are ignored so an unrelated shape
+    never manufactures a scope token.
+    """
+    if isinstance(value, str):
+        items: list[object] = [value]
+    elif isinstance(value, list):
+        items = value
+    else:
+        return set()
+
+    tokens: set[str] = set()
+    for item in items:
+        if not isinstance(item, str):
+            continue
+        for part in item.replace(",", " ").replace(";", " ").split():
+            token = part.strip().lower()
+            if token:
+                tokens.add(token)
+    return tokens
+
+
+def _policy_locations(policy: dict) -> list:
+    """Normalize the DLP policy ``Locations`` evidence into a list of entries.
+
+    The documented DLP-for-Copilot binding (Microsoft Learn
+    New-DlpCompliancePolicy Example 4; control 1.13 §9) is a ``Locations`` array
+    of ``{Workload, Location, Inclusions/Exclusions}`` objects. The raw
+    ``-Locations`` input is a JSON *string*, and ConvertTo-Json can collapse a
+    one-element array to a bare object, so a list, a singleton dict, or a JSON
+    string that parses to either is accepted. Any other shape yields no
+    locations (fail closed).
+    """
+    locations = _first_present(policy, "Locations", "locations")
+    if isinstance(locations, str):
+        text = locations.strip()
+        if not text:
+            return []
+        try:
+            locations = json.loads(text)
+        except (ValueError, TypeError):
+            return []
+    if isinstance(locations, dict):
+        return [locations]
+    if isinstance(locations, list):
+        return locations
+    return []
+
+
+def _policy_binds_copilot_location(policy: dict) -> bool:
+    """True iff a location entry's ``Location`` identity is the Copilot GUID.
+
+    The GUID is matched ONLY in the structural ``Location`` field of a location
+    object — never in an Inclusions/Exclusions identity, a diagnostic field, or
+    an arbitrary nested string — so an exclusion or decoy that happens to carry
+    the GUID cannot create a false positive.
+    """
+    for entry in _policy_locations(policy):
+        if not isinstance(entry, dict):
+            continue
+        location = _first_present(entry, "Location", "location")
+        if (
+            isinstance(location, str)
+            and location.strip().lower() == _COPILOT_LOCATION_GUID
+        ):
+            return True
+    return False
+
+
+def _policy_is_copilot_scoped(policy: dict) -> bool:
+    """Require the documented DLP-for-Copilot binding before crediting 1.13.b.
+
+    All three grounded, structural signals must be present (Microsoft Learn
+    New-DlpCompliancePolicy Example 4 / DLP for Microsoft 365 Copilot location;
+    control 1.13 powershell-setup.md §9):
+
+      * ``Workload`` includes ``Applications``
+      * a ``Locations`` entry binds the Copilot location GUID
+        470f2276-e011-4e9d-a6ec-20768be3a4b0
+      * ``EnforcementPlanes`` includes ``CopilotExperiences``
+
+    An ordinary Exchange/SharePoint SIT policy therefore never passes, and scope
+    is never inferred from the policy name or any unrelated string.
+    """
+    workload_ok = "applications" in _dlp_scope_tokens(
+        _first_present(policy, "Workload", "workload")
+    )
+    plane_ok = "copilotexperiences" in _dlp_scope_tokens(
+        _first_present(
+            policy, "EnforcementPlanes", "enforcementPlanes", "enforcementplanes"
+        )
+    )
+    return workload_ok and plane_ok and _policy_binds_copilot_location(policy)
+
+
+def _dlp_enabled_status(policy: dict) -> str:
+    """Classify the (unreliable) ``Enabled`` flag of an enforced DLP policy.
+
+    ``Get-DlpCompliancePolicy`` exposes no dependable ``Enabled`` Boolean —
+    enforcement is governed by ``Mode`` (control 1.13 powershell-setup.md; the
+    collector preserves ``Enabled`` verbatim and it is often null). So a
+    ``Mode=Enable`` policy stays qualifying when ``Enabled`` is absent or null.
+    Only an explicit strict boolean ``False`` disables it; any other present,
+    non-null value is uninterpretable and treated conservatively — the policy is
+    not credited and the evidence is flagged malformed.
+
+    Returns ``"qualify"``, ``"reject"`` (explicit false) or ``"malformed"``.
+    """
+    if "Enabled" not in policy and "enabled" not in policy:
+        return "qualify"
+    value = policy["Enabled"] if "Enabled" in policy else policy["enabled"]
+    if value is None or value is True:
+        return "qualify"
+    if value is False:
+        return "reject"
+    return "malformed"
+
+
 def _eval_dlp_references_sits(
     collected: dict, _source_key: str | None
 ) -> tuple[bool | None, str]:
@@ -1541,7 +1672,7 @@ def _eval_dlp_references_sits(
     elif not isinstance(policies, list):
         return False, "dlpCompliancePolicies malformed (fail closed)"
 
-    enforced_policy_count = 0
+    enforced_scoped_count = 0
     sit_names: set[str] = set()
     policy_hits: list[str] = []
     uncertain_rules = False
@@ -1556,12 +1687,25 @@ def _eval_dlp_references_sits(
         if not isinstance(mode, str) or mode.strip().lower() != "enable":
             continue
 
-        enabled_present = "Enabled" in policy or "enabled" in policy
-        enabled = _first_present(policy, "Enabled", "enabled")
-        if enabled_present and enabled is not True:
+        # Control 1.13.b credits a policy only when it binds the Microsoft 365
+        # Copilot scope (Applications workload + Copilot location GUID +
+        # CopilotExperiences plane). An ordinary Exchange/SharePoint SIT policy
+        # is not enforced *for Copilot* and is ignored entirely — its Enabled or
+        # rule shape must never affect this check.
+        if not _policy_is_copilot_scoped(policy):
             continue
 
-        enforced_policy_count += 1
+        enabled_status = _dlp_enabled_status(policy)
+        if enabled_status == "reject":
+            # Explicit strict boolean False: the policy is disabled, not enforced.
+            continue
+        if enabled_status == "malformed":
+            # An uninterpretable Enabled value is treated conservatively: the
+            # policy is not credited and the evidence is flagged malformed.
+            malformed_evidence = True
+            continue
+
+        enforced_scoped_count += 1
         policy_name = str(_first_present(policy, "Name", "name") or "unnamed")
         rules = _first_present(policy, "Rules", "rules")
         if rules is None:
@@ -1596,21 +1740,27 @@ def _eval_dlp_references_sits(
             overflow = f" (+{len(sit_names) - 5} more)"
         return (
             True,
-            "Mode=Enable DLP policy rules reference "
+            "Enforced Copilot-scoped DLP policy rules reference "
             f"{len(sit_names)} SIT(s) across {len(policy_hits)} policy/policies: "
             f"{sample}{overflow}",
         )
 
     if uncertain_rules:
-        return None, "Rules for an enforced DLP policy were not collected"
+        return (
+            None,
+            "Rules for an enforced Copilot-scoped DLP policy were not collected",
+        )
     if malformed_evidence:
         return False, "DLP policy or rule evidence is malformed (fail closed)"
-    if enforced_policy_count == 0:
-        return False, "No Mode=Enable DLP compliance policies found (fail closed)"
+    if enforced_scoped_count == 0:
+        return (
+            False,
+            "No enforced, Copilot-scoped DLP compliance policies found (fail closed)",
+        )
     return (
         False,
-        "Mode=Enable DLP compliance policies were found but active rules did not "
-        "reference any SIT conditions (fail closed)",
+        "Enforced, Copilot-scoped DLP compliance policies were found but active "
+        "rules did not reference any SIT conditions (fail closed)",
     )
 
 
