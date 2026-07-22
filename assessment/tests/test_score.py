@@ -2104,6 +2104,124 @@ class TestExtractAdvancedRuleSits:
         }
         assert self._extract(advanced) == {"Real SIT"}
 
+    def test_value_one_element_list_collapses(self):
+        # Microsoft's documented AdvancedRule (New-/Set-DlpComplianceRule
+        # examples) serializes the ContentContainsSensitiveInformation Value as a
+        # one-element array of grouped-SIT containers; it must credit identically
+        # to the bare-object form.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [{"groups": [{"sensitivetypes": [{"name": "Solo SIT"}]}]}],
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Solo SIT"}
+
+    def test_value_list_multiple_containers_union(self):
+        # A Value array may carry more than one grouped-SIT container
+        # (ContentContainsSensitiveInformation is a PswsHashtable[]); union them.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [
+                            {"groups": [{"sensitivetypes": [{"name": "CRD Number SIT"}]}]},
+                            {"groups": [{"sensitivetypes": [{"name": "MNPI Keyword SIT"}]}]},
+                        ],
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"CRD Number SIT", "MNPI Keyword SIT"}
+
+    def test_value_list_mixed_valid_and_malformed_entries(self):
+        # Non-dict entries (null, scalar, string) and dicts without a valid
+        # grouped SIT contribute nothing; only the real grouped SIT is credited.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [
+                            None,
+                            42,
+                            "janesteam@contoso.com",
+                            {"no-groups-here": 1},
+                            {"groups": [{"sensitivetypes": [{"name": "Real SIT"}]}]},
+                        ],
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Real SIT"}
+
+    def test_value_list_and_dict_forms_equivalent(self):
+        # The bare-object Value and its one-element-array wrapping must yield the
+        # same names — the singleton collapse is purely a serialization artifact.
+        grouped = {"groups": [{"sensitivetypes": [{"name": "CRD Number SIT"}]}]}
+        dict_form = {
+            "Condition": {
+                "SubConditions": [
+                    {"ConditionName": "ContentContainsSensitiveInformation", "Value": grouped}
+                ]
+            }
+        }
+        list_form = {
+            "Condition": {
+                "SubConditions": [
+                    {"ConditionName": "ContentContainsSensitiveInformation", "Value": [grouped]}
+                ]
+            }
+        }
+        assert self._extract(dict_form) == self._extract(list_form) == {"CRD Number SIT"}
+
+    def test_microsoft_documented_value_array_credits_only_sensitivetype(self):
+        # Grounded end-to-end on the exact New-/Set-DlpComplianceRule doc example:
+        # the Value-array group carries a sensitivity `labels` entry, its own
+        # group `name` ("Default"), and a sibling FromMemberOf subcondition whose
+        # Value is a list of address strings. Only the sensitivetypes[].name is a
+        # SIT — the label GUID, the group label, and the address must be ignored.
+        advanced = {
+            "Version": "1.0",
+            "Condition": {
+                "Operator": "And",
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [
+                            {
+                                "groups": [
+                                    {
+                                        "Operator": "Or",
+                                        "labels": [
+                                            {
+                                                "name": "defa4170-0d19-0005-000a-bc88714345d2",
+                                                "type": "Sensitivity",
+                                            }
+                                        ],
+                                        "name": "Default",
+                                        "sensitivetypes": [
+                                            {"confidencelevel": "Low", "name": "Credit Card Number"}
+                                        ],
+                                    }
+                                ]
+                            }
+                        ],
+                    },
+                    {
+                        "ConditionName": "FromMemberOf",
+                        "Value": ["janesteam@contoso.com"],
+                    },
+                ],
+            },
+        }
+        assert self._extract(advanced) == {"Credit Card Number"}
+
     def test_malformed_json_string_yields_no_names(self):
         assert self._extract("{ not valid json") == set()
 
@@ -2129,6 +2247,10 @@ class TestExtractAdvancedRuleSits:
             {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation"}]}},
             {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": "not-a-dict"}]}},
             {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": {"groups": [{"sensitivetypes": [{}]}]}}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": []}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": [None, 42, "x"]}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": ["janesteam@contoso.com"]}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": [{"groups": [{"sensitivetypes": [{}]}]}]}]}},
         ],
     )
     def test_malformed_structures_yield_no_names(self, advanced):

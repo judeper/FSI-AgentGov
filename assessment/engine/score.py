@@ -1419,26 +1419,36 @@ def _extract_advanced_rule_sits(rule: dict) -> set[str]:
     (see docs/playbooks/control-implementations/1.13/powershell-setup.md §9 and
     troubleshooting.md; control 1.5's verification parses the same
     ``AdvancedRule`` JSON into ``Condition.SubConditions``). The collector
-    preserves the raw ``AdvancedRule`` — a JSON *string* of the shape::
+    preserves the raw ``AdvancedRule`` — a JSON *string*. Microsoft's documented
+    ``New-DlpComplianceRule`` / ``Set-DlpComplianceRule`` examples serialize the
+    subcondition ``Value`` as an *array* of grouped-SIT containers, while the
+    repo's own ``New-FsiCopilotDlpPolicy.ps1`` emits a bare object; both shapes
+    are accepted::
 
         {"Condition": {"SubConditions": [
             {"ConditionName": "ContentContainsSensitiveInformation",
-             "Value": {"groups": [{"sensitivetypes": [{"name": "<SIT>"}]}]}}
+             "Value": [{"groups": [{"sensitivetypes": [{"name": "<SIT>"}]}]}]}
         ]}}
 
     Only subconditions whose ``ConditionName`` is
     ``ContentContainsSensitiveInformation`` are credited, and their SIT names are
     read from the same grouped ``groups[].sensitivetypes[].name`` structure
-    parsed for direct conditions (via ``_extract_grouped_sit_names``). A sibling
+    parsed for direct conditions (via ``_extract_grouped_sit_names``). The
+    ``Value`` is normalized to a list — a bare object is wrapped, a one-element
+    array collapses naturally (``ConvertTo-Json`` can render either), and the
+    grouped SIT names of every structurally valid dict entry are unioned; an
+    empty array, null, scalar, or non-dict entry (e.g. a sibling ``FromMemberOf``
+    value's address strings) contributes nothing. A sibling
     ``ContentContainsSensitivityLabel`` subcondition — which control 1.5 warns
     can coexist in the same rule — is therefore never mistaken for a SIT, and
-    neither are group labels or arbitrary ``Name`` fields. The payload may
-    already be a parsed dict (defensive); a malformed JSON string, or any
-    non-string/non-dict payload, yields no names (fail closed) so a broken
-    AdvancedRule never manufactures a phantom SIT and the caller can still fall
-    back to any direct condition evidence present on the rule. Nested
-    SubConditions (an undocumented shape for this repo) are intentionally not
-    walked, keeping extraction grounded and fail-closed rather than speculative.
+    neither are group labels, sensitivity ``labels``, or arbitrary ``Name``
+    fields. The payload may already be a parsed dict (defensive); a malformed
+    JSON string, or any non-string/non-dict payload, yields no names (fail
+    closed) so a broken AdvancedRule never manufactures a phantom SIT and the
+    caller can still fall back to any direct condition evidence present on the
+    rule. Nested SubConditions (an undocumented shape for this repo) are
+    intentionally not walked, keeping extraction grounded and fail-closed rather
+    than speculative.
     """
     advanced = _first_present(rule, "AdvancedRule", "advancedRule")
     if isinstance(advanced, str):
@@ -1477,8 +1487,21 @@ def _extract_advanced_rule_sits(rule: dict) -> set[str]:
         ):
             continue
         value = _first_present(sub, "Value", "value")
+        # Microsoft's documented AdvancedRule serializes the
+        # ContentContainsSensitiveInformation Value as an array of grouped-SIT
+        # containers (New-/Set-DlpComplianceRule examples), while the repo's own
+        # New-FsiCopilotDlpPolicy.ps1 emits a bare object and ConvertTo-Json can
+        # collapse a one-element array back to that bare object. Normalize both
+        # to a list and union the grouped SIT names of each structurally valid
+        # dict entry; an empty array, null, scalar, or non-dict entry (e.g. a
+        # sibling FromMemberOf value's address strings) contributes nothing.
         if isinstance(value, dict):
-            names |= _extract_grouped_sit_names(value)
+            value = [value]
+        elif not isinstance(value, list):
+            continue
+        for entry in value:
+            if isinstance(entry, dict):
+                names |= _extract_grouped_sit_names(entry)
     return names
 
 
