@@ -272,6 +272,38 @@ class TestControl112ManualGate:
         assert ctrl["evaluator_state"] == "manual_only"
 
 
+class TestControl115ManualGate:
+    """Control 1.15 cannot claim unsupported tenant-level TLS/at-rest automation."""
+
+    def test_control_1_15_is_manual_only_in_real_manifest(
+        self, tmp_path: Path, collected_dir: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "1.15")
+
+        assert ctrl["needs_manual"] is True
+        assert ctrl["checks"] == []
+        assert ctrl["checks_applicable"] == 0
+        assert ctrl["maturity_score"] == 0
+        assert ctrl["evaluator_state"] == "manual_only"
+
+
 # ---------------------------------------------------------------------------
 # Test: missing data → confidence low
 # ---------------------------------------------------------------------------
@@ -726,36 +758,129 @@ class TestAuditPlanTierEvaluator:
 
 
 class TestDlpReferencesSitsEvaluator:
-    """Control 1.13.b should only pass when active DLP rules reference SITs."""
+    """Control 1.13.b passes only for enforced policies with active SIT rules."""
 
-    def test_dlp_references_sits_passes_with_active_sit_conditions(self):
+    @staticmethod
+    def _evaluate(policies):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
-
-        purview = load_fixture("purview_collector_contract.json")
-        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
-            {"purview": purview},
+        return score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"dlpCompliancePolicies": policies}},
             None,
         )
 
+    def test_dlp_references_sits_passes_with_enforced_sit_conditions(self):
+        purview = load_fixture("purview_collector_contract.json")
+        passed, evidence = self._evaluate(purview["dlpCompliancePolicies"])
+
         assert passed is True
+        assert "Mode=Enable" in evidence
         assert "reference" in evidence.lower()
         assert "sit" in evidence.lower()
 
+    @pytest.mark.parametrize("mode", ["TestWithNotifications", "Audit", "Disable", None])
+    def test_dlp_references_sits_rejects_non_enforced_or_missing_mode(self, mode):
+        policy = {
+            "Name": "Not enforced",
+            "Enabled": True,
+            "Rules": [
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                }
+            ],
+        }
+        if mode is not None:
+            policy["Mode"] = mode
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "Mode=Enable" in evidence
+
+    @pytest.mark.parametrize("enabled", [False, "false", 0, None])
+    def test_dlp_references_sits_rejects_disabled_or_malformed_enabled(self, enabled):
+        policy = {
+            "Name": "Disabled",
+            "Mode": "Enable",
+            "Enabled": enabled,
+            "Rules": [
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                }
+            ],
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "Mode=Enable" in evidence
+
+    def test_dlp_references_sits_does_not_infer_agent_scope_from_name(self):
+        policy = {
+            "Name": "Unrelated Exchange policy",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Workload": "Exchange",
+            "Rules": [
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                }
+            ],
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is True
+        assert "Unrelated Exchange policy" not in evidence
+
     def test_dlp_references_sits_fails_closed_when_no_sit_conditions(self):
-        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        policy = {
+            "Name": "Enforced without SIT",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Rules": [
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": [],
+                }
+            ],
+        }
 
-        purview = load_fixture("purview_collector_contract.json")
-        for policy in purview.get("dlpCompliancePolicies", []):
-            for rule in policy.get("Rules", []):
-                rule["ContentContainsSensitiveInformation"] = []
-
-        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
-            {"purview": purview},
-            None,
-        )
+        passed, evidence = self._evaluate([policy])
 
         assert passed is False
         assert "fail closed" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "policies",
+        [
+            "not-a-list",
+            ["not-a-policy"],
+            [{"Name": "Malformed", "Mode": "Enable", "Rules": "not-a-list"}],
+            [
+                {
+                    "Name": "Malformed rule",
+                    "Mode": "Enable",
+                    "Rules": ["not-a-rule"],
+                }
+            ],
+        ],
+    )
+    def test_dlp_references_sits_fails_closed_on_malformed_shapes(self, policies):
+        passed, evidence = self._evaluate(policies)
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
+    def test_dlp_references_sits_is_unknown_when_rule_collection_failed(self):
+        passed, evidence = self._evaluate(
+            [{"Name": "Enforced", "Mode": "Enable", "Enabled": True, "Rules": None}]
+        )
+
+        assert passed is None
+        assert "not collected" in evidence.lower()
 
     def test_dlp_references_sits_is_unknown_when_purview_missing(self):
         score = pytest.importorskip("score")  # type: ignore[import-untyped]

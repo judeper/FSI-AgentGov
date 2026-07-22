@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Generate controls.json manifest from control file metadata and markdown sources."""
+import argparse
 import json
-import os
 import re
+from pathlib import Path
 
-BASE = r"C:\Dev\FSI-AgentGov\docs\controls"
-OUTPUT = r"C:\Dev\FSI-AgentGov\assessment\manifest\controls.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+BASE = REPO_ROOT / "docs" / "controls"
+OUTPUT = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 
 PILLAR_DIRS = {
     1: ("pillar-1-security", "Security"),
@@ -27,11 +29,11 @@ CONTROLS = [
     ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"partial",["Sentinel_KQL"],"Have runtime protection alerts been reviewed and tuned in the last 30 days?"),
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
     ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"),
-    ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"partial",["Graph_API"],"Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA is enforced for maker/admin identities."),
+    ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"partial",["Graph_API"],"Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA (for example FIDO2, device-bound passkeys, Windows Hello for Business, or CBA) is enforced for maker/admin identities."),
     ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
     ("1.14","1.14-data-minimization-and-agent-scope-control.md",1,"manual",[],"Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?"),
-    ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"manual",[],"Provide current evidence for TLS 1.2+ posture validation and at-rest encryption controls (Customer Key/CMK/DKE where required by zone), including key-custody ownership and rotation records."),
+    ("1.15","1.15-encryption-data-in-transit-and-at-rest.md",1,"manual",[],"Provide manual evidence that TLS 1.2+ (or stronger) is enforced for agent data in transit and that at-rest encryption is enabled for Microsoft 365 and any connected customer-managed data stores."),
     ("1.16","1.16-information-rights-management-irm-for-documents.md",1,"manual",[],"Are IRM protections applied to sensitive documents accessible to agents, and has IRM labeling been validated end-to-end?"),
     ("1.17","1.17-endpoint-data-loss-prevention-endpoint-dlp.md",1,"partial",["Purview_PowerShell"],"Is endpoint DLP enforced on all endpoints from which agents are accessed, including unmanaged devices?"),
     ("1.18","1.18-application-level-authorization-and-role-based-access-control-rbac.md",1,"partial",["Graph_API"],"Has a least-privilege access review for all agent administrative roles been completed in the last 90 days?"),
@@ -144,16 +146,16 @@ CHECKS_DB = {
     ],
     "1.11": [
         ("1.11.a","CA policy targeting Copilot Studio app enforces MFA","Get-MgIdentityConditionalAccessPolicy","ca_policy_requires_mfa",[1,2,3]),
-        ("1.11.b","Sign-in frequency policy set for agent sessions (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[2,3]),
-        ("1.11.c","Phishing-resistant MFA required for Zone 3 (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[3]),
+        ("1.11.b","Sign-in frequency policy set for agent sessions (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[2,3],["Manual"]),
+        ("1.11.c","Phishing-resistant MFA required for Zone 3 (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[3],["Manual"]),
     ],
     "1.12": [],  # manual only (portal evidence required)
     "1.13": [
-        ("1.13.a","SIT inventory in Purview covers regulated data types (manual evidence required)","Get-DlpSensitiveInformationType","",[2,3]),
-        ("1.13.b","Agent DLP policy references SITs","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
+        ("1.13.a","SIT inventory in Purview covers regulated data types (manual evidence required)","Get-DlpSensitiveInformationType","",[2,3],["Manual"]),
+        ("1.13.b","Enforced DLP policy rules reference SIT conditions","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
     ],
     "1.14": [],  # manual only
-    "1.15": [],  # manual evidence only (no collectible TLS/at-rest telemetry in current collectors)
+    "1.15": [],  # manual only (tenant/org surface does not expose TLS/at-rest proof)
     "1.16": [],  # manual only
     "1.17": [
         ("1.17.a","Endpoint DLP policy exists in Purview","Get-DlpCompliancePolicy","endpoint_dlp_policy_exists",[2,3]),
@@ -327,11 +329,21 @@ CHECKS_DB = {
     "4.9": [],  # manual only
 }
 
+ZONE_THRESHOLD_OVERRIDES = {
+    "1.13": {
+        "zone1": {"min_checks_passed": 0, "maturity_score": 0},
+        "zone2": {"min_checks_passed": 1, "maturity_score": 2},
+        "zone3": {"min_checks_passed": 1, "maturity_score": 4},
+    },
+}
+
+AUTHORITATIVE_CONTROL_IDS = {"1.11", "1.13"}
+
 
 def extract_title(filepath):
     """Extract control title from the first H1 or metadata line."""
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with filepath.open("r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line.startswith("# "):
@@ -353,7 +365,7 @@ def extract_title(filepath):
 def build_control(cid, filename, pillar, automation, methods, manual_q):
     pillar_dir, pillar_name = PILLAR_DIRS[pillar]
     source_file = f"docs/controls/{pillar_dir}/{filename}"
-    filepath = os.path.join(BASE, pillar_dir, filename)
+    filepath = BASE / pillar_dir / filename
 
     # Extract title from file
     title = extract_title(filepath)
@@ -364,17 +376,24 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
     # Get checks
     checks_raw = CHECKS_DB.get(cid, [])
     checks = []
-    for check_id, desc, api_call, pass_cond, zones in checks_raw:
-        checks.append({
+    auto_evaluable_checks = []
+    for check_data in checks_raw:
+        check_id, desc, api_call, pass_cond, zones, *metadata = check_data
+        check = {
             "check_id": check_id,
             "description": desc,
             "api_call": api_call,
             "pass_condition": pass_cond,
-            "zone_required": zones,
-        })
+        }
+        if metadata:
+            check["collection_methods"] = metadata[0]
+        check["zone_required"] = zones
+        checks.append(check)
+        if pass_cond and check.get("collection_methods") != ["Manual"]:
+            auto_evaluable_checks.append(check)
 
-    # Build zone thresholds based on number of checks
-    total = len(checks)
+    # Manual-only checks must never inflate automated pass thresholds.
+    total = len(auto_evaluable_checks)
     if total == 0:
         # Manual-only controls
         zone_thresholds = {
@@ -401,6 +420,7 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
             "zone2": {"min_checks_passed": z2_min, "maturity_score": 2},
             "zone3": {"min_checks_passed": total, "maturity_score": 4},
         }
+    zone_thresholds = ZONE_THRESHOLD_OVERRIDES.get(cid, zone_thresholds)
 
     return {
         "id": cid,
@@ -416,11 +436,47 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
     }
 
 
-def main():
-    controls = []
+def render_manifest(existing_controls=None):
+    generated_by_id = {}
     for cid, filename, pillar, automation, methods, manual_q in CONTROLS:
-        entry = build_control(cid, filename, pillar, automation, methods, manual_q)
+        generated_by_id[cid] = build_control(
+            cid, filename, pillar, automation, methods, manual_q
+        )
+
+    if not existing_controls:
+        return list(generated_by_id.values())
+
+    controls = []
+    for existing in existing_controls:
+        entry = existing.copy()
+        if existing["id"] in AUTHORITATIVE_CONTROL_IDS:
+            entry.update(generated_by_id[existing["id"]])
         controls.append(entry)
+    return controls
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Exit non-zero if generated content differs from controls.json.",
+    )
+    args = parser.parse_args(argv)
+
+    existing_controls = []
+    if OUTPUT.exists():
+        existing_controls = json.loads(OUTPUT.read_text(encoding="utf-8"))
+    controls = render_manifest(existing_controls)
+    rendered = json.dumps(controls, indent=2, ensure_ascii=False) + "\n"
+
+    if args.check:
+        current = OUTPUT.read_text(encoding="utf-8") if OUTPUT.exists() else ""
+        if current != rendered:
+            print(f"Manifest drift detected: run {Path(__file__).name}")
+            return 1
+        print("Manifest is reproducible.")
+        return 0
 
     print(f"Generated {len(controls)} controls")
     print(f"  Pillar 1: {sum(1 for c in controls if c['pillar']==1)}")
@@ -431,11 +487,11 @@ def main():
     print(f"  Partial: {sum(1 for c in controls if c['automation']=='partial')}")
     print(f"  Manual: {sum(1 for c in controls if c['automation']=='manual')}")
 
-    with open(OUTPUT, "w", encoding="utf-8") as f:
-        json.dump(controls, f, indent=2, ensure_ascii=False)
+    OUTPUT.write_text(rendered, encoding="utf-8")
     print(f"\nWritten to {OUTPUT}")
-    print(f"File size: {os.path.getsize(OUTPUT):,} bytes")
+    print(f"File size: {OUTPUT.stat().st_size:,} bytes")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

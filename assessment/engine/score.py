@@ -1405,27 +1405,45 @@ def _eval_dlp_references_sits(
     if not isinstance(policies, list):
         return False, "dlpCompliancePolicies malformed (fail closed)"
 
-    enabled_policy_count = 0
+    enforced_policy_count = 0
     sit_names: set[str] = set()
     policy_hits: list[str] = []
+    uncertain_rules = False
+    malformed_evidence = False
 
     for policy in policies:
         if not isinstance(policy, dict):
-            continue
-        if _first_present(policy, "Enabled", "enabled") is False:
+            malformed_evidence = True
             continue
 
-        enabled_policy_count += 1
+        mode = _first_present(policy, "Mode", "mode")
+        if not isinstance(mode, str) or mode.strip().lower() != "enable":
+            continue
+
+        enabled_present = "Enabled" in policy or "enabled" in policy
+        enabled = _first_present(policy, "Enabled", "enabled")
+        if enabled_present and enabled is not True:
+            continue
+
+        enforced_policy_count += 1
         policy_name = str(_first_present(policy, "Name", "name") or "unnamed")
         rules = _first_present(policy, "Rules", "rules")
+        if rules is None:
+            uncertain_rules = True
+            continue
         if not isinstance(rules, list):
+            malformed_evidence = True
             continue
 
         policy_sits: set[str] = set()
         for rule in rules:
             if not isinstance(rule, dict):
+                malformed_evidence = True
                 continue
-            if _first_present(rule, "Disabled", "disabled") is True:
+            disabled = _first_present(rule, "Disabled", "disabled")
+            if disabled is not False:
+                if disabled is not True:
+                    malformed_evidence = True
                 continue
             policy_sits |= _extract_sit_references(rule)
 
@@ -1440,16 +1458,20 @@ def _eval_dlp_references_sits(
             overflow = f" (+{len(sit_names) - 5} more)"
         return (
             True,
-            "Enabled DLP policy rules reference "
+            "Mode=Enable DLP policy rules reference "
             f"{len(sit_names)} SIT(s) across {len(policy_hits)} policy/policies: "
             f"{sample}{overflow}",
         )
 
-    if enabled_policy_count == 0:
-        return False, "No enabled DLP compliance policies found (fail closed)"
+    if uncertain_rules:
+        return None, "Rules for an enforced DLP policy were not collected"
+    if malformed_evidence:
+        return False, "DLP policy or rule evidence is malformed (fail closed)"
+    if enforced_policy_count == 0:
+        return False, "No Mode=Enable DLP compliance policies found (fail closed)"
     return (
         False,
-        "Enabled DLP compliance policies were found but active rules did not "
+        "Mode=Enable DLP compliance policies were found but active rules did not "
         "reference any SIT conditions (fail closed)",
     )
 
