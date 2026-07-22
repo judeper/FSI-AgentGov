@@ -611,6 +611,217 @@ class TestZeroThresholdMaturitySafety:
 
 
 # ---------------------------------------------------------------------------
+# Test: manual-attestation maturity ceiling (partial controls 1.11 / 1.13)
+# ---------------------------------------------------------------------------
+
+
+class TestManualGateMaturityCap:
+    """A partial control with required in-zone manual-only checks must not
+    claim the full zone maturity from a single automated pass while the manual
+    gate is unattested.
+
+    Regression for PR #1021 (Codex thread PRRT_kwDOQpaCdc6TAmIt): zone
+    thresholds derive ``min_checks_passed`` only from auto-evaluable checks, so
+    a lone passing automated check (1.11.a / 1.13.b) previously awarded the full
+    zone maturity (zone 2 -> 2, zone 3 -> 4) even though 1.11.b / 1.11.c /
+    1.13.a carried no manual evidence. The engine has no per-check manual
+    attestation input, so those gates stay ``passed is None`` and the control is
+    capped one rung below the full zone target until attestation exists.
+    """
+
+    # --- pure compute_maturity unit coverage -------------------------------
+
+    def test_zone2_full_target_capped_when_manual_gate_pending(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        thresholds = {"zone2": {"min_checks_passed": 1, "maturity_score": 2}}
+
+        capped, label, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=2,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=1,
+        )
+        assert capped == 1
+        assert label == "Aware"
+
+        # Same automated evidence, but with the manual gate resolved, reaches
+        # the full zone target — the documented attestation transition.
+        full, _, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=2,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=0,
+        )
+        assert full == 2
+
+    def test_zone3_full_target_capped_when_manual_gates_pending(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        thresholds = {"zone3": {"min_checks_passed": 1, "maturity_score": 4}}
+
+        capped, label, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=3,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=2,
+        )
+        assert capped == 3
+        assert label == "Optimized"
+
+        full, _, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=3,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=0,
+        )
+        assert full == 4
+
+    def test_cap_only_lowers_a_would_be_full_award(self):
+        """A failing automated threshold stays 0; the cap invents no credit."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        capped, _, _ = score.compute_maturity(
+            checks_passed=0,
+            zone=3,
+            zone_thresholds={"zone3": {"min_checks_passed": 1, "maturity_score": 4}},
+            unresolved_manual_gates=2,
+        )
+        assert capped == 0
+
+    def test_cap_floors_at_zero(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        capped, label, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=1,
+            zone_thresholds={"zone1": {"min_checks_passed": 1, "maturity_score": 1}},
+            unresolved_manual_gates=1,
+        )
+        assert capped == 0
+        assert label == "Not Implemented"
+
+    def test_supported_attestation_overrides_manual_gate_cap(self):
+        """An explicit supported_attestation signal is honored, not capped."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        capped, _, _ = score.compute_maturity(
+            checks_passed=0,
+            zone=3,
+            zone_thresholds={
+                "zone3": {
+                    "min_checks_passed": 0,
+                    "maturity_score": 4,
+                    "supported_attestation": True,
+                }
+            },
+            unresolved_manual_gates=1,
+        )
+        assert capped == 4
+
+    def test_auto_only_control_reaches_full_target(self):
+        """No manual gates -> full zone target (automated sibling behavior)."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        full, _, _ = score.compute_maturity(
+            checks_passed=2,
+            zone=3,
+            zone_thresholds={"zone3": {"min_checks_passed": 2, "maturity_score": 4}},
+            unresolved_manual_gates=0,
+        )
+        assert full == 4
+
+    # --- end-to-end coverage on the real 1.11 / 1.13 controls --------------
+
+    @staticmethod
+    def _real_controls() -> list[dict]:
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        return json.loads(real_manifest.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def _run_real(controls: list[dict], collected: Path, tmp_path: Path, zone: int) -> dict:
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / f"scores{zone}.json"
+        write_json(manifest_path, build_manifest_with_controls(controls))
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=zone,
+            output_path=str(output_path),
+        )
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        return {c["id"]: c for c in result["controls"]}
+
+    @pytest.mark.parametrize("zone,expected,full_target", [(2, 1, 2), (3, 3, 4)])
+    def test_control_1_11_cannot_claim_full_maturity_with_manual_gate(
+        self,
+        tmp_path: Path,
+        collected_dir: Path,
+        zone: int,
+        expected: int,
+        full_target: int,
+    ):
+        # The graph fixture makes 1.11.a (ca_policy_requires_mfa) pass, which
+        # alone meets the auto-derived threshold; 1.11.b / 1.11.c carry no
+        # attestation, so maturity must be capped below the full zone target.
+        by_id = self._run_real(self._real_controls(), collected_dir, tmp_path, zone)
+        ctrl = by_id["1.11"]
+
+        assert ctrl["evidence"]["1.11.a"]["result"] == "pass"
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == expected
+        assert ctrl["maturity_score"] < full_target
+        assert ctrl["needs_manual"] is True
+
+        gates = ["1.11.b"] + (["1.11.c"] if zone == 3 else [])
+        chk = {c["check_id"]: c for c in ctrl["checks"]}
+        for gate in gates:
+            assert chk[gate]["evaluator_state"] == "manual_only"
+            assert chk[gate]["passed"] is None
+            assert ctrl["evidence"][gate]["source"] is None
+        # Automated sibling behavior is preserved.
+        assert chk["1.11.a"]["evaluator_state"] == "auto_evaluable"
+
+    @pytest.mark.parametrize("zone,expected,full_target", [(2, 1, 2), (3, 3, 4)])
+    def test_control_1_13_cannot_claim_full_maturity_with_manual_gate(
+        self,
+        tmp_path: Path,
+        zone: int,
+        expected: int,
+        full_target: int,
+    ):
+        # Build collected data where 1.13.b (dlp_references_sits) passes so the
+        # auto threshold is met; 1.13.a is a manual gate with no attestation.
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        for name in ("ppac", "graph", "sharepoint", "sentinel"):
+            src = FIXTURES_DIR / f"{name}.json"
+            if src.exists():
+                write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+        purview = load_fixture("purview.json")
+        purview["dlpCompliancePolicies"] = {
+            "Name": "FSI regulated DLP",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Rules": {
+                "Disabled": False,
+                "ContentContainsSensitiveInformation": ["CRD Number SIT"],
+            },
+        }
+        write_json(collected / "purview.json", purview)
+
+        by_id = self._run_real(self._real_controls(), collected, tmp_path, zone)
+        ctrl = by_id["1.13"]
+
+        assert ctrl["evidence"]["1.13.b"]["result"] == "pass"
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == expected
+        assert ctrl["maturity_score"] < full_target
+        assert ctrl["needs_manual"] is True
+
+        chk = {c["check_id"]: c for c in ctrl["checks"]}
+        assert chk["1.13.a"]["evaluator_state"] == "manual_only"
+        assert chk["1.13.a"]["passed"] is None
+        assert ctrl["evidence"]["1.13.a"]["source"] is None
+        assert chk["1.13.b"]["evaluator_state"] == "auto_evaluable"
+
+
+# ---------------------------------------------------------------------------
 # Test: 1.1.c tenant setting evaluator (fail-closed behavior)
 # ---------------------------------------------------------------------------
 

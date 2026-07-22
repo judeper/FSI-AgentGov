@@ -1742,12 +1742,28 @@ def evaluate_check(
 
 
 def compute_maturity(
-    checks_passed: int, zone: int, zone_thresholds: dict
+    checks_passed: int,
+    zone: int,
+    zone_thresholds: dict,
+    unresolved_manual_gates: int = 0,
 ) -> tuple[int, str, int]:
     """Compute maturity score for the assessed zone.
 
     Only the target zone's threshold is evaluated — lower or higher zones
     are not consulted.
+
+    ``unresolved_manual_gates`` is the count of in-zone, manual-only checks
+    that this zone requires but that still lack attestation (``passed`` is not
+    ``True``). Zone thresholds derive ``min_checks_passed`` only from a
+    control's *auto-evaluable* checks, so for a partial control that also has
+    required manual-only checks (e.g. 1.11.b / 1.11.c, or 1.13.a) a single
+    passing automated check would otherwise award the *full* zone maturity
+    while the required manual evidence is still absent — overstating the
+    control. When any such gate is unresolved, maturity is capped one rung
+    below the full zone target so it cannot be certified on automated evidence
+    alone. The cap lifts automatically once every required manual gate is
+    attested (``unresolved_manual_gates == 0``) and never affects controls
+    whose applicable checks are all automated.
 
     Returns ``(maturity_score, maturity_label, min_checks_required)``.
     """
@@ -1769,6 +1785,22 @@ def compute_maturity(
         # Safety fail-closed: min_checks_passed=0 must never auto-award nonzero
         # maturity unless the manifest explicitly sets supported_attestation=true.
         score = 0
+
+    # Manual-attestation ceiling: never award the full zone maturity while a
+    # required in-zone manual-only gate is still unattested. ``min_checks_passed``
+    # counts only auto-evaluable checks, so without this a lone automated pass
+    # would certify a partial control (1.11 / 1.13) as fully mature even though
+    # its manual gates carry no evidence. ``supported_attestation`` is the
+    # manifest's explicit "attestation already supplied" signal and is honored
+    # as-is. Capping to ``target - 1`` keeps the demonstrated automated evidence
+    # visible (and preserves cross-zone ordering) without overstating maturity.
+    if (
+        unresolved_manual_gates > 0
+        and not has_supported_attestation
+        and target_maturity > 0
+        and score >= target_maturity
+    ):
+        score = max(0, target_maturity - 1)
 
     label = MATURITY_LABELS.get(score, "Unknown")
     return score, label, min_required
@@ -1820,8 +1852,20 @@ def score_control(
     failed_list = [c for c in applicable if c["passed"] is False]
     checks_passed = len(passed_list)
 
+    # Required in-zone manual-only checks that still lack attestation. These
+    # gates are deliberately excluded from the auto-derived min_checks_passed
+    # threshold, so they must independently cap maturity below the full zone
+    # target — a single automated pass must not certify 1.11 / 1.13 while
+    # 1.11.b / 1.11.c or 1.13.a remain unattested. ``passed is not True`` lets a
+    # future manual attestation (passed=True) clear the gate with no change here.
+    unresolved_manual_gates = sum(
+        1
+        for c in applicable
+        if c["evaluator_state"] == "manual_only" and c["passed"] is not True
+    )
+
     maturity_score, maturity_label, min_required = compute_maturity(
-        checks_passed, zone, zone_thresholds
+        checks_passed, zone, zone_thresholds, unresolved_manual_gates
     )
     confidence = compute_confidence(check_results)
 

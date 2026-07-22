@@ -48,6 +48,20 @@ def _load_score_module():
     return score
 
 
+def _load_generate_manifest_module():
+    """Import generate_manifest.py as an isolated module instance.
+
+    Each call returns a fresh module so tests can mutate its in-memory
+    CHECKS_DB / CONTROLS source-of-truth (or OUTPUT path) without touching the
+    real generator used by other tests or by the subprocess ``--check`` guard.
+    """
+    spec = importlib.util.spec_from_file_location("generate_manifest", GENERATOR)
+    assert spec and spec.loader, "Failed to load generate_manifest module"
+    gm = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gm)
+    return gm
+
+
 def test_manifest_validates_in_allow_todo_mode():
     """The shipped manifest must pass with --allow-todo."""
     result = _run(["--allow-todo", "--quiet"])
@@ -184,6 +198,137 @@ def test_generate_manifest_reproduces_committed_manifest():
     assert result.returncode == 0, (
         f"Generator drifted:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Generator reproducibility repository-wide (PR #1021 Codex thread
+# PRRT_kwDOQpaCdc6TAmIx): render_manifest must regenerate and compare the
+# generated-core fields for *every* generator-defined control while preserving
+# authored enrichment. Previously only 1.11 / 1.13 were regenerated, so a
+# CHECKS_DB / CONTROLS change to any of the other 77 controls was silently
+# dropped and never surfaced by ``--check``.
+# ---------------------------------------------------------------------------
+
+
+def test_build_control_emits_exactly_the_generated_core_fields():
+    """Locks the generated-core contract used to split regen vs preservation."""
+    gm = _load_generate_manifest_module()
+    row = next(r for r in gm.CONTROLS if r[0] == "1.1")
+    built = gm.build_control(*row)
+    assert set(built.keys()) == set(gm.GENERATED_CORE_FIELDS)
+
+
+def test_render_regenerates_checks_for_non_authoritative_control(monkeypatch):
+    """A CHECKS_DB change to an ordinary control is now written on render."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    target = "1.1"
+    assert target not in {"1.11", "1.13"}
+
+    injected = (
+        "1.1.zzz",
+        "Injected regression check",
+        "Get-MgGroup",
+        "no_everyone_assignment",
+        [3],
+    )
+    monkeypatch.setitem(
+        gm.CHECKS_DB, target, list(gm.CHECKS_DB[target]) + [injected]
+    )
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    rendered_check_ids = [chk["check_id"] for chk in rendered[target]["checks"]]
+
+    # Old behavior preserved 1.1 wholesale (injected check absent); the fix
+    # regenerates generated-core for every known control.
+    assert "1.1.zzz" in rendered_check_ids
+    assert rendered[target]["checks"] != existing_by_id[target]["checks"]
+    # Authored enrichment stays intact.
+    assert rendered[target]["regulatory"] == existing_by_id[target]["regulatory"]
+
+
+def test_render_regenerates_metadata_for_non_authoritative_control(monkeypatch):
+    """CONTROLS metadata (automation / methods / manual_question) is regenerated."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    target = "1.4"
+    assert target not in {"1.11", "1.13"}
+
+    new_controls = []
+    for row in gm.CONTROLS:
+        if row[0] == target:
+            cid, filename, pillar, _automation, _methods, _manual_q = row
+            new_controls.append(
+                (
+                    cid,
+                    filename,
+                    pillar,
+                    "partial",
+                    ["PPAC_PowerShell", "Graph_API"],
+                    "Injected regression manual question?",
+                )
+            )
+        else:
+            new_controls.append(row)
+    monkeypatch.setattr(gm, "CONTROLS", new_controls)
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+
+    assert rendered[target]["automation"] == "partial"
+    assert rendered[target]["collection_methods"] == ["PPAC_PowerShell", "Graph_API"]
+    assert rendered[target]["manual_question"] == "Injected regression manual question?"
+    # These generated-core fields differ from the committed manifest, so
+    # ``--check`` would now fire.
+    assert rendered[target]["automation"] != existing_by_id[target]["automation"]
+    # Authored enrichment is preserved.
+    assert rendered[target]["regulatory"] == existing_by_id[target]["regulatory"]
+
+
+def test_check_detects_non_authoritative_core_drift(tmp_path, monkeypatch):
+    """``--check`` must fail on stale generated-core for an ordinary control."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    stale = copy.deepcopy(existing)
+    target = next(c for c in stale if c["id"] == "1.1")
+    target["checks"][0]["description"] = "STALE DESCRIPTION — generator must overwrite"
+
+    stale_path = tmp_path / "controls.json"
+    stale_path.write_text(
+        json.dumps(stale, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(gm, "OUTPUT", stale_path)
+
+    assert gm.main(["--check"]) == 1
+
+
+def test_render_preserves_authored_enrichment_for_ordinary_control():
+    """Every non-core (authored) field of an ordinary control is preserved."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    target = "1.5"
+
+    enrichment_keys = [
+        k for k in existing_by_id[target] if k not in gm.GENERATED_CORE_FIELDS
+    ]
+    assert "regulatory" in enrichment_keys  # sanity: enrichment is present
+    for key in enrichment_keys:
+        assert rendered[target][key] == existing_by_id[target][key], key
+    assert set(gm.GENERATED_CORE_FIELDS) <= set(rendered[target].keys())
+
+
+def test_render_preserves_authored_only_control_wholesale():
+    """A control with no generator definition (2.27) is preserved verbatim."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    assert "2.27" not in {row[0] for row in gm.CONTROLS}
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    assert rendered["2.27"] == existing_by_id["2.27"]
 
 
 def test_control_1_11_marks_non_evaluable_subchecks_manual():

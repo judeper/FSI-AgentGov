@@ -28,7 +28,7 @@ CONTROLS = [
     ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell","Graph_API"],None),
     ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"partial",["Sentinel_KQL"],"Have runtime protection alerts been reviewed and tuned in the last 30 days?"),
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
-    ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"),
+    ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days, and does the Communication Compliance configuration capture and tag AI-related customer complaints with linkage to the underlying agent interaction and feed into the FINRA Rule 4530(d) quarterly report?"),
     ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"partial",["Graph_API"],"Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA (for example FIDO2, device-bound passkeys, Windows Hello for Business, or CBA) is enforced for maker/admin identities."),
     ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
@@ -337,7 +337,36 @@ ZONE_THRESHOLD_OVERRIDES = {
     },
 }
 
-AUTHORITATIVE_CONTROL_IDS = {"1.11", "1.13"}
+# Authored title overrides. ``build_control`` normally derives ``title`` from
+# each control's source-markdown H1, and for every control but one that H1 is
+# the committed manifest title. Control 2.6's committed title was deliberately
+# curated by an audit to a shorter regulatory phrasing that differs from its
+# markdown H1; recording it here (mirroring ZONE_THRESHOLD_OVERRIDES) keeps the
+# generator authoritative for titles everywhere while preserving that curated
+# value, so regeneration reproduces the manifest byte-for-byte.
+TITLE_OVERRIDES = {
+    "2.6": "Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2)",
+}
+
+# The "generated core" — exactly the keys ``build_control`` emits. The
+# generator is the source of truth for these fields for every control it
+# defines, and only these fields are overwritten on regeneration. Every other
+# key on a committed control (regulatory / FINRA mappings, roles,
+# facilitatorNotes, yesBar / partialBar / noBar, sectorYesBar, solutions,
+# priority, applicable_*, controlDocUrl, portalPlaybookUrl, verify*, name, ...)
+# is authored enrichment and is preserved verbatim.
+GENERATED_CORE_FIELDS = (
+    "id",
+    "title",
+    "pillar",
+    "pillar_name",
+    "source_file",
+    "automation",
+    "collection_methods",
+    "checks",
+    "zone_thresholds",
+    "manual_question",
+)
 
 
 def extract_title(filepath):
@@ -372,6 +401,8 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
     if not title:
         # Derive from filename
         title = filename.replace(".md", "").split("-", 1)[-1].replace("-", " ").title()
+    # Preserve any deliberately curated title that diverges from the markdown H1.
+    title = TITLE_OVERRIDES.get(cid, title)
 
     # Get checks
     checks_raw = CHECKS_DB.get(cid, [])
@@ -449,8 +480,18 @@ def render_manifest(existing_controls=None):
     controls = []
     for existing in existing_controls:
         entry = existing.copy()
-        if existing["id"] in AUTHORITATIVE_CONTROL_IDS:
-            entry.update(generated_by_id[existing["id"]])
+        generated = generated_by_id.get(existing["id"])
+        if generated is not None:
+            # Regenerate the generated-core fields (GENERATED_CORE_FIELDS) for
+            # every control the generator defines while preserving all authored
+            # enrichment already on the entry. This makes the generator
+            # genuinely reproducible repository-wide: any change to
+            # CHECKS_DB / CONTROLS core for *any* known control is written on
+            # regeneration and surfaced by ``--check`` — not merely for a
+            # hand-picked subset of controls.
+            entry.update(generated)
+        # Controls with no generator definition (authored-only, e.g. 2.27) are
+        # preserved wholesale; the generator makes no core claim over them.
         controls.append(entry)
     return controls
 
