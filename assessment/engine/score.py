@@ -1368,6 +1368,47 @@ def _eval_copilot_retention_policy_exists(
     return False, "No enabled retention policy covering Copilot workload found"
 
 
+def _extract_grouped_sit_names(condition: dict) -> set[str]:
+    """Extract SIT names from a *grouped* SIT condition.
+
+    Purview DLP rules built from an ``AdvancedRule`` grouped SIT match serialize
+    the sensitive-information-type names nested under
+    ``groups[].sensitivetypes[].name`` rather than a top-level ``Name`` (see
+    docs/playbooks/control-implementations/1.13/powershell-setup.md, which emits
+    ``ContentContainsSensitiveInformation = @{ groups = @( @{ name; operator;
+    sensitivetypes } ) }``; control 4.7's playbook reads the live
+    ``$_.ContentContainsSensitiveInformation.groups`` property). PowerShell's
+    ``ConvertTo-Json`` can collapse a single group or a single sensitivetype to
+    a bare object, so both levels are normalized. Only structurally valid named
+    dict entries are accepted; malformed / null / scalar / empty structures
+    yield no names so an enforced grouped rule is neither falsely failed nor
+    credited with a phantom SIT. The group's own ``name`` (a group label, not a
+    SIT) is deliberately not extracted.
+    """
+    groups = _first_present(condition, "Groups", "groups")
+    if isinstance(groups, dict):
+        groups = [groups]
+    elif not isinstance(groups, list):
+        return set()
+
+    names: set[str] = set()
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        sits = _first_present(group, "SensitiveTypes", "sensitivetypes")
+        if isinstance(sits, dict):
+            sits = [sits]
+        elif not isinstance(sits, list):
+            continue
+        for sit in sits:
+            if not isinstance(sit, dict):
+                continue
+            name = _first_present(sit, "Name", "name")
+            if isinstance(name, str) and name.strip():
+                names.add(name.strip())
+    return names
+
+
 def _extract_sit_references(rule: dict) -> set[str]:
     refs = _first_present(
         rule,
@@ -1390,6 +1431,10 @@ def _extract_sit_references(rule: dict) -> set[str]:
             name = _first_present(ref, "Name", "name")
             if isinstance(name, str) and name.strip():
                 names.add(name.strip())
+            # Grouped SIT conditions nest their names under
+            # groups[].sensitivetypes[]; parse those too so a valid enforced
+            # grouped rule is not falsely scored as referencing no SITs.
+            names |= _extract_grouped_sit_names(ref)
         elif isinstance(ref, str) and ref.strip():
             names.add(ref.strip())
     return names

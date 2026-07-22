@@ -1437,6 +1437,261 @@ class TestDlpReferencesSitsEvaluator:
 
 
 # ---------------------------------------------------------------------------
+# Test: 1.13.b grouped SIT condition parsing
+#   Purview DLP rules built from an AdvancedRule grouped SIT match serialize as
+#   ContentContainsSensitiveInformation.groups[].sensitivetypes[].name — see
+#   docs/playbooks/control-implementations/1.13/powershell-setup.md (control
+#   4.7's playbook reads the live .groups property). The parser must credit
+#   these without breaking direct top-level Name support or failing closed on
+#   malformed structures.
+# ---------------------------------------------------------------------------
+
+
+class TestExtractSitReferencesGroupedShapes:
+    """_extract_sit_references parses grouped SIT conditions as well as the
+    pre-existing direct top-level Name / string shapes."""
+
+    @staticmethod
+    def _extract(rule):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._extract_sit_references(rule)  # noqa: SLF001
+
+    @staticmethod
+    def _rule(condition):
+        return {"Disabled": False, "ContentContainsSensitiveInformation": condition}
+
+    def test_grouped_list_shape(self):
+        rule = self._rule(
+            {
+                "groups": [
+                    {
+                        "name": "FSI-MNPI-Group",
+                        "operator": "Or",
+                        "sensitivetypes": [
+                            {
+                                "name": "CRD Number SIT",
+                                "confidencelevel": "High",
+                                "mincount": 1,
+                            },
+                            {"Name": "MNPI Keyword SIT"},
+                        ],
+                    }
+                ]
+            }
+        )
+        assert self._extract(rule) == {"CRD Number SIT", "MNPI Keyword SIT"}
+
+    def test_singleton_group_dict(self):
+        # ConvertTo-Json collapses a one-element groups array to a bare object.
+        rule = self._rule(
+            {
+                "groups": {
+                    "name": "FSI-MNPI-Group",
+                    "operator": "Or",
+                    "sensitivetypes": [{"name": "CRD Number SIT"}],
+                }
+            }
+        )
+        assert self._extract(rule) == {"CRD Number SIT"}
+
+    def test_singleton_sensitivetype_dict(self):
+        # ConvertTo-Json collapses a one-element sensitivetypes array too.
+        rule = self._rule(
+            {
+                "groups": [
+                    {
+                        "name": "FSI-MNPI-Group",
+                        "sensitivetypes": {"name": "CRD Number SIT"},
+                    }
+                ]
+            }
+        )
+        assert self._extract(rule) == {"CRD Number SIT"}
+
+    def test_fully_collapsed_group_and_sensitivetype(self):
+        # Singleton collapse can occur at the group and sensitivetype levels
+        # simultaneously; both normalizations must compose.
+        rule = self._rule(
+            {"groups": {"name": "G", "sensitivetypes": {"Name": "CRD Number SIT"}}}
+        )
+        assert self._extract(rule) == {"CRD Number SIT"}
+
+    def test_mixed_valid_and_malformed_sensitivetypes(self):
+        # Only structurally valid named dict entries are extracted; blank names,
+        # nameless/empty dicts, nulls and bare scalars contribute nothing.
+        rule = self._rule(
+            {
+                "groups": [
+                    {
+                        "name": "G",
+                        "sensitivetypes": [
+                            {"name": "Valid SIT"},
+                            {"Name": "   "},
+                            {"mincount": 1},
+                            {},
+                            None,
+                            "U.S. SSN",
+                            42,
+                        ],
+                    }
+                ]
+            }
+        )
+        assert self._extract(rule) == {"Valid SIT"}
+
+    def test_group_label_name_is_not_extracted(self):
+        # The group's own name is a label, not a SIT, and must not be credited.
+        rule = self._rule(
+            {
+                "groups": [
+                    {"name": "FSI-MNPI-Group", "sensitivetypes": [{"name": "Real SIT"}]}
+                ]
+            }
+        )
+        assert self._extract(rule) == {"Real SIT"}
+
+    @pytest.mark.parametrize(
+        "condition",
+        [
+            {"groups": "not-a-list"},
+            {"groups": 1},
+            {"groups": True},
+            {"groups": None},
+            {"groups": []},
+            {"groups": [None, 42, "x"]},
+            {"groups": [{}]},
+            {"groups": [{"operator": "Or"}]},
+            {"groups": [{"sensitivetypes": "not-a-list"}]},
+            {"groups": [{"sensitivetypes": 1}]},
+            {"groups": [{"sensitivetypes": []}]},
+            {"groups": [{"sensitivetypes": [None, 1, "x", {}, {"mincount": 1}]}]},
+        ],
+    )
+    def test_fully_malformed_grouped_structures_yield_no_names(self, condition):
+        assert self._extract(self._rule(condition)) == set()
+
+    def test_coexistence_direct_top_level_and_grouped_in_one_list(self):
+        # A ContentContainsSensitiveInformation list can carry a direct
+        # top-level Name entry alongside a grouped-condition object; both
+        # surface.
+        rule = self._rule(
+            [
+                {"Name": "Direct SIT"},
+                {"groups": [{"name": "G", "sensitivetypes": [{"name": "Grouped SIT"}]}]},
+            ]
+        )
+        assert self._extract(rule) == {"Direct SIT", "Grouped SIT"}
+
+    def test_direct_top_level_shapes_unchanged(self):
+        # Regression guard: pre-existing direct shapes keep working untouched.
+        assert self._extract(self._rule([{"Name": "Direct SIT"}])) == {"Direct SIT"}
+        assert self._extract(self._rule(["String SIT"])) == {"String SIT"}
+        assert self._extract(self._rule({"Name": "Singleton SIT"})) == {"Singleton SIT"}
+        assert self._extract(self._rule({"minCount": 1})) == set()
+        assert self._extract(self._rule("scalar")) == set()
+
+
+class TestDlpReferencesSitsGroupedEvaluator:
+    """End-to-end _eval_dlp_references_sits behavior for grouped SIT rules."""
+
+    @staticmethod
+    def _evaluate(policies):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"dlpCompliancePolicies": policies}},
+            None,
+        )
+
+    def test_enforced_grouped_rule_passes(self):
+        passed, evidence = self._evaluate(
+            [
+                {
+                    "Name": "Copilot MNPI DLP",
+                    "Mode": "Enable",
+                    "Enabled": True,
+                    "Rules": [
+                        {
+                            "Disabled": False,
+                            "ContentContainsSensitiveInformation": {
+                                "groups": [
+                                    {
+                                        "name": "FSI-MNPI-Group",
+                                        "operator": "Or",
+                                        "sensitivetypes": [
+                                            {
+                                                "name": "CRD Number SIT",
+                                                "confidencelevel": "High",
+                                                "mincount": 1,
+                                            }
+                                        ],
+                                    }
+                                ]
+                            },
+                        }
+                    ],
+                }
+            ]
+        )
+
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+
+    def test_enforced_grouped_rule_without_valid_names_fails_closed(self):
+        passed, evidence = self._evaluate(
+            [
+                {
+                    "Name": "Broken grouped DLP",
+                    "Mode": "Enable",
+                    "Enabled": True,
+                    "Rules": [
+                        {
+                            "Disabled": False,
+                            "ContentContainsSensitiveInformation": {
+                                "groups": [{"sensitivetypes": [{}]}]
+                            },
+                        }
+                    ],
+                }
+            ]
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_grouped_and_direct_rules_credited_together(self):
+        passed, evidence = self._evaluate(
+            [
+                {
+                    "Name": "Mixed DLP",
+                    "Mode": "Enable",
+                    "Enabled": True,
+                    "Rules": [
+                        {
+                            "Disabled": False,
+                            "ContentContainsSensitiveInformation": ["Direct SIT"],
+                        },
+                        {
+                            "Disabled": False,
+                            "ContentContainsSensitiveInformation": {
+                                "groups": [
+                                    {
+                                        "name": "G",
+                                        "sensitivetypes": [{"name": "Grouped SIT"}],
+                                    }
+                                ]
+                            },
+                        },
+                    ],
+                }
+            ]
+        )
+
+        assert passed is True
+        assert "Direct SIT" in evidence
+        assert "Grouped SIT" in evidence
+
+
+# ---------------------------------------------------------------------------
 # Test: 1.11.a CA MFA evaluator (All-app + exclusion/report-only safety)
 # ---------------------------------------------------------------------------
 
