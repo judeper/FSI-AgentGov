@@ -1368,6 +1368,425 @@ def _eval_copilot_retention_policy_exists(
     return False, "No enabled retention policy covering Copilot workload found"
 
 
+def _extract_grouped_sit_names(condition: dict) -> set[str]:
+    """Extract SIT names from a *grouped* SIT condition.
+
+    Purview DLP rules built from an ``AdvancedRule`` grouped SIT match serialize
+    the sensitive-information-type names nested under
+    ``groups[].sensitivetypes[].name`` rather than a top-level ``Name`` (see
+    docs/playbooks/control-implementations/1.13/powershell-setup.md, which emits
+    ``ContentContainsSensitiveInformation = @{ groups = @( @{ name; operator;
+    sensitivetypes } ) }``; control 4.7's playbook reads the live
+    ``$_.ContentContainsSensitiveInformation.groups`` property). PowerShell's
+    ``ConvertTo-Json`` can collapse a single group or a single sensitivetype to
+    a bare object, so both levels are normalized. Only structurally valid named
+    dict entries are accepted; malformed / null / scalar / empty structures
+    yield no names so an enforced grouped rule is neither falsely failed nor
+    credited with a phantom SIT. The group's own ``name`` (a group label, not a
+    SIT) is deliberately not extracted.
+    """
+    groups = _first_present(condition, "Groups", "groups")
+    if isinstance(groups, dict):
+        groups = [groups]
+    elif not isinstance(groups, list):
+        return set()
+
+    names: set[str] = set()
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        sits = _first_present(group, "SensitiveTypes", "sensitivetypes")
+        if isinstance(sits, dict):
+            sits = [sits]
+        elif not isinstance(sits, list):
+            continue
+        for sit in sits:
+            if not isinstance(sit, dict):
+                continue
+            name = _first_present(sit, "Name", "name")
+            if isinstance(name, str) and name.strip():
+                names.add(name.strip())
+    return names
+
+
+def _extract_advanced_rule_sits(rule: dict) -> set[str]:
+    """Extract SIT names from an ``AdvancedRule``-backed DLP rule.
+
+    Control 1.13's ``New-FsiCopilotDlpPolicy.ps1`` binds sensitive-information
+    types to the Copilot workload with ``New-DlpComplianceRule -AdvancedRule
+    <json>`` rather than ``-ContentContainsSensitiveInformation``, and the
+    troubleshooting runbook filters ``$_.AdvancedRule`` for the SIT identity
+    (see docs/playbooks/control-implementations/1.13/powershell-setup.md §9 and
+    troubleshooting.md; control 1.5's verification parses the same
+    ``AdvancedRule`` JSON into ``Condition.SubConditions``). The collector
+    preserves the raw ``AdvancedRule`` — a JSON *string*. Microsoft's documented
+    ``New-DlpComplianceRule`` / ``Set-DlpComplianceRule`` examples serialize the
+    subcondition ``Value`` as an *array* of grouped-SIT containers, while the
+    repo's own ``New-FsiCopilotDlpPolicy.ps1`` emits a bare object; both shapes
+    are accepted::
+
+        {"Condition": {"SubConditions": [
+            {"ConditionName": "ContentContainsSensitiveInformation",
+             "Value": [{"groups": [{"sensitivetypes": [{"name": "<SIT>"}]}]}]}
+        ]}}
+
+    Only subconditions whose ``ConditionName`` is
+    ``ContentContainsSensitiveInformation`` are credited, and their SIT names are
+    read from the same grouped ``groups[].sensitivetypes[].name`` structure
+    parsed for direct conditions (via ``_extract_grouped_sit_names``). The
+    ``Value`` is normalized to a list — a bare object is wrapped, a one-element
+    array collapses naturally (``ConvertTo-Json`` can render either), and the
+    grouped SIT names of every structurally valid dict entry are unioned; an
+    empty array, null, scalar, or non-dict entry (e.g. a sibling ``FromMemberOf``
+    value's address strings) contributes nothing. A sibling
+    ``ContentContainsSensitivityLabel`` subcondition — which control 1.5 warns
+    can coexist in the same rule — is therefore never mistaken for a SIT, and
+    neither are group labels, sensitivity ``labels``, or arbitrary ``Name``
+    fields. The payload may already be a parsed dict (defensive); a malformed
+    JSON string, or any non-string/non-dict payload, yields no names (fail
+    closed) so a broken AdvancedRule never manufactures a phantom SIT and the
+    caller can still fall back to any direct condition evidence present on the
+    rule. Nested SubConditions (an undocumented shape for this repo) are
+    intentionally not walked, keeping extraction grounded and fail-closed rather
+    than speculative.
+    """
+    advanced = _first_present(rule, "AdvancedRule", "advancedRule")
+    if isinstance(advanced, str):
+        text = advanced.strip()
+        if not text:
+            return set()
+        try:
+            advanced = json.loads(text)
+        except (ValueError, TypeError):
+            return set()
+    if not isinstance(advanced, dict):
+        return set()
+
+    condition = _first_present(advanced, "Condition", "condition")
+    if not isinstance(condition, dict):
+        return set()
+
+    subconditions = _first_present(
+        condition, "SubConditions", "subConditions", "subconditions"
+    )
+    # ConvertTo-Json can collapse a single-element SubConditions array to a bare
+    # object; normalize that the same way grouped conditions are normalized.
+    if isinstance(subconditions, dict):
+        subconditions = [subconditions]
+    elif not isinstance(subconditions, list):
+        return set()
+
+    names: set[str] = set()
+    for sub in subconditions:
+        if not isinstance(sub, dict):
+            continue
+        condition_name = _first_present(sub, "ConditionName", "conditionName")
+        if (
+            not isinstance(condition_name, str)
+            or condition_name.strip().lower() != "contentcontainssensitiveinformation"
+        ):
+            continue
+        value = _first_present(sub, "Value", "value")
+        # Microsoft's documented AdvancedRule serializes the
+        # ContentContainsSensitiveInformation Value as an array of grouped-SIT
+        # containers (New-/Set-DlpComplianceRule examples), while the repo's own
+        # New-FsiCopilotDlpPolicy.ps1 emits a bare object and ConvertTo-Json can
+        # collapse a one-element array back to that bare object. Normalize both
+        # to a list and union the grouped SIT names of each structurally valid
+        # dict entry; an empty array, null, scalar, or non-dict entry (e.g. a
+        # sibling FromMemberOf value's address strings) contributes nothing.
+        if isinstance(value, dict):
+            value = [value]
+        elif not isinstance(value, list):
+            continue
+        for entry in value:
+            if isinstance(entry, dict):
+                names |= _extract_grouped_sit_names(entry)
+    return names
+
+
+def _extract_sit_references(rule: dict) -> set[str]:
+    names: set[str] = set()
+
+    refs = _first_present(
+        rule,
+        "ContentContainsSensitiveInformation",
+        "contentContainsSensitiveInformation",
+    )
+    # PowerShell's ConvertTo-Json collapses a single-element collection to a
+    # bare object, so the Purview collector can serialize exactly one SIT
+    # condition as a dict instead of a one-item list. Normalize that shape so
+    # an enforced one-SIT policy is not falsely scored as referencing no SITs.
+    # Scalar / null / absent values contribute nothing here but must NOT short-
+    # circuit the AdvancedRule fallback below: an AdvancedRule-backed rule has
+    # no direct ContentContainsSensitiveInformation at all.
+    if isinstance(refs, dict):
+        refs = [refs]
+    elif not isinstance(refs, list):
+        refs = []
+
+    for ref in refs:
+        if isinstance(ref, dict):
+            name = _first_present(ref, "Name", "name")
+            if isinstance(name, str) and name.strip():
+                names.add(name.strip())
+            # Grouped SIT conditions nest their names under
+            # groups[].sensitivetypes[]; parse those too so a valid enforced
+            # grouped rule is not falsely scored as referencing no SITs.
+            names |= _extract_grouped_sit_names(ref)
+        elif isinstance(ref, str) and ref.strip():
+            names.add(ref.strip())
+
+    # Control 1.13 binds SITs through New-DlpComplianceRule -AdvancedRule (a
+    # JSON string) rather than -ContentContainsSensitiveInformation, so fall
+    # back to the AdvancedRule condition tree before concluding a rule
+    # references no SITs. Names dedupe across both evidence sources.
+    names |= _extract_advanced_rule_sits(rule)
+    return names
+
+
+# Microsoft 365 Copilot DLP location identity. A DLP policy protects Copilot
+# only when it binds this location under the Applications workload with the
+# CopilotExperiences enforcement plane (Microsoft Learn New-DlpCompliancePolicy
+# Example 4 / "DLP for Microsoft 365 Copilot location"; control 1.13
+# powershell-setup.md §9). Matched structurally, never inferred from names.
+_COPILOT_LOCATION_GUID = "470f2276-e011-4e9d-a6ec-20768be3a4b0"
+
+
+def _dlp_scope_tokens(value: object) -> set[str]:
+    """Normalize a Workload / EnforcementPlanes value into lowercase tokens.
+
+    A ``Get-DlpCompliancePolicy`` MultiValuedProperty can serialize as a JSON
+    array, a single scalar string (ConvertTo-Json singleton collapse), or a
+    delimited string (e.g. ``"Exchange,SharePoint"``). Only strings contribute
+    tokens; null / nested / non-string values are ignored so an unrelated shape
+    never manufactures a scope token.
+    """
+    if isinstance(value, str):
+        items: list[object] = [value]
+    elif isinstance(value, list):
+        items = value
+    else:
+        return set()
+
+    tokens: set[str] = set()
+    for item in items:
+        if not isinstance(item, str):
+            continue
+        for part in item.replace(",", " ").replace(";", " ").split():
+            token = part.strip().lower()
+            if token:
+                tokens.add(token)
+    return tokens
+
+
+def _policy_locations(policy: dict) -> list:
+    """Normalize the DLP policy ``Locations`` evidence into a list of entries.
+
+    The documented DLP-for-Copilot binding (Microsoft Learn
+    New-DlpCompliancePolicy Example 4; control 1.13 §9) is a ``Locations`` array
+    of ``{Workload, Location, Inclusions/Exclusions}`` objects. The raw
+    ``-Locations`` input is a JSON *string*, and ConvertTo-Json can collapse a
+    one-element array to a bare object, so a list, a singleton dict, or a JSON
+    string that parses to either is accepted. Any other shape yields no
+    locations (fail closed).
+    """
+    locations = _first_present(policy, "Locations", "locations")
+    if isinstance(locations, str):
+        text = locations.strip()
+        if not text:
+            return []
+        try:
+            locations = json.loads(text)
+        except (ValueError, TypeError):
+            return []
+    if isinstance(locations, dict):
+        return [locations]
+    if isinstance(locations, list):
+        return locations
+    return []
+
+
+def _policy_binds_copilot_location(policy: dict) -> bool:
+    """True iff a location entry's ``Location`` identity is the Copilot GUID.
+
+    The GUID is matched ONLY in the structural ``Location`` field of a location
+    object — never in an Inclusions/Exclusions identity, a diagnostic field, or
+    an arbitrary nested string — so an exclusion or decoy that happens to carry
+    the GUID cannot create a false positive.
+    """
+    for entry in _policy_locations(policy):
+        if not isinstance(entry, dict):
+            continue
+        location = _first_present(entry, "Location", "location")
+        if (
+            isinstance(location, str)
+            and location.strip().lower() == _COPILOT_LOCATION_GUID
+        ):
+            return True
+    return False
+
+
+def _policy_is_copilot_scoped(policy: dict) -> bool:
+    """Require the documented DLP-for-Copilot binding before crediting 1.13.b.
+
+    All three grounded, structural signals must be present (Microsoft Learn
+    New-DlpCompliancePolicy Example 4 / DLP for Microsoft 365 Copilot location;
+    control 1.13 powershell-setup.md §9):
+
+      * ``Workload`` includes ``Applications``
+      * a ``Locations`` entry binds the Copilot location GUID
+        470f2276-e011-4e9d-a6ec-20768be3a4b0
+      * ``EnforcementPlanes`` includes ``CopilotExperiences``
+
+    An ordinary Exchange/SharePoint SIT policy therefore never passes, and scope
+    is never inferred from the policy name or any unrelated string.
+    """
+    workload_ok = "applications" in _dlp_scope_tokens(
+        _first_present(policy, "Workload", "workload")
+    )
+    plane_ok = "copilotexperiences" in _dlp_scope_tokens(
+        _first_present(
+            policy, "EnforcementPlanes", "enforcementPlanes", "enforcementplanes"
+        )
+    )
+    return workload_ok and plane_ok and _policy_binds_copilot_location(policy)
+
+
+def _dlp_enabled_status(policy: dict) -> str:
+    """Classify the (unreliable) ``Enabled`` flag of an enforced DLP policy.
+
+    ``Get-DlpCompliancePolicy`` exposes no dependable ``Enabled`` Boolean —
+    enforcement is governed by ``Mode`` (control 1.13 powershell-setup.md; the
+    collector preserves ``Enabled`` verbatim and it is often null). So a
+    ``Mode=Enable`` policy stays qualifying when ``Enabled`` is absent or null.
+    Only an explicit strict boolean ``False`` disables it; any other present,
+    non-null value is uninterpretable and treated conservatively — the policy is
+    not credited and the evidence is flagged malformed.
+
+    Returns ``"qualify"``, ``"reject"`` (explicit false) or ``"malformed"``.
+    """
+    if "Enabled" not in policy and "enabled" not in policy:
+        return "qualify"
+    value = policy["Enabled"] if "Enabled" in policy else policy["enabled"]
+    if value is None or value is True:
+        return "qualify"
+    if value is False:
+        return "reject"
+    return "malformed"
+
+
+def _eval_dlp_references_sits(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    purview = collected.get("purview")
+    if not purview:
+        return None, "Purview data not available"
+
+    policies = _first_present(
+        purview,
+        "dlp_compliance_policies",
+        "dlpCompliancePolicies",
+    )
+    if policies is None:
+        return None, "dlpCompliancePolicies not collected"
+    if isinstance(policies, dict):
+        policies = [policies]
+    elif not isinstance(policies, list):
+        return False, "dlpCompliancePolicies malformed (fail closed)"
+
+    enforced_scoped_count = 0
+    sit_names: set[str] = set()
+    policy_hits: list[str] = []
+    uncertain_rules = False
+    malformed_evidence = False
+
+    for policy in policies:
+        if not isinstance(policy, dict):
+            malformed_evidence = True
+            continue
+
+        mode = _first_present(policy, "Mode", "mode")
+        if not isinstance(mode, str) or mode.strip().lower() != "enable":
+            continue
+
+        # Control 1.13.b credits a policy only when it binds the Microsoft 365
+        # Copilot scope (Applications workload + Copilot location GUID +
+        # CopilotExperiences plane). An ordinary Exchange/SharePoint SIT policy
+        # is not enforced *for Copilot* and is ignored entirely — its Enabled or
+        # rule shape must never affect this check.
+        if not _policy_is_copilot_scoped(policy):
+            continue
+
+        enabled_status = _dlp_enabled_status(policy)
+        if enabled_status == "reject":
+            # Explicit strict boolean False: the policy is disabled, not enforced.
+            continue
+        if enabled_status == "malformed":
+            # An uninterpretable Enabled value is treated conservatively: the
+            # policy is not credited and the evidence is flagged malformed.
+            malformed_evidence = True
+            continue
+
+        enforced_scoped_count += 1
+        policy_name = str(_first_present(policy, "Name", "name") or "unnamed")
+        rules = _first_present(policy, "Rules", "rules")
+        if rules is None:
+            uncertain_rules = True
+            continue
+        if isinstance(rules, dict):
+            rules = [rules]
+        elif not isinstance(rules, list):
+            malformed_evidence = True
+            continue
+
+        policy_sits: set[str] = set()
+        for rule in rules:
+            if not isinstance(rule, dict):
+                malformed_evidence = True
+                continue
+            disabled = _first_present(rule, "Disabled", "disabled")
+            if disabled is not False:
+                if disabled is not True:
+                    malformed_evidence = True
+                continue
+            policy_sits |= _extract_sit_references(rule)
+
+        if policy_sits:
+            sit_names |= policy_sits
+            policy_hits.append(policy_name)
+
+    if sit_names:
+        sample = ", ".join(sorted(sit_names)[:5])
+        overflow = ""
+        if len(sit_names) > 5:
+            overflow = f" (+{len(sit_names) - 5} more)"
+        return (
+            True,
+            "Enforced Copilot-scoped DLP policy rules reference "
+            f"{len(sit_names)} SIT(s) across {len(policy_hits)} policy/policies: "
+            f"{sample}{overflow}",
+        )
+
+    if uncertain_rules:
+        return (
+            None,
+            "Rules for an enforced Copilot-scoped DLP policy were not collected",
+        )
+    if malformed_evidence:
+        return False, "DLP policy or rule evidence is malformed (fail closed)"
+    if enforced_scoped_count == 0:
+        return (
+            False,
+            "No enforced, Copilot-scoped DLP compliance policies found (fail closed)",
+        )
+    return (
+        False,
+        "Enforced, Copilot-scoped DLP compliance policies were found but active "
+        "rules did not reference any SIT conditions (fail closed)",
+    )
+
+
 def _eval_grounding_sources_approved(
     collected: dict, _source_key: str | None
 ) -> tuple[bool | None, str]:
@@ -1426,6 +1845,7 @@ EVALUATORS: dict[str, object] = {
     "audit_log_enabled": _eval_audit_log_enabled,
     "audit_plan_tier_adequate": _eval_audit_plan_tier_adequate,
     "copilot_retention_policy_exists": _eval_copilot_retention_policy_exists,
+    "dlp_references_sits": _eval_dlp_references_sits,
     "grounding_sources_approved": _eval_grounding_sources_approved,
     "no_external_sharing_on_grounding": _eval_no_external_sharing_on_grounding,
 }
@@ -1555,7 +1975,40 @@ def evaluate_check(
             "evaluator_state": evaluator_state,
         }
 
-    source_key = _resolve_source_key(api_call, collection_methods)
+    # Check-level collection_methods take precedence over the parent control's
+    # methods for source resolution — mirroring classify_check_evaluator_state
+    # and lint_manifest_source_resolution, which both resolve
+    # ``check.get("collection_methods") or <control methods>``. Without this,
+    # evaluate_check was the only place that ignored a check's own methods.
+    effective_methods = check.get("collection_methods") or collection_methods
+
+    # A check the manifest marks manual (evaluator_state == "manual_only") must
+    # not borrow an automated source from its api_call. Otherwise a manual-only
+    # check (e.g. 1.11.b / 1.11.c / 1.13.a) is emitted in a zone 2/3 report as
+    # an "unknown" automated check carrying graph.json / purview.json evidence
+    # instead of honest manual-only evidence. Short-circuit to manual evidence
+    # with no source; ``passed`` stays None so scoring/thresholds are unchanged.
+    if evaluator_state == "manual_only":
+        manual_evidence = (
+            "Manual attestation required; check is not automatically scored "
+            "(manual evidence only)."
+        )
+        return {
+            "check_id": check_id,
+            "description": description,
+            "zone_required": zone_required,
+            "applicable": True,
+            "result": "unknown",
+            "passed": None,
+            "value": manual_evidence,
+            "evidence": manual_evidence,
+            "source": None,
+            "timestamp": timestamp,
+            "data_available": False,
+            "evaluator_state": evaluator_state,
+        }
+
+    source_key = _resolve_source_key(api_call, effective_methods)
     source_file = SOURCE_FILENAMES.get(source_key or "") if source_key else None
     data_available = _source_has_data(collected, source_key)
 
@@ -1589,12 +2042,28 @@ def evaluate_check(
 
 
 def compute_maturity(
-    checks_passed: int, zone: int, zone_thresholds: dict
+    checks_passed: int,
+    zone: int,
+    zone_thresholds: dict,
+    unresolved_manual_gates: int = 0,
 ) -> tuple[int, str, int]:
     """Compute maturity score for the assessed zone.
 
     Only the target zone's threshold is evaluated — lower or higher zones
     are not consulted.
+
+    ``unresolved_manual_gates`` is the count of in-zone, manual-only checks
+    that this zone requires but that still lack attestation (``passed`` is not
+    ``True``). Zone thresholds derive ``min_checks_passed`` only from a
+    control's *auto-evaluable* checks, so for a partial control that also has
+    required manual-only checks (e.g. 1.11.b / 1.11.c, or 1.13.a) a single
+    passing automated check would otherwise award the *full* zone maturity
+    while the required manual evidence is still absent — overstating the
+    control. When any such gate is unresolved, maturity is capped one rung
+    below the full zone target so it cannot be certified on automated evidence
+    alone. The cap lifts automatically once every required manual gate is
+    attested (``unresolved_manual_gates == 0``) and never affects controls
+    whose applicable checks are all automated.
 
     Returns ``(maturity_score, maturity_label, min_checks_required)``.
     """
@@ -1616,6 +2085,22 @@ def compute_maturity(
         # Safety fail-closed: min_checks_passed=0 must never auto-award nonzero
         # maturity unless the manifest explicitly sets supported_attestation=true.
         score = 0
+
+    # Manual-attestation ceiling: never award the full zone maturity while a
+    # required in-zone manual-only gate is still unattested. ``min_checks_passed``
+    # counts only auto-evaluable checks, so without this a lone automated pass
+    # would certify a partial control (1.11 / 1.13) as fully mature even though
+    # its manual gates carry no evidence. ``supported_attestation`` is the
+    # manifest's explicit "attestation already supplied" signal and is honored
+    # as-is. Capping to ``target - 1`` keeps the demonstrated automated evidence
+    # visible (and preserves cross-zone ordering) without overstating maturity.
+    if (
+        unresolved_manual_gates > 0
+        and not has_supported_attestation
+        and target_maturity > 0
+        and score >= target_maturity
+    ):
+        score = max(0, target_maturity - 1)
 
     label = MATURITY_LABELS.get(score, "Unknown")
     return score, label, min_required
@@ -1667,8 +2152,20 @@ def score_control(
     failed_list = [c for c in applicable if c["passed"] is False]
     checks_passed = len(passed_list)
 
+    # Required in-zone manual-only checks that still lack attestation. These
+    # gates are deliberately excluded from the auto-derived min_checks_passed
+    # threshold, so they must independently cap maturity below the full zone
+    # target — a single automated pass must not certify 1.11 / 1.13 while
+    # 1.11.b / 1.11.c or 1.13.a remain unattested. ``passed is not True`` lets a
+    # future manual attestation (passed=True) clear the gate with no change here.
+    unresolved_manual_gates = sum(
+        1
+        for c in applicable
+        if c["evaluator_state"] == "manual_only" and c["passed"] is not True
+    )
+
     maturity_score, maturity_label, min_required = compute_maturity(
-        checks_passed, zone, zone_thresholds
+        checks_passed, zone, zone_thresholds, unresolved_manual_gates
     )
     confidence = compute_confidence(check_results)
 

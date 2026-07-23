@@ -94,6 +94,7 @@ function Invoke-CollectorOperation {
 
 $collectorRoot = Split-Path -Parent $PSCommandPath
 . (Join-Path $collectorRoot 'lib\InsiderRiskSupport.ps1')
+. (Join-Path $collectorRoot 'lib\PurviewDlpSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -184,35 +185,89 @@ try {
     $rawDlp = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List DLP compliance policies' -ScriptBlock {
         Get-DlpCompliancePolicy -ErrorAction Stop
     }
-    $dlpCompliancePolicies = foreach ($policy in $rawDlp) {
-        # Retrieve associated rules with SIT references
-        $rules = $null
+    # Reaching this point means Get-DlpCompliancePolicy completed without
+    # throwing (even if it returned zero rows). Project each policy here, then
+    # normalize the whole set through Resolve-DlpPolicyEvidence below so a
+    # successful-but-empty collection serializes as [] (evaluator: fail) rather
+    # than $null (evaluator: unknown) — the same successful-empty-versus-
+    # collection-failure distinction the per-policy rule set already uses. A
+    # genuine query failure throws and is caught below, leaving
+    # $dlpCompliancePolicies $null (indeterminate/unknown) plus a warning.
+    $collectedPolicies = foreach ($policy in $rawDlp) {
+        # Retrieve associated rules with SIT references. The evidence contract
+        # (control 1.13.b) must keep three states distinct so the evaluator
+        # never conflates "no active rules" with "not collected":
+        #   - successful collection (0..n rows) -> array; an empty result stays
+        #     [] so an enforced policy with no SIT-backed active rules scores
+        #     fail rather than unknown.
+        #   - collection failure / unavailable  -> $null plus a diagnostic
+        #     warning, so the evaluator treats the rule set as indeterminate.
+        # PowerShell collapses an empty pipeline to $null, so the success flag —
+        # not the captured shape — drives the empty-vs-failure distinction, and
+        # Resolve-DlpRuleEvidence re-establishes a stable array on success.
+        $rawRules = $null
+        $rulesCollected = $false
         try {
-            $rules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
+            $rawRules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
                 Get-DlpComplianceRule -Policy $policy.Name -ErrorAction Stop
             } | ForEach-Object {
                 [PSCustomObject]@{
                     Name                       = $_.Name
                     Disabled                   = $_.Disabled
                     ContentContainsSensitiveInformation = $_.ContentContainsSensitiveInformation
+                    # Control 1.13 binds SITs to the Copilot workload via
+                    # New-DlpComplianceRule -AdvancedRule (a JSON document)
+                    # rather than -ContentContainsSensitiveInformation (see
+                    # docs/playbooks/control-implementations/1.13/powershell-setup.md
+                    # §9 and troubleshooting.md, which filter $_.AdvancedRule for
+                    # the SIT identity). Preserve the raw AdvancedRule string so
+                    # the evaluator can extract SIT bindings from it as a fallback
+                    # before declaring a rule references no SITs.
+                    AdvancedRule               = $_.AdvancedRule
                     BlockAccess                = $_.BlockAccess
                     Priority                   = $_.Priority
                 }
             }
+            $rulesCollected = $true
         }
         catch {
-            $warnings.Add("DLP rules for policy '$($policy.Name)' failed: $($_.Exception.Message)")
+            # Genuine collection failure: leave the rule set indeterminate (null)
+            # and record a diagnostic warning that propagates to
+            # _metadata.warnings, so a null rule set is only ever emitted when
+            # collection is genuinely indeterminate.
+            $rulesCollected = $false
+            $warnings.Add("DLP rules for policy '$($policy.Name)' failed to collect (recorded as indeterminate/unknown): $($_.Exception.Message)")
             Write-Warning $warnings[-1]
         }
 
+        # Control 1.13.b credits a policy only when it binds the Microsoft 365
+        # Copilot scope. Resolve-DlpPolicyScope preserves the three documented
+        # structural signals from the policy object — Workload=Applications, a
+        # Locations entry carrying the Copilot location GUID, and the
+        # CopilotExperiences enforcement plane — so the evaluator (never a policy
+        # name or unrelated string) decides scope. Enabled is preserved verbatim
+        # but is not a reliable enforcement signal: Get-DlpCompliancePolicy has no
+        # dependable Enabled Boolean (it is often null, and some module versions
+        # omit the property entirely), so enforcement is governed by Mode and the
+        # evaluator keeps Mode=Enable qualifying when Enabled is absent/null. It is
+        # read through the same StrictMode-safe PSObject.Properties helper used for
+        # the scope fields (Get-DlpScopeProperty): a genuinely absent property
+        # yields $null instead of throwing PropertyNotFoundStrict — which would
+        # abort Section 2 and null the whole DLP evidence set — while an explicitly
+        # provided value (true/false, or a malformed present value) still reaches
+        # the evaluator verbatim so its Enabled truth table stays valid.
+        $scope = Resolve-DlpPolicyScope -Policy $policy
         [PSCustomObject]@{
-            Name     = $policy.Name
-            Mode     = $policy.Mode
-            Workload = $policy.Workload
-            Enabled  = $policy.Enabled
-            Rules    = $rules
+            Name              = $policy.Name
+            Mode              = $policy.Mode
+            Workload          = $scope.Workload
+            EnforcementPlanes = $scope.EnforcementPlanes
+            Locations         = $scope.Locations
+            Enabled           = (Get-DlpScopeProperty -InputObject $policy -Name 'Enabled')
+            Rules             = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
         }
     }
+    $dlpCompliancePolicies = Resolve-DlpPolicyEvidence -CollectedPolicies $collectedPolicies -CollectionSucceeded $true
     Write-Verbose "  Collected $(@($dlpCompliancePolicies).Count) DLP compliance policy/policies."
 }
 catch {

@@ -20,8 +20,23 @@
     {
       "Name": "Copilot Data Loss Prevention",
       "Mode": "Enable",
-      "Workload": "Exchange,SharePoint",
-      "Enabled": true,
+      "Workload": "Applications",
+      "EnforcementPlanes": [
+        "CopilotExperiences"
+      ],
+      "Locations": [
+        {
+          "Workload": "Applications",
+          "Location": "470f2276-e011-4e9d-a6ec-20768be3a4b0",
+          "Inclusions": [
+            {
+              "Type": "Tenant",
+              "Identity": "All"
+            }
+          ]
+        }
+      ],
+      "Enabled": null,
       "Rules": [
         {
           "Name": "Block public sharing of sensitive content",

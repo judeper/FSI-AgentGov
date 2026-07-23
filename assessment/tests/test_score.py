@@ -40,6 +40,55 @@ def write_json(path: Path, data: dict) -> None:
         json.dump(data, f, indent=2)
 
 
+# ---------------------------------------------------------------------------
+# DLP-for-Copilot scope evidence (control 1.13.b)
+#   The evaluator credits a policy only when it binds the Microsoft 365 Copilot
+#   scope via the three documented structural signals — Workload=Applications, a
+#   Locations entry carrying the Copilot location GUID, and the
+#   CopilotExperiences enforcement plane (Microsoft Learn New-DlpCompliancePolicy
+#   Example 4 / "DLP for Microsoft 365 Copilot location"; control 1.13
+#   powershell-setup.md §9). These helpers build valid-scope fixtures so the
+#   SIT-parsing tests exercise "direct/grouped/AdvancedRule rules under valid
+#   scope" and the scope tests can drop each signal in isolation.
+# ---------------------------------------------------------------------------
+COPILOT_LOCATION_GUID = "470f2276-e011-4e9d-a6ec-20768be3a4b0"
+
+
+def copilot_scope_fields() -> dict:
+    """The three structural Copilot-scope signals a qualifying policy carries."""
+    return {
+        "Workload": "Applications",
+        "EnforcementPlanes": ["CopilotExperiences"],
+        "Locations": [
+            {
+                "Workload": "Applications",
+                "Location": COPILOT_LOCATION_GUID,
+                "Inclusions": [{"Type": "Tenant", "Identity": "All"}],
+            }
+        ],
+    }
+
+
+def scoped_policy(**overrides) -> dict:
+    """A Mode=Enable, Copilot-scoped DLP policy with overridable fields.
+
+    Enabled is intentionally *absent* unless overridden so a bare
+    ``scoped_policy(...)`` exercises the "Mode governs, Enabled absent" P2 path.
+    """
+    policy = {"Name": "Copilot MNPI DLP", "Mode": "Enable"}
+    policy.update(copilot_scope_fields())
+    policy.update(overrides)
+    return policy
+
+
+def direct_sit_rule(*sit_names: str) -> dict:
+    """An active rule with a direct ContentContainsSensitiveInformation match."""
+    return {
+        "Disabled": False,
+        "ContentContainsSensitiveInformation": [{"Name": n} for n in sit_names],
+    }
+
+
 def setup_collected_dir(tmp_path: Path) -> Path:
     """Copy all collector fixture files into a temporary collected/ directory."""
     collected = tmp_path / "collected"
@@ -305,6 +354,139 @@ class TestControl115ManualGate:
 
 
 # ---------------------------------------------------------------------------
+# Test: per-check Manual collection_methods override parent control methods
+# ---------------------------------------------------------------------------
+
+class TestPerCheckManualMethods:
+    """Checks that declare ``collection_methods: ["Manual"]`` must be scored as
+    manual-only even when their parent control is automatable and their
+    ``api_call`` maps to an automated source.
+
+    Regression for PR #1021: 1.11.b / 1.11.c / 1.13.a were emitted in zone 2/3
+    as 'unknown' automated checks carrying graph.json / purview.json evidence
+    instead of manual-only evidence, because evaluate_check resolved the source
+    from the parent control's methods (and the check's api_call) rather than
+    honoring the check-level Manual override. Their automated siblings
+    (1.11.a, 1.13.b) must keep their real collected source.
+    """
+
+    @staticmethod
+    def _real_control(control_id: str) -> dict:
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        return next(c for c in controls if c["id"] == control_id)
+
+    @classmethod
+    def _eval_real_check(cls, control_id: str, check_id: str, zone: int) -> dict:
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        control = cls._real_control(control_id)
+        check = next(c for c in control["checks"] if c["check_id"] == check_id)
+        # Non-empty collected sources so the automated path *would* resolve —
+        # this is exactly the condition under which the bug surfaced.
+        collected = {
+            "graph": {"conditional_access_policies": []},
+            "purview": {"dlpCompliancePolicies": []},
+        }
+        return score.evaluate_check(
+            check,
+            collected,
+            zone,
+            control.get("collection_methods", []),
+            "2026-01-01T00:00:00Z",
+            control.get("automation", "full"),
+        )
+
+    @pytest.mark.parametrize(
+        "control_id,check_id,zone",
+        [
+            ("1.11", "1.11.b", 2),
+            ("1.11", "1.11.b", 3),
+            ("1.11", "1.11.c", 3),
+            ("1.13", "1.13.a", 2),
+            ("1.13", "1.13.a", 3),
+        ],
+    )
+    def test_manual_check_is_manual_only_with_no_automated_source(
+        self, control_id: str, check_id: str, zone: int
+    ):
+        res = self._eval_real_check(control_id, check_id, zone)
+
+        assert res["applicable"] is True
+        assert res["evaluator_state"] == "manual_only"
+        # The api_call would otherwise resolve to graph.json / purview.json.
+        assert res["source"] is None
+        # No automated pass/fail — scoring/thresholds must be unaffected.
+        assert res["passed"] is None
+        assert res["data_available"] is False
+        assert "manual" in res["evidence"].lower()
+
+    @pytest.mark.parametrize(
+        "control_id,check_id,zone,expected_source",
+        [
+            ("1.11", "1.11.a", 2, "graph.json"),
+            ("1.11", "1.11.a", 3, "graph.json"),
+            ("1.13", "1.13.b", 2, "purview.json"),
+            ("1.13", "1.13.b", 3, "purview.json"),
+        ],
+    )
+    def test_automated_sibling_checks_remain_automated(
+        self, control_id: str, check_id: str, zone: int, expected_source: str
+    ):
+        res = self._eval_real_check(control_id, check_id, zone)
+
+        assert res["applicable"] is True
+        assert res["evaluator_state"] == "auto_evaluable"
+        assert res["source"] == expected_source
+
+    @pytest.mark.parametrize("zone", [2, 3])
+    def test_manual_checks_carry_no_automated_evidence_end_to_end(
+        self, tmp_path: Path, collected_dir: Path, zone: int
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        controls = json.loads(real_manifest.read_text(encoding="utf-8"))
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=zone,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        controls_by_id = {c["id"]: c for c in result["controls"]}
+
+        # Manual checks applicable in this zone must present no automated source.
+        manual_expect = {"1.11": ["1.11.b"], "1.13": ["1.13.a"]}
+        if zone == 3:
+            manual_expect["1.11"].append("1.11.c")
+
+        for control_id, check_ids in manual_expect.items():
+            ctrl = controls_by_id[control_id]
+            evidence = ctrl["evidence"]
+            check_states = {c["check_id"]: c for c in ctrl["checks"]}
+            for check_id in check_ids:
+                assert evidence[check_id]["source"] is None
+                assert check_states[check_id]["evaluator_state"] == "manual_only"
+                assert check_states[check_id]["passed"] is None
+
+        # Automated siblings keep their real collected source in the same report.
+        ctrl_111 = controls_by_id["1.11"]
+        ctrl_113 = controls_by_id["1.13"]
+        assert ctrl_111["evidence"]["1.11.a"]["source"] == "graph.json"
+        assert ctrl_113["evidence"]["1.13.b"]["source"] == "purview.json"
+        sibling_111a = next(
+            c for c in ctrl_111["checks"] if c["check_id"] == "1.11.a"
+        )
+        assert sibling_111a["evaluator_state"] == "auto_evaluable"
+
+
+# ---------------------------------------------------------------------------
 # Test: missing data → confidence low
 # ---------------------------------------------------------------------------
 
@@ -475,6 +657,216 @@ class TestZeroThresholdMaturitySafety:
         assert min_required == 0
         assert maturity_score == 0
         assert maturity_label == "Not Implemented"
+
+
+# ---------------------------------------------------------------------------
+# Test: manual-attestation maturity ceiling (partial controls 1.11 / 1.13)
+# ---------------------------------------------------------------------------
+
+
+class TestManualGateMaturityCap:
+    """A partial control with required in-zone manual-only checks must not
+    claim the full zone maturity from a single automated pass while the manual
+    gate is unattested.
+
+    Regression for PR #1021 (Codex thread PRRT_kwDOQpaCdc6TAmIt): zone
+    thresholds derive ``min_checks_passed`` only from auto-evaluable checks, so
+    a lone passing automated check (1.11.a / 1.13.b) previously awarded the full
+    zone maturity (zone 2 -> 2, zone 3 -> 4) even though 1.11.b / 1.11.c /
+    1.13.a carried no manual evidence. The engine has no per-check manual
+    attestation input, so those gates stay ``passed is None`` and the control is
+    capped one rung below the full zone target until attestation exists.
+    """
+
+    # --- pure compute_maturity unit coverage -------------------------------
+
+    def test_zone2_full_target_capped_when_manual_gate_pending(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        thresholds = {"zone2": {"min_checks_passed": 1, "maturity_score": 2}}
+
+        capped, label, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=2,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=1,
+        )
+        assert capped == 1
+        assert label == "Aware"
+
+        # Same automated evidence, but with the manual gate resolved, reaches
+        # the full zone target — the documented attestation transition.
+        full, _, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=2,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=0,
+        )
+        assert full == 2
+
+    def test_zone3_full_target_capped_when_manual_gates_pending(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        thresholds = {"zone3": {"min_checks_passed": 1, "maturity_score": 4}}
+
+        capped, label, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=3,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=2,
+        )
+        assert capped == 3
+        assert label == "Optimized"
+
+        full, _, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=3,
+            zone_thresholds=thresholds,
+            unresolved_manual_gates=0,
+        )
+        assert full == 4
+
+    def test_cap_only_lowers_a_would_be_full_award(self):
+        """A failing automated threshold stays 0; the cap invents no credit."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        capped, _, _ = score.compute_maturity(
+            checks_passed=0,
+            zone=3,
+            zone_thresholds={"zone3": {"min_checks_passed": 1, "maturity_score": 4}},
+            unresolved_manual_gates=2,
+        )
+        assert capped == 0
+
+    def test_cap_floors_at_zero(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        capped, label, _ = score.compute_maturity(
+            checks_passed=1,
+            zone=1,
+            zone_thresholds={"zone1": {"min_checks_passed": 1, "maturity_score": 1}},
+            unresolved_manual_gates=1,
+        )
+        assert capped == 0
+        assert label == "Not Implemented"
+
+    def test_supported_attestation_overrides_manual_gate_cap(self):
+        """An explicit supported_attestation signal is honored, not capped."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        capped, _, _ = score.compute_maturity(
+            checks_passed=0,
+            zone=3,
+            zone_thresholds={
+                "zone3": {
+                    "min_checks_passed": 0,
+                    "maturity_score": 4,
+                    "supported_attestation": True,
+                }
+            },
+            unresolved_manual_gates=1,
+        )
+        assert capped == 4
+
+    def test_auto_only_control_reaches_full_target(self):
+        """No manual gates -> full zone target (automated sibling behavior)."""
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        full, _, _ = score.compute_maturity(
+            checks_passed=2,
+            zone=3,
+            zone_thresholds={"zone3": {"min_checks_passed": 2, "maturity_score": 4}},
+            unresolved_manual_gates=0,
+        )
+        assert full == 4
+
+    # --- end-to-end coverage on the real 1.11 / 1.13 controls --------------
+
+    @staticmethod
+    def _real_controls() -> list[dict]:
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        return json.loads(real_manifest.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def _run_real(controls: list[dict], collected: Path, tmp_path: Path, zone: int) -> dict:
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / f"scores{zone}.json"
+        write_json(manifest_path, build_manifest_with_controls(controls))
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=zone,
+            output_path=str(output_path),
+        )
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        return {c["id"]: c for c in result["controls"]}
+
+    @pytest.mark.parametrize("zone,expected,full_target", [(2, 1, 2), (3, 3, 4)])
+    def test_control_1_11_cannot_claim_full_maturity_with_manual_gate(
+        self,
+        tmp_path: Path,
+        collected_dir: Path,
+        zone: int,
+        expected: int,
+        full_target: int,
+    ):
+        # The graph fixture makes 1.11.a (ca_policy_requires_mfa) pass, which
+        # alone meets the auto-derived threshold; 1.11.b / 1.11.c carry no
+        # attestation, so maturity must be capped below the full zone target.
+        by_id = self._run_real(self._real_controls(), collected_dir, tmp_path, zone)
+        ctrl = by_id["1.11"]
+
+        assert ctrl["evidence"]["1.11.a"]["result"] == "pass"
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == expected
+        assert ctrl["maturity_score"] < full_target
+        assert ctrl["needs_manual"] is True
+
+        gates = ["1.11.b"] + (["1.11.c"] if zone == 3 else [])
+        chk = {c["check_id"]: c for c in ctrl["checks"]}
+        for gate in gates:
+            assert chk[gate]["evaluator_state"] == "manual_only"
+            assert chk[gate]["passed"] is None
+            assert ctrl["evidence"][gate]["source"] is None
+        # Automated sibling behavior is preserved.
+        assert chk["1.11.a"]["evaluator_state"] == "auto_evaluable"
+
+    @pytest.mark.parametrize("zone,expected,full_target", [(2, 1, 2), (3, 3, 4)])
+    def test_control_1_13_cannot_claim_full_maturity_with_manual_gate(
+        self,
+        tmp_path: Path,
+        zone: int,
+        expected: int,
+        full_target: int,
+    ):
+        # Build collected data where 1.13.b (dlp_references_sits) passes so the
+        # auto threshold is met; 1.13.a is a manual gate with no attestation.
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        for name in ("ppac", "graph", "sharepoint", "sentinel"):
+            src = FIXTURES_DIR / f"{name}.json"
+            if src.exists():
+                write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+        purview = load_fixture("purview.json")
+        purview["dlpCompliancePolicies"] = scoped_policy(
+            Name="FSI regulated DLP",
+            Enabled=True,
+            Rules={
+                "Disabled": False,
+                "ContentContainsSensitiveInformation": ["CRD Number SIT"],
+            },
+        )
+        write_json(collected / "purview.json", purview)
+
+        by_id = self._run_real(self._real_controls(), collected, tmp_path, zone)
+        ctrl = by_id["1.13"]
+
+        assert ctrl["evidence"]["1.13.b"]["result"] == "pass"
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == expected
+        assert ctrl["maturity_score"] < full_target
+        assert ctrl["needs_manual"] is True
+
+        chk = {c["check_id"]: c for c in ctrl["checks"]}
+        assert chk["1.13.a"]["evaluator_state"] == "manual_only"
+        assert chk["1.13.a"]["passed"] is None
+        assert ctrl["evidence"]["1.13.a"]["source"] is None
+        assert chk["1.13.b"]["evaluator_state"] == "auto_evaluable"
 
 
 # ---------------------------------------------------------------------------
@@ -750,6 +1142,1221 @@ class TestAuditPlanTierEvaluator:
         assert "fail closed" in ctrl["evidence"]["1.7.b"]["value"]
         assert ctrl["confidence"] == "high"
         assert ctrl["maturity_score"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.13.b DLP SIT reference evaluator
+# ---------------------------------------------------------------------------
+
+
+class TestDlpReferencesSitsEvaluator:
+    """Control 1.13.b passes only for enforced, Copilot-scoped policies with
+    active SIT rules (Microsoft Learn New-DlpCompliancePolicy Example 4 / control
+    1.13 powershell-setup.md §9)."""
+
+    @staticmethod
+    def _evaluate(policies):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"dlpCompliancePolicies": policies}},
+            None,
+        )
+
+    def test_dlp_references_sits_passes_with_enforced_sit_conditions(self):
+        purview = load_fixture("purview_collector_contract.json")
+        passed, evidence = self._evaluate(purview["dlpCompliancePolicies"])
+
+        assert passed is True
+        assert "Copilot-scoped" in evidence
+        assert "reference" in evidence.lower()
+        assert "sit" in evidence.lower()
+
+    def test_dlp_references_sits_accepts_singleton_policy_and_rule_dicts(self):
+        passed, evidence = self._evaluate(
+            scoped_policy(
+                Name="Singleton policy and rule",
+                Enabled=True,
+                Rules={
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                },
+            )
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_singleton_policy_with_rule_list(self):
+        passed, evidence = self._evaluate(
+            scoped_policy(
+                Name="Singleton policy",
+                Enabled=True,
+                Rules=[
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Test SIT"],
+                    }
+                ],
+            )
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_policy_list_with_singleton_rule_dict(self):
+        passed, evidence = self._evaluate(
+            [
+                scoped_policy(
+                    Name="Singleton rule",
+                    Enabled=True,
+                    Rules={
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Test SIT"],
+                    },
+                )
+            ]
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_singleton_sit_condition_dict(self):
+        # The Purview collector can serialize exactly one
+        # ContentContainsSensitiveInformation condition as a bare object
+        # (PowerShell singleton-collapse) instead of a one-element array. An
+        # enforced one-SIT policy must still pass rather than fail closed.
+        passed, evidence = self._evaluate(
+            scoped_policy(
+                Name="Enforced one-SIT policy",
+                Enabled=True,
+                Rules=[
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {"Name": "Test SIT"},
+                    }
+                ],
+            )
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_singleton_sit_condition_dict_all_the_way_down(
+        self,
+    ):
+        # Singleton collapse can occur simultaneously at the policy, rule and
+        # SIT-condition levels; all three normalizations must compose.
+        passed, evidence = self._evaluate(
+            scoped_policy(
+                Name="Fully collapsed singleton",
+                Enabled=True,
+                Rules={
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": {"Name": "Test SIT"},
+                },
+            )
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    # -- Copilot-scope gate (P1, PRRT_kwDOQpaCdc6TDHOI) ---------------------
+
+    def test_dlp_references_sits_does_not_infer_scope_from_name_or_workload(self):
+        # An Exchange/SharePoint SIT policy — even one named "Copilot ..." — is
+        # not Copilot-scoped and must FAIL 1.13.b. Scope is structural, never
+        # inferred from the policy name or an unrelated workload string.
+        policy = {
+            "Name": "Copilot Data Loss Prevention",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Workload": "Exchange,SharePoint",
+            "Rules": [
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                }
+            ],
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+        assert "Test SIT" not in evidence
+
+    def test_dlp_references_sits_passes_when_fully_copilot_scoped(self):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=True, Rules=[direct_sit_rule("CRD Number SIT")])]
+        )
+
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+        assert "Copilot-scoped" in evidence
+
+    @pytest.mark.parametrize("dropped", ["Workload", "EnforcementPlanes", "Locations"])
+    def test_dlp_references_sits_fails_when_a_scope_signal_is_missing(self, dropped):
+        # Each of the three documented signals is individually required; drop any
+        # one and an otherwise-enforced SIT policy must fail closed.
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        del policy[dropped]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "workload",
+        ["Exchange", "Exchange,SharePoint", "SharePoint,OneDriveForBusiness,Teams"],
+    )
+    def test_dlp_references_sits_fails_for_non_applications_workload(self, workload):
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Workload"] = workload
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "planes",
+        [["Browser"], ["Application"], ["Network"], "Browser", []],
+    )
+    def test_dlp_references_sits_fails_for_non_copilot_enforcement_plane(self, planes):
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["EnforcementPlanes"] = planes
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_fails_when_location_guid_absent(self):
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Locations"] = [
+            {
+                "Workload": "Applications",
+                "Location": "00000000-0000-0000-0000-000000000000",
+            }
+        ]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_ignores_copilot_guid_in_inclusion_identity(self):
+        # A decoy: the Copilot GUID appears only as an Inclusions *Identity*, not
+        # as a Location. Structural matching must not treat that as a Copilot
+        # binding (no false positive from Inclusions/Exclusions or nested values).
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Locations"] = [
+            {
+                "Workload": "Applications",
+                "Location": "11111111-1111-1111-1111-111111111111",
+                "Inclusions": [{"Type": "Group", "Identity": COPILOT_LOCATION_GUID}],
+            }
+        ]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_ignores_copilot_guid_in_unrelated_nested_value(self):
+        # The GUID buried in an unrelated rule payload is not a location binding.
+        policy = scoped_policy(
+            Enabled=True,
+            Rules=[
+                {
+                    "Disabled": False,
+                    "ContentContainsSensitiveInformation": ["Test SIT"],
+                    "Comment": f"related to location {COPILOT_LOCATION_GUID}",
+                }
+            ],
+        )
+        policy["Locations"] = [
+            {"Workload": "Applications", "Location": "not-the-copilot-location"}
+        ]
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+
+    def test_dlp_references_sits_scoped_policy_credited_beside_exchange_policy(self):
+        # An unscoped Exchange SIT policy must never contribute; only the
+        # genuinely Copilot-scoped policy is credited.
+        exchange = {
+            "Name": "Exchange DLP",
+            "Mode": "Enable",
+            "Enabled": True,
+            "Workload": "Exchange",
+            "Rules": [direct_sit_rule("Exchange Only SIT")],
+        }
+        copilot = scoped_policy(
+            Name="Copilot DLP", Enabled=True, Rules=[direct_sit_rule("Copilot SIT")]
+        )
+
+        passed, evidence = self._evaluate([exchange, copilot])
+
+        assert passed is True
+        assert "Copilot SIT" in evidence
+        assert "Exchange Only SIT" not in evidence
+        assert "across 1 policy/policies" in evidence
+
+    # -- Documented singleton / string scope shapes -------------------------
+
+    def test_dlp_references_sits_accepts_singleton_scope_shapes(self):
+        # ConvertTo-Json collapses a one-element EnforcementPlanes array to a
+        # scalar and a one-element Locations array to a bare object.
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["EnforcementPlanes"] = "CopilotExperiences"
+        policy["Locations"] = {
+            "Workload": "Applications",
+            "Location": COPILOT_LOCATION_GUID,
+        }
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_accepts_locations_as_json_string(self):
+        # The raw -Locations input is a JSON string; accept a captured string too.
+        policy = scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])
+        policy["Locations"] = json.dumps(
+            [{"Workload": "Applications", "Location": COPILOT_LOCATION_GUID}]
+        )
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    # -- SIT-condition and rule handling (under valid scope) ----------------
+
+    @pytest.mark.parametrize(
+        "sit_condition",
+        ["Test SIT", 1, True, None, {}, {"minCount": 1}],
+    )
+    def test_dlp_references_sits_rejects_scalar_or_nameless_sit_conditions(
+        self, sit_condition
+    ):
+        # A scalar / null / nameless SIT-condition payload must stay
+        # conservative: no SIT is extracted, so an otherwise-enforced (and
+        # Copilot-scoped) policy fails closed rather than being credited with a
+        # phantom SIT.
+        passed, evidence = self._evaluate(
+            scoped_policy(
+                Name="Enforced with malformed condition",
+                Enabled=True,
+                Rules=[
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": sit_condition,
+                    }
+                ],
+            )
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "override",
+        [
+            {"Mode": "TestWithNotifications"},
+            {"Enabled": False},
+            {"Rules": [{"Disabled": False, "ContentContainsSensitiveInformation": []}]},
+        ],
+    )
+    def test_dlp_references_sits_rejects_nonqualifying_singleton_policies(
+        self, override
+    ):
+        policy = scoped_policy(
+            Name="Nonqualifying",
+            Enabled=True,
+            Rules={
+                "Disabled": False,
+                "ContentContainsSensitiveInformation": ["Test SIT"],
+            },
+        )
+        policy.update(override)
+
+        passed, evidence = self._evaluate(policy)
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    @pytest.mark.parametrize("mode", ["TestWithNotifications", "Audit", "Disable", None])
+    def test_dlp_references_sits_rejects_non_enforced_or_missing_mode(self, mode):
+        policy = scoped_policy(
+            Name="Not enforced",
+            Enabled=True,
+            Rules=[direct_sit_rule("Test SIT")],
+        )
+        policy.pop("Mode", None)
+        if mode is not None:
+            policy["Mode"] = mode
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+        assert "fail closed" in evidence.lower()
+
+    # -- Enabled truth table (P2, PRRT_kwDOQpaCdc6TDHOR) --------------------
+
+    def test_dlp_references_sits_qualifies_when_enabled_absent(self):
+        # Get-DlpCompliancePolicy has no reliable Enabled Boolean; a Mode=Enable
+        # policy with no Enabled key stays qualifying (Mode governs).
+        policy = scoped_policy(Rules=[direct_sit_rule("Test SIT")])
+        assert "Enabled" not in policy
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_qualifies_when_enabled_null(self):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=None, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_qualifies_when_enabled_true(self):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=True, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is True
+        assert "Test SIT" in evidence
+
+    def test_dlp_references_sits_rejects_explicit_false_enabled(self):
+        # An explicit strict boolean False disables the policy: reject it.
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=False, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is False
+        assert "copilot-scoped" in evidence.lower()
+        assert "Test SIT" not in evidence
+
+    @pytest.mark.parametrize(
+        "enabled",
+        ["false", "true", "True", "yes", 0, 1, 3.14, {}, [], {"v": 1}],
+    )
+    def test_dlp_references_sits_treats_malformed_enabled_conservatively(
+        self, enabled
+    ):
+        # A present but non-boolean Enabled value is uninterpretable: the policy
+        # is not credited and the evidence is reported malformed (fail closed),
+        # never silently accepted.
+        passed, evidence = self._evaluate(
+            [scoped_policy(Enabled=enabled, Rules=[direct_sit_rule("Test SIT")])]
+        )
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+        assert "Test SIT" not in evidence
+
+    def test_dlp_references_sits_missing_enabled_does_not_fail_valid_policy(self):
+        # Regression guard for P2: a valid scoped policy must not flip to fail
+        # merely because Enabled is absent or null.
+        for enabled_state in ("absent", "null"):
+            policy = scoped_policy(Rules=[direct_sit_rule("Test SIT")])
+            if enabled_state == "null":
+                policy["Enabled"] = None
+            passed, _ = self._evaluate([policy])
+            assert passed is True, enabled_state
+
+    # -- Empty / null and malformed contracts (preserved) -------------------
+
+    def test_dlp_references_sits_fails_closed_when_no_sit_conditions(self):
+        policy = scoped_policy(
+            Name="Enforced without SIT",
+            Enabled=True,
+            Rules=[{"Disabled": False, "ContentContainsSensitiveInformation": []}],
+        )
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_dlp_references_sits_fails_when_rules_list_empty(self):
+        # A *successfully collected* empty rule set ([]) on an enforced,
+        # Copilot-scoped policy scores fail (absence affirmatively observed), not
+        # unknown.
+        policy = scoped_policy(
+            Name="Enforced, zero collected rules", Enabled=True, Rules=[]
+        )
+
+        passed, evidence = self._evaluate([policy])
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_dlp_references_sits_empty_rules_singleton_policy_fails(self):
+        passed, evidence = self._evaluate(
+            scoped_policy(
+                Name="Singleton enforced, empty rules", Enabled=True, Rules=[]
+            )
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_dlp_references_sits_empty_rules_is_fail_but_null_is_unknown(self):
+        # Empty-collected ([] -> fail) and uncollected (null -> unknown) rule sets
+        # must resolve to DIFFERENT outcomes on an enforced, Copilot-scoped policy.
+        enforced = scoped_policy(Name="Enforced", Enabled=True)
+
+        empty_passed, empty_evidence = self._evaluate([{**enforced, "Rules": []}])
+        null_passed, null_evidence = self._evaluate([{**enforced, "Rules": None}])
+
+        assert empty_passed is False
+        assert "fail closed" in empty_evidence.lower()
+        assert null_passed is None
+        assert "not collected" in null_evidence.lower()
+        assert empty_passed != null_passed
+
+    def test_dlp_references_sits_empty_policy_list_is_fail_but_null_is_unknown(self):
+        # A *successfully collected* empty POLICY set ([]) affirmatively observes
+        # "no DLP policies exist" and scores fail; a genuinely uncollected (null)
+        # set stays unknown. The two must resolve to DIFFERENT outcomes.
+        empty_passed, empty_evidence = self._evaluate([])
+        null_passed, null_evidence = self._evaluate(None)
+
+        assert empty_passed is False
+        assert "fail closed" in empty_evidence.lower()
+        assert (
+            "no enforced, copilot-scoped dlp compliance policies"
+            in empty_evidence.lower()
+        )
+        assert null_passed is None
+        assert "not collected" in null_evidence.lower()
+        assert empty_passed != null_passed
+
+    @pytest.mark.parametrize("policies", ["not-a-policy", 1, True])
+    def test_dlp_references_sits_rejects_scalar_policy_values(self, policies):
+        passed, evidence = self._evaluate(policies)
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
+    @pytest.mark.parametrize("rules", ["not-rules", 1, True])
+    def test_dlp_references_sits_rejects_scalar_rule_values(self, rules):
+        passed, evidence = self._evaluate(
+            scoped_policy(Name="Scalar rules", Enabled=True, Rules=rules)
+        )
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
+    def test_dlp_references_sits_fails_closed_on_non_dict_policy(self):
+        passed, evidence = self._evaluate(["not-a-policy"])
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
+    @pytest.mark.parametrize(
+        "rules",
+        [["not-a-rule"], {"nested": {"Disabled": False}}],
+    )
+    def test_dlp_references_sits_fails_closed_on_malformed_rule_shapes(self, rules):
+        passed, evidence = self._evaluate(
+            [scoped_policy(Name="Malformed rule", Enabled=True, Rules=rules)]
+        )
+
+        assert passed is False
+        assert "malformed" in evidence.lower()
+
+    def test_dlp_references_sits_is_unknown_when_rule_collection_failed(self):
+        passed, evidence = self._evaluate(
+            scoped_policy(Name="Enforced", Enabled=True, Rules=None)
+        )
+
+        assert passed is None
+        assert "not collected" in evidence.lower()
+
+    def test_dlp_references_sits_is_unknown_when_policy_collection_missing(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"audit_config": {}}},
+            None,
+        )
+
+        assert passed is None
+        assert "not collected" in evidence.lower()
+
+    def test_dlp_references_sits_is_unknown_when_purview_missing(self):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        passed, evidence = score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": None},
+            None,
+        )
+
+        assert passed is None
+        assert "not available" in evidence.lower()
+
+# ---------------------------------------------------------------------------
+# Test: 1.13.b grouped SIT condition parsing
+#   Purview DLP rules built from an AdvancedRule grouped SIT match serialize as
+#   ContentContainsSensitiveInformation.groups[].sensitivetypes[].name — see
+#   docs/playbooks/control-implementations/1.13/powershell-setup.md (control
+#   4.7's playbook reads the live .groups property). The parser must credit
+#   these without breaking direct top-level Name support or failing closed on
+#   malformed structures.
+# ---------------------------------------------------------------------------
+
+
+class TestExtractSitReferencesGroupedShapes:
+    """_extract_sit_references parses grouped SIT conditions as well as the
+    pre-existing direct top-level Name / string shapes."""
+
+    @staticmethod
+    def _extract(rule):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._extract_sit_references(rule)  # noqa: SLF001
+
+    @staticmethod
+    def _rule(condition):
+        return {"Disabled": False, "ContentContainsSensitiveInformation": condition}
+
+    def test_grouped_list_shape(self):
+        rule = self._rule(
+            {
+                "groups": [
+                    {
+                        "name": "FSI-MNPI-Group",
+                        "operator": "Or",
+                        "sensitivetypes": [
+                            {
+                                "name": "CRD Number SIT",
+                                "confidencelevel": "High",
+                                "mincount": 1,
+                            },
+                            {"Name": "MNPI Keyword SIT"},
+                        ],
+                    }
+                ]
+            }
+        )
+        assert self._extract(rule) == {"CRD Number SIT", "MNPI Keyword SIT"}
+
+    def test_singleton_group_dict(self):
+        # ConvertTo-Json collapses a one-element groups array to a bare object.
+        rule = self._rule(
+            {
+                "groups": {
+                    "name": "FSI-MNPI-Group",
+                    "operator": "Or",
+                    "sensitivetypes": [{"name": "CRD Number SIT"}],
+                }
+            }
+        )
+        assert self._extract(rule) == {"CRD Number SIT"}
+
+    def test_singleton_sensitivetype_dict(self):
+        # ConvertTo-Json collapses a one-element sensitivetypes array too.
+        rule = self._rule(
+            {
+                "groups": [
+                    {
+                        "name": "FSI-MNPI-Group",
+                        "sensitivetypes": {"name": "CRD Number SIT"},
+                    }
+                ]
+            }
+        )
+        assert self._extract(rule) == {"CRD Number SIT"}
+
+    def test_fully_collapsed_group_and_sensitivetype(self):
+        # Singleton collapse can occur at the group and sensitivetype levels
+        # simultaneously; both normalizations must compose.
+        rule = self._rule(
+            {"groups": {"name": "G", "sensitivetypes": {"Name": "CRD Number SIT"}}}
+        )
+        assert self._extract(rule) == {"CRD Number SIT"}
+
+    def test_mixed_valid_and_malformed_sensitivetypes(self):
+        # Only structurally valid named dict entries are extracted; blank names,
+        # nameless/empty dicts, nulls and bare scalars contribute nothing.
+        rule = self._rule(
+            {
+                "groups": [
+                    {
+                        "name": "G",
+                        "sensitivetypes": [
+                            {"name": "Valid SIT"},
+                            {"Name": "   "},
+                            {"mincount": 1},
+                            {},
+                            None,
+                            "U.S. SSN",
+                            42,
+                        ],
+                    }
+                ]
+            }
+        )
+        assert self._extract(rule) == {"Valid SIT"}
+
+    def test_group_label_name_is_not_extracted(self):
+        # The group's own name is a label, not a SIT, and must not be credited.
+        rule = self._rule(
+            {
+                "groups": [
+                    {"name": "FSI-MNPI-Group", "sensitivetypes": [{"name": "Real SIT"}]}
+                ]
+            }
+        )
+        assert self._extract(rule) == {"Real SIT"}
+
+    @pytest.mark.parametrize(
+        "condition",
+        [
+            {"groups": "not-a-list"},
+            {"groups": 1},
+            {"groups": True},
+            {"groups": None},
+            {"groups": []},
+            {"groups": [None, 42, "x"]},
+            {"groups": [{}]},
+            {"groups": [{"operator": "Or"}]},
+            {"groups": [{"sensitivetypes": "not-a-list"}]},
+            {"groups": [{"sensitivetypes": 1}]},
+            {"groups": [{"sensitivetypes": []}]},
+            {"groups": [{"sensitivetypes": [None, 1, "x", {}, {"mincount": 1}]}]},
+        ],
+    )
+    def test_fully_malformed_grouped_structures_yield_no_names(self, condition):
+        assert self._extract(self._rule(condition)) == set()
+
+    def test_coexistence_direct_top_level_and_grouped_in_one_list(self):
+        # A ContentContainsSensitiveInformation list can carry a direct
+        # top-level Name entry alongside a grouped-condition object; both
+        # surface.
+        rule = self._rule(
+            [
+                {"Name": "Direct SIT"},
+                {"groups": [{"name": "G", "sensitivetypes": [{"name": "Grouped SIT"}]}]},
+            ]
+        )
+        assert self._extract(rule) == {"Direct SIT", "Grouped SIT"}
+
+    def test_direct_top_level_shapes_unchanged(self):
+        # Regression guard: pre-existing direct shapes keep working untouched.
+        assert self._extract(self._rule([{"Name": "Direct SIT"}])) == {"Direct SIT"}
+        assert self._extract(self._rule(["String SIT"])) == {"String SIT"}
+        assert self._extract(self._rule({"Name": "Singleton SIT"})) == {"Singleton SIT"}
+        assert self._extract(self._rule({"minCount": 1})) == set()
+        assert self._extract(self._rule("scalar")) == set()
+
+
+class TestDlpReferencesSitsGroupedEvaluator:
+    """End-to-end _eval_dlp_references_sits behavior for grouped SIT rules under
+    a valid Copilot scope."""
+
+    @staticmethod
+    def _evaluate(policies):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"dlpCompliancePolicies": policies}},
+            None,
+        )
+
+    @staticmethod
+    def _policy(rules):
+        return [scoped_policy(Enabled=True, Rules=rules)]
+
+    def test_enforced_grouped_rule_passes(self):
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {
+                            "groups": [
+                                {
+                                    "name": "FSI-MNPI-Group",
+                                    "operator": "Or",
+                                    "sensitivetypes": [
+                                        {
+                                            "name": "CRD Number SIT",
+                                            "confidencelevel": "High",
+                                            "mincount": 1,
+                                        }
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            )
+        )
+
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+
+    def test_enforced_grouped_rule_without_valid_names_fails_closed(self):
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {
+                            "groups": [{"sensitivetypes": [{}]}]
+                        },
+                    }
+                ]
+            )
+        )
+
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_grouped_and_direct_rules_credited_together(self):
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Direct SIT"],
+                    },
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": {
+                            "groups": [
+                                {
+                                    "name": "G",
+                                    "sensitivetypes": [{"name": "Grouped SIT"}],
+                                }
+                            ]
+                        },
+                    },
+                ]
+            )
+        )
+
+        assert passed is True
+        assert "Direct SIT" in evidence
+        assert "Grouped SIT" in evidence
+
+
+# ---------------------------------------------------------------------------
+# Test: 1.13.b AdvancedRule-backed SIT condition parsing
+#   Control 1.13 binds SITs to the Copilot workload via
+#   New-DlpComplianceRule -AdvancedRule (a JSON string), not
+#   -ContentContainsSensitiveInformation — see
+#   docs/playbooks/control-implementations/1.13/powershell-setup.md §9 and
+#   troubleshooting.md, plus control 1.5's AdvancedRule/SubConditions parse. The
+#   evaluator must credit these as a fallback, extract SIT names only from
+#   ContentContainsSensitiveInformation subconditions (never from a sibling
+#   ContentContainsSensitivityLabel, group label, or arbitrary Name), and fail
+#   closed on malformed or unrelated payloads.
+# ---------------------------------------------------------------------------
+
+
+def _advanced_rule(*sit_names, condition_name="ContentContainsSensitiveInformation"):
+    """Build the grounded AdvancedRule document (dict) for the given SIT names.
+
+    Mirrors New-FsiCopilotDlpPolicy.ps1 §9: a Version-1 Condition whose
+    SubConditions carry a grouped ContentContainsSensitiveInformation match.
+    """
+    return {
+        "Version": "1.0",
+        "Condition": {
+            "Operator": "And",
+            "SubConditions": [
+                {
+                    "ConditionName": condition_name,
+                    "Value": {
+                        "groups": [
+                            {
+                                "name": "FSI-MNPI-Group",
+                                "operator": "Or",
+                                "sensitivetypes": [
+                                    {
+                                        "name": sit,
+                                        "confidencelevel": "High",
+                                        "mincount": 1,
+                                    }
+                                    for sit in sit_names
+                                ],
+                            }
+                        ]
+                    },
+                }
+            ],
+        },
+    }
+
+
+class TestExtractAdvancedRuleSits:
+    """_extract_advanced_rule_sits parses grounded AdvancedRule SIT bindings and
+    fails closed on malformed / unrelated shapes."""
+
+    @staticmethod
+    def _extract(advanced):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._extract_advanced_rule_sits(  # noqa: SLF001
+            {"Disabled": False, "AdvancedRule": advanced}
+        )
+
+    def test_valid_advanced_rule_json_string(self):
+        # The collector preserves AdvancedRule as the raw JSON *string* the rule
+        # was created with; the evaluator must json.loads and walk it.
+        advanced = json.dumps(_advanced_rule("CRD Number SIT"))
+        assert self._extract(advanced) == {"CRD Number SIT"}
+
+    def test_valid_advanced_rule_multiple_sits(self):
+        advanced = json.dumps(_advanced_rule("CRD Number SIT", "MNPI Keyword SIT"))
+        assert self._extract(advanced) == {"CRD Number SIT", "MNPI Keyword SIT"}
+
+    def test_already_parsed_dict_payload(self):
+        # Defensive: if a collector/fixture ever emits AdvancedRule as a nested
+        # object rather than a string, the same walk applies.
+        assert self._extract(_advanced_rule("CRD Number SIT")) == {"CRD Number SIT"}
+
+    def test_singleton_subconditions_collapse(self):
+        # ConvertTo-Json can collapse a one-element SubConditions array to a
+        # bare object; normalize it like grouped conditions.
+        advanced = {
+            "Condition": {
+                "SubConditions": {
+                    "ConditionName": "ContentContainsSensitiveInformation",
+                    "Value": {"groups": [{"sensitivetypes": [{"name": "Solo SIT"}]}]},
+                }
+            }
+        }
+        assert self._extract(advanced) == {"Solo SIT"}
+
+    def test_singleton_group_and_sensitivetype_collapse(self):
+        # Collapse can occur at group and sensitivetype levels simultaneously.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": {"groups": {"name": "G", "sensitivetypes": {"name": "CRD Number SIT"}}},
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"CRD Number SIT"}
+
+    @pytest.mark.parametrize(
+        "condition_name",
+        [
+            "contentcontainssensitiveinformation",
+            "CONTENTCONTAINSSENSITIVEINFORMATION",
+            "  ContentContainsSensitiveInformation  ",
+        ],
+    )
+    def test_conditionname_casing_and_whitespace_normalized(self, condition_name):
+        advanced = json.dumps(_advanced_rule("CRD Number SIT", condition_name=condition_name))
+        assert self._extract(advanced) == {"CRD Number SIT"}
+
+    def test_sensitivity_label_subcondition_is_not_credited(self):
+        # Control 1.5: a rule can also carry a ContentContainsSensitivityLabel
+        # subcondition. Its names must NEVER be mistaken for SITs.
+        advanced = json.dumps(
+            _advanced_rule("Should Not Appear", condition_name="ContentContainsSensitivityLabel")
+        )
+        assert self._extract(advanced) == set()
+
+    def test_mixed_sit_and_label_subconditions_credit_only_sit(self):
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitivityLabel",
+                        "Value": {"groups": [{"sensitivetypes": [{"name": "Label Only"}]}]},
+                    },
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": {"groups": [{"sensitivetypes": [{"name": "Real SIT"}]}]},
+                    },
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Real SIT"}
+
+    def test_group_label_name_is_not_credited(self):
+        # The group's own name is a label; only sensitivetypes[].name are SITs.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": {"groups": [{"name": "FSI-MNPI-Group", "sensitivetypes": [{"name": "Real SIT"}]}]},
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Real SIT"}
+
+    def test_value_one_element_list_collapses(self):
+        # Microsoft's documented AdvancedRule (New-/Set-DlpComplianceRule
+        # examples) serializes the ContentContainsSensitiveInformation Value as a
+        # one-element array of grouped-SIT containers; it must credit identically
+        # to the bare-object form.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [{"groups": [{"sensitivetypes": [{"name": "Solo SIT"}]}]}],
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Solo SIT"}
+
+    def test_value_list_multiple_containers_union(self):
+        # A Value array may carry more than one grouped-SIT container
+        # (ContentContainsSensitiveInformation is a PswsHashtable[]); union them.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [
+                            {"groups": [{"sensitivetypes": [{"name": "CRD Number SIT"}]}]},
+                            {"groups": [{"sensitivetypes": [{"name": "MNPI Keyword SIT"}]}]},
+                        ],
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"CRD Number SIT", "MNPI Keyword SIT"}
+
+    def test_value_list_mixed_valid_and_malformed_entries(self):
+        # Non-dict entries (null, scalar, string) and dicts without a valid
+        # grouped SIT contribute nothing; only the real grouped SIT is credited.
+        advanced = {
+            "Condition": {
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [
+                            None,
+                            42,
+                            "janesteam@contoso.com",
+                            {"no-groups-here": 1},
+                            {"groups": [{"sensitivetypes": [{"name": "Real SIT"}]}]},
+                        ],
+                    }
+                ]
+            }
+        }
+        assert self._extract(advanced) == {"Real SIT"}
+
+    def test_value_list_and_dict_forms_equivalent(self):
+        # The bare-object Value and its one-element-array wrapping must yield the
+        # same names — the singleton collapse is purely a serialization artifact.
+        grouped = {"groups": [{"sensitivetypes": [{"name": "CRD Number SIT"}]}]}
+        dict_form = {
+            "Condition": {
+                "SubConditions": [
+                    {"ConditionName": "ContentContainsSensitiveInformation", "Value": grouped}
+                ]
+            }
+        }
+        list_form = {
+            "Condition": {
+                "SubConditions": [
+                    {"ConditionName": "ContentContainsSensitiveInformation", "Value": [grouped]}
+                ]
+            }
+        }
+        assert self._extract(dict_form) == self._extract(list_form) == {"CRD Number SIT"}
+
+    def test_microsoft_documented_value_array_credits_only_sensitivetype(self):
+        # Grounded end-to-end on the exact New-/Set-DlpComplianceRule doc example:
+        # the Value-array group carries a sensitivity `labels` entry, its own
+        # group `name` ("Default"), and a sibling FromMemberOf subcondition whose
+        # Value is a list of address strings. Only the sensitivetypes[].name is a
+        # SIT — the label GUID, the group label, and the address must be ignored.
+        advanced = {
+            "Version": "1.0",
+            "Condition": {
+                "Operator": "And",
+                "SubConditions": [
+                    {
+                        "ConditionName": "ContentContainsSensitiveInformation",
+                        "Value": [
+                            {
+                                "groups": [
+                                    {
+                                        "Operator": "Or",
+                                        "labels": [
+                                            {
+                                                "name": "defa4170-0d19-0005-000a-bc88714345d2",
+                                                "type": "Sensitivity",
+                                            }
+                                        ],
+                                        "name": "Default",
+                                        "sensitivetypes": [
+                                            {"confidencelevel": "Low", "name": "Credit Card Number"}
+                                        ],
+                                    }
+                                ]
+                            }
+                        ],
+                    },
+                    {
+                        "ConditionName": "FromMemberOf",
+                        "Value": ["janesteam@contoso.com"],
+                    },
+                ],
+            },
+        }
+        assert self._extract(advanced) == {"Credit Card Number"}
+
+    def test_malformed_json_string_yields_no_names(self):
+        assert self._extract("{ not valid json") == set()
+
+    @pytest.mark.parametrize("advanced", ["", "   ", "\n\t"])
+    def test_empty_or_whitespace_string_yields_no_names(self, advanced):
+        assert self._extract(advanced) == set()
+
+    @pytest.mark.parametrize("advanced", [None, 42, True, ["x"], 3.14])
+    def test_non_string_non_dict_payload_yields_no_names(self, advanced):
+        assert self._extract(advanced) == set()
+
+    @pytest.mark.parametrize(
+        "advanced",
+        [
+            {},
+            {"Condition": "not-a-dict"},
+            {"Condition": {}},
+            {"Condition": {"SubConditions": "not-a-list"}},
+            {"Condition": {"SubConditions": 1}},
+            {"Condition": {"SubConditions": []}},
+            {"Condition": {"SubConditions": [None, 42, "x"]}},
+            {"Condition": {"SubConditions": [{"Value": {"groups": [{"sensitivetypes": [{"name": "No ConditionName"}]}]}}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation"}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": "not-a-dict"}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": {"groups": [{"sensitivetypes": [{}]}]}}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": []}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": [None, 42, "x"]}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": ["janesteam@contoso.com"]}]}},
+            {"Condition": {"SubConditions": [{"ConditionName": "ContentContainsSensitiveInformation", "Value": [{"groups": [{"sensitivetypes": [{}]}]}]}]}},
+        ],
+    )
+    def test_malformed_structures_yield_no_names(self, advanced):
+        assert self._extract(advanced) == set()
+
+
+class TestDlpReferencesSitsAdvancedRuleEvaluator:
+    """End-to-end _eval_dlp_references_sits behavior for AdvancedRule-backed
+    rules and the direct/advanced fallback contract."""
+
+    @staticmethod
+    def _evaluate(policies):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._eval_dlp_references_sits(  # noqa: SLF001
+            {"purview": {"dlpCompliancePolicies": policies}},
+            None,
+        )
+
+    @staticmethod
+    def _policy(rules):
+        # AdvancedRule-backed rules exercised under a valid Copilot scope.
+        return [scoped_policy(Name="Copilot MNPI DLP", Enabled=True, Rules=rules)]
+
+    def test_enforced_advanced_rule_backed_policy_passes(self):
+        # An AdvancedRule-backed rule has no direct ContentContainsSensitive
+        # Information; the SIT must be recovered from AdvancedRule.
+        passed, evidence = self._evaluate(
+            self._policy(
+                [{"Disabled": False, "AdvancedRule": json.dumps(_advanced_rule("CRD Number SIT"))}]
+            )
+        )
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+
+    def test_malformed_advanced_rule_without_other_evidence_fails_closed(self):
+        passed, evidence = self._evaluate(
+            self._policy([{"Disabled": False, "AdvancedRule": "{ broken json"}])
+        )
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_label_only_advanced_rule_fails_closed(self):
+        # A rule whose AdvancedRule only carries a sensitivity-label subcondition
+        # references no SITs and must not manufacture a phantom pass.
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "AdvancedRule": json.dumps(
+                            _advanced_rule("Label Only", condition_name="ContentContainsSensitivityLabel")
+                        ),
+                    }
+                ]
+            )
+        )
+        assert passed is False
+        assert "fail closed" in evidence.lower()
+
+    def test_advanced_rule_fallback_when_direct_condition_absent(self):
+        # Direct condition present-but-null (AdvancedRule-backed rules) must still
+        # fall through to the AdvancedRule evidence rather than short-circuiting.
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": None,
+                        "AdvancedRule": json.dumps(_advanced_rule("CRD Number SIT")),
+                    }
+                ]
+            )
+        )
+        assert passed is True
+        assert "CRD Number SIT" in evidence
+
+    def test_direct_and_advanced_rules_credited_together(self):
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {"Disabled": False, "ContentContainsSensitiveInformation": ["Direct SIT"]},
+                    {"Disabled": False, "AdvancedRule": json.dumps(_advanced_rule("Advanced SIT"))},
+                ]
+            )
+        )
+        assert passed is True
+        assert "Direct SIT" in evidence
+        assert "Advanced SIT" in evidence
+
+    def test_direct_evidence_survives_malformed_advanced_rule_on_same_rule(self):
+        # A single rule carrying valid direct evidence AND a malformed
+        # AdvancedRule must still pass on the direct evidence (fallback never
+        # discards good evidence).
+        passed, evidence = self._evaluate(
+            self._policy(
+                [
+                    {
+                        "Disabled": False,
+                        "ContentContainsSensitiveInformation": ["Direct SIT"],
+                        "AdvancedRule": "{ broken",
+                    }
+                ]
+            )
+        )
+        assert passed is True
+        assert "Direct SIT" in evidence
 
 
 # ---------------------------------------------------------------------------
