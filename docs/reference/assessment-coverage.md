@@ -18,29 +18,30 @@ It is the honest answer to *what does the assessment engine actually automate to
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 8 | 10.1% |
+| ✅ Auto | 9 | 11.4% |
 | 📝 Manual | 27 | 34.2% |
-| ⚠️ Unimplemented | 44 | 55.7% |
+| ⚠️ Unimplemented | 43 | 54.4% |
 | **Total** | **79** | 100% |
 
 ### By check
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 11 | 11.6% |
-| 📝 Manual | 0 | 0.0% |
-| ⚠️ Unimplemented | 84 | 88.4% |
+| ✅ Auto | 12 | 12.6% |
+| 📝 Manual | 3 | 3.2% |
+| ⚠️ Unimplemented | 80 | 84.2% |
 | **Total** | **95** | 100% |
 
 ### Registered evaluators
 
-`assessment/engine/score.py` registers **13** bespoke evaluator functions:
+`assessment/engine/score.py` registers **14** bespoke evaluator functions:
 
 - `audit_log_enabled`
 - `audit_plan_tier_adequate`
 - `ca_policy_requires_mfa`
 - `ca_policy_targets_copilot_studio`
 - `copilot_retention_policy_exists`
+- `dlp_references_sits`
 - `dspm_policy_exists`
 - `fsi_publisher_group_exists`
 - `grounding_sources_approved`
@@ -63,9 +64,9 @@ It is the honest answer to *what does the assessment engine actually automate to
 |---------|-------|-------|------|--------|--------|------------|---------|
 | 1.1 | Control 1.1: Restrict Agent Publishing by Authorization | ✅ Auto | 3 | 0 | 0 | Graph_API, PPAC_PowerShell |  |
 | 1.10 | Control 1.10: Communication Compliance Monitoring | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: comm_compliance_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
-| 1.11 | Control 1.11: Conditional Access and Phishing-Resistant MFA | ✅ Auto | 1 | 2 | 0 | Graph_API | `pass_condition: signin_frequency_set` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: phishing_resistant_mfa` declared in manifest but no bespoke evaluator registered in s… |
+| 1.11 | Control 1.11: Conditional Access and Phishing-Resistant MFA | ✅ Auto | 1 | 0 | 2 | Graph_API | Manual review required. |
 | 1.12 | Control 1.12: Insider Risk Detection and Response | 📝 Manual | 0 | 0 | 0 | — |  |
-| 1.13 | Control 1.13: Sensitive Information Types (SITs) and Pattern Recognition | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, Purview_PowerShell | `pass_condition: sit_count_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: dlp_references_sits` declared in manifest but no bespoke evaluator registered in score.… |
+| 1.13 | Control 1.13: Sensitive Information Types (SITs) and Pattern Recognition | ✅ Auto | 1 | 0 | 1 | PPAC_PowerShell, Purview_PowerShell | Manual review required. |
 | 1.14 | Control 1.14: Data Minimization and Agent Scope Control | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.15 | Control 1.15: Encryption: Data in Transit and at Rest | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.16 | Control 1.16: Information Rights Management (IRM) for Documents | 📝 Manual | 0 | 0 | 0 | — |  |

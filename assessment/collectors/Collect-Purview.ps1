@@ -95,6 +95,7 @@ function Invoke-CollectorOperation {
 $collectorRoot = Split-Path -Parent $PSCommandPath
 . (Join-Path $collectorRoot 'lib\InsiderRiskSupport.ps1')
 . (Join-Path $collectorRoot 'lib\PurviewDspmSupport.ps1')
+. (Join-Path $collectorRoot 'lib\PurviewDlpSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -186,52 +187,95 @@ try {
     $rawDlp = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List DLP compliance policies' -ScriptBlock {
         Get-DlpCompliancePolicy -ErrorAction Stop
     }
-    $dlpCompliancePolicies = @(
-        foreach ($policy in $rawDlp) {
-            # Retrieve associated rules with blocking, plane, and condition evidence.
-            $policyName = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Name', 'Identity')
-            $rules = @()
-            $ruleCollectionSucceeded = $false
-            try {
-                $rules = @(
-                    Invoke-CollectorOperation -Target $policyName -Action 'List DLP compliance rules' -ScriptBlock {
-                        Get-DlpComplianceRule -Policy $policyName -ErrorAction Stop
-                    } | ForEach-Object {
-                        [PSCustomObject]@{
-                            Name                                = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Name', 'Identity')
-                            Priority                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Priority')
-                            Disabled                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Disabled')
-                            BlockAccess                         = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('BlockAccess')
-                            RestrictAccess                      = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictAccess')
-                            RestrictWebGrounding                 = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictWebGrounding')
-                            EnforcementPlanes                   = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('EnforcementPlanes')
-                            ContentContainsSensitiveInformation = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitiveInformation')
-                            ContentContainsSensitivityLabel     = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitivityLabel')
-                            AdvancedRule                        = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('AdvancedRule')
-                        }
-                    }
-                )
-                $ruleCollectionSucceeded = $true
+    # Reaching this point means Get-DlpCompliancePolicy completed without
+    # throwing (even if it returned zero rows). Project each policy here, then
+    # normalize the whole set through Resolve-DlpPolicyEvidence below so a
+    # successful-but-empty collection serializes as [] (evaluator: fail) rather
+    # than $null (evaluator: unknown) - the same successful-empty-versus-
+    # collection-failure distinction the per-policy rule set uses. A genuine
+    # query failure throws and is caught below, leaving $dlpCompliancePolicies
+    # $null (indeterminate/unknown) and $dlpCollectionSucceeded $false.
+    $collectedPolicies = foreach ($policy in $rawDlp) {
+        # Retrieve associated rules with SIT references (control 1.13.b) plus the
+        # blocking/plane/condition evidence control 1.6 (DSPM for AI) needs. The
+        # evidence contract keeps three rule-collection states distinct so neither
+        # evaluator conflates "no active rules" with "not collected":
+        #   - successful collection (0..n rows) -> array via Resolve-DlpRuleEvidence;
+        #     an empty result stays [] so control 1.13.b scores an enforced policy
+        #     with no SIT-backed active rules fail (not unknown) and control 1.6
+        #     treats collected-empty as negative evidence.
+        #   - collection failure / unavailable  -> $null plus a diagnostic warning
+        #     AND RuleCollectionSucceeded=$false, so control 1.13.b treats the rule
+        #     set as indeterminate and control 1.6 (which reads the explicit flag)
+        #     reports rule-collection failure on an otherwise-matching policy as
+        #     unknown rather than fail.
+        $policyName = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Name', 'Identity')
+        $rawRules = $null
+        $rulesCollected = $false
+        try {
+            $rawRules = Invoke-CollectorOperation -Target $policyName -Action 'List DLP compliance rules' -ScriptBlock {
+                Get-DlpComplianceRule -Policy $policyName -ErrorAction Stop
+            } | ForEach-Object {
+                # StrictMode-safe extraction (Get-PurviewDspmPropertyValue): the
+                # control-1.6 rule fields (RestrictAccess, RestrictWebGrounding,
+                # EnforcementPlanes, ContentContainsSensitivityLabel) are absent on
+                # some rule/module shapes, so a direct $_.Prop reference would throw
+                # PropertyNotFoundStrict. This superset also carries every field
+                # control 1.13.b reads (Name, Disabled,
+                # ContentContainsSensitiveInformation, AdvancedRule, BlockAccess,
+                # Priority).
+                [PSCustomObject]@{
+                    Name                                = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Name', 'Identity')
+                    Priority                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Priority')
+                    Disabled                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Disabled')
+                    BlockAccess                         = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('BlockAccess')
+                    RestrictAccess                      = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictAccess')
+                    RestrictWebGrounding                = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictWebGrounding')
+                    EnforcementPlanes                   = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('EnforcementPlanes')
+                    ContentContainsSensitiveInformation = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitiveInformation')
+                    ContentContainsSensitivityLabel     = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitivityLabel')
+                    AdvancedRule                        = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('AdvancedRule')
+                }
             }
-            catch {
-                $warnings.Add("DLP rules for policy '$policyName' failed: $($_.Exception.Message)")
-                Write-Warning $warnings[-1]
-            }
-
-            [PSCustomObject]@{
-                Name                    = $policyName
-                Mode                    = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Mode')
-                Workload                = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Workload')
-                Locations               = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Locations')
-                Location                = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Location')
-                EnforcementPlanes       = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('EnforcementPlanes')
-                Enabled                 = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Enabled')
-                Rules                   = $rules
-                RuleCollectionSucceeded = $ruleCollectionSucceeded
-                RuleCollectionStatus    = if ($ruleCollectionSucceeded) { 'collected' } else { 'failed' }
-            }
+            $rulesCollected = $true
         }
-    )
+        catch {
+            # Genuine collection failure: both the null Rules payload (control
+            # 1.13.b) and RuleCollectionSucceeded=$false (control 1.6) record it as
+            # unknown, never an affirmatively-empty rule set; the warning
+            # propagates to _metadata.warnings.
+            $rulesCollected = $false
+            $warnings.Add("DLP rules for policy '$policyName' failed to collect (recorded as indeterminate/unknown): $($_.Exception.Message)")
+            Write-Warning $warnings[-1]
+        }
+
+        # Control 1.13.b credits a policy only when it binds the Microsoft 365
+        # Copilot scope. Resolve-DlpPolicyScope preserves the three documented
+        # structural signals verbatim (only shape-normalized): Workload=Applications,
+        # a Locations entry carrying the Copilot location GUID, and the
+        # CopilotExperiences enforcement plane - so the evaluator (never a policy
+        # name or unrelated string) decides scope. Control 1.6 reads the same
+        # Workload/Locations/EnforcementPlanes (plus the raw singular Location key)
+        # and re-applies its own strict same-scope location parsing. Enabled is read
+        # through the StrictMode-safe helper: a genuinely absent property yields
+        # $null (Mode governs enforcement; Mode=Enable stays qualifying when Enabled
+        # is absent/null) while an explicit true/false or malformed present value
+        # still reaches both evaluators verbatim.
+        $scope = Resolve-DlpPolicyScope -Policy $policy
+        [PSCustomObject]@{
+            Name                    = $policyName
+            Mode                    = $policy.Mode
+            Workload                = $scope.Workload
+            EnforcementPlanes       = $scope.EnforcementPlanes
+            Locations               = $scope.Locations
+            Location                = (Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Location'))
+            Enabled                 = (Get-DlpScopeProperty -InputObject $policy -Name 'Enabled')
+            Rules                   = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
+            RuleCollectionSucceeded = $rulesCollected
+            RuleCollectionStatus    = if ($rulesCollected) { 'collected' } else { 'failed' }
+        }
+    }
+    $dlpCompliancePolicies = Resolve-DlpPolicyEvidence -CollectedPolicies $collectedPolicies -CollectionSucceeded $true
     $dlpCollectionSucceeded = $true
     Write-Verbose "  Collected $(@($dlpCompliancePolicies).Count) DLP compliance policy/policies."
 }

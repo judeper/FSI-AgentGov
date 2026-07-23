@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Generate controls.json manifest from control file metadata and markdown sources."""
+import argparse
 import json
-import os
 import re
+from pathlib import Path
 
-BASE = r"C:\Dev\FSI-AgentGov\docs\controls"
-OUTPUT = r"C:\Dev\FSI-AgentGov\assessment\manifest\controls.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+BASE = REPO_ROOT / "docs" / "controls"
+OUTPUT = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 
 PILLAR_DIRS = {
     1: ("pillar-1-security", "Security"),
@@ -26,8 +28,8 @@ CONTROLS = [
     ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell","Graph_API"],None),
     ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"partial",["Sentinel_KQL"],"Have runtime protection alerts been reviewed and tuned in the last 30 days?"),
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
-    ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"),
-    ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"full",["Graph_API"],None),
+    ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days, and does the Communication Compliance configuration capture and tag AI-related customer complaints with linkage to the underlying agent interaction and feed into the FINRA Rule 4530(d) quarterly report?"),
+    ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"partial",["Graph_API"],"Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA (for example FIDO2, device-bound passkeys, Windows Hello for Business, or CBA) is enforced for maker/admin identities."),
     ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
     ("1.14","1.14-data-minimization-and-agent-scope-control.md",1,"manual",[],"Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?"),
@@ -144,13 +146,13 @@ CHECKS_DB = {
     ],
     "1.11": [
         ("1.11.a","CA policy targeting Copilot Studio app enforces MFA","Get-MgIdentityConditionalAccessPolicy","ca_policy_requires_mfa",[1,2,3]),
-        ("1.11.b","Sign-in frequency policy set for agent sessions","Get-MgIdentityConditionalAccessPolicy","signin_frequency_set",[2,3]),
-        ("1.11.c","Phishing-resistant MFA required for Zone 3","Get-MgIdentityConditionalAccessPolicy","phishing_resistant_mfa",[3]),
+        ("1.11.b","Sign-in frequency policy set for agent sessions (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[2,3],["Manual"]),
+        ("1.11.c","Phishing-resistant MFA required for Zone 3 (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[3],["Manual"]),
     ],
     "1.12": [],  # manual only (portal evidence required)
     "1.13": [
-        ("1.13.a","SIT count in Purview covers regulated data types","Get-DlpCompliancePolicy","sit_count_adequate",[2,3]),
-        ("1.13.b","Agent DLP policy references SITs","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
+        ("1.13.a","SIT inventory in Purview covers regulated data types (manual evidence required)","Get-DlpSensitiveInformationType","",[2,3],["Manual"]),
+        ("1.13.b","Enforced Copilot-scoped DLP policy rules reference SIT conditions","Get-DlpCompliancePolicy","dlp_references_sits",[2,3]),
     ],
     "1.14": [],  # manual only
     "1.15": [],  # manual only (tenant/org surface does not expose TLS/at-rest proof)
@@ -327,11 +329,50 @@ CHECKS_DB = {
     "4.9": [],  # manual only
 }
 
+ZONE_THRESHOLD_OVERRIDES = {
+    "1.13": {
+        "zone1": {"min_checks_passed": 0, "maturity_score": 0},
+        "zone2": {"min_checks_passed": 1, "maturity_score": 2},
+        "zone3": {"min_checks_passed": 1, "maturity_score": 4},
+    },
+}
+
+# Authored title overrides. ``build_control`` normally derives ``title`` from
+# each control's source-markdown H1, and for every control but one that H1 is
+# the committed manifest title. Control 2.6's committed title was deliberately
+# curated by an audit to a shorter regulatory phrasing that differs from its
+# markdown H1; recording it here (mirroring ZONE_THRESHOLD_OVERRIDES) keeps the
+# generator authoritative for titles everywhere while preserving that curated
+# value, so regeneration reproduces the manifest byte-for-byte.
+TITLE_OVERRIDES = {
+    "2.6": "Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2)",
+}
+
+# The "generated core" — exactly the keys ``build_control`` emits. The
+# generator is the source of truth for these fields for every control it
+# defines, and only these fields are overwritten on regeneration. Every other
+# key on a committed control (regulatory / FINRA mappings, roles,
+# facilitatorNotes, yesBar / partialBar / noBar, sectorYesBar, solutions,
+# priority, applicable_*, controlDocUrl, portalPlaybookUrl, verify*, name, ...)
+# is authored enrichment and is preserved verbatim.
+GENERATED_CORE_FIELDS = (
+    "id",
+    "title",
+    "pillar",
+    "pillar_name",
+    "source_file",
+    "automation",
+    "collection_methods",
+    "checks",
+    "zone_thresholds",
+    "manual_question",
+)
+
 
 def extract_title(filepath):
     """Extract control title from the first H1 or metadata line."""
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with filepath.open("r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line.startswith("# "):
@@ -353,28 +394,37 @@ def extract_title(filepath):
 def build_control(cid, filename, pillar, automation, methods, manual_q):
     pillar_dir, pillar_name = PILLAR_DIRS[pillar]
     source_file = f"docs/controls/{pillar_dir}/{filename}"
-    filepath = os.path.join(BASE, pillar_dir, filename)
+    filepath = BASE / pillar_dir / filename
 
     # Extract title from file
     title = extract_title(filepath)
     if not title:
         # Derive from filename
         title = filename.replace(".md", "").split("-", 1)[-1].replace("-", " ").title()
+    # Preserve any deliberately curated title that diverges from the markdown H1.
+    title = TITLE_OVERRIDES.get(cid, title)
 
     # Get checks
     checks_raw = CHECKS_DB.get(cid, [])
     checks = []
-    for check_id, desc, api_call, pass_cond, zones in checks_raw:
-        checks.append({
+    auto_evaluable_checks = []
+    for check_data in checks_raw:
+        check_id, desc, api_call, pass_cond, zones, *metadata = check_data
+        check = {
             "check_id": check_id,
             "description": desc,
             "api_call": api_call,
             "pass_condition": pass_cond,
-            "zone_required": zones,
-        })
+        }
+        if metadata:
+            check["collection_methods"] = metadata[0]
+        check["zone_required"] = zones
+        checks.append(check)
+        if pass_cond and check.get("collection_methods") != ["Manual"]:
+            auto_evaluable_checks.append(check)
 
-    # Build zone thresholds based on number of checks
-    total = len(checks)
+    # Manual-only checks must never inflate automated pass thresholds.
+    total = len(auto_evaluable_checks)
     if total == 0:
         # Manual-only controls
         zone_thresholds = {
@@ -401,6 +451,7 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
             "zone2": {"min_checks_passed": z2_min, "maturity_score": 2},
             "zone3": {"min_checks_passed": total, "maturity_score": 4},
         }
+    zone_thresholds = ZONE_THRESHOLD_OVERRIDES.get(cid, zone_thresholds)
 
     return {
         "id": cid,
@@ -416,11 +467,73 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
     }
 
 
-def main():
-    controls = []
+def render_manifest(existing_controls=None):
+    generated_by_id = {}
     for cid, filename, pillar, automation, methods, manual_q in CONTROLS:
-        entry = build_control(cid, filename, pillar, automation, methods, manual_q)
+        generated_by_id[cid] = build_control(
+            cid, filename, pillar, automation, methods, manual_q
+        )
+
+    if not existing_controls:
+        return list(generated_by_id.values())
+
+    controls = []
+    seen_ids = set()
+    for existing in existing_controls:
+        entry = existing.copy()
+        generated = generated_by_id.get(existing["id"])
+        if generated is not None:
+            # Regenerate the generated-core fields (GENERATED_CORE_FIELDS) for
+            # every control the generator defines while preserving all authored
+            # enrichment already on the entry. This makes the generator
+            # genuinely reproducible repository-wide: any change to
+            # CHECKS_DB / CONTROLS core for *any* known control is written on
+            # regeneration and surfaced by ``--check`` — not merely for a
+            # hand-picked subset of controls.
+            entry.update(generated)
+        # Controls with no generator definition (authored-only, e.g. 2.27) are
+        # preserved wholesale; the generator makes no core claim over them.
         controls.append(entry)
+        seen_ids.add(existing["id"])
+
+    # Append generator-defined controls that are absent from the committed
+    # controls.json, in deterministic generator (CONTROLS) order. Without this,
+    # adding a new control to CONTROLS would be silently dropped on both
+    # ``generate`` (which walks existing controls only) and ``--check`` (which
+    # would then compare the dropped render against the committed file and pass),
+    # so a brand-new control could never enter the manifest and its absence would
+    # never surface as drift. Existing controls keep their committed position and
+    # authored enrichment; only genuinely new IDs are appended, and ``seen_ids``
+    # guards against emitting a duplicate control id.
+    for cid, generated in generated_by_id.items():
+        if cid not in seen_ids:
+            controls.append(generated)
+            seen_ids.add(cid)
+    return controls
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Exit non-zero if generated content differs from controls.json.",
+    )
+    args = parser.parse_args(argv)
+
+    existing_controls = []
+    if OUTPUT.exists():
+        existing_controls = json.loads(OUTPUT.read_text(encoding="utf-8"))
+    controls = render_manifest(existing_controls)
+    rendered = json.dumps(controls, indent=2, ensure_ascii=False) + "\n"
+
+    if args.check:
+        current = OUTPUT.read_text(encoding="utf-8") if OUTPUT.exists() else ""
+        if current != rendered:
+            print(f"Manifest drift detected: run {Path(__file__).name}")
+            return 1
+        print("Manifest is reproducible.")
+        return 0
 
     print(f"Generated {len(controls)} controls")
     print(f"  Pillar 1: {sum(1 for c in controls if c['pillar']==1)}")
@@ -431,11 +544,11 @@ def main():
     print(f"  Partial: {sum(1 for c in controls if c['automation']=='partial')}")
     print(f"  Manual: {sum(1 for c in controls if c['automation']=='manual')}")
 
-    with open(OUTPUT, "w", encoding="utf-8") as f:
-        json.dump(controls, f, indent=2, ensure_ascii=False)
+    OUTPUT.write_text(rendered, encoding="utf-8")
     print(f"\nWritten to {OUTPUT}")
-    print(f"File size: {os.path.getsize(OUTPUT):,} bytes")
+    print(f"File size: {OUTPUT.stat().st_size:,} bytes")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
