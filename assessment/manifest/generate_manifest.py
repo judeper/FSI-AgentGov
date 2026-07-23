@@ -128,7 +128,7 @@ CHECKS_DB = {
         ("1.5.b","Sensitivity label policies enabled","Get-LabelPolicy","sensitivity_labels_enabled",[2,3]),
     ],
     "1.6": [
-        ("1.6.a","DSPM for AI policy exists in Purview","Get-DlpCompliancePolicy","dspm_policy_exists",[2,3]),
+        ("1.6.a","Actively enforced Microsoft 365 Copilot DLP policy matches all documented signals","Get-DlpCompliancePolicy","dspm_policy_exists",[2,3]),
     ],
     "1.7": [
         ("1.7.a","Unified audit logging enabled","Get-AdminAuditLogConfig","audit_log_enabled",[1,2,3]),

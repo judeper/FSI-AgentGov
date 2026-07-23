@@ -18,23 +18,23 @@ It is the honest answer to *what does the assessment engine actually automate to
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 8 | 10.1% |
+| ✅ Auto | 9 | 11.4% |
 | 📝 Manual | 27 | 34.2% |
-| ⚠️ Unimplemented | 44 | 55.7% |
+| ⚠️ Unimplemented | 43 | 54.4% |
 | **Total** | **79** | 100% |
 
 ### By check
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 11 | 11.6% |
+| ✅ Auto | 12 | 12.6% |
 | 📝 Manual | 3 | 3.2% |
-| ⚠️ Unimplemented | 81 | 85.3% |
+| ⚠️ Unimplemented | 80 | 84.2% |
 | **Total** | **95** | 100% |
 
 ### Registered evaluators
 
-`assessment/engine/score.py` registers **13** bespoke evaluator functions:
+`assessment/engine/score.py` registers **14** bespoke evaluator functions:
 
 - `audit_log_enabled`
 - `audit_plan_tier_adequate`
@@ -42,6 +42,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 - `ca_policy_targets_copilot_studio`
 - `copilot_retention_policy_exists`
 - `dlp_references_sits`
+- `dspm_policy_exists`
 - `fsi_publisher_group_exists`
 - `grounding_sources_approved`
 - `no_everyone_assignment`
@@ -86,7 +87,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 1.3 | Control 1.3: SharePoint Content Governance and Permissions | ⚠️ Unimplemented | 0 | 2 | 0 | SharePoint_Graph | `pass_condition: permission_inheritance_intact` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: no_oversharing` declared in manifest but no bespoke evaluator registered in … |
 | 1.4 | Control 1.4: Advanced Connector Policies (ACP) | ⚠️ Unimplemented | 0 | 3 | 0 | PPAC_PowerShell | `pass_condition: dlp_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: acp_allowlist_configured` declared in manifest but no bespoke evaluator registered in sc… |
 | 1.5 | Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, Purview_PowerShell | `pass_condition: dlp_scope_covers_agents` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: sensitivity_labels_enabled` declared in manifest but no bespoke evaluator register… |
-| 1.6 | Control 1.6: Microsoft Purview DSPM for AI | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: dspm_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
+| 1.6 | Control 1.6: Microsoft Purview DSPM for AI | ✅ Auto | 1 | 0 | 0 | Purview_PowerShell |  |
 | 1.7 | Control 1.7: Comprehensive Audit Logging and Compliance | ✅ Auto | 2 | 0 | 0 | Graph_API, Purview_PowerShell |  |
 | 1.8 | Control 1.8: Runtime Protection and External Threat Detection | ⚠️ Unimplemented | 0 | 1 | 0 | Sentinel_KQL | `pass_condition: sentinel_agent_alerts_exist` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 1.9 | Control 1.9: Data Retention and Deletion Policies | ✅ Auto | 1 | 1 | 0 | Purview_PowerShell | `pass_condition: retention_duration_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |

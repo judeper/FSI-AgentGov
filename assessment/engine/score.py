@@ -556,6 +556,11 @@ def _normalize_purview_data(purview: dict) -> dict:
         if isinstance(retention_policies, list):
             normalized["retention_policies"] = retention_policies
 
+    if normalized.get("dspm_for_ai") is None:
+        dspm_for_ai = _first_present(purview, "dspmForAi")
+        if isinstance(dspm_for_ai, dict):
+            normalized["dspm_for_ai"] = dspm_for_ai
+
     return normalized
 
 
@@ -1832,6 +1837,72 @@ def _eval_no_external_sharing_on_grounding(
     return True, "External sharing is 'Disabled' on all grounding sites"
 
 
+def _eval_dspm_policy_exists(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    """Control 1.6.a: actively enforced Microsoft 365 Copilot DLP exists."""
+    purview = collected.get("purview")
+    if not purview:
+        return None, "Purview data not available"
+    dspm = purview.get("dspm_for_ai")
+    if not isinstance(dspm, dict):
+        return None, "dspmForAi not collected"
+
+    collection_status = str(dspm.get("CollectionStatus") or "").strip().lower()
+    if collection_status != "collected":
+        note = dspm.get("Note") or "DSPM DLP collection state is unavailable"
+        return None, note
+
+    diagnostic_count = dspm.get("DiagnosticPolicyCount")
+    diagnostics = dspm.get("PolicyDiagnostics")
+    if (
+        not isinstance(diagnostic_count, int)
+        or isinstance(diagnostic_count, bool)
+        or not isinstance(diagnostics, list)
+        or diagnostic_count != len(diagnostics)
+        or not all(isinstance(diagnostic, dict) for diagnostic in diagnostics)
+    ):
+        return None, "dspmForAi canonical policy diagnostics are unavailable or malformed"
+
+    detected = dspm.get("Detected")
+    count = dspm.get("PolicyCount")
+    try:
+        policy_count = int(count or 0)
+    except (TypeError, ValueError):
+        return None, "dspmForAi PolicyCount is malformed"
+    if policy_count < 0:
+        return None, "dspmForAi PolicyCount is malformed"
+
+    qualifying_diagnostics = [
+        diagnostic for diagnostic in diagnostics if diagnostic.get("Qualifies") is True
+    ]
+    if (
+        detected is True
+        and policy_count > 0
+        and len(qualifying_diagnostics) == policy_count
+    ):
+        policy_names = dspm.get("PolicyNames") or []
+        if not isinstance(policy_names, list):
+            policy_names = []
+        names = ", ".join(str(name) for name in policy_names if name)
+        suffix = f": {names}" if names else ""
+        return (
+            True,
+            f"{policy_count} actively enforced Microsoft 365 Copilot DLP "
+            f"policy/policies match Workload=Applications, the documented "
+            f"Copilot location, and EnforcementPlane=CopilotExperiences{suffix}",
+        )
+
+    if qualifying_diagnostics or policy_count > 0:
+        return None, "dspmForAi summary is inconsistent with policy diagnostics"
+
+    note = dspm.get("Note") or (
+        "DLP collection succeeded; no qualifying actively enforced "
+        "Microsoft 365 Copilot DLP policy was found"
+    )
+    return False, note
+
+
 # --- Evaluator registry ---------------------------------------------------
 
 EVALUATORS: dict[str, object] = {
@@ -1848,6 +1919,7 @@ EVALUATORS: dict[str, object] = {
     "dlp_references_sits": _eval_dlp_references_sits,
     "grounding_sources_approved": _eval_grounding_sources_approved,
     "no_external_sharing_on_grounding": _eval_no_external_sharing_on_grounding,
+    "dspm_policy_exists": _eval_dspm_policy_exists,
 }
 
 

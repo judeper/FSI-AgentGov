@@ -39,17 +39,20 @@
       "Enabled": null,
       "Rules": [
         {
-          "Name": "Block public sharing of sensitive content",
+          "Name": "Restrict web grounding for sensitive content",
+          "Priority": 0,
           "Disabled": false,
-          "ContentContainsSensitiveInformation": [
-            {
-              "Name": "U.S. Social Security Number"
-            }
-          ],
-          "BlockAccess": true,
-          "Priority": 0
+          "BlockAccess": null,
+          "RestrictAccess": null,
+          "RestrictWebGrounding": true,
+          "EnforcementPlanes": null,
+          "ContentContainsSensitiveInformation": null,
+          "ContentContainsSensitivityLabel": null,
+          "AdvancedRule": "{\"Version\":\"1.0\",\"Condition\":{\"Operator\":\"And\",\"SubConditions\":[{\"ConditionName\":\"ContentContainsSensitiveInformation\",\"Value\":[{\"groups\":[{\"Operator\":\"Or\",\"name\":\"Default\",\"sensitivetypes\":[{\"confidencelevel\":\"Low\",\"name\":\"U.S. Social Security Number\"}]}]}]}]}}"
         }
-      ]
+      ],
+      "RuleCollectionSucceeded": true,
+      "RuleCollectionStatus": "collected"
     }
   ],
   "retentionPolicies": [
@@ -80,9 +83,76 @@
   ],
   "insiderRiskPolicies": [],
   "dspmForAi": {
-    "Available": true,
-    "AlertsEnabled": true,
-    "LastAssessment": "2026-05-18T12:00:00Z"
+    "CollectionStatus": "collected",
+    "Detected": true,
+    "PolicyCount": 1,
+    "PolicyNames": [
+      "Copilot Data Loss Prevention"
+    ],
+    "DiagnosticPolicyCount": 1,
+    "PolicyDiagnostics": [
+      {
+        "Name": "Copilot Data Loss Prevention",
+        "Qualifies": true,
+        "WorkloadMatched": true,
+        "LocationMatched": true,
+        "EnforcementPlaneMatched": true,
+        "ActiveEnforcement": true,
+        "PolicyLevelMatched": true,
+        "RuleEvidenceAvailable": true,
+        "RuleCollectionStatus": "collected",
+        "RuleCount": 1,
+        "QualifyingRuleCount": 1,
+        "QualifyingRuleNames": [
+          "Restrict web grounding for sensitive content"
+        ],
+        "RuleDiagnostics": [
+          {
+            "Name": "Restrict web grounding for sensitive content",
+            "Priority": 0,
+            "Qualifies": true,
+            "ActiveRule": true,
+            "Disabled": false,
+            "BlockAccess": null,
+            "RestrictAccessMatched": false,
+            "RestrictWebGrounding": true,
+            "RestrictWebGroundingMatched": true,
+            "BlockingMatched": true,
+            "EnforcementPlaneSpecified": false,
+            "EnforcementPlaneMatched": true,
+            "SensitiveInformationMatched": false,
+            "SensitivityLabelMatched": false,
+            "AdvancedRuleSensitiveInformationMatched": true,
+            "AdvancedRuleSensitivityLabelMatched": false,
+            "EnforcementPlanes": [],
+            "RestrictAccess": null,
+            "AdvancedRule": "{\"Version\":\"1.0\",\"Condition\":{\"Operator\":\"And\",\"SubConditions\":[{\"ConditionName\":\"ContentContainsSensitiveInformation\",\"Value\":[{\"groups\":[{\"Operator\":\"Or\",\"name\":\"Default\",\"sensitivetypes\":[{\"confidencelevel\":\"Low\",\"name\":\"U.S. Social Security Number\"}]}]}]}]}}",
+            "ContentContainsSensitiveInformation": null,
+            "ContentContainsSensitivityLabel": null,
+            "Diagnostic": "Qualifying active Microsoft 365 Copilot blocking/restrictive rule."
+          }
+        ],
+        "Mode": "Enable",
+        "Enabled": null,
+        "Workloads": [
+          "Applications"
+        ],
+        "Locations": [
+          "470f2276-e011-4e9d-a6ec-20768be3a4b0"
+        ],
+        "EnforcementPlanes": [
+          "CopilotExperiences"
+        ],
+        "Diagnostic": "Qualifying actively enforced Microsoft 365 Copilot DLP policy with relevant active blocking rule evidence."
+      }
+    ],
+    "RuleCollectionFailureCount": 0,
+    "RelevantRuleCollectionFailureCount": 0,
+    "RetentionCoverage": true,
+    "RetentionPolicyNames": [
+      "Copilot Interaction Retention"
+    ],
+    "Note": "Detected 1 actively enforced Microsoft 365 Copilot DLP policy/policies with relevant active blocking rule evidence."
   },
   "sensitivityLabelPolicies": [
     {
