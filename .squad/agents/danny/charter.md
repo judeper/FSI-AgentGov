@@ -3,7 +3,7 @@
 > Thin override for FSI-AgentGov. Full charter in `judeper/OceanSquad/.squad/agents/danny/charter.md`.
 
 ## Repo-Specific Routing Context
-- This repo has 78 controls across 4 pillars with strict language rules
+- This repo has 79 controls across 4 pillars with strict language rules
 - Typo/link fixes → linus (LOW tier, auto-merge eligible)
 - Control content edits → linus (REVIEW tier)
 - Validation script changes → rusty
