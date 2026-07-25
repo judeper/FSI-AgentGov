@@ -21,8 +21,14 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "assessment" / "manifest" / "controls.json"
+GENERATOR = REPO_ROOT / "assessment" / "manifest" / "generate_manifest.py"
 VALIDATOR = REPO_ROOT / "scripts" / "validate_manifest.py"
 SCORE_ENGINE = REPO_ROOT / "assessment" / "engine" / "score.py"
+EXPLORER_DATA = REPO_ROOT / "docs" / "javascripts" / "control-explorer-data.json"
+CHANGE_RADAR_DATA = REPO_ROOT / "docs" / "javascripts" / "change-radar-data.json"
+CONTROL_EXPLORER_JS = REPO_ROOT / "docs" / "javascripts" / "control-explorer.js"
+CONTROL_BLUF_JS = REPO_ROOT / "docs" / "javascripts" / "control-bluf.js"
+ASSESSMENT_APP_JS = REPO_ROOT / "docs" / "javascripts" / "assessment-app.js"
 
 
 def _run(args: list[str]) -> subprocess.CompletedProcess:
@@ -42,6 +48,20 @@ def _load_score_module():
     return score
 
 
+def _load_generate_manifest_module():
+    """Import generate_manifest.py as an isolated module instance.
+
+    Each call returns a fresh module so tests can mutate its in-memory
+    CHECKS_DB / CONTROLS source-of-truth (or OUTPUT path) without touching the
+    real generator used by other tests or by the subprocess ``--check`` guard.
+    """
+    spec = importlib.util.spec_from_file_location("generate_manifest", GENERATOR)
+    assert spec and spec.loader, "Failed to load generate_manifest module"
+    gm = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gm)
+    return gm
+
+
 def test_manifest_validates_in_allow_todo_mode():
     """The shipped manifest must pass with --allow-todo."""
     result = _run(["--allow-todo", "--quiet"])
@@ -55,6 +75,35 @@ def test_manifest_has_79_controls():
     assert len(controls) == 79
     ids = [c["id"] for c in controls]
     assert len(set(ids)) == 79, "duplicate control ids"
+
+
+def test_primary_finra_notice_mapping_uses_finra_24_09():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    with_24_09 = [c["id"] for c in controls if "FINRA-24-09" in c.get("regulatory", [])]
+    with_25_07 = [c["id"] for c in controls if "FINRA-25-07" in c.get("regulatory", [])]
+
+    assert with_25_07 == [], (
+        "FINRA-25-07 is pending/nonbinding metadata and must not be used as a "
+        f"primary manifest mapping: {with_25_07}"
+    )
+    assert len(with_24_09) == 71, (
+        "Expected FINRA-24-09 to carry the corrected primary mapping footprint; "
+        f"found {len(with_24_09)} controls"
+    )
+    assert {"1.1", "2.1", "3.1", "4.1", "2.26"} <= set(with_24_09)
+
+
+def test_finra_25_07_stays_in_explicit_pending_metadata_surfaces():
+    assert "FINRA-25-07" not in MANIFEST.read_text(encoding="utf-8")
+    assert "FINRA-25-07" not in EXPLORER_DATA.read_text(encoding="utf-8")
+    assert "FINRA-25-07" not in CHANGE_RADAR_DATA.read_text(encoding="utf-8")
+
+    assert '"FINRA-25-07": true' in CONTROL_EXPLORER_JS.read_text(encoding="utf-8")
+    assert '"FINRA-25-07": true' in CONTROL_BLUF_JS.read_text(encoding="utf-8")
+
+    assessment_text = ASSESSMENT_APP_JS.read_text(encoding="utf-8")
+    assert "FINRA RN 25-07" in assessment_text
+    assert "NOT been adopted as binding rulemaking" in assessment_text
 
 
 def test_every_control_has_v14_keys():
@@ -136,6 +185,383 @@ def test_control_1_12_requires_manual_portal_review():
     assert ctrl["collection_methods"] == []
     assert ctrl["checks"] == []
     assert "Purview portal evidence" in ctrl["manual_question"]
+
+
+def test_generate_manifest_reproduces_committed_manifest():
+    result = subprocess.run(
+        [sys.executable, str(GENERATOR), "--check"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, (
+        f"Generator drifted:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Generator reproducibility repository-wide (PR #1021 Codex thread
+# PRRT_kwDOQpaCdc6TAmIx): render_manifest must regenerate and compare the
+# generated-core fields for *every* generator-defined control while preserving
+# authored enrichment. Previously only 1.11 / 1.13 were regenerated, so a
+# CHECKS_DB / CONTROLS change to any of the other 77 controls was silently
+# dropped and never surfaced by ``--check``.
+# ---------------------------------------------------------------------------
+
+
+def test_build_control_emits_exactly_the_generated_core_fields():
+    """Locks the generated-core contract used to split regen vs preservation."""
+    gm = _load_generate_manifest_module()
+    row = next(r for r in gm.CONTROLS if r[0] == "1.1")
+    built = gm.build_control(*row)
+    assert set(built.keys()) == set(gm.GENERATED_CORE_FIELDS)
+
+
+def test_render_regenerates_checks_for_non_authoritative_control(monkeypatch):
+    """A CHECKS_DB change to an ordinary control is now written on render."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    target = "1.1"
+    assert target not in {"1.11", "1.13"}
+
+    injected = (
+        "1.1.zzz",
+        "Injected regression check",
+        "Get-MgGroup",
+        "no_everyone_assignment",
+        [3],
+    )
+    monkeypatch.setitem(
+        gm.CHECKS_DB, target, list(gm.CHECKS_DB[target]) + [injected]
+    )
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    rendered_check_ids = [chk["check_id"] for chk in rendered[target]["checks"]]
+
+    # Old behavior preserved 1.1 wholesale (injected check absent); the fix
+    # regenerates generated-core for every known control.
+    assert "1.1.zzz" in rendered_check_ids
+    assert rendered[target]["checks"] != existing_by_id[target]["checks"]
+    # Authored enrichment stays intact.
+    assert rendered[target]["regulatory"] == existing_by_id[target]["regulatory"]
+
+
+def test_render_regenerates_metadata_for_non_authoritative_control(monkeypatch):
+    """CONTROLS metadata (automation / methods / manual_question) is regenerated."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    target = "1.5"
+    assert target not in {"1.11", "1.13"}
+
+    new_controls = []
+    for row in gm.CONTROLS:
+        if row[0] == target:
+            cid, filename, pillar, _automation, _methods, _manual_q = row
+            new_controls.append(
+                (
+                    cid,
+                    filename,
+                    pillar,
+                    "partial",
+                    ["PPAC_PowerShell", "Graph_API"],
+                    "Injected regression manual question?",
+                )
+            )
+        else:
+            new_controls.append(row)
+    monkeypatch.setattr(gm, "CONTROLS", new_controls)
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+
+    assert rendered[target]["automation"] == "partial"
+    assert rendered[target]["collection_methods"] == ["PPAC_PowerShell", "Graph_API"]
+    assert rendered[target]["manual_question"] == "Injected regression manual question?"
+    # These generated-core fields differ from the committed manifest, so
+    # ``--check`` would now fire.
+    assert rendered[target]["automation"] != existing_by_id[target]["automation"]
+    # Authored enrichment is preserved.
+    assert rendered[target]["regulatory"] == existing_by_id[target]["regulatory"]
+
+
+def test_check_detects_non_authoritative_core_drift(tmp_path, monkeypatch):
+    """``--check`` must fail on stale generated-core for an ordinary control."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    stale = copy.deepcopy(existing)
+    target = next(c for c in stale if c["id"] == "1.1")
+    target["checks"][0]["description"] = "STALE DESCRIPTION — generator must overwrite"
+
+    stale_path = tmp_path / "controls.json"
+    stale_path.write_text(
+        json.dumps(stale, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(gm, "OUTPUT", stale_path)
+
+    assert gm.main(["--check"]) == 1
+
+
+def test_render_preserves_authored_enrichment_for_ordinary_control():
+    """Every non-core (authored) field of an ordinary control is preserved."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    target = "1.5"
+
+    enrichment_keys = [
+        k for k in existing_by_id[target] if k not in gm.GENERATED_CORE_FIELDS
+    ]
+    assert "regulatory" in enrichment_keys  # sanity: enrichment is present
+    for key in enrichment_keys:
+        assert rendered[target][key] == existing_by_id[target][key], key
+    assert set(gm.GENERATED_CORE_FIELDS) <= set(rendered[target].keys())
+
+
+def test_render_preserves_authored_only_control_wholesale():
+    """A control with no generator definition (2.27) is preserved verbatim."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+    assert "2.27" not in {row[0] for row in gm.CONTROLS}
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    assert rendered["2.27"] == existing_by_id["2.27"]
+
+
+# ---------------------------------------------------------------------------
+# Generator completeness for *new* controls (PR #1021 Codex thread
+# PRRT_kwDOQpaCdc6TBvvV): render_manifest previously walked existing_controls
+# only, so a control added to CONTROLS but absent from the committed
+# controls.json was silently dropped on both ``generate`` (walks existing only)
+# and ``--check`` (compares the dropped render to the committed file). The
+# generator must append missing generated controls in deterministic generator
+# order so a brand-new control both enters the manifest and surfaces as drift.
+# ---------------------------------------------------------------------------
+
+
+def _controls_with_appended(gm, *rows):
+    """Return CONTROLS with extra generator rows appended (generator order)."""
+    return list(gm.CONTROLS) + list(rows)
+
+
+def test_render_appends_missing_generated_control(monkeypatch):
+    """A control added to CONTROLS but absent from controls.json is appended."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    assert "2.90" not in {c["id"] for c in existing}
+
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm, ("2.90", "2.90-newly-authored-control.md", 2, "manual", [], "New?")
+        ),
+    )
+
+    rendered = gm.render_manifest(existing)
+    ids = [c["id"] for c in rendered]
+
+    assert "2.90" in ids
+    # Appended at the end (generator order); existing controls keep their order.
+    assert ids[-1] == "2.90"
+    assert ids[: len(existing)] == [c["id"] for c in existing]
+    # The appended control carries the full generated-core contract.
+    new_control = next(c for c in rendered if c["id"] == "2.90")
+    assert set(gm.GENERATED_CORE_FIELDS) <= set(new_control.keys())
+
+
+def test_render_appends_multiple_missing_controls_in_generator_order(monkeypatch):
+    """Multiple new controls are appended in CONTROLS (generator) order."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm,
+            ("2.90", "2.90-new-a.md", 2, "manual", [], "A?"),
+            ("2.91", "2.91-new-b.md", 2, "full", ["PPAC_PowerShell"], None),
+        ),
+    )
+
+    ids = [c["id"] for c in gm.render_manifest(existing)]
+    assert ids[-2:] == ["2.90", "2.91"]
+
+
+def test_render_appends_missing_without_duplicates_or_disturbing_authored(monkeypatch):
+    """Appending new controls preserves authored-only 2.27 and adds no dups."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    existing_by_id = {c["id"]: c for c in existing}
+
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm, ("2.90", "2.90-new-a.md", 2, "manual", [], "A?")
+        ),
+    )
+
+    rendered = gm.render_manifest(existing)
+    ids = [c["id"] for c in rendered]
+
+    assert len(ids) == len(existing) + 1
+    assert len(ids) == len(set(ids)), "no duplicate control ids"
+    # Authored-only control is preserved verbatim and not duplicated.
+    assert ids.count("2.27") == 1
+    rendered_by_id = {c["id"]: c for c in rendered}
+    assert rendered_by_id["2.27"] == existing_by_id["2.27"]
+    # Authored enrichment on an ordinary control is still preserved.
+    assert rendered_by_id["1.5"]["regulatory"] == existing_by_id["1.5"]["regulatory"]
+
+
+def test_check_detects_missing_generated_control_drift(tmp_path, monkeypatch):
+    """``--check`` fails when CONTROLS gains a control absent from controls.json."""
+    gm = _load_generate_manifest_module()
+    committed = MANIFEST.read_text(encoding="utf-8")
+
+    # OUTPUT points at an unmodified copy of the committed manifest (no new
+    # control); CONTROLS gains a new control. render must append it, so the
+    # rendered text now differs from the committed file and --check fails.
+    output_path = tmp_path / "controls.json"
+    output_path.write_text(committed, encoding="utf-8")
+    monkeypatch.setattr(gm, "OUTPUT", output_path)
+    monkeypatch.setattr(
+        gm,
+        "CONTROLS",
+        _controls_with_appended(
+            gm, ("2.90", "2.90-new-a.md", 2, "manual", [], "A?")
+        ),
+    )
+
+    assert gm.main(["--check"]) == 1
+
+
+def test_control_1_11_marks_non_evaluable_subchecks_manual():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.11")
+    checks = {chk["check_id"]: chk for chk in ctrl["checks"]}
+
+    assert ctrl["automation"] == "partial"
+    assert isinstance(ctrl["manual_question"], str) and ctrl["manual_question"].strip()
+    assert ctrl["zone_thresholds"]["zone3"]["min_checks_passed"] == 1
+
+    assert checks["1.11.a"]["pass_condition"] == "ca_policy_requires_mfa"
+    assert checks["1.11.b"]["pass_condition"] == ""
+    assert checks["1.11.c"]["pass_condition"] == ""
+    assert checks["1.11.b"].get("collection_methods") == ["Manual"]
+    assert checks["1.11.c"].get("collection_methods") == ["Manual"]
+
+
+def test_control_1_4_separates_classic_dlp_from_required_acp_evidence():
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.4")
+    checks = {chk["check_id"]: chk for chk in ctrl["checks"]}
+
+    assert ctrl["automation"] == "partial"
+    assert ctrl["collection_methods"] == ["PPAC_PowerShell"]
+    assert ctrl["zone_thresholds"] == {
+        "zone1": {"min_checks_passed": 1, "maturity_score": 1},
+        "zone2": {"min_checks_passed": 1, "maturity_score": 2},
+        "zone3": {"min_checks_passed": 1, "maturity_score": 4},
+    }
+
+    question = ctrl["manual_question"].lower()
+    for required_term in (
+        "policy",
+        "assignment",
+        "allowlist",
+        "environment-group scope",
+        "runtime",
+        "blocked connector",
+        "zone 2",
+        "zone 3",
+    ):
+        assert required_term in question
+
+    assert checks["1.4.a"]["api_call"] == "Get-DlpPolicy"
+    assert checks["1.4.a"]["pass_condition"] == "dlp_policy_exists"
+    assert checks["1.4.a"]["description"] == (
+        "Enabled classic DLP policy has effective scope over collected "
+        "Power Platform environments"
+    )
+    assert "agent" not in checks["1.4.a"]["description"].lower()
+    assert score.classify_check_evaluator_state(
+        checks["1.4.a"], ctrl["automation"], ctrl["collection_methods"]
+    ) == "auto_evaluable"
+    assert score._resolve_source_key(  # noqa: SLF001
+        checks["1.4.a"]["api_call"], ctrl["collection_methods"]
+    ) == "ppac"
+
+    acp_api = (
+        "https://api.powerplatform.com/governance/ruleBasedPolicies"
+        "?api-version=2024-10-01"
+    )
+    for check_id in ("1.4.b", "1.4.c"):
+        check = checks[check_id]
+        assert check["api_call"] == acp_api
+        assert check["pass_condition"] == ""
+        assert check["collection_methods"] == ["Manual"]
+        assert score.classify_check_evaluator_state(
+            check, ctrl["automation"], ctrl["collection_methods"]
+        ) == "manual_only"
+        assert score._resolve_source_key(  # noqa: SLF001
+            check["api_call"], check["collection_methods"]
+        ) is None
+
+    assert acp_api not in score.API_SOURCE_MAP
+    assert all(
+        "ruleBasedPolicies" not in key and "ruleBasedPolicies" not in filename
+        for key, filename in score.SOURCE_FILENAMES.items()
+    )
+
+
+def test_control_1_13_corrects_sit_api_call_and_manual_gate():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.13")
+    checks = {chk["check_id"]: chk for chk in ctrl["checks"]}
+
+    assert ctrl["automation"] == "partial"
+    assert ctrl["zone_thresholds"]["zone1"]["min_checks_passed"] == 0
+    assert ctrl["zone_thresholds"]["zone3"]["min_checks_passed"] == 1
+    assert checks["1.13.a"]["api_call"] == "Get-DlpSensitiveInformationType"
+    assert checks["1.13.a"]["pass_condition"] == ""
+    assert checks["1.13.a"].get("collection_methods") == ["Manual"]
+    assert checks["1.13.b"]["description"] == (
+        "Enforced Copilot-scoped DLP policy rules reference SIT conditions"
+    )
+    assert checks["1.13.b"]["pass_condition"] == "dlp_references_sits"
+    assert checks["1.13.b"]["api_call"] == "Get-DlpCompliancePolicy"
+
+
+def test_control_1_15_remains_manual_without_get_mgorganization_tls_claims():
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.15")
+
+    assert ctrl["automation"] == "manual"
+    assert ctrl["collection_methods"] == []
+    assert ctrl["checks"] == []
+    assert ctrl["manual_question"] is not None
+
+    unsupported_conditions = {
+        ("Get-MgOrganization", "tls_12_enforced"),
+        ("Get-MgOrganization", "at_rest_encryption_verified"),
+    }
+    offenders = [
+        f"{ctrl['id']}:{check.get('check_id')}"
+        for check in ctrl.get("checks", [])
+        if (check.get("api_call"), check.get("pass_condition"))
+        in unsupported_conditions
+    ]
+    assert offenders == [], (
+        "Control 1.15 must not claim Get-MgOrganization proves TLS or "
+        f"at-rest encryption settings: {offenders}"
+    )
 
 
 def test_manifest_excludes_unsupported_insider_risk_cmdlet_surface():

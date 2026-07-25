@@ -29,8 +29,13 @@ REG_TOKENS = [
     ("FINRA 4511", "FINRA-4511"),
     ("FINRA 3110", "FINRA-3110"),
     ("FINRA 4530", "FINRA-4530"),
-    ("FINRA 25-07", "FINRA-25-07"),
-    ("Notice 25-07", "FINRA-25-07"),
+    ("FINRA 24-09", "FINRA-24-09"),
+    ("Notice 24-09", "FINRA-24-09"),
+    # FINRA RN 25-07 remains monitored/pending (nonbinding). When older control
+    # docs still reference 25-07 in header prose, normalize to 24-09 for primary
+    # regulatory mappings instead of promoting 25-07 into the manifest.
+    ("FINRA 25-07", "FINRA-24-09"),
+    ("Notice 25-07", "FINRA-24-09"),
     ("17a-4", "SEC-17a-4"),
     ("17a-3", "SEC-17a-3"),
     ("Reg S-P", "Reg-S-P"),

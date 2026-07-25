@@ -796,6 +796,7 @@
       c.verifyIn = Array.isArray(m.verifyIn) ? m.verifyIn : [];
       c.verifyPowerShell = m.verifyPowerShell || "";
       c.evidenceExpected = Array.isArray(m.evidenceExpected) ? m.evidenceExpected : [];
+      c.collectorField = typeof m.collectorField === "string" ? m.collectorField : "";
       c.controlDocUrl = withBasePath(m.controlDocUrl || "");
       c.portalPlaybookUrl = withBasePath(m.portalPlaybookUrl || "");
       c.facilitatorNotes = _scrubFacilitatorNotes(m.facilitatorNotes);
@@ -1479,10 +1480,54 @@
          `collectorField` value.
   ================================================================= */
 
+  // Return undefined for non-DSPM entries, null for untrusted DSPM evidence,
+  // and yes/no only for the collector's canonical contract.
+  function mapDspmCollectorToAnswer(entry) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return undefined;
+    var hasDiagnosticCount = Object.prototype.hasOwnProperty.call(entry, "DiagnosticPolicyCount");
+    var hasDiagnostics = Object.prototype.hasOwnProperty.call(entry, "PolicyDiagnostics");
+    if (!hasDiagnosticCount && !hasDiagnostics) return undefined;
+
+    var collectionStatus = typeof entry.CollectionStatus === "string"
+      ? entry.CollectionStatus.trim().toLowerCase() : "";
+    if (collectionStatus !== "collected") return null;
+
+    var diagnosticCount = entry.DiagnosticPolicyCount;
+    var diagnostics = entry.PolicyDiagnostics;
+    var policyCount = entry.PolicyCount;
+    var isNonNegativeInteger = function (value) {
+      return typeof value === "number" && isFinite(value) &&
+        Math.floor(value) === value && value >= 0;
+    };
+    if (!isNonNegativeInteger(diagnosticCount) ||
+        !Array.isArray(diagnostics) ||
+        diagnosticCount !== diagnostics.length ||
+        !isNonNegativeInteger(policyCount)) {
+      return null;
+    }
+
+    var qualifyingCount = 0;
+    for (var i = 0; i < diagnostics.length; i++) {
+      var diagnostic = diagnostics[i];
+      if (!diagnostic || typeof diagnostic !== "object" || Array.isArray(diagnostic)) return null;
+      if (diagnostic.Qualifies === true) qualifyingCount++;
+    }
+
+    if (entry.Detected === true && policyCount > 0 && qualifyingCount === policyCount) {
+      return "yes";
+    }
+    if (entry.Detected === false && policyCount === 0 && qualifyingCount === 0) {
+      return "no";
+    }
+    return null;
+  }
+
   // Map collector status / score → SPA answer. Returns null when the
   // input is unknown / missing so callers leave existing answers alone.
   function mapCollectorToAnswer(entry) {
     if (!entry || typeof entry !== "object") return null;
+    var dspmAnswer = mapDspmCollectorToAnswer(entry);
+    if (dspmAnswer !== undefined) return dspmAnswer;
     var status = (entry.status || entry.maturity_label || "").toString().toLowerCase().replace(/[\s-]+/g, "_");
     var score = (typeof entry.maturity_score === "number") ? entry.maturity_score
               : (typeof entry.score === "number") ? entry.score : null;
@@ -1502,6 +1547,11 @@
   // textarea. Tries common fields seen in fixtures and per-collector data.
   function summarizeCollectorEvidence(entry) {
     if (!entry || typeof entry !== "object") return "";
+    if ((Object.prototype.hasOwnProperty.call(entry, "DiagnosticPolicyCount") ||
+         Object.prototype.hasOwnProperty.call(entry, "PolicyDiagnostics")) &&
+        typeof entry.Note === "string") {
+      return entry.Note.replace(/\s+/g, " ").trim();
+    }
     if (typeof entry.evidence === "string" && entry.evidence) return entry.evidence;
     if (Array.isArray(entry.checks) && entry.checks.length > 0) {
       var passed = entry.checks.filter(function (c) { return c && c.passed === true; }).length;
