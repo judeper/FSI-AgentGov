@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-21T05:50:35Z",
+  "generatedAt": "2026-07-25T23:12:15Z",
   "count": 79,
   "controls": [
     {
@@ -217,7 +217,7 @@
       "url": "controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
       "objective": "Control which connectors and actions AI agents can use by implementing Advanced Connector Policies (ACP) and DLP boundaries. This control restricts agent access to approved data sources and services with appropriate action-level restrictions.",
       "primaryOwner": "Environment Admin",
-      "effortLevel": "Low effort",
+      "effortLevel": "Medium effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.4/portal-walkthrough/"
@@ -252,7 +252,7 @@
         "Power Platform Admin",
         "Security Team"
       ],
-      "automation": "Automatable",
+      "automation": "Partial",
       "solutions": [],
       "playbooks": [
         {
@@ -682,7 +682,7 @@
       "url": "controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/",
       "objective": "Implement adaptive access control using Microsoft Entra Conditional Access to enforce risk-based policies for users creating and managing AI agents, and for agents themselves through Microsoft Entra Agent ID and Conditional Access for Workload Identities. This control helps restrict agent creation, publication, and management to authorized, authenticated principals (human users and agent identities) and supports near-real-time response via Continuous Access Evaluation when risk events occur. Conditional Access governs **identity context** — who (or what workload identity) can authenticate, from where, under what device / risk posture, and with what session lifetime. **Phishing-resistant MFA in this control applies to human makers, owners, sponsors, and administrators** of AI agents. It does **not** apply to agent identities themselves, which have no user to challenge; agent identities are governed through Conditional Access for Workload Identities (CA WID) and Entra Agent ID (GA April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) where available. CA does **not**: - Inspect, validate, or constrain an agent's prompts, tool calls, plans, or generated output (see [Control 1.21 Adversarial Input Logging](1.21-adversarial-input-logging.md) and DLP-for-Copilot in [Control 1.5](1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)). - Authenticate or attest the agent's reasoning, retrieved grounding data, or model provenance (see [Control 2.5 Testing, Validation and Quality Assurance](../pillar-2-management/2.5-testing-validation-and-quality-assurance.md) and model-risk controls under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) in [Control 2.6](../pillar-2-management/2.6-model-risk-management-sr-26-2.md)). - Replace per-connector action governance (see [Control 1.4](1.4-advanced-connector-policies-acp.md)), content-level protection (see [Control 1.5](1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)), or supervisory review (see [Control 2.12](../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)). Agent-scoped CA + Identity Protection signals are **behavioral signals on the identity plane**, not reasoning-level validation. Treat this control as one layer in defense-in-depth, not a substitute for runtime content controls or MRM validation.",
       "primaryOwner": "AI Administrator",
-      "effortLevel": "Low effort",
+      "effortLevel": "Medium effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.11/portal-walkthrough/"
@@ -728,10 +728,11 @@
         "Power Platform Admin",
         "SOC Analyst"
       ],
-      "automation": "Automatable",
+      "automation": "Partial",
       "solutions": [
         "agent-365-lifecycle-governance",
-        "conditional-access-automation"
+        "conditional-access-automation",
+        "session-security-configurator"
       ],
       "playbooks": [
         {
@@ -938,7 +939,8 @@
       ],
       "automation": "Manual",
       "solutions": [
-        "file-upload-security"
+        "file-upload-security",
+        "scope-drift-monitor"
       ],
       "playbooks": [
         {
@@ -967,7 +969,7 @@
       "url": "controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/",
       "objective": "Confirm that all data processed by Microsoft Copilot Studio agents and Microsoft 365 Copilot is protected with TLS 1.2+ in transit and AES-256 (or stronger) at rest, layer customer-managed keys (Microsoft Purview Customer Key) and Double Key Encryption (DKE) where required, and document key custody, rotation, and revocation procedures aligned to financial-services regulatory expectations. This control is **foundational** — it underpins every other Pillar 1 confidentiality control (DLP, IRM, audit log integrity, Zone 3 isolation).",
       "primaryOwner": "Compliance Officer",
-      "effortLevel": "Low effort",
+      "effortLevel": "Higher effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.15/portal-walkthrough/"
@@ -1003,7 +1005,7 @@
         "Power Platform Admin",
         "SharePoint Admin"
       ],
-      "automation": "Automatable",
+      "automation": "Manual",
       "solutions": [],
       "playbooks": [
         {

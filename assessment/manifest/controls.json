@@ -1274,7 +1274,8 @@
     },
     "solutions": [
       "agent-365-lifecycle-governance",
-      "conditional-access-automation"
+      "conditional-access-automation",
+      "session-security-configurator"
     ]
   },
   {
@@ -1571,7 +1572,8 @@
       "timeBudgetMinutes": 6
     },
     "solutions": [
-      "file-upload-security"
+      "file-upload-security",
+      "scope-drift-monitor"
     ]
   },
   {
