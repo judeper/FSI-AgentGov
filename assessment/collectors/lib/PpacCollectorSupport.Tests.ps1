@@ -104,6 +104,72 @@ Describe 'ConvertTo-PpacDlpPolicyList' {
         }
     }
 
+    Context 'Empty environment scope preserved as [] (pr1040 empty-scope regression)' {
+        # Regression for the enumerating property reader (Get-PpacDlpProperty used a
+        # bare `return $property.Value`). A PRESENT empty environments array
+        # (environments = @()) was streamed as normal function output, which
+        # PowerShell enumerates: @() yields zero objects, so the caller received
+        # $null — indistinguishable from an absent scope. The policy then projected
+        # Environments = null instead of []. The Python scorer
+        # (assessment/engine/score.py _eval_dlp_policy_exists / _extract_dlp_scope_ids)
+        # reads a null scope on Except/Only as "malformed (fail closed)", so:
+        #   * ExceptEnvironments []  -> should COVER ALL inventory (excludes nothing)
+        #     but degraded to malformed/unverifiable.
+        #   * OnlyEnvironments []    -> should be a CLEAN fail (covers nothing)
+        #     but degraded to malformed.
+        # test_score.py::test_except_environments_empty_scope_covers_all and
+        # ::test_only_environments_empty_scope_covers_nothing lock the scorer side;
+        # these assert the collector emits [] (not null) so those semantics hold.
+        # The raw policy is built inline (not via New-TestDlpPolicy) so environments
+        # is unambiguously a PRESENT empty array.
+
+        BeforeAll {
+            function New-EmptyScopePolicy {
+                param([Parameter(Mandatory)][string]$EnvironmentType)
+                [PSCustomObject]@{
+                    displayName     = "Empty $EnvironmentType"
+                    name            = 'empty-scope-1'
+                    createdTime     = '2026-01-01T00:00:00Z'
+                    isEnabled       = $null
+                    connectorGroups = @()
+                    environmentType = $EnvironmentType
+                    environments    = @()   # PRESENT empty scope
+                }
+            }
+        }
+
+        It 'projects ExceptEnvironments environments=@() as an empty (non-null) array' {
+            $result = ConvertTo-PpacDlpPolicyList -RawDlpPolicy (New-EmptyScopePolicy -EnvironmentType 'ExceptEnvironments')
+            $result[0].EnvironmentType | Should -Be 'ExceptEnvironments'
+            # -is [array] is $false for $null (the bug) and $true for @() (the fix).
+            $result[0].Environments -is [array] | Should -BeTrue
+            # @($null).Count == 1, @(@()).Count == 0 — discriminates null from empty.
+            @($result[0].Environments).Count | Should -Be 0
+        }
+
+        It 'serializes ExceptEnvironments empty scope as "Environments": [] (never null)' {
+            $dlpPolicies = ConvertTo-PpacDlpPolicyList -RawDlpPolicy (New-EmptyScopePolicy -EnvironmentType 'ExceptEnvironments')
+            $json = ConvertTo-DlpPoliciesJson $dlpPolicies
+            # The on-the-wire contract the Python scorer consumes: [] not null.
+            $json | Should -Match '"Environments":\s*\[\s*\]'
+            $json | Should -Not -Match '"Environments":\s*null'
+        }
+
+        It 'projects OnlyEnvironments environments=@() as an empty (non-null) array' {
+            $result = ConvertTo-PpacDlpPolicyList -RawDlpPolicy (New-EmptyScopePolicy -EnvironmentType 'OnlyEnvironments')
+            $result[0].EnvironmentType | Should -Be 'OnlyEnvironments'
+            $result[0].Environments -is [array] | Should -BeTrue
+            @($result[0].Environments).Count | Should -Be 0
+        }
+
+        It 'serializes OnlyEnvironments empty scope as "Environments": [] (clean-fail scorer input)' {
+            $dlpPolicies = ConvertTo-PpacDlpPolicyList -RawDlpPolicy (New-EmptyScopePolicy -EnvironmentType 'OnlyEnvironments')
+            $json = ConvertTo-DlpPoliciesJson $dlpPolicies
+            $json | Should -Match '"Environments":\s*\[\s*\]'
+            $json | Should -Not -Match '"Environments":\s*null'
+        }
+    }
+
     Context 'Multiple policies (Get-DlpPolicy returned many rows)' {
         It 'returns an array with one element per policy' {
             $result = ConvertTo-PpacDlpPolicyList -RawDlpPolicy @(
@@ -302,5 +368,55 @@ Describe 'Get-PpacDlpProperty' {
     It 'returns $null when a present property holds $null' {
         $obj = [PSCustomObject]@{ isEnabled = $null }
         Get-PpacDlpProperty -InputObject $obj -Name 'isEnabled' | Should -BeNullOrEmpty
+    }
+
+    Context 'Non-enumerating shape preservation (pr1040 empty-scope regression)' {
+        # The reader must NOT enumerate its return value, or a present empty array
+        # collapses to $null. Assign (never pipe) so an empty array is not swallowed
+        # by the pipeline before Should sees it.
+
+        It 'returns a PRESENT empty array as an empty array, not $null' {
+            $obj = [PSCustomObject]@{ environments = @() }
+            $result = Get-PpacDlpProperty -InputObject $obj -Name 'environments'
+            $result -is [array] | Should -BeTrue
+            @($result).Count | Should -Be 0
+        }
+
+        It 'preserves a single-element array as a one-element array (not collapsed to scalar)' {
+            $obj = [PSCustomObject]@{ environments = @('env-a') }
+            $result = Get-PpacDlpProperty -InputObject $obj -Name 'environments'
+            $result -is [array] | Should -BeTrue
+            @($result).Count | Should -Be 1
+            $result[0] | Should -Be 'env-a'
+        }
+
+        It 'preserves a multi-element array' {
+            $obj = [PSCustomObject]@{ environments = @('env-a', 'env-b') }
+            $result = Get-PpacDlpProperty -InputObject $obj -Name 'environments'
+            $result -is [array] | Should -BeTrue
+            @($result).Count | Should -Be 2
+        }
+
+        It 'returns a scalar string as a scalar, not a one-element array' {
+            $obj = [PSCustomObject]@{ name = 'p1' }
+            $result = Get-PpacDlpProperty -InputObject $obj -Name 'name'
+            $result -is [array] | Should -BeFalse
+            $result | Should -Be 'p1'
+        }
+
+        It 'returns a scalar bool as a scalar, not a one-element array' {
+            $obj = [PSCustomObject]@{ isEnabled = $false }
+            $result = Get-PpacDlpProperty -InputObject $obj -Name 'isEnabled'
+            $result -is [array] | Should -BeFalse
+            $result | Should -Be $false
+        }
+
+        It 'returns a nested object as a scalar object, not wrapped in an array' {
+            $env = [PSCustomObject]@{ id = 'x'; name = 'n' }
+            $obj = [PSCustomObject]@{ environments = $env }
+            $result = Get-PpacDlpProperty -InputObject $obj -Name 'environments'
+            $result -is [array] | Should -BeFalse
+            $result.name | Should -Be 'n'
+        }
     }
 }

@@ -63,8 +63,26 @@ function Get-PpacDlpProperty {
         evaluator can fail closed on a missing signal without mistaking it for a
         collection failure. Mirrors lib/PurviewDlpSupport.ps1 Get-DlpScopeProperty.
 
+        The value is returned through the unary array-construction operator
+        (, $property.Value) so the reader is NON-ENUMERATING. A bare
+        `return $property.Value` streams the value as normal function output, which
+        PowerShell enumerates: a PRESENT empty array ($property.Value = @()) then
+        enumerates to zero output objects and the caller receives $null —
+        indistinguishable from an absent property. That silently discarded a valid
+        empty environment scope (environments = @()), so an ExceptEnvironments policy
+        that excludes nothing was projected as Environments = null instead of [],
+        which the Python scorer reads as "malformed (fail closed)" rather than
+        "covers all inventory", and an OnlyEnvironments empty scope likewise degraded
+        from a clean fail to malformed. Wrapping in a one-element array and letting
+        function output unroll exactly that one wrapper emits the underlying value as
+        a single object: a present @() stays @() at the caller, a scalar
+        (string/bool/datetime) stays a scalar (NOT a one-element array), a populated
+        array stays that array, an absent property is still $null (early return), and
+        a present $null stays $null.
+
     .OUTPUTS
-        The property value, or $null when the object or property is absent.
+        The property value, unchanged in scalar-vs-array shape (a present empty array
+        remains an empty array), or $null when the object or property is absent.
     #>
     [CmdletBinding()]
     param(
@@ -75,7 +93,9 @@ function Get-PpacDlpProperty {
     if ($null -eq $InputObject) { return $null }
     $property = $InputObject.PSObject.Properties[$Name]
     if ($null -eq $property) { return $null }
-    return $property.Value
+    # Unary comma: non-enumerating return so a present empty array survives as @()
+    # (a bare return would enumerate @() to no output, collapsing it to $null).
+    return , $property.Value
 }
 
 function ConvertTo-PpacDlpPolicyList {
@@ -110,17 +130,38 @@ function ConvertTo-PpacDlpPolicyList {
 
         Each policy's Environments is normalized to an array with the comma operator
         for the same anti-collapse reason, preserving the object-shaped Environments
-        contract ({ id, name, type }); a policy with no environments keeps a null
-        Environments (All-scope). A collection *exception* never reaches this helper:
-        the caller leaves $dlpPolicies = $null on failure so the scorer treats it as
-        unknown, which is distinct from a successful empty [] collection.
+        contract ({ id, name, type }). The three scope shapes are kept distinct so the
+        scorer's All/Except/Only semantics hold:
+
+          * environments absent or null          -> Environments = null (All-scope;
+                                                    the scope was never restricted).
+          * environments present but empty (@())  -> Environments = [] (an explicitly
+                                                    empty scope: ExceptEnvironments []
+                                                    excludes nothing so it covers ALL
+                                                    inventory; OnlyEnvironments []
+                                                    includes nothing so it covers
+                                                    nothing — a clean fail). This
+                                                    relies on Get-PpacDlpProperty being
+                                                    non-enumerating; a bare read would
+                                                    collapse a present @() to null and
+                                                    the scorer would misreport it as
+                                                    "malformed (fail closed)".
+          * environments populated                -> Environments = the object array.
+
+        A collection *exception* never reaches this helper: the caller leaves
+        $dlpPolicies = $null on failure so the scorer treats it as unknown, which is
+        distinct from a successful empty [] collection.
 
         Every property is read through Get-PpacDlpProperty so the projection never
         throws under Set-StrictMode when a classic DLP object omits an optional member
         (isEnabled/createdTime/connectorGroups); the resulting evidence for a
-        well-formed policy is unchanged. Only the $null-filtering, the StrictMode-safe
-        reads, and the guaranteed array return differ from the original inline
-        projection.
+        well-formed policy is unchanged. Because that reader is non-enumerating, a
+        collection it returns (connectorGroups, connectors) is staged into a variable
+        before being piped, so Where-Object/Select-Object still see one pipeline object
+        per element; piping the reader call directly would hand the whole collection to
+        the first filter as a single element. Only the $null-filtering, the
+        StrictMode-safe reads, and the guaranteed array return differ from the original
+        inline projection.
 
     .PARAMETER RawDlpPolicy
         The raw pipeline output of Get-DlpPolicy: $null (no rows), a single policy
@@ -139,8 +180,13 @@ function ConvertTo-PpacDlpPolicyList {
     $rawList = @($RawDlpPolicy | Where-Object { $null -ne $_ })
     $projected = @($rawList | ForEach-Object {
             $policy = $_
-            $connectorGroups = @(Get-PpacDlpProperty -InputObject $policy -Name 'connectorGroups' |
-                    Where-Object { $null -ne $_ })
+            # Get-PpacDlpProperty is non-enumerating (returns via unary comma so a
+            # present empty scope survives as @()). Its output must therefore be staged
+            # into a variable before piping: piping the *variable* enumerates the
+            # collection, whereas piping the reader *call* would deliver the whole
+            # collection to Where-Object as a single element.
+            $connectorGroupsRaw = Get-PpacDlpProperty -InputObject $policy -Name 'connectorGroups'
+            $connectorGroups = @($connectorGroupsRaw | Where-Object { $null -ne $_ })
             $environments = Get-PpacDlpProperty -InputObject $policy -Name 'environments'
             [PSCustomObject]@{
                 DisplayName          = Get-PpacDlpProperty -InputObject $policy -Name 'displayName'
@@ -149,13 +195,22 @@ function ConvertTo-PpacDlpPolicyList {
                 IsEnabled            = Get-PpacDlpProperty -InputObject $policy -Name 'isEnabled'
                 BusinessDataGroup    = $connectorGroups |
                     Where-Object { (Get-PpacDlpProperty -InputObject $_ -Name 'classification') -eq 'Confidential' } |
-                    ForEach-Object { Get-PpacDlpProperty -InputObject $_ -Name 'connectors' | Where-Object { $null -ne $_ } | Select-Object id, name }
+                    ForEach-Object {
+                        $connectors = Get-PpacDlpProperty -InputObject $_ -Name 'connectors'
+                        $connectors | Where-Object { $null -ne $_ } | Select-Object id, name
+                    }
                 NonBusinessDataGroup = $connectorGroups |
                     Where-Object { (Get-PpacDlpProperty -InputObject $_ -Name 'classification') -eq 'General' } |
-                    ForEach-Object { Get-PpacDlpProperty -InputObject $_ -Name 'connectors' | Where-Object { $null -ne $_ } | Select-Object id, name }
+                    ForEach-Object {
+                        $connectors = Get-PpacDlpProperty -InputObject $_ -Name 'connectors'
+                        $connectors | Where-Object { $null -ne $_ } | Select-Object id, name
+                    }
                 BlockedGroup         = $connectorGroups |
                     Where-Object { (Get-PpacDlpProperty -InputObject $_ -Name 'classification') -eq 'Blocked' } |
-                    ForEach-Object { Get-PpacDlpProperty -InputObject $_ -Name 'connectors' | Where-Object { $null -ne $_ } | Select-Object id, name }
+                    ForEach-Object {
+                        $connectors = Get-PpacDlpProperty -InputObject $_ -Name 'connectors'
+                        $connectors | Where-Object { $null -ne $_ } | Select-Object id, name
+                    }
                 EnvironmentType      = Get-PpacDlpProperty -InputObject $policy -Name 'environmentType'
                 Environments         = if ($null -ne $environments) { , @($environments) } else { $null }
             }
