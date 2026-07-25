@@ -878,6 +878,186 @@ def _eval_share_everyone_disabled(
     )
 
 
+def _normalize_dlp_identifier(value: object) -> str | None:
+    """Normalize a Power Platform environment identifier for exact matching.
+
+    ``Get-DlpPolicy`` scope names and ``Get-AdminPowerAppEnvironment``
+    ``EnvironmentName`` values are compared case-insensitively after trimming
+    surrounding whitespace, never by fuzzy substring. Returns ``None`` when the
+    value is not a non-empty string.
+    """
+    if not isinstance(value, str):
+        return None
+    trimmed = value.strip()
+    if not trimmed:
+        return None
+    return trimmed.casefold()
+
+
+def _dlp_scope_environment_id(entry: object) -> str | None:
+    """Resolve one classic-DLP scope entry to a normalized environment id.
+
+    ``Get-DlpPolicy`` ``environments`` entries are ``{ id, name, type }``
+    objects. ``name`` is the environment GUID matching
+    ``Get-AdminPowerAppEnvironment.EnvironmentName`` and is the primary key; the
+    ARM ``id`` path's final segment carries the same GUID and is the fallback
+    provenance. Returns ``None`` when the entry is not an object or carries
+    neither usable identifier, so the caller can fail closed.
+    """
+    if not isinstance(entry, dict):
+        return None
+    name = _normalize_dlp_identifier(_first_present(entry, "name", "Name"))
+    if name is not None:
+        return name
+    arm_id = _first_present(entry, "id", "Id")
+    if isinstance(arm_id, str):
+        segments = [segment for segment in arm_id.split("/") if segment.strip()]
+        if segments:
+            return _normalize_dlp_identifier(segments[-1])
+    return None
+
+
+def _extract_dlp_scope_ids(scope: object) -> set[str] | None:
+    """Return the normalized environment ids for a classic-DLP scope.
+
+    A singleton object (a PowerShell array-collapse of a one-entry scope) is
+    accepted defensively because legacy evidence exists. Returns ``None`` when
+    the scope is not a list of usable ``{ id, name, type }`` objects (fail
+    closed); an empty list is valid and yields an empty set.
+    """
+    if isinstance(scope, dict):
+        scope = [scope]
+    if not isinstance(scope, list):
+        return None
+    ids: set[str] = set()
+    for entry in scope:
+        environment_id = _dlp_scope_environment_id(entry)
+        if environment_id is None:
+            return None
+        ids.add(environment_id)
+    return ids
+
+
+def _eval_dlp_policy_exists(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    """Verify effective classic-DLP scope over collected PPAC environments.
+
+    Grounded to the ``Get-DlpPolicy`` contract: scope entries are
+    ``{ id, name, type }`` objects, classic DLP exposes no enable flag (a
+    missing/``null`` ``IsEnabled`` is normal and qualifies; only an explicit
+    boolean ``False`` skips, and any other non-null value fails closed), and
+    coverage is computed against the collected Power Platform environment
+    inventory. Agent-specific applicability cannot be inferred from inventory
+    and stays in the manual 1.4.b/1.4.c gates, so the evidence never claims
+    agent coverage.
+    """
+    ppac = collected.get("ppac")
+    if not ppac:
+        return None, "PPAC data not available"
+    if not isinstance(ppac, dict):
+        return False, "PPAC data malformed (fail closed)"
+
+    policies = ppac.get("dlpPolicies")
+    if policies is None:
+        return None, "dlpPolicies not collected"
+    if isinstance(policies, dict):
+        policies = [policies]
+    if not isinstance(policies, list):
+        return False, "dlpPolicies malformed (fail closed)"
+    if not policies:
+        return False, "No classic DLP policies found"
+
+    environments = ppac.get("environments")
+    if environments is None:
+        return None, "environments not collected"
+    if not isinstance(environments, list):
+        return False, "environments malformed (fail closed)"
+    if not environments:
+        return False, "No Power Platform environments found"
+
+    inventory_ids: set[str] = set()
+    for environment in environments:
+        if not isinstance(environment, dict):
+            return False, "environments malformed (fail closed)"
+        environment_id = _normalize_dlp_identifier(
+            _first_present(environment, "EnvironmentName", "environmentName")
+        )
+        if environment_id is None:
+            return False, "environments malformed (fail closed)"
+        inventory_ids.add(environment_id)
+
+    malformed = False
+    for policy in policies:
+        if not isinstance(policy, dict):
+            malformed = True
+            continue
+
+        enabled = _first_present(policy, "IsEnabled", "isEnabled")
+        if enabled is False:
+            # Classic DLP has no disable flag; an explicit boolean False is the
+            # only value that removes a policy from consideration (skip, clean).
+            continue
+        if enabled is not None and enabled is not True:
+            # Any other non-null, non-boolean value is unexpected: fail closed.
+            malformed = True
+            continue
+
+        environment_type = _first_present(
+            policy, "EnvironmentType", "environmentType"
+        )
+        if not isinstance(environment_type, str):
+            malformed = True
+            continue
+        scope_type = environment_type.strip().casefold()
+
+        raw_scope = _first_present(policy, "Environments", "environments")
+
+        if scope_type == "allenvironments":
+            covered_ids = inventory_ids
+        elif scope_type in {"onlyenvironments", "exceptenvironments"}:
+            scope_ids = _extract_dlp_scope_ids(raw_scope)
+            if scope_ids is None:
+                malformed = True
+                continue
+            if scope_type == "onlyenvironments":
+                covered_ids = inventory_ids & scope_ids
+            else:
+                covered_ids = inventory_ids - scope_ids
+        elif scope_type == "singleenvironment":
+            # SingleEnvironment may not appear in tenant list enumeration. Treat
+            # a valid one-entry scope like a one-item Only scope; when the scope
+            # object is missing, empty, or unparseable, record it as unsupported
+            # and move on WITHOUT poisoning another valid tenant policy — never
+            # label it malformed.
+            scope_ids = _extract_dlp_scope_ids(raw_scope)
+            if not scope_ids:
+                continue
+            covered_ids = inventory_ids & scope_ids
+        else:
+            malformed = True
+            continue
+
+        if covered_ids:
+            name = _first_present(
+                policy, "DisplayName", "displayName", "PolicyName", "name"
+            )
+            return (
+                True,
+                f"Enabled classic DLP policy '{name or 'unnamed'}' has effective "
+                f"{environment_type.strip()} scope over {len(covered_ids)} "
+                "collected Power Platform environment(s)",
+            )
+
+    if malformed:
+        return False, "DLP policy data malformed or coverage unverifiable (fail closed)"
+    return (
+        False,
+        "No enabled classic DLP policy has verifiable effective scope over "
+        "collected Power Platform environments",
+    )
+
+
 def _coerce_int(value: object) -> int | None:
     if value is None:
         return None
@@ -1909,6 +2089,7 @@ EVALUATORS: dict[str, object] = {
     "no_everyone_assignment": _eval_no_everyone_assignment,
     "fsi_publisher_group_exists": _eval_fsi_publisher_group_exists,
     "share_everyone_disabled": _eval_share_everyone_disabled,
+    "dlp_policy_exists": _eval_dlp_policy_exists,
     "ca_policy_targets_copilot_studio": _eval_ca_policy_targets_copilot_studio,
     "ca_policy_requires_mfa": _eval_ca_policy_requires_mfa,
     "prod_env_has_security_group": _eval_prod_env_has_security_group,

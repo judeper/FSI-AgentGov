@@ -23,7 +23,14 @@
   "dlpPolicies": [
     {
       "DisplayName": "FSI Default DLP",
-      "Environments": ["env-prod-001"],
+      "EnvironmentType": "OnlyEnvironments",
+      "Environments": [
+        {
+          "id": "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/env-prod-001",
+          "name": "env-prod-001",
+          "type": "Microsoft.BusinessAppPlatform/scopes/environments"
+        }
+      ],
       "ConnectorGroups": {
         "BusinessDataGroup": ["SharePoint"],
         "BlockedGroup": ["Twitter"]

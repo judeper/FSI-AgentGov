@@ -253,7 +253,7 @@ def test_render_regenerates_metadata_for_non_authoritative_control(monkeypatch):
     gm = _load_generate_manifest_module()
     existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
     existing_by_id = {c["id"]: c for c in existing}
-    target = "1.4"
+    target = "1.5"
     assert target not in {"1.11", "1.13"}
 
     new_controls = []
@@ -455,6 +455,70 @@ def test_control_1_11_marks_non_evaluable_subchecks_manual():
     assert checks["1.11.c"]["pass_condition"] == ""
     assert checks["1.11.b"].get("collection_methods") == ["Manual"]
     assert checks["1.11.c"].get("collection_methods") == ["Manual"]
+
+
+def test_control_1_4_separates_classic_dlp_from_required_acp_evidence():
+    score = _load_score_module()
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    ctrl = next(c for c in controls if c["id"] == "1.4")
+    checks = {chk["check_id"]: chk for chk in ctrl["checks"]}
+
+    assert ctrl["automation"] == "partial"
+    assert ctrl["collection_methods"] == ["PPAC_PowerShell"]
+    assert ctrl["zone_thresholds"] == {
+        "zone1": {"min_checks_passed": 1, "maturity_score": 1},
+        "zone2": {"min_checks_passed": 1, "maturity_score": 2},
+        "zone3": {"min_checks_passed": 1, "maturity_score": 4},
+    }
+
+    question = ctrl["manual_question"].lower()
+    for required_term in (
+        "policy",
+        "assignment",
+        "allowlist",
+        "environment-group scope",
+        "runtime",
+        "blocked connector",
+        "zone 2",
+        "zone 3",
+    ):
+        assert required_term in question
+
+    assert checks["1.4.a"]["api_call"] == "Get-DlpPolicy"
+    assert checks["1.4.a"]["pass_condition"] == "dlp_policy_exists"
+    assert checks["1.4.a"]["description"] == (
+        "Enabled classic DLP policy has effective scope over collected "
+        "Power Platform environments"
+    )
+    assert "agent" not in checks["1.4.a"]["description"].lower()
+    assert score.classify_check_evaluator_state(
+        checks["1.4.a"], ctrl["automation"], ctrl["collection_methods"]
+    ) == "auto_evaluable"
+    assert score._resolve_source_key(  # noqa: SLF001
+        checks["1.4.a"]["api_call"], ctrl["collection_methods"]
+    ) == "ppac"
+
+    acp_api = (
+        "https://api.powerplatform.com/governance/ruleBasedPolicies"
+        "?api-version=2024-10-01"
+    )
+    for check_id in ("1.4.b", "1.4.c"):
+        check = checks[check_id]
+        assert check["api_call"] == acp_api
+        assert check["pass_condition"] == ""
+        assert check["collection_methods"] == ["Manual"]
+        assert score.classify_check_evaluator_state(
+            check, ctrl["automation"], ctrl["collection_methods"]
+        ) == "manual_only"
+        assert score._resolve_source_key(  # noqa: SLF001
+            check["api_call"], check["collection_methods"]
+        ) is None
+
+    assert acp_api not in score.API_SOURCE_MAP
+    assert all(
+        "ruleBasedPolicies" not in key and "ruleBasedPolicies" not in filename
+        for key, filename in score.SOURCE_FILENAMES.items()
+    )
 
 
 def test_control_1_13_corrects_sit_api_call_and_manual_gate():
