@@ -303,35 +303,65 @@ try {
         $effectiveName = if ([string]::IsNullOrWhiteSpace([string]$policy.name)) { $PolicyName } else { [string]$policy.name }
         $patchBody = @{ name = $effectiveName; ruleSets = @($connectorRule) } | ConvertTo-Json -Depth 20
 
-        if (-not $PSCmdlet.ShouldProcess("policy $policyId", 'PATCH ConnectorManagement rule set')) {
+        $patchApproved = $PSCmdlet.ShouldProcess("policy $policyId", 'PATCH ConnectorManagement rule set')
+        if ($patchApproved) {
+            $null = Invoke-PowerPlatformApi -Method PATCH `
+                -Uri "$apiBaseUrl/governance/ruleBasedPolicies/$policyId`?api-version=$apiVersion" `
+                -Body $patchBody
+        }
+        elseif (-not $WhatIfPreference) {
+            Write-Warning "Policy update was cancelled. Policy $policyId was not changed, and no group assignment was attempted."
             return
         }
-        $null = Invoke-PowerPlatformApi -Method PATCH `
-            -Uri "$apiBaseUrl/governance/ruleBasedPolicies/$policyId`?api-version=$apiVersion" `
-            -Body $patchBody
     }
     else {
         $createBody = @{ name = $PolicyName; ruleSets = @($connectorRule) } | ConvertTo-Json -Depth 20
 
-        if (-not $PSCmdlet.ShouldProcess("policy '$PolicyName' and group $EnvironmentGroupId", 'POST policy, then POST assignment')) {
+        $createApproved = $PSCmdlet.ShouldProcess("policy '$PolicyName'", 'POST new rule-based policy')
+        if ($createApproved) {
+            $createdPolicy = Invoke-PowerPlatformApi -Method POST `
+                -Uri "$apiBaseUrl/governance/ruleBasedPolicies?api-version=$apiVersion" `
+                -Body $createBody
+            $policyId = [string]$createdPolicy.id
+            if ([string]::IsNullOrWhiteSpace($policyId)) {
+                throw 'Policy creation response did not contain id; assignment was not attempted.'
+            }
+            Write-FsiEvidence -Object $createdPolicy -Name 'acp-policy-created' -EvidencePath $EvidencePath
+        }
+        elseif (-not $WhatIfPreference) {
+            Write-Warning "Policy creation was cancelled. No policy was created, and no group assignment was attempted."
             return
         }
-        $createdPolicy = Invoke-PowerPlatformApi -Method POST `
-            -Uri "$apiBaseUrl/governance/ruleBasedPolicies?api-version=$apiVersion" `
-            -Body $createBody
-        $policyId = [string]$createdPolicy.id
-        if ([string]::IsNullOrWhiteSpace($policyId)) {
-            throw 'Policy creation response did not contain id; assignment was not attempted.'
-        }
-        Write-FsiEvidence -Object $createdPolicy -Name 'acp-policy-created' -EvidencePath $EvidencePath
     }
 
     if ($assignments.Count -eq 0) {
-        # Assignment is a separate operation. Empty JSON means the whole group.
+        # Assignment is a separate group-wide operation. Empty JSON means the whole group.
+        $assignmentPolicyDescription = if ([string]::IsNullOrWhiteSpace($policyId)) {
+            "new policy '$PolicyName'"
+        }
+        else {
+            "policy $policyId"
+        }
+
+        $assignmentApproved = $PSCmdlet.ShouldProcess(
+            "environment group $EnvironmentGroupId",
+            "POST assignment of $assignmentPolicyDescription to the whole group"
+        )
+        if (-not $assignmentApproved) {
+            if (-not $WhatIfPreference) {
+                Write-Warning "Group assignment was cancelled. $assignmentPolicyDescription remains unassigned; configuration success was not declared."
+            }
+            return
+        }
+
         $assignmentResult = Invoke-PowerPlatformApi -Method POST `
             -Uri "$apiBaseUrl/governance/ruleBasedPolicies/$policyId/environmentGroups/$EnvironmentGroupId/assignments?api-version=$apiVersion" `
             -Body '{}'
         Write-FsiEvidence -Object $assignmentResult -Name 'acp-assignment-created' -EvidencePath $EvidencePath
+    }
+
+    if ($WhatIfPreference) {
+        return
     }
 
     # Independent read-back after mutation: confirm scope and policy content.
@@ -371,6 +401,8 @@ finally {
 
 - An assigned group is updated in place with `PATCH`; reruns do not create a second policy.
 - With no assignment, an exact-name, unassigned policy is reused to recover from an interrupted create/assign sequence.
+- Policy mutation and whole-group assignment have separate `ShouldProcess` gates. `-WhatIf` previews both operations when assignment is required.
+- Cancelling the assignment exits before read-back or a success message. A policy already created or patched remains unassigned and is recovered by the next safe rerun.
 - Multiple assignments, duplicate exact-name policies, or a same-name policy assigned elsewhere cause a hard failure.
 - Serialize runs for the same environment group. The API examples don't provide a distributed lock, so concurrent first runs could still race between the read and create operations.
 
@@ -442,6 +474,27 @@ if ($priorConnectorRule.Count -ne 1) {
     throw "Before-state evidence must contain exactly one ConnectorManagement rule set; found $($priorConnectorRule.Count)."
 }
 
+# Reuse the normalized forward-verification shape; rule-set version is intentionally excluded.
+function Get-AllowlistFingerprint {
+    param([Parameter(Mandatory)] [AllowEmptyCollection()] [object[]]$Allowlist)
+
+    $normalized = @(
+        $Allowlist | ForEach-Object {
+            [PSCustomObject][ordered]@{
+                AllowedConnector           = [string]$_.AllowedConnector
+                AllowedActionsMode         = [string]$_.AllowedActionsMode
+                AllowedActions             = @($_.AllowedActions | Sort-Object)
+                AllowedConnectionTypesMode = [string]$_.AllowedConnectionTypesMode
+                AllowedConnectionTypes     = @($_.AllowedConnectionTypes | Sort-Object)
+            }
+        } | Sort-Object AllowedConnector
+    )
+    return $normalized | ConvertTo-Json -Depth 10 -Compress
+}
+
+$priorAllowlistFingerprint = Get-AllowlistFingerprint `
+    -Allowlist @($priorConnectorRule[0].inputs.AllowedConnectorList)
+
 $auth = Get-MsalToken `
     -ClientId $ClientId `
     -Scope 'https://api.powerplatform.com/.default' `
@@ -476,6 +529,14 @@ try {
         if ($restoredRule.Count -ne 1) {
             throw "Rollback read-back did not return the restored ConnectorManagement rule set."
         }
+
+        $restoredAllowlistFingerprint = Get-AllowlistFingerprint `
+            -Allowlist @($restoredRule[0].inputs.AllowedConnectorList)
+        if ($restoredAllowlistFingerprint -cne $priorAllowlistFingerprint) {
+            throw "Rollback read-back allowlist differs from the prior ConnectorManagement allowlist in $BeforePolicyJsonPath."
+        }
+
+        Write-Host "[PASS] Rollback read-back confirmed the prior ConnectorManagement allowlist for policy $PolicyId."
     }
 }
 finally {
