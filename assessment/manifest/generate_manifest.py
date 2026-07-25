@@ -22,7 +22,7 @@ CONTROLS = [
     ("1.1","1.1-restrict-agent-publishing-by-authorization.md",1,"full",["PPAC_PowerShell","Graph_API"],None),
     ("1.2","1.2-agent-registry-and-integrated-apps-management.md",1,"full",["Graph_API"],None),
     ("1.3","1.3-sharepoint-content-governance-and-permissions.md",1,"partial",["SharePoint_Graph"],"Have site permission reviews been completed in the last 90 days for all agent knowledge sources?"),
-    ("1.4","1.4-advanced-connector-policies-acp.md",1,"full",["PPAC_PowerShell"],None),
+    ("1.4","1.4-advanced-connector-policies-acp.md",1,"partial",["PPAC_PowerShell"],"Provide evidence for each applicable Zone 2 and Zone 3 environment group showing the ACP policy, its assignment, the approved connector allowlist, the environment-group scope, and runtime evidence that a blocked connector is actually denied."),
     ("1.5","1.5-data-loss-prevention-dlp-and-sensitivity-labels.md",1,"full",["PPAC_PowerShell","Purview_PowerShell"],None),
     ("1.6","1.6-microsoft-purview-dspm-for-ai.md",1,"partial",["Purview_PowerShell"],"Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?"),
     ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell","Graph_API"],None),
@@ -119,9 +119,9 @@ CHECKS_DB = {
         ("1.3.b","No oversharing detected on knowledge source sites","Get-MgSitePermission","no_oversharing",[2,3]),
     ],
     "1.4": [
-        ("1.4.a","DLP policy exists covering agent environments","Get-DlpPolicy","dlp_policy_exists",[1,2,3]),
-        ("1.4.b","ACP allowlist configured for approved connectors","Get-DlpPolicy","acp_allowlist_configured",[2,3]),
-        ("1.4.c","Blocked connector list enforced","Get-DlpPolicy","blocked_connectors_enforced",[3]),
+        ("1.4.a","Enabled classic DLP policy has effective scope over collected Power Platform environments","Get-DlpPolicy","dlp_policy_exists",[1,2,3]),
+        ("1.4.b","ACP allowlist configured for approved connectors (manual evidence from the Power Platform governance API required)","https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01","",[2,3],["Manual"]),
+        ("1.4.c","Blocked connector enforcement verified at runtime (manual evidence from the Power Platform governance API required)","https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01","",[3],["Manual"]),
     ],
     "1.5": [
         ("1.5.a","DLP policy scoped to agent environments","Get-DlpPolicy","dlp_scope_covers_agents",[1,2,3]),

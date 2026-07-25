@@ -91,6 +91,9 @@ function Invoke-CollectorOperation {
     & $ScriptBlock
 }
 
+$collectorRoot = Split-Path -Parent $PSCommandPath
+. (Join-Path $collectorRoot 'lib\PpacCollectorSupport.ps1')
+
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
 Write-Verbose "Loaded Microsoft.PowerApps.Administration.PowerShell module."
@@ -217,22 +220,14 @@ try {
     $rawDlp = Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'List DLP policies' -ScriptBlock {
         Get-DlpPolicy
     }
-    $dlpPolicies = $rawDlp | ForEach-Object {
-        [PSCustomObject]@{
-            DisplayName             = $_.displayName
-            PolicyName              = $_.name
-            CreatedTime             = $_.createdTime
-            IsEnabled               = $_.isEnabled
-            BusinessDataGroup       = $_.connectorGroups | Where-Object { $_.classification -eq 'Confidential' } |
-                                        ForEach-Object { $_.connectors | Select-Object id, name }
-            NonBusinessDataGroup    = $_.connectorGroups | Where-Object { $_.classification -eq 'General' } |
-                                        ForEach-Object { $_.connectors | Select-Object id, name }
-            BlockedGroup            = $_.connectorGroups | Where-Object { $_.classification -eq 'Blocked' } |
-                                        ForEach-Object { $_.connectors | Select-Object id, name }
-            EnvironmentType         = $_.environmentType
-            Environments            = $_.environments
-        }
-    }
+    # Project raw Get-DlpPolicy output into the collected DLP contract. The helper
+    # drops $null rows before projection so a no-policy tenant (Get-DlpPolicy returns
+    # nothing -> $rawDlp is $null) yields [] instead of the "$null | ForEach-Object"
+    # phantom that emitted one all-null placeholder policy (which made the scorer
+    # report "malformed" and raised a false Service-Principal-bypass warning). It also
+    # guarantees an array so ConvertTo-Json -Depth 10 cannot collapse a singleton
+    # policy, and comma-normalizes each policy's object-shaped Environments the same way.
+    $dlpPolicies = ConvertTo-PpacDlpPolicyList -RawDlpPolicy $rawDlp
 
     # ── IMPORTANT: Control 1.4 — Service Principal DLP Bypass Check ──
     # DLP policies applied via security groups do NOT cover Service Principal-based

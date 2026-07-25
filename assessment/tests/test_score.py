@@ -366,8 +366,9 @@ class TestPerCheckManualMethods:
     as 'unknown' automated checks carrying graph.json / purview.json evidence
     instead of manual-only evidence, because evaluate_check resolved the source
     from the parent control's methods (and the check's api_call) rather than
-    honoring the check-level Manual override. Their automated siblings
-    (1.11.a, 1.13.b) must keep their real collected source.
+    honoring the check-level Manual override. Control 1.4 uses the same contract
+    for ACP evidence until a first-party collector exists. Automated siblings
+    (1.4.a, 1.11.a, 1.13.b) must keep their real collected source.
     """
 
     @staticmethod
@@ -384,6 +385,33 @@ class TestPerCheckManualMethods:
         # Non-empty collected sources so the automated path *would* resolve —
         # this is exactly the condition under which the bug surfaced.
         collected = {
+            "ppac": {
+                "environments": [
+                    {
+                        "DisplayName": "Production",
+                        "EnvironmentName": "env-prod-001",
+                    }
+                ],
+                "dlpPolicies": [
+                    {
+                        "DisplayName": "FSI Default DLP",
+                        "EnvironmentType": "OnlyEnvironments",
+                        "Environments": [
+                            {
+                                "id": (
+                                    "/providers/Microsoft.BusinessAppPlatform"
+                                    "/scopes/admin/environments/env-prod-001"
+                                ),
+                                "name": "env-prod-001",
+                                "type": (
+                                    "Microsoft.BusinessAppPlatform"
+                                    "/scopes/environments"
+                                ),
+                            }
+                        ],
+                    }
+                ]
+            },
             "graph": {"conditional_access_policies": []},
             "purview": {"dlpCompliancePolicies": []},
         }
@@ -399,6 +427,9 @@ class TestPerCheckManualMethods:
     @pytest.mark.parametrize(
         "control_id,check_id,zone",
         [
+            ("1.4", "1.4.b", 2),
+            ("1.4", "1.4.b", 3),
+            ("1.4", "1.4.c", 3),
             ("1.11", "1.11.b", 2),
             ("1.11", "1.11.b", 3),
             ("1.11", "1.11.c", 3),
@@ -423,6 +454,8 @@ class TestPerCheckManualMethods:
     @pytest.mark.parametrize(
         "control_id,check_id,zone,expected_source",
         [
+            ("1.4", "1.4.a", 2, "ppac.json"),
+            ("1.4", "1.4.a", 3, "ppac.json"),
             ("1.11", "1.11.a", 2, "graph.json"),
             ("1.11", "1.11.a", 3, "graph.json"),
             ("1.13", "1.13.b", 2, "purview.json"),
@@ -462,8 +495,13 @@ class TestPerCheckManualMethods:
         controls_by_id = {c["id"]: c for c in result["controls"]}
 
         # Manual checks applicable in this zone must present no automated source.
-        manual_expect = {"1.11": ["1.11.b"], "1.13": ["1.13.a"]}
+        manual_expect = {
+            "1.4": ["1.4.b"],
+            "1.11": ["1.11.b"],
+            "1.13": ["1.13.a"],
+        }
         if zone == 3:
+            manual_expect["1.4"].append("1.4.c")
             manual_expect["1.11"].append("1.11.c")
 
         for control_id, check_ids in manual_expect.items():
@@ -484,6 +522,567 @@ class TestPerCheckManualMethods:
             c for c in ctrl_111["checks"] if c["check_id"] == "1.11.a"
         )
         assert sibling_111a["evaluator_state"] == "auto_evaluable"
+
+
+# ---------------------------------------------------------------------------
+# Test: Control 1.4 classic-DLP prerequisite
+# ---------------------------------------------------------------------------
+
+
+class TestDlpPolicyExistsEvaluator:
+    """Control 1.4.a — effective classic-DLP scope over collected environments.
+
+    Grounds the ``Get-DlpPolicy`` contract: ``environments`` scope entries are
+    ``{ id, name, type }`` objects, classic DLP exposes no enable flag (a
+    missing/``null`` ``IsEnabled`` qualifies; only an explicit boolean ``False``
+    skips; any other non-null value fails closed), matching is exact-normalized
+    ``.name`` with an ARM ``.id`` last-segment fallback (never fuzzy substring),
+    and the evidence never claims agent-specific coverage.
+    """
+
+    ARM_PREFIX = "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/"
+    SCOPE_TYPE = "Microsoft.BusinessAppPlatform/scopes/environments"
+
+    CLEAN_FAIL = (
+        "No enabled classic DLP policy has verifiable effective scope over "
+        "collected Power Platform environments"
+    )
+    FAIL_CLOSED = "DLP policy data malformed or coverage unverifiable (fail closed)"
+
+    @classmethod
+    def _scope(cls, name: str, *, arm_id: str | None = None) -> dict:
+        """Build one object-shaped ``{ id, name, type }`` scope entry."""
+        entry: dict = {"type": cls.SCOPE_TYPE}
+        entry["id"] = arm_id if arm_id is not None else cls.ARM_PREFIX + name.strip()
+        entry["name"] = name
+        return entry
+
+    @staticmethod
+    def _collected(policy: object, *environment_ids: str) -> dict:
+        return {
+            "ppac": {
+                "environments": [
+                    {
+                        "DisplayName": f"Environment {index}",
+                        "EnvironmentName": environment_id,
+                    }
+                    for index, environment_id in enumerate(environment_ids, start=1)
+                ],
+                "dlpPolicies": [policy],
+            }
+        }
+
+    @staticmethod
+    def _eval(collected: dict) -> tuple:
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        return score._eval_dlp_policy_exists(collected, "ppac")  # noqa: SLF001
+
+    # -- enable-flag semantics ------------------------------------------------
+
+    def test_absent_isenabled_all_environments_passes(self):
+        # Classic DLP has no enable flag; absence is normal and qualifies.
+        passed, evidence = self._eval(
+            self._collected(
+                {"DisplayName": "Tenant DLP", "EnvironmentType": "AllEnvironments"},
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "Tenant DLP" in evidence
+        assert "agent" not in evidence.lower()
+
+    def test_null_isenabled_only_environments_passes(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Tenant DLP",
+                    "IsEnabled": None,
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [self._scope("env-prod-001")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "OnlyEnvironments" in evidence
+
+    def test_legacy_true_isenabled_still_passes(self):
+        # Legacy evidence may carry IsEnabled=True; still qualifies.
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Tenant DLP",
+                    "IsEnabled": True,
+                    "EnvironmentType": "aLlEnViRoNmEnTs",
+                    "Environments": [],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+
+    def test_explicit_false_isenabled_skips_cleanly(self):
+        # Explicit boolean False is the only value that removes a policy; with no
+        # other policy this is a clean fail, NOT a malformed fail-closed.
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Disabled DLP",
+                    "IsEnabled": False,
+                    "EnvironmentType": "AllEnvironments",
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert evidence == self.CLEAN_FAIL
+
+    @pytest.mark.parametrize("bad_enabled", ["true", "false", 0, 1, "yes", []])
+    def test_non_boolean_isenabled_fails_closed(self, bad_enabled):
+        # Any non-null, non-boolean IsEnabled is unexpected and fails closed.
+        # 0/1 are ints, not bools, so they must NOT be read as False/True.
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Weird DLP",
+                    "IsEnabled": bad_enabled,
+                    "EnvironmentType": "AllEnvironments",
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert evidence == self.FAIL_CLOSED
+
+    # -- scope-type / coverage semantics --------------------------------------
+
+    def test_all_environments_covers_full_inventory(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Tenant DLP",
+                    "EnvironmentType": "AllEnvironments",
+                    "Environments": [],
+                },
+                "env-prod-001",
+                "env-dev-002",
+            )
+        )
+        assert passed is True
+        assert "2 collected Power Platform environment(s)" in evidence
+
+    def test_only_environments_name_primary_case_and_trim(self):
+        # .name is primary and matched case-insensitively after trimming.
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [self._scope("  ENV-PROD-001  ")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+
+    def test_only_environments_arm_id_suffix_fallback(self):
+        # No usable .name -> the ARM .id path's final segment is the fallback.
+        entry = {"id": self.ARM_PREFIX + "env-prod-001", "type": self.SCOPE_TYPE}
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [entry],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+
+    def test_arm_id_non_terminal_segment_is_not_matched(self):
+        # Only the LAST id segment is authoritative; a matching non-terminal
+        # segment must not create a false match (guards against fuzzy paths).
+        entry = {
+            "id": self.ARM_PREFIX + "env-prod-001/connectors/shared",
+            "type": self.SCOPE_TYPE,
+        }
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [entry],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert "malformed" not in evidence  # valid shape, simply no coverage
+
+    def test_name_takes_precedence_over_arm_id(self):
+        # When .name is usable it wins; the ARM id is only a fallback.
+        entry = {
+            "id": self.ARM_PREFIX + "env-decoy-000",
+            "name": "env-prod-001",
+            "type": self.SCOPE_TYPE,
+        }
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [entry],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+
+    def test_present_name_mismatch_does_not_fall_back_to_id(self):
+        # A present (non-empty) .name that mismatches must not silently pass via
+        # a matching ARM id -- name is authoritative when usable.
+        entry = {
+            "id": self.ARM_PREFIX + "env-prod-001",
+            "name": "env-decoy-000",
+            "type": self.SCOPE_TYPE,
+        }
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [entry],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+
+    def test_only_environments_unrelated_scope_fails_cleanly(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [self._scope("env-dev-999")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert evidence == self.CLEAN_FAIL
+
+    def test_only_environments_no_fuzzy_substring_match(self):
+        # Exact match only: 'env-prod-001-sandbox' must not match 'env-prod-001'.
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [self._scope("env-prod-001-sandbox")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+
+    def test_except_environments_excludes_only_inventory_env_fails(self):
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Except DLP",
+                    "EnvironmentType": "ExceptEnvironments",
+                    "Environments": [self._scope("env-prod-001")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+
+    def test_except_environments_remainder_passes(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Except DLP",
+                    "EnvironmentType": "eXcEpTeNvIrOnMeNtS",
+                    "Environments": [self._scope("env-dev-002")],
+                },
+                "env-prod-001",
+                "env-dev-002",
+            )
+        )
+        assert passed is True
+        assert "1 collected Power Platform environment(s)" in evidence
+
+    def test_only_environments_empty_scope_covers_nothing(self):
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Empty Only",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+
+    def test_except_environments_empty_scope_covers_all(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Empty Except",
+                    "EnvironmentType": "ExceptEnvironments",
+                    "Environments": [],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "1 collected Power Platform environment(s)" in evidence
+
+    # -- SingleEnvironment semantics ------------------------------------------
+
+    def test_single_environment_valid_scope_passes(self):
+        # SingleEnvironment behaves like a one-item Only scope when a valid scope
+        # object is present.
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Single DLP",
+                    "EnvironmentType": "SingleEnvironment",
+                    "Environments": [self._scope("env-prod-001")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "SingleEnvironment" in evidence
+
+    def test_single_environment_outside_inventory_fails_cleanly(self):
+        # The single target may not be enumerated in the collected inventory;
+        # that is a clean fail, never 'malformed'.
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Single DLP",
+                    "EnvironmentType": "SingleEnvironment",
+                    "Environments": [self._scope("env-isolated-777")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert "malformed" not in evidence
+
+    def test_single_environment_missing_scope_does_not_poison_valid_policy(self):
+        # A SingleEnvironment policy with an unusable scope is recorded as
+        # unsupported (continue) and must not poison a later qualifying policy.
+        collected = {
+            "ppac": {
+                "environments": [
+                    {"DisplayName": "Prod", "EnvironmentName": "env-prod-001"},
+                ],
+                "dlpPolicies": [
+                    {
+                        "DisplayName": "Broken Single",
+                        "EnvironmentType": "SingleEnvironment",
+                        "Environments": None,
+                    },
+                    {
+                        "DisplayName": "Good Tenant DLP",
+                        "EnvironmentType": "AllEnvironments",
+                    },
+                ],
+            }
+        }
+        passed, evidence = self._eval(collected)
+        assert passed is True
+        assert "Good Tenant DLP" in evidence
+
+    def test_single_environment_malformed_scope_is_unsupported_not_malformed(self):
+        # A structurally-broken SingleEnvironment scope is unsupported/unknown,
+        # deliberately NOT labelled malformed (contract carve-out).
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Single DLP",
+                    "EnvironmentType": "SingleEnvironment",
+                    "Environments": ["env-prod-001"],  # bare string, not object
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert evidence == self.CLEAN_FAIL
+
+    # -- singleton-array normalization (defensive scorer side) ----------------
+
+    def test_singleton_policy_object_is_normalized(self):
+        # PowerShell can collapse a one-policy list to a bare object.
+        collected = {
+            "ppac": {
+                "environments": [
+                    {"DisplayName": "Prod", "EnvironmentName": "env-prod-001"},
+                ],
+                "dlpPolicies": {
+                    "DisplayName": "Solo DLP",
+                    "EnvironmentType": "AllEnvironments",
+                },
+            }
+        }
+        passed, _ = self._eval(collected)
+        assert passed is True
+
+    def test_singleton_scope_object_is_normalized(self):
+        # PowerShell can collapse a one-entry Environments list to a bare object.
+        passed, _ = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Scoped DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": self._scope("env-prod-001"),
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+
+    # -- malformed / fail-closed ----------------------------------------------
+
+    @pytest.mark.parametrize(
+        "environment_type", ["SomeFutureType", "", "Only", "environments"]
+    )
+    def test_unrecognized_environment_type_fails_closed(self, environment_type):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Odd DLP",
+                    "EnvironmentType": environment_type,
+                    "Environments": [self._scope("env-prod-001")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is False
+        assert evidence == self.FAIL_CLOSED
+
+    @pytest.mark.parametrize(
+        "policy",
+        [
+            {"DisplayName": "No type"},
+            {"EnvironmentType": 123, "Environments": []},
+            {"EnvironmentType": "OnlyEnvironments", "Environments": "oops"},
+            {"EnvironmentType": "OnlyEnvironments", "Environments": [123]},
+            {"EnvironmentType": "OnlyEnvironments", "Environments": [{"type": "x"}]},
+            {"EnvironmentType": "OnlyEnvironments"},
+            "not-a-dict",
+        ],
+    )
+    def test_malformed_policy_evidence_never_passes(self, policy):
+        passed, evidence = self._eval(self._collected(policy, "env-prod-001"))
+        assert passed is False
+        assert evidence == self.FAIL_CLOSED
+
+    @pytest.mark.parametrize(
+        "collected,expected_passed,expected_evidence",
+        [
+            ({}, None, "PPAC data not available"),
+            ({"ppac": None}, None, "PPAC data not available"),
+            ({"ppac": "oops"}, False, "PPAC data malformed (fail closed)"),
+            ({"ppac": {"dlpPolicies": None}}, None, "dlpPolicies not collected"),
+            (
+                {"ppac": {"dlpPolicies": "oops"}},
+                False,
+                "dlpPolicies malformed (fail closed)",
+            ),
+            ({"ppac": {"dlpPolicies": []}}, False, "No classic DLP policies found"),
+        ],
+    )
+    def test_missing_or_malformed_policy_container(
+        self, collected, expected_passed, expected_evidence
+    ):
+        passed, evidence = self._eval(collected)
+        assert passed is expected_passed
+        assert evidence == expected_evidence
+
+    @pytest.mark.parametrize(
+        "environments,expected_passed,expected_evidence",
+        [
+            (None, None, "environments not collected"),
+            ("oops", False, "environments malformed (fail closed)"),
+            ([], False, "No Power Platform environments found"),
+            (["not-a-dict"], False, "environments malformed (fail closed)"),
+            (
+                [{"DisplayName": "No name"}],
+                False,
+                "environments malformed (fail closed)",
+            ),
+            (
+                [{"EnvironmentName": "   "}],
+                False,
+                "environments malformed (fail closed)",
+            ),
+        ],
+    )
+    def test_absent_or_malformed_inventory_never_passes(
+        self, environments, expected_passed, expected_evidence
+    ):
+        collected = {
+            "ppac": {
+                "dlpPolicies": [
+                    {"DisplayName": "Tenant DLP", "EnvironmentType": "AllEnvironments"}
+                ],
+                "environments": environments,
+            }
+        }
+        passed, evidence = self._eval(collected)
+        assert passed is expected_passed
+        assert evidence == expected_evidence
+
+    # -- evidence contract ----------------------------------------------------
+
+    def test_success_evidence_never_claims_agent_coverage(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Tenant DLP",
+                    "EnvironmentType": "AllEnvironments",
+                    "Environments": [],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "agent" not in evidence.lower()
+        assert "Power Platform environment" in evidence
+
+    def test_valid_object_payload_is_never_called_malformed(self):
+        # A realistic object-shaped, isEnabled-less Only payload must not be
+        # reported as malformed.
+        passed, evidence = self._eval(
+            self._collected(
+                {
+                    "DisplayName": "Tenant DLP",
+                    "EnvironmentType": "OnlyEnvironments",
+                    "Environments": [self._scope("env-prod-001")],
+                },
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "malformed" not in evidence.lower()
+
+    def test_unnamed_policy_reports_unnamed(self):
+        passed, evidence = self._eval(
+            self._collected(
+                {"EnvironmentType": "AllEnvironments", "Environments": []},
+                "env-prod-001",
+            )
+        )
+        assert passed is True
+        assert "unnamed" in evidence
 
 
 # ---------------------------------------------------------------------------
@@ -774,7 +1373,7 @@ class TestManualGateMaturityCap:
         )
         assert full == 4
 
-    # --- end-to-end coverage on the real 1.11 / 1.13 controls --------------
+    # --- end-to-end coverage on real partial controls -----------------------
 
     @staticmethod
     def _real_controls() -> list[dict]:
@@ -825,6 +1424,84 @@ class TestManualGateMaturityCap:
             assert ctrl["evidence"][gate]["source"] is None
         # Automated sibling behavior is preserved.
         assert chk["1.11.a"]["evaluator_state"] == "auto_evaluable"
+
+    @pytest.mark.parametrize("zone,expected,full_target", [(2, 1, 2), (3, 3, 4)])
+    def test_control_1_4_dlp_only_cannot_claim_full_acp_maturity(
+        self,
+        tmp_path: Path,
+        collected_dir: Path,
+        zone: int,
+        expected: int,
+        full_target: int,
+    ):
+        by_id = self._run_real(self._real_controls(), collected_dir, tmp_path, zone)
+        ctrl = by_id["1.4"]
+
+        assert ctrl["evidence"]["1.4.a"]["result"] == "pass"
+        assert ctrl["checks_passed"] == 1
+        assert ctrl["maturity_score"] == expected
+        assert ctrl["maturity_score"] < full_target
+        assert ctrl["needs_manual"] is True
+
+        gates = ["1.4.b"] + (["1.4.c"] if zone == 3 else [])
+        checks = {check["check_id"]: check for check in ctrl["checks"]}
+        for gate in gates:
+            assert checks[gate]["evaluator_state"] == "manual_only"
+            assert checks[gate]["passed"] is None
+            assert ctrl["evidence"][gate]["result"] == "unknown"
+            assert ctrl["evidence"][gate]["source"] is None
+
+    @pytest.mark.parametrize(
+        "acp_payload",
+        [
+            None,
+            {},
+            [],
+            {"policies": "malformed"},
+            {"policies": [{"allowlistConfigured": True, "blocked": True}]},
+        ],
+    )
+    def test_control_1_4_acp_payload_cannot_bypass_manual_gate(
+        self,
+        tmp_path: Path,
+        collected_dir: Path,
+        acp_payload: object,
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        controls = self._real_controls()
+        control = next(control for control in controls if control["id"] == "1.4")
+        collected, _ = score.load_collected_data(collected_dir)
+        collected["powerplatform/governance/ruleBasedPolicies"] = acp_payload
+
+        result = score.score_control(
+            control, collected, zone=3, timestamp="2026-01-01T00:00:00Z"
+        )
+
+        assert result["maturity_score"] == 3
+        assert result["checks_passed"] == 1
+        for gate in ("1.4.b", "1.4.c"):
+            check = next(c for c in result["checks"] if c["check_id"] == gate)
+            assert check["passed"] is None
+            assert check["evaluator_state"] == "manual_only"
+            assert result["evidence"][gate]["result"] == "unknown"
+            assert result["evidence"][gate]["source"] is None
+
+    def test_control_1_4_full_maturity_requires_supported_attestation_contract(
+        self, tmp_path: Path, collected_dir: Path
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+        controls = self._real_controls()
+        control = next(control for control in controls if control["id"] == "1.4")
+        control["zone_thresholds"]["zone3"]["supported_attestation"] = True
+        collected, _ = score.load_collected_data(collected_dir)
+
+        result = score.score_control(
+            control, collected, zone=3, timestamp="2026-01-01T00:00:00Z"
+        )
+
+        assert result["maturity_score"] == 4
+        assert result["checks_passed"] == 1
+        assert result["needs_manual"] is True
 
     @pytest.mark.parametrize("zone,expected,full_target", [(2, 1, 2), (3, 3, 4)])
     def test_control_1_13_cannot_claim_full_maturity_with_manual_gate(

@@ -369,14 +369,14 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md",
-    "automation": "full",
+    "automation": "partial",
     "collection_methods": [
       "PPAC_PowerShell"
     ],
     "checks": [
       {
         "check_id": "1.4.a",
-        "description": "DLP policy exists covering agent environments",
+        "description": "Enabled classic DLP policy has effective scope over collected Power Platform environments",
         "api_call": "Get-DlpPolicy",
         "pass_condition": "dlp_policy_exists",
         "zone_required": [
@@ -387,9 +387,12 @@
       },
       {
         "check_id": "1.4.b",
-        "description": "ACP allowlist configured for approved connectors",
-        "api_call": "Get-DlpPolicy",
-        "pass_condition": "acp_allowlist_configured",
+        "description": "ACP allowlist configured for approved connectors (manual evidence from the Power Platform governance API required)",
+        "api_call": "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -397,9 +400,12 @@
       },
       {
         "check_id": "1.4.c",
-        "description": "Blocked connector list enforced",
-        "api_call": "Get-DlpPolicy",
-        "pass_condition": "blocked_connectors_enforced",
+        "description": "Blocked connector enforcement verified at runtime (manual evidence from the Power Platform governance API required)",
+        "api_call": "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           3
         ]
@@ -415,11 +421,11 @@
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 3,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide evidence for each applicable Zone 2 and Zone 3 environment group showing the ACP policy, its assignment, the approved connector allowlist, the environment-group scope, and runtime evidence that a blocked connector is actually denied.",
     "name": "Advanced Connector Policies (ACP)",
     "zonesApplicable": [
       1,
