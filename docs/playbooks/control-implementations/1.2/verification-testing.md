@@ -346,15 +346,15 @@ This family verifies that no agent is silently missing from the registration pla
   3. Enumerate Entra Agent IDs (where preview / GA): pull the Agent ID directory listing; save as `surface-entra-agentids.json`. If unavailable, record the absence and fall back to the App + SP join as the identity anchor.
   4. Export Integrated Apps from **Microsoft 365 admin center → Settings → Integrated apps**: save as `surface-integrated-apps.csv` with capture timestamp.
   5. Export Microsoft 365 admin center → Copilot → Agents inventory: save as `surface-m365-copilot-agents.csv`.
-  6. Export Power Platform Copilot Studio agents (per environment, across all environments) using `Get-AdminPowerApp` / `Get-AdminBot` (verify current cmdlet) or PPAC export: save as `surface-copilot-studio-agents.csv`. If the tenant exceeds the PPAC display ceiling, fall back to Azure Resource Graph and record the fallback.
+  6. Export Power Platform Copilot Studio agents by querying each Dataverse environment `bot` table (`GET {orgUrl}/api/data/v9.2/bots?...`): save bot rows as `surface-copilot-studio-agents.csv` and per-environment collection status as `surface-copilot-studio-status.csv`. Do **not** use `Get-AdminPowerApp` / `Get-AdminBot` row counts as bot inventory evidence.
   7. Enumerate MCP server registrations (Entra App Registrations tagged as MCP per the firm's tagging convention, or via the firm's MCP registration register): save as `surface-mcp-servers.csv`.
   8. Where available, export the Microsoft Agent 365 admin-center surface as `surface-agent365.csv`. Treat as **additive** only; absence does not FAIL this test but should be noted.
   9. Pull a Purview Audit (UAL) export of `Add application`, `Add service principal`, `Update application`, `Update service principal`, `Add owner to application`, `Remove owner from application`, `Add app role assignment grant to user`, `Consent to application`, and `Update application — Certificates and secrets management` events for the trailing reconciliation window. Save as `surface-ual-app-events.csv`.
   10. Compute SHA-256 for each surface export and write into `manifest.sha256`.
 - **Expected result.** Eight to nine surface exports (or seven plus a documented additive-skip for Agent 365 and Entra Agent ID) exist with timestamps and hashes. Each enumeration completed without truncation warnings.
-- **Pass criteria.** All required surface exports exist, are non-empty (or empty for a documented reason such as no agents in scope), are hashed, and the PPAC export shows a row count ≥ the count visible in PPAC at snapshot time (or used the documented Resource Graph fallback). Truncation, missing surfaces, or unfilled fallbacks are FAIL.
+- **Pass criteria.** All required surface exports exist, are non-empty (or empty for a documented reason such as no agents in scope), are hashed, and every Dataverse-capable environment in `surface-copilot-studio-status.csv` is `Collected`. Any `TokenFailed`, `QueryFailed`, or `MissingDataverseUrl` status is FAIL unless a signed manual evidence packet is attached and explicitly accepted by the Sponsor + AI Governance Lead for that cycle.
 - **Failure remediation.** Identify the missing surface, restore access via Power Platform Admin / Entra Application Admin / AI Administrator as appropriate, re-take the snapshot outside the next refresh window, and re-run the test. Do not proceed to REG-02 with a partial surface set.
-- **Evidence.** `surface-entra-apps.json`, `surface-entra-sps.json`, `surface-entra-agentids.json` (or skip note), `surface-integrated-apps.csv`, `surface-m365-copilot-agents.csv`, `surface-copilot-studio-agents.csv`, `surface-mcp-servers.csv`, `surface-agent365.csv` (or skip note), `surface-ual-app-events.csv`, `manifest.sha256`.
+- **Evidence.** `surface-entra-apps.json`, `surface-entra-sps.json`, `surface-entra-agentids.json` (or skip note), `surface-integrated-apps.csv`, `surface-m365-copilot-agents.csv`, `surface-copilot-studio-agents.csv`, `surface-copilot-studio-status.csv`, `surface-mcp-servers.csv`, `surface-agent365.csv` (or skip note), `surface-ual-app-events.csv`, `manifest.sha256`, and `surface-copilot-studio-manual-evidence.md` when any status is not `Collected`.
 - **Cadence.** Zone 1 quarterly · Zone 2 monthly · Zone 3 weekly.
 - **Owner.** Agent Owner.
 - **Zone applicability.** All zones; Zone 3 weekly is the binding cadence for any tenant with regulated agents.
@@ -845,4 +845,3 @@ This family verifies that every Zone 2 / Zone 3 agent has an active Sponsor and 
 - **Cadence.** Zone 1 annual · Zone 2 quarterly · Zone 3 quarterly.
 - **Owner.** Agent Sponsor.
 - **Zone applicability.** Zone 2 and Zone 3.
-

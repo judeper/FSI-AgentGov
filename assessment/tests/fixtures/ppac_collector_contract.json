@@ -13,6 +13,7 @@
       "EnvironmentSku": "Production",
       "LinkedEnvironmentType": "Dataverse",
       "SecurityGroupId": "sg-001",
+      "DataverseUrl": "https://contoso.crm.dynamics.com",
       "States": {
         "management": {
           "id": "Managed"
@@ -59,5 +60,27 @@
   "inactivityTimeout": null,
   "securityPosture": null,
   "agentFeatureFlags": {},
-  "environmentGroups": []
+  "environmentGroups": [],
+  "copilotStudioBotInventory": [
+    {
+      "EnvironmentName": "env-prod-001",
+      "DisplayName": "Core Dataverse",
+      "LinkedEnvironmentType": "Dataverse",
+      "DataverseUrl": "https://contoso.crm.dynamics.com",
+      "Status": "Collected",
+      "BotCount": 1,
+      "Bots": [
+        {
+          "BotId": "bot-001",
+          "Name": "Contoso Treasury Assistant",
+          "OwnerId": "owner-001",
+          "StateCode": 0,
+          "StatusCode": 1,
+          "CreatedOn": "2026-05-01T10:00:00Z",
+          "ModifiedOn": "2026-05-15T09:00:00Z",
+          "SchemaName": "crb_bot_001"
+        }
+      ]
+    }
+  ]
 }
