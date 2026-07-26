@@ -6,8 +6,8 @@
     Enumerates audit log configuration, DLP compliance policies, retention policies,
     communication compliance, eDiscovery cases, insider risk evidence status
     (manual policy inventory + audit dependency only), DSPM for AI, sensitivity label
-    policies, and endpoint DLP settings via Security & Compliance PowerShell
-    (ExchangeOnlineManagement).
+    policies, endpoint DLP settings, and sensitive information types (SITs) via
+    Security & Compliance PowerShell (ExchangeOnlineManagement).
 
     Outputs a structured JSON file (purview.json) consumed by the assessment engine.
 
@@ -34,7 +34,7 @@
 .OUTPUTS
     purview.json — JSON file with audit config, DLP policies, retention,
     communication compliance, eDiscovery, insider risk manual-evidence status,
-    DSPM, sensitivity labels, and endpoint DLP.
+    DSPM, sensitivity labels, endpoint DLP, and sensitive information types (SITs).
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — Purview Collector.
@@ -515,6 +515,34 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
+# Section 10: Sensitive Information Types (SITs)
+# Supports: Control 1.13.a — supplies the SIT inventory as evidence for the
+# manual attestation that regulated data types are covered (1.13.a is
+# manual-only; a raw SIT count does not prove FSI-specific coverage).
+# ═══════════════════════════════════════════════════════════════════════
+$sensitiveInformationTypes = $null
+try {
+    Write-Verbose "Section 10: Collecting sensitive information types..."
+    $rawSits = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List sensitive information types' -ScriptBlock {
+        Get-DlpSensitiveInformationType -ErrorAction Stop
+    }
+    $sensitiveInformationTypes = @($rawSits | ForEach-Object {
+        [PSCustomObject]@{
+            Name       = $_.Name
+            Id         = $_.Id
+            Publisher  = $_.Publisher
+            RulePackId = $_.RulePackId
+            Type       = if ($_.Publisher -eq 'Microsoft Corporation') { 'builtin' } else { 'custom' }
+        }
+    })
+    Write-Verbose "  Collected $(@($sensitiveInformationTypes).Count) sensitive information type(s)."
+}
+catch {
+    $warnings.Add("Section 10 (Sensitive Information Types) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
 # Build Output
 # ═══════════════════════════════════════════════════════════════════════
 $result = [ordered]@{
@@ -528,6 +556,7 @@ $result = [ordered]@{
     dspmForAi                = $dspmForAi
     sensitivityLabelPolicies = $sensitivityLabelPolicies
     endpointDlp              = $endpointDlp
+    sensitiveInformationTypes = $sensitiveInformationTypes
     _metadata                = [ordered]@{
         collector   = 'Collect-Purview'
         timestamp   = (Get-Date -Format 'o')
@@ -544,7 +573,8 @@ Write-Verbose "Output written to $outputFile"
 $sectionValues = @(
     $auditConfig, $dlpCompliancePolicies, $retentionPolicies,
     $communicationCompliance, $eDiscoveryCases, $insiderRiskEvidence,
-    $dspmForAi, $sensitivityLabelPolicies, $endpointDlp
+    $dspmForAi, $sensitivityLabelPolicies, $endpointDlp,
+    $sensitiveInformationTypes
 )
 $nullSections = @($sectionValues | Where-Object { $null -eq $_ })
 
