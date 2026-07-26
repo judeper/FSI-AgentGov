@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,36 @@ MANIFEST = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 EXPLORER_DATA = REPO_ROOT / "docs" / "javascripts" / "control-explorer-data.json"
 EXPECTED_CONTROL_COUNT = 79
 CONTROL_ID_RE = re.compile(r"^\d+\.\d+$")
+
+# Share the generator's mapping tables so this guard validates against the
+# same source of truth rather than a drifting copy (issue #322).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from gen_explorer_data import (  # noqa: E402
+    AUTOMATION_LABELS,
+    EFFORT_MAP,
+    ROLE_ARTIFACTS,
+    clean_role,
+)
+
+# Explorer fields derived deterministically from the manifest alone. Fields
+# that need the control markdown (objective, workload, governanceLevels) or
+# the playbook tree (playbooks, primaryPlaybook) are out of scope here --
+# mkdocs-strict and verify_controls.py cover those surfaces.
+#
+# Before issue #322 this checker compared only control IDs and counts, so a
+# stale effortLevel or automation value (controls 1.4, 1.11, 1.15) survived CI.
+VALUE_FIELDS = (
+    "title",
+    "pillar",
+    "pillarName",
+    "url",
+    "zones",
+    "roles",
+    "automation",
+    "effortLevel",
+    "solutions",
+    "primaryOwner",
+)
 
 
 def rel(path: Path) -> str:
@@ -78,6 +109,54 @@ def regulatory_set(control: dict[str, Any], key: str) -> set[str]:
 def duplicate_ids(ids: list[str]) -> list[str]:
     counts = Counter(ids)
     return sorted(cid for cid, count in counts.items() if count > 1)
+
+
+def cleaned_roles(control: dict[str, Any]) -> list[str]:
+    """Roles as the generator emits them: parentheticals stripped, artifacts dropped."""
+    roles: list[str] = []
+    for raw in control.get("roles") or []:
+        role = clean_role(str(raw))
+        if role and role not in ROLE_ARTIFACTS and role not in roles:
+            roles.append(role)
+    return roles
+
+
+def expected_values(control: dict[str, Any]) -> dict[str, Any]:
+    """Recompute every manifest-derived Explorer field for one control."""
+    automation_raw = control.get("automation")
+    roles = cleaned_roles(control)
+    return {
+        "title": control.get("name") or control.get("title") or str(control.get("id")),
+        "pillar": control.get("pillar"),
+        "pillarName": control.get("pillar_name") or "",
+        "url": (control.get("controlDocUrl") or "").lstrip("/"),
+        "zones": sorted(control.get("zonesApplicable") or []),
+        "roles": sorted(roles),
+        "automation": AUTOMATION_LABELS.get(automation_raw, "unspecified"),
+        "effortLevel": EFFORT_MAP.get(automation_raw or "", ""),
+        "solutions": sorted(control.get("solutions") or []),
+        "primaryOwner": roles[0] if roles else "",
+    }
+
+
+def check_field_values(
+    manifest_by_id: dict[str, dict[str, Any]],
+    explorer_by_id: dict[str, dict[str, Any]],
+    shared_ids: list[str],
+) -> list[str]:
+    """Compare manifest-derived field values, not just IDs and counts."""
+    problems: list[str] = []
+    for cid in shared_ids:
+        expected = expected_values(manifest_by_id[cid])
+        actual = explorer_by_id[cid]
+        for field in VALUE_FIELDS:
+            if actual.get(field) != expected[field]:
+                problems.append(
+                    f"DRIFT: {field} mismatch for control {cid}: "
+                    f"manifest-derived={expected[field]!r} "
+                    f"explorer={actual.get(field)!r}"
+                )
+    return problems
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -198,6 +277,14 @@ def main(argv: list[str] | None = None) -> int:
                 f"DRIFT: regulation facet mismatch for control {cid}: "
                 f"manifest={sorted(manifest_regs)} explorer={sorted(explorer_regs)}"
             )
+
+    value_problems = check_field_values(
+        manifest_by_id, explorer_by_id, sorted(manifest_set & explorer_set)
+    )
+    if value_problems:
+        drift = True
+        for problem in value_problems:
+            print(problem)
 
     if drift:
         print(

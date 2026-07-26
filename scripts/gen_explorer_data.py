@@ -50,6 +50,15 @@ AUTOMATION_LABELS = {
     "manual": "Manual",
 }
 
+# Effort estimate derived from the manifest automation classification.
+# Module-level so check_explorer_data_drift.py can validate generated values
+# against the same table instead of re-declaring it (issue #322).
+EFFORT_MAP = {
+    "full": "Low effort",
+    "partial": "Medium effort",
+    "manual": "Higher effort",
+}
+
 # Pure table-parse artifacts that are not real administrator roles.
 ROLE_ARTIFACTS = {"Role", "Role group", "Reviewer"}
 
@@ -314,12 +323,7 @@ def build() -> tuple[dict, dict]:
                 primary_owner = cr
                 break
 
-        # Effort estimate derived from automation classification.
-        EFFORT_MAP = {
-            "full": "Low effort",
-            "partial": "Medium effort",
-            "manual": "Higher effort",
-        }
+        # Effort estimate derived from automation classification (EFFORT_MAP).
         effort_level = EFFORT_MAP.get(auto_raw or "", "")
 
         # Primary playbook URL: the portal-walkthrough (first in ordered list).
