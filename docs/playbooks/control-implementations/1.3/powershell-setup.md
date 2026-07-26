@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
-**Last Updated:** May 2026
+**Last Updated:** July 2026
 **Modules Required:** `Microsoft.Online.SharePoint.PowerShell`, `PnP.PowerShell` (v2+ — requires Entra app registration), `Microsoft.Graph` (Identity.Governance, Sites, Groups), `Microsoft.Graph.Beta` (Identity.SignIns — provides `Get-MgBetaInformationProtectionPolicyLabel` used in §4b), `ExchangeOnlineManagement` (only if pairing with retention)
 **PowerShell Edition:** PowerShell 7.2+ for `PnP.PowerShell` v2 and `Microsoft.Graph`. `Microsoft.Online.SharePoint.PowerShell` runs on both Desktop 5.1 and Core 7+.
 
@@ -166,12 +166,17 @@ function Set-AgentGroundingSite {
     if ($SensitivityLabelName -and $site.SensitivityLabel -ne $SensitivityLabelName -and $PSCmdlet.ShouldProcess($SiteUrl, "Apply label $SensitivityLabelName")) {
         $groupId = (Get-SPOSite -Identity $SiteUrl -Detailed).GroupId
         if ($groupId -and $groupId -ne [Guid]::Empty) {
-            $label = Get-MgBetaInformationProtectionPolicyLabel -All | Where-Object DisplayName -eq $SensitivityLabelName
-            if ($label) {
-                Update-MgGroup -GroupId $groupId -BodyParameter @{ assignedLabels = @(@{ labelId = $label.Id }) }
+            # MicrosoftGraphInformationProtectionLabel exposes .Name (not .DisplayName) per Graph Beta SDK.
+            $allLabels     = Get-MgBetaInformationProtectionPolicyLabel -All
+            $matchedLabels = @($allLabels | Where-Object { $_.Name -eq $SensitivityLabelName })
+            if ($matchedLabels.Count -eq 1) {
+                Update-MgGroup -GroupId $groupId -BodyParameter @{ assignedLabels = @(@{ labelId = $matchedLabels[0].Id }) }
                 Write-Host "[DONE] Label $SensitivityLabelName applied to group $groupId" -ForegroundColor Yellow
+            } elseif ($matchedLabels.Count -eq 0) {
+                $available = ($allLabels | Where-Object { $_.Name } | Select-Object -ExpandProperty Name) -join ', '
+                Write-Warning "Label '$SensitivityLabelName' not found in published policy. Available names: $available"
             } else {
-                Write-Warning "Label $SensitivityLabelName not found in published policy."
+                Write-Warning "Label '$SensitivityLabelName' matched $($matchedLabels.Count) entries; cannot apply ambiguously. Verify label names in the Microsoft Purview compliance portal."
             }
         } else {
             Write-Warning "$SiteUrl is not group-connected; apply container label via SharePoint admin UI."

@@ -1,5 +1,27 @@
 # Linus — Review History
 
+## 2026-07-21 — Control 1.3 Label Lookup Bug Fix (Issue #248)
+
+**Mode:** Surgical documentation fix — PowerShell snippet in playbook
+**Branch:** `ocean/issue-248`
+**File:** `docs/playbooks/control-implementations/1.3/powershell-setup.md`
+**Result:** ✅ COMPLETE — worktree ready for Rusty
+
+### Summary
+
+- **1 file modified** — §4b label lookup in `Set-AgentGroundingSite`
+- **Root cause:** `Where-Object DisplayName -eq` referenced a nonexistent property on `MicrosoftGraphInformationProtectionLabel`; the cmdlet exposes `.Name`, not `.DisplayName`. The code always fell through to the "not found" warning — label assignment was silently broken.
+- **Fix:** Primary lookup via `.Name`; `@()` cast for reliable `.Count`; zero-match branch enumerates available label names; multiple-match branch fails safe with advisory rather than picking arbitrarily.
+- Validation: `verify_language_rules.py` ✅, `verify_controls.py` ✅, `mkdocs build --strict` ✅
+
+### Learnings
+
+- **`Get-MgBetaInformationProtectionPolicyLabel` returns `.Name`, never `.DisplayName`.** This is a common confusion because other Graph objects (e.g. group members via `Get-MgUser`) do expose `.DisplayName`. When a label lookup silently "never finds" anything, check for this property mismatch first.
+- **`@()` around `Where-Object` pipelines**: PowerShell unwraps a single-item pipeline result to a scalar, making `.Count` unreliable. Always cast to array before branching on count.
+- **Fail-safe zero-match messaging**: providing available label names in the warning is far more actionable than "not found." Costs one extra `Select-Object` but saves the operator a round-trip to Purview.
+
+---
+
 ## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.21–1.29, Wave C)
 
 **Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.21–1.29
