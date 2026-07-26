@@ -125,6 +125,7 @@ API_SOURCE_MAP: dict[str, str] = {
     "Get-AdminAuditLogConfig": "purview",
     "Get-RetentionCompliancePolicy": "purview",
     "Get-DlpCompliancePolicy": "purview",
+    "Get-DlpSensitiveInformationType": "purview",
     "Get-Label": "purview",
     "Get-LabelPolicy": "purview",
     "Get-InformationBarrierPolicy": "purview",
@@ -560,6 +561,11 @@ def _normalize_purview_data(purview: dict) -> dict:
         dspm_for_ai = _first_present(purview, "dspmForAi")
         if isinstance(dspm_for_ai, dict):
             normalized["dspm_for_ai"] = dspm_for_ai
+
+    if normalized.get("sensitive_information_types") is None:
+        sits = _first_present(purview, "sensitiveInformationTypes")
+        if isinstance(sits, list):
+            normalized["sensitive_information_types"] = sits
 
     return normalized
 
