@@ -48,7 +48,7 @@ This playbook covers the **portal-driven** configuration of Control 1.8 across *
 | 1 | **Native Defender for Cloud Apps AI Agent Protection** (AI agent inventory, activity logging, real-time protection) | **Preview** | Microsoft Defender portal **+** PPAC handshake (two-portal) | §4a |
 | 2 | **Additional Threat Detection / Security Webhooks API** (third-party / custom security provider) | **Prerelease** | PPAC + Microsoft Entra app registration + Federated Identity Credential | §4b |
 | 3 | **Prompt Shields** (UPIA + XPIA detection; tenant-wide; on by default in Copilot Studio) | GA in commercial; verify per-cloud | Copilot Studio (tenant-scoped; verification only) | §4c |
-| 4 | **Content moderation Low / Medium / High** (per-agent; Azure AI Content Safety severity 0/2/4/6 across Hate / Sexual / Violence / Self-Harm) | GA | Copilot Studio per-agent → Settings → Generative AI → Content moderation | §4d |
+| 4 | **Content moderation — 5 positions (Lowest / Low / Medium / High / Highest)** (per-agent; Azure AI Content Safety harm categories: Hate, Sexual, Violence, Self-Harm) | GA | Copilot Studio per-agent → Settings → Generative AI → Content moderation | §4d |
 | 5 | **AISPM dashboard in Defender XDR** (alert routing, recommended actions, exposure graph correlation) | Preview / verify lifecycle | Microsoft Defender portal | §4e |
 | 6 | **Defender XDR custom detection rules on `CloudAppEvents`** (per-event alerting; correlated incidents) | GA | Microsoft Defender portal — Advanced Hunting | §4f |
 | 7 | **Application Insights — RAI ContentFiltered events** (per-agent; model-layer blocking visibility) | GA (App Insights); per-agent toggle | Copilot Studio per-agent → Settings → Generative AI → Advanced settings → Application Insights | §4g |
@@ -59,8 +59,8 @@ This playbook covers the **portal-driven** configuration of Control 1.8 across *
 |---|---|---|
 | Defender preview-feature opt-in (Defender for Cloud + Defender XDR) | Yes (this playbook) | Not exposed via cmdlet |
 | Defender portal Cloud Apps Copilot Studio AI Agents toggle | Yes (this playbook) | Not exposed via cmdlet |
-| PPAC Security → Threat Protection — native Defender handshake | Yes (this playbook) | `Set-TenantSettings` partial; verify against `admin\threat-detection` Learn |
-| PPAC Security → Threat Protection — Additional Threat Detection (third-party webhook) | Yes (this playbook) | Limited; portal is the documented configuration path |
+| PPAC — native Defender handshake toggle | Yes (this playbook) | `Set-TenantSettings` partial; verify against current Microsoft Learn — UI location may change |
+| PPAC Security → Threat detection → Additional threat detection (third-party webhook) | Yes (this playbook) | Limited; portal is the documented configuration path |
 | Microsoft Entra app registration + Federated Identity Credential for webhook | Yes (this playbook) **or** Microsoft Graph PowerShell | `New-MgApplication` + `New-MgApplicationFederatedIdentityCredential` (see [PowerShell setup](powershell-setup.md)) |
 | Per-agent Copilot Studio content moderation level | Yes (this playbook) | Not exposed via supported cmdlet (configuration is design-time in the agent author surface) |
 | Per-agent Application Insights connection string | Yes (this playbook) | Not exposed via supported cmdlet |
@@ -95,7 +95,7 @@ Complete every gate **before** opening Section 4. Each gate has explicit pass cr
 |---|---|---|
 | Defender for Cloud Apps **AI Agent Protection** + AISPM | **Agent 365 license** (required after 2026-07-01). **Grace period until 2026-07-01:** Microsoft Defender for Cloud Apps standalone license or included via Microsoft 365 E5 / E5 Security. After 2026-07-01, Agent 365 is required to retain AI Agent Inventory access. Verify Defender XDR plan against ([protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)) | Microsoft Defender portal → Settings → Cloud apps → tenant licensing summary |
 | Copilot Studio Prompt Shields + agent-level content moderation slider (Lowest / Low / Medium / High / Highest) | Copilot Studio license (per-tenant or per-user); generative-AI capacity (PAYG or pre-paid messages) per [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance) | PPAC → Resources → Capacity → Copilot Studio messages |
-| PPAC **Threat Protection** (native + Additional) | Power Platform Admin role; capability gated by Defender for Cloud Apps preview opt-in for native handshake | PPAC → Security → Threat Protection visible in left rail |
+| PPAC **Threat detection** (Additional threat detection) and native Defender handshake | Power Platform Admin role; capability gated by Defender for Cloud Apps preview opt-in for native handshake | PPAC → Security → Threat detection → Additional threat detection visible in left rail; verify current UI location before relying on the exact path |
 | Microsoft Entra **app registration + Federated Identity Credential** | Entra App Admin (Application Administrator) **or** Cloud Application Administrator | Microsoft Entra admin center → Identity → Applications |
 | Application Insights per-agent | Azure subscription with Application Insights workspace; Owner / Contributor on the workspace; instrumentation key or connection string | Azure portal → Application Insights resource → Properties |
 | Microsoft Purview **Audit (Standard / Premium)** for runtime evidence promotion | Microsoft 365 E3 (Standard) or E5 / E5 Compliance (Premium); Audit (Premium) required for long-term retention beyond default | See [Control 1.7 portal walkthrough](../1.7/portal-walkthrough.md) |
@@ -154,7 +154,7 @@ Validation in Section 5 requires **named, dedicated test identities and test age
 | Identity / agent | Purpose |
 |---|---|
 | Test user **`1.8-test-user-rtp@<tenant>`** | Submits UPIA + XPIA test prompts; assigned a dedicated Copilot Studio license; restricted to Zone 1 environments |
-| Test agent **`1.8-TEST-Agent-Z1-Control`** | Zone 1 baseline; content moderation at default (Medium); Prompt Shields ON; in commercial cloud only |
+| Test agent **`1.8-TEST-Agent-Z1-Control`** | Zone 1 baseline; content moderation set to **Medium** (Zone 1 documented FSI minimum — not the platform default, which is **High**); Prompt Shields ON; in commercial cloud only |
 | Test agent **`1.8-TEST-Agent-Z2`** | Zone 2 — content moderation at **High**; Prompt Shields ON; per-agent App Insights ON |
 | Test agent **`1.8-TEST-Agent-Z3`** | Zone 3 — content moderation at **High**; Prompt Shields ON; per-agent App Insights ON; Additional Threat Detection webhook subscribed |
 
@@ -185,7 +185,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 | 2.5 | Provision test identities and test agents | Power Platform Admin **+** Copilot Studio author on Z1/Z2/Z3 environments | Yes |
 | 2.6 | Tenant-wide consent for third-party webhook app | Entra Global Admin **or** Entra Privileged Role Admin | Yes — privileged |
 | 4a-1 | Defender portal Cloud Apps Copilot Studio AI Agents toggle | Entra Security Admin | Yes |
-| 4a-2 | PPAC Security → Threat Protection — Native Defender handshake | Power Platform Admin | Yes |
+| 4a-2 | PPAC Security → Threat detection — Native Defender handshake | Power Platform Admin | Yes |
 | 4b-1 | Microsoft Entra app registration | Entra App Admin (Application Administrator) **or** Cloud Application Administrator | Yes |
 | 4b-2 | Federated Identity Credential — copy server-issued subject from PPAC UI | Entra App Admin **+** Power Platform Admin | Yes |
 | 4b-3 | PPAC Additional Threat Detection — bind webhook | Power Platform Admin | Yes |
@@ -227,7 +227,7 @@ Reference: [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-c
 
 1. Sign in at `https://admin.powerplatform.microsoft.com` as **Power Platform Admin** (JIT-activated).
 2. In the left rail, select **Security**.
-3. Select **Threat Protection** (URL slug `/security/threatdetection`; **the visible label is "Threat Protection"**).
+3. Select **Threat detection** in the left rail (per [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider); confirm the current visible label at deployment time — UI labels can change).
 4. Locate **Microsoft Defender — Copilot Studio AI Agents**.
 5. Toggle **On**.
 6. Save and capture screenshot `1.8-RTP-04a2_<UTC>_<test-id>_ppac-threat-protection-native-defender.png`.
@@ -268,8 +268,8 @@ This surface routes prompt + tool-invocation events to a customer-controlled or 
 
 The order matters: **PPAC must mint the subject first**; only then can the FIC be created in Entra.
 
-1. PPAC → **Security** → **Threat Protection**.
-2. Locate **Additional Threat Detection** (or "Third-party / Custom security provider", per current UI label).
+1. PPAC → **Security** → **Threat detection**.
+2. Locate **Additional threat detection** (or "Third-party / Custom security provider", per current UI label).
 3. **+ Add provider** (or equivalent action label).
 4. Provide:
     - **Provider name** — descriptive, surfaces in alerts (e.g., `Acme-PromptGuard-Prod`)
@@ -296,7 +296,7 @@ Reference: [external-security-provider](https://learn.microsoft.com/en-us/micros
 
 #### 4b-4 — Verification
 
-1. Return to PPAC → **Security** → **Threat Protection** → **Additional Threat Detection** → the provider row.
+1. Return to PPAC → **Security** → **Threat detection** → **Additional threat detection** → the provider row.
 2. **PASS:** Status shows `Connected` / `Active` (label varies by build).
 3. From your third-party endpoint, verify a `POST` arrives with a Microsoft Entra-issued JWT. Validate the JWT issuer, audience, and subject against the values configured in 4b-3.
 4. **FAIL:** if the endpoint never receives traffic, the most common causes are (a) the FIC subject was mistyped (it is **case-sensitive** and **whitespace-sensitive**), (b) admin consent in §2.6 was not granted, (c) the endpoint is not reachable from Microsoft's egress, or (d) preview opt-in (§2.3) was not in effect when the target was created.
@@ -322,7 +322,7 @@ Reference: [security-and-governance](https://learn.microsoft.com/en-us/microsoft
 
 **Lifecycle:** GA. Configured **per agent**, at design time, in Copilot Studio.
 
-Copilot Studio exposes a **per-agent content-moderation slider** with **5 positions** — **Lowest**, **Low**, **Medium**, **High**, **Highest** — that maps to Azure AI Content Safety severity thresholds across four harm categories: **Hate**, **Sexual**, **Violence**, **Self-Harm** ([content-safety/concepts/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories); [content-safety/overview](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview)). This is the **agent-level** slider configured at **Settings → Generative AI → Content moderation** and is the surface this control covers. The separate **per-prompt** slider exposed in the prompt builder (3 positions: Low / Moderate / High, managed GPT models only) is governed by **Control 1.27** and is configured independently.
+Copilot Studio exposes a **per-agent content-moderation slider** with **5 positions** — **Lowest**, **Low**, **Medium**, **High**, **Highest** — with a **documented default of High** ([knowledge-copilot-studio#moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#moderation)). The underlying classifier draws on Azure AI Content Safety harm categories — **Hate**, **Sexual**, **Violence**, **Self-Harm** ([content-safety/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories)) — but Microsoft does **not** publish a deterministic numeric-severity-threshold mapping for each of the five slider positions; treat the severity scale as a classifier concept, not a documented one-to-one mapping to the Copilot Studio UI. This is the **agent-level** slider configured at **Settings → Generative AI → Content moderation** and is the surface this control covers. The separate **prompt-tool** slider (3 positions: Low / Moderate / High, default **Moderate**, [prompt-model-settings#content-moderation-level](https://learn.microsoft.com/en-us/microsoft-copilot-studio/prompt-model-settings#content-moderation-level)) is governed by **Control 1.27** and is configured independently.
 
 | Copilot Studio agent-level position | Relative strictness | FSI guidance |
 |---|---|---|
@@ -332,7 +332,7 @@ Copilot Studio exposes a **per-agent content-moderation slider** with **5 positi
 | **High** | Strict filtering — blocks potentially sensitive or harmful content | **Recommended minimum for FSI Zone 2 and Zone 3** |
 | **Highest** | Maximum available filtering — most restrictive option | Recommended for highest-risk Zone 3 customer-facing or regulated agents |
 
-> **Severity-threshold mapping.** Exact Azure AI Content Safety severity thresholds per slider position are not publicly enumerated for all five positions in Microsoft Learn at this writing. The directional intent is **Lowest = most permissive**, **Highest = strictest**, with Medium / High covering the documented FSI minimums. When designing the §4 test matrix below, anchor expectations to **Microsoft Learn at the time of testing** and record any drift in the configuration baseline.
+> **No published severity-number mapping.** Microsoft does not publish a table mapping the five agent-level slider positions to specific Azure AI Content Safety severity numbers (or any other numeric scale). Treat the positions as Microsoft's own relative-strictness labels — **Lowest = most permissive**, **Highest = strictest**, documented default **High** — not as a proxy for a specific, independently verifiable severity threshold. When designing the §4 test matrix below, anchor expectations to **Microsoft Learn at the time of testing** and record any drift in the configuration baseline.
 
 **Steps (per in-scope agent):**
 
@@ -413,8 +413,7 @@ After running §5, in the Application Insights resource → **Logs**:
 
 ```kql
 customEvents
-| where name == "ContentFiltered"
-   or name has_cs "RAI"
+| where customDimensions contains "ContentFiltered"
 | where timestamp >= ago(1h)
 | project timestamp, name, customDimensions
 | order by timestamp desc
@@ -631,7 +630,7 @@ The following are observed deployment defects from FSI tenants. Each maps to a S
 2. **Hard-coded or constructed FIC subject.** The Federated Identity Credential subject for Additional Threat Detection is **server-issued by Power Platform** at provider-creation time and must be **read from the PPAC UI and pasted verbatim into Entra**. Any value copied from another tenant or environment, or inferred from a sample blob, will fail authentication. → §4b-2 / §4b-3.
 3. **Treating AISPM Recommendations as authoritative for FFIEC AIO model risk inventory.** AISPM is advisory; the authoritative agent inventory is the [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) governance register. → §4e callout.
 4. **Conflating Prompt Shields with content moderation.** Prompt Shields = prompt injection / jailbreak (UPIA + XPIA) at the model layer; content moderation = harmful-content generation across Hate / Sexual / Violence / Self-Harm. The two are configured in different places (tenant-wide vs per-agent) and have different bypass surfaces. → §4c, §4d.
-5. **Setting content moderation to `Strict`.** No such level exists. Levels are **Low / Medium (default) / High**. Production FSI Zone 2/3 should use **High**. → §4d table.
+5. **Setting content moderation to `Strict`.** No such level exists. The agent-level slider has **5 positions — Lowest / Low / Medium / High / Highest** — with a documented default of **High**. Production FSI Zone 2/3 should use **High** (or **Highest** for the highest-risk agents). → §4d table.
 6. **Ignoring M365 App Connector health.** A `Disconnected` connector is the single most common silent-failure mode for §4a. → §2.2 mandatory pre-flight gate.
 7. **Skipping the Defender preview opt-in.** Without preview opt-in on **both** Defender for Cloud Apps and Defender XDR, AI Agent Protection blades will not render and AISPM will appear empty. → §2.3.
 8. **Hard-coding `ActionType` literals in detection rules.** The `CloudAppEvents` schema for Copilot Studio runtime activity evolves with service updates. Every `ActionType` literal in §4f must be re-verified against [advanced-hunting-cloudappevents-table](https://learn.microsoft.com/en-us/microsoft-365/security/defender/advanced-hunting-cloudappevents-table) at deploy time. → §4f step 2.
@@ -680,4 +679,4 @@ A confirmed runtime event detected by Control 1.8 (e.g., a sustained jailbreak a
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: July 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — this update corrected documentation-evidence accuracy (Microsoft Learn cross-checks); it did not include a live tenant/portal UI screenshot verification pass*

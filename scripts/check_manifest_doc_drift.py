@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Detect drift between the control manifest, CONTROL-INDEX, and mkdocs nav.
 
-The 78-control framework is described in three places:
+The 79-control framework is described in three places:
 
 * ``assessment/manifest/controls.json`` — machine-readable source of truth
 * ``docs/controls/CONTROL-INDEX.md`` — human-readable master index
 * ``mkdocs.yml`` — published navigation
 
-This script makes sure the same 78 control IDs appear in all three with
+This script makes sure the same 79 control IDs appear in all three with
 the same pillar grouping. Run with ``--check`` in CI to fail on drift.
 """
 

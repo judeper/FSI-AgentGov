@@ -14,7 +14,7 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 | 2 | Each in-scope environment is in the correct environment group with documented zone classification | PPAC > **Manage** > **Environment groups** | Environment listed in expected group | Screenshot of group **Environments** tab |
 | 3 | ACP rule **Status: Applied** at the group scope | PPAC > **Environment groups** > [group] > **Rules** tab > **Advanced connector policies** | Header shows `Status: Applied` | Screenshot |
 | 4 | ACP rule **Status: Applied** at any single-environment scope (where used) | PPAC > environment > **Security** > **Data and privacy** > **Advanced connector policies** | Header shows `Status: Applied` | Screenshot |
-| 5 | Allowlist contents match the approved connector catalog | Same panel | Connector list = catalog for that zone | JSON export from PowerShell §6a |
+| 5 | Allowlist contents match the approved connector catalog | Same panel and Power Platform API policy read-back | Connector list = catalog for that zone | JSON policy + assignment exports from PowerShell §5 |
 | 6 | Action-level restrictions enforced on each allowlisted connector (read-only by default unless ticketed) | Expand each connector in the panel | Disallowed actions toggled off; deprecated/internal actions marked | Screenshot of one high-risk connector (e.g., SharePoint) |
 | 7 | **Publish rules** has cascaded to every member environment | PPAC > each member environment > **Settings** > **History** | `Update Managed Environment Settings` event within last 24h of publish | Screenshot |
 | 8 | Mixed mode active (classic DLP still evaluating custom + HTTP) — or ACP-only mode explicitly approved | **Rules** tab toggle `Advanced connector policies only` | Toggle = `Off` (mixed mode) for FSI default | Screenshot |
@@ -25,6 +25,8 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 | 13 | Maker test confirms cross-classification DLP block | Power Automate maker portal (attempt to use Business + Non-Business in same flow) | DLP policy violation message; flow cannot save | Screenshot |
 | 14 | Purview Audit captures the ACP/DLP change events | Purview portal > **Audit** > **Search** > Activities = `UpdateDlpPolicy`, `PublishConnectorRuleSet` (or current operation names); time window covering the change | Each change attributable to a named admin with timestamp | CSV export |
 | 15 | Allowlist recertification cadence current (monthly Zone 3 / quarterly Zone 2 / annual Zone 1) | Connector catalog system | Last review date within cadence window | System report |
+
+> **Evidence boundary:** Portal status and API policy/assignment read-back prove configuration and scope; they do not by themselves prove enforcement. Checklist item 12 (or equivalent operational evidence showing a non-allowlisted connector/action was rejected) is required before recording ACP enforcement as verified.
 
 ---
 
@@ -92,7 +94,7 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 
 Bundle the following per environment group, per test cycle, for FINRA / SEC / OCC examination:
 
-1. **`acp-ruleset-<timestamp>.json`** — current allowlist body (PowerShell §6a) with SHA-256 in `manifest.json`.
+1. **`acp-policy-<timestamp>.json` and `acp-assignments-<timestamp>.json`** — current policy body and assignment scope (PowerShell §5) with SHA-256 entries in `manifest.json`.
 2. **Screenshot pack** — items 1–11 from the checklist.
 3. **Test-result pack** — Scenarios A–E screenshots with maker UPN, environment ID, and timestamp watermark.
 4. **Purview Audit export** — `UpdateDlpPolicy` / ACP rule changes for the period under review (CSV, signed with PowerShell `Get-FileHash`).
@@ -115,4 +117,4 @@ Bundle the following per environment group, per test cycle, for FINRA / SEC / OC
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: July 2026 | Version: v1.6.2 | UI Verification Status: Current*

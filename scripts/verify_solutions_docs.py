@@ -13,6 +13,11 @@ Checks:
    but every solution example must include a repository link to a canonical
    solution ID, must only cite control IDs present in that solution's canonical
    ``controls`` array, and must not publish a separate per-solution status line.
+4. A control document under ``docs/controls/`` must not carry the
+   "no companion solution" sentinel when the pinned lock maps one or more
+   solutions to that control ID. This is a contradiction check only: it does not
+   require a control to enumerate every solution mapped to it, and it does not
+   forbid a control from cross-referencing a solution that is not mapped to it.
 
 Usage::
 
@@ -32,6 +37,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 LOCK_FILE = REPO_ROOT / "assessment" / "data" / "solutions-lock.json"
 SOLUTIONS_INDEX = REPO_ROOT / "docs" / "reference" / "solutions-index.md"
 SOLUTIONS_INTEGRATION = REPO_ROOT / "docs" / "framework" / "solutions-integration.md"
+CONTROLS_DIR = REPO_ROOT / "docs" / "controls"
+
+NO_SOLUTION_SENTINEL = "No companion solution for this control"
+CONTROL_FILE_RE = re.compile(r"^(\d+\.\d+)-")
 
 CONTROL_ID_RE = re.compile(r"\d+\.\d+")
 FOLDER_RE = re.compile(r"\[`([^`]+)`\]")
@@ -242,6 +251,50 @@ def check_solutions_integration(path: Path, solutions: dict[str, dict]) -> list[
     return failures
 
 
+def controls_by_id(solutions: dict[str, dict]) -> dict[str, list[str]]:
+    """Reverse the lock into a control-ID -> sorted solution-ID mapping."""
+    reverse: dict[str, list[str]] = {}
+    for sid, body in solutions.items():
+        for cid in body.get("controls", []) or []:
+            reverse.setdefault(cid, []).append(sid)
+    return {cid: sorted(sids) for cid, sids in reverse.items()}
+
+
+def check_control_solution_sentinels(
+    controls_dir: Path, solutions: dict[str, dict]
+) -> list[str]:
+    """Fail when a control claims no companion solution but the lock maps one.
+
+    Deliberately narrow. A control doc is free to omit some mapped solutions and
+    free to cross-reference solutions that are not mapped to it; only the direct
+    contradiction against the pinned lock is treated as drift.
+    """
+    if not controls_dir.exists():
+        return [f"FAIL: {controls_dir} not found"]
+    failures: list[str] = []
+    reverse = controls_by_id(solutions)
+
+    for path in sorted(controls_dir.rglob("*.md")):
+        match = CONTROL_FILE_RE.match(path.name)
+        if not match:
+            continue
+        control_id = match.group(1)
+        text = path.read_text(encoding="utf-8")
+        if NO_SOLUTION_SENTINEL not in text:
+            continue
+        mapped = reverse.get(control_id, [])
+        if mapped:
+            try:
+                rel = path.relative_to(REPO_ROOT).as_posix()
+            except ValueError:
+                rel = path.as_posix()
+            failures.append(
+                f"FAIL: {rel}: control {control_id} declares no companion solution, "
+                f"but the pinned lock maps it to {mapped!r}."
+            )
+    return failures
+
+
 def run_all_checks() -> tuple[int, list[str]]:
     if not LOCK_FILE.exists():
         return 1, [f"FAIL: {LOCK_FILE} not found"]
@@ -249,6 +302,7 @@ def run_all_checks() -> tuple[int, list[str]]:
     messages: list[str] = []
     messages.extend(check_solutions_index(SOLUTIONS_INDEX, solutions))
     messages.extend(check_solutions_integration(SOLUTIONS_INTEGRATION, solutions))
+    messages.extend(check_control_solution_sentinels(CONTROLS_DIR, solutions))
     return len(messages), messages
 
 

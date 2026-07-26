@@ -377,12 +377,12 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
-# Section 6: Tenant TLS / Encryption Settings
-# Supports: Baseline security posture, encryption-at-rest / in-transit
+# Section 6: Tenant Organization Metadata
+# Supports: Baseline tenant context only (not direct TLS/at-rest encryption proof)
 # ═══════════════════════════════════════════════════════════════════════
 $tenantSecuritySettings = $null
 try {
-    Write-Verbose "Section 6: Collecting tenant security settings via Get-MgOrganization..."
+    Write-Verbose "Section 6: Collecting tenant organization metadata via Get-MgOrganization..."
     $org = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'Get organization settings' -ScriptBlock {
         Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
     }
