@@ -6,7 +6,7 @@
 !!! danger "Customer Key revocation is permanent and destroys data by design"
     Several cmdlets in this playbook (`Set-DataEncryptionPolicy -Refresh`, `Remove-DataEncryptionPolicy`, anything that disables or deletes a vault key under an active DEP) sit on the **data-purge path**. Once you initiate revocation and the purge window completes, Microsoft cannot recover the affected data — by design. Always run with `-WhatIf` first, snapshot before-state, and require dual approval. Revocation belongs to a documented break-glass runbook, not a routine operations script.
 
-**Last Updated:** May 2026
+**Last Updated:** July 2026
 **Modules Required:** `Az.Accounts`, `Az.KeyVault`, `ExchangeOnlineManagement`, `Microsoft.Online.SharePoint.PowerShell`, `Microsoft.Graph` (for service principal lookup)
 **PowerShell Edition:** PowerShell 7.4 LTS for Az and Graph modules; **Windows PowerShell 5.1** for `Microsoft.Online.SharePoint.PowerShell`
 
@@ -84,12 +84,12 @@ $beforeSnapshot | Set-Content "$EvidencePath\before-$VaultName-$ts.json"
 
 if (-not $vault) {
     if ($PSCmdlet.ShouldProcess($VaultName, "Create Key Vault $Sku in $Location with purge protection")) {
+        # -EnableSoftDelete is not a valid parameter in Az.KeyVault 3.x+; soft delete is always enabled by default.
         $vault = New-AzKeyVault `
             -Name $VaultName `
             -ResourceGroupName $ResourceGroup `
             -Location $Location `
             -Sku $Sku `
-            -EnableSoftDelete `
             -SoftDeleteRetentionInDays 90 `
             -EnablePurgeProtection
     }
@@ -493,4 +493,4 @@ $report | ConvertTo-Json -Depth 8 | Set-Content $jsonPath
 [Back to Control 1.15](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: July 2026 | Version: v1.6.2 | UI Verification Status: Current*
