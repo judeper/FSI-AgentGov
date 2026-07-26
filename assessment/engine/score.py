@@ -372,6 +372,35 @@ def _normalize_ppac_data(ppac: dict) -> dict:
         if isinstance(tenant_settings, dict):
             normalized["tenant_settings"] = tenant_settings
 
+    if normalized.get("copilot_studio_bot_inventory") is None:
+        inventory = _first_present(ppac, "copilotStudioBotInventory")
+        if isinstance(inventory, list):
+            normalized_inventory: list[dict] = []
+            for entry in inventory:
+                if not isinstance(entry, dict):
+                    continue
+                bots = _first_present(entry, "Bots", "bots")
+                normalized_inventory.append(
+                    {
+                        "environmentName": _first_present(
+                            entry, "EnvironmentName", "environmentName"
+                        ),
+                        "displayName": _first_present(
+                            entry, "DisplayName", "displayName"
+                        ),
+                        "linkedEnvironmentType": _first_present(
+                            entry, "LinkedEnvironmentType", "linkedEnvironmentType"
+                        ),
+                        "dataverseUrl": _first_present(
+                            entry, "DataverseUrl", "dataverseUrl"
+                        ),
+                        "status": _first_present(entry, "Status", "status"),
+                        "botCount": _first_present(entry, "BotCount", "botCount"),
+                        "bots": bots if isinstance(bots, list) else [],
+                    }
+                )
+            normalized["copilot_studio_bot_inventory"] = normalized_inventory
+
     return normalized
 
 
@@ -538,6 +567,25 @@ def _normalize_graph_data(graph: dict) -> dict:
                 for sku in skus
                 if isinstance(sku, dict)
                 for prepaid_units in [_first_present(sku, "prepaidUnits", "PrepaidUnits")]
+            ]
+
+    if normalized.get("copilot_service_principals") is None:
+        service_principals = _first_present(graph, "copilotServicePrincipals")
+        if isinstance(service_principals, list):
+            normalized["copilot_service_principals"] = [
+                {
+                    "id": _first_present(sp, "id", "Id"),
+                    "appId": _first_present(sp, "appId", "AppId"),
+                    "displayName": _first_present(sp, "displayName", "DisplayName"),
+                    "accountEnabled": _first_present(
+                        sp, "accountEnabled", "AccountEnabled"
+                    ),
+                    "servicePrincipalType": _first_present(
+                        sp, "servicePrincipalType", "ServicePrincipalType"
+                    ),
+                }
+                for sp in service_principals
+                if isinstance(sp, dict)
             ]
 
     return normalized
@@ -856,6 +904,77 @@ def _eval_fsi_publisher_group_exists(
         names = [g.get("displayName", "unknown") for g in groups]
         return True, f"FSI publisher security group(s) found: {', '.join(names)}"
     return False, "No FSI publisher security group found in fsi_security_groups"
+
+
+def _eval_agent_inventory_exists(
+    collected: dict, _source_key: str | None
+) -> tuple[bool | None, str]:
+    graph = collected.get("graph")
+    ppac = collected.get("ppac")
+    if not graph:
+        return False, "Graph data not available (fail closed)"
+    if not ppac:
+        return False, "PPAC data not available (fail closed)"
+
+    service_principals = graph.get("copilot_service_principals")
+    if not isinstance(service_principals, list):
+        return False, "copilot_service_principals not collected (fail closed)"
+
+    bot_inventory = ppac.get("copilot_studio_bot_inventory")
+    if not isinstance(bot_inventory, list):
+        return False, "copilot_studio_bot_inventory not collected (fail closed)"
+    if len(bot_inventory) == 0:
+        return False, "copilot_studio_bot_inventory is empty (fail closed)"
+
+    failed_envs: list[str] = []
+    collected_envs = 0
+    bot_count = 0
+    for entry in bot_inventory:
+        if not isinstance(entry, dict):
+            failed_envs.append("unknown: malformed inventory entry")
+            continue
+        env_name = str(
+            _first_present(entry, "environmentName", "EnvironmentName", "displayName")
+            or "unknown-environment"
+        )
+        linked_type = str(
+            _first_present(
+                entry, "linkedEnvironmentType", "LinkedEnvironmentType"
+            )
+            or ""
+        ).strip().lower()
+        status_raw = _first_present(entry, "status", "Status")
+        status = str(status_raw).strip().lower() if status_raw is not None else ""
+
+        if status in {"collected", "success"}:
+            collected_envs += 1
+        elif status in {"nodataverse", "no_dataverse"}:
+            # Environments without Dataverse cannot host Copilot Studio bots.
+            if linked_type in {"dataverse", "commondataservice"}:
+                failed_envs.append(
+                    f"{env_name}: status={status} but linkedEnvironmentType={linked_type}"
+                )
+        else:
+            failed_envs.append(f"{env_name}: status={status or 'unknown'}")
+
+        count = _coerce_int(_first_present(entry, "botCount", "BotCount"))
+        if count is not None:
+            bot_count += count
+
+    if failed_envs:
+        return (
+            False,
+            "Copilot Studio Dataverse inventory incomplete (fail closed): "
+            + "; ".join(failed_envs),
+        )
+
+    sp_count = len(service_principals)
+    return (
+        True,
+        "Inventory surfaces collected: "
+        f"{sp_count} Copilot service principal(s), {bot_count} Dataverse bot row(s) "
+        f"across {collected_envs} Dataverse environment(s)",
+    )
 
 
 def _eval_share_everyone_disabled(
@@ -2094,6 +2213,7 @@ def _eval_dspm_policy_exists(
 EVALUATORS: dict[str, object] = {
     "no_everyone_assignment": _eval_no_everyone_assignment,
     "fsi_publisher_group_exists": _eval_fsi_publisher_group_exists,
+    "agent_inventory_exists": _eval_agent_inventory_exists,
     "share_everyone_disabled": _eval_share_everyone_disabled,
     "dlp_policy_exists": _eval_dlp_policy_exists,
     "ca_policy_targets_copilot_studio": _eval_ca_policy_targets_copilot_studio,
