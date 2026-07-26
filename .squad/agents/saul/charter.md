@@ -20,7 +20,7 @@
 5. P2 (cosmetic) → note in comment, don't block
 
 ## What I Verify
-- All 78 controls follow 10-section template
+- All 79 controls follow 10-section template
 - Language rules compliance (no prohibited phrases)
 - Link integrity (markdown-link-check)
 - Version stamps consistent across files

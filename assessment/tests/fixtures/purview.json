@@ -19,7 +19,21 @@
   "communicationCompliance": [],
   "eDiscoveryCases": [],
   "insiderRiskPolicies": [],
-  "dspmForAi": null,
+  "dspmForAi": {
+    "CollectionStatus": "collected",
+    "Detected": false,
+    "PolicyCount": 0,
+    "PolicyNames": [],
+    "DiagnosticPolicyCount": 0,
+    "PolicyDiagnostics": [],
+    "RuleCollectionFailureCount": 0,
+    "RelevantRuleCollectionFailureCount": 0,
+    "RetentionCoverage": true,
+    "RetentionPolicyNames": [
+      "Copilot Retention"
+    ],
+    "Note": "DLP collection succeeded, but no actively enforced Microsoft 365 Copilot DLP policy had all policy-level signals and a relevant active blocking rule. Retention coverage is informational only and does not satisfy control 1.6."
+  },
   "sensitivityLabelPolicies": [],
   "endpointDlp": [],
   "insiderRiskEvidence": {

@@ -369,14 +369,14 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md",
-    "automation": "full",
+    "automation": "partial",
     "collection_methods": [
       "PPAC_PowerShell"
     ],
     "checks": [
       {
         "check_id": "1.4.a",
-        "description": "DLP policy exists covering agent environments",
+        "description": "Enabled classic DLP policy has effective scope over collected Power Platform environments",
         "api_call": "Get-DlpPolicy",
         "pass_condition": "dlp_policy_exists",
         "zone_required": [
@@ -387,9 +387,12 @@
       },
       {
         "check_id": "1.4.b",
-        "description": "ACP allowlist configured for approved connectors",
-        "api_call": "Get-DlpPolicy",
-        "pass_condition": "acp_allowlist_configured",
+        "description": "ACP allowlist configured for approved connectors (manual evidence from the Power Platform governance API required)",
+        "api_call": "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -397,9 +400,12 @@
       },
       {
         "check_id": "1.4.c",
-        "description": "Blocked connector list enforced",
-        "api_call": "Get-DlpPolicy",
-        "pass_condition": "blocked_connectors_enforced",
+        "description": "Blocked connector enforcement verified at runtime (manual evidence from the Power Platform governance API required)",
+        "api_call": "https://api.powerplatform.com/governance/ruleBasedPolicies?api-version=2024-10-01",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           3
         ]
@@ -415,11 +421,11 @@
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 3,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide evidence for each applicable Zone 2 and Zone 3 environment group showing the ACP policy, its assignment, the approved connector allowlist, the environment-group scope, and runtime evidence that a blocked connector is actually denied.",
     "name": "Advanced Connector Policies (ACP)",
     "zonesApplicable": [
       1,
@@ -612,7 +618,7 @@
     "checks": [
       {
         "check_id": "1.6.a",
-        "description": "DSPM for AI policy exists in Purview",
+        "description": "Actively enforced Microsoft 365 Copilot DLP policy matches all documented signals",
         "api_call": "Get-DlpCompliancePolicy",
         "pass_condition": "dspm_policy_exists",
         "zone_required": [
@@ -679,10 +685,15 @@
     "noBar": "DSPM for AI not activated; no AI interaction visibility through Purview Activity Explorer.",
     "verifyIn": [],
     "verifyPowerShell": "",
-    "evidenceExpected": [],
+    "evidenceExpected": [
+      "dspmForAi.Detected",
+      "dspmForAi.PolicyCount",
+      "dspmForAi.PolicyNames",
+      "dspmForAi.PolicyDiagnostics"
+    ],
     "controlDocUrl": "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.6/portal-walkthrough/",
-    "collectorField": "",
+    "collectorField": "dspmForAi",
     "sectorYesBar": {
       "bank": null,
       "broker-dealer": null,
@@ -1133,7 +1144,7 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md",
-    "automation": "full",
+    "automation": "partial",
     "collection_methods": [
       "Graph_API"
     ],
@@ -1151,9 +1162,12 @@
       },
       {
         "check_id": "1.11.b",
-        "description": "Sign-in frequency policy set for agent sessions",
+        "description": "Sign-in frequency policy set for agent sessions (manual evidence required)",
         "api_call": "Get-MgIdentityConditionalAccessPolicy",
-        "pass_condition": "signin_frequency_set",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -1161,9 +1175,12 @@
       },
       {
         "check_id": "1.11.c",
-        "description": "Phishing-resistant MFA required for Zone 3",
+        "description": "Phishing-resistant MFA required for Zone 3 (manual evidence required)",
         "api_call": "Get-MgIdentityConditionalAccessPolicy",
-        "pass_condition": "phishing_resistant_mfa",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           3
         ]
@@ -1179,11 +1196,11 @@
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 3,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA (for example FIDO2, device-bound passkeys, Windows Hello for Business, or CBA) is enforced for maker/admin identities.",
     "name": "Conditional Access and Phishing-Resistant MFA",
     "zonesApplicable": [
       1,
@@ -1257,7 +1274,8 @@
     },
     "solutions": [
       "agent-365-lifecycle-governance",
-      "conditional-access-automation"
+      "conditional-access-automation",
+      "session-security-configurator"
     ]
   },
   {
@@ -1366,9 +1384,12 @@
     "checks": [
       {
         "check_id": "1.13.a",
-        "description": "SIT count in Purview covers regulated data types",
-        "api_call": "Get-DlpCompliancePolicy",
-        "pass_condition": "sit_count_adequate",
+        "description": "SIT inventory in Purview covers regulated data types (manual evidence required)",
+        "api_call": "Get-DlpSensitiveInformationType",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -1376,7 +1397,7 @@
       },
       {
         "check_id": "1.13.b",
-        "description": "Agent DLP policy references SITs",
+        "description": "Enforced Copilot-scoped DLP policy rules reference SIT conditions",
         "api_call": "Get-DlpCompliancePolicy",
         "pass_condition": "dlp_references_sits",
         "zone_required": [
@@ -1387,15 +1408,15 @@
     ],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 2,
+        "min_checks_passed": 1,
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 2,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
@@ -1551,7 +1572,8 @@
       "timeBudgetMinutes": 6
     },
     "solutions": [
-      "file-upload-security"
+      "file-upload-security",
+      "scope-drift-monitor"
     ]
   },
   {
@@ -1560,49 +1582,24 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md",
-    "automation": "full",
-    "collection_methods": [
-      "Graph_API"
-    ],
-    "checks": [
-      {
-        "check_id": "1.15.a",
-        "description": "TLS 1.2+ enforced for all connections",
-        "api_call": "Get-MgOrganization",
-        "pass_condition": "tls_12_enforced",
-        "zone_required": [
-          1,
-          2,
-          3
-        ]
-      },
-      {
-        "check_id": "1.15.b",
-        "description": "At-rest encryption verified via tenant settings",
-        "api_call": "Get-MgOrganization",
-        "pass_condition": "at_rest_encryption_verified",
-        "zone_required": [
-          1,
-          2,
-          3
-        ]
-      }
-    ],
+    "automation": "manual",
+    "collection_methods": [],
+    "checks": [],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 2,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 2,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide manual evidence that TLS 1.2+ (or stronger) is enforced for agent data in transit and that at-rest encryption is enabled for Microsoft 365 and any connected customer-managed data stores.",
     "name": "Encryption: Data in Transit and at Rest",
     "zonesApplicable": [
       1,
