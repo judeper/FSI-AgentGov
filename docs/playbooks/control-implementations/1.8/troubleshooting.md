@@ -24,8 +24,8 @@ Severity is the product of **blast radius** (which agents and which data are at 
 | Severity | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Regulated / customer-facing) | Initial response |
 |---|---|---|---|---|
 | **SEV-1** (critical) | Tenant-wide loss of runtime protection across >10 agents AND active exploitation observed | Same as Zone 1, OR a Zone 2 customer-NPI agent with confirmed prompt-injection success | ANY confirmed bypass of content moderation, Prompt Shields, or webhook block on a customer-facing agent; ANY exfiltration of customer NPI via an agent | Page L3 within 30 min; SOC opens incident bridge; Legal + Compliance joined within 60 min |
-| **SEV-2** (high) | Single-agent runtime-protection failure on Zone 1 with sensitive data | Defender AI Agent Protection toggle drift; AISPM alerts not flowing >4 hours; webhook 5xx storm with errorBehavior=Allow | Any of the Zone 2 conditions on a Zone 3 agent; UAL `RAI:ContentFiltered` events spike >3σ | L1 within 1 hour; L2 paged; AI Governance Lead notified within 2 hours |
-| **SEV-3** (moderate) | Configuration drift detected by automated check; no exploitation evidence | Single agent missing per-agent App Insights; FIC binding misconfigured but errorBehavior=Block | Drift on a Zone 3 agent corrected within SLA; documented and reviewed at next governance cadence | L1 same business day; logged in change-management system |
+| **SEV-2** (high) | Single-agent runtime-protection failure on Zone 1 with sensitive data | Defender AI Agent Protection toggle drift; AISPM alerts not flowing >4 hours; webhook 5xx storm with **Set error behavior** configured to **Allow the agent to respond** | Any of the Zone 2 conditions on a Zone 3 agent; App Insights `ContentFiltered` events (per the documented `customDimensions contains "ContentFiltered"` query pattern) spike >3σ | L1 within 1 hour; L2 paged; AI Governance Lead notified within 2 hours |
+| **SEV-3** (moderate) | Configuration drift detected by automated check; no exploitation evidence | Single agent missing per-agent App Insights; FIC binding misconfigured but **Set error behavior** configured to **Block the query** | Drift on a Zone 3 agent corrected within SLA; documented and reviewed at next governance cadence | L1 same business day; logged in change-management system |
 | **SEV-4** (low) | Documentation/UI mismatch; cosmetic | Cosmetic | Cosmetic | Tracked in backlog |
 
 > **Severity-escalation rule.** If during triage you uncover **either** (a) evidence that customer NPI was processed by an agent during the failure window, **or** (b) a books-and-records gap (UAL or RAI logs missing for periods covered by FINRA Rule 4511 / SEC Rule 17a-4), escalate the incident one severity level immediately and re-page accordingly.
@@ -60,16 +60,16 @@ Runtime-protection remediation often involves toggling Defender or PPAC settings
 
 **Mandatory evidence capture (≥12 items):**
 
-1. **PPAC toggle state** — screenshot of `Power Platform Admin Center → Security → AI security posture management` showing the **AI Agent Protection** toggle state (On / Off) and the **Additional Threat Detection** configuration block (provider URL, FIC binding, errorBehavior). Export via `Get-AdminPowerPlatformAISettings` (or equivalent admin API) to JSON.
+1. **PPAC toggle state** — screenshot of `Power Platform Admin Center → Security → Threat detection → Additional threat detection` (verify current UI label at execution time — labels can change) showing the **AI Agent Protection** toggle state (On / Off) and the **Additional Threat Detection** configuration block (provider URL, FIC binding, **Set error behavior**). Export via `Get-AdminPowerPlatformAISettings` (or equivalent admin API) to JSON.
 2. **Defender XDR toggle state** — screenshot of `Defender XDR → Settings → Cloud apps → AI Agent Protection` showing preview opt-in and Connector binding. Capture the M365 App Connector status (Connected / Disconnected / Error).
 3. **M365 App Connector health** — `Defender XDR → Settings → Cloud apps → App Connectors → Microsoft 365` last-sync timestamp and any error string.
 4. **FIC (federated identity credential) configuration** — for each agent that calls an external webhook, capture the FIC subject, issuer, and audience values from the App Registration (`Entra ID → App registrations → <app> → Certificates & secrets → Federated credentials`). Mismatched FIC produces 401 from the webhook but the agent may still respond — see §5.5.
 5. **Content moderation level snapshot** — for each affected agent, the configured agent-level slider position (Lowest / Low / Medium / High / Highest) for hate, sexual, violence, self-harm. Export via Copilot Studio admin API or screenshot from the agent's `Settings → Generative AI → Content moderation`.
-6. **App Insights connection string per agent** — RAI telemetry binding for each affected agent. Without per-agent App Insights, `RAI:ContentFiltered`, `RAI:JailbreakDetected`, and `RAI:GroundingFailed` events are not retrievable for that agent. Capture the resource ID and the connection string redacted (last-4 only) for evidence.
+6. **App Insights connection string per agent** — RAI telemetry binding for each affected agent. Without per-agent App Insights, content-moderation and safety-filter telemetry events (see the documented `customEvents | where customDimensions contains "ContentFiltered"` pattern) are not retrievable for that agent. Capture the resource ID and the connection string redacted (last-4 only) for evidence.
 7. **AISPM dashboard screenshot** — current alert list, suppressed alerts, and the timestamp of the last AISPM refresh (note the up-to-15-minute latency disclaimer).
 8. **CloudAppEvents export (Defender)** — Advanced hunting export covering the failure window plus 24 hours before/after. Use the Learn-documented `CloudAppEvents` schema; this is operational telemetry, **not** a books-and-records source — see disclaimer below.
 9. **Unified Audit Log (UAL) paged export** — `Search-UnifiedAuditLog -RecordType CopilotInteraction -SessionId <guid> -SessionCommand ReturnLargeSet` for the failure window. **Do not use `-RecordType CopilotStudio`** (that record type does not exist) and **do not use a single-shot query** without `-SessionId` (truncates at 5,000 rows). See §5.7.
-10. **RAI:ContentFiltered / JailbreakDetected export** — KQL against the per-agent App Insights resource for the failure window. Required for any incident involving content moderation, Prompt Shields, or jailbreak claims.
+10. **`ContentFiltered` App Insights export** — KQL against the per-agent App Insights resource for the failure window, using the documented `customEvents | where customDimensions contains "ContentFiltered"` pattern. Required for any incident involving content moderation, Prompt Shields, or jailbreak claims. **`CopilotInteraction` has no documented dedicated jailbreak/XPIA field** — do not assert a native audit-log jailbreak flag; App Insights RAI telemetry is the only evidence surface for this signal, and only where per-agent App Insights is bound.
 11. **Role-group snapshot** — current membership of: Microsoft Defender XDR System Administrator, Power Platform Admin, Application Administrator, AI Security Operator, and any custom AISPM viewer roles. Captures who could have changed the toggle.
 12. **Defender for Cloud Apps AI Agent Protection** — confirm preview opt-in is complete and the tenant is eligible (verify current preview status).
 13. **SHA-256 manifest** — produce a manifest file listing every evidence file captured above with its SHA-256. Sign the manifest (or store in a WORM location) so its integrity can be demonstrated to a regulator. This is the chain-of-custody anchor; without it, every other artifact is challengeable.
@@ -83,9 +83,9 @@ If a runtime-protection surface is degraded and cannot be restored within the SL
 | Failed surface | Compensating control | Time to deploy |
 |---|---|---|
 | Native Defender AI Agent Protection (M365 Connector down) | Quarantine the affected generative agents (set publication off) until connector is restored. **Do not** rely on Additional Threat Detection alone — they evaluate different signals. | 15 min (PPAC publication toggle) |
-| Additional Threat Detection webhook (5xx from provider) | If `errorBehavior=Block` is configured (required for Zone 2/3), the agent will already block on webhook failure — confirm. If `errorBehavior=Allow`, immediately switch to Block (or quarantine the agent) — **Allow during a provider outage means the agent runs unprotected**. See §3 anti-pattern A4. | 5 min |
+| Additional Threat Detection webhook (5xx from provider) | If **Set error behavior** is configured to **Block the query** (required for Zone 2/3), the agent will already block on webhook failure — confirm. If configured to **Allow the agent to respond**, immediately switch to Block the query (or quarantine the agent) — **Allow during a provider outage means the agent runs unprotected**. See §3 anti-pattern A4. | 5 min |
 | Prompt Shields (Azure Content Safety regional outage) | Increase content moderation to High for the duration; re-evaluate agent grounding sources for indirect-injection vectors; quarantine high-risk agents (those with web search or external connector grounding). | 30 min |
-| Content moderation (configured Low on Zone 2/3 in violation of policy) | Raise to Medium (Zone 2) or High (Zone 3) immediately. Audit `RAI:ContentFiltered` for the prior 30 days to assess what may have been allowed through. | 10 min |
+| Content moderation (configured Low on Zone 2/3 in violation of policy) | Raise to High immediately (Zone 2 and Zone 3 policy minimum is High; see [Control 1.8](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) Zone-Specific Requirements). Audit App Insights `ContentFiltered` events for the prior 30 days to assess what may have been allowed through. | 10 min |
 | AISPM dashboard not refreshing | Continue to rely on direct Defender XDR alerts and KQL until refresh resumes. AISPM is a *visualization* layer, not the enforcement surface — enforcement continues. | n/a |
 | Per-agent App Insights missing | Bind App Insights immediately; backfill is **not possible** — the gap from agent creation to App Insights binding is permanently unrecoverable. Document the gap as a books-and-records issue if the agent is Zone 2/3. | 10 min binding; gap is permanent |
 
@@ -98,7 +98,7 @@ Run this checklist before paging L2 or L3. Items failed → capture in the escal
 - [ ] **§1.3.1–§1.3.13** All thirteen evidence items captured to the incident folder with the SHA-256 manifest signed.
 - [ ] **PPAC + Defender XDR toggles** — both portals' toggle states confirmed and screenshot captured (handshake state recorded explicitly).
 - [ ] **M365 App Connector** status confirmed Connected; last-sync within 60 min.
-- [ ] **errorBehavior** value confirmed (Allow / Block) for every affected agent; Zone 2/3 agents confirmed Block.
+- [ ] **Set error behavior** value confirmed (Allow the agent to respond / Block the query) for every affected agent; Zone 2/3 agents confirmed Block the query.
 - [ ] **FIC binding** validated for every agent calling an external webhook (subject + audience match).
 - [ ] **Content moderation level** captured per agent and compared to the Zone policy minimum.
 - [ ] **Per-agent App Insights** binding verified for every Zone 2/3 agent.
@@ -119,7 +119,7 @@ Run this checklist before paging L2 or L3. Items failed → capture in the escal
 
 **Step 3 — evidence preservation (per §1.3).** Captured items 1–13 to incident folder `INC-2026-0214-0042/`. SHA-256 manifest signed by SOC lead at 10:34.
 
-**Step 4 — root-cause investigation.** Was this a real attack or a false positive? KQL against `RAI:JailbreakDetected` plus the webhook-provider's own log shows the prompt was an indirect-injection probe embedded in a SharePoint document the agent grounded against. Block was correct.
+**Step 4 — root-cause investigation.** Was this a real attack or a false positive? App Insights `ContentFiltered` telemetry plus the webhook-provider's own log shows the prompt was an indirect-injection probe embedded in a SharePoint document the agent grounded against. Block was correct.
 
 **Step 5 — remediation.** No remediation needed for the runtime layer (it worked). Refer the SharePoint grounding source to Control 1.5 (Data Loss Prevention (DLP) and Sensitivity Labels) and 4.x (SharePoint AI governance) for content review. File a ticket against the SharePoint owner.
 
@@ -138,13 +138,13 @@ Use this table as a triage entry point. Each row is a recurring failure mode in 
 | 2 | Defender XDR portal shows banner "Microsoft 365 App Connector error" or "not connected"; AISPM agent inventory empty or stale | **M365 App Connector authentication failure** — connector uses tenant-level OAuth; admin consent expired, conditional access blocked the service principal, or tenant-restriction policy is filtering the connector traffic. | Defender XDR → Settings → Cloud apps → App Connectors → Microsoft 365 → Reconnect. If conditional access is blocking, exclude the connector service principal. Validate connector last-sync timestamp returns to <60 min. | Microsoft Defender XDR System Administrator | §5.2 |
 | 3 | Defender XDR Settings → Cloud apps does not show **AI Agent Protection** anywhere; documentation says it should be there | **Preview opt-in not completed** OR Defender for Cloud Apps license is missing. | Confirm Defender for Cloud Apps license assigned; opt in to the AI Agent Protection preview from the Defender XDR Settings → Cloud apps page. Allow up to 60 min for UI to surface. | Microsoft Defender XDR System Administrator | |
 | 4 | AI Agent Protection toggle is greyed out in PPAC; tooltip says "Managed Environments required" | **Managed Environments not enabled** for the environment containing the agent. AI Agent Protection enforcement requires the environment to be a Managed Environment. | PPAC → Environments → select environment → Edit Managed Environments → Enable. Confirm license capacity for Managed Environments. Re-check the AI Agent Protection toggle. | Power Platform Admin | §5.4 |
-| 5 | Webhook provider returns 5xx for >1 min; agent continues responding to users normally; no `block` events appear | **errorBehavior=Allow** is configured (anti-pattern A4 below). On webhook failure or timeout, the agent allows the response. For Zone 2/3 this is a policy violation. | Switch errorBehavior to **Block** immediately. PPAC → Security → AI security posture management → Additional Threat Detection → edit. Audit the failure window in UAL and `CloudAppEvents` for any responses returned during the outage that would have been blocked. | Power Platform Admin (config) + AI Governance Lead (policy) | §5.4, §5.5 |
-| 6 | Webhook provider logs show 401 Unauthorized on every Copilot Studio callout; agent responses still flow (or block, depending on errorBehavior) | **FIC binding wrong** — the federated identity credential subject, issuer, or audience does not match what Copilot Studio sends. The webhook is invoked but cannot validate the token, so the provider returns 401. Copilot Studio treats the 401 as a provider failure and falls back to errorBehavior. | Compare the FIC subject/issuer/audience to the values documented in `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`. Re-bind the FIC. Validate with a test prompt; confirm webhook returns 200 (allow) or 200 (block) — not 401. | Application Administrator + Power Platform Admin | §5.5 |
+| 5 | Webhook provider returns 5xx for >1 min; agent continues responding to users normally; no `block` events appear | **Set error behavior** is configured to **Allow the agent to respond** (anti-pattern A4 below). On webhook failure or timeout, the agent allows the response. For Zone 2/3 this is a policy violation. | Switch **Set error behavior** to **Block the query** immediately. PPAC → Security → Threat detection → Additional threat detection → edit. Audit the failure window in UAL and `CloudAppEvents` for any responses returned during the outage that would have been blocked. | Power Platform Admin (config) + AI Governance Lead (policy) | §5.4, §5.5 |
+| 6 | Webhook provider logs show 401 Unauthorized on every Copilot Studio callout; agent responses still flow (or block, depending on the configured error behavior) | **FIC binding wrong** — the federated identity credential subject, issuer, or audience does not match what Copilot Studio sends. The webhook is invoked but cannot validate the token, so the provider returns 401. Copilot Studio treats the 401 as a provider failure and falls back to the configured error behavior. | Compare the FIC subject/issuer/audience to the values documented in `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`. Re-bind the FIC. Validate with a test prompt; confirm webhook returns 200 (allow) or 200 (block) — not 401. | Application Administrator + Power Platform Admin | §5.5 |
 | 7 | KQL query against `PowerPlatformAdminActivity` returns zero rows for known admin actions you saw in the portal | **Schema gotcha** — the `PowerPlatformAdminActivity` table uses **`EventOriginalType`**, not `Operation`. Queries written against `Operation` silently return empty. | Rewrite the query: `PowerPlatformAdminActivity \| where EventOriginalType == "<event-name>"`. Cross-reference the table schema at `learn.microsoft.com/azure/azure-monitor/reference/tables/powerplatformadminactivity`. | SOC Analyst / AI Governance Lead | §5.6 |
 | 8 | `Search-UnifiedAuditLog -RecordType CopilotStudio` returns zero rows; you know agents were used | **Wrong RecordType** — Copilot Studio interactions are logged under `CopilotInteraction`, not `CopilotStudio`. The latter is not a valid RecordType and silently returns empty. | Re-run with `-RecordType CopilotInteraction`. Reference `learn.microsoft.com/powershell/module/exchange/search-unifiedauditlog`. | SOC Analyst | §5.7 |
 | 9 | UAL query for a busy agent returns exactly 5,000 rows even though you expect more; subsequent rows missing | **Single-shot UAL truncation at 5,000 rows.** A `Search-UnifiedAuditLog` call without session paging hard-caps at 5K. | Re-run with `-SessionId <new-guid> -SessionCommand ReturnLargeSet` and loop until the cmdlet returns fewer than 5K rows. Save the full set; preserve the SessionId in evidence. | SOC Analyst | §5.7 |
-| 10 | A Zone 2/3 agent has content moderation set to **Low**; `RAI:ContentFiltered` rates appear unusually low; user complaints about inappropriate output | **Policy violation** — Zone 2/3 minimum is **Medium**; Zone 3 customer-facing minimum is typically **High**. Low allows hate/sexual/violence content the policy intends to block. | Raise to Medium (Zone 2) or High (Zone 3). Audit prior 30-day output for what was allowed through. Document for governance review. | AI Governance Lead + agent owner | §5.8 |
-| 11 | `RAI:ContentFiltered`, `RAI:JailbreakDetected`, `RAI:GroundingFailed` events not retrievable for a specific agent; KQL returns nothing for that agent's resourceId | **Per-agent App Insights binding missing.** Each agent needs its own App Insights connection string for RAI telemetry. Without binding, the events are emitted but not collected. **Backfill is not possible.** | Bind App Insights immediately. Document the gap window (agent-creation timestamp → binding timestamp) as a books-and-records issue if Zone 2/3. | Power Platform Admin + agent owner | §5.9 |
+| 10 | A Zone 2/3 agent has content moderation set to **Low**; App Insights `ContentFiltered` events appear unusually low for the agent's traffic; user complaints about inappropriate output | **Policy violation** — Zone 2 and Zone 3 policy minimum is **High** (see [Control 1.8](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) Zone-Specific Requirements; Zone 1 minimum is Medium). Low allows hate/sexual/violence content the policy intends to block. | Raise to High. Audit prior 30-day output for what was allowed through. Document for governance review. | AI Governance Lead + agent owner | §5.8 |
+| 11 | App Insights `ContentFiltered` events not retrievable for a specific agent; KQL returns nothing for that agent's resourceId | **Per-agent App Insights binding missing.** Each agent needs its own App Insights connection string for RAI telemetry. Without binding, the events are emitted but not collected. **Backfill is not possible.** | Bind App Insights immediately. Document the gap window (agent-creation timestamp → binding timestamp) as a books-and-records issue if Zone 2/3. | Power Platform Admin + agent owner | §5.9 |
 | 12 | Agent uses a customer-supplied connector; runtime protection alerts include "connection consent revoked" or the agent fails calls to the provider | **End-customer revoked OAuth consent** for the connection. Agent calls fail; runtime protection cannot evaluate the response stream because the upstream call never returned. | Coordinate with the customer to re-consent. Until restored, route customers to the fallback (non-agent) channel. This is **not** a runtime-protection failure — it is a connection-consent failure — but AISPM may surface it under the same alert family. | Agent owner + Power Platform Admin | §5.5 (related) |
 
 > **Decision-matrix discipline.** Always confirm both portals' toggle states before declaring a "Defender problem" or a "Copilot Studio problem". The two-portal handshake (row 1) is the single most common cause of "no alerts firing despite everything looking on" tickets.
@@ -158,9 +158,9 @@ These ten anti-patterns produce silent or under-detected failures. Each is obser
 1. **Toggling AI Agent Protection in PPAC only (or Defender XDR only).** Both portals must be On. Single-side On = silent no-op for the unbound side. Mitigation: include both portal screenshots in every change-management ticket touching this control.
 2. **Treating Defender XDR alerts / `CloudAppEvents` as books-and-records.** They are operational telemetry, 30-day default retention, not WORM. SEC Rule 17a-4 and FINRA Rule 4511 require the recordkeeping and supervision controls in 1.7, 1.9, and 1.10. Mitigation: never cite CloudAppEvents alone as the recordkeeping source in a regulatory response.
 3. **Configuring Additional Threat Detection without binding a per-agent App Insights resource.** The webhook callout is logged in the provider's logs but the *Copilot Studio side* of the interaction (RAI events, grounding failures) is lost without App Insights. Mitigation: bind App Insights *before* enabling Additional Threat Detection on a Zone 2/3 agent.
-4. **Setting `errorBehavior=Allow` on Zone 2/3 agents.** When the webhook times out (1-second hard limit) or the provider returns 5xx, Allow lets the response through unprotected. For Zone 2/3 the only acceptable value is Block. Mitigation: enforce Block via tenant policy and audit every agent quarterly.
+4. **Setting Set error behavior to Allow the agent to respond on Zone 2/3 agents.** When the webhook times out (1-second hard limit) or the provider returns 5xx, Allow lets the response through unprotected. For Zone 2/3 the only acceptable configured value is Block the query. Mitigation: enforce Block the query via tenant policy and audit every agent quarterly.
 5. **Relying on AISPM dashboard freshness for live incident triage.** AISPM has up to 15-minute latency. During an active incident, query Defender XDR Advanced Hunting (`CloudAppEvents`) and the per-agent App Insights resource directly. Mitigation: train SOC on direct KQL, not dashboard polling.
-6. **Setting content moderation to Low on a Zone 2/3 agent.** Low allows substantial hate/sexual/violence content. Zone 2 minimum is Medium; Zone 3 is typically High. Mitigation: encode the per-zone minimums in a tenant-wide DLP-style policy and audit.
+6. **Setting content moderation to Low on a Zone 2/3 agent.** Low allows substantial hate/sexual/violence content. Zone 2 and Zone 3 policy minimum is High (Zone 1 minimum is Medium). Mitigation: encode the per-zone minimums in a tenant-wide DLP-style policy and audit.
 7. **Configuring the FIC binding.** Ensure the audience values match your tenant configuration. Mitigation: verify the audience values from the Microsoft Learn `external-security-provider` page and cite the Learn URL in the FIC change ticket.
 8. **Querying `PowerPlatformAdminActivity` with `Operation` instead of `EventOriginalType`.** Returns empty silently. Mitigation: code-review every KQL query that touches this table; reject reviews that use `Operation`.
 9. **Querying UAL with `-RecordType CopilotStudio` (does not exist) or single-shot without `-SessionId`.** Both return incomplete data silently. The first returns nothing; the second hard-caps at 5,000 rows. Mitigation: every UAL Copilot query must use `-RecordType CopilotInteraction` AND `-SessionId` + `-SessionCommand ReturnLargeSet`. Add this to the SOC runbook template.
@@ -170,7 +170,7 @@ These ten anti-patterns produce silent or under-detected failures. Each is obser
 
 ## 4. Escalation matrix (L1 → L4)
 
-This matrix is **runtime-protection-specific**. It distinguishes platform issues (Microsoft service degradation), configuration issues (toggles, FIC, errorBehavior), and threat events (active or attempted bypass). Do not use a generic SOC matrix here — the criteria for escalating an AI runtime issue differ from a classic identity or endpoint incident.
+This matrix is **runtime-protection-specific**. It distinguishes platform issues (Microsoft service degradation), configuration issues (toggles, FIC, Set error behavior), and threat events (active or attempted bypass). Do not use a generic SOC matrix here — the criteria for escalating an AI runtime issue differ from a classic identity or endpoint incident.
 
 | Level | Owner | Triggers | MTTR target | Required evidence at handoff | Transition criteria to next level |
 |---|---|---|---|---|---|
@@ -199,7 +199,7 @@ This matrix is **runtime-protection-specific**. It distinguishes platform issues
 - Platform component is suspected at fault, not tenant configuration.
 - Microsoft-managed component (M365 App Connector, AISPM ingestion, Defender preview) is degraded with no admin remediation path.
 
-> **Distinguish platform vs. config vs. threat.** Before escalating to Microsoft Support, eliminate configuration. Microsoft Support will close a case as "not a Microsoft fault" if you cannot show that toggles, FIC, errorBehavior, App Insights binding, and licensing are all correct. Use §5 deep-dives to confirm before paying the support engagement.
+> **Distinguish platform vs. config vs. threat.** Before escalating to Microsoft Support, eliminate configuration. Microsoft Support will close a case as "not a Microsoft fault" if you cannot show that toggles, FIC, Set error behavior, App Insights binding, and licensing are all correct. Use §5 deep-dives to confirm before paying the support engagement.
 
 ---
 
@@ -282,13 +282,13 @@ Get-MgAuditLogSignIn -Filter "appId eq '$($sp.AppId)' and createdDateTime ge $(G
 
 **Fix.** Opt in to the preview. Allow up to 60 min for the UI to surface the AI Agent Protection node.
 
-### 5.4 Managed Environments not enabled / errorBehavior misconfigured
+### 5.4 Managed Environments not enabled / error behavior misconfigured
 
 **Symptom (Managed Environments).** PPAC shows the AI Agent Protection toggle greyed out with a tooltip "Managed Environments required."
 
-**Symptom (errorBehavior).** Webhook provider returns 5xx for >1 minute or exceeds the 1-second timeout; users continue to receive agent responses; no `block` events appear.
+**Symptom (error behavior).** Webhook provider returns 5xx for >1 minute or exceeds the 1-second timeout; users continue to receive agent responses; no `block` events appear.
 
-**Root cause.** Two related but distinct configuration issues. AI Agent Protection enforcement requires the Power Platform environment to be enrolled in Managed Environments. Separately, Additional Threat Detection's `errorBehavior` field controls what happens when the webhook fails — `Allow` lets the response through; `Block` rejects it. Zone 2/3 policy mandates `Block`.
+**Root cause.** Two related but distinct configuration issues. AI Agent Protection enforcement requires the Power Platform environment to be enrolled in Managed Environments. Separately, Additional Threat Detection's **Set error behavior** setting controls what happens when the webhook fails — **Allow the agent to respond** lets the response through; **Block the query** rejects it. Zone 2/3 policy mandates Block the query. There is no confirmed literal `errorBehavior=` API/config key documented for this setting — use the documented UI wording.
 
 **Diagnostic.**
 
@@ -301,7 +301,7 @@ Invoke-RestMethod -Uri "https://api.bap.microsoft.com/providers/Microsoft.Busine
     Select-Object @{n='Name';e={$_.properties.displayName}}, @{n='Managed';e={$_.properties.governanceConfiguration.protectionLevel}}
 ```
 
-For errorBehavior, inspect the Additional Threat Detection configuration in PPAC → Security → AI security posture management. There is no documented public REST surface for this field at GA; for change-management evidence, screenshot the configured value.
+For **Set error behavior**, inspect the Additional Threat Detection configuration in PPAC → Security → Threat detection → Additional threat detection. There is no documented public REST surface for this field at GA; for change-management evidence, screenshot the configured value.
 
 **Microsoft Learn.**
 
@@ -309,11 +309,11 @@ For errorBehavior, inspect the Additional Threat Detection configuration in PPAC
 - `learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection`
 - `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 
-**Fix.** Enable Managed Environments for the affected environment; confirm the toggle is no longer greyed out. For errorBehavior, switch to `Block` for any Zone 2/3 agent immediately. Audit `CloudAppEvents` and the webhook provider's logs for the outage window to assess whether responses were allowed through that should have been blocked.
+**Fix.** Enable Managed Environments for the affected environment; confirm the toggle is no longer greyed out. For **Set error behavior**, switch to **Block the query** for any Zone 2/3 agent immediately. Audit `CloudAppEvents` and the webhook provider's logs for the outage window to assess whether responses were allowed through that should have been blocked.
 
 ### 5.5 FIC binding wrong (401 from external security provider)
 
-**Symptom.** Webhook provider logs show `401 Unauthorized` on every Copilot Studio callout. The agent continues to respond (if `errorBehavior=Allow`) or always blocks (if `errorBehavior=Block`) — both are wrong because the webhook never actually evaluates the prompt.
+**Symptom.** Webhook provider logs show `401 Unauthorized` on every Copilot Studio callout. The agent continues to respond (if configured to Allow the agent to respond) or always blocks (if configured to Block the query) — both are wrong because the webhook never actually evaluates the prompt.
 
 **Root cause.** Copilot Studio authenticates to the external security provider using a **federated identity credential (FIC)** on an App Registration. The FIC must specify an `issuer` (Microsoft Entra issuer URL for the tenant + `copilotstudio` audience), a `subject` (Copilot Studio identifier for the bound agent or environment), and an `audience` (the value the webhook expects). A mismatch on any of these — most commonly `audience` when copy-pasted from the wrong cloud's Learn doc — results in a token the provider cannot validate, returning 401.
 
@@ -394,31 +394,33 @@ $all | Export-Csv -Path "ual-copilot-$session.csv" -NoTypeInformation
 
 ### 5.8 Content moderation level too low for Zone
 
-**Symptom.** A Zone 2/3 agent has content moderation set to **Low**; rate of `RAI:ContentFiltered` events is unusually low for the agent's traffic; user complaints surface inappropriate output.
+**Symptom.** A Zone 2/3 agent has content moderation set to **Low**; App Insights `ContentFiltered` events are unusually low for the agent's traffic; user complaints surface inappropriate output.
 
-**Root cause.** Low allows substantial categories of harmful output the policy intends to block. The control's Zone-Specific Requirements table (in the control doc) specifies Medium minimum for Zone 2 and typically High for Zone 3 customer-facing agents.
+**Root cause.** Low allows substantial categories of harmful output the policy intends to block. The control's Zone-Specific Requirements table (in the control doc) specifies a **High** minimum for both Zone 2 and Zone 3 agents (Zone 1 minimum is Medium).
 
-**Diagnostic.** Inspect the agent's `Settings → Generative AI → Content moderation` page. For RAI telemetry, query the per-agent App Insights resource:
+**Diagnostic.** Inspect the agent's `Settings → Generative AI → Content moderation` page. For RAI telemetry, query the per-agent App Insights resource using Microsoft's documented pattern:
 
 ```kusto
 // In the per-agent App Insights workspace
 customEvents
-| where name == "RAI:ContentFiltered"
+| where customDimensions contains "ContentFiltered"
 | where timestamp > ago(30d)
-| summarize Filtered = count() by tostring(customDimensions.category), bin(timestamp, 1d)
+| project timestamp, name, itemType, customDimensions, session_Id, user_Id, cloud_RoleInstance
 | order by timestamp desc
 ```
 
 **Microsoft Learn.**
 
-- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#moderation`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-boost-node#content-moderation`
 - `learn.microsoft.com/azure/ai-services/content-safety/concepts/harm-categories`
+- `learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/agent-response-filtered-by-responsible-ai`
 
-**Fix.** Raise to Medium (Zone 2) or High (Zone 3). Audit the prior 30-day output for what was allowed through; coordinate with Communication Compliance (Control 1.10) to review for policy violations. Document for governance review.
+**Fix.** Raise to High. Audit the prior 30-day output for what may have been allowed through; coordinate with Communication Compliance (Control 1.10) to review for policy violations. Document for governance review.
 
 ### 5.9 Per-agent App Insights binding missing (RAI telemetry gap)
 
-**Symptom.** KQL for `RAI:ContentFiltered`, `RAI:JailbreakDetected`, or `RAI:GroundingFailed` against a specific agent's App Insights resource returns nothing, even for periods of known agent use.
+**Symptom.** KQL for `ContentFiltered` (per the documented `customDimensions contains "ContentFiltered"` pattern) against a specific agent's App Insights resource returns nothing, even for periods of known agent use.
 
 **Root cause.** Each Copilot Studio agent must be individually bound to an App Insights resource via its connection string. Without binding, RAI events are emitted but not collected. **There is no backfill** — the gap from agent creation to App Insights binding is permanently unrecoverable.
 
@@ -440,7 +442,7 @@ Use this template when escalating to Microsoft Support (Premier or Unified) for 
 
 File a Microsoft Support case when **all** of the following are true:
 
-1. §5 deep-dives have eliminated configuration causes (toggles, FIC, errorBehavior, content moderation level, App Insights binding, Managed Environments, license).
+1. §5 deep-dives have eliminated configuration causes (toggles, FIC, Set error behavior, content moderation level, App Insights binding, Managed Environments, license).
 2. The fault behavior reproduces after a known-good configuration is in place.
 3. The fault affects production traffic (not a one-off test) OR a regulated agent (Zone 2/3).
 4. CISO or AI Governance Lead has approved the engagement (because Premier/Unified tickets carry a cost and a vendor-disclosure consideration).
@@ -454,7 +456,7 @@ Attach the full §1.3 evidence package, plus:
 - **Reproducer.** A minimal test agent and prompt that reproduces the fault, with the expected vs. actual behavior described.
 - **Screen recording.** A short recording (≤2 min) of the reproduction in both portals, with timestamps.
 - **Tenant ID and environment ID.** Both required.
-- **Configuration baseline diff.** A before/after of any recent config changes (last 14 days) that touched any of: AI Agent Protection toggle, Additional Threat Detection, errorBehavior, FIC binding, App Insights binding, content moderation level, Managed Environments, conditional access affecting the M365 Connector service principal.
+- **Configuration baseline diff.** A before/after of any recent config changes (last 14 days) that touched any of: AI Agent Protection toggle, Additional Threat Detection, Set error behavior, FIC binding, App Insights binding, content moderation level, Managed Environments, conditional access affecting the M365 Connector service principal.
 - **Defender hunting query** that demonstrates the fault — typically a `CloudAppEvents` query showing missing or unexpected events.
 - **App Insights query** for the affected agent showing missing or unexpected RAI events.
 - **UAL paged export** (`-RecordType CopilotInteraction` with `-SessionId`) for the failure window.
@@ -495,7 +497,7 @@ Configuration confirmed correct (per FSI Control 1.8 §5 troubleshooting):
 - [x] Managed Environments enabled for environment <id>
 - [x] Defender for Cloud Apps preview opt-in completed
 - [x] Defender for Cloud Apps license assigned
-- [x] errorBehavior = Block for affected agent(s)
+- [x] Set error behavior = Block the query for affected agent(s)
 - [x] FIC binding validated (subject/issuer/audience match Learn doc for <cloud>)
 - [x] Per-agent App Insights connection string present
 - [x] Content moderation level confirmed (Lowest|Low|Medium|High|Highest) and matches Zone policy
@@ -564,6 +566,7 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 - `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`
 - `learn.microsoft.com/microsoft-copilot-studio/admin-logging-copilot-studio`
 - `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
+- `learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/agent-response-filtered-by-responsible-ai`
 - `learn.microsoft.com/microsoft-copilot-studio/requirements-licensing`
 - `learn.microsoft.com/azure/ai-services/content-safety/concepts/harm-categories`
 - `learn.microsoft.com/microsoft-365/security/defender/advanced-hunting-cloudappevents-table`
@@ -586,4 +589,4 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: July 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — this update corrected documentation-evidence accuracy (Microsoft Learn cross-checks); it did not include a live tenant/portal UI screenshot verification pass*

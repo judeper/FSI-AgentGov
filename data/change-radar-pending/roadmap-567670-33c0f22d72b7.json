@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:33c0f22d72b7a755712bc80898532b66c30004029f3963200e6d84a8c82929e0",
+  "detected_at": "2026-07-20T09:49:11Z",
+  "ga_date": "August CY2026",
+  "id": 567670,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "Agents that are published to Agents 365 are already managed in the Microsoft 365 Admin Center. If the agent implements the Agent2Agent protocol, it can be used as a connected agent for the agents that users build in Agent Builder or Copilot Studio.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567670",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:publish"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Use Agent 365 agents within Microsoft 365 Copilot Chat and Declarative Agents"
+}

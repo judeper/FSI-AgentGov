@@ -94,6 +94,8 @@ function Invoke-CollectorOperation {
 
 $collectorRoot = Split-Path -Parent $PSCommandPath
 . (Join-Path $collectorRoot 'lib\InsiderRiskSupport.ps1')
+. (Join-Path $collectorRoot 'lib\PurviewDspmSupport.ps1')
+. (Join-Path $collectorRoot 'lib\PurviewDlpSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -179,40 +181,102 @@ catch {
 # Pattern: restrict-agent-publishing.ps1 — DLP connector classification
 # ═══════════════════════════════════════════════════════════════════════
 $dlpCompliancePolicies = $null
+$dlpCollectionSucceeded = $false
 try {
     Write-Verbose "Section 2: Collecting DLP compliance policies..."
     $rawDlp = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List DLP compliance policies' -ScriptBlock {
         Get-DlpCompliancePolicy -ErrorAction Stop
     }
-    $dlpCompliancePolicies = foreach ($policy in $rawDlp) {
-        # Retrieve associated rules with SIT references
-        $rules = $null
+    # Reaching this point means Get-DlpCompliancePolicy completed without
+    # throwing (even if it returned zero rows). Project each policy here, then
+    # normalize the whole set through Resolve-DlpPolicyEvidence below so a
+    # successful-but-empty collection serializes as [] (evaluator: fail) rather
+    # than $null (evaluator: unknown) - the same successful-empty-versus-
+    # collection-failure distinction the per-policy rule set uses. A genuine
+    # query failure throws and is caught below, leaving $dlpCompliancePolicies
+    # $null (indeterminate/unknown) and $dlpCollectionSucceeded $false.
+    $collectedPolicies = foreach ($policy in $rawDlp) {
+        # Retrieve associated rules with SIT references (control 1.13.b) plus the
+        # blocking/plane/condition evidence control 1.6 (DSPM for AI) needs. The
+        # evidence contract keeps three rule-collection states distinct so neither
+        # evaluator conflates "no active rules" with "not collected":
+        #   - successful collection (0..n rows) -> array via Resolve-DlpRuleEvidence;
+        #     an empty result stays [] so control 1.13.b scores an enforced policy
+        #     with no SIT-backed active rules fail (not unknown) and control 1.6
+        #     treats collected-empty as negative evidence.
+        #   - collection failure / unavailable  -> $null plus a diagnostic warning
+        #     AND RuleCollectionSucceeded=$false, so control 1.13.b treats the rule
+        #     set as indeterminate and control 1.6 (which reads the explicit flag)
+        #     reports rule-collection failure on an otherwise-matching policy as
+        #     unknown rather than fail.
+        $policyName = Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Name', 'Identity')
+        $rawRules = $null
+        $rulesCollected = $false
         try {
-            $rules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
-                Get-DlpComplianceRule -Policy $policy.Name -ErrorAction Stop
+            $rawRules = Invoke-CollectorOperation -Target $policyName -Action 'List DLP compliance rules' -ScriptBlock {
+                Get-DlpComplianceRule -Policy $policyName -ErrorAction Stop
             } | ForEach-Object {
+                # StrictMode-safe extraction (Get-PurviewDspmPropertyValue): the
+                # control-1.6 rule fields (RestrictAccess, RestrictWebGrounding,
+                # EnforcementPlanes, ContentContainsSensitivityLabel) are absent on
+                # some rule/module shapes, so a direct $_.Prop reference would throw
+                # PropertyNotFoundStrict. This superset also carries every field
+                # control 1.13.b reads (Name, Disabled,
+                # ContentContainsSensitiveInformation, AdvancedRule, BlockAccess,
+                # Priority).
                 [PSCustomObject]@{
-                    Name                       = $_.Name
-                    Disabled                   = $_.Disabled
-                    ContentContainsSensitiveInformation = $_.ContentContainsSensitiveInformation
-                    BlockAccess                = $_.BlockAccess
-                    Priority                   = $_.Priority
+                    Name                                = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Name', 'Identity')
+                    Priority                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Priority')
+                    Disabled                            = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('Disabled')
+                    BlockAccess                         = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('BlockAccess')
+                    RestrictAccess                      = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictAccess')
+                    RestrictWebGrounding                = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('RestrictWebGrounding')
+                    EnforcementPlanes                   = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('EnforcementPlanes')
+                    ContentContainsSensitiveInformation = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitiveInformation')
+                    ContentContainsSensitivityLabel     = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('ContentContainsSensitivityLabel')
+                    AdvancedRule                        = Get-PurviewDspmPropertyValue -InputObject $_ -Name @('AdvancedRule')
                 }
             }
+            $rulesCollected = $true
         }
         catch {
-            $warnings.Add("DLP rules for policy '$($policy.Name)' failed: $($_.Exception.Message)")
+            # Genuine collection failure: both the null Rules payload (control
+            # 1.13.b) and RuleCollectionSucceeded=$false (control 1.6) record it as
+            # unknown, never an affirmatively-empty rule set; the warning
+            # propagates to _metadata.warnings.
+            $rulesCollected = $false
+            $warnings.Add("DLP rules for policy '$policyName' failed to collect (recorded as indeterminate/unknown): $($_.Exception.Message)")
             Write-Warning $warnings[-1]
         }
 
+        # Control 1.13.b credits a policy only when it binds the Microsoft 365
+        # Copilot scope. Resolve-DlpPolicyScope preserves the three documented
+        # structural signals verbatim (only shape-normalized): Workload=Applications,
+        # a Locations entry carrying the Copilot location GUID, and the
+        # CopilotExperiences enforcement plane - so the evaluator (never a policy
+        # name or unrelated string) decides scope. Control 1.6 reads the same
+        # Workload/Locations/EnforcementPlanes (plus the raw singular Location key)
+        # and re-applies its own strict same-scope location parsing. Enabled is read
+        # through the StrictMode-safe helper: a genuinely absent property yields
+        # $null (Mode governs enforcement; Mode=Enable stays qualifying when Enabled
+        # is absent/null) while an explicit true/false or malformed present value
+        # still reaches both evaluators verbatim.
+        $scope = Resolve-DlpPolicyScope -Policy $policy
         [PSCustomObject]@{
-            Name     = $policy.Name
-            Mode     = $policy.Mode
-            Workload = $policy.Workload
-            Enabled  = $policy.Enabled
-            Rules    = $rules
+            Name                    = $policyName
+            Mode                    = $policy.Mode
+            Workload                = $scope.Workload
+            EnforcementPlanes       = $scope.EnforcementPlanes
+            Locations               = $scope.Locations
+            Location                = (Get-PurviewDspmPropertyValue -InputObject $policy -Name @('Location'))
+            Enabled                 = (Get-DlpScopeProperty -InputObject $policy -Name 'Enabled')
+            Rules                   = (Resolve-DlpRuleEvidence -CollectedRules $rawRules -CollectionSucceeded $rulesCollected)
+            RuleCollectionSucceeded = $rulesCollected
+            RuleCollectionStatus    = if ($rulesCollected) { 'collected' } else { 'failed' }
         }
     }
+    $dlpCompliancePolicies = Resolve-DlpPolicyEvidence -CollectedPolicies $collectedPolicies -CollectionSucceeded $true
+    $dlpCollectionSucceeded = $true
     Write-Verbose "  Collected $(@($dlpCompliancePolicies).Count) DLP compliance policy/policies."
 }
 catch {
@@ -333,41 +397,49 @@ elseif ($auditDependency.classification -eq 'unknown') {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 7: DSPM for AI (Data Security Posture Management)
-# Supports: AI data security posture evaluation
-# Note: DSPM may require Graph API fallback if no direct cmdlet exists.
+# Supports: Control 1.6 (DSPM for AI) — actively enforced Microsoft 365 Copilot DLP
+#
+# DSPM for AI does not have a dedicated cmdlet in ExchangeOnlineManagement.
+# Control evidence is derived only from DLP policies matching all documented
+# New-DlpCompliancePolicy signals for Microsoft 365 Copilot:
+#   Workload=Applications
+#   Location=470f2276-e011-4e9d-a6ec-20768be3a4b0
+#   EnforcementPlanes=CopilotExperiences
+# The policy must be actively enforced and have a relevant active blocking rule.
+# Retention remains informational.
 # ═══════════════════════════════════════════════════════════════════════
 $dspmForAi = $null
 try {
-    Write-Verbose "Section 7: Checking DSPM for AI policy presence..."
+    Write-Verbose 'Section 7: Checking actively enforced Microsoft 365 Copilot DLP policy presence...'
 
-    # DSPM for AI does not have a dedicated cmdlet in ExchangeOnlineManagement.
-    # Attempt to detect via DLP policies with AI-specific workloads or names,
-    # and check Graph beta endpoint if available.
-    $dspmRelatedPolicies = @()
-    if ($dlpCompliancePolicies) {
-        $dspmRelatedPolicies = @($dlpCompliancePolicies | Where-Object {
-            $_.Name -match 'DSPM|DataSecurity|AI' -or $_.Workload -match 'AI'
+    $copilotRetentionPolicies = @()
+    if ($null -ne $retentionPolicies) {
+        $copilotRetentionPolicies = @($retentionPolicies | Where-Object {
+            $retentionMode = ([string]$_.Mode).Trim().ToLowerInvariant()
+            $retentionEnabled = ConvertTo-PurviewDspmBoolean -InputObject $_.Enabled
+            $hasCopilotScope = $_.CopilotWorkloadFound -eq $true -or ($_.Workload -match 'CopilotInteraction')
+            $hasCopilotScope -and $retentionEnabled -eq $true -and
+                $retentionMode -in @('enable', 'enabled', 'enforce', 'enforced')
         })
     }
+    $retentionCoverage = $copilotRetentionPolicies.Count -gt 0
+    $retentionPolicyNames = @($copilotRetentionPolicies | ForEach-Object { $_.Name })
 
-    if ($dspmRelatedPolicies.Count -gt 0) {
-        $dspmForAi = [PSCustomObject]@{
-            Detected        = $true
-            PolicyCount     = $dspmRelatedPolicies.Count
-            PolicyNames     = @($dspmRelatedPolicies | ForEach-Object { $_.Name })
-        }
-    }
-    else {
-        $dspmForAi = [PSCustomObject]@{
-            Detected    = $false
-            PolicyCount = 0
-            PolicyNames = @()
-            Note        = 'No DSPM for AI policies detected. Check Microsoft Purview portal for DSPM configuration. Graph API beta endpoint may provide additional coverage.'
-        }
-        $warnings.Add("Section 7 (DSPM for AI): No AI-specific data security policies detected.")
+    $dspmForAi = New-PurviewDspmEvidence `
+        -Policies $dlpCompliancePolicies `
+        -DlpCollectionSucceeded $dlpCollectionSucceeded `
+        -RetentionCoverage $retentionCoverage `
+        -RetentionPolicyNames $retentionPolicyNames
+
+    if ($dspmForAi.CollectionStatus -ne 'collected') {
+        $warnings.Add("Section 7 (DSPM for AI) unavailable: $($dspmForAi.Note)")
         Write-Warning $warnings[-1]
     }
-    Write-Verbose "  DSPM for AI check complete. Detected: $($dspmForAi.Detected)"
+    elseif (-not $dspmForAi.Detected) {
+        $warnings.Add("Section 7 (DSPM for AI): $($dspmForAi.Note)")
+        Write-Warning $warnings[-1]
+    }
+    Write-Verbose "  DSPM for AI check complete. Status: $($dspmForAi.CollectionStatus). Qualifying active policy count: $($dspmForAi.PolicyCount)."
 }
 catch {
     $warnings.Add("Section 7 (DSPM for AI) failed: $($_.Exception.Message)")

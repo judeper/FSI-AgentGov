@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-28T01:16:40Z",
+  "generatedAt": "2026-07-25T23:12:15Z",
   "count": 79,
   "controls": [
     {
@@ -29,7 +29,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -95,7 +95,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -173,7 +173,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -217,7 +217,7 @@
       "url": "controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
       "objective": "Control which connectors and actions AI agents can use by implementing Advanced Connector Policies (ACP) and DLP boundaries. This control restricts agent access to approved data sources and services with appropriate action-level restrictions.",
       "primaryOwner": "Environment Admin",
-      "effortLevel": "Low effort",
+      "effortLevel": "Medium effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.4/portal-walkthrough/"
@@ -236,7 +236,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -252,7 +252,7 @@
         "Power Platform Admin",
         "Security Team"
       ],
-      "automation": "Automatable",
+      "automation": "Partial",
       "solutions": [],
       "playbooks": [
         {
@@ -301,7 +301,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -372,7 +372,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA",
         "Reg-S-P",
@@ -440,7 +440,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -511,7 +511,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA"
       ],
@@ -573,7 +573,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-3",
@@ -633,7 +633,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "FINRA-4530",
@@ -682,7 +682,7 @@
       "url": "controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/",
       "objective": "Implement adaptive access control using Microsoft Entra Conditional Access to enforce risk-based policies for users creating and managing AI agents, and for agents themselves through Microsoft Entra Agent ID and Conditional Access for Workload Identities. This control helps restrict agent creation, publication, and management to authorized, authenticated principals (human users and agent identities) and supports near-real-time response via Continuous Access Evaluation when risk events occur. Conditional Access governs **identity context** — who (or what workload identity) can authenticate, from where, under what device / risk posture, and with what session lifetime. **Phishing-resistant MFA in this control applies to human makers, owners, sponsors, and administrators** of AI agents. It does **not** apply to agent identities themselves, which have no user to challenge; agent identities are governed through Conditional Access for Workload Identities (CA WID) and Entra Agent ID (GA April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) where available. CA does **not**: - Inspect, validate, or constrain an agent's prompts, tool calls, plans, or generated output (see [Control 1.21 Adversarial Input Logging](1.21-adversarial-input-logging.md) and DLP-for-Copilot in [Control 1.5](1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)). - Authenticate or attest the agent's reasoning, retrieved grounding data, or model provenance (see [Control 2.5 Testing, Validation and Quality Assurance](../pillar-2-management/2.5-testing-validation-and-quality-assurance.md) and model-risk controls under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) in [Control 2.6](../pillar-2-management/2.6-model-risk-management-sr-26-2.md)). - Replace per-connector action governance (see [Control 1.4](1.4-advanced-connector-policies-acp.md)), content-level protection (see [Control 1.5](1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)), or supervisory review (see [Control 2.12](../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)). Agent-scoped CA + Identity Protection signals are **behavioral signals on the identity plane**, not reasoning-level validation. Treat this control as one layer in defense-in-depth, not a substitute for runtime content controls or MRM validation.",
       "primaryOwner": "AI Administrator",
-      "effortLevel": "Low effort",
+      "effortLevel": "Medium effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.11/portal-walkthrough/"
@@ -701,7 +701,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -728,10 +728,11 @@
         "Power Platform Admin",
         "SOC Analyst"
       ],
-      "automation": "Automatable",
+      "automation": "Partial",
       "solutions": [
         "agent-365-lifecycle-governance",
-        "conditional-access-automation"
+        "conditional-access-automation",
+        "session-security-configurator"
       ],
       "playbooks": [
         {
@@ -764,7 +765,7 @@
       "url": "controls/pillar-1-security/1.12-insider-risk-detection-and-response/",
       "objective": "Detect potentially malicious or inadvertent insider activities that could harm the organization, including risky data movement, abusive prompts, suspicious agent interactions, and security-policy violations. Microsoft Purview Insider Risk Management is primarily a **detection, triage, and investigation** capability — it is **not** a standalone blocking control, a books-and-records retention plane, an HR investigation workflow, or a substitute for supervisory review by a registered principal. Use it as one layer of defense-in-depth alongside DLP, Communication Compliance, Audit (Premium), Conditional Access, eDiscovery (Premium), incident response, and the firm's documented Written Supervisory Procedures. Insider Risk Management does **not** replace HR investigations, employee-relations processes, legal-hold / eDiscovery decisions, supervisory review under the firm's Written Supervisory Procedures (FINRA Rule 3110), formal incident response and regulator-notification workflows ([Control 3.4](../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)), books-and-records retention ([Control 1.7](1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.9](1.9-data-retention-and-deletion-policies.md)), or model-risk governance for AI-driven scoring ([Control 2.6](../pillar-2-management/2.6-model-risk-management-sr-26-2.md)).",
       "primaryOwner": "Insider Risk Management",
-      "effortLevel": "Medium effort",
+      "effortLevel": "Higher effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.12/portal-walkthrough/"
@@ -782,7 +783,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -852,7 +853,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -919,7 +920,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -938,7 +939,8 @@
       ],
       "automation": "Manual",
       "solutions": [
-        "file-upload-security"
+        "file-upload-security",
+        "scope-drift-monitor"
       ],
       "playbooks": [
         {
@@ -967,7 +969,7 @@
       "url": "controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/",
       "objective": "Confirm that all data processed by Microsoft Copilot Studio agents and Microsoft 365 Copilot is protected with TLS 1.2+ in transit and AES-256 (or stronger) at rest, layer customer-managed keys (Microsoft Purview Customer Key) and Double Key Encryption (DKE) where required, and document key custody, rotation, and revocation procedures aligned to financial-services regulatory expectations. This control is **foundational** — it underpins every other Pillar 1 confidentiality control (DLP, IRM, audit log integrity, Zone 3 isolation).",
       "primaryOwner": "Compliance Officer",
-      "effortLevel": "Low effort",
+      "effortLevel": "Higher effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.15/portal-walkthrough/"
@@ -988,7 +990,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "NYDFS-500",
@@ -1003,7 +1005,7 @@
         "Power Platform Admin",
         "SharePoint Admin"
       ],
-      "automation": "Automatable",
+      "automation": "Manual",
       "solutions": [],
       "playbooks": [
         {
@@ -1051,7 +1053,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "Reg-S-P",
@@ -1110,7 +1112,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -1175,7 +1177,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -1238,7 +1240,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-4",
@@ -1301,7 +1303,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "Fed-SR-26-2",
         "GLBA",
@@ -1362,7 +1364,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -1433,7 +1435,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "Fed-SR-26-2",
         "OCC-2026-13",
         "Reg-S-P"
@@ -1490,7 +1492,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "FINRA-4530",
         "GLBA",
@@ -1554,7 +1556,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "Fed-SR-26-2",
         "GLBA",
         "NIST-AI-RMF",
@@ -1616,7 +1618,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -1679,7 +1681,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -1742,7 +1744,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "Fed-SR-26-2",
         "GLBA",
@@ -1807,7 +1809,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "Fed-SR-26-2",
         "OCC-2026-13",
@@ -1846,7 +1848,7 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.29-global-secure-access-network-controls/",
-      "objective": "Extend Zero Trust network security principles to Copilot Studio agent outbound traffic by enabling Global Secure Access (GSA) forwarding for agent environments and applying web content filtering, threat intelligence filtering, and network file filtering policies to all agent-initiated external connections.",
+      "objective": "Extend Zero Trust network security principles to Copilot Studio agent outbound traffic by enabling Global Secure Access (GSA) forwarding for agent environments and applying web content filtering, threat intelligence filtering, and network file filtering policies to all agent-initiated external connections. This is a preview feature. Preview features aren't meant for production use and may have restricted functionality. Features may change before becoming generally available. Subject to the [Microsoft Azure Preview Supplemental Terms of Use](https://azure.microsoft.com/en-us/support/legal/preview-supplemental-terms/). Evaluate suitability for your regulatory environment before enabling in production workloads. Document your risk acceptance decision as part of your change management record.",
       "primaryOwner": "AI Governance Team / CoE",
       "effortLevel": "Medium effort",
       "primaryPlaybook": {
@@ -1866,7 +1868,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "OCC-2026-13",
@@ -1929,7 +1931,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -2000,7 +2002,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -2065,7 +2067,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -2132,7 +2134,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "OCC-2026-13",
@@ -2195,7 +2197,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -2264,7 +2266,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -2333,7 +2335,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -2395,7 +2397,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -2459,7 +2461,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -2524,7 +2526,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-4",
@@ -2711,7 +2713,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -2777,7 +2779,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA",
         "OCC-2026-13",
@@ -2836,7 +2838,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA",
         "OCC-2026-13",
@@ -2895,7 +2897,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "OCC-2026-13"
@@ -2953,7 +2955,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "Fed-SR-26-2",
         "OCC-2026-13",
         "SOX-404"
@@ -3012,7 +3014,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110"
       ],
       "roles": [
@@ -3071,7 +3073,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-4"
@@ -3130,7 +3132,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "Fed-SR-26-2",
         "NIST-AI-RMF",
@@ -3249,7 +3251,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-4",
@@ -3313,7 +3315,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA",
         "SEC-17a-4",
@@ -3377,7 +3379,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -3442,7 +3444,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -3513,7 +3515,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA",
         "OCC-2026-13",
@@ -3639,7 +3641,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -3709,7 +3711,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-3",
@@ -3772,7 +3774,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "OCC-2026-13",
@@ -3834,7 +3836,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "FINRA-4530",
         "GLBA",
@@ -3910,7 +3912,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "OCC-2026-13",
@@ -3971,7 +3973,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "GLBA",
@@ -4040,7 +4042,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "GLBA",
         "OCC-2026-13",
@@ -4102,7 +4104,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-3",
@@ -4166,7 +4168,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "NYDFS-500",
@@ -4233,7 +4235,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "SEC-17a-4",
@@ -4296,7 +4298,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "OCC-2026-13",
@@ -4359,7 +4361,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "Fed-SR-26-2",
         "OCC-2026-13",
@@ -4546,7 +4548,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "Reg-S-P",
@@ -4609,7 +4611,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "NYDFS-500",
@@ -4671,7 +4673,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-3",
@@ -4732,7 +4734,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "Reg-S-P",
@@ -4791,7 +4793,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "SEC-17a-3",
@@ -4852,7 +4854,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "GLBA",
         "OCC-2026-13",
@@ -4916,7 +4918,7 @@
         3
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -5030,7 +5032,7 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.9-embedded-file-content-governance/",
-      "objective": "Establish governance requirements for the use of embedded file content as agent knowledge sources in Microsoft 365 Copilot, ensuring that all files uploaded to agents via Agent Builder are properly classified, their sensitivity labels are correctly applied and enforced, the critical Information Barriers gap is assessed and mitigated before deployment, container integrity is maintained, and all agents using embedded files are tracked in the enterprise agent inventory.",
+      "objective": "Establish governance requirements for the use of embedded file content as agent knowledge sources in Microsoft 365 Copilot, ensuring that all files uploaded to agents via Agent Builder are properly classified, their sensitivity labels are correctly applied and enforced, the critical Information Barriers gap is assessed and mitigated before deployment, container integrity is maintained, and all agents using embedded files are tracked in the enterprise agent inventory. **Microsoft Purview Information Barriers (IB) are NOT enforced on SharePoint Embedded containers used by Agent Builder knowledge files.** Any user who can access an agent can receive responses grounded in the agent's embedded file content — regardless of IB segment assignments or IB policies applied to that user's account. This is a **first-order compliance failure risk** for any FSI institution with information barrier requirements between business lines (e.g., investment banking vs. sales and trading, research vs. proprietary trading, asset management vs. banking). An agent with IB-sensitive research or deal files embedded in its knowledge base will serve that restricted content to every user with agent access — silently bypassing your information barrier program. **Required actions before deploying any agent with embedded files in a regulated environment:** 1. Classify the business lines that can access the agent and confirm no IB wall exists between them. 2. Obtain written sign-off from the Chief Compliance Officer or designated IB officer that the embedded content is IB-exempt for the entire intended user population. 3. Prohibit agents with embedded files from serving users across IB-segregated segments (Zone 3 absolute control). 4. Document this platform limitation in your FINRA/SEC examination file as a known, assessed, and mitigated technology constraint.",
       "primaryOwner": "Agent Author / Owner",
       "effortLevel": "Higher effort",
       "primaryPlaybook": {
@@ -5039,6 +5041,7 @@
       },
       "workload": [
         "SharePoint",
+        "Purview",
         "Microsoft 365 Copilot"
       ],
       "governanceLevels": [

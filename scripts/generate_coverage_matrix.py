@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the 78-control evaluator coverage matrix.
+"""Generate the 79-control evaluator coverage matrix.
 
 Reads ``assessment/manifest/controls.json`` and the ``EVALUATORS`` registry
 from ``assessment/engine/score.py`` and writes a Markdown coverage report

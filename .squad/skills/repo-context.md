@@ -7,7 +7,7 @@
 - **Current version:** Check `VERSION` file for latest
 
 ## Pillars
-1. **Security** (controls 1.1–1.30) — DLP, encryption, access control, content moderation
+1. **Security** (controls 1.1–1.29) — DLP, encryption, access control, content moderation
 2. **Operational Governance** (controls 2.1–2.27) — environments, change management, testing, compliance
 3. **Monitoring & Reporting** (controls 3.1–3.14) — inventory, analytics, incident response, cost tracking
 4. **SharePoint Governance** (controls 4.1–4.9) — IAG, access reviews, retention, grounding scope

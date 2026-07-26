@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-27T06:36:22Z",
+  "generatedAt": "2026-07-21T05:50:35Z",
   "count": 12,
   "items": [
     {
@@ -37,7 +37,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -85,7 +85,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -137,7 +137,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -185,7 +185,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "Fed-SR-26-2",
         "GLBA",
@@ -233,7 +233,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -287,7 +287,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-4511",
         "Fed-SR-26-2",
         "GLBA",
@@ -344,7 +344,7 @@
         "SharePoint"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -392,7 +392,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -440,7 +440,7 @@
       ],
       "regulations": [
         "CFTC-1.31",
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -494,7 +494,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -551,7 +551,7 @@
         "Security"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "FINRA-3110",
         "FINRA-4511",
         "Fed-SR-26-2",
@@ -591,7 +591,7 @@
         "Management"
       ],
       "regulations": [
-        "FINRA-25-07",
+        "FINRA-24-09",
         "Fed-SR-26-2",
         "OCC-2026-13",
         "SOX-404"

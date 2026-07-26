@@ -76,20 +76,12 @@ if (-not (Test-Path $collectedDir)) {
 }
 $outputFile = Join-Path $collectedDir 'ppac.json'
 
-function Invoke-CollectorOperation {
-    param(
-        [Parameter(Mandatory)][string]$Target,
-        [Parameter(Mandatory)][string]$Action,
-        [Parameter(Mandatory)][scriptblock]$ScriptBlock
-    )
-
-    if (-not $PSCmdlet.ShouldProcess($Target, $Action)) {
-        Write-Verbose "Skipping $Action on $Target because -WhatIf was specified."
-        return $null
-    }
-
-    & $ScriptBlock
-}
+# Shared collector helpers — Invoke-CollectorOperation (ShouldProcess wrapper with
+# optional execution-status reporting), the DLP projection, and the StrictMode-safe
+# property reader — live in the dot-sourced support module so their contracts are
+# unit-testable without a live tenant.
+$collectorRoot = Split-Path -Parent $PSCommandPath
+. (Join-Path $collectorRoot 'lib\PpacCollectorSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
@@ -214,31 +206,43 @@ $dlpPolicies = $null
 $dlpSpBypassWarning = $false
 try {
     Write-Verbose "Section 2: Collecting DLP policies..."
-    $rawDlp = Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'List DLP policies' -ScriptBlock {
+    # -ExecutionStatus disambiguates a genuine no-row result (Get-DlpPolicy ran and
+    # returned nothing) from a skipped operation (ShouldProcess declined / -WhatIf),
+    # both of which return $null. Pre-seed to 'Skipped' so an early return is correct.
+    $dlpCollectionStatus = 'Skipped'
+    $rawDlp = Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'List DLP policies' -ExecutionStatus ([ref]$dlpCollectionStatus) -ScriptBlock {
         Get-DlpPolicy
     }
-    $dlpPolicies = $rawDlp | ForEach-Object {
-        [PSCustomObject]@{
-            DisplayName             = $_.displayName
-            PolicyName              = $_.name
-            CreatedTime             = $_.createdTime
-            IsEnabled               = $_.isEnabled
-            BusinessDataGroup       = $_.connectorGroups | Where-Object { $_.classification -eq 'Confidential' } |
-                                        ForEach-Object { $_.connectors | Select-Object id, name }
-            NonBusinessDataGroup    = $_.connectorGroups | Where-Object { $_.classification -eq 'General' } |
-                                        ForEach-Object { $_.connectors | Select-Object id, name }
-            BlockedGroup            = $_.connectorGroups | Where-Object { $_.classification -eq 'Blocked' } |
-                                        ForEach-Object { $_.connectors | Select-Object id, name }
-            EnvironmentType         = $_.environmentType
-            Environments            = $_.environments
-        }
+    if ($dlpCollectionStatus -eq 'Executed') {
+        # Project raw Get-DlpPolicy output into the collected DLP contract. The helper
+        # drops $null rows before projection so a no-policy tenant (Get-DlpPolicy
+        # returned nothing -> $rawDlp is $null) yields [] instead of the
+        # "$null | ForEach-Object" phantom that emitted one all-null placeholder policy
+        # (which made the scorer report "malformed" and raised a false SP-bypass
+        # warning). It also guarantees an array so ConvertTo-Json -Depth 10 cannot
+        # collapse a singleton policy, comma-normalizes each policy's object-shaped
+        # Environments, and reads every member StrictMode-safely so an absent optional
+        # property (e.g. isEnabled) does not drop the policy or its environment scope.
+        $dlpPolicies = ConvertTo-PpacDlpPolicyList -RawDlpPolicy $rawDlp
+        Write-Verbose "  Collected $($dlpPolicies.Count) DLP policy/policies."
+    }
+    else {
+        # ShouldProcess declined / -WhatIf: no DLP API call was made. Leave
+        # $dlpPolicies = $null (unknown to the scorer) rather than [] so a dry-run skip
+        # is never scored as "No classic DLP policies found", and dlpPolicies still
+        # counts toward the all-null total-failure exit accounting below.
+        $dlpSkipMsg = "Section 2 (DLP Policies) skipped (ShouldProcess declined / -WhatIf); " +
+                      "DLP policy evidence not collected."
+        $warnings.Add($dlpSkipMsg)
+        Write-Warning $dlpSkipMsg
     }
 
     # ── IMPORTANT: Control 1.4 — Service Principal DLP Bypass Check ──
     # DLP policies applied via security groups do NOT cover Service Principal-based
     # connections. When a DLP policy exists but there is no evidence of SP connection
     # auditing, agents using app-only auth can bypass DLP entirely.
-    # Flag this gap in output metadata for the assessment engine.
+    # Flag this gap in output metadata for the assessment engine. A skipped or empty
+    # collection leaves $dlpPolicies null/empty, so this check does not fire.
     if ($dlpPolicies -and $dlpPolicies.Count -gt 0) {
         # A full SP connection audit would require Dataverse connector usage logs.
         # At collection time we can only flag the absence of evidence.
@@ -249,8 +253,6 @@ try {
         $warnings.Add($spWarningMsg)
         Write-Warning $spWarningMsg
     }
-
-    Write-Verbose "  Collected $($dlpPolicies.Count) DLP policy/policies."
 }
 catch {
     $warnings.Add("Section 2 (DLP Policies) failed: $($_.Exception.Message)")

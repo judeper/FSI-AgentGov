@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:faae09ebc04d83a0b685b8c7568f19255b4822a79867efce82b9a2cb62564c57",
+  "detected_at": "2026-07-20T09:49:11Z",
+  "ga_date": "August CY2026",
+  "id": 567893,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Viva"
+  ],
+  "raw_description": "Managers in organizations can now access their Agent 365 data through the Agent Dashboard in Copilot Analytics (Insights), enabling them to understand activity across all agents registered through Agent 365. Customers with Agent 365 and Copilot will now see the Agent 365 Dashboard with the ability to view historical data in Agent Dashboard.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567893",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Viva: Copilot Analytics - Agent 365 dashboard for managers"
+}
