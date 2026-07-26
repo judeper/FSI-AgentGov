@@ -404,7 +404,7 @@ Dimensions A–L are the original 12 (April 2026). Dimensions M–Q were added P
 |---|---|---|---|
 | A | Version stamps | `v1\.[0-5](\.\d+)?` | Exclude `CHANGELOG-v1.*.md`, `package-lock.json`, `node_modules/`, `site/`, `releases/` |
 | B | Solution count | `\b(28\|33\|35\|36)\s+((live\s+\+\s+1\s+preview|live\s+)?solutions?)\b` | Canonical current state: 36 companion solutions (35 live + 1 preview); `35 live` is only valid when explicitly contrasted with the preview solution. |
-| C | Control count | `\b(71\|72)[\s\-]+controls?\b` | Historical changelog rows are MUST_KEEP; check live docs |
+| C | Control count | `\b(71\|72\|78)[\s\-]+controls?\b` | Canonical current state: **79 controls** (29/27/14/9). Historical changelog rows are MUST_KEEP; check live docs. `78` is the pre-2.27 baseline — valid only in historical release prose. |
 | D | Year/month stamps | `v1\.4\.0[\s\-—\|]+(NotApril)\s+2026` | Catches footer date mismatches |
 | E | Manifest field completeness | Programmatic JSON walk for empty fields | Catches "wired-to-nothing" patterns like Solutions Bridge |
 | F | Lock file cross-consistency | Diff `solutions-lock.json` keys vs companion-repo folders | Catches added/removed solutions out of sync |
