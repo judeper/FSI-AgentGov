@@ -176,6 +176,12 @@ jobs:
         run: python scripts/verify_xref_graph.py
       - name: Check control IDs in manifest, CONTROL-INDEX, and mkdocs nav
         run: python scripts/check_manifest_doc_drift.py --check
+      - name: Check manifest and solutions-lock agree in both directions
+        # Issue #322: cross_check was one-directional, so 76 lock-declared
+        # control-to-solution associations were missing from the manifest
+        # without failing CI. This gate is bidirectional; documented
+        # exemptions live in assessment/data/solutions-lock-exceptions.json.
+        run: python scripts/validate_solutions_lock.py
       - name: Check Playwright container pins match @playwright/test
         run: python scripts/check_playwright_pin_drift.py --check
       - name: Check Control Explorer data is regenerated from source

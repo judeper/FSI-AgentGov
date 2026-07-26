@@ -92,6 +92,9 @@ JSON_PROSE_FIELDS = frozenset({
     "guidance",
     "details",
     "notes",
+    # solutions-lock-exceptions.json: maintainer-authored justification for an
+    # accepted manifest/lock discrepancy. Free prose, so scan it (issue #322).
+    "reason",
 })
 
 # AS22 hardening (post-audit follow-up): the companion to JSON_PROSE_FIELDS.
@@ -121,6 +124,11 @@ MACHINE_ONLY_JSON_FIELDS = frozenset({
     "dataClassification",
     "retention",
     "generatedBy",
+    # solutions-lock-exceptions.json: a control ID ("1.23"), a kebab-case
+    # solution slug, and a fixed direction enum. Never narrative (issue #322).
+    "control",
+    "solution",
+    "direction",
     # Admin role tokens (kebab-case enum values, never narrative)
     "azure-admin",
     "compliance-admin",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T23:12:15Z",
+  "generatedAt": "2026-07-26T02:49:08Z",
   "count": 79,
   "controls": [
     {
@@ -48,7 +48,10 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": [],
+      "solutions": [
+        "cross-tenant-external-sharing-governance",
+        "unrestricted-agent-sharing-detector"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -121,7 +124,10 @@
       ],
       "automation": "Automatable",
       "solutions": [
-        "agent-365-lifecycle-governance"
+        "agent-365-lifecycle-governance",
+        "agent-intake",
+        "agent-registry-automation",
+        "model-risk-management-automation"
       ],
       "playbooks": [
         {
@@ -253,7 +259,12 @@
         "Security Team"
       ],
       "automation": "Partial",
-      "solutions": [],
+      "solutions": [
+        "agent-knowledge-source-scanner",
+        "credential-oversharing-detector",
+        "file-upload-security",
+        "scope-drift-monitor"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -323,7 +334,10 @@
       ],
       "automation": "Automatable",
       "solutions": [
-        "deny-event-correlation-report"
+        "agent-knowledge-source-scanner",
+        "deny-event-correlation-report",
+        "mime-type-restrictions",
+        "scope-drift-monitor"
       ],
       "playbooks": [
         {
@@ -460,11 +474,16 @@
       ],
       "automation": "Automatable",
       "solutions": [
+        "agent-intake",
         "agent-observability-foundation",
+        "agent-registry-automation",
         "audit-compliance-manager",
+        "cross-solution-integration",
+        "cross-tenant-external-sharing-governance",
         "deny-event-correlation-report",
         "environment-lifecycle-management",
-        "finra-supervision-workflow"
+        "finra-supervision-workflow",
+        "rag-source-validator"
       ],
       "playbooks": [
         {
@@ -524,7 +543,9 @@
       "automation": "Partial",
       "solutions": [
         "content-moderation-monitor",
-        "deny-event-correlation-report"
+        "cross-solution-integration",
+        "deny-event-correlation-report",
+        "file-upload-security"
       ],
       "playbooks": [
         {
@@ -587,7 +608,9 @@
         "Purview Records Manager"
       ],
       "automation": "Automatable",
-      "solutions": [],
+      "solutions": [
+        "dr-testing-framework"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -653,7 +676,9 @@
       ],
       "automation": "Partial",
       "solutions": [
-        "finra-supervision-workflow"
+        "action-confirmation-auditor",
+        "finra-supervision-workflow",
+        "hitl-workflow-governance"
       ],
       "playbooks": [
         {
@@ -732,6 +757,8 @@
       "solutions": [
         "agent-365-lifecycle-governance",
         "conditional-access-automation",
+        "cross-solution-integration",
+        "cross-tenant-external-sharing-governance",
         "session-security-configurator"
       ],
       "playbooks": [
@@ -873,7 +900,9 @@
         "Purview Info Protection Admin"
       ],
       "automation": "Partial",
-      "solutions": [],
+      "solutions": [
+        "mime-type-restrictions"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -939,6 +968,8 @@
       ],
       "automation": "Manual",
       "solutions": [
+        "credential-oversharing-detector",
+        "cross-solution-integration",
         "file-upload-security",
         "scope-drift-monitor"
       ],
@@ -1193,7 +1224,11 @@
       ],
       "automation": "Partial",
       "solutions": [
-        "conditional-access-automation"
+        "agent-sharing-access-restriction-detector",
+        "conditional-access-automation",
+        "credential-oversharing-detector",
+        "cross-solution-integration",
+        "cross-tenant-external-sharing-governance"
       ],
       "playbooks": [
         {
@@ -1508,7 +1543,10 @@
       "automation": "Partial",
       "solutions": [
         "action-confirmation-auditor",
-        "conditional-access-automation"
+        "conditional-access-automation",
+        "cross-solution-integration",
+        "inactivity-timeout-enforcement",
+        "session-security-configurator"
       ],
       "playbooks": [
         {
@@ -1953,8 +1991,13 @@
       "automation": "Automatable",
       "solutions": [
         "agent-365-lifecycle-governance",
+        "agent-intake",
+        "agent-registry-automation",
+        "cross-tenant-external-sharing-governance",
+        "dr-testing-framework",
         "environment-lifecycle-management",
-        "pipeline-governance-cleanup"
+        "pipeline-governance-cleanup",
+        "segregation-detector"
       ],
       "playbooks": [
         {
@@ -2087,7 +2130,8 @@
         "agent-365-lifecycle-governance",
         "environment-lifecycle-management",
         "message-center-monitor",
-        "pipeline-governance-cleanup"
+        "pipeline-governance-cleanup",
+        "segregation-detector"
       ],
       "playbooks": [
         {
@@ -2149,7 +2193,9 @@
         "Power Platform Admin"
       ],
       "automation": "Partial",
-      "solutions": [],
+      "solutions": [
+        "dr-testing-framework"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -2218,7 +2264,10 @@
         "Purview Records Manager"
       ],
       "automation": "Manual",
-      "solutions": [],
+      "solutions": [
+        "coi-testing",
+        "model-risk-management-automation"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -2288,7 +2337,9 @@
         "Power Platform Admin"
       ],
       "automation": "Manual",
-      "solutions": [],
+      "solutions": [
+        "model-risk-management-automation"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -2414,7 +2465,10 @@
       "solutions": [
         "agent-365-lifecycle-governance",
         "agent-observability-foundation",
-        "environment-lifecycle-management"
+        "agent-sharing-access-restriction-detector",
+        "cross-tenant-external-sharing-governance",
+        "environment-lifecycle-management",
+        "segregation-detector"
       ],
       "playbooks": [
         {
@@ -2478,7 +2532,9 @@
       ],
       "automation": "Partial",
       "solutions": [
-        "agent-observability-foundation"
+        "agent-observability-foundation",
+        "hallucination-tracker",
+        "model-risk-management-automation"
       ],
       "playbooks": [
         {
@@ -2600,7 +2656,10 @@
         "Governance Lead"
       ],
       "automation": "Manual",
-      "solutions": [],
+      "solutions": [
+        "coi-testing",
+        "model-risk-management-automation"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -2664,7 +2723,9 @@
       "solutions": [
         "action-confirmation-auditor",
         "agent-365-lifecycle-governance",
-        "finra-supervision-workflow"
+        "finra-supervision-workflow",
+        "hallucination-tracker",
+        "hitl-workflow-governance"
       ],
       "playbooks": [
         {
@@ -2731,7 +2792,11 @@
       ],
       "automation": "Manual",
       "solutions": [
-        "dr-testing-framework"
+        "agent-intake",
+        "agent-registry-automation",
+        "dr-testing-framework",
+        "model-risk-management-automation",
+        "rag-source-validator"
       ],
       "playbooks": [
         {
@@ -2909,7 +2974,9 @@
         "SharePoint Admin"
       ],
       "automation": "Partial",
-      "solutions": [],
+      "solutions": [
+        "rag-source-validator"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -2967,7 +3034,10 @@
         "Power Platform Admin"
       ],
       "automation": "Partial",
-      "solutions": [],
+      "solutions": [
+        "agent-communication-restriction-detector",
+        "hitl-workflow-governance"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -3398,7 +3468,9 @@
         "Security Architect"
       ],
       "automation": "Automatable",
-      "solutions": [],
+      "solutions": [
+        "generative-ai-config-auditor"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -3663,7 +3735,10 @@
       ],
       "automation": "Automatable",
       "solutions": [
-        "agent-365-lifecycle-governance"
+        "agent-365-lifecycle-governance",
+        "agent-intake",
+        "compliance-dashboard",
+        "model-risk-management-automation"
       ],
       "playbooks": [
         {
@@ -3727,6 +3802,7 @@
       "automation": "Manual",
       "solutions": [
         "agent-observability-foundation",
+        "compliance-dashboard",
         "copilot-studio-analytics"
       ],
       "playbooks": [
@@ -3790,7 +3866,10 @@
         "SharePoint Site Owner"
       ],
       "automation": "Partial",
-      "solutions": [],
+      "solutions": [
+        "compliance-dashboard",
+        "mime-type-restrictions"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -3862,6 +3941,7 @@
       ],
       "automation": "Partial",
       "solutions": [
+        "compliance-dashboard",
         "deny-event-correlation-report"
       ],
       "playbooks": [
@@ -4055,7 +4135,10 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": [],
+      "solutions": [
+        "inactivity-timeout-enforcement",
+        "mime-type-restrictions"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",
@@ -4121,7 +4204,10 @@
       ],
       "automation": "Manual",
       "solutions": [
-        "agent-access-monitor"
+        "agent-access-monitor",
+        "cross-solution-integration",
+        "inactivity-timeout-enforcement",
+        "unrestricted-agent-sharing-detector"
       ],
       "playbooks": [
         {
@@ -4687,7 +4773,9 @@
         "SharePoint Admin"
       ],
       "automation": "Automatable",
-      "solutions": [],
+      "solutions": [
+        "agent-knowledge-source-scanner"
+      ],
       "playbooks": [
         {
           "name": "Portal Walkthrough",

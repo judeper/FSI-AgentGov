@@ -1,0 +1,29 @@
+{
+  "description": "Documented exemptions for the bidirectional cross-check between assessment/manifest/controls.json (a solutions[] array per control) and assessment/data/solutions-lock.json (a controls[] array per solution), enforced by scripts/validate_solutions_lock.py. Direction 'manifest-only' means the manifest asserts an association the lock does not back; direction 'lock-only' means the lock declares an association the manifest does not record. Every entry must carry a non-empty reason. Stale entries - ones that no longer match live drift - fail CI, so this file cannot silently accumulate debt. Adding an entry here is a deliberate, reviewable act; the default expectation is that both sides agree.",
+  "exceptions": [
+    {
+      "control": "1.23",
+      "solution": "action-confirmation-auditor",
+      "direction": "manifest-only",
+      "reason": "Framework-side secondary mapping that predates the lock contract. The lock scopes this solution to controls 2.12 and 1.10; the framework also surfaces it under 1.23 (Step-Up Authentication for AI Agent Operations). Retained rather than deleted because solutions-lock.json is produced by FSI-AgentGov-Solutions and is not editable from this repo, so removing the association here would drop framework-side curation with no upstream record. Reported for upstream reconciliation; remove this exception once the lock either adopts or rejects the mapping."
+    },
+    {
+      "control": "2.3",
+      "solution": "environment-lifecycle-management",
+      "direction": "manifest-only",
+      "reason": "Framework-side secondary mapping that predates the lock contract. The lock scopes this solution to controls 2.1, 2.2, 2.8 and 1.7; the framework also surfaces it under 2.3 (Change Management and Release Planning). Retained for the same reason as the 1.23 entry. Reported for upstream reconciliation; remove this exception once the lock either adopts or rejects the mapping."
+    },
+    {
+      "control": "2.10",
+      "solution": "message-center-monitor",
+      "direction": "manifest-only",
+      "reason": "Framework-side secondary mapping that predates the lock contract. The lock scopes this solution to control 2.3; the framework also surfaces it under 2.10 (Patch Management and System Updates). Retained for the same reason as the 1.23 entry. Reported for upstream reconciliation; remove this exception once the lock either adopts or rejects the mapping."
+    },
+    {
+      "control": "2.13",
+      "solution": "dr-testing-framework",
+      "direction": "manifest-only",
+      "reason": "Framework-side secondary mapping that predates the lock contract. The lock scopes this solution to controls 2.4, 2.1 and 1.9; the framework also surfaces it under 2.13 (Documentation and Record Keeping). Retained for the same reason as the 1.23 entry. Reported for upstream reconciliation; remove this exception once the lock either adopts or rejects the mapping."
+    }
+  ]
+}
