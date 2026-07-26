@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the 78-control × 6-pattern CAPE coverage matrix.
+"""Generate the 79-control × 6-pattern CAPE coverage matrix.
 
 Reads ``assessment/manifest/controls.json`` and writes a Markdown matrix
 to ``docs/reference/pattern-coverage.md`` showing which controls apply to

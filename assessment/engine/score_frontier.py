@@ -8,7 +8,7 @@ six transformation patterns.
 
 Frontier Readiness is a self-diagnostic strategy lens. It is deliberately
 independent of governance zone (Zone 1/2/3) and supplements — but does not
-replace — the 78-control technical assessment.
+replace — the 79-control technical assessment.
 
 Usage::
 
