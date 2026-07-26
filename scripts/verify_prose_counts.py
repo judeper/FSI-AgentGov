@@ -7,7 +7,7 @@ Three targeted checks (per AS9 audit fix-set):
      by Regulation`` section MUST NOT contain fractional control denominators
      (``X/NN`` patterns) outside the ``!!! warning`` admonition that explains
      why those figures were withdrawn pending SME re-validation against the
-     v1.6.2 78-control catalog.
+     v1.6.2 79-control catalog.
 
   2. ``docs/reference/solutions-index.md`` ``## Companion Inventory`` table
      row count MUST equal ``len(solutions)`` in

@@ -3,7 +3,7 @@ message: "If you use this framework, please cite it as below."
 type: software
 title: "FSI Agent Governance Framework"
 version: "1.4.0"
-abstract: "Comprehensive governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations. Provides 78 controls across 4 pillars with implementation playbooks, regulatory mappings, and companion automation solutions."
+abstract: "Comprehensive governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations. Provides 79 controls across 4 pillars with implementation playbooks, regulatory mappings, and companion automation solutions."
 authors:
   - alias: judeper
 url: "https://github.com/judeper/FSI-AgentGov"
