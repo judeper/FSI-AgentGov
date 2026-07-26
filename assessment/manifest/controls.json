@@ -122,7 +122,10 @@
       "followUp": "Open Power Platform admin center > Environments > [Prod] > Settings > Users + permissions, then PPAC > Tenant settings > Sharing.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "cross-tenant-external-sharing-governance",
+      "unrestricted-agent-sharing-detector"
+    ]
   },
   {
     "id": "1.2",
@@ -251,7 +254,10 @@
       "timeBudgetMinutes": 7
     },
     "solutions": [
-      "agent-365-lifecycle-governance"
+      "agent-365-lifecycle-governance",
+      "agent-intake",
+      "agent-registry-automation",
+      "model-risk-management-automation"
     ]
   },
   {
@@ -486,7 +492,12 @@
       "followUp": "Open Power Platform admin center > Policies > Data policies, then review Environment Groups and ACP configuration.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "agent-knowledge-source-scanner",
+      "credential-oversharing-detector",
+      "file-upload-security",
+      "scope-drift-monitor"
+    ]
   },
   {
     "id": "1.5",
@@ -602,7 +613,10 @@
       "timeBudgetMinutes": 8
     },
     "solutions": [
-      "deny-event-correlation-report"
+      "agent-knowledge-source-scanner",
+      "deny-event-correlation-report",
+      "mime-type-restrictions",
+      "scope-drift-monitor"
     ]
   },
   {
@@ -824,11 +838,16 @@
       "timeBudgetMinutes": 6
     },
     "solutions": [
+      "agent-intake",
       "agent-observability-foundation",
+      "agent-registry-automation",
       "audit-compliance-manager",
+      "cross-solution-integration",
+      "cross-tenant-external-sharing-governance",
       "deny-event-correlation-report",
       "environment-lifecycle-management",
-      "finra-supervision-workflow"
+      "finra-supervision-workflow",
+      "rag-source-validator"
     ]
   },
   {
@@ -924,7 +943,9 @@
     },
     "solutions": [
       "content-moderation-monitor",
-      "deny-event-correlation-report"
+      "cross-solution-integration",
+      "deny-event-correlation-report",
+      "file-upload-security"
     ]
   },
   {
@@ -1033,7 +1054,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "dr-testing-framework"
+    ]
   },
   {
     "id": "1.10",
@@ -1135,7 +1158,9 @@
       "timeBudgetMinutes": 6
     },
     "solutions": [
-      "finra-supervision-workflow"
+      "action-confirmation-auditor",
+      "finra-supervision-workflow",
+      "hitl-workflow-governance"
     ]
   },
   {
@@ -1275,6 +1300,8 @@
     "solutions": [
       "agent-365-lifecycle-governance",
       "conditional-access-automation",
+      "cross-solution-integration",
+      "cross-tenant-external-sharing-governance",
       "session-security-configurator"
     ]
   },
@@ -1484,7 +1511,9 @@
       "followUp": "Open Microsoft Purview > Data classification > Sensitive info types and review references in DLP/label policies.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "mime-type-restrictions"
+    ]
   },
   {
     "id": "1.14",
@@ -1572,6 +1601,8 @@
       "timeBudgetMinutes": 6
     },
     "solutions": [
+      "credential-oversharing-detector",
+      "cross-solution-integration",
       "file-upload-security",
       "scope-drift-monitor"
     ]
@@ -1948,7 +1979,11 @@
       "timeBudgetMinutes": 5
     },
     "solutions": [
-      "conditional-access-automation"
+      "agent-sharing-access-restriction-detector",
+      "conditional-access-automation",
+      "credential-oversharing-detector",
+      "cross-solution-integration",
+      "cross-tenant-external-sharing-governance"
     ]
   },
   {
@@ -2463,7 +2498,10 @@
     },
     "solutions": [
       "action-confirmation-auditor",
-      "conditional-access-automation"
+      "conditional-access-automation",
+      "cross-solution-integration",
+      "inactivity-timeout-enforcement",
+      "session-security-configurator"
     ]
   },
   {
@@ -3214,8 +3252,13 @@
     },
     "solutions": [
       "agent-365-lifecycle-governance",
+      "agent-intake",
+      "agent-registry-automation",
+      "cross-tenant-external-sharing-governance",
+      "dr-testing-framework",
       "environment-lifecycle-management",
-      "pipeline-governance-cleanup"
+      "pipeline-governance-cleanup",
+      "segregation-detector"
     ]
   },
   {
@@ -3431,7 +3474,8 @@
       "agent-365-lifecycle-governance",
       "environment-lifecycle-management",
       "message-center-monitor",
-      "pipeline-governance-cleanup"
+      "pipeline-governance-cleanup",
+      "segregation-detector"
     ]
   },
   {
@@ -3528,7 +3572,9 @@
       "followUp": "Review the agent inventory for Tier 1/2 classifications and verify Power Platform solution-export backup cadence.",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "dr-testing-framework"
+    ]
   },
   {
     "id": "2.5",
@@ -3619,7 +3665,10 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "coi-testing",
+      "model-risk-management-automation"
+    ]
   },
   {
     "id": "2.6",
@@ -3712,7 +3761,9 @@
       "followUp": "Cross-check the agent registry (1.2) against the model inventory and review MRMC minutes for agent approvals.",
       "timeBudgetMinutes": 8
     },
-    "solutions": []
+    "solutions": [
+      "model-risk-management-automation"
+    ]
   },
   {
     "id": "2.7",
@@ -3907,7 +3958,10 @@
     "solutions": [
       "agent-365-lifecycle-governance",
       "agent-observability-foundation",
-      "environment-lifecycle-management"
+      "agent-sharing-access-restriction-detector",
+      "cross-tenant-external-sharing-governance",
+      "environment-lifecycle-management",
+      "segregation-detector"
     ]
   },
   {
@@ -4007,7 +4061,9 @@
       "timeBudgetMinutes": 5
     },
     "solutions": [
-      "agent-observability-foundation"
+      "agent-observability-foundation",
+      "hallucination-tracker",
+      "model-risk-management-automation"
     ]
   },
   {
@@ -4188,7 +4244,10 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "coi-testing",
+      "model-risk-management-automation"
+    ]
   },
   {
     "id": "2.12",
@@ -4280,7 +4339,9 @@
     "solutions": [
       "action-confirmation-auditor",
       "agent-365-lifecycle-governance",
-      "finra-supervision-workflow"
+      "finra-supervision-workflow",
+      "hallucination-tracker",
+      "hitl-workflow-governance"
     ]
   },
   {
@@ -4370,7 +4431,11 @@
       "timeBudgetMinutes": 5
     },
     "solutions": [
-      "dr-testing-framework"
+      "agent-intake",
+      "agent-registry-automation",
+      "dr-testing-framework",
+      "model-risk-management-automation",
+      "rag-source-validator"
     ]
   },
   {
@@ -4654,7 +4719,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "rag-source-validator"
+    ]
   },
   {
     "id": "2.17",
@@ -4750,7 +4817,10 @@
       "followUp": "Review Copilot Studio agent designs, MCP/A2A connections, and any custom orchestration logic for governance limits.",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-communication-restriction-detector",
+      "hitl-workflow-governance"
+    ]
   },
   {
     "id": "2.18",
@@ -5382,7 +5452,9 @@
       "followUp": "Review M365 admin center Copilot settings, PPAC environment features, and Copilot Studio per-agent capability flags.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "generative-ai-config-auditor"
+    ]
   },
   {
     "id": "2.25",
@@ -5852,7 +5924,10 @@
       "timeBudgetMinutes": 5
     },
     "solutions": [
-      "agent-365-lifecycle-governance"
+      "agent-365-lifecycle-governance",
+      "agent-intake",
+      "compliance-dashboard",
+      "model-risk-management-automation"
     ]
   },
   {
@@ -5939,6 +6014,7 @@
     },
     "solutions": [
       "agent-observability-foundation",
+      "compliance-dashboard",
       "copilot-studio-analytics"
     ]
   },
@@ -6037,7 +6113,10 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "compliance-dashboard",
+      "mime-type-restrictions"
+    ]
   },
   {
     "id": "3.4",
@@ -6145,6 +6224,7 @@
       "timeBudgetMinutes": 8
     },
     "solutions": [
+      "compliance-dashboard",
       "deny-event-correlation-report"
     ]
   },
@@ -6453,7 +6533,10 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "inactivity-timeout-enforcement",
+      "mime-type-restrictions"
+    ]
   },
   {
     "id": "3.8",
@@ -6540,7 +6623,10 @@
       "timeBudgetMinutes": 5
     },
     "solutions": [
-      "agent-access-monitor"
+      "agent-access-monitor",
+      "cross-solution-integration",
+      "inactivity-timeout-enforcement",
+      "unrestricted-agent-sharing-detector"
     ]
   },
   {
@@ -7395,7 +7481,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-knowledge-source-scanner"
+    ]
   },
   {
     "id": "4.4",

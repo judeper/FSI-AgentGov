@@ -16,11 +16,27 @@ Rules enforced:
   ``tier`` ∈ {"1","2","3"}, ``description``, ``url``, ``controls``
   (list), ``prerequisites`` (object), and ``verification`` (string).
 
-Cross-check (warning only — graceful degradation per spec):
-* Every solution id referenced in ``controls.json.solutions[]`` should
-  exist in the lock; missing IDs emit a warning but do **not** fail.
+Bidirectional cross-check against ``assessment/manifest/controls.json``
+(**errors** — CI-blocking):
 
-Exit code: 0 if lock is structurally valid; 1 otherwise.
+The lock is the canonical contract and carries a ``controls`` array per
+solution. The manifest carries a ``solutions`` array per control. Those
+two express the *same* control-to-solution association set, so they must
+agree in **both** directions:
+
+* ``manifest-only`` — a ``(control, solution)`` pair present in the
+  manifest with no backing in the lock.
+* ``lock-only`` — a pair present in the lock that the manifest never
+  records. Before issue #322 this direction was never checked, so 76
+  associations went missing from the manifest without failing CI.
+
+A pair may be exempted only by an explicit, reasoned entry in
+``assessment/data/solutions-lock-exceptions.json``. Exceptions are
+themselves validated: an exception that no longer matches live drift is
+**stale** and fails, so the file cannot accumulate silent debt.
+
+Exit code: 0 if lock is structurally valid and cross-checks clean;
+1 otherwise.
 """
 from __future__ import annotations
 
@@ -34,6 +50,11 @@ from typing import Any, Iterable
 ROOT = Path(__file__).resolve().parents[1]
 LOCK_DEFAULT = ROOT / "assessment" / "data" / "solutions-lock.json"
 MANIFEST_DEFAULT = ROOT / "assessment" / "manifest" / "controls.json"
+EXCEPTIONS_DEFAULT = ROOT / "assessment" / "data" / "solutions-lock-exceptions.json"
+
+MANIFEST_ONLY = "manifest-only"
+LOCK_ONLY = "lock-only"
+EXCEPTION_DIRECTIONS = (MANIFEST_ONLY, LOCK_ONLY)
 
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 CONTROL_ID_RE = re.compile(r"^\d+\.\d+$")
@@ -138,27 +159,196 @@ def validate_counts(lock: dict[str, Any]) -> list[str]:
     return errs
 
 
-def cross_check(lock: dict[str, Any], manifest_path: Path) -> list[str]:
-    """Emit warnings for solutions referenced from controls.json but missing in lock."""
-    if not manifest_path.exists():
-        return []
-    controls = json.loads(manifest_path.read_text(encoding="utf-8"))
-    lock_ids = {sid for sid, _ in iter_solutions(lock)}
-    missing: dict[str, list[str]] = {}
+def load_manifest_controls(manifest_path: Path) -> list[dict[str, Any]]:
+    """Return the manifest control list, tolerating both accepted shapes."""
+    raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if isinstance(raw, list):
+        return [c for c in raw if isinstance(c, dict)]
+    if isinstance(raw, dict):
+        controls = raw.get("controls", [])
+        if isinstance(controls, list):
+            return [c for c in controls if isinstance(c, dict)]
+    return []
+
+
+def lock_pairs(lock: dict[str, Any]) -> set[tuple[str, str]]:
+    """Every ``(control_id, solution_id)`` association declared by the lock."""
+    pairs: set[tuple[str, str]] = set()
+    for sid, body in iter_solutions(lock):
+        if not isinstance(body, dict):
+            continue
+        for control_id in body.get("controls", []) or []:
+            if isinstance(control_id, str):
+                pairs.add((control_id, sid))
+    return pairs
+
+
+def manifest_pairs(controls: list[dict[str, Any]]) -> set[tuple[str, str]]:
+    """Every ``(control_id, solution_id)`` association declared by the manifest."""
+    pairs: set[tuple[str, str]] = set()
     for ctrl in controls:
-        for sid in ctrl.get("solutions", []):
-            if isinstance(sid, str) and sid not in lock_ids:
-                missing.setdefault(sid, []).append(ctrl.get("id", "?"))
-    return [
-        f"solution {sid!r} referenced by controls {sorted(set(ctrls))} is not in the lock"
-        for sid, ctrls in sorted(missing.items())
-    ]
+        cid = ctrl.get("id")
+        if not isinstance(cid, str):
+            continue
+        for sid in ctrl.get("solutions", []) or []:
+            if isinstance(sid, str):
+                pairs.add((cid, sid))
+    return pairs
+
+
+def load_exceptions(path: Path) -> tuple[dict[tuple[str, str, str], str], list[str]]:
+    """Load documented cross-check exemptions.
+
+    Returns ``(exceptions, errors)`` where ``exceptions`` maps
+    ``(control, solution, direction)`` to the recorded reason.
+    """
+    if not path.exists():
+        return {}, []
+
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return {}, [f"exceptions file is not valid JSON: {exc}"]
+
+    entries = raw.get("exceptions") if isinstance(raw, dict) else raw
+    if not isinstance(entries, list):
+        return {}, ["exceptions file must contain an 'exceptions' list"]
+
+    exceptions: dict[tuple[str, str, str], str] = {}
+    errors: list[str] = []
+    for i, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            errors.append(f"exceptions[{i}] must be an object")
+            continue
+        control = entry.get("control")
+        solution = entry.get("solution")
+        direction = entry.get("direction")
+        reason = entry.get("reason")
+        if not (isinstance(control, str) and CONTROL_ID_RE.match(control)):
+            errors.append(f"exceptions[{i}].control must be a control ID like '1.1'")
+            continue
+        if not (isinstance(solution, str) and SLUG_RE.match(solution)):
+            errors.append(f"exceptions[{i}].solution must be a kebab-case solution id")
+            continue
+        if direction not in EXCEPTION_DIRECTIONS:
+            errors.append(
+                f"exceptions[{i}].direction must be one of "
+                f"{list(EXCEPTION_DIRECTIONS)} (got {direction!r})"
+            )
+            continue
+        if not (isinstance(reason, str) and reason.strip()):
+            errors.append(
+                f"exceptions[{i}] ({control}/{solution}) must carry a non-empty "
+                "'reason' explaining why the drift is accepted"
+            )
+            continue
+        key = (control, solution, direction)
+        if key in exceptions:
+            errors.append(f"exceptions[{i}] duplicates {control}/{solution}/{direction}")
+            continue
+        exceptions[key] = reason.strip()
+    return exceptions, errors
+
+
+def cross_check(
+    lock: dict[str, Any],
+    manifest_path: Path,
+    exceptions_path: Path,
+) -> tuple[list[str], list[str]]:
+    """Bidirectionally compare lock and manifest associations.
+
+    Returns ``(errors, infos)``. Every unexempted association present on
+    only one side is an error, in either direction.
+    """
+    if not manifest_path.exists():
+        return ([f"manifest not found at {manifest_path}; cannot cross-check"], [])
+
+    try:
+        controls = load_manifest_controls(manifest_path)
+    except json.JSONDecodeError as exc:
+        return ([f"manifest is not valid JSON: {exc}"], [])
+
+    exceptions, errors = load_exceptions(exceptions_path)
+    infos: list[str] = []
+
+    lock_ids = {sid for sid, _ in iter_solutions(lock)}
+    manifest_ids = {c["id"] for c in controls if isinstance(c.get("id"), str)}
+
+    in_lock = lock_pairs(lock)
+    in_manifest = manifest_pairs(controls)
+
+    only_manifest = in_manifest - in_lock
+    only_lock = in_lock - in_manifest
+
+    used: set[tuple[str, str, str]] = set()
+
+    def exempt(control: str, solution: str, direction: str) -> bool:
+        key = (control, solution, direction)
+        if key in exceptions:
+            used.add(key)
+            infos.append(
+                f"documented exception ({direction}) {control} -> {solution}: "
+                f"{exceptions[key]}"
+            )
+            return True
+        return False
+
+    # Direction 1: manifest asserts an association the lock does not back.
+    unknown_slugs: dict[str, list[str]] = {}
+    for control, solution in sorted(only_manifest):
+        if exempt(control, solution, MANIFEST_ONLY):
+            continue
+        if solution not in lock_ids:
+            unknown_slugs.setdefault(solution, []).append(control)
+            continue
+        errors.append(
+            f"manifest-only association: control {control} lists solution "
+            f"{solution!r}, but the lock's solutions[{solution}].controls does not "
+            "include that control"
+        )
+    for solution, ctrls in sorted(unknown_slugs.items()):
+        errors.append(
+            f"manifest-only association: solution {solution!r} referenced by "
+            f"controls {sorted(set(ctrls))} is not in the lock at all"
+        )
+
+    # Direction 2: the lock declares an association the manifest never records.
+    # This direction was unchecked before issue #322.
+    for control, solution in sorted(only_lock):
+        if exempt(control, solution, LOCK_ONLY):
+            continue
+        if control not in manifest_ids:
+            errors.append(
+                f"lock-only association: solutions[{solution}].controls references "
+                f"control {control!r}, which is not in the manifest"
+            )
+            continue
+        errors.append(
+            f"lock-only association: solutions[{solution}].controls includes control "
+            f"{control}, but the manifest's controls[{control}].solutions omits "
+            f"{solution!r}"
+        )
+
+    # Stale exceptions are debt in disguise — fail so they get removed.
+    for control, solution, direction in sorted(set(exceptions) - used):
+        errors.append(
+            f"stale exception: {control} -> {solution} ({direction}) no longer "
+            "drifts; remove it from solutions-lock-exceptions.json"
+        )
+
+    return errors, infos
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lock", type=Path, default=LOCK_DEFAULT)
     parser.add_argument("--manifest", type=Path, default=MANIFEST_DEFAULT)
+    parser.add_argument(
+        "--exceptions",
+        type=Path,
+        default=EXCEPTIONS_DEFAULT,
+        help="Documented cross-check exemptions (missing file = no exemptions).",
+    )
     parser.add_argument(
         "--allow-missing",
         action="store_true",
@@ -196,8 +386,12 @@ def main() -> int:
         sol_count += 1
         errs.extend(validate_solution(sid, body))
 
-    warns = cross_check(lock, args.manifest)
+    warns: list[str] = []
+    cross_errs, infos = cross_check(lock, args.manifest, args.exceptions)
+    errs.extend(cross_errs)
 
+    for i in infos:
+        print(f"INFO: {i}")
     for w in warns:
         print(f"WARN: {w}")
     for e in errs:
@@ -207,7 +401,11 @@ def main() -> int:
         print(f"\nFAIL: {len(errs)} error(s), {len(warns)} warning(s).", file=sys.stderr)
         return 1
 
-    print(f"OK: solutions-lock.json valid ({sol_count} solutions, {len(warns)} warning(s)).")
+    print(
+        f"OK: solutions-lock.json valid ({sol_count} solutions, "
+        f"manifest cross-check clean in both directions, "
+        f"{len(infos)} documented exception(s))."
+    )
     return 0
 
 

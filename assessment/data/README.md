@@ -25,6 +25,50 @@ companion repository.
   **folder-name ID only** (kebab-case strings); the lock provides
   everything else.
 
+### Bidirectional consistency with the manifest
+
+The lock and `assessment/manifest/controls.json` express the **same**
+control-to-solution relation from opposite sides: the lock carries a
+`controls` array per solution, the manifest a `solutions` array per
+control. They must agree in both directions.
+
+`scripts/validate_solutions_lock.py` enforces this as a CI gate in the
+`manifest / index / nav drift` job. It reports two failure directions:
+
+| Direction | Meaning |
+|-----------|---------|
+| `manifest-only` | The manifest asserts an association the lock does not back (including a solution slug absent from the lock entirely). |
+| `lock-only` | The lock declares an association the manifest never records. |
+
+Before issue #322 only the `manifest-only` direction was checked, and
+only as a warning, so 76 lock-declared associations were missing from
+the manifest without failing CI.
+
+After a lock refresh, apply new lock-declared associations with:
+
+```bash
+python scripts/sync_manifest_solutions.py --write   # add lock-only associations
+python scripts/gen_explorer_data.py                 # regenerate Explorer data
+python scripts/validate_solutions_lock.py           # verify both directions
+```
+
+`sync_manifest_solutions.py` never deletes manifest-only associations.
+The lock is produced by `FSI-AgentGov-Solutions` and is not editable
+from this repo, so removing locally curated associations to match it
+would be a silent contract change. Those are reported instead.
+
+### `solutions-lock-exceptions.json`
+
+The only supported way to carry a discrepancy is an explicit entry in
+`assessment/data/solutions-lock-exceptions.json`, keyed by
+`control` + `solution` + `direction` and carrying a mandatory `reason`.
+
+Exceptions are validated too: an entry that no longer matches live
+drift is **stale** and fails CI, so the file cannot accumulate silent
+debt. Four `manifest-only` entries are recorded today — framework-side
+secondary mappings that predate the lock contract and are pending
+upstream reconciliation in `FSI-AgentGov-Solutions`.
+
 ### Refreshing
 
 ```bash
@@ -41,17 +85,22 @@ IDs are present.
 ### Coverage scope
 
 The lock file maps the **subset of controls that have a dedicated
-companion solution** in FSI-AgentGov-Solutions (35 today out of the
-framework's 79 controls). It is not intended to be a 1:1 mirror of
-the control catalog.
+companion solution** in FSI-AgentGov-Solutions. It is not intended to
+be a 1:1 mirror of the control catalog — a minority of the framework's
+79 controls carry no companion mapping at all.
 
-Many controls have an empty `solutions[]` array in
+Those controls have an empty `solutions[]` array in
 `assessment/manifest/controls.json`. This reflects the framework's
 **selective-mapping principle**: not all controls warrant a dedicated
 companion automation. Many are fully operated via native Microsoft
 admin surfaces (Entra, Purview, Power Platform Admin Center,
 SharePoint Admin) and are verified by the framework's collectors.
 An empty `solutions[]` is by-design, not a backlog item.
+
+A **non-empty** `solutions[]` array, by contrast, is not curated by
+hand: it is derived from the lock and enforced bidirectionally (see
+above). Do not add or remove entries without a matching lock change or
+a documented exception.
 
 Consult each control's `automation` field (`full` / `partial` /
 `manual`) for verification feasibility, and the corresponding control
@@ -93,6 +142,10 @@ If a solution ID referenced by `controls.json.solutions[]` is missing
 from the lock, the SPA renders `(solution pending)` instead of a chip.
 If the lock file is missing entirely, E1/E7 still render — just
 without the solutions section.
+
+This is **runtime** degradation only. At build time, a manifest slug
+absent from the lock is a CI failure unless it is recorded in
+`solutions-lock-exceptions.json` with a reason.
 
 ---
 
