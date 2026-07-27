@@ -133,7 +133,7 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md",
-    "automation": "full",
+    "automation": "partial",
     "collection_methods": [
       "Graph_API",
       "PPAC_PowerShell"
@@ -152,9 +152,12 @@
       },
       {
         "check_id": "1.2.b",
-        "description": "Authentication mode configured per agent",
+        "description": "Authentication mode configured per agent (manual evidence required)",
         "api_call": "Get-MgServicePrincipal",
-        "pass_condition": "auth_mode_configured",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -162,9 +165,12 @@
       },
       {
         "check_id": "1.2.c",
-        "description": "No orphaned agents (all have active owner)",
+        "description": "No orphaned agents (all have active owner) (manual evidence required)",
         "api_call": "Get-MgServicePrincipal",
-        "pass_condition": "no_orphaned_agents",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           3
         ]
@@ -180,11 +186,11 @@
         "maturity_score": 2
       },
       "zone3": {
-        "min_checks_passed": 3,
+        "min_checks_passed": 1,
         "maturity_score": 4
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide evidence that the authentication mode is deliberately configured for each Zone 2 and Zone 3 agent, and that agents or service principals without an active owner are detected and remediated on a defined cadence. The engine automates the tenant-wide agent inventory only; authentication-mode and orphaned-owner evidence is reviewer-supplied.",
     "name": "Agent Registry and Integrated Apps Management",
     "zonesApplicable": [
       1,
@@ -857,37 +863,24 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md",
-    "automation": "partial",
-    "collection_methods": [
-      "Sentinel_KQL"
-    ],
-    "checks": [
-      {
-        "check_id": "1.8.a",
-        "description": "Sentinel alerts configured for agent anomalies",
-        "api_call": "Invoke-AzOperationalInsightsQuery",
-        "pass_condition": "sentinel_agent_alerts_exist",
-        "zone_required": [
-          2,
-          3
-        ]
-      }
-    ],
+    "automation": "manual",
+    "collection_methods": [],
+    "checks": [],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 1,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 1,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": "Have runtime protection alerts been reviewed and tuned in the last 30 days?",
+    "manual_question": "Provide evidence that Microsoft Sentinel (or the equivalent SIEM) has analytics rules configured for agent anomalies, and that runtime protection alerts have been reviewed and tuned in the last 30 days.",
     "name": "Runtime Protection and External Threat Detection",
     "zonesApplicable": [
       2,
@@ -1065,37 +1058,24 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.10-communication-compliance-monitoring.md",
-    "automation": "partial",
-    "collection_methods": [
-      "Purview_PowerShell"
-    ],
-    "checks": [
-      {
-        "check_id": "1.10.a",
-        "description": "Communication compliance policy targeting agents exists",
-        "api_call": "Get-SupervisoryReviewPolicyV2",
-        "pass_condition": "comm_compliance_policy_exists",
-        "zone_required": [
-          2,
-          3
-        ]
-      }
-    ],
+    "automation": "manual",
+    "collection_methods": [],
+    "checks": [],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 1,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 1,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": "Has the supervision review queue been reviewed by a compliance officer in the last 30 days, and does the Communication Compliance configuration capture and tag AI-related customer complaints with linkage to the underlying agent interaction and feed into the FINRA Rule 4530(d) quarterly report?",
+    "manual_question": "Provide evidence that a Communication Compliance policy targeting agent interactions is in place, that the supervision review queue has been reviewed by a compliance officer in the last 30 days, and that the configuration captures and tags AI-related customer complaints with linkage to the underlying agent interaction and feeds into the FINRA Rule 4530(d) quarterly report.",
     "name": "Communication Compliance Monitoring",
     "zonesApplicable": [
       2,
