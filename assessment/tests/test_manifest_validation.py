@@ -347,6 +347,15 @@ def _controls_with_appended(gm, *rows):
     return list(gm.CONTROLS) + list(rows)
 
 
+# Synthetic generator rows must point at control documents that actually exist:
+# ``verify_source_files_exist`` (issue #372) rejects CONTROLS rows whose markdown
+# source is missing, because a stale path silently degrades the title to a
+# filename-derived fallback. These tests exercise ID/ordering behavior, not file
+# resolution, so they reuse real documents under a novel control ID.
+SYNTHETIC_DOC_A = "2.1-managed-environments.md"
+SYNTHETIC_DOC_B = "2.2-environment-groups-and-tier-classification.md"
+
+
 def test_render_appends_missing_generated_control(monkeypatch):
     """A control added to CONTROLS but absent from controls.json is appended."""
     gm = _load_generate_manifest_module()
@@ -357,7 +366,7 @@ def test_render_appends_missing_generated_control(monkeypatch):
         gm,
         "CONTROLS",
         _controls_with_appended(
-            gm, ("2.90", "2.90-newly-authored-control.md", 2, "manual", [], "New?")
+            gm, ("2.90", SYNTHETIC_DOC_A, 2, "manual", [], "New?")
         ),
     )
 
@@ -383,8 +392,8 @@ def test_render_appends_multiple_missing_controls_in_generator_order(monkeypatch
         "CONTROLS",
         _controls_with_appended(
             gm,
-            ("2.90", "2.90-new-a.md", 2, "manual", [], "A?"),
-            ("2.91", "2.91-new-b.md", 2, "full", ["PPAC_PowerShell"], None),
+            ("2.90", SYNTHETIC_DOC_A, 2, "manual", [], "A?"),
+            ("2.91", SYNTHETIC_DOC_B, 2, "full", ["PPAC_PowerShell"], None),
         ),
     )
 
@@ -402,7 +411,7 @@ def test_render_appends_missing_without_duplicates_or_disturbing_authored(monkey
         gm,
         "CONTROLS",
         _controls_with_appended(
-            gm, ("2.90", "2.90-new-a.md", 2, "manual", [], "A?")
+            gm, ("2.90", SYNTHETIC_DOC_A, 2, "manual", [], "A?")
         ),
     )
 
@@ -434,11 +443,99 @@ def test_check_detects_missing_generated_control_drift(tmp_path, monkeypatch):
         gm,
         "CONTROLS",
         _controls_with_appended(
-            gm, ("2.90", "2.90-new-a.md", 2, "manual", [], "A?")
+            gm, ("2.90", SYNTHETIC_DOC_A, 2, "manual", [], "A?")
         ),
     )
 
     assert gm.main(["--check"]) == 1
+
+
+# ---------------------------------------------------------------------------
+# Issue #372: silent divergence between the generator and the committed
+# manifest. ``render_manifest`` preserves any committed control it has no
+# definition for, so *removing* a row from CONTROLS used to be invisible —
+# the committed entry survived, the render matched byte-for-byte, and
+# ``--check`` passed while the generator's core claim had lapsed. Additions
+# were already surfaced; removals were not. These tests lock the closure.
+# ---------------------------------------------------------------------------
+
+
+def _controls_without(gm, control_id):
+    return [row for row in gm.CONTROLS if row[0] != control_id]
+
+
+def test_removing_a_control_from_generator_is_not_silent(monkeypatch):
+    """Dropping a CONTROLS row must raise instead of silently preserving."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    monkeypatch.setattr(gm, "CONTROLS", _controls_without(gm, "1.5"))
+
+    with pytest.raises(gm.ManifestIntegrityError) as excinfo:
+        gm.render_manifest(existing)
+    assert "1.5" in str(excinfo.value)
+
+
+def test_check_fails_when_a_control_loses_its_generator_definition(monkeypatch):
+    """``--check`` exits non-zero on undeclared loss of generator coverage."""
+    gm = _load_generate_manifest_module()
+    monkeypatch.setattr(gm, "CONTROLS", _controls_without(gm, "1.5"))
+    assert gm.main(["--check"]) == 1
+
+
+def test_authored_only_allowlist_permits_declared_uncovered_controls(monkeypatch):
+    """A control declared authored-only is allowed to have no generator row."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    monkeypatch.setattr(gm, "CONTROLS", _controls_without(gm, "1.5"))
+    monkeypatch.setattr(
+        gm, "AUTHORED_ONLY_CONTROL_IDS", frozenset({"2.27", "1.5"})
+    )
+
+    rendered = {c["id"]: c for c in gm.render_manifest(existing)}
+    existing_by_id = {c["id"]: c for c in existing}
+    assert rendered["1.5"] == existing_by_id["1.5"]
+
+
+def test_authored_only_allowlist_must_not_shadow_a_generated_control(monkeypatch):
+    """Listing a generator-defined control as authored-only is itself drift."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    monkeypatch.setattr(
+        gm, "AUTHORED_ONLY_CONTROL_IDS", frozenset({"2.27", "1.5"})
+    )
+
+    with pytest.raises(gm.ManifestIntegrityError) as excinfo:
+        gm.render_manifest(existing)
+    assert "1.5" in str(excinfo.value)
+
+
+def test_authored_only_allowlist_matches_committed_reality():
+    """The shipped allowlist must be exactly the uncovered committed controls."""
+    gm = _load_generate_manifest_module()
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    generator_ids = {row[0] for row in gm.CONTROLS}
+    uncovered = {c["id"] for c in existing if c["id"] not in generator_ids}
+    assert uncovered == set(gm.AUTHORED_ONLY_CONTROL_IDS)
+
+
+def test_generator_source_files_all_exist():
+    """Every CONTROLS row must resolve to a real control document."""
+    gm = _load_generate_manifest_module()
+    gm.verify_source_files_exist()
+
+
+def test_missing_source_document_is_not_silently_downgraded(monkeypatch):
+    """A stale CONTROLS filename must raise, not fall back to a derived title."""
+    gm = _load_generate_manifest_module()
+    renamed = [
+        (row[0], "1.5-renamed-away.md", *row[2:]) if row[0] == "1.5" else row
+        for row in gm.CONTROLS
+    ]
+    monkeypatch.setattr(gm, "CONTROLS", renamed)
+
+    with pytest.raises(gm.ManifestIntegrityError) as excinfo:
+        gm.render_manifest(json.loads(MANIFEST.read_text(encoding="utf-8")))
+    assert "1.5-renamed-away.md" in str(excinfo.value)
 
 
 def test_control_1_11_marks_non_evaluable_subchecks_manual():

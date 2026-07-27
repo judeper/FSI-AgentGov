@@ -368,6 +368,69 @@ GENERATED_CORE_FIELDS = (
     "manual_question",
 )
 
+# Committed controls the generator deliberately makes no core claim over. Their
+# entries in controls.json are authored end-to-end and are preserved verbatim.
+#
+# This allowlist is what closes the *removal* hole. ``render_manifest`` preserves
+# any committed control that has no generator definition, so deleting a row from
+# CONTROLS used to be completely invisible: the committed entry survived
+# untouched, the render matched the committed file byte-for-byte, and ``--check``
+# passed while the generator's authority over that control had silently lapsed.
+# Additions were already surfaced (new IDs get appended, which changes the
+# render); removals were not. Requiring every uncovered ID to be declared here
+# makes a lapse in generator coverage an explicit, reviewable edit instead of a
+# silent one.
+AUTHORED_ONLY_CONTROL_IDS = frozenset({"2.27"})
+
+
+class ManifestIntegrityError(RuntimeError):
+    """Raised when generator inputs and the committed manifest disagree structurally."""
+
+
+def verify_source_files_exist():
+    """Fail loudly when a CONTROLS row points at a control document that is gone.
+
+    ``extract_title`` swallows read errors and falls back to a title derived from
+    the filename. Without this guard, renaming or deleting a control document
+    would quietly write a filename-derived title into the manifest rather than
+    reporting that the generator's source data is stale.
+    """
+    missing = []
+    for cid, filename, pillar, *_ in CONTROLS:
+        pillar_dir, _pillar_name = PILLAR_DIRS[pillar]
+        if not (BASE / pillar_dir / filename).exists():
+            missing.append(f"{cid} -> docs/controls/{pillar_dir}/{filename}")
+    if missing:
+        raise ManifestIntegrityError(
+            "CONTROLS references control documents that do not exist:\n  "
+            + "\n  ".join(missing)
+        )
+
+
+def verify_generator_covers_committed_controls(existing_controls):
+    """Fail when a committed control lost its generator definition undeclared."""
+    generator_ids = {row[0] for row in CONTROLS}
+    uncovered = [
+        c["id"]
+        for c in existing_controls
+        if c["id"] not in generator_ids and c["id"] not in AUTHORED_ONLY_CONTROL_IDS
+    ]
+    if uncovered:
+        raise ManifestIntegrityError(
+            "Committed controls have no generator definition and are not declared "
+            "in AUTHORED_ONLY_CONTROL_IDS: "
+            + ", ".join(sorted(uncovered))
+            + "\nEither restore the CONTROLS row or declare the control as "
+            "authored-only."
+        )
+
+    stale_allowlist = sorted(AUTHORED_ONLY_CONTROL_IDS & generator_ids)
+    if stale_allowlist:
+        raise ManifestIntegrityError(
+            "AUTHORED_ONLY_CONTROL_IDS lists controls the generator does define: "
+            + ", ".join(stale_allowlist)
+        )
+
 
 def extract_title(filepath):
     """Extract control title from the first H1 or metadata line."""
@@ -468,6 +531,10 @@ def build_control(cid, filename, pillar, automation, methods, manual_q):
 
 
 def render_manifest(existing_controls=None):
+    verify_source_files_exist()
+    if existing_controls:
+        verify_generator_covers_committed_controls(existing_controls)
+
     generated_by_id = {}
     for cid, filename, pillar, automation, methods, manual_q in CONTROLS:
         generated_by_id[cid] = build_control(
@@ -524,7 +591,11 @@ def main(argv=None):
     existing_controls = []
     if OUTPUT.exists():
         existing_controls = json.loads(OUTPUT.read_text(encoding="utf-8"))
-    controls = render_manifest(existing_controls)
+    try:
+        controls = render_manifest(existing_controls)
+    except ManifestIntegrityError as exc:
+        print(f"Manifest integrity failure: {exc}")
+        return 1
     rendered = json.dumps(controls, indent=2, ensure_ascii=False) + "\n"
 
     if args.check:

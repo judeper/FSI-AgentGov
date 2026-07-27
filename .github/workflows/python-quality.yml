@@ -176,6 +176,14 @@ jobs:
         run: python scripts/verify_xref_graph.py
       - name: Check control IDs in manifest, CONTROL-INDEX, and mkdocs nav
         run: python scripts/check_manifest_doc_drift.py --check
+      - name: Check assessment manifest is reproducible from its generator
+        # Issue #372: the committed manifest and generate_manifest.py could
+        # diverge silently because nothing compared generator output against
+        # the committed file. Parse-only validation does not catch this — only
+        # a regenerate-and-diff does. This gate also fails when a committed
+        # control loses its generator definition without being declared
+        # authored-only, and when a CONTROLS row points at a missing document.
+        run: python assessment/manifest/generate_manifest.py --check
       - name: Check manifest and solutions-lock agree in both directions
         # Issue #322: cross_check was one-directional, so 76 lock-declared
         # control-to-solution associations were missing from the manifest
