@@ -170,7 +170,8 @@ def test_write_clears_fixed_controls(tmp_path):
     }
     controls = [_control("full", ["agent_inventory_exists"])]
     target = tmp_path / "baseline.json"
-    assert guard.write(controls, existing, path=target) == 0
+    rc = guard.write(controls, existing, path=target)
+    assert rc == 0
     assert json.loads(target.read_text(encoding="utf-8"))["controls"] == {}
 
 
@@ -214,7 +215,8 @@ def test_manifest_regeneration_is_reproducible():
     )
     gm = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(gm)
-    assert gm.main(["--check"]) == 0
+    rc = gm.main(["--check"])
+    assert rc == 0
 
 
 def test_control_1_2_downgraded_with_explicit_manual_gates():
