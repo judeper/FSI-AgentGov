@@ -119,4 +119,4 @@ Confirm control effectiveness by verifying:
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: [Month Year] | Version: v1.6.2 | UI Verification Status: Current*

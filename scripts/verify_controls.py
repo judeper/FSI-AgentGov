@@ -1,7 +1,6 @@
 import re
 import subprocess
 import sys
-from datetime import date, timedelta
 from pathlib import Path
 
 # Fix Unicode encoding issues on Windows
@@ -21,20 +20,6 @@ REQUIRED_PLAYBOOK_FILES = [
     "troubleshooting.md",
 ]
 
-def _accepted_update_dates(lookback_months=3):
-    """Generate accepted 'Updated: Month Year' values for the current and previous months."""
-    today = date.today()
-    dates = []
-    first_of_month = today.replace(day=1)
-    for _i in range(lookback_months):
-        label = f"Updated: {first_of_month.strftime('%B %Y')}"
-        if label not in dates:
-            dates.append(label)
-        # Move to first of previous month
-        first_of_month = (first_of_month - timedelta(days=1)).replace(day=1)
-    return dates
-
-CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # Control docs carry a footer "Version: vX.Y" that tracks the framework
 # release the control's template structure was last validated against.
 # When the framework cuts a new minor (e.g., v1.4 → v1.5 → v1.6), add the
@@ -49,9 +34,14 @@ CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # scripts/verify_version_stamps.py — pinning
 # *that* check to a single canonical version, not to this multi-version list.
 CANON_VERSION = "Version: v1.6"
-_ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
 _ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4", "Version: v1.5", "Version: v1.6"]
 CANON_UI_STATUS_PREFIX = "UI Verification Status:"
+_CANON_UPDATE_FOOTER_RE = re.compile(
+    r"^\*Updated: "
+    r"(?:January|February|March|April|May|June|July|August|September|October|November|December) "
+    r"\d{4} \| Version: [^|\r\n]+ \| UI Verification Status: [^\r\n]+\*\s*$",
+    re.MULTILINE,
+)
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"
 
@@ -148,8 +138,11 @@ def validate_control_file(path: Path):
     if ROLES_SECTION not in content:
         failures.append("missing Roles & Responsibilities section")
 
-    if not any(v in content for v in _ACCEPTED_UPDATED):
-        failures.append(f"missing canonical update date in footer (accepted: {_ACCEPTED_UPDATED})")
+    if not _CANON_UPDATE_FOOTER_RE.search(content):
+        failures.append(
+            "missing or malformed canonical update date footer "
+            "(expected '*Updated: Month YYYY | Version: ...')"
+        )
 
     if not any(v in content for v in _ACCEPTED_VERSION):
         failures.append(f"missing canonical version in footer (accepted: {_ACCEPTED_VERSION})")
