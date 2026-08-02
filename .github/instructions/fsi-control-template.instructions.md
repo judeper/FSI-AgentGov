@@ -37,6 +37,10 @@ All control files must follow the 10-section template structure defined in `docs
 *Updated: [Month Year] | Version: v[X.X] | UI Verification Status: [Current/Needs Review]*
 ```
 
+`Updated` records the control's last substantive documentation update. Do not
+advance it solely to satisfy elapsed time; use `Last UI Verified` and
+`UI Verification Status` to communicate verification currency.
+
 ## Role Naming Conventions
 
 Use canonical short names from `docs/reference/role-catalog.md`:
