@@ -44,12 +44,15 @@ _LAST_UI_VERIFIED_RE = re.compile(
     re.MULTILINE,
 )
 _CANON_UPDATE_FOOTER_RE = re.compile(
-    rf"^\*Updated: {_MONTH_YEAR_PATTERN} \| Version: [^|\r\n]+ "
-    r"\| UI Verification Status: (?P<ui_status>[^*\r\n]+)\*\s*$",
-    re.MULTILINE,
+    rf"(?:^|\n)\*Updated: {_MONTH_YEAR_PATTERN} \| Version: [^|\r\n]+ "
+    r"\| UI Verification Status: (?P<ui_status>[^*\r\n]+)\*[ \t\r\n]*\Z"
 )
 _UI_VERIFICATION_STATUS_RE = re.compile(
     r"^(?:Current|Needs Review)(?: (?:\([^*\r\n]*\)|[—-] [^*\r\n]+))?$"
+)
+_CONTROL_TITLE_RE = re.compile(
+    r"^#\s+Control\s+\d+\.\d+[:\-]\s+[^\r\n]+$",
+    re.MULTILINE,
 )
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"
@@ -83,6 +86,26 @@ _REQUIRED_METADATA_FIELDS = [
     "**Pillar:**",
     "**Regulatory Reference:**",
 ]
+
+
+def _extract_header_metadata_block(content: str) -> str:
+    """Return the contiguous bold metadata lines immediately after the title."""
+    title_match = _CONTROL_TITLE_RE.search(content)
+    if not title_match:
+        return ""
+
+    metadata_lines = []
+    for line in content[title_match.end():].splitlines():
+        stripped = line.strip()
+        if not stripped:
+            if metadata_lines:
+                break
+            continue
+        if not stripped.startswith("**"):
+            break
+        metadata_lines.append(line)
+    return "\n".join(metadata_lines)
+
 
 def parse_control_index():
     """Extracts control IDs and titles from the Control Index."""
@@ -126,7 +149,7 @@ def validate_control_file(path: Path):
 
     # 0) Must look like a control page (title)
     # Accept both formats: "# Control X.Y: Name" or "# Control X.Y - Name"
-    if not re.search(r"^#\s+Control\s+\d+\.\d+[:\-]\s+.+$", content, flags=re.MULTILINE):
+    if not _CONTROL_TITLE_RE.search(content):
         failures.append("missing or malformed control title (expected '# Control X.Y: ...' or '# Control X.Y - ...')")
 
     # 1) Minimal structural headings (current baseline across repo)
@@ -140,11 +163,12 @@ def validate_control_file(path: Path):
             failures.append(f"missing subheading: {heading}")
 
     # 2) Required Overview metadata block fields
+    header_metadata = _extract_header_metadata_block(content)
     for field in _REQUIRED_METADATA_FIELDS:
-        if field not in content:
+        if field not in header_metadata:
             failures.append(f"missing required metadata field: {field}")
 
-    if not _LAST_UI_VERIFIED_RE.search(content):
+    if not _LAST_UI_VERIFIED_RE.search(header_metadata):
         failures.append(
             "missing or malformed Last UI Verified metadata "
             "(expected '**Last UI Verified:** Month YYYY')"

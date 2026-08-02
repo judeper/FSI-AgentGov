@@ -15,11 +15,13 @@ import verify_controls  # noqa: E402
 def _control_with_footer(
     footer: str,
     last_ui_verified: str | None = "**Last UI Verified:** May 2026",
+    body: str = "",
 ) -> str:
     headings = "\n\n".join(verify_controls.REQUIRED_HEADINGS)
     verification_metadata = (
         f"{last_ui_verified}\n" if last_ui_verified is not None else ""
     )
+    body_content = f"\n\n{body}" if body else ""
     return f"""# Control 1.1: Test Control
 
 **Control ID:** 1.1
@@ -27,7 +29,7 @@ def _control_with_footer(
 **Regulatory Reference:** Test
 {verification_metadata}
 
-{headings}
+{headings}{body_content}
 
 ---
 
@@ -63,6 +65,42 @@ def test_missing_last_ui_verified_metadata_is_rejected(tmp_path: Path) -> None:
     assert any("Last UI Verified metadata" in failure for failure in failures)
 
 
+def test_body_decoy_does_not_replace_missing_header_verification_metadata(
+    tmp_path: Path,
+) -> None:
+    control = tmp_path / "1.1-test-control.md"
+    control.write_text(
+        _control_with_footer(
+            "*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*",
+            last_ui_verified=None,
+            body="Example only:\n\n**Last UI Verified:** May 2026",
+        ),
+        encoding="utf-8",
+    )
+
+    failures = verify_controls.validate_control_file(control)
+
+    assert any("Last UI Verified metadata" in failure for failure in failures)
+
+
+def test_body_decoy_does_not_replace_invalid_header_verification_metadata(
+    tmp_path: Path,
+) -> None:
+    control = tmp_path / "1.1-test-control.md"
+    control.write_text(
+        _control_with_footer(
+            "*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*",
+            last_ui_verified="**Last UI Verified:** 2026-05",
+            body="Example only:\n\n**Last UI Verified:** May 2026",
+        ),
+        encoding="utf-8",
+    )
+
+    failures = verify_controls.validate_control_file(control)
+
+    assert any("Last UI Verified metadata" in failure for failure in failures)
+
+
 def test_malformed_last_ui_verified_date_is_rejected(tmp_path: Path) -> None:
     control = tmp_path / "1.1-test-control.md"
     control.write_text(
@@ -83,6 +121,46 @@ def test_invalid_ui_verification_status_is_rejected(tmp_path: Path) -> None:
     control.write_text(
         _control_with_footer(
             "*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Verified*"
+        ),
+        encoding="utf-8",
+    )
+
+    failures = verify_controls.validate_control_file(control)
+
+    assert any("invalid UI Verification Status" in failure for failure in failures)
+
+
+def test_body_decoy_does_not_replace_missing_end_of_document_footer(
+    tmp_path: Path,
+) -> None:
+    control = tmp_path / "1.1-test-control.md"
+    control.write_text(
+        _control_with_footer(
+            "Footer intentionally missing.",
+            body=(
+                "Example only:\n\n"
+                "*Updated: May 2026 | Version: v1.6.2 | "
+                "UI Verification Status: Current*"
+            ),
+        ),
+        encoding="utf-8",
+    )
+
+    failures = verify_controls.validate_control_file(control)
+
+    assert any("canonical update date footer" in failure for failure in failures)
+
+
+def test_body_decoy_does_not_mask_invalid_actual_footer(tmp_path: Path) -> None:
+    control = tmp_path / "1.1-test-control.md"
+    control.write_text(
+        _control_with_footer(
+            "*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Verified*",
+            body=(
+                "Example only:\n\n"
+                "*Updated: May 2026 | Version: v1.6.2 | "
+                "UI Verification Status: Current*"
+            ),
         ),
         encoding="utf-8",
     )
