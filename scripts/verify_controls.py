@@ -35,12 +35,21 @@ REQUIRED_PLAYBOOK_FILES = [
 # *that* check to a single canonical version, not to this multi-version list.
 CANON_VERSION = "Version: v1.6"
 _ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4", "Version: v1.5", "Version: v1.6"]
-CANON_UI_STATUS_PREFIX = "UI Verification Status:"
-_CANON_UPDATE_FOOTER_RE = re.compile(
-    r"^\*Updated: "
+_MONTH_YEAR_PATTERN = (
     r"(?:January|February|March|April|May|June|July|August|September|October|November|December) "
-    r"\d{4} \| Version: [^|\r\n]+ \| UI Verification Status: [^\r\n]+\*\s*$",
+    r"\d{4}"
+)
+_LAST_UI_VERIFIED_RE = re.compile(
+    rf"^\*\*Last UI Verified:\*\*\s+{_MONTH_YEAR_PATTERN}(?:<br>)?\s*$",
     re.MULTILINE,
+)
+_CANON_UPDATE_FOOTER_RE = re.compile(
+    rf"^\*Updated: {_MONTH_YEAR_PATTERN} \| Version: [^|\r\n]+ "
+    r"\| UI Verification Status: (?P<ui_status>[^*\r\n]+)\*\s*$",
+    re.MULTILINE,
+)
+_UI_VERIFICATION_STATUS_RE = re.compile(
+    r"^(?:Current|Needs Review)(?: (?:\([^*\r\n]*\)|[—-] [^*\r\n]+))?$"
 )
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"
@@ -135,20 +144,29 @@ def validate_control_file(path: Path):
         if field not in content:
             failures.append(f"missing required metadata field: {field}")
 
+    if not _LAST_UI_VERIFIED_RE.search(content):
+        failures.append(
+            "missing or malformed Last UI Verified metadata "
+            "(expected '**Last UI Verified:** Month YYYY')"
+        )
+
     if ROLES_SECTION not in content:
         failures.append("missing Roles & Responsibilities section")
 
-    if not _CANON_UPDATE_FOOTER_RE.search(content):
+    footer_match = _CANON_UPDATE_FOOTER_RE.search(content)
+    if not footer_match:
         failures.append(
             "missing or malformed canonical update date footer "
             "(expected '*Updated: Month YYYY | Version: ...')"
         )
+    elif not _UI_VERIFICATION_STATUS_RE.fullmatch(footer_match.group("ui_status")):
+        failures.append(
+            "invalid UI Verification Status in footer "
+            "(expected 'Current' or 'Needs Review', with optional detail)"
+        )
 
     if not any(v in content for v in _ACCEPTED_VERSION):
         failures.append(f"missing canonical version in footer (accepted: {_ACCEPTED_VERSION})")
-
-    if CANON_UI_STATUS_PREFIX not in content:
-        failures.append("missing UI Verification Status in footer")
 
     # 3) Guardrail: legacy version/update markers should not remain
     for pattern in _LEGACY_MARKER_PATTERNS:
