@@ -34,7 +34,7 @@ REQUIRED_PLAYBOOK_FILES = [
 # scripts/verify_version_stamps.py — pinning
 # *that* check to a single canonical version, not to this multi-version list.
 CANON_VERSION = "Version: v1.6"
-_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4", "Version: v1.5", "Version: v1.6"]
+_ACCEPTED_VERSION = ["v1.2", "v1.3", "v1.4", "v1.5", "v1.6"]
 _MONTH_YEAR_PATTERN = (
     r"(?:January|February|March|April|May|June|July|August|September|October|November|December) "
     r"\d{4}"
@@ -44,15 +44,15 @@ _LAST_UI_VERIFIED_RE = re.compile(
     re.MULTILINE,
 )
 _CANON_UPDATE_FOOTER_RE = re.compile(
-    rf"(?:^|\n)\*Updated: {_MONTH_YEAR_PATTERN} \| Version: [^|\r\n]+ "
+    rf"(?:^|\n)\*Updated: {_MONTH_YEAR_PATTERN} "
+    r"\| Version: (?P<version>v\d+\.\d+(?:\.\d+)?) "
     r"\| UI Verification Status: (?P<ui_status>[^*\r\n]+)\*[ \t\r\n]*\Z"
 )
 _UI_VERIFICATION_STATUS_RE = re.compile(
     r"^(?:Current|Needs Review)(?: (?:\([^*\r\n]*\)|[—-] [^*\r\n]+))?$"
 )
-_CONTROL_TITLE_RE = re.compile(
-    r"^#\s+Control\s+\d+\.\d+[:\-]\s+[^\r\n]+$",
-    re.MULTILINE,
+_CONTROL_TITLE_LINE_RE = re.compile(
+    r"#\s+Control\s+\d+\.\d+[:\-]\s+[^\r\n]+"
 )
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"
@@ -88,14 +88,32 @@ _REQUIRED_METADATA_FIELDS = [
 ]
 
 
-def _extract_header_metadata_block(content: str) -> str:
-    """Return the contiguous bold metadata lines immediately after the title."""
-    title_match = _CONTROL_TITLE_RE.search(content)
-    if not title_match:
-        return ""
+def _extract_control_header(content: str) -> tuple[bool, str]:
+    """Return the leading control title validity and its metadata block."""
+    lines = content.lstrip("\ufeff").splitlines()
+    line_index = 0
+    while line_index < len(lines) and not lines[line_index].strip():
+        line_index += 1
 
+    if line_index < len(lines) and lines[line_index].strip() == "---":
+        line_index += 1
+        while line_index < len(lines) and lines[line_index].strip() != "---":
+            line_index += 1
+        if line_index >= len(lines):
+            return False, ""
+        line_index += 1
+        while line_index < len(lines) and not lines[line_index].strip():
+            line_index += 1
+
+    if (
+        line_index >= len(lines)
+        or not _CONTROL_TITLE_LINE_RE.fullmatch(lines[line_index].strip())
+    ):
+        return False, ""
+
+    line_index += 1
     metadata_lines = []
-    for line in content[title_match.end():].splitlines():
+    for line in lines[line_index:]:
         stripped = line.strip()
         if not stripped:
             if metadata_lines:
@@ -104,7 +122,14 @@ def _extract_header_metadata_block(content: str) -> str:
         if not stripped.startswith("**"):
             break
         metadata_lines.append(line)
-    return "\n".join(metadata_lines)
+    return True, "\n".join(metadata_lines)
+
+
+def _is_accepted_footer_version(version: str) -> bool:
+    return any(
+        version == accepted or version.startswith(f"{accepted}.")
+        for accepted in _ACCEPTED_VERSION
+    )
 
 
 def parse_control_index():
@@ -149,7 +174,8 @@ def validate_control_file(path: Path):
 
     # 0) Must look like a control page (title)
     # Accept both formats: "# Control X.Y: Name" or "# Control X.Y - Name"
-    if not _CONTROL_TITLE_RE.search(content):
+    title_is_valid, header_metadata = _extract_control_header(content)
+    if not title_is_valid:
         failures.append("missing or malformed control title (expected '# Control X.Y: ...' or '# Control X.Y - ...')")
 
     # 1) Minimal structural headings (current baseline across repo)
@@ -163,7 +189,6 @@ def validate_control_file(path: Path):
             failures.append(f"missing subheading: {heading}")
 
     # 2) Required Overview metadata block fields
-    header_metadata = _extract_header_metadata_block(content)
     for field in _REQUIRED_METADATA_FIELDS:
         if field not in header_metadata:
             failures.append(f"missing required metadata field: {field}")
@@ -183,14 +208,17 @@ def validate_control_file(path: Path):
             "missing or malformed canonical update date footer "
             "(expected '*Updated: Month YYYY | Version: ...')"
         )
-    elif not _UI_VERIFICATION_STATUS_RE.fullmatch(footer_match.group("ui_status")):
-        failures.append(
-            "invalid UI Verification Status in footer "
-            "(expected 'Current' or 'Needs Review', with optional detail)"
-        )
-
-    if not any(v in content for v in _ACCEPTED_VERSION):
-        failures.append(f"missing canonical version in footer (accepted: {_ACCEPTED_VERSION})")
+    else:
+        if not _UI_VERIFICATION_STATUS_RE.fullmatch(footer_match.group("ui_status")):
+            failures.append(
+                "invalid UI Verification Status in footer "
+                "(expected 'Current' or 'Needs Review', with optional detail)"
+            )
+        if not _is_accepted_footer_version(footer_match.group("version")):
+            failures.append(
+                "invalid canonical version in footer "
+                f"(accepted: {_ACCEPTED_VERSION}, with optional patch version)"
+            )
 
     # 3) Guardrail: legacy version/update markers should not remain
     for pattern in _LEGACY_MARKER_PATTERNS:

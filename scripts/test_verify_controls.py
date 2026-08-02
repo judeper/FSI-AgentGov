@@ -170,6 +170,43 @@ def test_body_decoy_does_not_mask_invalid_actual_footer(tmp_path: Path) -> None:
     assert any("invalid UI Verification Status" in failure for failure in failures)
 
 
+def test_body_version_decoy_does_not_mask_invalid_footer_version(
+    tmp_path: Path,
+) -> None:
+    control = tmp_path / "1.1-test-control.md"
+    control.write_text(
+        _control_with_footer(
+            "*Updated: May 2026 | Version: v9.9.9 | UI Verification Status: Current*",
+            body="Example narrative containing Version: v1.6.2.",
+        ),
+        encoding="utf-8",
+    )
+
+    failures = verify_controls.validate_control_file(control)
+
+    assert any("invalid canonical version in footer" in failure for failure in failures)
+
+
+def test_later_body_title_and_metadata_cannot_masquerade_as_header(
+    tmp_path: Path,
+) -> None:
+    control = tmp_path / "1.1-test-control.md"
+    decoy_control = _control_with_footer(
+        "*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*"
+    )
+    control.write_text(
+        "---\ndescription: Not a control page\n---\n"
+        "# Overview\n\nIntroductory body prose.\n\n"
+        f"{decoy_control}",
+        encoding="utf-8",
+    )
+
+    failures = verify_controls.validate_control_file(control)
+
+    assert any("control title" in failure for failure in failures)
+    assert any("Last UI Verified metadata" in failure for failure in failures)
+
+
 def test_documented_ui_verification_status_detail_is_allowed(tmp_path: Path) -> None:
     control = tmp_path / "1.1-test-control.md"
     control.write_text(
