@@ -169,7 +169,7 @@ def check(controls: list[dict], baseline: dict[str, dict]) -> list[str]:
 def write(controls: list[dict], baseline: dict[str, dict], path: Path = BASELINE) -> int:
     violations = collect_violations(controls)
     added = sorted(set(violations) - set(baseline))
-    if added and baseline:
+    if added:
         print(
             "ERROR: refusing to add new control IDs to the baseline: "
             + ", ".join(added),

@@ -159,6 +159,17 @@ def test_write_refuses_to_add_new_control_ids(tmp_path, capsys):
     assert "refusing to add new control IDs" in capsys.readouterr().err
 
 
+def test_write_refuses_new_overclaim_after_baseline_reaches_zero(tmp_path, capsys):
+    controls = [_control("full", ["agent_inventory_exists", "not_a_real_evaluator"])]
+    target = tmp_path / "baseline.json"
+
+    rc = guard.write(controls, baseline={}, path=target)
+
+    assert rc == 1
+    assert not target.exists()
+    assert "refusing to add new control IDs" in capsys.readouterr().err
+
+
 def test_write_clears_fixed_controls(tmp_path):
     existing = {
         "9.9": {
