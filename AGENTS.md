@@ -263,6 +263,13 @@ python scripts/check_manifest_doc_drift.py --check
 python scripts/generate_coverage_matrix.py --check     # CI-style fail-on-drift
 python scripts/generate_coverage_matrix.py             # write the file
 
+# controls.json must stay derivable from its generator
+python assessment/manifest/generate_manifest.py --check
+
+# Automation claims must match implemented evaluators (one-way ratchet)
+python scripts/check_automation_honesty.py --check     # CI-style fail-on-overclaim
+python scripts/check_automation_honesty.py --write     # shrink the known-debt baseline
+
 # FSI-banned-phrase linter (rejects "ensures compliance", "guarantees", etc.)
 python scripts/verify_language_rules.py
 

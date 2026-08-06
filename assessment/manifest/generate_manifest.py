@@ -20,15 +20,15 @@ PILLAR_DIRS = {
 CONTROLS = [
     # Pillar 1 - Security (29)
     ("1.1","1.1-restrict-agent-publishing-by-authorization.md",1,"full",["PPAC_PowerShell","Graph_API"],None),
-    ("1.2","1.2-agent-registry-and-integrated-apps-management.md",1,"full",["Graph_API","PPAC_PowerShell"],None),
+    ("1.2","1.2-agent-registry-and-integrated-apps-management.md",1,"partial",["Graph_API","PPAC_PowerShell"],"Provide evidence that the authentication mode is deliberately configured for each Zone 2 and Zone 3 agent, and that agents or service principals without an active owner are detected and remediated on a defined cadence. The engine automates the tenant-wide agent inventory only; authentication-mode and orphaned-owner evidence is reviewer-supplied."),
     ("1.3","1.3-sharepoint-content-governance-and-permissions.md",1,"partial",["SharePoint_Graph"],"Have site permission reviews been completed in the last 90 days for all agent knowledge sources?"),
     ("1.4","1.4-advanced-connector-policies-acp.md",1,"partial",["PPAC_PowerShell"],"Provide evidence for each applicable Zone 2 and Zone 3 environment group showing the ACP policy, its assignment, the approved connector allowlist, the environment-group scope, and runtime evidence that a blocked connector is actually denied."),
     ("1.5","1.5-data-loss-prevention-dlp-and-sensitivity-labels.md",1,"full",["PPAC_PowerShell","Purview_PowerShell"],None),
     ("1.6","1.6-microsoft-purview-dspm-for-ai.md",1,"partial",["Purview_PowerShell"],"Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?"),
     ("1.7","1.7-comprehensive-audit-logging-and-compliance.md",1,"full",["Purview_PowerShell","Graph_API"],None),
-    ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"partial",["Sentinel_KQL"],"Have runtime protection alerts been reviewed and tuned in the last 30 days?"),
+    ("1.8","1.8-runtime-protection-and-external-threat-detection.md",1,"manual",[],"Provide evidence that Microsoft Sentinel (or the equivalent SIEM) has analytics rules configured for agent anomalies, and that runtime protection alerts have been reviewed and tuned in the last 30 days."),
     ("1.9","1.9-data-retention-and-deletion-policies.md",1,"full",["Purview_PowerShell"],None),
-    ("1.10","1.10-communication-compliance-monitoring.md",1,"partial",["Purview_PowerShell"],"Has the supervision review queue been reviewed by a compliance officer in the last 30 days, and does the Communication Compliance configuration capture and tag AI-related customer complaints with linkage to the underlying agent interaction and feed into the FINRA Rule 4530(d) quarterly report?"),
+    ("1.10","1.10-communication-compliance-monitoring.md",1,"manual",[],"Provide evidence that a Communication Compliance policy targeting agent interactions is in place, that the supervision review queue has been reviewed by a compliance officer in the last 30 days, and that the configuration captures and tags AI-related customer complaints with linkage to the underlying agent interaction and feeds into the FINRA Rule 4530(d) quarterly report."),
     ("1.11","1.11-conditional-access-and-phishing-resistant-mfa.md",1,"partial",["Graph_API"],"Provide evidence that sign-in frequency and persistent-browser session controls are set per governance zone (Zone 2 at most 12 hours, Zone 3 at most 4 hours) and that phishing-resistant MFA (for example FIDO2, device-bound passkeys, Windows Hello for Business, or CBA) is enforced for maker/admin identities."),
     ("1.12","1.12-insider-risk-detection-and-response.md",1,"manual",[],"Provide quarterly Purview portal evidence that Insider Risk policies covering agent use are enabled and alerts were reviewed and dispositioned."),
     ("1.13","1.13-sensitive-information-types-sits-and-pattern-recognition.md",1,"partial",["Purview_PowerShell","PPAC_PowerShell"],"Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"),
@@ -111,8 +111,8 @@ CHECKS_DB = {
     ],
     "1.2": [
         ("1.2.a","Agent inventory maintained with all agents registered","Get-MgServicePrincipal","agent_inventory_exists",[1,2,3]),
-        ("1.2.b","Authentication mode configured per agent","Get-MgServicePrincipal","auth_mode_configured",[2,3]),
-        ("1.2.c","No orphaned agents (all have active owner)","Get-MgServicePrincipal","no_orphaned_agents",[3]),
+        ("1.2.b","Authentication mode configured per agent (manual evidence required)","Get-MgServicePrincipal","",[2,3],["Manual"]),
+        ("1.2.c","No orphaned agents (all have active owner) (manual evidence required)","Get-MgServicePrincipal","",[3],["Manual"]),
     ],
     "1.3": [
         ("1.3.a","SharePoint permission inheritance not broken on grounding sites","Get-MgSitePermission","permission_inheritance_intact",[1,2,3]),
@@ -134,16 +134,12 @@ CHECKS_DB = {
         ("1.7.a","Unified audit logging enabled","Get-AdminAuditLogConfig","audit_log_enabled",[1,2,3]),
         ("1.7.b","M365 Audit plan tier is E5 or equivalent","Get-MgSubscribedSku","audit_plan_tier_adequate",[2,3]),
     ],
-    "1.8": [
-        ("1.8.a","Sentinel alerts configured for agent anomalies","Invoke-AzOperationalInsightsQuery","sentinel_agent_alerts_exist",[2,3]),
-    ],
+    "1.8": [],
     "1.9": [
         ("1.9.a","Retention policy scoped to Copilot interactions exists","Get-RetentionCompliancePolicy","copilot_retention_policy_exists",[1,2,3]),
         ("1.9.b","Retention duration meets zone requirements","Get-RetentionCompliancePolicy","retention_duration_adequate",[2,3]),
     ],
-    "1.10": [
-        ("1.10.a","Communication compliance policy targeting agents exists","Get-SupervisoryReviewPolicyV2","comm_compliance_policy_exists",[2,3]),
-    ],
+    "1.10": [],
     "1.11": [
         ("1.11.a","CA policy targeting Copilot Studio app enforces MFA","Get-MgIdentityConditionalAccessPolicy","ca_policy_requires_mfa",[1,2,3]),
         ("1.11.b","Sign-in frequency policy set for agent sessions (manual evidence required)","Get-MgIdentityConditionalAccessPolicy","",[2,3],["Manual"]),

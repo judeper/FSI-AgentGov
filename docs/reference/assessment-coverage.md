@@ -19,18 +19,18 @@ It is the honest answer to *what does the assessment engine actually automate to
 | State | Count | Share |
 |-------|-------|-------|
 | ✅ Auto | 11 | 13.9% |
-| 📝 Manual | 27 | 34.2% |
-| ⚠️ Unimplemented | 41 | 51.9% |
+| 📝 Manual | 29 | 36.7% |
+| ⚠️ Unimplemented | 39 | 49.4% |
 | **Total** | **79** | 100% |
 
 ### By check
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 14 | 14.7% |
-| 📝 Manual | 5 | 5.3% |
-| ⚠️ Unimplemented | 76 | 80.0% |
-| **Total** | **95** | 100% |
+| ✅ Auto | 14 | 15.1% |
+| 📝 Manual | 7 | 7.5% |
+| ⚠️ Unimplemented | 72 | 77.4% |
+| **Total** | **93** | 100% |
 
 ### Registered evaluators
 
@@ -65,7 +65,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | Control | Title | State | Auto | Unimpl | Manual | Collection | Caveats |
 |---------|-------|-------|------|--------|--------|------------|---------|
 | 1.1 | Control 1.1: Restrict Agent Publishing by Authorization | ✅ Auto | 3 | 0 | 0 | Graph_API, PPAC_PowerShell |  |
-| 1.10 | Control 1.10: Communication Compliance Monitoring | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: comm_compliance_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
+| 1.10 | Control 1.10: Communication Compliance Monitoring | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.11 | Control 1.11: Conditional Access and Phishing-Resistant MFA | ✅ Auto | 1 | 0 | 2 | Graph_API | Manual review required. |
 | 1.12 | Control 1.12: Insider Risk Detection and Response | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.13 | Control 1.13: Sensitive Information Types (SITs) and Pattern Recognition | ✅ Auto | 1 | 0 | 1 | PPAC_PowerShell, Purview_PowerShell | Manual review required. |
@@ -75,7 +75,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 1.17 | Control 1.17: Endpoint Data Loss Prevention (Endpoint DLP) | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: endpoint_dlp_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 1.18 | Control 1.18: Application-Level Authorization and Role-Based Access Control (RBAC) | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API | `pass_condition: rbac_least_privilege` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: no_excessive_admin` declared in manifest but no bespoke evaluator registered in score… |
 | 1.19 | Control 1.19: eDiscovery for Agent Interactions | ⚠️ Unimplemented | 0 | 2 | 0 | Purview_PowerShell | `pass_condition: ediscovery_agent_scope` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: ediscovery_copilot_content` declared in manifest but no bespoke evaluator registere… |
-| 1.2 | Control 1.2: Agent Registry and Integrated Apps Management | ✅ Auto | 1 | 2 | 0 | Graph_API, PPAC_PowerShell | `pass_condition: auth_mode_configured` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: no_orphaned_agents` declared in manifest but no bespoke evaluator registered in score… |
+| 1.2 | Control 1.2: Agent Registry and Integrated Apps Management | ✅ Auto | 1 | 0 | 2 | Graph_API, PPAC_PowerShell | Manual review required. |
 | 1.20 | Control 1.20: Network Isolation and Private Connectivity | ⚠️ Unimplemented | 0 | 2 | 0 | Azure_API | `pass_condition: private_endpoint_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: network_isolation_enforced` declared in manifest but no bespoke evaluator register… |
 | 1.21 | Control 1.21: Adversarial Input Logging | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: prompt_response_logging` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 1.22 | Control 1.22: Information Barriers for AI Agents | ⚠️ Unimplemented | 0 | 2 | 0 | Purview_PowerShell | `pass_condition: ib_policy_active` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: ib_segments_configured` declared in manifest but no bespoke evaluator registered in score… |
@@ -91,7 +91,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 1.5 | Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, Purview_PowerShell | `pass_condition: dlp_scope_covers_agents` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: sensitivity_labels_enabled` declared in manifest but no bespoke evaluator register… |
 | 1.6 | Control 1.6: Microsoft Purview DSPM for AI | ✅ Auto | 1 | 0 | 0 | Purview_PowerShell |  |
 | 1.7 | Control 1.7: Comprehensive Audit Logging and Compliance | ✅ Auto | 2 | 0 | 0 | Graph_API, Purview_PowerShell |  |
-| 1.8 | Control 1.8: Runtime Protection and External Threat Detection | ⚠️ Unimplemented | 0 | 1 | 0 | Sentinel_KQL | `pass_condition: sentinel_agent_alerts_exist` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
+| 1.8 | Control 1.8: Runtime Protection and External Threat Detection | 📝 Manual | 0 | 0 | 0 | — |  |
 | 1.9 | Control 1.9: Data Retention and Deletion Policies | ✅ Auto | 1 | 1 | 0 | Purview_PowerShell | `pass_condition: retention_duration_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 
 ### Pillar 2 – Management

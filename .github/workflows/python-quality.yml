@@ -200,6 +200,14 @@ jobs:
         run: python scripts/check_faq_jsonld_drift.py --check
       - name: Check assessment coverage matrix is up to date
         run: python scripts/generate_coverage_matrix.py --check
+      - name: Check manifest is reproducible from generate_manifest.py
+        run: python assessment/manifest/generate_manifest.py --check
+      - name: Check automation claims match implemented evaluators
+        # Issue #263: controls published `automation: full` while their
+        # pass_conditions had no registered evaluator, so reports implied
+        # automated coverage that never ran. The baseline is a one-way
+        # ratchet — new overclaims fail, they cannot be regenerated away.
+        run: python scripts/check_automation_honesty.py --check
       - name: Install pyyaml for pattern coverage script
         run: pip install -r scripts/requirements.txt
       - name: Check pattern coverage matrix is up to date
