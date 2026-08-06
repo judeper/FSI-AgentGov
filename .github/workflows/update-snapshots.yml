@@ -18,7 +18,7 @@ jobs:
     # Pin must match @playwright/test in package.json (-noble to match e2e.yml's
     # test distro). Enforced by scripts/check_playwright_pin_drift.py.
     container:
-      image: mcr.microsoft.com/playwright:v1.61.1-noble
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001
     steps:
       - uses: actions/checkout@v7
