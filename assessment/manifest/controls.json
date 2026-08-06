@@ -135,7 +135,8 @@
     "source_file": "docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md",
     "automation": "full",
     "collection_methods": [
-      "Graph_API"
+      "Graph_API",
+      "PPAC_PowerShell"
     ],
     "checks": [
       {

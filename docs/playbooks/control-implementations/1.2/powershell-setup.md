@@ -250,7 +250,7 @@ The registry harness must run unattended on a schedule. The Registry Reader serv
 | same SP | Microsoft Graph | `IdentityRiskyServicePrincipal.Read.All` (Application) | Identity Protection risky SP detection; §8 | Yes |
 | same SP | Microsoft Graph | `IdentityRiskEvent.Read.All` (Application) | Risk events tied to SPs; §8 | Yes |
 | `agt12-registry-writer` (SP — separate, OPTIONAL) | Microsoft Graph | `Application.ReadWrite.All`, `AppRoleAssignment.ReadWrite.All`, `DelegatedPermissionGrant.ReadWrite.All`, `Policy.ReadWriteConsentRequest` | Owner reassignment in §4, consent-policy mutations in §7. **Used only by named human operator under PIM activation, never on the unattended pipeline.** | No |
-| `agt12-pp-reader` (SP) | Power Platform | **Power Platform Service Admin** (read-intent) | `Get-AdminPowerApp`, `pac copilot list`; §10 | Yes (intent) |
+| `agt12-pp-reader` (SP) | Power Platform | **Power Platform Service Admin** (read-intent) | `Get-AdminPowerAppEnvironment` + Dataverse `GET /api/data/v9.2/bots`; §10 | Yes (intent) |
 | Operator (human) | Entra PIM | `Global Reader` time-bound | Manual reconciliation review; never used for the unattended pipeline | Yes |
 | Operator (human, mutating) | Entra PIM | `Cloud Application Administrator` time-bound (NOT Global Admin) | Owner reassignments, consent-grant remediation; activated only for §4.4 / §7.3 ad-hoc remediation | No |
 
@@ -1201,72 +1201,118 @@ function Test-Agt12WorkloadIdentityCAPolicy {
 
 ## §10 — Power Platform agent registration audit (`Get-Agt12PowerPlatformAgents`)
 
-**Why this section exists.** Copilot Studio bots register as Power Platform "bot" entities that do **not** appear in Microsoft Graph application lists; they must be enumerated through the Power Apps Administration module, which only ships in Windows PowerShell 5.1. This leg uses a **child process** pattern to keep the 5.1 dependency isolated from the orchestrator's pwsh 7 session.
+**Why this section exists.** Copilot Studio bots register as Dataverse `bot` rows per environment and do **not** reliably appear in `Get-AdminPowerApp` output. This leg collects the Power Platform environment list, resolves each Dataverse org URL, and queries Dataverse Web API directly. If Dataverse inventory cannot be collected for a Dataverse-linked environment, the leg emits explicit `ManualEvidenceRequired` rows and the cycle fails closed until manual evidence is attached.
 
 ```powershell
 # scripts/legs/Get-Agt12PowerPlatformAgents.ps1
 function Get-Agt12PowerPlatformAgents {
 <#
 .SYNOPSIS
-    Enumerates Copilot Studio bots and other Power Platform agent entities via a 5.1 child process.
+    Enumerates Copilot Studio bots from Dataverse `bot` table across all Power Platform environments.
 .PARAMETER Session
 .PARAMETER TenantId
-.PARAMETER ClientId
-    SP for unattended Power Platform admin auth (cert-based).
-.PARAMETER CertificateThumbprint
 .OUTPUTS
     [pscustomobject[]]
 .EXAMPLE
-    PS> $pp = Get-Agt12PowerPlatformAgents -Session $session -TenantId $tid -ClientId $cid -CertificateThumbprint $thumb
+    PS> $pp = Get-Agt12PowerPlatformAgents -Session $session -TenantId $tid
 .NOTES
     Requires the registry-reader principal to hold Power Platform 'Power Platform Administrator'
-    role (or PIM-eligible). PAC CLI must be on PATH and pinned per §1.2.
+    role (or PIM-eligible), plus token acquisition rights for each Dataverse environment.
 #>
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
     param(
         [Parameter(Mandatory)] [pscustomobject]$Session,
-        [Parameter(Mandatory)] [guid]$TenantId,
-        [Parameter(Mandatory)] [guid]$ClientId,
-        [Parameter(Mandatory)] [string]$CertificateThumbprint
+        [Parameter(Mandatory)] [guid]$TenantId
     )
     Set-StrictMode -Version Latest
     $ErrorActionPreference = 'Stop'
 
-    if (-not $IsWindows) { throw "Power Platform agent enumeration requires Windows PowerShell 5.1 child process." }
+    $rows = New-Object System.Collections.Generic.List[pscustomobject]
+    $envs = @(Get-AdminPowerAppEnvironment)
 
-    $endpoint = $Session.Profile.PowerAppsEndpoint
-    $script = @"
-Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
-Add-PowerAppsAccount -Endpoint '$endpoint' -TenantID '$TenantId' -ApplicationId '$ClientId' -CertificateThumbprint '$CertificateThumbprint' | Out-Null
-`$envs = Get-AdminPowerAppEnvironment
-`$bots = foreach (`$e in `$envs) {
-    Get-AdminPowerApp -EnvironmentName `$e.EnvironmentName | Where-Object { `$_.AppType -in 'Bot','CopilotBot','CopilotStudio' }
-}
-`$bots | ConvertTo-Json -Depth 6 -Compress
-"@
-    $tmp = [IO.Path]::GetTempFileName() + '.ps1'
-    Set-Content -Path $tmp -Value $script -Encoding UTF8
-    try {
-        $json = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $tmp 2>&1
-        if (-not $json) { return @() }
-        $bots = $json | ConvertFrom-Json
-        $rows = foreach ($b in @($bots)) {
-            [pscustomobject]@{
-                Kind='PowerPlatformAgent'; AppId=$b.AppName; DisplayName=$b.DisplayName;
-                EnvironmentName=$b.EnvironmentName; Owner=$b.Owner.email; AppType=$b.AppType;
-                CreatedTime=$b.CreatedTime; LastModifiedTime=$b.LastModifiedTime;
-                CollectedAt=(Get-Date).ToUniversalTime()
-            }
+    foreach ($env in $envs) {
+        $envId = $env.EnvironmentName
+        $linkedType = [string]$env.Properties.linkedEnvironmentMetadata.type
+        $orgUrl = [string]$env.Properties.linkedEnvironmentMetadata.instanceUrl
+        if (
+            [string]::IsNullOrWhiteSpace($orgUrl) -and
+            ($env.PSObject.Properties.Name -contains 'Internal') -and
+            $env.Internal -and
+            $env.Internal.properties -and
+            $env.Internal.properties.linkedEnvironmentMetadata -and
+            $env.Internal.properties.linkedEnvironmentMetadata.instanceUrl
+        ) {
+            $orgUrl = [string]$env.Internal.properties.linkedEnvironmentMetadata.instanceUrl
         }
-        return ,$rows
-    } finally {
-        Remove-Item -Path $tmp -Force -ErrorAction SilentlyContinue
+        $orgUrl = $orgUrl.TrimEnd('/')
+
+        if ([string]::IsNullOrWhiteSpace($orgUrl)) {
+            $rows.Add([pscustomobject]@{
+                Kind                  = 'PowerPlatformAgentDataverseBot'
+                EnvironmentName       = $envId
+                DisplayName           = $env.DisplayName
+                LinkedEnvironmentType = $linkedType
+                Status                = if ($linkedType -in @('Dataverse','CommonDataService')) { 'ManualEvidenceRequired' } else { 'NoDataverse' }
+                BotId                 = $null
+                Name                  = $null
+                OwnerId               = $null
+                EvidenceHint          = 'Capture Copilot Studio Agents portal export + incident note for missing Dataverse URL'
+                CollectedAt           = (Get-Date).ToUniversalTime()
+            })
+            continue
+        }
+
+        try {
+            $tokenObj = Get-AzAccessToken -ResourceUrl $orgUrl -ErrorAction Stop
+            $token = if ($tokenObj.Token -is [securestring]) { $tokenObj.Token | ConvertFrom-SecureString -AsPlainText } else { $tokenObj.Token }
+            if ([string]::IsNullOrWhiteSpace($token)) { throw 'Empty Dataverse token' }
+
+            $headers = @{ Authorization = "Bearer $token"; 'Content-Type' = 'application/json' }
+            $next = "$orgUrl/api/data/v9.2/bots?`$select=botid,name,statecode,statuscode,createdon,modifiedon,schemaname,_ownerid_value"
+            while ($next) {
+                $resp = Invoke-RestMethod -Method GET -Uri $next -Headers $headers -ErrorAction Stop
+                foreach ($b in @($resp.value)) {
+                    $rows.Add([pscustomobject]@{
+                        Kind                  = 'PowerPlatformAgentDataverseBot'
+                        EnvironmentName       = $envId
+                        DisplayName           = $env.DisplayName
+                        LinkedEnvironmentType = $linkedType
+                        Status                = 'Collected'
+                        BotId                 = $b.botid
+                        Name                  = $b.name
+                        OwnerId               = $b.'_ownerid_value'
+                        StateCode             = $b.statecode
+                        StatusCode            = $b.statuscode
+                        SchemaName            = $b.schemaname
+                        CreatedOn             = $b.createdon
+                        ModifiedOn            = $b.modifiedon
+                        CollectedAt           = (Get-Date).ToUniversalTime()
+                    })
+                }
+                $next = $resp.'@odata.nextLink'
+            }
+        } catch {
+            $rows.Add([pscustomobject]@{
+                Kind                  = 'PowerPlatformAgentDataverseBot'
+                EnvironmentName       = $envId
+                DisplayName           = $env.DisplayName
+                LinkedEnvironmentType = $linkedType
+                Status                = 'ManualEvidenceRequired'
+                BotId                 = $null
+                Name                  = $null
+                OwnerId               = $null
+                EvidenceHint          = "Dataverse bot query failed: $($_.Exception.Message)"
+                CollectedAt           = (Get-Date).ToUniversalTime()
+            })
+        }
     }
+
+    return ,$rows
 }
 ```
 
-**Fail-closed conditions enforced by this leg:** non-Windows hosts throw rather than silently returning empty; PAC/Power Apps Admin module absence is caught by §1.2 tooling check.
+**Fail-closed conditions enforced by this leg:** any Dataverse-linked environment that cannot be queried produces `ManualEvidenceRequired` status rows (never silent success), and those rows must be paired with manual evidence in the attestation pack before REG checks can pass.
 
 ---
 
