@@ -1,7 +1,6 @@
 import re
 import subprocess
 import sys
-from datetime import date, timedelta
 from pathlib import Path
 
 # Fix Unicode encoding issues on Windows
@@ -21,20 +20,6 @@ REQUIRED_PLAYBOOK_FILES = [
     "troubleshooting.md",
 ]
 
-def _accepted_update_dates(lookback_months=3):
-    """Generate accepted 'Updated: Month Year' values for the current and previous months."""
-    today = date.today()
-    dates = []
-    first_of_month = today.replace(day=1)
-    for _i in range(lookback_months):
-        label = f"Updated: {first_of_month.strftime('%B %Y')}"
-        if label not in dates:
-            dates.append(label)
-        # Move to first of previous month
-        first_of_month = (first_of_month - timedelta(days=1)).replace(day=1)
-    return dates
-
-CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # Control docs carry a footer "Version: vX.Y" that tracks the framework
 # release the control's template structure was last validated against.
 # When the framework cuts a new minor (e.g., v1.4 → v1.5 → v1.6), add the
@@ -49,9 +34,26 @@ CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # scripts/verify_version_stamps.py — pinning
 # *that* check to a single canonical version, not to this multi-version list.
 CANON_VERSION = "Version: v1.6"
-_ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
-_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4", "Version: v1.5", "Version: v1.6"]
-CANON_UI_STATUS_PREFIX = "UI Verification Status:"
+_ACCEPTED_VERSION = ["v1.2", "v1.3", "v1.4", "v1.5", "v1.6"]
+_MONTH_YEAR_PATTERN = (
+    r"(?:January|February|March|April|May|June|July|August|September|October|November|December) "
+    r"\d{4}"
+)
+_LAST_UI_VERIFIED_RE = re.compile(
+    rf"^\*\*Last UI Verified:\*\*\s+{_MONTH_YEAR_PATTERN}(?:<br>)?\s*$",
+    re.MULTILINE,
+)
+_CANON_UPDATE_FOOTER_RE = re.compile(
+    rf"(?:^|\n)\*Updated: {_MONTH_YEAR_PATTERN} "
+    r"\| Version: (?P<version>v\d+\.\d+(?:\.\d+)?) "
+    r"\| UI Verification Status: (?P<ui_status>[^*\r\n]+)\*[ \t\r\n]*\Z"
+)
+_UI_VERIFICATION_STATUS_RE = re.compile(
+    r"^(?:Current|Needs Review)(?: (?:\([^*\r\n]*\)|[—-] [^*\r\n]+))?$"
+)
+_CONTROL_TITLE_LINE_RE = re.compile(
+    r"#\s+Control\s+\d+\.\d+[:\-]\s+[^\r\n]+"
+)
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"
 
@@ -84,6 +86,51 @@ _REQUIRED_METADATA_FIELDS = [
     "**Pillar:**",
     "**Regulatory Reference:**",
 ]
+
+
+def _extract_control_header(content: str) -> tuple[bool, str]:
+    """Return the leading control title validity and its metadata block."""
+    lines = content.lstrip("\ufeff").splitlines()
+    line_index = 0
+    while line_index < len(lines) and not lines[line_index].strip():
+        line_index += 1
+
+    if line_index < len(lines) and lines[line_index].strip() == "---":
+        line_index += 1
+        while line_index < len(lines) and lines[line_index].strip() != "---":
+            line_index += 1
+        if line_index >= len(lines):
+            return False, ""
+        line_index += 1
+        while line_index < len(lines) and not lines[line_index].strip():
+            line_index += 1
+
+    if (
+        line_index >= len(lines)
+        or not _CONTROL_TITLE_LINE_RE.fullmatch(lines[line_index].strip())
+    ):
+        return False, ""
+
+    line_index += 1
+    metadata_lines = []
+    for line in lines[line_index:]:
+        stripped = line.strip()
+        if not stripped:
+            if metadata_lines:
+                break
+            continue
+        if not stripped.startswith("**"):
+            break
+        metadata_lines.append(line)
+    return True, "\n".join(metadata_lines)
+
+
+def _is_accepted_footer_version(version: str) -> bool:
+    return any(
+        version == accepted or version.startswith(f"{accepted}.")
+        for accepted in _ACCEPTED_VERSION
+    )
+
 
 def parse_control_index():
     """Extracts control IDs and titles from the Control Index."""
@@ -127,7 +174,8 @@ def validate_control_file(path: Path):
 
     # 0) Must look like a control page (title)
     # Accept both formats: "# Control X.Y: Name" or "# Control X.Y - Name"
-    if not re.search(r"^#\s+Control\s+\d+\.\d+[:\-]\s+.+$", content, flags=re.MULTILINE):
+    title_is_valid, header_metadata = _extract_control_header(content)
+    if not title_is_valid:
         failures.append("missing or malformed control title (expected '# Control X.Y: ...' or '# Control X.Y - ...')")
 
     # 1) Minimal structural headings (current baseline across repo)
@@ -142,20 +190,35 @@ def validate_control_file(path: Path):
 
     # 2) Required Overview metadata block fields
     for field in _REQUIRED_METADATA_FIELDS:
-        if field not in content:
+        if field not in header_metadata:
             failures.append(f"missing required metadata field: {field}")
+
+    if not _LAST_UI_VERIFIED_RE.search(header_metadata):
+        failures.append(
+            "missing or malformed Last UI Verified metadata "
+            "(expected '**Last UI Verified:** Month YYYY')"
+        )
 
     if ROLES_SECTION not in content:
         failures.append("missing Roles & Responsibilities section")
 
-    if not any(v in content for v in _ACCEPTED_UPDATED):
-        failures.append(f"missing canonical update date in footer (accepted: {_ACCEPTED_UPDATED})")
-
-    if not any(v in content for v in _ACCEPTED_VERSION):
-        failures.append(f"missing canonical version in footer (accepted: {_ACCEPTED_VERSION})")
-
-    if CANON_UI_STATUS_PREFIX not in content:
-        failures.append("missing UI Verification Status in footer")
+    footer_match = _CANON_UPDATE_FOOTER_RE.search(content)
+    if not footer_match:
+        failures.append(
+            "missing or malformed canonical update date footer "
+            "(expected '*Updated: Month YYYY | Version: ...')"
+        )
+    else:
+        if not _UI_VERIFICATION_STATUS_RE.fullmatch(footer_match.group("ui_status")):
+            failures.append(
+                "invalid UI Verification Status in footer "
+                "(expected 'Current' or 'Needs Review', with optional detail)"
+            )
+        if not _is_accepted_footer_version(footer_match.group("version")):
+            failures.append(
+                "invalid canonical version in footer "
+                f"(accepted: {_ACCEPTED_VERSION}, with optional patch version)"
+            )
 
     # 3) Guardrail: legacy version/update markers should not remain
     for pattern in _LEGACY_MARKER_PATTERNS:
