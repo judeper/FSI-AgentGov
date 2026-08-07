@@ -19,7 +19,7 @@
     "ajv": "8.20.0",
     "get-port": "7.2.0",
     "jsdom": "29.1.1",
-    "markdown-it": "^14.3.0",
+    "markdown-it": "^15.0.0",
     "pdf-parse": "2.4.5",
     "vitest": "4.1.10",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
