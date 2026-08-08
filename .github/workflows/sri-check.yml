@@ -9,6 +9,9 @@ on:
       - docs/javascripts/assessment-loader.js
       - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
+      - scripts/verify-vendored-runtime.mjs
+      - package.json
+      - package-lock.json
       - .github/workflows/sri-check.yml
   push:
     branches:
@@ -20,6 +23,9 @@ on:
       - docs/javascripts/assessment-loader.js
       - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
+      - scripts/verify-vendored-runtime.mjs
+      - package.json
+      - package-lock.json
       - .github/workflows/sri-check.yml
 
 jobs:
@@ -37,3 +43,6 @@ jobs:
 
       - name: Verify all vendored library SRI literals match on-disk files
         run: node scripts/verify-sheetjs-sri.mjs
+
+      - name: Verify shipped SheetJS runtime policy
+        run: node scripts/verify-vendored-runtime.mjs
