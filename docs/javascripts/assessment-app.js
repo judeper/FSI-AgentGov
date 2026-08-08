@@ -4726,7 +4726,7 @@
       // Lazy load SheetJS with SRI
       var s = document.createElement("script");
       s.src = xlsxSrc;
-      s.integrity = "sha256-yVBhl8r4CaB1tt7h2g02+xnacVj/6KiOewyWxdhiPJk=";
+      s.integrity = "sha256-zAFRMKqFIefwiPiImOupSczcv7ON8L0Sm0S3Jzw6b0E=";
       s.crossOrigin = "anonymous";
       s.onload = doExport;
       s.onerror = function () { alert("Failed to load SheetJS library. Please try the CSV export."); };

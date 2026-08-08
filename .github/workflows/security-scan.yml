@@ -8,7 +8,8 @@ name: Security Scan
 # Ported from FSI-CopilotGov security-scan.yml; adapted to AgentGov's paths:
 #   - pip-audit: scripts/requirements.txt + assessment/requirements.txt
 #   - bandit:    scripts/, assessment/engine/, assessment/manifest/ (tests excluded)
-#   - npm audit: package.json (all deps are devDependencies — omit-dev would be a no-op)
+#   - npm audit: package.json (production graph, when present)
+#   - vendored-runtime policy: shipped SPA SheetJS artifact and SRI
 #
 # BLOCKING vs REPORT-ONLY (adoption PR 2026-06-07):
 #   BLOCKING:     pip-audit (both req files were clean on local run)
@@ -83,9 +84,14 @@ jobs:
       - name: Install
         run: npm ci || npm install
       - name: Audit production dependencies (high severity gate)
-        # package.json currently contains only devDependencies. This remains blocking
-        # so any future production dependency is covered automatically.
+        # Keep this blocking so any future production dependency is covered
+        # automatically. The separate vendor gate below covers the deployed
+        # browser runtime, which npm audit cannot see in an empty production graph.
         run: npm audit --omit=dev --audit-level=high
+      - name: Verify shipped vendored runtime (high severity gate)
+        # Fail closed on vulnerable/unreviewed SheetJS versions, source drift,
+        # package-lock drift, on-disk hash drift, or stale SRI literals.
+        run: npm run verify:vendor-runtime
       - name: Audit development toolchain (report only)
         # Development-only advisories stay visible without blocking documentation PRs
         # when no compatible upstream patch exists.

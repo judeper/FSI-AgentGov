@@ -2,7 +2,8 @@
  * Assessment Loader — ~2KB global script
  *
  * Detects the assessment page and lazy-loads the main application plus
- * dependencies (Chart.js, SheetJS). Uses MkDocs Material's document$
+ * dependencies (Chart.js, with SheetJS lazy-loaded by the export path).
+ * Uses MkDocs Material's document$
  * observable to handle navigation.instant page transitions.
  *
  * Loaded on every page but does nothing unless #assessment-app exists.
