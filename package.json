@@ -10,7 +10,8 @@
     "test:e2e:smoke": "playwright test --grep @smoke --workers=1",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:snapshots": "playwright test --update-snapshots",
-    "verify:sri": "node scripts/verify-sheetjs-sri.mjs"
+    "verify:sri": "node scripts/verify-sheetjs-sri.mjs",
+    "verify:vendor-runtime": "node scripts/verify-vendored-runtime.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
