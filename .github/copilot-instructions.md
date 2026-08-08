@@ -97,6 +97,7 @@ scripts/                          # Validation + automation scripts
 │   ├── verify_language_rules.py      # FSI-banned-phrase linter (CI gate)
 │   ├── check_manifest_doc_drift.py   # 79 control IDs across 3 sources (CI gate)
 │   ├── generate_coverage_matrix.py   # Honest assessment coverage report (CI gate)
+│   ├── check_automation_honesty.py   # Automation claims vs. wired evaluators (CI gate)
 │   └── extract_assessment_data.py
 assessment/                       # Automated assessment engine (collectors, scoring, reports)
 │   ├── manifest/controls.json        # Machine-readable 79-control definitions
@@ -253,6 +254,13 @@ python scripts/check_manifest_doc_drift.py --check
 python scripts/generate_coverage_matrix.py            # write
 python scripts/generate_coverage_matrix.py --check    # CI mode
 
+# controls.json must stay derivable from its generator
+python assessment/manifest/generate_manifest.py --check
+
+# Automation claims must match implemented evaluators (one-way ratchet)
+python scripts/check_automation_honesty.py --check    # CI mode
+python scripts/check_automation_honesty.py --write    # shrink the known-debt baseline
+
 # FSI language linter (rejects "ensures compliance", "guarantees", etc.)
 python scripts/verify_language_rules.py
 ```
@@ -298,6 +306,8 @@ The `assessment/` directory contains a programmatic assessment engine that colle
 See `assessment/README.md` for full prerequisites and usage documentation.
 
 **Evaluator transparency:** every check and control output carries an `evaluator_state` field with one of three values: `auto_evaluable`, `manual_only`, or `unimplemented_evaluator`. The summary block exposes an `evaluator_coverage` rollup. The generated [`docs/reference/assessment-coverage.md`](../docs/reference/assessment-coverage.md) is the public-facing honest report of how many controls are actually automated versus manual versus awaiting an evaluator implementation. Run `python scripts/generate_coverage_matrix.py` after wiring or unwiring an evaluator. CI fails if the file is stale.
+
+**Automation honesty (issue #263):** a control's manifest `automation` value (`full`/`partial`/`manual`) is a promise about what the engine actually scored. `scripts/check_automation_honesty.py` fails CI when that promise overstates the wired `EVALUATORS` — `full` requires every check to be auto-evaluable, `partial` requires at least one. Understating is always allowed because it is the fail-closed direction. Pre-existing drift lives in `assessment/manifest/automation-honesty-baseline.json`, which is a **one-way ratchet**: `--write` refuses to add new control IDs, so new overclaims cannot be regenerated away. When no evaluator exists, follow the established shape — mark the check `pass_condition: ""` with `collection_methods: ["Manual"]` (controls 1.2, 1.11, 1.13), or declare the whole control `manual` with empty `checks`/`collection_methods` (controls 1.8, 1.10, 1.15). `zone_thresholds` are derived in `generate_manifest.py` from the auto-evaluable check count — edit the generator, not `controls.json`.
 
 ## Worktree Management (Parallel Agent Runs)
 

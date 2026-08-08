@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-26T02:49:08Z",
+  "generatedAt": "2026-08-08T06:42:12Z",
   "count": 79,
   "controls": [
     {
@@ -79,7 +79,7 @@
       "url": "controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
       "objective": "Establish a governed registration and ownership model for AI agents, integrated apps, service principals, managed identities, and related non-human identities so the organization can trace who approved them, what permissions they hold, where they are published, and how they are supervised throughout their lifecycle.",
       "primaryOwner": "AI Administrator",
-      "effortLevel": "Low effort",
+      "effortLevel": "Medium effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.2/portal-walkthrough/"
@@ -122,7 +122,7 @@
         "Power Platform Admin",
         "Purview Compliance Admin"
       ],
-      "automation": "Automatable",
+      "automation": "Partial",
       "solutions": [
         "agent-365-lifecycle-governance",
         "agent-intake",
@@ -512,7 +512,7 @@
       "url": "controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/",
       "objective": "Implement runtime security controls for Copilot Studio agents to detect and block prompt injection attacks, jailbreak attempts, and malicious agent behavior. This control provides real-time protection against adversarial inputs and external threats targeting AI agents.",
       "primaryOwner": "Compliance / Audit Admin",
-      "effortLevel": "Medium effort",
+      "effortLevel": "Higher effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.8/portal-walkthrough/"
@@ -540,7 +540,7 @@
         "Power Platform Admin",
         "Security Operations"
       ],
-      "automation": "Partial",
+      "automation": "Manual",
       "solutions": [
         "content-moderation-monitor",
         "cross-solution-integration",
@@ -638,7 +638,7 @@
       "url": "controls/pillar-1-security/1.10-communication-compliance-monitoring/",
       "objective": "Detect and review policy-relevant content in agent-assisted interactions, including user prompts and agent responses. This control supports supervision and review objectives for financial services by monitoring for regulatory violations, inappropriate content, and potential conduct risks.",
       "primaryOwner": "Communication Compliance",
-      "effortLevel": "Medium effort",
+      "effortLevel": "Higher effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.10/portal-walkthrough/"
@@ -674,7 +674,7 @@
         "Legal / Compliance Officer",
         "Privacy Officer"
       ],
-      "automation": "Partial",
+      "automation": "Manual",
       "solutions": [
         "action-confirmation-auditor",
         "finra-supervision-workflow",
