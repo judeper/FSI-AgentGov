@@ -194,3 +194,253 @@ def test_subsequent_run_still_detects_new_items(monkeypatch):
     assert report_items is not None, "a report must be generated for new items"
     reported_ids = {item.document_id for item in report_items}
     assert reported_ids == {'fr-3'}, "only the genuinely new item should be reported"
+
+
+class _FakeResponse:
+    def __init__(self, payload):
+        self.payload = payload
+
+    def raise_for_status(self):
+        return None
+
+    def json(self):
+        return self.payload
+
+
+class _FakeSession:
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.calls = []
+
+    def get(self, url, **kwargs):
+        self.calls.append((url, kwargs))
+        return _FakeResponse(self.responses.pop(0))
+
+
+def _federal_doc(document_id):
+    return {
+        "document_number": document_id,
+        "title": f"Document {document_id}",
+        "abstract": "",
+        "publication_date": "2026-08-01",
+        "type": "NOTICE",
+        "html_url": f"https://www.federalregister.gov/{document_id}",
+        "agencies": [{"slug": "securities-and-exchange-commission", "name": "SEC"}],
+    }
+
+
+def test_federal_register_fetches_and_validates_all_pages():
+    """All API pages must be consumed and reconciled with the declared count."""
+    session = _FakeSession([
+        {
+            "count": 3,
+            "total_pages": 2,
+            "results": [_federal_doc("fr-1"), _federal_doc("fr-2")],
+            "next_page_url": "https://www.federalregister.gov/api/v1/documents?page=2",
+        },
+        {
+            "count": 3,
+            "total_pages": 2,
+            "results": [_federal_doc("fr-3")],
+            "next_page_url": None,
+        },
+    ])
+    config = {
+        "federal_register": {
+            "agencies": [{"slug": "securities-and-exchange-commission", "short_name": "SEC"}],
+            "document_types": ["NOTICE"],
+        },
+        "regulatory": {},
+        "keyword_control_map": [],
+    }
+
+    result = regulatory_monitor.fetch_federal_register_documents(session, "2026-08-01", config)
+
+    assert result.complete is True
+    assert result.expected_count == 3
+    assert result.pages_fetched == 2
+    assert [item.document_id for item in result] == ["fr-1", "fr-2", "fr-3"]
+    assert len(session.calls) == 2
+
+
+def test_federal_register_zero_results_are_verified():
+    """A valid zero-result response is complete; malformed emptiness is not."""
+    session = _FakeSession([{"count": 0, "total_pages": None, "results": None, "next_page_url": None}])
+    config = {"federal_register": {}, "regulatory": {}, "keyword_control_map": []}
+
+    result = regulatory_monitor.fetch_federal_register_documents(session, "2999-01-01", config)
+
+    assert result.complete is True
+    assert result.expected_count == 0
+    assert result == []
+
+
+def test_federal_register_overlap_fails_closed():
+    """Overlapping pages must not silently overwrite or advance the watermark."""
+    session = _FakeSession([
+        {
+            "count": 3,
+            "total_pages": 2,
+            "results": [_federal_doc("fr-1"), _federal_doc("fr-2")],
+            "next_page_url": "https://www.federalregister.gov/api/v1/documents?page=2",
+        },
+        {
+            "count": 3,
+            "total_pages": 2,
+            "results": [_federal_doc("fr-2")],
+            "next_page_url": None,
+        },
+    ])
+    config = {
+        "federal_register": {
+            "agencies": [{"slug": "securities-and-exchange-commission", "short_name": "SEC"}],
+            "document_types": ["NOTICE"],
+        },
+        "regulatory": {},
+        "keyword_control_map": [],
+    }
+
+    result = regulatory_monitor.fetch_federal_register_documents(session, "2026-08-01", config)
+
+    assert result.complete is False
+    assert "overlap" in result.error
+
+
+def test_main_does_not_advance_state_on_incomplete_source(monkeypatch):
+    """A partial source fetch must fail without saving state or generating a report."""
+    state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "last_checked": "2026-08-01",
+                "entries": {"fr-1": "sha256:old"},
+            },
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "entries": {},
+            },
+        },
+    }
+    original_state = repr(state)
+    save_calls = []
+    report_calls = []
+
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: state)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_federal_register_documents",
+        lambda *a, **k: regulatory_monitor.FetchResult(
+            [_make_item("Partial", "fr-2")],
+            complete=False,
+            error="declared count mismatch",
+        ),
+    )
+    monkeypatch.setattr(regulatory_monitor, "fetch_finra_notices", lambda *a, **k: [])
+    monkeypatch.setattr(regulatory_monitor, "save_state_atomic", lambda *a, **k: save_calls.append(a))
+    monkeypatch.setattr(regulatory_monitor, "generate_regulatory_report", lambda *a, **k: report_calls.append(a))
+    monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py"])
+
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+
+    assert exc.value.code == 2
+    assert save_calls == []
+    assert report_calls == []
+    assert repr(state) == original_state
+
+
+def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch):
+    """FINRA 26-15 must use its published date/summary, not URL heuristics."""
+    listing_html = """
+    <html><body>
+      <a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>
+      <a href="/rules-guidance/notices/26-14">Regulatory Notice 26-14</a>
+    </body></html>
+    """
+    detail_26_15 = """
+    <html><body>
+      <h1>FINRA Requests Comment on Modernizing FINRA's Best Execution Guidance</h1>
+      <div class="field--name-field-core-official-dt">
+        <time datetime="2026-07-24T12:00:00Z">July 24, 2026</time>
+      </div>
+      <div class="field--name-body"><h2>Summary</h2>
+        <p>A broker-dealer duty under FINRA Rule 5310 requires best execution.</p>
+        <h2>Action Required</h2><p>Comments are requested.</p>
+      </div>
+    </body></html>
+    """
+    detail_26_14 = """
+    <html><body>
+      <h1>Older notice</h1>
+      <div class="field--name-field-core-official-dt">
+        <time datetime="2026-07-18T12:00:00Z">July 18, 2026</time>
+      </div>
+      <div class="field--name-body"><h2>Summary</h2><p>Older content.</p></div>
+    </body></html>
+    """
+
+    def fake_fetch_page(url, _session):
+        pages = {
+            regulatory_monitor.FINRA_NOTICES_URL: listing_html,
+            "https://www.finra.org/rules-guidance/notices/26-15": detail_26_15,
+            "https://www.finra.org/rules-guidance/notices/26-14": detail_26_14,
+        }
+        return {
+            "status_code": 200,
+            "content": pages[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    config = {
+        "regulatory": {
+            "medium_patterns": [
+                {"pattern": r"\bbroker-dealer", "reason": "Broker-dealer regulation"}
+            ]
+        },
+        "keyword_control_map": [],
+    }
+
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), config, since_date="2026-07-20"
+    )
+
+    assert result.complete is True
+    assert [item.document_id for item in result] == ["FINRA 26-15"]
+    item = result[0]
+    assert item.title == "FINRA Requests Comment on Modernizing FINRA's Best Execution Guidance"
+    assert item.publication_date == "2026-07-24"
+    assert "broker-dealer" in item.abstract
+    assert item.classification == regulatory_monitor.CLASSIFICATION_MEDIUM
+    assert item.classification_reason == "Broker-dealer regulation"
+    assert regulatory_monitor._item_content_hash(item) == compute_hash(
+        f"{item.title}|{item.abstract}|2026-07-24"
+    )
+
+
+def test_finra_missing_date_remains_unknown(monkeypatch):
+    """Missing FINRA publication metadata must remain empty, never January 1/current date."""
+    listing_html = '<a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>'
+    detail_html = """
+    <html><body><h1>Notice title</h1>
+      <div class="field--name-body"><h2>Summary</h2><p>Broker-dealer content.</p></div>
+    </body></html>
+    """
+
+    def fake_fetch_page(url, _session):
+        content = listing_html if url == regulatory_monitor.FINRA_NOTICES_URL else detail_html
+        return {"status_code": 200, "content": content, "final_url": url,
+                "was_redirected": False, "error": None}
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+    )
+
+    assert result.complete is True
+    assert result[0].publication_date == ""
+    assert "2026-01-01" not in result[0].publication_date

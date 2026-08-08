@@ -23,9 +23,12 @@ Environment Variables:
     REGULATORY_MONITOR_DEBUG=1  - Enable debug output
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
+import math
 import os
 import re
 import sys
@@ -33,6 +36,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urljoin
 
 # Import shared monitoring framework
 from monitoring_shared import (
@@ -100,6 +104,63 @@ def setup_logging(verbose: bool = False) -> logging.Logger:
 
 
 logger = logging.getLogger(__name__)
+
+
+class FetchResult(list):
+    """List-compatible fetch result carrying a fail-closed completeness verdict."""
+
+    def __init__(
+        self,
+        items=(),
+        *,
+        complete: bool,
+        expected_count: Optional[int] = None,
+        pages_fetched: int = 0,
+        error: Optional[str] = None,
+        limited: bool = False,
+    ):
+        super().__init__(items)
+        self.complete = complete
+        self.expected_count = expected_count
+        self.pages_fetched = pages_fetched
+        self.error = error
+        self.limited = limited
+
+
+def _complete_result(items: list[RegulatoryItem], **kwargs) -> FetchResult:
+    """Build a successful result while retaining list compatibility for callers."""
+    return FetchResult(items, complete=True, **kwargs)
+
+
+def _incomplete_result(items=(), *, error: str, **kwargs) -> FetchResult:
+    """Build an incomplete result; callers must not advance source state from it."""
+    logger.error(error)
+    return FetchResult(items, complete=False, error=error, **kwargs)
+
+
+def _coerce_fetch_result(value) -> FetchResult:
+    """Keep tests and source adapters that return a plain list backward compatible."""
+    if isinstance(value, FetchResult):
+        return value
+    return FetchResult(value or [], complete=True, expected_count=len(value or []))
+
+
+def _item_content_hash(item: RegulatoryItem) -> str:
+    """Hash only source fields; unknown values remain empty instead of being invented."""
+    fields = [item.title or "", item.abstract or "", item.publication_date or ""]
+    if not any(fields):
+        # A URL is still authoritative identity when the source exposes no content.
+        return compute_hash(item.url or "")
+    return compute_hash("|".join(fields))
+
+
+def _state_date(source_state: dict) -> Optional[str]:
+    """Return an ISO date watermark from source state without fabricating one."""
+    for key in ("last_checked", "last_run"):
+        value = source_state.get(key)
+        if isinstance(value, str) and re.match(r"^\d{4}-\d{2}-\d{2}", value):
+            return value[:10]
+    return None
 
 
 @dataclass
@@ -209,7 +270,12 @@ def find_affected_controls_by_keywords(title: str, abstract: str, config: dict) 
     return sorted(list(affected))
 
 
-def fetch_federal_register_documents(session: requests.Session, since_date: str, config: dict, limit: Optional[int] = None) -> list[RegulatoryItem]:
+def fetch_federal_register_documents(
+    session: requests.Session,
+    since_date: str,
+    config: dict,
+    limit: Optional[int] = None,
+) -> FetchResult:
     """
     Fetch documents from Federal Register API.
 
@@ -220,10 +286,8 @@ def fetch_federal_register_documents(session: requests.Session, since_date: str,
         limit: Maximum documents to fetch (for testing)
 
     Returns:
-        list[RegulatoryItem]: New regulatory items
+        FetchResult: List-compatible items plus a completeness verdict.
     """
-    items = []
-
     # Get agencies and doc types from config
     fed_config = config.get('federal_register', {})
     agencies = [a['slug'] for a in fed_config.get('agencies', [])]
@@ -245,73 +309,319 @@ def fetch_federal_register_documents(session: requests.Session, since_date: str,
         'fields[]': ['document_number', 'title', 'abstract', 'publication_date', 'type', 'html_url', 'agencies'],
     }
 
+    if limit is not None and limit < 0:
+        return _incomplete_result(error=f"Federal Register limit must be non-negative, got {limit}")
+
+    items = []
+    seen_document_ids = set()
+    per_page = 100
+    expected_count = None
+    pages_fetched = 0
+
     try:
         logger.info(f"Querying Federal Register API for documents since {since_date}...")
-        response = session.get(
-            f"{FEDERAL_REGISTER_API_BASE}/documents.json",
-            params=params,
-            timeout=30
-        )
-        response.raise_for_status()
-        data = response.json()
+        next_url = f"{FEDERAL_REGISTER_API_BASE}/documents.json"
+        next_params = params
+        expected_pages = None
 
-        documents = data.get('results', [])
-        logger.info(f"Federal Register API returned {len(documents)} documents")
+        while True:
+            response = session.get(next_url, params=next_params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            if not isinstance(data, dict):
+                return _incomplete_result(
+                    items,
+                    error="Federal Register API returned a non-object response",
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
 
-        # Apply limit if specified
-        if limit:
-            documents = documents[:limit]
-            logger.info(f"Limited to {limit} documents for testing")
+            if pages_fetched == 0:
+                count = data.get('count')
+                if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register API response omitted a valid result count",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                expected_count = count
 
-        for doc in documents:
-            # Extract agency names
-            doc_agencies = doc.get('agencies', [])
-            agency_slugs = [agency.get('slug', '') for agency in doc_agencies]
-            agency_names = [agency.get('name', 'Unknown') for agency in doc_agencies]
-            agency_name = ', '.join(agency_names) if agency_names else 'Unknown'
+                total_pages = data.get('total_pages')
+                if isinstance(total_pages, int) and not isinstance(total_pages, bool) and total_pages >= 0:
+                    expected_pages = total_pages
+                elif count:
+                    # Some valid zero-result responses omit total_pages; infer pages
+                    # only when a non-zero count makes the expectation unambiguous.
+                    expected_pages = math.ceil(count / per_page)
+                else:
+                    expected_pages = 0
+                if count > 0 and expected_pages == 0:
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register response declared pages=0 for non-zero results",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+            elif data.get('count') is not None and data.get('count') != expected_count:
+                return _incomplete_result(
+                    items,
+                    error="Federal Register page count changed during pagination",
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
 
-            # Map to canonical short names using config
-            agency_short = 'Unknown'
-            for slug in agency_slugs:
-                if slug in agency_short_map:
-                    agency_short = agency_short_map[slug]
-                    break
-            if agency_short == 'Unknown':
-                agency_short = agency_name
+            raw_documents = data.get('results', [])
+            if raw_documents is None and expected_count == 0:
+                raw_documents = []
+            if not isinstance(raw_documents, list):
+                return _incomplete_result(
+                    items,
+                    error="Federal Register API returned malformed results",
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
 
-            title = doc.get('title', 'Untitled')
-            abstract = doc.get('abstract', '')
-
-            # Classify for FSI AI agent governance relevance
-            tier, reason = classify_regulatory_relevance(title, abstract, config)
-
-            # Find affected controls by keywords
-            affected_controls = find_affected_controls_by_keywords(title, abstract, config)
-
-            item = RegulatoryItem(
-                source='Federal Register',
-                agency=agency_short,
-                title=title,
-                url=doc.get('html_url', ''),
-                publication_date=doc.get('publication_date', ''),
-                doc_type=doc.get('type', ''),
-                abstract=abstract,
-                document_id=doc.get('document_number', ''),
-                classification=tier,
-                classification_reason=reason,
-                affected_controls=affected_controls,
+            pages_fetched += 1
+            logger.info(
+                f"Federal Register API page {pages_fetched}"
+                f"{f'/{expected_pages}' if expected_pages is not None else ''}: "
+                f"{len(raw_documents)} documents"
             )
-            items.append(item)
+
+            if expected_count == 0 and raw_documents:
+                return _incomplete_result(
+                    items,
+                    error="Federal Register reported zero results but returned documents",
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
+
+            for doc in raw_documents:
+                if not isinstance(doc, dict):
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register page contained a non-object document",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                document_id = doc.get('document_number')
+                if not isinstance(document_id, str) or not document_id.strip():
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register document omitted document_number",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                if document_id in seen_document_ids:
+                    return _incomplete_result(
+                        items,
+                        error=f"Federal Register pagination overlap/conflict for {document_id}",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                seen_document_ids.add(document_id)
+
+            # Extract agency names
+                doc_agencies = doc.get('agencies', [])
+                if not isinstance(doc_agencies, list):
+                    return _incomplete_result(
+                        items,
+                        error=f"Federal Register document {document_id} has malformed agencies",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                agency_slugs = [agency.get('slug', '') for agency in doc_agencies if isinstance(agency, dict)]
+                agency_names = [agency.get('name', 'Unknown') for agency in doc_agencies if isinstance(agency, dict)]
+                agency_name = ', '.join(agency_names) if agency_names else 'Unknown'
+
+                # Map to canonical short names using config
+                agency_short = 'Unknown'
+                for slug in agency_slugs:
+                    if slug in agency_short_map:
+                        agency_short = agency_short_map[slug]
+                        break
+                if agency_short == 'Unknown':
+                    agency_short = agency_name
+
+                title = doc.get('title') or 'Untitled'
+                abstract = doc.get('abstract') or ''
+
+                # Classify for FSI AI agent governance relevance
+                tier, reason = classify_regulatory_relevance(title, abstract, config)
+
+                # Find affected controls by keywords
+                affected_controls = find_affected_controls_by_keywords(title, abstract, config)
+
+                item = RegulatoryItem(
+                    source='Federal Register',
+                    agency=agency_short,
+                    title=title,
+                    url=doc.get('html_url') or '',
+                    publication_date=doc.get('publication_date') or '',
+                    doc_type=doc.get('type') or '',
+                    abstract=abstract,
+                    document_id=document_id,
+                    classification=tier,
+                    classification_reason=reason,
+                    affected_controls=affected_controls,
+                )
+                items.append(item)
+
+            next_url = data.get('next_page_url')
+            if next_url is not None and not isinstance(next_url, str):
+                return _incomplete_result(
+                    items,
+                    error="Federal Register response contained a malformed next_page_url",
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
+            if expected_pages == 0:
+                if next_url:
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register zero-result response unexpectedly paginated",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                break
+            if expected_pages is not None and pages_fetched > expected_pages:
+                return _incomplete_result(
+                    items,
+                    error="Federal Register returned more pages than declared",
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
+            if next_url:
+                if expected_pages is not None and pages_fetched >= expected_pages:
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register returned an unexpected extra page",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                next_params = None
+                next_url = urljoin(f"{FEDERAL_REGISTER_API_BASE}/", next_url)
+                continue
+            break
+
+        if expected_count is None or len(items) != expected_count:
+            return _incomplete_result(
+                items,
+                error=(
+                    "Federal Register pagination incomplete: "
+                    f"expected {expected_count} unique documents, fetched {len(items)}"
+                ),
+                expected_count=expected_count,
+                pages_fetched=pages_fetched,
+            )
+
+        if limit is not None:
+            logger.info(f"Limited to {limit} documents for testing; state will not advance")
+            return _incomplete_result(
+                items[:limit],
+                error="Federal Register fetch was explicitly limited",
+                expected_count=expected_count,
+                pages_fetched=pages_fetched,
+                limited=True,
+            )
+
+        return _complete_result(
+            items,
+            expected_count=expected_count,
+            pages_fetched=pages_fetched,
+        )
 
     except requests.RequestException as e:
-        logger.error(f"Federal Register API error: {e}")
-    except json.JSONDecodeError as e:
-        logger.error(f"Federal Register API response parsing error: {e}")
+        return _incomplete_result(
+            items,
+            error=f"Federal Register API error: {e}",
+            expected_count=expected_count,
+            pages_fetched=pages_fetched,
+        )
+    except (json.JSONDecodeError, ValueError) as e:
+        return _incomplete_result(
+            items,
+            error=f"Federal Register API response parsing error: {e}",
+            expected_count=expected_count,
+            pages_fetched=pages_fetched,
+        )
 
-    return items
+
+def _extract_finra_publication_date(soup: BeautifulSoup) -> str:
+    """Read FINRA's official datetime field; return empty when the source omits it."""
+    official_field = soup.select_one('.field--name-field-core-official-dt')
+    if not official_field:
+        return ""
+
+    time_tag = official_field.select_one('time[datetime]')
+    raw_value = time_tag.get('datetime', '') if time_tag else ''
+    if raw_value:
+        match = re.match(r'^(\d{4}-\d{2}-\d{2})', raw_value)
+        if match:
+            return match.group(1)
+
+    visible = official_field.select_one('.field__item')
+    if visible:
+        for fmt in ('%B %d, %Y', '%b %d, %Y'):
+            try:
+                return datetime.strptime(visible.get_text(' ', strip=True), fmt).date().isoformat()
+            except ValueError:
+                continue
+    return ""
 
 
-def fetch_finra_notices(session: requests.Session, config: dict, limit: Optional[int] = None) -> list[RegulatoryItem]:
+def _extract_listing_date(link) -> str:
+    """Read the optional authoritative date rendered beside a FINRA listing link."""
+    row = link.find_parent('tr')
+    if row is None:
+        return ""
+    time_tag = row.select_one('time[datetime]')
+    if time_tag:
+        match = re.match(r'^(\d{4}-\d{2}-\d{2})', time_tag.get('datetime', ''))
+        if match:
+            return match.group(1)
+    return ""
+
+
+def _extract_finra_summary(soup: BeautifulSoup) -> str:
+    """Extract only the authoritative FINRA Summary section, not page chrome."""
+    summary_heading = next(
+        (
+            heading
+            for heading in soup.find_all(['h2', 'h3'])
+            if heading.get_text(' ', strip=True).casefold() == 'summary'
+        ),
+        None,
+    )
+    if summary_heading is None:
+        return ""
+
+    parts = []
+    for sibling in summary_heading.next_siblings:
+        if getattr(sibling, 'name', None) in ('h2', 'h3'):
+            break
+        if getattr(sibling, 'name', None):
+            text = ' '.join(sibling.get_text(' ', strip=True).split())
+            if text:
+                parts.append(text)
+    return ' '.join(parts)
+
+
+def _extract_finra_document_id(url: str) -> str:
+    """Use the authoritative notice number, falling back to the canonical URL."""
+    match = re.search(r'/notices/(\d{2}-\d{2})(?:/)?$', url)
+    if match:
+        return f"FINRA {match.group(1)}"
+    return url
+
+
+def fetch_finra_notices(
+    session: requests.Session,
+    config: dict,
+    limit: Optional[int] = None,
+    since_date: Optional[str] = None,
+) -> FetchResult:
     """
     Scrape FINRA regulatory notices page.
 
@@ -321,89 +631,138 @@ def fetch_finra_notices(session: requests.Session, config: dict, limit: Optional
         limit: Maximum notices to fetch (for testing)
 
     Returns:
-        list[RegulatoryItem]: FINRA notices
+        FetchResult: List-compatible items plus a completeness verdict.
     """
     items = []
+
+    if limit is not None and limit < 0:
+        return _incomplete_result(error=f"FINRA limit must be non-negative, got {limit}")
 
     try:
         logger.info(f"Fetching FINRA notices from {FINRA_NOTICES_URL}...")
         result = fetch_page(FINRA_NOTICES_URL, session)
 
         if result['status_code'] != 200:
-            logger.error(f"FINRA notices page returned status {result['status_code']}")
-            return items
+            return _incomplete_result(
+                error=f"FINRA notices page returned status {result['status_code']}"
+            )
 
         soup = BeautifulSoup(result['content'], 'html.parser')
 
-        # FINRA notices are in a table with class 'notices-table' or similar
-        # The structure may vary, so we look for common patterns
-        notice_links = []
+        # The landing page has historically changed shape. Collect every
+        # canonical notice link, deduplicating repeated navigation anchors.
+        notice_urls = []
+        seen_urls = set()
+        notice_pattern = re.compile(
+            r'^/rules-guidance/notices/(?:\d{2}-\d{2}|information-notice-\d{8})/?$'
+        )
+        for link in soup.find_all('a', href=True):
+            href = link.get('href', '').split('#', 1)[0]
+            if not notice_pattern.match(href):
+                continue
+            url = urljoin(FINRA_NOTICES_URL, href)
+            if url not in seen_urls:
+                seen_urls.add(url)
+                notice_urls.append((url, link.get_text(' ', strip=True), _extract_listing_date(link)))
 
-        # Strategy 1: Look for article elements with notice links
-        for article in soup.find_all(['article', 'div'], class_=re.compile(r'notice|regulatory')):
-            link = article.find('a', href=re.compile(r'/rules-guidance/notices/'))
-            if link:
-                notice_links.append(link)
+        logger.info(f"Found {len(notice_urls)} FINRA notice links")
+        if not notice_urls:
+            page_text = soup.get_text(' ', strip=True)
+            if re.search(r'\bno (?:regulatory )?notices?\b|\bno results\b', page_text, re.IGNORECASE):
+                return _complete_result([], expected_count=0, pages_fetched=1)
+            return _incomplete_result(error="FINRA notices page contained no recognizable notice links")
 
-        # Strategy 2: Look for all links to /rules-guidance/notices/
-        if not notice_links:
-            notice_links = soup.find_all('a', href=re.compile(r'/rules-guidance/notices/\d{2}-\d{2}'))
+        if limit is not None:
+            notice_urls = notice_urls[:limit]
+            logger.info(f"Limited to {limit} notices for testing; state will not advance")
 
-        logger.info(f"Found {len(notice_links)} FINRA notice links")
+        seen_document_ids = {}
+        for url, listing_title, listing_date in notice_urls:
+            # Filter using the listing's authoritative date before fetching
+            # older detail pages. Unknown listing dates are retained.
+            if since_date and listing_date and listing_date < since_date:
+                continue
 
-        # Apply limit if specified
-        if limit:
-            notice_links = notice_links[:limit]
-            logger.info(f"Limited to {limit} notices for testing")
+            detail = fetch_page(url, session)
+            if detail['status_code'] != 200:
+                return _incomplete_result(
+                    items,
+                    error=f"FINRA notice detail page returned status {detail['status_code']}: {url}",
+                    expected_count=len(notice_urls),
+                    pages_fetched=1,
+                    limited=limit is not None,
+                )
 
-        for link in notice_links:
-            title = link.get_text(strip=True)
-            url = link.get('href', '')
-
-            # Make URL absolute
-            if url.startswith('/'):
-                url = f"https://www.finra.org{url}"
-
-            # Extract date from notice ID (e.g., /notices/24-15 → 2024)
-            # Note: This is a heuristic - actual publication date requires fetching the notice page
-            match = re.search(r'/notices/(\d{2})-(\d{2})', url)
-            if match:
-                year_short = match.group(1)
-                notice_num = match.group(2)
-                year = f"20{year_short}"
-                # Assume January 1 for notices without specific dates
-                publication_date = f"{year}-01-01"
-                document_id = f"FINRA {year_short}-{notice_num}"
-            else:
-                publication_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-                document_id = url
-
-            # Classify for FSI AI agent governance relevance
-            # For FINRA notices, we don't have abstracts without fetching individual pages
-            tier, reason = classify_regulatory_relevance(title, "", config)
-
-            # Find affected controls by keywords
-            affected_controls = find_affected_controls_by_keywords(title, "", config)
-
-            item = RegulatoryItem(
-                source='FINRA',
-                agency='FINRA',
-                title=title,
-                url=url,
-                publication_date=publication_date,
-                doc_type='NOTICE',
-                abstract="",
-                document_id=document_id,
-                classification=tier,
-                classification_reason=reason,
-                affected_controls=affected_controls,
+            detail_soup = BeautifulSoup(detail['content'], 'html.parser')
+            title_node = detail_soup.select_one('.field--name-field-notice-title-tx') or detail_soup.find('h1')
+            title = (
+                ' '.join(title_node.get_text(' ', strip=True).split())
+                if title_node
+                else ' '.join((listing_title or '').split())
             )
-            items.append(item)
+            publication_date = _extract_finra_publication_date(detail_soup)
+            abstract = _extract_finra_summary(detail_soup)
+            document_id = _extract_finra_document_id(url)
 
-    except Exception as e:
-        logger.error(f"FINRA notices scraping error: {e}")
+            if listing_date and publication_date and listing_date != publication_date:
+                return _incomplete_result(
+                    items,
+                    error=f"FINRA listing/detail date conflict for {document_id}",
+                    expected_count=len(notice_urls),
+                    pages_fetched=1,
+                    limited=limit is not None,
+                )
 
-    return items
+            previous_url = seen_document_ids.get(document_id)
+            if previous_url is not None and previous_url != url:
+                return _incomplete_result(
+                    items,
+                    error=f"FINRA listing contained conflicting URLs for {document_id}",
+                    expected_count=len(notice_urls),
+                    pages_fetched=1,
+                    limited=limit is not None,
+                )
+            seen_document_ids[document_id] = url
+
+            # Unknown source dates are retained as unknown. Never infer a date
+            # from the notice number or from the local clock.
+            if since_date and publication_date and publication_date < since_date:
+                continue
+
+            tier, reason = classify_regulatory_relevance(title, abstract, config)
+            affected_controls = find_affected_controls_by_keywords(title, abstract, config)
+
+            items.append(
+                RegulatoryItem(
+                    source='FINRA',
+                    agency='FINRA',
+                    title=title,
+                    url=url,
+                    publication_date=publication_date,
+                    doc_type='NOTICE',
+                    abstract=abstract,
+                    document_id=document_id,
+                    classification=tier,
+                    classification_reason=reason,
+                    affected_controls=affected_controls,
+                )
+            )
+
+        if limit is not None:
+            return _incomplete_result(
+                items,
+                error="FINRA fetch was explicitly limited",
+                expected_count=len(notice_urls),
+                pages_fetched=1,
+                limited=True,
+            )
+
+        return _complete_result(items, expected_count=len(notice_urls), pages_fetched=1)
+
+    except requests.RequestException as e:
+        return _incomplete_result(items, error=f"FINRA notices scraping error: {e}")
+    except (ValueError, TypeError) as e:
+        return _incomplete_result(items, error=f"FINRA notices parsing error: {e}")
 
 
 def check_for_new_items(source_key: str, items: list[RegulatoryItem], source_state: dict) -> list[RegulatoryItem]:
@@ -426,8 +785,7 @@ def check_for_new_items(source_key: str, items: list[RegulatoryItem], source_sta
         entry_key = item.document_id if item.document_id else item.url
 
         # Compute hash of the item content
-        content_to_hash = f"{item.title}|{item.abstract}|{item.publication_date}"
-        content_hash = compute_hash(content_to_hash)
+        content_hash = _item_content_hash(item)
 
         # Check if this is a new item or changed item
         if entry_key not in existing_entries:
@@ -454,8 +812,7 @@ def update_source_state(source_key: str, items: list[RegulatoryItem], state: dic
 
     for item in items:
         entry_key = item.document_id if item.document_id else item.url
-        content_to_hash = f"{item.title}|{item.abstract}|{item.publication_date}"
-        entries[entry_key] = compute_hash(content_to_hash)
+        entries[entry_key] = _item_content_hash(item)
 
     source_state['entries'] = entries
     source_state['last_run'] = datetime.now(timezone.utc).isoformat()
@@ -482,6 +839,8 @@ def generate_regulatory_report(
 
     # Build report content
     lines = []
+    def display_date(item: RegulatoryItem) -> str:
+        return item.publication_date or "Unknown (not provided by source)"
 
     # Header
     run_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
@@ -526,7 +885,7 @@ def generate_regulatory_report(
         for i, item in enumerate(critical_items, 1):
             lines.append(f"### {i}. [{item.title}]({item.url})\n\n")
             lines.append(f"- **Source:** {item.agency} via {item.source}\n")
-            lines.append(f"- **Published:** {item.publication_date}\n")
+            lines.append(f"- **Published:** {display_date(item)}\n")
             if item.doc_type:
                 lines.append(f"- **Type:** {item.doc_type}\n")
             lines.append(f"- **Classification:** {item.classification} — {item.classification_reason}\n")
@@ -549,7 +908,7 @@ def generate_regulatory_report(
         for i, item in enumerate(high_items, 1):
             lines.append(f"### {i}. [{item.title}]({item.url})\n\n")
             lines.append(f"- **Source:** {item.agency} via {item.source}\n")
-            lines.append(f"- **Published:** {item.publication_date}\n")
+            lines.append(f"- **Published:** {display_date(item)}\n")
             if item.doc_type:
                 lines.append(f"- **Type:** {item.doc_type}\n")
             lines.append(f"- **Classification:** {item.classification} — {item.classification_reason}\n")
@@ -568,7 +927,12 @@ def generate_regulatory_report(
         lines.append("General FSI regulations that may indirectly affect AI agent deployments.\n\n")
 
         for item in medium_items:
-            lines.append(f"- [{item.title}]({item.url}) ({item.agency}, {item.publication_date})\n")
+            lines.append(
+                f"- [{item.title}]({item.url}) ({item.agency}, {display_date(item)})"
+                f" — **Classification:** {item.classification} — {item.classification_reason}\n"
+            )
+            if item.abstract:
+                lines.append(f"  - **Evidence:** {item.abstract[:500]}{'...' if len(item.abstract) > 500 else ''}\n")
 
         lines.append("\n")
 
@@ -651,7 +1015,7 @@ def main():
     logger.info(f"Source: {args.source}")
     logger.info(f"Dry run: {args.dry_run}")
     logger.info(f"Config: {config_path}")
-    if args.limit:
+    if args.limit is not None:
         logger.info(f"Limit: {args.limit} items per source")
 
     # Ensure directories exist
@@ -675,6 +1039,7 @@ def main():
     })
 
     all_new_items = []
+    source_runs = []
 
     # Fetch from Federal Register
     if args.source in ['federal-register', 'all']:
@@ -695,25 +1060,15 @@ def main():
         else:
             logger.info(f"Fetching documents since {since_date}")
 
-        fed_items = fetch_federal_register_documents(session, since_date, config, limit=args.limit)
-
-        if fed_is_baseline:
-            logger.info(
-                f"Federal Register: first run - baseline established, no changes "
-                f"reported on first run ({len(fed_items)} items recorded)"
-            )
-        else:
-            new_fed_items = check_for_new_items(SOURCE_KEY_FEDERAL_REGISTER, fed_items, fed_state)
-            logger.info(f"Federal Register: {len(new_fed_items)} new items")
-            all_new_items.extend(new_fed_items)
-
-        # Update state (persist baseline so subsequent runs are incremental)
-        if not args.dry_run:
-            update_source_state(SOURCE_KEY_FEDERAL_REGISTER, fed_items, state)
-            # Update last_checked to today
-            fed_state = get_source_state(state, SOURCE_KEY_FEDERAL_REGISTER)
-            fed_state['last_checked'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-            set_source_state(state, SOURCE_KEY_FEDERAL_REGISTER, fed_state)
+        fed_result = _coerce_fetch_result(
+            fetch_federal_register_documents(session, since_date, config, limit=args.limit)
+        )
+        source_runs.append((
+            SOURCE_KEY_FEDERAL_REGISTER,
+            fed_state,
+            fed_is_baseline,
+            fed_result,
+        ))
 
     # Fetch from FINRA
     if args.source in ['finra', 'all']:
@@ -723,21 +1078,56 @@ def main():
         # First-run baseline suppression (mirrors Federal Register / learn_monitor).
         finra_is_baseline = finra_state.get('last_run') is None
 
-        finra_items = fetch_finra_notices(session, config, limit=args.limit)
-
-        if finra_is_baseline:
-            logger.info(
-                f"FINRA: first run - baseline established, no changes reported "
-                f"on first run ({len(finra_items)} items recorded)"
+        finra_result = _coerce_fetch_result(
+            fetch_finra_notices(
+                session,
+                config,
+                limit=args.limit,
+                since_date=_state_date(finra_state),
             )
-        else:
-            new_finra_items = check_for_new_items(SOURCE_KEY_FINRA, finra_items, finra_state)
-            logger.info(f"FINRA: {len(new_finra_items)} new items")
-            all_new_items.extend(new_finra_items)
+        )
+        source_runs.append((
+            SOURCE_KEY_FINRA,
+            finra_state,
+            finra_is_baseline,
+            finra_result,
+        ))
 
-        # Update state (persist baseline so subsequent runs are incremental)
-        if not args.dry_run:
-            update_source_state(SOURCE_KEY_FINRA, finra_items, state)
+    incomplete_runs = [
+        (source_key, result.error or "source returned unverifiable data")
+        for source_key, _, _, result in source_runs
+        if not result.complete
+    ]
+    if incomplete_runs:
+        for source_key, error in incomplete_runs:
+            logger.error(f"{source_key}: state watermark not advanced: {error}")
+        sys.exit(2)
+
+    # Only complete, unbounded source fetches may affect state or reports.
+    if not args.dry_run:
+        for source_key, source_state, is_baseline, result in source_runs:
+            items = list(result)
+            if is_baseline:
+                logger.info(
+                    f"{source_key}: first run - baseline established, no changes "
+                    f"reported on first run ({len(items)} items recorded)"
+                )
+            else:
+                new_items = check_for_new_items(source_key, items, source_state)
+                logger.info(f"{source_key}: {len(new_items)} new items")
+                all_new_items.extend(new_items)
+            update_source_state(source_key, items, state)
+            if source_key == SOURCE_KEY_FEDERAL_REGISTER:
+                updated_state = get_source_state(state, source_key)
+                updated_state['last_checked'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+                set_source_state(state, source_key, updated_state)
+    else:
+        # The dry-run path exits before fetching, but keep this guard explicit
+        # if a caller exercises main with a patched source in the future.
+        for source_key, source_state, is_baseline, result in source_runs:
+            items = list(result)
+            if not is_baseline:
+                all_new_items.extend(check_for_new_items(source_key, items, source_state))
 
     # Generate report if new items found
     if all_new_items:
