@@ -131,8 +131,10 @@ jobs:
       - name: Detect persisted monitor changes
         id: state_changes
         if: >-
-          steps.monitor.outputs.exit_code == '0' ||
-          steps.monitor.outputs.exit_code == '1'
+          github.event_name != 'pull_request' &&
+          github.ref_name == github.event.repository.default_branch &&
+          (steps.monitor.outputs.exit_code == '0' ||
+          steps.monitor.outputs.exit_code == '1')
         run: |
           set -euo pipefail
 
@@ -159,8 +161,10 @@ jobs:
       - name: Validate default-branch monitor CAS
         id: cas
         if: >-
-          steps.monitor.outputs.exit_code == '0' ||
-          steps.monitor.outputs.exit_code == '1'
+          github.event_name != 'pull_request' &&
+          github.ref_name == github.event.repository.default_branch &&
+          (steps.monitor.outputs.exit_code == '0' ||
+          steps.monitor.outputs.exit_code == '1')
         run: |
           set -euo pipefail
           EXPECTED_BASE="${{ steps.monitor.outputs.base_sha }}"

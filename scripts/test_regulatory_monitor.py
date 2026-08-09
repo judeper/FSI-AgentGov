@@ -808,6 +808,19 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
     assert "baseRefName,baseRefOid" in workflow
     assert "Maintenance PR base CAS mismatch" in workflow
 
+    state_changes_block = workflow.split(
+        "- name: Detect persisted monitor changes", 1
+    )[1].split("- name:", 1)[0]
+    cas_block = workflow.split(
+        "- name: Validate default-branch monitor CAS", 1
+    )[1].split("- name:", 1)[0]
+    for block in (state_changes_block, cas_block):
+        assert "github.event_name != 'pull_request'" in block
+        assert (
+            "github.ref_name == github.event.repository.default_branch"
+            in block
+        )
+
 
 def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_only_corruption():
     """Recovery state must retain all sources and keep primary/backup identical."""
