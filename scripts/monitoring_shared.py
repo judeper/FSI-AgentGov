@@ -46,6 +46,7 @@ except ImportError as e:
 # === Configuration Constants ===
 REQUEST_TIMEOUT = 30  # seconds
 MAX_RETRIES = 3
+MAX_RATE_LIMIT_WAIT = 15  # seconds; never let one 429 stall a monitor run indefinitely
 
 # Default path to monitoring configuration file
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "config" / "monitoring-config.yaml"
@@ -74,8 +75,28 @@ def fetch_page(url: str, session: requests.Session, max_retries: int = MAX_RETRI
             response = session.get(url, timeout=REQUEST_TIMEOUT, allow_redirects=True)
 
             if response.status_code == 429:
-                wait_time = int(response.headers.get("Retry-After", 60))
-                print(f"  Rate limited, waiting {wait_time}s...")
+                retry_after = response.headers.get("Retry-After")
+                try:
+                    retry_after_seconds = max(0, int(retry_after))
+                except (TypeError, ValueError):
+                    retry_after_seconds = 0
+                # Honor a server hint when it is reasonable, but cap it and
+                # apply exponential backoff so a bad/missing header cannot
+                # stall a scheduled monitor for minutes per URL.
+                wait_time = min(
+                    MAX_RATE_LIMIT_WAIT,
+                    max(retry_after_seconds, 2 ** attempt),
+                )
+                if attempt == max_retries - 1:
+                    return {
+                        'url': url,
+                        'status_code': 429,
+                        'content': "",
+                        'final_url': response.url,
+                        'was_redirected': response.url != url,
+                        'error': f"rate limited after {max_retries} attempts",
+                    }
+                print(f"  Rate limited, retrying in {wait_time}s...")
                 time.sleep(wait_time)
                 continue
 

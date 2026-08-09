@@ -32,6 +32,7 @@ import math
 import os
 import re
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -52,6 +53,7 @@ from monitoring_shared import (
     get_source_state,
     load_monitoring_config,
     load_state,
+    normalize_content,
     save_state_atomic,
     set_source_state,
     validate_config,
@@ -84,6 +86,9 @@ FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
 FINRA_MAX_PAGES = 100
 FINRA_REFETCH_PAGES = 1
+FINRA_REFRESH_BATCH_SIZE = 25
+FINRA_REQUEST_INTERVAL_SECONDS = 1.00
+FINRA_MAX_RETRY_WAIT_SECONDS = 15
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -152,7 +157,9 @@ def _coerce_fetch_result(value) -> FetchResult:
 
 
 def _item_content_hash(item: RegulatoryItem) -> str:
-    """Hash only source fields; unknown values remain empty instead of being invented."""
+    """Hash normalized substantive source content without inventing provenance."""
+    if item.substantive_content:
+        return compute_hash(item.substantive_content)
     fields = [item.title or "", item.abstract or "", item.publication_date or ""]
     if not any(fields):
         # A URL is still authoritative identity when the source exposes no content.
@@ -183,6 +190,7 @@ class RegulatoryItem:
     classification: str = CLASSIFICATION_NOISE
     classification_reason: str = ""
     affected_controls: list = None
+    substantive_content: str = ""
 
     def __post_init__(self):
         if self.affected_controls is None:
@@ -668,6 +676,23 @@ def _extract_finra_summary(soup: BeautifulSoup) -> str:
     return ' '.join(parts)
 
 
+def _extract_finra_substantive_content(soup: BeautifulSoup) -> str:
+    """Normalize the complete notice body, including every substantive section."""
+    content = soup.find('main') or soup.find('article') or soup.select_one('.field--name-body')
+    if content is None:
+        return ""
+
+    content = BeautifulSoup(str(content), 'html.parser')
+    for tag in content.find_all(
+        ['script', 'style', 'nav', 'header', 'footer', 'aside', 'noscript']
+    ):
+        tag.decompose()
+    for selector in ('.breadcrumb', '.pagination', '.pager'):
+        for element in content.select(selector):
+            element.decompose()
+    return normalize_content(str(content))
+
+
 def _extract_finra_document_id(url: str) -> str:
     """Use the authoritative notice number, falling back to the canonical URL."""
     match = re.search(r'/notices/(\d{2}-\d{2})(?:/)?$', url)
@@ -683,21 +708,107 @@ def _finra_page_url(page: int) -> str:
     return f"{FINRA_NOTICES_URL}?{urlencode({'page': page})}"
 
 
-def _extract_finra_declared_pages(soup: BeautifulSoup) -> int:
-    """Read the listing pager's zero-based page range, defaulting to one page."""
+def _extract_finra_declared_pages(soup: BeautifulSoup) -> Optional[int]:
+    """Read authoritative FINRA pager metadata without guessing a page count."""
+    pager = soup.select_one('nav[aria-labelledby="pagination-heading"] .pagination')
+    if pager is None:
+        pager = soup.select_one('.pagination')
+    if pager is None:
+        empty = soup.select_one('.view-empty, .views-empty, .view-empty-message')
+        if empty and re.search(
+            r'\bno (?:regulatory )?notices?\b|\bno results?\b',
+            empty.get_text(' ', strip=True),
+            re.IGNORECASE,
+        ):
+            return 0
+        return None
+
     page_numbers = []
-    for link in soup.select('.pagination a[href]'):
-        query = parse_qs(urlparse(urljoin(FINRA_NOTICES_URL, link['href'])).query)
-        raw_page = query.get('page', [None])[0]
-        if raw_page is None:
+    for link in pager.select('a[href]'):
+        href = urljoin(FINRA_NOTICES_URL, link['href'])
+        query = parse_qs(urlparse(href).query, keep_blank_values=True)
+        if 'page' not in query:
+            if urlparse(href).path.rstrip('/') == urlparse(FINRA_NOTICES_URL).path.rstrip('/'):
+                page_numbers.append(0)
             continue
+        raw_pages = query['page']
+        if len(raw_pages) != 1 or not re.fullmatch(r'\d+', raw_pages[0]):
+            return None
+        page_numbers.append(int(raw_pages[0]))
+
+    if page_numbers:
+        return max(page_numbers) + 1
+
+    active_page = pager.select_one('.page-item.active .page-link, .pager__item.is-active')
+    if active_page and active_page.get_text(' ', strip=True) == '1':
+        return 1
+    return None
+
+
+def _finra_is_explicit_zero_result(soup: BeautifulSoup) -> bool:
+    """Recognize only an explicit FINRA empty-result shape."""
+    empty = soup.select_one('.view-empty, .views-empty, .view-empty-message')
+    return bool(
+        empty
+        and re.search(
+            r'\bno (?:regulatory )?notices?\b|\bno results?\b',
+            empty.get_text(' ', strip=True),
+            re.IGNORECASE,
+        )
+    )
+
+
+def _fetch_finra_page(url: str, session: requests.Session) -> dict:
+    """Pace FINRA requests and resume bounded retries after throttling/errors."""
+    for attempt in range(5):
+        last_request = getattr(session, '_finra_last_request_at', 0.0)
+        elapsed = time.monotonic() - last_request
+        if elapsed < FINRA_REQUEST_INTERVAL_SECONDS:
+            time.sleep(FINRA_REQUEST_INTERVAL_SECONDS - elapsed)
+        result = fetch_page(url, session)
         try:
-            page = int(raw_page)
-        except (TypeError, ValueError):
+            session._finra_last_request_at = time.monotonic()
+        except AttributeError:
+            pass
+        if result['status_code'] not in (0, 429) or attempt == 4:
+            return result
+        wait_time = min(FINRA_MAX_RETRY_WAIT_SECONDS, 2 ** attempt)
+        logger.warning(
+            "FINRA request for %s returned %s; retrying in %ss",
+            url,
+            result['status_code'],
+            wait_time,
+        )
+        time.sleep(wait_time)
+    return result
+
+
+def _finra_known_notice_urls(source_state: dict) -> list[str]:
+    """Resolve persisted FINRA identities to canonical URLs for refresh."""
+    urls = []
+    for key in source_state.get('entries', {}):
+        if isinstance(key, str) and key.startswith('http'):
+            if '/rules-guidance/notices/' in key:
+                urls.append(key)
             continue
-        if page >= 0:
-            page_numbers.append(page)
-    return max(page_numbers, default=0) + 1
+        match = re.fullmatch(r'FINRA (\d{2}-\d{2})', str(key))
+        if match:
+            urls.append(f"{FINRA_NOTICES_URL}/{match.group(1)}")
+    return sorted(set(urls))
+
+
+def _finra_refresh_batch(source_state: dict) -> list[str]:
+    """Select a deterministic bounded batch of known URLs for this run."""
+    urls = _finra_known_notice_urls(source_state)
+    if not urls:
+        return []
+    cursor = source_state.get('refresh_cursor', 0)
+    if not isinstance(cursor, int) or isinstance(cursor, bool) or cursor < 0:
+        cursor = 0
+    cursor %= len(urls)
+    return [urls[(cursor + offset) % len(urls)] for offset in range(
+        min(FINRA_REFRESH_BATCH_SIZE, len(urls))
+    )]
 
 
 def _extract_finra_notice_links(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
@@ -725,6 +836,7 @@ def fetch_finra_notices(
     config: dict,
     limit: Optional[int] = None,
     since_date: Optional[str] = None,
+    known_urls: Optional[list[str]] = None,
 ) -> FetchResult:
     """
     Scrape FINRA regulatory notices page.
@@ -733,6 +845,10 @@ def fetch_finra_notices(
         session: requests.Session instance
         config: Configuration dict for classification
         limit: Maximum notices to fetch (for testing)
+        known_urls: Persisted notice URLs that must be refreshed even when the
+            listing cutoff stops before their historical page. The unchanged
+            source watermark makes a failed refresh safely resumable on the
+            next scheduled run.
 
     Returns:
         FetchResult: List-compatible items plus a completeness verdict.
@@ -752,10 +868,13 @@ def fetch_finra_notices(
         target_page = None
 
         for page in range(FINRA_MAX_PAGES):
-            result = fetch_page(_finra_page_url(page), session)
+            result = _fetch_finra_page(_finra_page_url(page), session)
             if result['status_code'] != 200:
                 return _incomplete_result(
-                    error=f"FINRA notices page {page} returned status {result['status_code']}",
+                    error=(
+                        f"FINRA notices page {page} returned status "
+                        f"{result['status_code']}: {result.get('error') or 'unavailable'}"
+                    ),
                     expected_count=len(page_records),
                     pages_fetched=pages_fetched,
                     declared_pages=declared_pages,
@@ -765,6 +884,12 @@ def fetch_finra_notices(
             soup = BeautifulSoup(result['content'], 'html.parser')
             page_declared = _extract_finra_declared_pages(soup)
             if declared_pages is None:
+                if page_declared is None:
+                    return _incomplete_result(
+                        error="FINRA pagination metadata was missing or unparseable",
+                        pages_fetched=pages_fetched,
+                        declared_pages=declared_pages,
+                    )
                 declared_pages = page_declared
                 if declared_pages > FINRA_MAX_PAGES:
                     return _incomplete_result(
@@ -775,7 +900,7 @@ def fetch_finra_notices(
                         pages_fetched=pages_fetched,
                         declared_pages=declared_pages,
                     )
-            elif page_declared > declared_pages or (
+            elif page_declared is None or page_declared > declared_pages or (
                 page < declared_pages - 1 and page_declared != declared_pages
             ):
                 return _incomplete_result(
@@ -794,28 +919,22 @@ def fetch_finra_notices(
             )
 
             if not records:
-                page_text = soup.get_text(' ', strip=True)
-                if (
-                    page == 0
-                    and declared_pages == 1
-                    and re.search(
-                        r'\bno (?:regulatory )?notices?\b|\bno results\b',
-                        page_text,
-                        re.IGNORECASE,
-                    )
-                ):
-                    return _complete_result(
-                        [],
-                        expected_count=0,
-                        pages_fetched=pages_fetched,
-                        declared_pages=declared_pages,
-                    )
+                if page == 0 and declared_pages == 0 and _finra_is_explicit_zero_result(soup):
+                    break
                 return _incomplete_result(
                     error=f"FINRA page {page} contained no recognizable notice links",
                     expected_count=len(page_records),
                     pages_fetched=pages_fetched,
                     declared_pages=declared_pages,
                     cutoff_page=cutoff_page,
+                )
+
+            if declared_pages == 0:
+                return _incomplete_result(
+                    error="FINRA pagination declared zero pages but returned notice links",
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
                 )
 
             for record in records:
@@ -859,7 +978,9 @@ def fetch_finra_notices(
                 cutoff_page=cutoff_page,
             )
 
-        if declared_pages is None or pages_fetched > declared_pages:
+        if declared_pages is None or (
+            declared_pages != 0 and pages_fetched > declared_pages
+        ):
             return _incomplete_result(
                 error="FINRA pagination metadata was not verifiable",
                 expected_count=len(page_records),
@@ -867,7 +988,11 @@ def fetch_finra_notices(
                 declared_pages=declared_pages,
                 cutoff_page=cutoff_page,
             )
-        if cutoff_page is None and pages_fetched != declared_pages:
+        if (
+            cutoff_page is None
+            and declared_pages != 0
+            and pages_fetched != declared_pages
+        ):
             return _incomplete_result(
                 error=(
                     "FINRA pagination incomplete: "
@@ -878,17 +1003,26 @@ def fetch_finra_notices(
                 declared_pages=declared_pages,
             )
 
+        for known_url in sorted(set(known_urls or [])):
+            if known_url not in seen_urls:
+                page_records.append((known_url, '', ''))
+                seen_urls.add(known_url)
+
         if limit is not None:
             page_records = page_records[:limit]
             logger.info(f"Limited to {limit} notices for testing; state will not advance")
 
         seen_document_ids = {}
         for url, listing_title, listing_date in page_records:
-            detail = fetch_page(url, session)
+            detail = _fetch_finra_page(url, session)
             if detail['status_code'] != 200:
                 return _incomplete_result(
                     items,
-                    error=f"FINRA notice detail page returned status {detail['status_code']}: {url}",
+                    error=(
+                        f"FINRA notice detail page returned status "
+                        f"{detail['status_code']}: {url}: "
+                        f"{detail.get('error') or 'unavailable'}"
+                    ),
                     expected_count=len(page_records),
                     pages_fetched=pages_fetched,
                     declared_pages=declared_pages,
@@ -905,6 +1039,17 @@ def fetch_finra_notices(
             )
             publication_date = _extract_finra_publication_date(detail_soup)
             abstract = _extract_finra_summary(detail_soup)
+            substantive_content = _extract_finra_substantive_content(detail_soup)
+            if not substantive_content:
+                return _incomplete_result(
+                    items,
+                    error=f"FINRA notice detail had no substantive content: {url}",
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
+                    limited=limit is not None,
+                )
             document_id = _extract_finra_document_id(url)
 
             if listing_date and publication_date and listing_date != publication_date:
@@ -933,8 +1078,10 @@ def fetch_finra_notices(
 
             # Unknown source dates are retained as unknown. Never infer a date
             # from the notice number or from the local clock.
-            tier, reason = classify_regulatory_relevance(title, abstract, config)
-            affected_controls = find_affected_controls_by_keywords(title, abstract, config)
+            tier, reason = classify_regulatory_relevance(title, substantive_content, config)
+            affected_controls = find_affected_controls_by_keywords(
+                title, substantive_content, config
+            )
 
             items.append(
                 RegulatoryItem(
@@ -949,6 +1096,7 @@ def fetch_finra_notices(
                     classification=tier,
                     classification_reason=reason,
                     affected_controls=affected_controls,
+                    substantive_content=substantive_content,
                 )
             )
 
@@ -1010,7 +1158,13 @@ def check_for_new_items(source_key: str, items: list[RegulatoryItem], source_sta
     return new_items
 
 
-def update_source_state(source_key: str, items: list[RegulatoryItem], state: dict) -> None:
+def update_source_state(
+    source_key: str,
+    items: list[RegulatoryItem],
+    state: dict,
+    *,
+    refreshed_urls: Optional[list[str]] = None,
+) -> None:
     """
     Update source state with new item hashes.
 
@@ -1027,6 +1181,17 @@ def update_source_state(source_key: str, items: list[RegulatoryItem], state: dic
         entries[entry_key] = _item_content_hash(item)
 
     source_state['entries'] = entries
+    if source_key == SOURCE_KEY_FINRA and refreshed_urls is not None:
+        known_urls = _finra_known_notice_urls(source_state)
+        if known_urls:
+            cursor = source_state.get('refresh_cursor', 0)
+            if not isinstance(cursor, int) or isinstance(cursor, bool) or cursor < 0:
+                cursor = 0
+            source_state['refresh_cursor'] = (
+                cursor + len(refreshed_urls)
+            ) % len(known_urls)
+        else:
+            source_state['refresh_cursor'] = 0
     source_state['last_run'] = datetime.now(timezone.utc).isoformat()
 
     set_source_state(state, source_key, source_state)
@@ -1252,6 +1417,7 @@ def main():
 
     all_new_items = []
     source_runs = []
+    finra_refresh_urls = []
 
     # Fetch from Federal Register
     if args.source in ['federal-register', 'all']:
@@ -1289,6 +1455,7 @@ def main():
 
         # First-run baseline suppression (mirrors Federal Register / learn_monitor).
         finra_is_baseline = finra_state.get('last_run') is None
+        finra_refresh_urls = _finra_refresh_batch(finra_state)
 
         finra_result = _coerce_fetch_result(
             fetch_finra_notices(
@@ -1296,6 +1463,7 @@ def main():
                 config,
                 limit=args.limit,
                 since_date=_state_date(finra_state),
+                known_urls=finra_refresh_urls,
             )
         )
         source_runs.append((
@@ -1328,7 +1496,14 @@ def main():
                 new_items = check_for_new_items(source_key, items, source_state)
                 logger.info(f"{source_key}: {len(new_items)} new items")
                 all_new_items.extend(new_items)
-            update_source_state(source_key, items, state)
+            update_source_state(
+                source_key,
+                items,
+                state,
+                refreshed_urls=(
+                    finra_refresh_urls if source_key == SOURCE_KEY_FINRA else None
+                ),
+            )
             if source_key == SOURCE_KEY_FEDERAL_REGISTER:
                 updated_state = get_source_state(state, source_key)
                 updated_state['last_checked'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')

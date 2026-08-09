@@ -569,6 +569,9 @@ def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch
     """FINRA 26-15 must use its published date/summary, not URL heuristics."""
     listing_html = """
     <html><body>
+      <nav aria-labelledby="pagination-heading">
+        <ul class="pagination"><li class="page-item active"><span class="page-link">1</span></li></ul>
+      </nav>
       <a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>
       <a href="/rules-guidance/notices/26-14">Regulatory Notice 26-14</a>
     </body></html>
@@ -629,16 +632,20 @@ def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch
     assert item.title == "FINRA Requests Comment on Modernizing FINRA's Best Execution Guidance"
     assert item.publication_date == "2026-07-24"
     assert "broker-dealer" in item.abstract
+    assert "Action Required" in item.substantive_content
     assert item.classification == regulatory_monitor.CLASSIFICATION_MEDIUM
     assert item.classification_reason == "Broker-dealer regulation"
-    assert regulatory_monitor._item_content_hash(item) == compute_hash(
-        f"{item.title}|{item.abstract}|2026-07-24"
-    )
+    assert regulatory_monitor._item_content_hash(item) == compute_hash(item.substantive_content)
 
 
 def test_finra_missing_date_remains_unknown(monkeypatch):
     """Missing FINRA publication metadata must remain empty, never January 1/current date."""
-    listing_html = '<a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>'
+    listing_html = """
+    <nav aria-labelledby="pagination-heading">
+      <ul class="pagination"><li class="page-item active"><span class="page-link">1</span></li></ul>
+    </nav>
+    <a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>
+    """
     detail_html = """
     <html><body><h1>Notice title</h1>
       <div class="field--name-body"><h2>Summary</h2><p>Broker-dealer content.</p></div>
@@ -674,3 +681,253 @@ def test_workflow_fails_closed_for_monitor_exit_two_or_more():
     assert 'exit "$EXIT_CODE"' in workflow
     assert "Fail on regulatory monitor error" in workflow
     assert "steps.monitor.outputs.exit_code != '1'" in workflow
+
+
+def test_finra_missing_pager_fails_closed(monkeypatch):
+    """Notice links without authoritative pager metadata must not imply one page."""
+    listing_html = '<a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>'
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda _url, _session: {
+            "status_code": 200,
+            "content": listing_html,
+            "final_url": regulatory_monitor.FINRA_NOTICES_URL,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+    )
+
+    assert result.complete is False
+    assert "pagination metadata" in result.error
+
+
+def test_finra_malformed_pager_fails_closed(monkeypatch):
+    """A pager with an unparseable page value is not silently treated as page one."""
+    listing_html = """
+    <nav aria-labelledby="pagination-heading">
+      <ul class="pagination"><li><a href="?page=not-a-number">Next</a></li></ul>
+    </nav>
+    <a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>
+    """
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda _url, _session: {
+            "status_code": 200,
+            "content": listing_html,
+            "final_url": regulatory_monitor.FINRA_NOTICES_URL,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+    )
+
+    assert result.complete is False
+    assert "pagination metadata" in result.error
+
+
+def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
+    """Only explicit one-page or zero-result markup may complete without page links."""
+    detail = _finra_detail_page("Notice title", "2026-07-24", "Summary text.")
+    requested = []
+
+    def fake_single_page(url, _session):
+        requested.append(url)
+        if url == regulatory_monitor.FINRA_NOTICES_URL:
+            content = """
+            <nav aria-labelledby="pagination-heading">
+              <ul class="pagination">
+                <li class="page-item active"><span class="page-link">1</span></li>
+              </ul>
+            </nav>
+            <a href="/rules-guidance/notices/26-15">Regulatory Notice 26-15</a>
+            """
+        else:
+            content = detail
+        return {"status_code": 200, "content": content, "final_url": url,
+                "was_redirected": False, "error": None}
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_single_page)
+    one_page = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+    assert one_page.complete is True
+    assert one_page.declared_pages == 1
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session: {
+            "status_code": 200,
+            "content": '<div class="view-empty">No results found.</div>',
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    zero = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+    assert zero.complete is True
+    assert zero == []
+    assert zero.declared_pages == 0
+
+
+def test_finra_refreshes_known_notice_outside_listing_window(monkeypatch):
+    """Known old notices are detailed every run even when cutoff pagination omits them."""
+    listing = _finra_listing_page(
+        0, 1, [("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")]
+    )
+    details = {
+        "https://www.finra.org/rules-guidance/notices/26-15": _finra_detail_page(
+            "Current notice", "2026-07-24", "Current summary."
+        ),
+        "https://www.finra.org/rules-guidance/notices/26-14": _finra_detail_page(
+            "Edited old notice", "2026-07-09", "Edited background."
+        ),
+    }
+    requested = []
+
+    def fake_fetch_page(url, _session):
+        requested.append(url)
+        return {"status_code": 200, "content": listing if url == regulatory_monitor.FINRA_NOTICES_URL
+                else details[url], "final_url": url, "was_redirected": False, "error": None}
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        since_date="2026-07-24",
+        known_urls=["https://www.finra.org/rules-guidance/notices/26-14"],
+    )
+
+    assert result.complete is True
+    assert {item.document_id for item in result} == {"FINRA 26-15", "FINRA 26-14"}
+    assert "https://www.finra.org/rules-guidance/notices/26-14" in requested
+
+
+def test_finra_known_refresh_is_bounded_and_resumable():
+    """Known historical URLs advance through a deterministic round-robin batch."""
+    source_state = {
+        "entries": {
+            f"FINRA 26-{number:02d}": "sha256:old"
+            for number in range(1, 41)
+        },
+        "refresh_cursor": 39,
+    }
+
+    batch = regulatory_monitor._finra_refresh_batch(source_state)
+
+    assert len(batch) == regulatory_monitor.FINRA_REFRESH_BATCH_SIZE
+    assert batch[0].endswith("/26-40")
+    assert batch[1].endswith("/26-01")
+    assert len(set(batch)) == len(batch)
+
+
+def test_finra_hashes_and_classifies_non_summary_edits(monkeypatch):
+    """Changes in Action Required/Background content affect provenance and tier."""
+    listing = _finra_listing_page(
+        0, 1, [("/rules-guidance/notices/26-14", "Regulatory Notice 26-14", "2026-07-09")]
+    )
+    base_detail = """
+    <main><h1>Notice</h1>
+      <div class="field--name-field-core-official-dt"><time datetime="2026-07-09T00:00:00Z"></time></div>
+      <div class="field--name-body"><h2>Summary</h2><p>Stable summary.</p>
+      <h2>Action Required</h2><p>Stable action.</p>
+      <h2>Background &amp; Discussion</h2><p>Stable background.</p>
+      <h2>Endnotes</h2><p>Stable note.</p></div>
+    </main>
+    """
+    edited_detail = base_detail.replace("Stable background.", "urgent marker in the background.")
+    pages = {regulatory_monitor.FINRA_NOTICES_URL: listing}
+
+    def run(detail):
+        pages["https://www.finra.org/rules-guidance/notices/26-14"] = detail
+        monkeypatch.setattr(
+            regulatory_monitor,
+            "fetch_page",
+            lambda url, _session: {
+                "status_code": 200,
+                "content": pages[url],
+                "final_url": url,
+                "was_redirected": False,
+                "error": None,
+            },
+        )
+        return regulatory_monitor.fetch_finra_notices(
+            _FakeSession([]),
+            {
+                "regulatory": {
+                    "critical_patterns": [
+                        {"pattern": r"urgent marker", "reason": "Urgent notice content"}
+                    ]
+                },
+                "keyword_control_map": [],
+            },
+        )[0]
+
+    first = run(base_detail)
+    second = run(edited_detail)
+    assert "Background & Discussion" in first.substantive_content
+    assert "Endnotes" in first.substantive_content
+    assert regulatory_monitor._item_content_hash(first) != regulatory_monitor._item_content_hash(second)
+    assert second.classification == regulatory_monitor.CLASSIFICATION_CRITICAL
+
+
+def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
+    """A transient 429 is paced and retried rather than skipping the notice."""
+    responses = [
+        {"status_code": 429, "content": "", "final_url": "https://example.test/finra",
+         "was_redirected": False, "error": "rate limited"},
+        {"status_code": 200, "content": "ok", "final_url": "https://example.test/finra",
+         "was_redirected": False, "error": None},
+    ]
+    sleeps = []
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", lambda _url, _session: responses.pop(0))
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", sleeps.append)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: 0.0)
+
+    result = regulatory_monitor._fetch_finra_page("https://example.test/finra", _FakeSession([]))
+
+    assert result["status_code"] == 200
+    assert responses == []
+    assert 1 in sleeps
+
+
+def test_main_does_not_advance_finra_on_detail_failure(monkeypatch):
+    """A failed refresh leaves the entire persisted state untouched."""
+    state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-08T00:00:00+00:00",
+                "entries": {"FINRA 26-14": "sha256:old"},
+            }
+        },
+    }
+    original_state = repr(state)
+    incomplete = regulatory_monitor.FetchResult(
+        [], complete=False, error="FINRA notice detail page returned status 429"
+    )
+    save_calls = []
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: state)
+    monkeypatch.setattr(regulatory_monitor, "save_state_atomic", lambda *a, **k: save_calls.append(a))
+    monkeypatch.setattr(regulatory_monitor, "fetch_finra_notices", lambda *a, **k: incomplete)
+    monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py", "--source", "finra"])
+
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+
+    assert exc.value.code == 2
+    assert save_calls == []
+    assert repr(state) == original_state
