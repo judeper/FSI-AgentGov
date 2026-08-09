@@ -46,6 +46,7 @@ from monitoring_shared import (
     CLASSIFICATION_MEDIUM,
     CLASSIFICATION_NOISE,
     DEFAULT_CONFIG_PATH,
+    StateLoadError,
     compute_hash,
     fetch_page,
     generate_executive_summary,
@@ -84,7 +85,6 @@ FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
 # FINRA notices page
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
 FINRA_MAX_PAGES = 100
-FINRA_REFETCH_PAGES = 1
 FINRA_REFRESH_BATCH_SIZE = 25
 FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
@@ -177,6 +177,45 @@ def _state_date(source_state: dict) -> Optional[str]:
         if isinstance(value, str) and re.match(r"^\d{4}-\d{2}-\d{2}", value):
             return value[:10]
     return None
+
+
+def _validate_regulatory_state(
+    state: object,
+    source_keys: list[str],
+) -> list[str]:
+    """Prove that scheduled monitoring has a usable prior regulatory state."""
+    errors = []
+    if not isinstance(state, dict):
+        return ["unified state is not a JSON object"]
+    sources = state.get("sources")
+    if not isinstance(sources, dict):
+        return ["unified state is missing an object-valued sources section"]
+
+    for source_key in source_keys:
+        source_state = sources.get(source_key)
+        if not isinstance(source_state, dict):
+            errors.append(f"{source_key} state section is missing or not an object")
+            continue
+        entries = source_state.get("entries")
+        if not isinstance(entries, dict):
+            errors.append(f"{source_key} state entries are missing or not an object")
+        last_run = source_state.get("last_run")
+        if not isinstance(last_run, str) or not last_run.strip():
+            errors.append(f"{source_key} state last_run is missing")
+            continue
+        try:
+            datetime.fromisoformat(last_run.replace("Z", "+00:00"))
+        except ValueError:
+            errors.append(f"{source_key} state last_run is not a valid ISO timestamp")
+    return errors
+
+
+def _baseline_approval_is_manual() -> bool:
+    """Baseline initialization is local-only and requires an explicit approval."""
+    return (
+        os.environ.get("GITHUB_ACTIONS", "").lower() != "true"
+        and os.environ.get("REGULATORY_MONITOR_BASELINE_APPROVED") == "I_UNDERSTAND"
+    )
 
 
 @dataclass
@@ -892,6 +931,42 @@ def _finra_page_url(page: int) -> str:
     return f"{FINRA_NOTICES_URL}?{urlencode({'page': page})}"
 
 
+def _finra_query_page_url(page: int, query: Optional[dict[str, str]] = None) -> str:
+    """Build a FINRA listing URL while preserving authoritative filters."""
+    params = dict(query or {})
+    if page:
+        params["page"] = str(page)
+    if not params:
+        return FINRA_NOTICES_URL
+    return f"{FINRA_NOTICES_URL}?{urlencode(params)}"
+
+
+def _extract_finra_year_filters(
+    soup: BeautifulSoup,
+) -> dict[int, str]:
+    """Read FINRA's authoritative year taxonomy values from the filter form."""
+    select = soup.select_one('select[name="combine_1"]')
+    if select is None:
+        return {}
+    values = {}
+    for option in select.select("option"):
+        value = option.get("value", "").strip()
+        label = option.get_text(" ", strip=True)
+        match = re.fullmatch(r"(20\d{2})", label)
+        if match and re.fullmatch(r"\d+", value):
+            values[int(match.group(1))] = value
+    return values
+
+
+def _finra_selected_year(soup: BeautifulSoup) -> Optional[int]:
+    """Return the year selected by FINRA after applying a year filter."""
+    option = soup.select_one('select[name="combine_1"] option[selected]')
+    if option is None:
+        return None
+    match = re.fullmatch(r"(20\d{2})", option.get_text(" ", strip=True))
+    return int(match.group(1)) if match else None
+
+
 def _extract_finra_declared_pages(soup: BeautifulSoup) -> Optional[int]:
     """Read authoritative FINRA pager metadata without guessing a page count."""
     pager = soup.select_one('nav[aria-labelledby="pagination-heading"] .pagination')
@@ -925,6 +1000,26 @@ def _extract_finra_declared_pages(soup: BeautifulSoup) -> Optional[int]:
 
     active_page = pager.select_one('.page-item.active .page-link, .pager__item.is-active')
     if active_page and active_page.get_text(' ', strip=True) == '1':
+        return 1
+    return None
+
+
+def _extract_finra_filtered_declared_pages(
+    soup: BeautifulSoup,
+    year: int,
+) -> Optional[int]:
+    """Validate a year-filtered listing's page shape without guessing."""
+    selected_year = _finra_selected_year(soup)
+    if selected_year != year:
+        return None
+    declared_pages = _extract_finra_declared_pages(soup)
+    if declared_pages is not None:
+        return declared_pages
+    if _finra_is_explicit_zero_result(soup):
+        return 0
+    # A selected year with no pager is authoritative only when it has a
+    # recognizable result set. This is FINRA's legitimate one-page shape.
+    if _extract_finra_notice_links(soup):
         return 1
     return None
 
@@ -1077,6 +1172,340 @@ def _extract_finra_notice_links(soup: BeautifulSoup) -> list[tuple[str, str, str
     return notice_urls
 
 
+def _finra_boundary_years(since_date: Optional[str]) -> Optional[list[int]]:
+    """Return years covered by an incremental date boundary."""
+    if not since_date or not re.match(r"^\d{4}-\d{2}-\d{2}$", since_date):
+        return None
+    since_year = int(since_date[:4])
+    current_year = datetime.now(timezone.utc).year
+    if since_year > current_year:
+        return [since_year]
+    return list(range(since_year, current_year + 1))
+
+
+def _merge_finra_listing_records(
+    records: list[tuple[str, str, str]],
+    seen_urls: set[str],
+    seen_records: dict[str, tuple[str, str, str]],
+    page_records: list[tuple[str, str, str]],
+) -> Optional[str]:
+    """Merge one listing page, rejecting conflicting overlaps."""
+    for record in records:
+        url = record[0]
+        if url in seen_urls:
+            if seen_records[url] != record:
+                return f"FINRA pagination overlap/conflict for {url}"
+            logger.warning(
+                "FINRA listing repeated identical notice record %s; "
+                "deduplicating safely",
+                url,
+            )
+            continue
+        seen_urls.add(url)
+        seen_records[url] = record
+        page_records.append(record)
+    return None
+
+
+def _fetch_finra_listing_records(
+    session: requests.Session,
+    since_date: Optional[str],
+) -> dict:
+    """Fetch FINRA listings using an authoritative year boundary when possible."""
+    page_records: list[tuple[str, str, str]] = []
+    seen_urls: set[str] = set()
+    seen_records: dict[str, tuple[str, str, str]] = {}
+    pages_fetched = 0
+    declared_page_total = 0
+    cutoff_page = None
+
+    # An incremental run can use FINRA's server-side year taxonomy instead of
+    # crawling the historical 92-page unfiltered listing. The selected year
+    # is authoritative and includes backdated notices anywhere in that year.
+    boundary_years = _finra_boundary_years(since_date)
+    first_result = _fetch_finra_page(_finra_page_url(0), session)
+    if first_result["status_code"] != 200:
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA notices page 0 returned status "
+                f"{first_result['status_code']}: "
+                f"{first_result.get('error') or 'unavailable'}"
+            ),
+            "pages_fetched": pages_fetched,
+            "declared_pages": None,
+            "cutoff_page": cutoff_page,
+        }
+    first_soup = BeautifulSoup(first_result["content"], "html.parser")
+    year_filters = _extract_finra_year_filters(first_soup)
+    if boundary_years and year_filters and all(
+        year in year_filters for year in boundary_years
+    ):
+        for year in boundary_years:
+            query = {"combine_1": year_filters[year]}
+            declared_pages = None
+            year_records: list[tuple[str, str, str]] = []
+            for page in range(FINRA_MAX_PAGES):
+                result = _fetch_finra_page(
+                    _finra_query_page_url(page, query),
+                    session,
+                )
+                if result["status_code"] != 200:
+                    return {
+                        "complete": False,
+                        "error": (
+                            f"FINRA filtered year {year} page {page} returned "
+                            f"status {result['status_code']}: "
+                            f"{result.get('error') or 'unavailable'}"
+                        ),
+                        "pages_fetched": pages_fetched,
+                        "declared_pages": declared_pages,
+                        "cutoff_page": cutoff_page,
+                    }
+                soup = BeautifulSoup(result["content"], "html.parser")
+                page_declared = _extract_finra_filtered_declared_pages(soup, year)
+                if page_declared is None:
+                    return {
+                        "complete": False,
+                        "error": (
+                            f"FINRA filtered year {year} pagination metadata "
+                            "was missing, unselected, or unparseable"
+                        ),
+                        "pages_fetched": pages_fetched,
+                        "declared_pages": declared_pages,
+                        "cutoff_page": cutoff_page,
+                    }
+                if declared_pages is None:
+                    declared_pages = page_declared
+                    if declared_pages > FINRA_MAX_PAGES:
+                        return {
+                            "complete": False,
+                            "error": (
+                                f"FINRA filtered year {year} declared "
+                                f"{declared_pages} pages, exceeding safe cutoff "
+                                f"{FINRA_MAX_PAGES}"
+                            ),
+                            "pages_fetched": pages_fetched,
+                            "declared_pages": declared_pages,
+                            "cutoff_page": cutoff_page,
+                        }
+                elif page_declared != declared_pages:
+                    return {
+                        "complete": False,
+                        "error": (
+                            f"FINRA filtered year {year} pagination metadata "
+                            "changed while traversing pages"
+                        ),
+                        "pages_fetched": pages_fetched,
+                        "declared_pages": declared_pages,
+                        "cutoff_page": cutoff_page,
+                    }
+
+                records = _extract_finra_notice_links(soup)
+                pages_fetched += 1
+                if declared_pages == 0:
+                    if records or not _finra_is_explicit_zero_result(soup):
+                        return {
+                            "complete": False,
+                            "error": (
+                                f"FINRA filtered year {year} declared zero "
+                                "pages without an explicit zero-result shape"
+                            ),
+                            "pages_fetched": pages_fetched,
+                            "declared_pages": declared_pages,
+                            "cutoff_page": cutoff_page,
+                        }
+                    break
+                if not records:
+                    return {
+                        "complete": False,
+                        "error": (
+                            f"FINRA filtered year {year} page {page} contained "
+                            "no recognizable notice links"
+                        ),
+                        "pages_fetched": pages_fetched,
+                        "declared_pages": declared_pages,
+                        "cutoff_page": cutoff_page,
+                    }
+                year_records.extend(records)
+                if page + 1 >= declared_pages:
+                    break
+            else:
+                return {
+                    "complete": False,
+                    "error": (
+                        f"FINRA filtered year {year} pagination exceeded safe "
+                        f"cutoff of {FINRA_MAX_PAGES} pages"
+                    ),
+                    "pages_fetched": pages_fetched,
+                    "declared_pages": declared_pages,
+                    "cutoff_page": cutoff_page,
+                }
+            if declared_pages is None or (
+                declared_pages and len(year_records) == 0
+            ):
+                return {
+                    "complete": False,
+                    "error": f"FINRA filtered year {year} result was unverifiable",
+                    "pages_fetched": pages_fetched,
+                    "declared_pages": declared_pages,
+                    "cutoff_page": cutoff_page,
+                }
+            declared_page_total += declared_pages
+            conflict = _merge_finra_listing_records(
+                year_records,
+                seen_urls,
+                seen_records,
+                page_records,
+            )
+            if conflict:
+                return {
+                    "complete": False,
+                    "error": conflict,
+                    "expected_count": len(page_records),
+                    "pages_fetched": pages_fetched,
+                    "declared_pages": declared_page_total,
+                    "cutoff_page": cutoff_page,
+                }
+        return {
+            "complete": True,
+            "records": page_records,
+            "pages_fetched": pages_fetched,
+            "declared_pages": declared_page_total,
+            "cutoff_page": cutoff_page,
+        }
+
+    # If the authoritative filter is unavailable (not merely malformed after
+    # selection), use the existing fail-closed all-page traversal.
+    declared_pages = None
+    for page in range(FINRA_MAX_PAGES):
+        result = first_result if page == 0 else _fetch_finra_page(
+            _finra_page_url(page), session
+        )
+        if result["status_code"] != 200:
+            return {
+                "complete": False,
+                "error": (
+                    f"FINRA notices page {page} returned status "
+                    f"{result['status_code']}: "
+                    f"{result.get('error') or 'unavailable'}"
+                ),
+                "expected_count": len(page_records),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "cutoff_page": cutoff_page,
+            }
+        soup = first_soup if page == 0 else BeautifulSoup(
+            result["content"], "html.parser"
+        )
+        page_declared = _extract_finra_declared_pages(soup)
+        if declared_pages is None:
+            if page_declared is None:
+                return {
+                    "complete": False,
+                    "error": "FINRA pagination metadata was missing or unparseable",
+                    "pages_fetched": pages_fetched,
+                    "declared_pages": declared_pages,
+                }
+            declared_pages = page_declared
+            if declared_pages > FINRA_MAX_PAGES:
+                return {
+                    "complete": False,
+                    "error": (
+                        f"FINRA pagination declared {declared_pages} pages, "
+                        f"exceeding safe cutoff {FINRA_MAX_PAGES}"
+                    ),
+                    "pages_fetched": pages_fetched,
+                    "declared_pages": declared_pages,
+                }
+        elif page_declared is None or page_declared != declared_pages:
+            return {
+                "complete": False,
+                "error": "FINRA pagination metadata changed or disappeared while traversing pages",
+                "expected_count": len(page_records),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "cutoff_page": cutoff_page,
+            }
+        records = _extract_finra_notice_links(soup)
+        pages_fetched += 1
+        if not records:
+            if page == 0 and declared_pages == 0 and _finra_is_explicit_zero_result(soup):
+                break
+            return {
+                "complete": False,
+                "error": f"FINRA page {page} contained no recognizable notice links",
+                "expected_count": len(page_records),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "cutoff_page": cutoff_page,
+            }
+        if declared_pages == 0:
+            return {
+                "complete": False,
+                "error": "FINRA pagination declared zero pages but returned notice links",
+                "expected_count": len(page_records),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+            }
+        conflict = _merge_finra_listing_records(
+            records,
+            seen_urls,
+            seen_records,
+            page_records,
+        )
+        if conflict:
+            return {
+                "complete": False,
+                "error": conflict,
+                "expected_count": len(page_records),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "cutoff_page": cutoff_page,
+            }
+        if (
+            cutoff_page is None
+            and since_date
+            and all(
+                listing_date and listing_date < since_date
+                for _, _, listing_date in records
+            )
+        ):
+            cutoff_page = page
+        if page + 1 >= declared_pages:
+            break
+    else:
+        return {
+            "complete": False,
+            "error": f"FINRA pagination exceeded safe cutoff of {FINRA_MAX_PAGES} pages",
+            "expected_count": len(page_records),
+            "pages_fetched": pages_fetched,
+            "declared_pages": declared_pages,
+            "cutoff_page": cutoff_page,
+        }
+    if declared_pages is None or (
+        declared_pages != 0 and pages_fetched != declared_pages
+    ):
+        return {
+            "complete": False,
+            "error": (
+                "FINRA pagination incomplete: "
+                f"declared {declared_pages} pages, fetched {pages_fetched}"
+            ),
+            "expected_count": len(page_records),
+            "pages_fetched": pages_fetched,
+            "declared_pages": declared_pages,
+            "cutoff_page": cutoff_page,
+        }
+    return {
+        "complete": True,
+        "records": page_records,
+        "pages_fetched": pages_fetched,
+        "declared_pages": declared_pages,
+        "cutoff_page": cutoff_page,
+    }
+
+
 def fetch_finra_notices(
     session: requests.Session,
     config: dict,
@@ -1112,148 +1541,20 @@ def fetch_finra_notices(
 
     try:
         logger.info(f"Fetching FINRA notices from {FINRA_NOTICES_URL}...")
-        page_records = []
-        seen_urls = set()
-        declared_pages = None
-        cutoff_page = None
-        pages_fetched = 0
-        target_page = None
-
-        for page in range(FINRA_MAX_PAGES):
-            result = _fetch_finra_page(_finra_page_url(page), session)
-            if result['status_code'] != 200:
-                return _incomplete_result(
-                    error=(
-                        f"FINRA notices page {page} returned status "
-                        f"{result['status_code']}: {result.get('error') or 'unavailable'}"
-                    ),
-                    expected_count=len(page_records),
-                    pages_fetched=pages_fetched,
-                    declared_pages=declared_pages,
-                    cutoff_page=cutoff_page,
-                )
-
-            soup = BeautifulSoup(result['content'], 'html.parser')
-            page_declared = _extract_finra_declared_pages(soup)
-            if declared_pages is None:
-                if page_declared is None:
-                    return _incomplete_result(
-                        error="FINRA pagination metadata was missing or unparseable",
-                        pages_fetched=pages_fetched,
-                        declared_pages=declared_pages,
-                    )
-                declared_pages = page_declared
-                if declared_pages > FINRA_MAX_PAGES:
-                    return _incomplete_result(
-                        error=(
-                            f"FINRA pagination declared {declared_pages} pages, "
-                            f"exceeding safe cutoff {FINRA_MAX_PAGES}"
-                        ),
-                        pages_fetched=pages_fetched,
-                        declared_pages=declared_pages,
-                    )
-            elif page_declared is None or page_declared > declared_pages or (
-                page < declared_pages - 1 and page_declared != declared_pages
-            ):
-                return _incomplete_result(
-                    error="FINRA pagination metadata changed or disappeared while traversing pages",
-                    expected_count=len(page_records),
-                    pages_fetched=pages_fetched,
-                    declared_pages=declared_pages,
-                    cutoff_page=cutoff_page,
-                )
-
-            records = _extract_finra_notice_links(soup)
-            pages_fetched += 1
-            logger.info(
-                f"FINRA listing page {page + 1}/{declared_pages}: "
-                f"{len(records)} notice links"
-            )
-
-            if not records:
-                if page == 0 and declared_pages == 0 and _finra_is_explicit_zero_result(soup):
-                    break
-                return _incomplete_result(
-                    error=f"FINRA page {page} contained no recognizable notice links",
-                    expected_count=len(page_records),
-                    pages_fetched=pages_fetched,
-                    declared_pages=declared_pages,
-                    cutoff_page=cutoff_page,
-                )
-
-            if declared_pages == 0:
-                return _incomplete_result(
-                    error="FINRA pagination declared zero pages but returned notice links",
-                    expected_count=len(page_records),
-                    pages_fetched=pages_fetched,
-                    declared_pages=declared_pages,
-                )
-
-            for record in records:
-                url = record[0]
-                if url in seen_urls:
-                    return _incomplete_result(
-                        error=f"FINRA pagination overlap/conflict for {url}",
-                        expected_count=len(page_records),
-                        pages_fetched=pages_fetched,
-                        declared_pages=declared_pages,
-                        cutoff_page=cutoff_page,
-                    )
-                seen_urls.add(url)
-                page_records.append(record)
-
-            # The listing date controls only how far pagination proceeds. Every
-            # record in the fetched window is still detailed and hashed below so
-            # backdated/new notices and edits to known notices are not skipped.
-            if (
-                cutoff_page is None
-                and since_date
-                and all(listing_date and listing_date < since_date for _, _, listing_date in records)
-            ):
-                cutoff_page = page
-                target_page = min(declared_pages - 1, page + FINRA_REFETCH_PAGES)
-                logger.info(
-                    f"FINRA safe cutoff reached at page {page}; "
-                    f"refetch window extends through page {target_page}"
-                )
-
-            if page + 1 >= declared_pages:
-                break
-            if target_page is not None and page >= target_page:
-                break
-        else:
+        listing = _fetch_finra_listing_records(session, since_date)
+        if not listing.get("complete"):
             return _incomplete_result(
-                error=f"FINRA pagination exceeded safe cutoff of {FINRA_MAX_PAGES} pages",
-                expected_count=len(page_records),
-                pages_fetched=pages_fetched,
-                declared_pages=declared_pages,
-                cutoff_page=cutoff_page,
+                error=listing.get("error") or "FINRA listing was incomplete",
+                expected_count=listing.get("expected_count"),
+                pages_fetched=listing.get("pages_fetched", 0),
+                declared_pages=listing.get("declared_pages"),
+                cutoff_page=listing.get("cutoff_page"),
             )
-
-        if declared_pages is None or (
-            declared_pages != 0 and pages_fetched > declared_pages
-        ):
-            return _incomplete_result(
-                error="FINRA pagination metadata was not verifiable",
-                expected_count=len(page_records),
-                pages_fetched=pages_fetched,
-                declared_pages=declared_pages,
-                cutoff_page=cutoff_page,
-            )
-        if (
-            cutoff_page is None
-            and declared_pages != 0
-            and pages_fetched != declared_pages
-        ):
-            return _incomplete_result(
-                error=(
-                    "FINRA pagination incomplete: "
-                    f"declared {declared_pages} pages, fetched {pages_fetched}"
-                ),
-                expected_count=len(page_records),
-                pages_fetched=pages_fetched,
-                declared_pages=declared_pages,
-            )
+        page_records = list(listing["records"])
+        pages_fetched = listing["pages_fetched"]
+        declared_pages = listing["declared_pages"]
+        cutoff_page = listing["cutoff_page"]
+        seen_urls = {record[0] for record in page_records}
 
         for known_url in sorted(set(known_urls or [])):
             if known_url not in seen_urls:
@@ -1648,6 +1949,14 @@ def main():
         action='store_true',
         help='Validate config file and exit without running'
     )
+    parser.add_argument(
+        '--initialize-baseline',
+        action='store_true',
+        help=(
+            "Explicitly initialize missing regulatory source state; requires "
+            "REGULATORY_MONITOR_BASELINE_APPROVED=I_UNDERSTAND and cannot run in CI"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -1670,6 +1979,13 @@ def main():
                 print(f"  - {err}")
             sys.exit(2)
 
+    if args.initialize_baseline and not _baseline_approval_is_manual():
+        logger.error(
+            "Baseline initialization requires local manual approval via "
+            "REGULATORY_MONITOR_BASELINE_APPROVED=I_UNDERSTAND"
+        )
+        sys.exit(2)
+
     logger.info("=== Regulatory Monitor ===")
     logger.info(f"Source: {args.source}")
     logger.info(f"Dry run: {args.dry_run}")
@@ -1677,12 +1993,41 @@ def main():
     if args.limit is not None:
         logger.info(f"Limit: {args.limit} items per source")
 
-    # Ensure directories exist
+    source_keys = []
+    if args.source in ['federal-register', 'all']:
+        source_keys.append(SOURCE_KEY_FEDERAL_REGISTER)
+    if args.source in ['finra', 'all']:
+        source_keys.append(SOURCE_KEY_FINRA)
+
+    # Normal scheduled runs must prove a valid prior regulatory state before
+    # any source fetch or write. Read-only dry validation may operate without
+    # state because it performs no fetch or write. Only the explicitly approved
+    # local baseline mode may recover missing source sections.
+    strict_state = not args.initialize_baseline and not args.dry_run
+    try:
+        state = load_state(
+            STATE_FILE,
+            allow_empty=args.initialize_baseline or args.dry_run,
+            migrate=args.initialize_baseline,
+        )
+    except StateLoadError as exc:
+        logger.error("Regulatory monitor state is unavailable: %s", exc)
+        sys.exit(2)
+
+    if strict_state:
+        state_errors = _validate_regulatory_state(state, source_keys)
+        if state_errors:
+            for error in state_errors:
+                logger.error("Regulatory monitor state invalid: %s", error)
+            sys.exit(2)
+    elif args.initialize_baseline:
+        for source_key in source_keys:
+            if _validate_regulatory_state(state, [source_key]):
+                set_source_state(state, source_key, {})
+
+    # Ensure directories exist only after state validation has succeeded.
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Load unified state
-    state = load_state(STATE_FILE)
 
     # Graceful degradation: --dry-run skips all network calls so the script
     # can be smoke-tested in CI environments without outbound access.
@@ -1711,7 +2056,10 @@ def main():
         # for this source, record the current items as the baseline silently
         # rather than flagging every fetched item as "new". Without this guard a
         # first run would emit ~30 days of items as a single noisy report.
-        fed_is_baseline = fed_state.get('last_run') is None
+        fed_is_baseline = (
+            args.initialize_baseline
+            and bool(_validate_regulatory_state(state, [SOURCE_KEY_FEDERAL_REGISTER]))
+        )
 
         # Determine since_date (last check or 30 days ago)
         since_date = fed_state.get('last_checked')
@@ -1737,7 +2085,10 @@ def main():
         finra_state = get_source_state(state, SOURCE_KEY_FINRA)
 
         # First-run baseline suppression (mirrors Federal Register / learn_monitor).
-        finra_is_baseline = finra_state.get('last_run') is None
+        finra_is_baseline = (
+            args.initialize_baseline
+            and bool(_validate_regulatory_state(state, [SOURCE_KEY_FINRA]))
+        )
         finra_refresh_urls = _finra_refresh_batch(finra_state)
         persisted_fallback_urls = finra_state.get('fallback_urls', {})
         if isinstance(persisted_fallback_urls, dict):

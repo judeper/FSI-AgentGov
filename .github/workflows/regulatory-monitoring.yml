@@ -18,8 +18,7 @@ on:
     # Allow manual triggering
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   # Serialize Regulatory Monitor runs so two runs never consolidate/auto-merge
@@ -28,14 +27,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  monitor-regulatory:
+  validate-read-only:
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name != 'pull_request' &&
+      github.ref_name != github.event.repository.default_branch)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (read-only)
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -46,21 +53,43 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pyyaml
 
-      - name: Run Regulatory Monitor (PR smoke, dry-run)
-        if: github.event_name == 'pull_request'
+      - name: Run Regulatory Monitor (read-only dry validation)
         run: python scripts/regulatory_monitor.py --dry-run
 
-      - name: Run Regulatory Monitor (non-default ref, read-only dry validation)
-        if: github.event_name != 'pull_request' && github.ref_name != github.event.repository.default_branch
+  monitor-regulatory:
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify trusted default-branch checkout
         run: |
-          # Feature branches and manual runs on non-default refs may validate
-          # monitor code, but must never mutate state or create state PRs.
-          python scripts/regulatory_monitor.py --dry-run
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "${{ github.event.repository.default_branch }}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 pyyaml
 
       - name: Run Regulatory Monitor
         id: monitor
-        if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
-        continue-on-error: true
         run: |
           set -euo pipefail
           BASE_SHA=$(git rev-parse HEAD)
@@ -74,7 +103,16 @@ jobs:
           python scripts/regulatory_monitor.py
           EXIT_CODE=$?
           set -e
-          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+          case "$EXIT_CODE" in
+            0|1)
+              ;;
+            *)
+              echo "::error::Regulatory monitor returned undocumented exit code $EXIT_CODE" >&2
+              exit "$EXIT_CODE"
+              ;;
+          esac
 
           # Exit 0 is still a successful run: the monitor may have advanced
           # refresh cursors, last_run metadata, or learned FINRA fallbacks.
@@ -92,6 +130,10 @@ jobs:
           if [ "$EXIT_CODE" -eq 1 ]; then
             echo "run_kind=findings" >> $GITHUB_OUTPUT
             REPORT_FILE=$(ls -t reports/monitoring/regulatory-changes-*.md 2>/dev/null | head -1)
+            if [ -z "$REPORT_FILE" ]; then
+              echo "::error::Monitor returned findings but did not produce a report." >&2
+              exit 2
+            fi
             if [ -n "$REPORT_FILE" ]; then
               # Extract counts from the report. Use `| head -1 || true` (NOT
               # `|| echo 0`) so a grep miss / PCRE-unavailable / report-format
@@ -121,16 +163,31 @@ jobs:
             fi
           fi
 
-          # Exit codes 2+ are fail-closed source/validation errors. Preserve
-          # the report outputs above, then surface the error to the guard step.
-          if [ "$EXIT_CODE" -ge 2 ]; then
-            echo "::error::Regulatory monitor failed closed with exit code $EXIT_CODE" >&2
-            exit "$EXIT_CODE"
+      - name: Validate monitor outcome and outputs
+        id: monitor_guard
+        if: always()
+        run: |
+          set -euo pipefail
+          OUTCOME="${{ steps.monitor.outcome }}"
+          EXIT_CODE="${{ steps.monitor.outputs.exit_code }}"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "::error::Regulatory monitor step did not complete successfully (outcome=$OUTCOME)." >&2
+            exit 2
           fi
+          case "$EXIT_CODE" in
+            0|1)
+              ;;
+            *)
+              echo "::error::Regulatory monitor exit_code output is missing or undocumented: '$EXIT_CODE'." >&2
+              exit 2
+              ;;
+          esac
 
       - name: Detect persisted monitor changes
         id: state_changes
         if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
           github.event_name != 'pull_request' &&
           github.ref_name == github.event.repository.default_branch &&
           (steps.monitor.outputs.exit_code == '0' ||
@@ -161,6 +218,8 @@ jobs:
       - name: Validate default-branch monitor CAS
         id: cas
         if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
           github.event_name != 'pull_request' &&
           github.ref_name == github.event.repository.default_branch &&
           (steps.monitor.outputs.exit_code == '0' ||
@@ -207,6 +266,8 @@ jobs:
       - name: Determine whether to create a monitor PR
         id: should_create_pr
         if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
           steps.cas.outputs.valid == 'true' &&
           (steps.monitor.outputs.exit_code == '0' ||
           steps.monitor.outputs.exit_code == '1')
@@ -223,15 +284,11 @@ jobs:
             echo "create_pr=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Fail on regulatory monitor error
-        if: steps.monitor.outputs.exit_code != '' && steps.monitor.outputs.exit_code != '0' && steps.monitor.outputs.exit_code != '1'
-        run: |
-          echo "::error::Regulatory monitor failed closed with exit code ${{ steps.monitor.outputs.exit_code }}" >&2
-          exit "${{ steps.monitor.outputs.exit_code }}"
-
       - name: Generate GitHub App token
         id: app-token
         if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
           steps.cas.outputs.valid == 'true' &&
           steps.should_create_pr.outputs.create_pr == 'true'
         uses: actions/create-github-app-token@v3

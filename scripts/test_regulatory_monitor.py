@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import sys
 from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -133,12 +134,16 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
 
 
 def test_first_run_establishes_baseline_without_reporting(monkeypatch):
-    """First run (no prior state) must persist a baseline and report ZERO items.
+    """Explicitly approved baseline mode persists a baseline without reporting.
 
     Regression guard for the burst-report defect: without first-run suppression,
     a no-prior-state run flags every fetched item as new and emits a noisy
-    ~30-day report with exit 1. The fix records the baseline silently (exit 0).
+    ~30-day report with exit 1. Only the explicitly approved manual mode records
+    the baseline silently (exit 0).
     """
+    # CI sets GITHUB_ACTIONS globally; this test explicitly models the
+    # operator-approved local-only baseline path.
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
     fed_items = [
         _make_item("SEC Rule A", "fr-1"),
         _make_item("CFTC Rule B", "fr-2", agency="CFTC"),
@@ -148,8 +153,13 @@ def test_first_run_establishes_baseline_without_reporting(monkeypatch):
     ]
 
     # Empty unified state => no prior state for either source.
+    monkeypatch.setenv("REGULATORY_MONITOR_BASELINE_APPROVED", "I_UNDERSTAND")
     code, saved_state, report_items = _run_main(
-        monkeypatch, state={}, fed_items=fed_items, finra_items=finra_items,
+        monkeypatch,
+        state={},
+        fed_items=fed_items,
+        finra_items=finra_items,
+        args=["--initialize-baseline"],
     )
 
     assert code == 0, "first run should exit 0 (no burst report)"
@@ -162,6 +172,87 @@ def test_first_run_establishes_baseline_without_reporting(monkeypatch):
     assert set(fed_state['entries']) == {'fr-1', 'fr-2'}, "fed baseline entries persisted"
     assert finra_state.get('last_run'), "finra baseline last_run must be recorded"
     assert set(finra_state['entries']) == {'finra-1'}, "finra baseline entries persisted"
+
+
+def test_missing_regulatory_state_fails_before_fetch_or_write(monkeypatch):
+    """A scheduled run must not baseline an absent regulatory section silently."""
+    state = {
+        "version": 1,
+        "sources": {
+            "learn": {"last_run": "2026-08-01T00:00:00+00:00"},
+        },
+    }
+    fetch_calls = []
+    save_calls = []
+
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: state)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_federal_register_documents",
+        lambda *a, **k: fetch_calls.append("federal") or [],
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_finra_notices",
+        lambda *a, **k: fetch_calls.append("finra") or [],
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "save_state_atomic",
+        lambda *a, **k: save_calls.append(a),
+    )
+    monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py"])
+
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+
+    assert exc.value.code == 2
+    assert fetch_calls == []
+    assert save_calls == []
+
+
+def test_corrupt_regulatory_state_fails_before_baseline_suppression(monkeypatch):
+    """Malformed entries/last_run cannot trigger implicit first-run baseline mode."""
+    state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER: {
+                "last_run": "not-a-timestamp",
+                "entries": [],
+            },
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "entries": {},
+            },
+        },
+    }
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: state)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_federal_register_documents",
+        lambda *a, **k: pytest.fail("corrupt state must stop before fetching"),
+    )
+    monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py"])
+
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+
+    assert exc.value.code == 2
+
+
+def test_baseline_mode_requires_manual_approval_and_rejects_ci(monkeypatch):
+    """Baseline initialization cannot be reached from an unattended workflow."""
+    monkeypatch.delenv("REGULATORY_MONITOR_BASELINE_APPROVED", raising=False)
+    monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py", "--initialize-baseline"])
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+    assert exc.value.code == 2
+
+    monkeypatch.setenv("REGULATORY_MONITOR_BASELINE_APPROVED", "I_UNDERSTAND")
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+    assert exc.value.code == 2
 
 
 def test_subsequent_run_still_detects_new_items(monkeypatch):
@@ -499,6 +590,42 @@ def _finra_listing_page(page, total_pages, records):
     return f"<html><body>{rows}{pager}</body></html>"
 
 
+def _finra_year_listing_page(
+    year,
+    filter_value,
+    records,
+    *,
+    selected=True,
+    total_pages=None,
+    empty=False,
+):
+    selected_attr = " selected" if selected else ""
+    rows = "\n".join(
+        f'<tr><td><time datetime="{date}T12:00:00Z"></time>'
+        f'<a href="{href}">{title}</a></td></tr>'
+        for href, title, date in records
+    )
+    pager = ""
+    if total_pages and total_pages > 1:
+        pager = (
+            '<nav class="pagination">'
+            f'<a href="?combine_1={filter_value}&page={total_pages - 1}">'
+            "Last >> Last page</a></nav>"
+        )
+    empty_markup = '<div class="view-empty">No results</div>' if empty else ""
+    return f"""
+    <html><body>
+      <form>
+        <select name="combine_1">
+          <option value="All">- Any -</option>
+          <option value="{filter_value}"{selected_attr}>{year}</option>
+        </select>
+      </form>
+      {rows}{pager}{empty_markup}
+    </body></html>
+    """
+
+
 def _finra_detail_page(title, date, summary):
     return f"""
     <html><body>
@@ -513,8 +640,134 @@ def _finra_detail_page(title, date, summary):
     """
 
 
+def test_finra_authoritative_year_filter_bounds_incremental_crawl(monkeypatch):
+    """Incremental runs use the selected FINRA year boundary, not 92 pages."""
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    year = datetime.now(timezone.utc).year
+    record = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        f"{year}-07-24",
+    )
+    base = _finra_year_listing_page(year, "1", [], selected=False, total_pages=92)
+    filtered = _finra_year_listing_page(year, "1", [record], total_pages=None)
+    detail_url = "https://www.finra.org/rules-guidance/notices/26-15"
+    pages = {
+        regulatory_monitor.FINRA_NOTICES_URL: base,
+        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1": filtered,
+        detail_url: _finra_detail_page(
+            "FINRA Requests Comment on Best Execution Guidance",
+            f"{year}-07-24",
+            "Comments are requested.",
+        ),
+    }
+    requested = []
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        requested.append(url)
+        return {
+            "status_code": 200,
+            "content": pages[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        since_date=f"{year}-01-01",
+    )
+
+    assert result.complete is True
+    assert result.declared_pages == 1
+    assert result.pages_fetched == 1
+    assert result[0].document_id == "FINRA 26-15"
+    assert requested[:2] == [
+        regulatory_monitor.FINRA_NOTICES_URL,
+        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1",
+    ]
+    assert not any("?page=" in url for url in requested)
+
+
+def test_finra_selected_year_filter_metadata_mismatch_fails_closed(monkeypatch):
+    """A claimed year boundary with contradictory selection is unverifiable."""
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    year = datetime.now(timezone.utc).year
+    record = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        f"{year}-07-24",
+    )
+    pages = {
+        regulatory_monitor.FINRA_NOTICES_URL: _finra_year_listing_page(
+            year, "1", [], selected=False, total_pages=92
+        ),
+        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1":
+            _finra_year_listing_page(year, "1", [record], selected=False),
+    }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": pages[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        since_date=f"{year}-01-01",
+    )
+
+    assert result.complete is False
+    assert "selected" in result.error
+
+
+def test_finra_authoritative_year_filter_accepts_explicit_zero_result(monkeypatch):
+    """A selected year with an explicit empty shape is a verified zero result."""
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    year = datetime.now(timezone.utc).year
+    pages = {
+        regulatory_monitor.FINRA_NOTICES_URL: _finra_year_listing_page(
+            year, "1", [], selected=False, total_pages=92
+        ),
+        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1":
+            _finra_year_listing_page(year, "1", [], empty=True),
+    }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": pages[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        since_date=f"{year}-01-01",
+    )
+
+    assert result.complete is True
+    assert result == []
+    assert result.expected_count == 0
+    assert result.declared_pages == 0
+    assert result.pages_fetched == 1
+
+
 def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
-    """A 92-page-style listing scans the safe window and details every record in it."""
+    """A 92-page listing is fully traversed despite an old-page cutoff."""
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
     total_pages = 92
     page_records = {
         0: [
@@ -525,7 +778,14 @@ def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
         1: [("/rules-guidance/notices/26-14", "Regulatory Notice 26-14", "2026-07-10")],
         2: [("/rules-guidance/notices/26-13", "Regulatory Notice 26-13", "2026-08-01")],
         3: [("/rules-guidance/notices/26-12", "Regulatory Notice 26-12", "2026-07-01")],
+        91: [("/rules-guidance/notices/26-99", "Regulatory Notice 26-99", "2026-06-15")],
     }
+    for page in range(4, 91):
+        page_records[page] = [(
+            f"/rules-guidance/notices/information-notice-2026{page:04d}",
+            f"Information Notice page {page}",
+            "2026-06-01",
+        )]
     details = {
         "/rules-guidance/notices/26-15": _finra_detail_page(
             "FINRA Requests Comment on Modernizing FINRA's Best Execution Guidance",
@@ -544,7 +804,16 @@ def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
         "/rules-guidance/notices/26-12": _finra_detail_page(
             "Overlap-window notice", "2026-07-01", "Overlap content."
         ),
+        "/rules-guidance/notices/26-99": _finra_detail_page(
+            "Backdated page 92 notice", "2026-06-15", "Page 92 content."
+        ),
     }
+    for page, records in page_records.items():
+        for path, title, date in records:
+            details.setdefault(
+                path,
+                _finra_detail_page(title, date, f"Content from listing page {page}."),
+            )
     requested = []
 
     def fake_fetch_page(url, _session, **_kwargs):
@@ -582,26 +851,31 @@ def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
     assert result.complete is True
     assert result.declared_pages == total_pages
     assert result.cutoff_page == 1
-    assert result.pages_fetched == 3
+    assert result.pages_fetched == total_pages
     ids = {item.document_id for item in result}
-    assert ids == {
-        "FINRA 26-15",
-        "FINRA 26-14",
-        "FINRA 26-13",
-        "https://www.finra.org/rules-guidance/notices/information-notice-20260808",
-    }
+    assert "FINRA 26-12" in ids
+    assert "FINRA 26-99" in ids
+    assert len(ids) == sum(len(records) for records in page_records.values())
     assert "https://www.finra.org/rules-guidance/notices?page=2" in requested
-    assert "https://www.finra.org/rules-guidance/notices?page=3" not in requested
+    assert "https://www.finra.org/rules-guidance/notices?page=3" in requested
+    assert "https://www.finra.org/rules-guidance/notices?page=91" in requested
     edited = next(item for item in result if item.document_id == "FINRA 26-15")
     assert "Edited summary" in edited.abstract
 
 
 def test_finra_pagination_overlap_fails_closed(monkeypatch):
-    """A notice repeated across listing pages is an unverifiable pagination overlap."""
+    """A conflicting repeated notice record remains an unverifiable overlap."""
     record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
+    conflicting_record = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15 edited",
+        "2026-07-23",
+    )
     pages = {
         regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
-        "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(1, 2, [record]),
+        "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(
+            1, 2, [conflicting_record]
+        ),
     }
 
     def fake_fetch_page(url, _session, **_kwargs):
@@ -620,6 +894,40 @@ def test_finra_pagination_overlap_fails_closed(monkeypatch):
 
     assert result.complete is False
     assert "overlap" in result.error
+
+
+def test_finra_identical_listing_overlap_is_deduplicated(monkeypatch):
+    """An identical repeated record is safe to deduplicate while pages complete."""
+    record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
+    listing = {
+        regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
+        "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(
+            1, 2, [record]
+        ),
+        "https://www.finra.org/rules-guidance/notices/26-15": _finra_detail_page(
+            "Notice", "2026-07-24", "Stable content."
+        ),
+    }
+
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": listing[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+
+    assert result.complete is True
+    assert result.pages_fetched == 2
+    assert [item.document_id for item in result] == ["FINRA 26-15"]
 
 
 def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch):
@@ -726,7 +1034,7 @@ def test_finra_missing_date_remains_unknown(monkeypatch):
 
 
 def test_workflow_fails_closed_for_monitor_exit_two_or_more():
-    """The continue-on-error monitor step must still fail the job for exit >= 2."""
+    """Preflight and undocumented monitor statuses fail the mutation job."""
     workflow = (
         Path(__file__).resolve().parents[1]
         / ".github"
@@ -734,10 +1042,14 @@ def test_workflow_fails_closed_for_monitor_exit_two_or_more():
         / "regulatory-monitoring.yml"
     ).read_text(encoding="utf-8")
 
-    assert 'if [ "$EXIT_CODE" -ge 2 ]; then' in workflow
     assert 'exit "$EXIT_CODE"' in workflow
-    assert "Fail on regulatory monitor error" in workflow
-    assert "steps.monitor.outputs.exit_code != '1'" in workflow
+    assert '0|1)' in workflow
+    assert "undocumented exit code" in workflow
+    assert "- name: Validate monitor outcome and outputs" in workflow
+    assert 'if: always()' in workflow
+    assert 'steps.monitor.outcome' in workflow
+    assert "exit_code output is missing or undocumented" in workflow
+    assert "continue-on-error:" not in workflow
 
 
 def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
@@ -783,7 +1095,7 @@ def test_workflow_exit_semantics_keep_findings_and_fail_closed_runs_distinct():
 
 
 def test_workflow_mutation_is_default_branch_only_and_cas_checked():
-    """Feature refs are dry-only; state PRs require captured base/state CAS."""
+    """Feature refs are read-only; mutation has isolated write permissions and CAS."""
     workflow = (
         Path(__file__).resolve().parents[1]
         / ".github"
@@ -791,15 +1103,17 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
         / "regulatory-monitoring.yml"
     ).read_text(encoding="utf-8")
 
-    assert (
-        "github.event_name != 'pull_request' && "
-        "github.ref_name != github.event.repository.default_branch"
-    ) in workflow
-    assert (
-        "github.event_name != 'pull_request' && "
-        "github.ref_name == github.event.repository.default_branch"
-    ) in workflow
+    assert "validate-read-only:" in workflow
+    assert "monitor-regulatory:" in workflow
+    assert "contents: read" in workflow
+    assert "contents: write" in workflow
+    assert "pull-requests: read" in workflow
+    assert "pull-requests: write" in workflow
     assert "python scripts/regulatory_monitor.py --dry-run" in workflow
+    assert "persist-credentials: false" in workflow
+    assert "Checkout trusted default branch" in workflow
+    assert "Verify trusted default-branch checkout" in workflow
+    assert "Generate GitHub App token" in workflow
     assert "STATE_SHA_BEFORE=$(sha256sum data/monitor-state.json" in workflow
     assert "- name: Validate default-branch monitor CAS" in workflow
     assert 'git fetch --no-tags origin "$DEFAULT_BRANCH"' in workflow
@@ -815,11 +1129,32 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
         "- name: Validate default-branch monitor CAS", 1
     )[1].split("- name:", 1)[0]
     for block in (state_changes_block, cas_block):
+        assert "steps.monitor.outcome == 'success'" in block
         assert "github.event_name != 'pull_request'" in block
         assert (
             "github.ref_name == github.event.repository.default_branch"
             in block
         )
+
+    read_only_block = workflow.split("validate-read-only:", 1)[1].split(
+        "monitor-regulatory:", 1
+    )[0]
+    assert "contents: write" not in read_only_block
+    assert "pull-requests: write" not in read_only_block
+    assert "private-key:" not in read_only_block
+
+
+def test_baseline_initialization_requires_manual_approval_and_is_not_in_workflow():
+    """The exceptional baseline path cannot be invoked by Actions automation."""
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "--initialize-baseline" not in workflow
+    assert "REGULATORY_MONITOR_BASELINE_APPROVED=I_UNDERSTAND" not in workflow
 
 
 def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_only_corruption():
@@ -849,6 +1184,7 @@ def test_dry_run_does_not_fetch_or_persist_watermarks(monkeypatch):
     monkeypatch.setattr(regulatory_monitor, "fetch_federal_register_documents", fail_fetch)
     monkeypatch.setattr(regulatory_monitor, "fetch_finra_notices", fail_fetch)
     monkeypatch.setattr(regulatory_monitor, "save_state_atomic", fail_save)
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: {})
     monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py", "--dry-run"])
 
     with pytest.raises(SystemExit) as exc:

@@ -267,7 +267,13 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 
 **Process:**
 1. Query Federal Register API for recent documents from target agencies
-2. Scrape FINRA regulatory notices
+2. Scrape FINRA regulatory notices. Incremental runs first use FINRA's
+   authoritative year filter for every year covered by the persisted date
+   boundary, so backdated notices in that year are included without assuming
+   that an old-page cutoff is safe. Each filtered result is validated for its
+   selected year and complete pager/zero-result shape. If the filter cannot be
+   proven authoritative, the monitor falls back to the complete unfiltered
+   pager crawl and fails closed on missing or contradictory pagination.
 3. For each new item:
    - Extract title, abstract, document type
    - Compute content hash
@@ -285,14 +291,24 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 - `2` - Error during execution; fails closed and never creates a state PR.
 
 **Persistence and PR safety:** Only a run on the default branch may mutate
-state or create a state PR. Feature-branch and pull-request runs are dry
-validation only. Before creating or auto-merging a state PR, the workflow
+state or create a state PR. Feature-branch and pull-request runs use a
+separate read-only job (`contents: read`, `persist-credentials: false`) and
+execute only `--dry-run`; they never receive the App/write token. The
+mutating job checks out the trusted default branch with credentials persistence
+disabled, and only requests the App token after monitor success and CAS
+validation. Before creating or auto-merging a state PR, the workflow
 revalidates the captured default-branch commit and state-file SHA; a changed
 base fails closed. Successful runs may change only
 `data/monitor-state.json`, its atomic backup, or a regenerated regulatory
 report. Exit-0 state-only PRs are clearly identified and may use the existing
 kill-switch-gated, file-allowlisted auto-merge path; CRITICAL/HIGH findings
 remain human-reviewable.
+
+Scheduled mutation also requires both regulatory source sections to be valid
+objects with an entries map and a parseable `last_run`. Missing or corrupt
+state fails before any fetch or write. Baseline initialization is an
+explicitly approved local-only `--initialize-baseline` operation and is never
+available from GitHub Actions.
 
 **Keywords for Control Mapping:**
 
