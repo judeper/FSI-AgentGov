@@ -53,7 +53,6 @@ from monitoring_shared import (
     get_source_state,
     load_monitoring_config,
     load_state,
-    normalize_content,
     save_state_atomic,
     set_source_state,
     validate_config,
@@ -676,21 +675,159 @@ def _extract_finra_summary(soup: BeautifulSoup) -> str:
     return ' '.join(parts)
 
 
-def _extract_finra_substantive_content(soup: BeautifulSoup) -> str:
-    """Normalize the complete notice body, including every substantive section."""
-    content = soup.find('main') or soup.find('article') or soup.select_one('.field--name-body')
-    if content is None:
-        return ""
+_FINRA_TRACKING_QUERY_KEYS = {
+    "fbclid",
+    "gclid",
+    "mc_cid",
+    "mc_eid",
+    "ref",
+    "source",
+    "utm_campaign",
+    "utm_content",
+    "utm_medium",
+    "utm_source",
+    "utm_term",
+}
 
-    content = BeautifulSoup(str(content), 'html.parser')
-    for tag in content.find_all(
+
+def _normalize_finra_date_values(text: str) -> str:
+    """Keep substantive dates while making equivalent display formats stable."""
+    month_date = re.compile(
+        r"\b(January|February|March|April|May|June|July|August|September|"
+        r"October|November|December)\s+(\d{1,2}),\s+(\d{4})\b",
+        re.IGNORECASE,
+    )
+    numeric_date = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
+
+    def month_replacement(match: re.Match) -> str:
+        try:
+            value = datetime.strptime(
+                f"{match.group(1)} {match.group(2)} {match.group(3)}",
+                "%B %d %Y",
+            )
+        except ValueError:
+            return match.group(0)
+        return value.date().isoformat()
+
+    def numeric_replacement(match: re.Match) -> str:
+        try:
+            value = datetime.strptime(
+                f"{match.group(1)}/{match.group(2)}/{match.group(3)}",
+                "%m/%d/%Y",
+            )
+        except ValueError:
+            return match.group(0)
+        return value.date().isoformat()
+
+    text = month_date.sub(month_replacement, text)
+    return numeric_date.sub(numeric_replacement, text)
+
+
+def _canonicalize_finra_href(href: str, base_url: str) -> str:
+    """Retain authoritative link targets while removing tracking-only noise."""
+    absolute = urljoin(base_url, href)
+    parsed = urlparse(absolute)
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    filtered = [
+        (key, value)
+        for key, values in query.items()
+        if key.casefold() not in _FINRA_TRACKING_QUERY_KEYS
+        for value in values
+    ]
+    filtered.sort()
+    return parsed._replace(
+        scheme=parsed.scheme.casefold(),
+        netloc=parsed.netloc.casefold(),
+        query=urlencode(filtered),
+    ).geturl()
+
+
+def _canonicalize_finra_fragment(node, base_url: str) -> str:
+    """Canonicalize one authoritative FINRA fragment without page chrome."""
+    fragment = BeautifulSoup(str(node), 'html.parser')
+    for tag in fragment.find_all(
         ['script', 'style', 'nav', 'header', 'footer', 'aside', 'noscript']
     ):
         tag.decompose()
-    for selector in ('.breadcrumb', '.pagination', '.pager'):
-        for element in content.select(selector):
+    for selector in (
+        '.breadcrumb',
+        '.pagination',
+        '.pager',
+        '#comments',
+        '#comments-tab',
+        '#block-views-block-notice-comments-block-1',
+        '[id*="comment" i]',
+        '[class*="comment" i]',
+    ):
+        for element in fragment.select(selector):
             element.decompose()
-    return normalize_content(str(content))
+
+    for link in fragment.find_all('a', href=True):
+        label = ' '.join(link.get_text(' ', strip=True).split())
+        target = _canonicalize_finra_href(link['href'], base_url)
+        replacement = f"{label} [href:{target}]" if label else f"[href:{target}]"
+        link.replace_with(replacement)
+
+    text = ' '.join(fragment.get_text(' ', strip=True).split())
+    text = re.sub(r'\s+([,.;:!?])', r'\1', text)
+    return _normalize_finra_date_values(text)
+
+
+def _extract_finra_substantive_content(
+    soup: BeautifulSoup,
+    base_url: str = FINRA_NOTICES_URL,
+) -> str:
+    """Canonicalize only the authoritative notice, metadata, and attachments.
+
+    FINRA renders public comments in a sibling ``#comments`` tab.  Starting
+    from ``main`` accidentally included that mutable public content, so the
+    primary root is the ``#notice`` tab and the fallback is a narrowly scoped
+    notice body used by older templates and test fixtures.
+    """
+    notice = soup.select_one('#notice')
+    body = soup.select_one('.field--name-body')
+    content = notice or body or soup.select_one('.notice-body, .notice-content')
+    if content is None:
+        return ""
+
+    parts = []
+    title_node = soup.select_one('.field--name-field-notice-title-tx') or soup.find('h1')
+    if title_node:
+        title = _canonicalize_finra_fragment(title_node, base_url)
+        if title:
+            parts.append(title)
+
+    publication_date = _extract_finra_publication_date(soup)
+    official_date_node = soup.select_one('.field--name-field-core-official-dt')
+    if official_date_node:
+        date_text = _canonicalize_finra_fragment(official_date_node, base_url)
+        if publication_date:
+            date_text = f"Published Date: {publication_date}"
+        if date_text:
+            parts.append(date_text)
+
+    subtitle_node = soup.select_one('.field--name-field-notice-subtitle-tx')
+    if subtitle_node:
+        subtitle = _canonicalize_finra_fragment(subtitle_node, base_url)
+        if subtitle:
+            parts.append(subtitle)
+
+    notice_text = _canonicalize_finra_fragment(content, base_url)
+    if notice_text:
+        parts.append(notice_text)
+
+    # These authoritative download/attachment targets live in the notice
+    # sidebar, outside #notice, while the public comments tab is excluded.
+    for selector in ('#block-noticedocument', '#block-noticeattachment'):
+        attachment = soup.select_one(selector)
+        if attachment:
+            attachment_text = _canonicalize_finra_fragment(
+                attachment, base_url
+            )
+            if attachment_text:
+                parts.append(attachment_text)
+
+    return '\n\n'.join(parts)
 
 
 def _extract_finra_document_id(url: str) -> str:
@@ -1039,7 +1176,7 @@ def fetch_finra_notices(
             )
             publication_date = _extract_finra_publication_date(detail_soup)
             abstract = _extract_finra_summary(detail_soup)
-            substantive_content = _extract_finra_substantive_content(detail_soup)
+            substantive_content = _extract_finra_substantive_content(detail_soup, url)
             if not substantive_content:
                 return _incomplete_result(
                     items,

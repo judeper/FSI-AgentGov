@@ -12,8 +12,8 @@
 
 | Category | Count |
 |----------|-------|
-| HIGH Changes | 6 |
-| MEDIUM Changes | 30 |
+| HIGH Changes | 10 |
+| MEDIUM Changes | 26 |
 | NOISE Changes | 21 |
 
 ---
@@ -22,10 +22,14 @@
 |---|--------|--------|----------------|-------------------|--------|
 | 1 | FINRA | FINRA | HIGH | 1.10, 2.12, 2.18, 2.6, 3.1, 3.2, 3.8 | Review |
 | 2 | FINRA | FINRA | HIGH | 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.18, 2.19, 2.6, 2.7, 3.1, 3.2, 3.8 | Review |
-| 3 | FINRA | FINRA | HIGH | 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.14, 2.15, 2.18, 2.19, 2.6, 3.1, 3.2, 3.8 | Review |
-| 4 | FINRA | FINRA | HIGH | 1.10, 1.7, 2.6, 3.1, 3.2 | Review |
-| 5 | FINRA | FINRA | HIGH | 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.14, 2.18, 2.19, 2.6, 3.1, 3.2, 3.8 | Review |
-| 6 | FINRA | FINRA | HIGH | 1.10, 2.12, 2.18, 2.6, 3.1, 3.2, 3.8 | Review |
+| 3 | FINRA | FINRA | HIGH | 1.10, 1.7, 2.18, 2.6, 3.1, 3.2 | Review |
+| 4 | FINRA | FINRA | HIGH | 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.14, 2.15, 2.18, 2.19, 2.6, 3.1, 3.2, 3.8 | Review |
+| 5 | FINRA | FINRA | HIGH | 1.10, 1.7, 2.6, 3.1, 3.2 | Review |
+| 6 | FINRA | FINRA | HIGH | 1.10, 2.12, 2.18, 2.6, 3.1, 3.2 | Review |
+| 7 | FINRA | FINRA | HIGH | 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.14, 2.18, 2.19, 2.6, 3.1, 3.2, 3.8 | Review |
+| 8 | FINRA | FINRA | HIGH | 1.10, 2.12, 2.18, 2.6, 3.1, 3.2, 3.8 | Review |
+| 9 | FINRA | FINRA | HIGH | 1.10, 1.7, 2.12, 2.18, 2.6, 3.1, 3.2 | Review |
+| 10 | FINRA | FINRA | HIGH | 1.10, 2.12, 2.18, 2.19, 2.6, 3.1, 3.2 | Review |
 
 ## HIGH Priority Items
 These regulatory changes reference AI, ML, automation, or FSI-specific requirements relevant to AI agent governance.
@@ -48,7 +52,16 @@ These regulatory changes reference AI, ML, automation, or FSI-specific requireme
 - **Abstract:** FINRA seeks comment on a proposal to modernize Rule 2210 (Communications with the Public). This proposal reflects evolving communication practices and technologies, including changes in social media use and advances in generative (Gen) artificial intelligence (AI). In particular, the proposal would ...
 - **Potentially Affected Controls:** 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.18, 2.19, 2.6, 2.7, 3.1, 3.2, 3.8
 
-### 3. [FINRA Requests Comment on Rule Revisions to Help Member Firms Protect Senior Investors From Financial Exploitation and All Investors From Fraud](https://www.finra.org/rules-guidance/notices/26-02)
+### 3. [FINRA Requests Comment on Modernizing FINRA Arbitration Rules, Guidance and Processes](https://www.finra.org/rules-guidance/notices/26-06)
+
+- **Source:** FINRA via FINRA
+- **Published:** 2026-03-02
+- **Type:** NOTICE
+- **Classification:** HIGH — Electronic recordkeeping
+- **Abstract:** Arbitration is an important means for resolving disputes involving customers, FINRA member firms and their associated persons. FINRA’s Dispute Resolution Services (DRS) arbitration forum provides a fair and efficient alternative to litigation, promoting investor protection and market integrity. As a...
+- **Potentially Affected Controls:** 1.10, 1.7, 2.18, 2.6, 3.1, 3.2
+
+### 4. [FINRA Requests Comment on Rule Revisions to Help Member Firms Protect Senior Investors From Financial Exploitation and All Investors From Fraud](https://www.finra.org/rules-guidance/notices/26-02)
 
 - **Source:** FINRA via FINRA
 - **Published:** 2026-01-08
@@ -57,7 +70,7 @@ These regulatory changes reference AI, ML, automation, or FSI-specific requireme
 - **Abstract:** FINRA seeks comment on proposed rule modernization changes to further assist member firms in protecting customers from fraud and financial exploitation. Based on comments on Regulatory Notice 25-07 , FINRA proposes amendments to FINRA Rules 4512 (Customer Account Information) and 2165 (Financial Exp...
 - **Potentially Affected Controls:** 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.14, 2.15, 2.18, 2.19, 2.6, 3.1, 3.2, 3.8
 
-### 4. [FINRA Enhances Its Systems to Facilitate Member Compliance With Form U4 Recordkeeping Requirements](https://www.finra.org/rules-guidance/notices/25-13)
+### 5. [FINRA Enhances Its Systems to Facilitate Member Compliance With Form U4 Recordkeeping Requirements](https://www.finra.org/rules-guidance/notices/25-13)
 
 - **Source:** FINRA via FINRA
 - **Published:** 2025-10-10
@@ -66,7 +79,16 @@ These regulatory changes reference AI, ML, automation, or FSI-specific requireme
 - **Abstract:** Effective October 10, 2025, FINRA members may rely on the Central Registration Depository (CRD ® ) system to maintain for recordkeeping purposes the Form U4 (Uniform Application for Securities Industry Registration or Transfer) filings that individuals electronically sign through FINRA’s Financial P...
 - **Potentially Affected Controls:** 1.10, 1.7, 2.6, 3.1, 3.2
 
-### 5. [FINRA Requests Comment on Modernizing FINRA Rules, Guidance, and Processes for the Organization and Operation of Member Workplaces](https://www.finra.org/rules-guidance/notices/25-07)
+### 6. [FINRA Reminds Members and Associated Persons, Wherever Located, of Their Obligation to Comply With Rule 8210](https://www.finra.org/rules-guidance/notices/25-11)
+
+- **Source:** FINRA via FINRA
+- **Published:** 2025-09-25
+- **Type:** NOTICE
+- **Classification:** HIGH — Supervision of automated systems
+- **Abstract:** FINRA is issuing this Notice to remind members and associated persons that, no matter where they are located, they are required to provide information and testimony in response to a request from FINRA staff pursuant to FINRA Rule 8210. Questions concerning this Notice should be directed to: Victoria...
+- **Potentially Affected Controls:** 1.10, 2.12, 2.18, 2.6, 3.1, 3.2
+
+### 7. [FINRA Requests Comment on Modernizing FINRA Rules, Guidance, and Processes for the Organization and Operation of Member Workplaces](https://www.finra.org/rules-guidance/notices/25-07)
 
 - **Source:** FINRA via FINRA
 - **Published:** 2025-04-14
@@ -75,7 +97,7 @@ These regulatory changes reference AI, ML, automation, or FSI-specific requireme
 - **Abstract:** Advances in technology have transformed the workplace for members and their associated persons. These advances have changed how members and their associated persons conduct business and interact with customers, expanded customers’ choices in engaging with members and the securities markets, and crea...
 - **Potentially Affected Controls:** 1.10, 1.14, 1.15, 1.3, 1.7, 2.12, 2.14, 2.18, 2.19, 2.6, 3.1, 3.2, 3.8
 
-### 6. [FINRA Requests Comment on Modernizing FINRA Rules, Guidance and Processes to Facilitate Capital Formation](https://www.finra.org/rules-guidance/notices/25-06)
+### 8. [FINRA Requests Comment on Modernizing FINRA Rules, Guidance and Processes to Facilitate Capital Formation](https://www.finra.org/rules-guidance/notices/25-06)
 
 - **Source:** FINRA via FINRA
 - **Published:** 2025-03-20
@@ -83,6 +105,24 @@ These regulatory changes reference AI, ML, automation, or FSI-specific requireme
 - **Classification:** HIGH — References artificial intelligence
 - **Abstract:** A vibrant and efficient capital-raising process fosters business expansion, job creation, innovation and economic growth. FINRA members play a critical role in facilitating capital formation for businesses of all sizes. FINRA supports the capital-raising process through appropriately tailored rules ...
 - **Potentially Affected Controls:** 1.10, 2.12, 2.18, 2.6, 3.1, 3.2, 3.8
+
+### 9. [FINRA Launches Broad Review to Modernize Rules Regarding Member Firms and Associated Persons](https://www.finra.org/rules-guidance/notices/25-04)
+
+- **Source:** FINRA via FINRA
+- **Published:** 2025-03-12
+- **Type:** NOTICE
+- **Classification:** HIGH — Electronic recordkeeping
+- **Abstract:** As a self-regulatory organization, FINRA is committed to continuous improvement that draws on deep engagement with its member firms. Among other benefits, this engagement enables FINRA to better understand and address risks to investors and markets; better adapt its oversight to changing business pr...
+- **Potentially Affected Controls:** 1.10, 1.7, 2.12, 2.18, 2.6, 3.1, 3.2
+
+### 10. [Guidance to Members Affected by California Wildfires](https://www.finra.org/rules-guidance/notices/25-02)
+
+- **Source:** FINRA via FINRA
+- **Published:** 2025-01-27
+- **Type:** NOTICE
+- **Classification:** HIGH — Supervision of automated systems
+- **Abstract:** FINRA recognizes that member firms and their personnel have been experiencing significant disruptions to their business operations due to the devastating impact of the California wildfires, which started on January 7, 2025. The wildfires have also had a major impact on customers. For instance, custo...
+- **Potentially Affected Controls:** 1.10, 2.12, 2.18, 2.19, 2.6, 3.1, 3.2
 
 ## MEDIUM Priority Items
 General FSI regulations that may indirectly affect AI agent deployments.
@@ -99,8 +139,6 @@ General FSI regulations that may indirectly affect AI agent deployments.
   - **Evidence:** In November 2025, Securities and Exchange Commission (SEC) staff issued a no-action letter permitting registered representative-owned personal services entities to receive transaction-based compensation without broker-dealer registration, subject to conditions. This Notice provides guidance regarding the manner in which FINRA rules apply in relation to the no-action letter. This Notice does not apply new requirements beyond the no-action letter requirements. Members may apply this guidance to pe...
 - [FINRA Announces Publication of Interpretations and Investor Education Materials Relating to New Intraday Margin Standards](https://www.finra.org/rules-guidance/notices/26-11) (FINRA, 2026-05-19) — **Classification:** MEDIUM — Broker-dealer regulation
   - **Evidence:** FINRA is publishing updated interpretations of its margin rule (FINRA Rule 4210) to provide guidance to members in implementing the new intraday margin standards. Correspondingly, FINRA is deleting all interpretations relating to the former day trading margin requirements, which the new intraday margin standards have replaced in their entirety. Also, FINRA has made available educational resources, which members can share with customers, that provide information about the new intraday margin stan...
-- [FINRA Requests Comment on Modernizing FINRA Arbitration Rules, Guidance and Processes](https://www.finra.org/rules-guidance/notices/26-06) (FINRA, 2026-03-02) — **Classification:** MEDIUM — Broker-dealer regulation
-  - **Evidence:** Arbitration is an important means for resolving disputes involving customers, FINRA member firms and their associated persons. FINRA’s Dispute Resolution Services (DRS) arbitration forum provides a fair and efficient alternative to litigation, promoting investor protection and market integrity. As a self-regulatory organization (SRO), FINRA is committed to continuous improvement that draws on deep engagement with its members, the investing public and other interested parties. As part of this com...
 - [FINRA Adopts Amendments to the Capital Acquisition Broker Rules](https://www.finra.org/rules-guidance/notices/26-04) (FINRA, 2026-02-23) — **Classification:** MEDIUM — Broker-dealer regulation
   - **Evidence:** As part of the FINRA Forward initiative, FINRA has adopted amendments to the Capital Acquisition Broker (CAB) rules that are designed to reduce the regulatory burden on CABs while maintaining CABs’ limited institutional business model and important investor protections. The amendments will be effective on March 25, 2026. The text of the rule change is set forth in Attachment A. Questions concerning this Notice should be directed to: Joe Savage, Vice President and Associate General Counsel, Offic...
 - [Reducing Burdens and Providing Guidance on the Use of Negative Consent for the Bulk Transfer or Assignment of Customers’ Accounts](https://www.finra.org/rules-guidance/notices/26-03) (FINRA, 2026-02-06) — **Classification:** MEDIUM — Broker-dealer regulation
@@ -121,8 +159,6 @@ General FSI regulations that may indirectly affect AI agent deployments.
   - **Evidence:** The National Securities Clearing Corporation (NSCC) administers the Automated Customer Account Transfer Service (ACATS), a system that automates and imposes specified duties and performance timeframes to facilitate the transfer of accounts, in whole or in part, from one firm to another. The NSCC recently announced an amendment to NSCC Rule 50 (Automated Customer Account Transfer Service) to reflect, among other things, the removal of the settlement preparation stage (“Settle Prep” or the “Settle...
 - [FINRA Announces Update of the Interpretations of Financial and Operational Rules](https://www.finra.org/rules-guidance/notices/25-12) (FINRA, 2025-10-07) — **Classification:** MEDIUM — Broker-dealer regulation
   - **Evidence:** FINRA is making available updates to the Interpretations of Financial and Operational Rules (Interpretations). The updates include several new interpretations to Securities Exchange Act (SEA) Rules 15c3-1 and 15c3-3 that have been communicated to FINRA by the staff of the SEC’s Division of Trading and Markets. Additionally, as part of the FINRA Forward initiative and FINRA’s commitment to assist firms in fulfilling their regulatory obligations, FINRA has implemented enhancements to the informati...
-- [FINRA Reminds Members and Associated Persons, Wherever Located, of Their Obligation to Comply With Rule 8210](https://www.finra.org/rules-guidance/notices/25-11) (FINRA, 2025-09-25) — **Classification:** MEDIUM — Broker-dealer regulation
-  - **Evidence:** FINRA is issuing this Notice to remind members and associated persons that, no matter where they are located, they are required to provide information and testimony in response to a request from FINRA staff pursuant to FINRA Rule 8210. Questions concerning this Notice should be directed to: Victoria Crane, Vice President and Associate General Counsel, Office of General Counsel (OGC), by email or (202) 728-8104; or Thomas Kimbrell, Associate General Counsel, OGC, by email or (202) 728-6926.
 - [FINRA Reminds Registered Persons and Firms of Continuing Education Requirements](https://www.finra.org/rules-guidance/notices/information-notice-20250814) (FINRA, 2025-08-14) — **Classification:** MEDIUM — Compliance program requirements
   - **Evidence:** FINRA is providing information in this Notice to remind registered persons and firms of the continuing education (CE) requirements, including: this year’s Regulatory Element training assignments and completion deadline of December 31, 2025; resources available to firms for facilitating compliance with the annual Regulatory Element requirements; and resources available to guide firms creating their CE Firm Element written training plans and to help firms locate relevant course content to meet the...
 - [FINRA Adopts Exemption From FINRA Rules 5130 and 5131 for Business Development Companies](https://www.finra.org/rules-guidance/notices/25-08) (FINRA, 2025-07-23) — **Classification:** MEDIUM — Broker-dealer regulation
@@ -131,10 +167,6 @@ General FSI regulations that may indirectly affect AI agent deployments.
   - **Evidence:** Effective July 1, 2025, Prospective CAT Cost Recovery Fee 2025-1 will no longer be in effect for transactions in eligible securities executed by FINRA member CAT executing brokers, and Prospective CAT Cost Recovery Fee 2025-2 will be in effect. Questions regarding this Notice may be directed to: Amanda Rath, Associate Director, Finance, at (240) 386-6637 or email ; or Faisal Sheikh, Assistant General Counsel, Office of General Counsel, at (202) 728-8379 or email .
 - [FINRA Requests Comment on a Proposal to Reduce Unnecessary Burdens and Simplify Requirements Regarding Associated Persons’ Outside Activities](https://www.finra.org/rules-guidance/notices/25-05) (FINRA, 2025-03-14) — **Classification:** MEDIUM — Broker-dealer regulation
   - **Evidence:** FINRA seeks comment on a proposed new rule to streamline and reduce unnecessary burdens regarding existing requirements addressing the outside activities of member firms’ associated persons, including registered persons (the Proposal). The Proposal is the result of FINRA's retrospective review of FINRA's rules governing outside business activities (OBAs) and private securities transactions (PSTs), FINRA Rule 3270 (Outside Business Activities of Registered Persons) and FINRA Rule 3280 (Private Se...
-- [FINRA Launches Broad Review to Modernize Rules Regarding Member Firms and Associated Persons](https://www.finra.org/rules-guidance/notices/25-04) (FINRA, 2025-03-12) — **Classification:** MEDIUM — Broker-dealer regulation
-  - **Evidence:** As a self-regulatory organization, FINRA is committed to continuous improvement that draws on deep engagement with its member firms. Among other benefits, this engagement enables FINRA to better understand and address risks to investors and markets; better adapt its oversight to changing business practices and markets; better support innovation and the deployment of new technologies and services that benefit markets and investors; and build better tools and resources to help member firms serve i...
-- [Guidance to Members Affected by California Wildfires](https://www.finra.org/rules-guidance/notices/25-02) (FINRA, 2025-01-27) — **Classification:** MEDIUM — Customer communication rules
-  - **Evidence:** FINRA recognizes that member firms and their personnel have been experiencing significant disruptions to their business operations due to the devastating impact of the California wildfires, which started on January 7, 2025. The wildfires have also had a major impact on customers. For instance, customers may be unable to communicate with their financial professional or receive mail during this time. This Notice provides guidance to those members and other affected persons, including relief from c...
 - [Broker-Dealer and Investment Adviser Renewals for 2025](https://www.finra.org/rules-guidance/notices/25-01) (FINRA, 2025-01-02) — **Classification:** MEDIUM — Broker-dealer regulation
   - **Evidence:** FINRA’s Renewal Program supports the collection and disbursement of fees related to the renewal of broker-dealer (BD) and investment adviser (IA) registrations, exempt reporting and notice filings with participating self-regulatory organizations (SRO) and jurisdictions. During this program, FINRA announces renewal fees BD and IA firms owe via Preliminary Statements issued in November. FINRA publishes Final Statements in January to confirm or reconcile the actual renewal fees BD and IA firms owe ...
 - [Completion of Historical CAT Cost Recovery Assessment 1](https://www.finra.org/rules-guidance/notices/information-notice-20241224) (FINRA, 2024-12-24) — **Classification:** MEDIUM — Audit trail requirements

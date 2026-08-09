@@ -17,6 +17,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+from bs4 import BeautifulSoup
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
@@ -882,6 +883,147 @@ def test_finra_hashes_and_classifies_non_summary_edits(monkeypatch):
     assert "Endnotes" in first.substantive_content
     assert regulatory_monitor._item_content_hash(first) != regulatory_monitor._item_content_hash(second)
     assert second.classification == regulatory_monitor.CLASSIFICATION_CRITICAL
+
+
+def _finra_canonicalization_fixture(
+    *,
+    comments: str = "No comments.",
+    attachment_href: str = "/sites/default/files/attachment-v1.pdf",
+    deadline: str = "09/11/2026",
+    formatted: bool = False,
+) -> str:
+    """Build a notice with separate mutable comments and authoritative content."""
+    action = (
+        "<p>Action <strong>required</strong>.</p>"
+        if formatted
+        else "<p>Action required.</p>"
+    )
+    return f"""
+    <html><body>
+      <h1>Regulatory Notice 26-14</h1>
+      <div class="field--name-field-core-official-dt">
+        <time datetime="2026-07-09T00:00:00Z"></time>
+      </div>
+      <div class="field--name-field-notice-subtitle-tx">
+        Comment Period Expires: {deadline}
+      </div>
+      <div id="notice" class="tab-pane">
+        <h2>Summary</h2><p>Stable authoritative summary.</p>
+        <h2>Action Required</h2>{action}
+        <h2>Endnotes</h2>
+        <p><a href="#_ednref1">1</a> Authoritative endnote.</p>
+      </div>
+      <div id="block-noticeattachment">
+        <a href="{attachment_href}?utm_source=tracking">Attachment A</a>
+      </div>
+      <div id="comments" class="tab-pane">
+        <h2>Comments (1)</h2><p>{comments}</p>
+      </div>
+    </body></html>
+    """
+
+
+def test_finra_comments_do_not_change_authoritative_hash_or_classification():
+    """Mutable public comments must be excluded from FINRA provenance."""
+    base = BeautifulSoup(
+        _finra_canonicalization_fixture(comments="Alice Example"),
+        "html.parser",
+    )
+    changed = BeautifulSoup(
+        _finra_canonicalization_fixture(
+            comments="Bob Example: urgent marker; 999 additional comments"
+        ),
+        "html.parser",
+    )
+
+    base_content = regulatory_monitor._extract_finra_substantive_content(base)
+    changed_content = regulatory_monitor._extract_finra_substantive_content(changed)
+    assert "Alice Example" not in base_content
+    assert "Bob Example" not in changed_content
+    assert regulatory_monitor.compute_hash(base_content) == (
+        regulatory_monitor.compute_hash(changed_content)
+    )
+
+    config = {
+        "regulatory": {
+            "critical_patterns": [
+                {"pattern": r"urgent marker", "reason": "Comment-only signal"}
+            ]
+        }
+    }
+    assert regulatory_monitor.classify_regulatory_relevance(
+        "Regulatory Notice 26-14", base_content, config
+    ) == regulatory_monitor.classify_regulatory_relevance(
+        "Regulatory Notice 26-14", changed_content, config
+    )
+
+
+def test_finra_canonicalization_preserves_attachment_targets_and_dates():
+    """Attachment revisions and substantive deadline revisions change hashes."""
+    attachment_v1 = regulatory_monitor._extract_finra_substantive_content(
+        BeautifulSoup(
+            _finra_canonicalization_fixture(
+                attachment_href="/sites/default/files/attachment-v1.pdf"
+            ),
+            "html.parser",
+        ),
+        "https://www.finra.org/rules-guidance/notices/26-14",
+    )
+    attachment_v2 = regulatory_monitor._extract_finra_substantive_content(
+        BeautifulSoup(
+            _finra_canonicalization_fixture(
+                attachment_href="/sites/default/files/attachment-v2.pdf"
+            ),
+            "html.parser",
+        )
+    )
+    deadline_v1 = regulatory_monitor._extract_finra_substantive_content(
+        BeautifulSoup(
+            _finra_canonicalization_fixture(deadline="09/11/2026"),
+            "html.parser",
+        )
+    )
+    deadline_v2 = regulatory_monitor._extract_finra_substantive_content(
+        BeautifulSoup(
+            _finra_canonicalization_fixture(deadline="09/25/2026"),
+            "html.parser",
+        )
+    )
+
+    assert "attachment-v1.pdf" in attachment_v1
+    assert "notices/26-14#_ednref1" in attachment_v1
+    assert "2026-09-11" in deadline_v1
+    assert regulatory_monitor.compute_hash(attachment_v1) != (
+        regulatory_monitor.compute_hash(attachment_v2)
+    )
+    assert regulatory_monitor.compute_hash(deadline_v1) != (
+        regulatory_monitor.compute_hash(deadline_v2)
+    )
+
+
+def test_finra_canonicalization_ignores_formatting_and_tracking_noise():
+    """Markup-only and tracking-query changes must not create provenance churn."""
+    plain = regulatory_monitor._extract_finra_substantive_content(
+        BeautifulSoup(
+            _finra_canonicalization_fixture(
+                attachment_href="/sites/default/files/attachment-v1.pdf"
+            ),
+            "html.parser",
+        )
+    )
+    formatted = regulatory_monitor._extract_finra_substantive_content(
+        BeautifulSoup(
+            _finra_canonicalization_fixture(
+                attachment_href="/sites/default/files/attachment-v1.pdf",
+                formatted=True,
+            ),
+            "html.parser",
+        )
+    )
+
+    assert regulatory_monitor.compute_hash(plain) == (
+        regulatory_monitor.compute_hash(formatted)
+    )
 
 
 def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
