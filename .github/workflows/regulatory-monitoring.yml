@@ -63,8 +63,21 @@ jobs:
           set -e
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
+          # Exit 0 is still a successful run: the monitor may have advanced
+          # refresh cursors, last_run metadata, or learned FINRA fallbacks.
+          # Those state-only updates must be persisted just like findings.
+          if [ "$EXIT_CODE" -eq 0 ]; then
+            echo "automerge_eligible=true" >> $GITHUB_OUTPUT
+            echo "run_kind=state-maintenance" >> $GITHUB_OUTPUT
+            echo "critical_items=0" >> $GITHUB_OUTPUT
+            echo "high_items=0" >> $GITHUB_OUTPUT
+            echo "medium_items=0" >> $GITHUB_OUTPUT
+            echo "noise_items=0" >> $GITHUB_OUTPUT
+          fi
+
           # If changes were detected, extract summary stats from the report
           if [ "$EXIT_CODE" -eq 1 ]; then
+            echo "run_kind=findings" >> $GITHUB_OUTPUT
             REPORT_FILE=$(ls -t reports/monitoring/regulatory-changes-*.md 2>/dev/null | head -1)
             if [ -n "$REPORT_FILE" ]; then
               # Extract counts from the report. Use `| head -1 || true` (NOT
@@ -102,6 +115,48 @@ jobs:
             exit "$EXIT_CODE"
           fi
 
+      - name: Detect persisted monitor changes
+        id: state_changes
+        if: steps.monitor.outputs.exit_code == '0' || steps.monitor.outputs.exit_code == '1'
+        run: |
+          set -euo pipefail
+
+          # The monitor is allowed to change only its state/backup and
+          # regulatory report outputs. Any other mutation is a fail-closed
+          # workflow error rather than an accidental PR payload.
+          ALLOWED_PATHS='^(data/monitor-state\.json(\.backup)?|reports/monitoring/regulatory-changes-[0-9]{4}-[0-9]{2}-[0-9]{2}\.md)$'
+          CHANGED_PATHS=$(git status --porcelain=v1 --untracked-files=all | sed -E 's/^.. //')
+          if [ -n "$CHANGED_PATHS" ]; then
+            UNEXPECTED_PATHS=$(printf '%s\n' "$CHANGED_PATHS" | grep -vE "$ALLOWED_PATHS" || true)
+            if [ -n "$UNEXPECTED_PATHS" ]; then
+              echo "::error::Unexpected monitor mutation(s):"
+              printf '%s\n' "$UNEXPECTED_PATHS" >&2
+              exit 2
+            fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "changed_paths<<EOF" >> "$GITHUB_OUTPUT"
+            printf '%s\n' "$CHANGED_PATHS" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Determine whether to create a monitor PR
+        id: should_create_pr
+        if: steps.monitor.outputs.exit_code == '0' || steps.monitor.outputs.exit_code == '1'
+        run: |
+          set -euo pipefail
+          EXIT_CODE="${{ steps.monitor.outputs.exit_code }}"
+          STATE_CHANGED="${{ steps.state_changes.outputs.changed }}"
+
+          # Findings always need a PR. A successful no-findings run needs one
+          # only when it actually persisted monitor state; clean runs are silent.
+          if [ "$EXIT_CODE" = "1" ] || { [ "$EXIT_CODE" = "0" ] && [ "$STATE_CHANGED" = "true" ]; }; then
+            echo "create_pr=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "create_pr=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Fail on regulatory monitor error
         if: steps.monitor.outputs.exit_code != '' && steps.monitor.outputs.exit_code != '0' && steps.monitor.outputs.exit_code != '1'
         run: |
@@ -110,7 +165,7 @@ jobs:
 
       - name: Generate GitHub App token
         id: app-token
-        if: steps.monitor.outputs.exit_code == '1'
+        if: steps.should_create_pr.outputs.create_pr == 'true'
         uses: actions/create-github-app-token@v3
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
@@ -118,7 +173,7 @@ jobs:
 
       - name: Create Pull Request
         id: create_pr
-        if: steps.monitor.outputs.exit_code == '1'
+        if: steps.should_create_pr.outputs.create_pr == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -130,19 +185,17 @@ jobs:
             data/monitor-state.json
             data/monitor-state.json.backup
             reports/monitoring/*.md
-          commit-message: |
-            Monitoring: Regulatory changes detected
-
-            - Detected new regulatory items from Federal Register and FINRA
-            - See reports/monitoring/ for detailed change reports
-            - Automated update from regulatory-monitor workflow (unified monitoring framework)
+          commit-message: "Monitoring: Persist regulatory monitor state (${{ github.run_number }})"
           branch: monitoring/regulatory-${{ github.run_number }}
+          base: ${{ github.event.repository.default_branch }}
           delete-branch: true
-          title: 'Monitoring: ${{ steps.monitor.outputs.critical_items }} CRITICAL, ${{ steps.monitor.outputs.high_items }} HIGH regulatory items (${{ github.run_number }})'
+          title: "Monitoring: ${{ steps.monitor.outputs.exit_code == '1' && 'regulatory findings detected' || 'successful state maintenance' }} (${{ github.run_number }})"
           body: |
             ## Regulatory Monitor Report
 
-            This PR contains new regulatory items detected from Federal Register (SEC, CFTC, OCC, Federal Reserve) and FINRA notices.
+            **Run type:** ${{ steps.monitor.outputs.exit_code == '1' && 'Regulatory findings detected' || 'Successful state maintenance (no content findings)' }}
+
+            ${{ steps.monitor.outputs.exit_code == '0' && 'This maintenance-only PR persists verified monitor progress (refresh cursors, timestamps, and learned source fallbacks) so the next run does not repeat the same batch.' || 'This PR contains new regulatory items detected from Federal Register (SEC, CFTC, OCC, Federal Reserve) and FINRA notices.' }}
 
             ### Change Summary
 
@@ -157,10 +210,7 @@ jobs:
 
             ### Next Steps
 
-            1. Review the full report: `${{ steps.monitor.outputs.report_file }}`
-            2. For CRITICAL/HIGH items, check suggested affected controls
-            3. Update framework documentation if regulatory changes require it
-            4. Merge to update baseline for future monitoring
+            ${{ steps.monitor.outputs.exit_code == '1' && format('1. Review the full report: `{0}`; 2. For CRITICAL/HIGH items, check suggested affected controls; 3. Update framework documentation if regulatory changes require it; 4. Merge to update baseline for future monitoring.', steps.monitor.outputs.report_file) || '1. Verify the diff contains only expected monitor-state, backup, and maintenance metadata changes; 2. Merge (or allow the guarded auto-merge) to persist progress for the next refresh batch.' }}
 
             ### Review Instructions
 
@@ -175,7 +225,7 @@ jobs:
             ### Files Modified
 
             - `data/monitor-state.json` - Updated with new regulatory item hashes (unified state for all monitoring sources)
-            - `${{ steps.monitor.outputs.report_file }}` - Detailed change report with control-to-keyword mapping
+            ${{ steps.monitor.outputs.exit_code == '1' && format('- `{0}` - Detailed change report with control-to-keyword mapping', steps.monitor.outputs.report_file) || '- `data/monitor-state.json.backup` - Atomic rollback copy of the persisted state' }}
 
             ---
 
@@ -183,7 +233,7 @@ jobs:
           labels: |
             monitoring
             regulatory
-            needs-review
+            ${{ steps.monitor.outputs.exit_code == '1' && 'needs-review' || '' }}
           assignees: ${{ github.repository_owner }}
 
       - name: Add summary comment with priority items

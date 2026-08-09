@@ -278,9 +278,17 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 5. Update state file
 
 **Exit Codes:**
-- `0` - No new items
-- `1` - New items detected (triggers PR creation)
-- `2` - Error during execution
+- `0` - No new items; a maintenance PR is created only when the successful run
+  changed persisted state (for example, a refresh cursor, timestamp, or learned
+  FINRA fallback). A clean run stays silent.
+- `1` - New items detected; creates a findings PR containing the report and state.
+- `2` - Error during execution; fails closed and never creates a state PR.
+
+**Persistence and PR safety:** The workflow verifies that a successful run
+changed only `data/monitor-state.json`, its atomic backup, or a regulatory
+report. Exit-0 state-only PRs are clearly identified and may use the existing
+kill-switch-gated, file-allowlisted auto-merge path; CRITICAL/HIGH findings
+remain human-reviewable.
 
 **Keywords for Control Mapping:**
 

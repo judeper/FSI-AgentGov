@@ -91,7 +91,7 @@ def test_save_state_atomic_arg_order(monkeypatch):
     )
 
 
-def _run_main(monkeypatch, *, state, fed_items, finra_items):
+def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
     """Run regulatory_monitor.main() with network + disk side effects stubbed.
 
     Returns (exit_code, saved_state, reported_items).
@@ -119,7 +119,11 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items):
         lambda *a, **k: finra_items,
     )
 
-    monkeypatch.setattr(sys, 'argv', ['regulatory_monitor.py'])
+    monkeypatch.setattr(
+        sys,
+        'argv',
+        ['regulatory_monitor.py', *(args or [])],
+    )
 
     with pytest.raises(SystemExit) as exc:
         regulatory_monitor.main()
@@ -196,6 +200,57 @@ def test_subsequent_run_still_detects_new_items(monkeypatch):
     assert report_items is not None, "a report must be generated for new items"
     reported_ids = {item.document_id for item in report_items}
     assert reported_ids == {'fr-3'}, "only the genuinely new item should be reported"
+    saved_fed = saved_state['sources'][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]
+    assert saved_fed['entries']['fr-3'] == _item_hash(new_fed)
+
+
+def test_successful_no_findings_runs_advance_cursor_across_committed_state(monkeypatch):
+    """Exit-0 refresh progress must persist and continue from the next batch."""
+    stable_item = _make_item(
+        "FINRA Notice 26-01",
+        "FINRA 26-01",
+        source="FINRA",
+        agency="FINRA",
+        url="https://www.finra.org/rules-guidance/notices/26-01",
+    )
+    entries = {
+        f"FINRA 26-{number:02d}": "sha256:old"
+        for number in range(1, 41)
+    }
+    entries[stable_item.document_id] = _item_hash(stable_item)
+    state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "entries": entries,
+                "refresh_cursor": 0,
+            },
+        },
+    }
+
+    first_code, first_state, first_report = _run_main(
+        monkeypatch,
+        state=deepcopy(state),
+        fed_items=[],
+        finra_items=[stable_item],
+        args=["--source", "finra"],
+    )
+    second_code, second_state, second_report = _run_main(
+        monkeypatch,
+        state=deepcopy(first_state),
+        fed_items=[],
+        finra_items=[stable_item],
+        args=["--source", "finra"],
+    )
+
+    assert first_code == second_code == 0
+    assert first_report is None and second_report is None
+    first_finra = first_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    second_finra = second_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    assert first_finra["refresh_cursor"] == 25
+    assert second_finra["refresh_cursor"] == 10
+    assert second_finra["last_run"] != "2026-08-01T00:00:00+00:00"
 
 
 class _FakeResponse:
@@ -682,6 +737,47 @@ def test_workflow_fails_closed_for_monitor_exit_two_or_more():
     assert 'exit "$EXIT_CODE"' in workflow
     assert "Fail on regulatory monitor error" in workflow
     assert "steps.monitor.outputs.exit_code != '1'" in workflow
+
+
+def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
+    """Exit-0 state progress gets a maintenance PR; a clean run stays silent."""
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "- name: Detect persisted monitor changes" in workflow
+    assert "git status --porcelain=v1 --untracked-files=all" in workflow
+    assert 'echo "changed=true"' in workflow
+    assert 'echo "changed=false"' in workflow
+    assert (
+        'if [ "$EXIT_CODE" = "1" ] || { [ "$EXIT_CODE" = "0" ] && '
+        '[ "$STATE_CHANGED" = "true" ]; }; then'
+    ) in workflow
+    assert "steps.should_create_pr.outputs.create_pr == 'true'" in workflow
+    assert "successful state maintenance" in workflow
+    assert 'echo "automerge_eligible=true" >> $GITHUB_OUTPUT' in workflow
+
+
+def test_workflow_exit_semantics_keep_findings_and_fail_closed_runs_distinct():
+    """Exit 1 stages findings; exit >=2 cannot reach state PR creation."""
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "reports/monitoring/*.md" in workflow
+    assert "data/monitor-state.json.backup" in workflow
+    assert "echo \"run_kind=findings\"" in workflow
+    assert "if: steps.monitor.outputs.exit_code == '0' || steps.monitor.outputs.exit_code == '1'" in workflow
+    assert 'if [ "$EXIT_CODE" -eq 1 ]; then' in workflow
+    assert "if: steps.create_pr.outputs.pull-request-number && steps.monitor.outputs.exit_code == '1'" in workflow
+    assert "if: steps.should_create_pr.outputs.create_pr == 'true'" in workflow
+    assert "if: steps.monitor.outputs.exit_code == '0' || steps.monitor.outputs.exit_code == '1'" in workflow
 
 
 def test_finra_missing_pager_fails_closed(monkeypatch):
