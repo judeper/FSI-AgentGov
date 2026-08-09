@@ -740,7 +740,9 @@ def fetch_federal_register_documents(
     page_numbers = []
 
     try:
-        logger.info(f"Querying Federal Register API for documents since {since_date}...")
+        logger.info(
+            "Querying Federal Register API for the validated document window..."
+        )
         next_url = f"{FEDERAL_REGISTER_API_BASE}/documents.json"
         next_params = params
         expected_pages = None
@@ -3413,7 +3415,9 @@ def main():
             since_date = (datetime.now(timezone.utc) - timedelta(days=30)).strftime('%Y-%m-%d')
             logger.info("No prior state, fetching documents from last 30 days")
         else:
-            logger.info(f"Fetching documents since {since_date}")
+            logger.info(
+                "Fetching Federal Register documents from the validated watermark"
+            )
 
         fed_result = _coerce_fetch_result(
             fetch_federal_register_documents(session, since_date, config, limit=args.limit)
