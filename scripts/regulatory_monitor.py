@@ -961,9 +961,19 @@ def _finra_retry_url(url: str, attempt: int) -> str:
     return f"{url}{separator}{retry_marker}"
 
 
-def _fetch_finra_page(url: str, session: requests.Session) -> dict:
+def _fetch_finra_page(
+    url: str,
+    session: requests.Session,
+    *,
+    max_attempts: Optional[int] = None,
+) -> dict:
     """Use one request per attempt with a coordinated session-wide cooldown."""
-    for attempt in range(FINRA_MAX_RETRY_ATTEMPTS):
+    attempts = (
+        FINRA_MAX_RETRY_ATTEMPTS
+        if max_attempts is None
+        else max(1, min(FINRA_MAX_RETRY_ATTEMPTS, max_attempts))
+    )
+    for attempt in range(attempts):
         last_request = getattr(session, '_finra_last_request_at', 0.0)
         now = time.monotonic()
         cooldown_until = getattr(session, '_finra_cooldown_until', 0.0)
@@ -981,7 +991,7 @@ def _fetch_finra_page(url: str, session: requests.Session) -> dict:
             session._finra_last_request_at = time.monotonic()
         except AttributeError:
             pass
-        if result['status_code'] not in (0, 429) or attempt == FINRA_MAX_RETRY_ATTEMPTS - 1:
+        if result['status_code'] not in (0, 429) or attempt == attempts - 1:
             if result['status_code'] not in (0, 429):
                 try:
                     session._finra_backoff_seconds = FINRA_RETRY_BASE_WAIT_SECONDS
@@ -1256,19 +1266,22 @@ def fetch_finra_notices(
 
         seen_document_ids = {}
         for url, listing_title, listing_date in page_records:
-            detail = _fetch_finra_page(url, session)
-            if detail['status_code'] != 200:
-                fallback_url = _validate_finra_node_url(
-                    resolved_fallback_urls.get(url, "")
+            fallback_url = _validate_finra_node_url(
+                resolved_fallback_urls.get(url, "")
+            )
+            detail = _fetch_finra_page(
+                url,
+                session,
+                max_attempts=1 if fallback_url and fallback_url != url else None,
+            )
+            if detail['status_code'] != 200 and fallback_url and fallback_url != url:
+                logger.warning(
+                    "FINRA canonical detail for %s was unavailable; "
+                    "retrying authoritative node fallback %s",
+                    url,
+                    fallback_url,
                 )
-                if fallback_url and fallback_url != url:
-                    logger.warning(
-                        "FINRA canonical detail for %s was unavailable; "
-                        "retrying authoritative node fallback %s",
-                        url,
-                        fallback_url,
-                    )
-                    detail = _fetch_finra_page(fallback_url, session)
+                detail = _fetch_finra_page(fallback_url, session)
             if detail['status_code'] != 200:
                 return _incomplete_result(
                     items,

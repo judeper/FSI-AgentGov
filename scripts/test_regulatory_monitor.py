@@ -1194,6 +1194,7 @@ def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch
     assert result.complete is True
     assert result[0].url == canonical
     assert node_url in requested
+    assert requested.count(canonical) == 1
     assert result.fallback_urls[canonical] == node_url
     state = {"sources": {regulatory_monitor.SOURCE_KEY_FINRA: {"entries": {}}}}
     regulatory_monitor.update_source_state(
