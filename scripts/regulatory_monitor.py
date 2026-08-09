@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
-from urllib.parse import urljoin
+from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 # Import shared monitoring framework
 from monitoring_shared import (
@@ -82,6 +82,8 @@ FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
 
 # FINRA notices page
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
+FINRA_MAX_PAGES = 100
+FINRA_REFETCH_PAGES = 1
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -116,6 +118,8 @@ class FetchResult(list):
         complete: bool,
         expected_count: Optional[int] = None,
         pages_fetched: int = 0,
+        declared_pages: Optional[int] = None,
+        cutoff_page: Optional[int] = None,
         error: Optional[str] = None,
         limited: bool = False,
     ):
@@ -123,6 +127,8 @@ class FetchResult(list):
         self.complete = complete
         self.expected_count = expected_count
         self.pages_fetched = pages_fetched
+        self.declared_pages = declared_pages
+        self.cutoff_page = cutoff_page
         self.error = error
         self.limited = limited
 
@@ -348,14 +354,35 @@ def fetch_federal_register_documents(
                 expected_count = count
 
                 total_pages = data.get('total_pages')
-                if isinstance(total_pages, int) and not isinstance(total_pages, bool) and total_pages >= 0:
+                if total_pages is not None and (
+                    not isinstance(total_pages, int)
+                    or isinstance(total_pages, bool)
+                    or total_pages < 0
+                ):
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register response contained invalid total_pages",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                if count == 0:
+                    # The live API legitimately returns count=0, total_pages=null,
+                    # results=null. A zero-result query still has one response to
+                    # validate, while total_pages=1 would be contradictory.
+                    if total_pages not in (None, 0):
+                        return _incomplete_result(
+                            items,
+                            error="Federal Register zero-result response declared pages",
+                            expected_count=expected_count,
+                            pages_fetched=pages_fetched,
+                        )
+                    expected_pages = 1
+                elif total_pages is not None:
                     expected_pages = total_pages
-                elif count:
+                else:
                     # Some valid zero-result responses omit total_pages; infer pages
                     # only when a non-zero count makes the expectation unambiguous.
                     expected_pages = math.ceil(count / per_page)
-                else:
-                    expected_pages = 0
                 if count > 0 and expected_pages == 0:
                     return _incomplete_result(
                         items,
@@ -363,13 +390,35 @@ def fetch_federal_register_documents(
                         expected_count=expected_count,
                         pages_fetched=pages_fetched,
                     )
-            elif data.get('count') is not None and data.get('count') != expected_count:
-                return _incomplete_result(
-                    items,
-                    error="Federal Register page count changed during pagination",
-                    expected_count=expected_count,
-                    pages_fetched=pages_fetched,
-                )
+            else:
+                if data.get('count') is not None and data.get('count') != expected_count:
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register page count changed during pagination",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                page_total_pages = data.get('total_pages')
+                if page_total_pages is not None and (
+                    not isinstance(page_total_pages, int)
+                    or isinstance(page_total_pages, bool)
+                    or page_total_pages < 0
+                ):
+                    return _incomplete_result(
+                        items,
+                        error="Federal Register page contained invalid total_pages",
+                        expected_count=expected_count,
+                        pages_fetched=pages_fetched,
+                    )
+                if page_total_pages is not None:
+                    expected_total_pages = 0 if expected_count == 0 else expected_pages
+                    if page_total_pages != expected_total_pages:
+                        return _incomplete_result(
+                            items,
+                            error="Federal Register total_pages changed during pagination",
+                            expected_count=expected_count,
+                            pages_fetched=pages_fetched,
+                        )
 
             raw_documents = data.get('results', [])
             if raw_documents is None and expected_count == 0:
@@ -476,7 +525,7 @@ def fetch_federal_register_documents(
                     expected_count=expected_count,
                     pages_fetched=pages_fetched,
                 )
-            if expected_pages == 0:
+            if expected_count == 0:
                 if next_url:
                     return _incomplete_result(
                         items,
@@ -504,6 +553,17 @@ def fetch_federal_register_documents(
                 next_url = urljoin(f"{FEDERAL_REGISTER_API_BASE}/", next_url)
                 continue
             break
+
+        if expected_pages is None or pages_fetched != expected_pages:
+                return _incomplete_result(
+                    items,
+                    error=(
+                        "Federal Register pagination incomplete: "
+                        f"declared {expected_pages} page(s), fetched {pages_fetched}"
+                    ),
+                    expected_count=expected_count,
+                    pages_fetched=pages_fetched,
+                )
 
         if expected_count is None or len(items) != expected_count:
             return _incomplete_result(
@@ -616,6 +676,50 @@ def _extract_finra_document_id(url: str) -> str:
     return url
 
 
+def _finra_page_url(page: int) -> str:
+    """Build FINRA's zero-based listing page URL."""
+    if page == 0:
+        return FINRA_NOTICES_URL
+    return f"{FINRA_NOTICES_URL}?{urlencode({'page': page})}"
+
+
+def _extract_finra_declared_pages(soup: BeautifulSoup) -> int:
+    """Read the listing pager's zero-based page range, defaulting to one page."""
+    page_numbers = []
+    for link in soup.select('.pagination a[href]'):
+        query = parse_qs(urlparse(urljoin(FINRA_NOTICES_URL, link['href'])).query)
+        raw_page = query.get('page', [None])[0]
+        if raw_page is None:
+            continue
+        try:
+            page = int(raw_page)
+        except (TypeError, ValueError):
+            continue
+        if page >= 0:
+            page_numbers.append(page)
+    return max(page_numbers, default=0) + 1
+
+
+def _extract_finra_notice_links(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
+    """Collect canonical notice links and their optional listing dates from one page."""
+    notice_pattern = re.compile(
+        r'^/rules-guidance/notices/(?:\d{2}-\d{2}|information-notice-\d{8})/?$'
+    )
+    notice_urls = []
+    seen_urls = set()
+    for link in soup.find_all('a', href=True):
+        href = link.get('href', '').split('#', 1)[0]
+        if not notice_pattern.match(href):
+            continue
+        url = urljoin(FINRA_NOTICES_URL, href)
+        if url not in seen_urls:
+            seen_urls.add(url)
+            notice_urls.append(
+                (url, link.get_text(' ', strip=True), _extract_listing_date(link))
+            )
+    return notice_urls
+
+
 def fetch_finra_notices(
     session: requests.Session,
     config: dict,
@@ -640,56 +744,155 @@ def fetch_finra_notices(
 
     try:
         logger.info(f"Fetching FINRA notices from {FINRA_NOTICES_URL}...")
-        result = fetch_page(FINRA_NOTICES_URL, session)
+        page_records = []
+        seen_urls = set()
+        declared_pages = None
+        cutoff_page = None
+        pages_fetched = 0
+        target_page = None
 
-        if result['status_code'] != 200:
-            return _incomplete_result(
-                error=f"FINRA notices page returned status {result['status_code']}"
+        for page in range(FINRA_MAX_PAGES):
+            result = fetch_page(_finra_page_url(page), session)
+            if result['status_code'] != 200:
+                return _incomplete_result(
+                    error=f"FINRA notices page {page} returned status {result['status_code']}",
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
+                )
+
+            soup = BeautifulSoup(result['content'], 'html.parser')
+            page_declared = _extract_finra_declared_pages(soup)
+            if declared_pages is None:
+                declared_pages = page_declared
+                if declared_pages > FINRA_MAX_PAGES:
+                    return _incomplete_result(
+                        error=(
+                            f"FINRA pagination declared {declared_pages} pages, "
+                            f"exceeding safe cutoff {FINRA_MAX_PAGES}"
+                        ),
+                        pages_fetched=pages_fetched,
+                        declared_pages=declared_pages,
+                    )
+            elif page_declared > declared_pages or (
+                page < declared_pages - 1 and page_declared != declared_pages
+            ):
+                return _incomplete_result(
+                    error="FINRA pagination metadata changed or disappeared while traversing pages",
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
+                )
+
+            records = _extract_finra_notice_links(soup)
+            pages_fetched += 1
+            logger.info(
+                f"FINRA listing page {page + 1}/{declared_pages}: "
+                f"{len(records)} notice links"
             )
 
-        soup = BeautifulSoup(result['content'], 'html.parser')
+            if not records:
+                page_text = soup.get_text(' ', strip=True)
+                if (
+                    page == 0
+                    and declared_pages == 1
+                    and re.search(
+                        r'\bno (?:regulatory )?notices?\b|\bno results\b',
+                        page_text,
+                        re.IGNORECASE,
+                    )
+                ):
+                    return _complete_result(
+                        [],
+                        expected_count=0,
+                        pages_fetched=pages_fetched,
+                        declared_pages=declared_pages,
+                    )
+                return _incomplete_result(
+                    error=f"FINRA page {page} contained no recognizable notice links",
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
+                )
 
-        # The landing page has historically changed shape. Collect every
-        # canonical notice link, deduplicating repeated navigation anchors.
-        notice_urls = []
-        seen_urls = set()
-        notice_pattern = re.compile(
-            r'^/rules-guidance/notices/(?:\d{2}-\d{2}|information-notice-\d{8})/?$'
-        )
-        for link in soup.find_all('a', href=True):
-            href = link.get('href', '').split('#', 1)[0]
-            if not notice_pattern.match(href):
-                continue
-            url = urljoin(FINRA_NOTICES_URL, href)
-            if url not in seen_urls:
+            for record in records:
+                url = record[0]
+                if url in seen_urls:
+                    return _incomplete_result(
+                        error=f"FINRA pagination overlap/conflict for {url}",
+                        expected_count=len(page_records),
+                        pages_fetched=pages_fetched,
+                        declared_pages=declared_pages,
+                        cutoff_page=cutoff_page,
+                    )
                 seen_urls.add(url)
-                notice_urls.append((url, link.get_text(' ', strip=True), _extract_listing_date(link)))
+                page_records.append(record)
 
-        logger.info(f"Found {len(notice_urls)} FINRA notice links")
-        if not notice_urls:
-            page_text = soup.get_text(' ', strip=True)
-            if re.search(r'\bno (?:regulatory )?notices?\b|\bno results\b', page_text, re.IGNORECASE):
-                return _complete_result([], expected_count=0, pages_fetched=1)
-            return _incomplete_result(error="FINRA notices page contained no recognizable notice links")
+            # The listing date controls only how far pagination proceeds. Every
+            # record in the fetched window is still detailed and hashed below so
+            # backdated/new notices and edits to known notices are not skipped.
+            if (
+                cutoff_page is None
+                and since_date
+                and all(listing_date and listing_date < since_date for _, _, listing_date in records)
+            ):
+                cutoff_page = page
+                target_page = min(declared_pages - 1, page + FINRA_REFETCH_PAGES)
+                logger.info(
+                    f"FINRA safe cutoff reached at page {page}; "
+                    f"refetch window extends through page {target_page}"
+                )
+
+            if page + 1 >= declared_pages:
+                break
+            if target_page is not None and page >= target_page:
+                break
+        else:
+            return _incomplete_result(
+                error=f"FINRA pagination exceeded safe cutoff of {FINRA_MAX_PAGES} pages",
+                expected_count=len(page_records),
+                pages_fetched=pages_fetched,
+                declared_pages=declared_pages,
+                cutoff_page=cutoff_page,
+            )
+
+        if declared_pages is None or pages_fetched > declared_pages:
+            return _incomplete_result(
+                error="FINRA pagination metadata was not verifiable",
+                expected_count=len(page_records),
+                pages_fetched=pages_fetched,
+                declared_pages=declared_pages,
+                cutoff_page=cutoff_page,
+            )
+        if cutoff_page is None and pages_fetched != declared_pages:
+            return _incomplete_result(
+                error=(
+                    "FINRA pagination incomplete: "
+                    f"declared {declared_pages} pages, fetched {pages_fetched}"
+                ),
+                expected_count=len(page_records),
+                pages_fetched=pages_fetched,
+                declared_pages=declared_pages,
+            )
 
         if limit is not None:
-            notice_urls = notice_urls[:limit]
+            page_records = page_records[:limit]
             logger.info(f"Limited to {limit} notices for testing; state will not advance")
 
         seen_document_ids = {}
-        for url, listing_title, listing_date in notice_urls:
-            # Filter using the listing's authoritative date before fetching
-            # older detail pages. Unknown listing dates are retained.
-            if since_date and listing_date and listing_date < since_date:
-                continue
-
+        for url, listing_title, listing_date in page_records:
             detail = fetch_page(url, session)
             if detail['status_code'] != 200:
                 return _incomplete_result(
                     items,
                     error=f"FINRA notice detail page returned status {detail['status_code']}: {url}",
-                    expected_count=len(notice_urls),
-                    pages_fetched=1,
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
                     limited=limit is not None,
                 )
 
@@ -708,8 +911,10 @@ def fetch_finra_notices(
                 return _incomplete_result(
                     items,
                     error=f"FINRA listing/detail date conflict for {document_id}",
-                    expected_count=len(notice_urls),
-                    pages_fetched=1,
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
                     limited=limit is not None,
                 )
 
@@ -718,17 +923,16 @@ def fetch_finra_notices(
                 return _incomplete_result(
                     items,
                     error=f"FINRA listing contained conflicting URLs for {document_id}",
-                    expected_count=len(notice_urls),
-                    pages_fetched=1,
+                    expected_count=len(page_records),
+                    pages_fetched=pages_fetched,
+                    declared_pages=declared_pages,
+                    cutoff_page=cutoff_page,
                     limited=limit is not None,
                 )
             seen_document_ids[document_id] = url
 
             # Unknown source dates are retained as unknown. Never infer a date
             # from the notice number or from the local clock.
-            if since_date and publication_date and publication_date < since_date:
-                continue
-
             tier, reason = classify_regulatory_relevance(title, abstract, config)
             affected_controls = find_affected_controls_by_keywords(title, abstract, config)
 
@@ -752,12 +956,20 @@ def fetch_finra_notices(
             return _incomplete_result(
                 items,
                 error="FINRA fetch was explicitly limited",
-                expected_count=len(notice_urls),
-                pages_fetched=1,
+                expected_count=len(page_records),
+                pages_fetched=pages_fetched,
+                declared_pages=declared_pages,
+                cutoff_page=cutoff_page,
                 limited=True,
             )
 
-        return _complete_result(items, expected_count=len(notice_urls), pages_fetched=1)
+        return _complete_result(
+            items,
+            expected_count=len(page_records),
+            pages_fetched=pages_fetched,
+            declared_pages=declared_pages,
+            cutoff_page=cutoff_page,
+        )
 
     except requests.RequestException as e:
         return _incomplete_result(items, error=f"FINRA notices scraping error: {e}")

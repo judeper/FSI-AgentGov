@@ -95,6 +95,19 @@ jobs:
             fi
           fi
 
+          # Exit codes 2+ are fail-closed source/validation errors. Preserve
+          # the report outputs above, then surface the error to the guard step.
+          if [ "$EXIT_CODE" -ge 2 ]; then
+            echo "::error::Regulatory monitor failed closed with exit code $EXIT_CODE" >&2
+            exit "$EXIT_CODE"
+          fi
+
+      - name: Fail on regulatory monitor error
+        if: steps.monitor.outputs.exit_code != '' && steps.monitor.outputs.exit_code != '0' && steps.monitor.outputs.exit_code != '1'
+        run: |
+          echo "::error::Regulatory monitor failed closed with exit code ${{ steps.monitor.outputs.exit_code }}" >&2
+          exit "${{ steps.monitor.outputs.exit_code }}"
+
       - name: Generate GitHub App token
         id: app-token
         if: steps.monitor.outputs.exit_code == '1'

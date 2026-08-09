@@ -13,6 +13,7 @@ passed to save_state_atomic.
 from __future__ import annotations
 
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -275,6 +276,38 @@ def test_federal_register_zero_results_are_verified():
     assert result == []
 
 
+def test_federal_register_missing_page_link_fails_closed():
+    """Declared pages must reconcile even when next_page_url disappears."""
+    session = _FakeSession([{
+        "count": 3,
+        "total_pages": 2,
+        "results": [_federal_doc("fr-1"), _federal_doc("fr-2"), _federal_doc("fr-3")],
+        "next_page_url": None,
+    }])
+    config = {"federal_register": {}, "regulatory": {}, "keyword_control_map": []}
+
+    result = regulatory_monitor.fetch_federal_register_documents(session, "2026-08-01", config)
+
+    assert result.complete is False
+    assert "declared 2 page(s), fetched 1" in result.error
+
+
+def test_federal_register_contradictory_zero_metadata_fails_closed():
+    """count=0 with a declared page is contradictory, not a valid empty result."""
+    session = _FakeSession([{
+        "count": 0,
+        "total_pages": 1,
+        "results": None,
+        "next_page_url": None,
+    }])
+    config = {"federal_register": {}, "regulatory": {}, "keyword_control_map": []}
+
+    result = regulatory_monitor.fetch_federal_register_documents(session, "2999-01-01", config)
+
+    assert result.complete is False
+    assert "zero-result" in result.error
+
+
 def test_federal_register_overlap_fails_closed():
     """Overlapping pages must not silently overwrite or advance the watermark."""
     session = _FakeSession([
@@ -350,6 +383,188 @@ def test_main_does_not_advance_state_on_incomplete_source(monkeypatch):
     assert repr(state) == original_state
 
 
+def test_main_preserves_unrelated_learn_state(monkeypatch):
+    """Regulatory updates must not roll back the unrelated Learn source."""
+    learn_state = {
+        "schema_version": 2,
+        "last_run": "2026-08-08T06:54:59.825001+00:00",
+        "urls": {"https://learn.example/item": {
+            "last_checked": "2026-08-08T06:54:59.825001+00:00",
+            "content_hash": "sha256:learn",
+        }},
+        "statistics": {
+            "total_urls": 1,
+            "last_run_critical_changes": 4,
+            "last_run_high_changes": 3,
+            "last_run_medium_changes": 2,
+            "last_run_noise_changes": 1,
+            "last_run_redirects": 0,
+            "last_run_errors": 0,
+        },
+    }
+    state = {
+        "version": 1,
+        "sources": {
+            "learn": deepcopy(learn_state),
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER: {
+                "last_run": "2026-08-07T00:00:00+00:00",
+                "last_checked": "2026-08-07",
+                "entries": {},
+            },
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-07T00:00:00+00:00",
+                "entries": {},
+            },
+        },
+    }
+    code, saved_state, _ = _run_main(
+        monkeypatch,
+        state=state,
+        fed_items=[],
+        finra_items=[],
+    )
+
+    assert code == 0
+    assert saved_state["sources"]["learn"] == learn_state
+
+
+def _finra_listing_page(page, total_pages, records):
+    rows = "\n".join(
+        f'<tr><td><time datetime="{date}T12:00:00Z"></time>'
+        f'<a href="{href}">{title}</a></td></tr>'
+        for href, title, date in records
+    )
+    pager = (
+        '<nav class="pagination">'
+        f'<a href="?page={total_pages - 1}">Last >> Last page</a>'
+        '</nav>'
+    )
+    return f"<html><body>{rows}{pager}</body></html>"
+
+
+def _finra_detail_page(title, date, summary):
+    return f"""
+    <html><body>
+      <h1>{title}</h1>
+      <div class="field--name-field-core-official-dt">
+        <time datetime="{date}T12:00:00Z">{date}</time>
+      </div>
+      <div class="field--name-body"><h2>Summary</h2><p>{summary}</p>
+        <h2>Action Required</h2><p>Comments are requested.</p>
+      </div>
+    </body></html>
+    """
+
+
+def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
+    """A 92-page-style listing scans the safe window and details every record in it."""
+    total_pages = 92
+    page_records = {
+        0: [
+            ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24"),
+            ("/rules-guidance/notices/information-notice-20260808",
+             "Information Notice 8/8/26", "2026-08-08"),
+        ],
+        1: [("/rules-guidance/notices/26-14", "Regulatory Notice 26-14", "2026-07-10")],
+        2: [("/rules-guidance/notices/26-13", "Regulatory Notice 26-13", "2026-08-01")],
+        3: [("/rules-guidance/notices/26-12", "Regulatory Notice 26-12", "2026-07-01")],
+    }
+    details = {
+        "/rules-guidance/notices/26-15": _finra_detail_page(
+            "FINRA Requests Comment on Modernizing FINRA's Best Execution Guidance",
+            "2026-07-24",
+            "Edited summary for FINRA Rule 5310.",
+        ),
+        "/rules-guidance/notices/information-notice-20260808": _finra_detail_page(
+            "Information Notice", "2026-08-08", "Current notice content."
+        ),
+        "/rules-guidance/notices/26-14": _finra_detail_page(
+            "Older notice", "2026-07-10", "Older content."
+        ),
+        "/rules-guidance/notices/26-13": _finra_detail_page(
+            "Backdated notice", "2026-08-01", "Backdated content."
+        ),
+        "/rules-guidance/notices/26-12": _finra_detail_page(
+            "Overlap-window notice", "2026-07-01", "Overlap content."
+        ),
+    }
+    requested = []
+
+    def fake_fetch_page(url, _session):
+        requested.append(url)
+        if url == regulatory_monitor.FINRA_NOTICES_URL:
+            page = 0
+        elif "?page=" in url:
+            page = int(url.rsplit("=", 1)[1])
+        else:
+            path = url.removeprefix("https://www.finra.org")
+            content = details[path]
+            return {
+                "status_code": 200,
+                "content": content,
+                "final_url": url,
+                "was_redirected": False,
+                "error": None,
+            }
+        content = _finra_listing_page(page, total_pages, page_records[page])
+        return {
+            "status_code": 200,
+            "content": content,
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        since_date="2026-08-08",
+    )
+
+    assert result.complete is True
+    assert result.declared_pages == total_pages
+    assert result.cutoff_page == 1
+    assert result.pages_fetched == 3
+    ids = {item.document_id for item in result}
+    assert ids == {
+        "FINRA 26-15",
+        "FINRA 26-14",
+        "FINRA 26-13",
+        "https://www.finra.org/rules-guidance/notices/information-notice-20260808",
+    }
+    assert "https://www.finra.org/rules-guidance/notices?page=2" in requested
+    assert "https://www.finra.org/rules-guidance/notices?page=3" not in requested
+    edited = next(item for item in result if item.document_id == "FINRA 26-15")
+    assert "Edited summary" in edited.abstract
+
+
+def test_finra_pagination_overlap_fails_closed(monkeypatch):
+    """A notice repeated across listing pages is an unverifiable pagination overlap."""
+    record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
+    pages = {
+        regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
+        "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(1, 2, [record]),
+    }
+
+    def fake_fetch_page(url, _session):
+        return {
+            "status_code": 200,
+            "content": pages[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+
+    assert result.complete is False
+    assert "overlap" in result.error
+
+
 def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch):
     """FINRA 26-15 must use its published date/summary, not URL heuristics."""
     listing_html = """
@@ -409,8 +624,8 @@ def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch
     )
 
     assert result.complete is True
-    assert [item.document_id for item in result] == ["FINRA 26-15"]
-    item = result[0]
+    assert {item.document_id for item in result} == {"FINRA 26-15", "FINRA 26-14"}
+    item = next(item for item in result if item.document_id == "FINRA 26-15")
     assert item.title == "FINRA Requests Comment on Modernizing FINRA's Best Execution Guidance"
     assert item.publication_date == "2026-07-24"
     assert "broker-dealer" in item.abstract
@@ -444,3 +659,18 @@ def test_finra_missing_date_remains_unknown(monkeypatch):
     assert result.complete is True
     assert result[0].publication_date == ""
     assert "2026-01-01" not in result[0].publication_date
+
+
+def test_workflow_fails_closed_for_monitor_exit_two_or_more():
+    """The continue-on-error monitor step must still fail the job for exit >= 2."""
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+
+    assert 'if [ "$EXIT_CODE" -ge 2 ]; then' in workflow
+    assert 'exit "$EXIT_CODE"' in workflow
+    assert "Fail on regulatory monitor error" in workflow
+    assert "steps.monitor.outputs.exit_code != '1'" in workflow
