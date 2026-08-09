@@ -269,7 +269,8 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 1. Query Federal Register API for recent documents from target agencies
 2. Scrape every page of FINRA's complete, unfiltered regulatory-notice listing.
    The selected-year taxonomy filter is advisory only and is never used as a
-   completeness proof. Two independently cache-busted passes must agree on
+   completeness proof. The first complete pass finishes before a second
+   independent session begins; the two cache-busted passes must agree on
    declared totals, page identities, ordered raw-row counts, and row digests.
    Each scoped row must resolve to a same-origin canonical notice or numeric
    node URL; unresolved or contradictory metadata fails closed. Raw rows are
@@ -318,7 +319,12 @@ a coverage proof containing the entry count, stable entry-map digest, source
 identity, query/window metadata, declared and fetched page counts, and exact
 page identities (plus FINRA listing/detail counts). The proof is validated
 before the next fetch; a missing or mismatched proof cannot advance a
-watermark.
+watermark. FINRA also binds the sorted fetched-detail identity set and digest
+to the persisted entry identity set. Any prior identity outside the current
+detail crawl must have an explicit migration/refresh-ledger reason; stale or
+unaccounted identities fail closed. Recovery may admit a legacy proof only
+through the explicitly approved local recovery mode, which rewrites the proof
+from a successful complete crawl.
 
 **Keywords for Control Mapping:**
 

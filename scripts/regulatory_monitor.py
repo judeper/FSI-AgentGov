@@ -186,6 +186,15 @@ def _entries_digest(entries: dict) -> str:
     )
 
 
+def _identity_digest(identities) -> str:
+    """Compute a stable digest over a sorted set of persisted identities."""
+    return compute_hash(json.dumps(
+        sorted(set(identities)),
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ))
+
+
 def _coverage_watermark(source_state: dict) -> dict:
     """Return the persisted watermark fields bound by a coverage proof."""
     return {
@@ -195,7 +204,12 @@ def _coverage_watermark(source_state: dict) -> dict:
     }
 
 
-def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
+def _validate_source_coverage(
+    source_key: str,
+    source_state: dict,
+    *,
+    allow_legacy_finra_identity_proof: bool = False,
+) -> list[str]:
     """Validate the proof tying a source watermark to complete fetched data."""
     errors = []
     coverage = source_state.get("coverage")
@@ -280,6 +294,16 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
         ):
             errors.append(f"{source_key} coverage page identities are invalid")
     elif source_key == SOURCE_KEY_FINRA:
+        identity_proof_fields = (
+            "fetched_entry_identities",
+            "fetched_entry_identity_digest",
+            "entry_identity_digest",
+            "migration_ledger",
+        )
+        legacy_identity_proof = (
+            allow_legacy_finra_identity_proof
+            and any(key not in coverage for key in identity_proof_fields)
+        )
         required = (
             "listing_mode",
             "listing_url",
@@ -296,6 +320,8 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
             "duplicate_ledger",
             "conflict_ledger",
         )
+        if not legacy_identity_proof:
+            required += identity_proof_fields
         for key in required:
             if key not in coverage:
                 errors.append(f"{source_key} coverage is missing {key}")
@@ -352,6 +378,62 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
             errors.append(f"{source_key} coverage detail counts are invalid")
         elif listing_count != resolved_row_count:
             errors.append(f"{source_key} listing row count is incomplete")
+        entry_identities = sorted(entries)
+        fetched_entry_identities = []
+        if not legacy_identity_proof:
+            fetched_entry_identities = coverage.get("fetched_entry_identities")
+            if (
+                not isinstance(fetched_entry_identities, list)
+                or any(
+                    not isinstance(identity, str) or not identity
+                    for identity in fetched_entry_identities
+                )
+                or fetched_entry_identities != sorted(set(fetched_entry_identities))
+            ):
+                errors.append(f"{source_key} fetched entry identities are invalid")
+                fetched_entry_identities = []
+            if coverage.get("fetched_entry_identity_digest") != _identity_digest(
+                fetched_entry_identities
+            ):
+                errors.append(
+                    f"{source_key} fetched entry identity digest is invalid"
+                )
+            if coverage.get("entry_identity_digest") != _identity_digest(
+                entry_identities
+            ):
+                errors.append(f"{source_key} entry identity digest is invalid")
+            migration_ledger = coverage.get("migration_ledger")
+            if (
+                not isinstance(migration_ledger, list)
+                or any(
+                    not isinstance(item, dict)
+                    or not isinstance(item.get("identity"), str)
+                    or not item.get("identity")
+                    or not isinstance(item.get("reason"), str)
+                    or not item.get("reason")
+                    for item in migration_ledger
+                )
+            ):
+                errors.append(f"{source_key} migration ledger is invalid")
+                migration_ledger = []
+            migration_identities = {
+                item["identity"] for item in migration_ledger
+            }
+            expected_entry_identities = (
+                set(fetched_entry_identities) | migration_identities
+            )
+            if set(entry_identities) != expected_entry_identities:
+                errors.append(
+                    f"{source_key} entries contain stale or unaccounted identities"
+                )
+            if (
+                isinstance(detail_count, int)
+                and not isinstance(detail_count, bool)
+                and len(fetched_entry_identities) != detail_count
+            ):
+                errors.append(
+                    f"{source_key} fetched identity count is not detail-bound"
+                )
         expected_page_numbers = (
             [0] if declared_pages == 0 and pages_fetched == 1
             else list(range(pages_fetched))
@@ -372,8 +454,10 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
                 "declared_pages",
                 "pages_fetched",
                 "page_numbers",
+                "page_identities",
                 "page_row_counts",
                 "page_row_digests",
+                "page_row_payloads",
                 "raw_row_count",
                 "resolved_row_count",
                 "unresolved_row_count",
@@ -415,6 +499,12 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
                         errors.append(
                             f"{source_key} coverage page identities are not proof-bound"
                         )
+                    if proofs[0].get("page_identities") != coverage.get(
+                        "page_identities"
+                    ):
+                        errors.append(
+                            f"{source_key} coverage page identity proof is not bound"
+                        )
         if not isinstance(coverage.get("duplicate_ledger"), list):
             errors.append(f"{source_key} duplicate ledger is invalid")
         if not isinstance(coverage.get("conflict_ledger"), list):
@@ -444,6 +534,8 @@ def _state_date(source_state: dict) -> Optional[str]:
 def _validate_regulatory_state(
     state: object,
     source_keys: list[str],
+    *,
+    allow_legacy_finra_identity_proof: bool = False,
 ) -> list[str]:
     """Prove that scheduled monitoring has a usable prior regulatory state."""
     errors = []
@@ -469,7 +561,16 @@ def _validate_regulatory_state(
             datetime.fromisoformat(last_run.replace("Z", "+00:00"))
         except ValueError:
             errors.append(f"{source_key} state last_run is not a valid ISO timestamp")
-        errors.extend(_validate_source_coverage(source_key, source_state))
+        errors.extend(
+            _validate_source_coverage(
+                source_key,
+                source_state,
+                allow_legacy_finra_identity_proof=(
+                    allow_legacy_finra_identity_proof
+                    and source_key == SOURCE_KEY_FINRA
+                ),
+            )
+        )
     return errors
 
 
@@ -2121,162 +2222,108 @@ def _finra_listing_pass_proof(state: dict) -> dict:
     }
 
 
-def _fetch_finra_listing_passes_interleaved(
+def _new_finra_pass_session(template: requests.Session) -> requests.Session:
+    """Create an independent FINRA session while preserving request headers."""
+    session = requests.Session()
+    headers = getattr(template, "headers", None)
+    if headers:
+        session.headers.update(dict(headers))
+    return session
+
+
+def _compare_finra_listing_pass_proofs(
+    first: dict,
+    second: dict,
+) -> Optional[str]:
+    """Compare all ordered page and raw-row proof fields from two passes."""
+    for key, label in (
+        ("declared_pages", "declared page count"),
+        ("pages_fetched", "fetched page count"),
+        ("page_numbers", "page numbers"),
+        ("page_identities", "page identities"),
+        ("page_row_counts", "page row counts"),
+        ("page_row_digests", "page row digests"),
+        ("page_row_payloads", "page row payloads"),
+        ("raw_row_count", "raw row count"),
+        ("resolved_row_count", "resolved row count"),
+        ("unresolved_row_count", "unresolved row count"),
+        ("unique_node_count", "unique node count"),
+    ):
+        if first.get(key) != second.get(key):
+            return (
+                f"FINRA independent-pass mismatch in {label}: "
+                f"{first.get(key)!r} != {second.get(key)!r}"
+            )
+    return None
+
+
+def _fetch_finra_listing_passes_sequential(
     session: requests.Session,
     since_date: Optional[str],
 ) -> dict:
-    """Fetch two cache-busted passes page-by-page to minimize listing drift."""
-    states = [
-        {
-            "token": _finra_pass_token(index),
-            "rows": [],
-            "page_numbers": [],
-            "page_identities": [],
-            "page_row_counts": [],
-            "page_row_digests": [],
-            "page_row_payloads": [],
-            "pages_fetched": 0,
-            "declared_pages": None,
-            "cutoff_page": None,
-        }
-        for index in (1, 2)
-    ]
+    """Fetch two complete passes sequentially using independent sessions."""
+    pass_results = []
+    for index in (1, 2):
+        pass_session = _new_finra_pass_session(session)
+        try:
+            result = _fetch_finra_listing_pass(
+                pass_session,
+                since_date,
+                _finra_pass_token(index),
+            )
+            pass_results.append(result)
+        finally:
+            close = getattr(pass_session, "close", None)
+            if callable(close):
+                close()
+        if not result.get("complete"):
+            return {
+                "complete": False,
+                "error": result.get("error") or (
+                    f"FINRA independent pass {index} was incomplete"
+                ),
+                "pages_fetched": result.get("pages_fetched", 0),
+                "declared_pages": result.get("declared_pages"),
+                "pass_proofs": [
+                    *[
+                        prior.get("pass_proof", {})
+                        for prior in pass_results[:-1]
+                    ],
+                    result.get("pass_proof", {}),
+                ],
+            }
 
-    def failed(error: str) -> dict:
+    first, second = pass_results
+    mismatch = _compare_finra_listing_pass_proofs(
+        first["pass_proof"],
+        second["pass_proof"],
+    )
+    if mismatch:
         return {
             "complete": False,
-            "error": error,
-            "pages_fetched": min(state["pages_fetched"] for state in states),
-            "declared_pages": states[0]["declared_pages"],
+            "error": mismatch,
+            "pages_fetched": min(
+                first["pages_fetched"],
+                second["pages_fetched"],
+            ),
+            "declared_pages": first.get("declared_pages"),
             "pass_proofs": [
-                _finra_listing_pass_proof(state) for state in states
+                first["pass_proof"],
+                second["pass_proof"],
             ],
         }
 
-    for page in range(FINRA_MAX_PAGES):
-        results = [
-            _fetch_finra_listing_page(session, page, state["token"])
-            for state in states
-        ]
-        for result in results:
-            if not result["complete"]:
-                return failed(result["error"])
-
-        declared = results[0]["page_declared"]
-        if results[1]["page_declared"] != declared:
-            return failed(
-                "FINRA two-pass listing mismatch in declared_pages: "
-                f"{declared!r} != {results[1]['page_declared']!r}"
-            )
-        if declared > FINRA_MAX_PAGES:
-            return failed(
-                f"FINRA pagination declared {declared} pages, "
-                f"exceeding safe cutoff {FINRA_MAX_PAGES}"
-            )
-
-        for state, result in zip(states, results, strict=True):
-            if (
-                state["declared_pages"] is not None
-                and state["declared_pages"] != declared
-            ):
-                return failed(
-                    "FINRA pagination metadata changed or disappeared "
-                    "while traversing pages"
-                )
-            state["declared_pages"] = declared
-            page_rows = result["page_rows"]
-            state["pages_fetched"] += 1
-            state["page_numbers"].append(page)
-            state["page_identities"].append({
-                "requested": page,
-                "final": result["final_page"],
-                "active": result["active_page"],
-            })
-            state["page_row_counts"].append(len(page_rows))
-            state["page_row_digests"].append(compute_hash(json.dumps(
-                [row["raw_payload"] for row in page_rows],
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-            )))
-            state["page_row_payloads"].append([
-                row["raw_payload"] for row in page_rows
-            ])
-            for row in page_rows:
-                row["page"] = page
-                row["unresolved"] = not row["detail_url"]
-            state["rows"].extend(page_rows)
-            if (
-                state["cutoff_page"] is None
-                and since_date
-                and all(
-                    row["listing_date"]
-                    and row["listing_date"] < since_date
-                    for row in page_rows
-                )
-            ):
-                state["cutoff_page"] = page
-
-        for key, label in (
-            ("page_identities", "page identity"),
-            ("page_row_counts", "page row counts"),
-            ("page_row_digests", "page_row_digests"),
-            ("page_row_payloads", "page row payloads"),
-        ):
-            first = states[0][key][-1]
-            second = states[1][key][-1]
-            if first != second:
-                return failed(
-                    f"FINRA two-pass listing mismatch in {label} "
-                    f"at page {page}: {first!r} != {second!r}"
-                )
-        unresolved = [result["unresolved"] for result in results]
-        if any(unresolved):
-            return failed(
-                f"FINRA page {page} contained "
-                f"{max(unresolved)} unresolved listing row(s)"
-            )
-        if any(not result["page_rows"] for result in results):
-            if not (
-                page == 0
-                and declared == 0
-                and all(result["zero_shape"] for result in results)
-            ):
-                return failed(
-                    f"FINRA page {page} contained no scoped listing rows"
-                )
-        if declared == 0 or page + 1 >= declared:
-            break
-    else:
-        return failed(
-            f"FINRA pagination exceeded safe cutoff of {FINRA_MAX_PAGES} pages"
-        )
-
-    if any(
-        state["declared_pages"] is None
-        or (
-            state["declared_pages"] != 0
-            and state["pages_fetched"] != state["declared_pages"]
-        )
-        for state in states
-    ):
-        return failed(
-            "FINRA pagination incomplete: "
-            f"declared {states[0]['declared_pages']}, fetched "
-            f"{states[0]['pages_fetched']}"
-        )
-
-    proofs = [_finra_listing_pass_proof(state) for state in states]
+    proofs = [pass_results[0]["pass_proof"], pass_results[1]["pass_proof"]]
     return {
         "complete": True,
-        "rows": states[0]["rows"],
+        "rows": pass_results[0]["rows"],
         "records": [
             (row["detail_url"], row["title"], row["listing_date"])
-            for row in states[0]["rows"]
+            for row in pass_results[0]["rows"]
         ],
-        "pages_fetched": states[0]["pages_fetched"],
-        "declared_pages": states[0]["declared_pages"],
-        "cutoff_page": states[0]["cutoff_page"],
+        "pages_fetched": pass_results[0]["pages_fetched"],
+        "declared_pages": pass_results[0]["declared_pages"],
+        "cutoff_page": pass_results[0]["cutoff_page"],
         "pass_proofs": proofs,
         "coverage": {
             "complete": True,
@@ -2303,7 +2350,7 @@ def _fetch_finra_listing_records(
     since_date: Optional[str],
 ) -> dict:
     """Require two stable, independently cache-busted listing passes."""
-    return _fetch_finra_listing_passes_interleaved(session, since_date)
+    return _fetch_finra_listing_passes_sequential(session, since_date)
 
 
 def fetch_finra_notices(
@@ -2605,9 +2652,16 @@ def fetch_finra_notices(
             **listing.get("coverage", {}),
             "detail_count": len(items),
             "unique_node_count": len(node_groups),
+            "fetched_entry_identities": sorted({
+                item.document_id or item.url for item in items
+            }),
+            "migration_ledger": [],
             "duplicate_ledger": duplicate_ledger,
             "conflict_ledger": conflict_ledger,
         }
+        coverage["fetched_entry_identity_digest"] = _identity_digest(
+            coverage["fetched_entry_identities"]
+        )
         if limit is not None:
             return _incomplete_result(
                 items,
@@ -2863,6 +2917,37 @@ def check_for_new_items(source_key: str, items: list[RegulatoryItem], source_sta
     return new_items
 
 
+def check_for_recovery_items(
+    source_key: str,
+    items: list[RegulatoryItem],
+    trusted_source_state: dict,
+) -> list[RegulatoryItem]:
+    """Find findings after a trusted watermark without baselining them away."""
+    trusted_entries = trusted_source_state.get("entries", {})
+    if not isinstance(trusted_entries, dict):
+        raise ValueError(f"{source_key} trusted entries are malformed")
+    watermark = _state_date(trusted_source_state)
+    if not watermark:
+        raise ValueError(f"{source_key} trusted watermark is missing")
+
+    findings = []
+    for item in items:
+        entry_key = item.document_id if item.document_id else item.url
+        content_hash = _item_content_hash(item)
+        publication_date = item.publication_date[:10] if (
+            isinstance(item.publication_date, str)
+            and re.match(r"^\d{4}-\d{2}-\d{2}", item.publication_date)
+        ) else None
+        if publication_date is None or publication_date > watermark:
+            findings.append(item)
+        elif (
+            entry_key in trusted_entries
+            and trusted_entries[entry_key] != content_hash
+        ):
+            findings.append(item)
+    return findings
+
+
 def update_source_state(
     source_key: str,
     items: list[RegulatoryItem],
@@ -2882,10 +2967,71 @@ def update_source_state(
     """
     source_state = get_source_state(state, source_key)
     entries = source_state.get('entries', {})
+    fetched_entries = {}
 
     for item in items:
         entry_key = item.document_id if item.document_id else item.url
-        entries[entry_key] = _item_content_hash(item)
+        fetched_entries[entry_key] = _item_content_hash(item)
+
+    if (
+        source_key == SOURCE_KEY_FINRA
+        and isinstance(coverage, dict)
+        and "fetched_entry_identities" in coverage
+    ):
+        fetched_identities = coverage.get("fetched_entry_identities")
+        if (
+            not isinstance(fetched_identities, list)
+            or set(fetched_identities) != set(fetched_entries)
+        ):
+            raise ValueError(
+                "FINRA coverage identities do not match fetched detail identities"
+            )
+        migration_ledger = coverage.get("migration_ledger", [])
+        if not isinstance(migration_ledger, list):
+            raise ValueError("FINRA migration ledger is malformed")
+        accounted_migrations = {
+            item.get("identity")
+            for item in migration_ledger
+            if isinstance(item, dict)
+        }
+        for identity in sorted(set(entries) - set(fetched_entries)):
+            if identity not in accounted_migrations:
+                migration_ledger.append({
+                    "identity": identity,
+                    "reason": (
+                        "retained prior-state identity outside the current "
+                        "complete detail crawl"
+                    ),
+                })
+        migration_identities = set()
+        for migration in migration_ledger:
+            if (
+                not isinstance(migration, dict)
+                or not isinstance(migration.get("identity"), str)
+                or not migration["identity"]
+                or not isinstance(migration.get("reason"), str)
+                or not migration["reason"]
+            ):
+                raise ValueError("FINRA migration ledger is malformed")
+            migration_identities.add(migration["identity"])
+        stale_identities = (
+            set(entries) - set(fetched_entries) - migration_identities
+        )
+        if stale_identities:
+            raise ValueError(
+                "FINRA state contains stale identities outside fetched coverage: "
+                f"{sorted(stale_identities)[:3]}"
+            )
+        entries = dict(fetched_entries)
+        for identity in migration_identities:
+            if identity not in source_state.get("entries", {}):
+                raise ValueError(
+                    f"FINRA migration identity is not present in state: {identity}"
+                )
+            entries[identity] = source_state["entries"][identity]
+    else:
+        for entry_key, content_hash in fetched_entries.items():
+            entries[entry_key] = content_hash
 
     source_state['entries'] = entries
     if source_key == SOURCE_KEY_FINRA and fallback_urls is not None:
@@ -2919,6 +3065,8 @@ def update_source_state(
         "entries_digest": _entries_digest(entries),
         "watermark": _coverage_watermark(source_state),
     })
+    if source_key == SOURCE_KEY_FINRA:
+        coverage_proof["entry_identity_digest"] = _identity_digest(entries)
     source_state["coverage"] = coverage_proof
 
     set_source_state(state, source_key, source_state)
@@ -3101,6 +3249,16 @@ def main():
             "REGULATORY_MONITOR_BASELINE_APPROVED=I_UNDERSTAND and cannot run in CI"
         ),
     )
+    parser.add_argument(
+        '--recovery-from-state',
+        type=str,
+        default=None,
+        help=(
+            "Explicitly compare findings against a trusted pre-incident state "
+            "file; requires REGULATORY_MONITOR_BASELINE_APPROVED=I_UNDERSTAND "
+            "and cannot run in CI"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -3123,9 +3281,13 @@ def main():
                 print(f"  - {err}")
             sys.exit(2)
 
-    if args.initialize_baseline and not _baseline_approval_is_manual():
+    recovery_mode = args.recovery_from_state is not None
+    if (
+        (args.initialize_baseline or recovery_mode)
+        and not _baseline_approval_is_manual()
+    ):
         logger.error(
-            "Baseline initialization requires local manual approval via "
+            "Baseline/recovery mode requires local manual approval via "
             "REGULATORY_MONITOR_BASELINE_APPROVED=I_UNDERSTAND"
         )
         sys.exit(2)
@@ -3147,7 +3309,11 @@ def main():
     # any source fetch or write. Read-only dry validation may operate without
     # state because it performs no fetch or write. Only the explicitly approved
     # local baseline mode may recover missing source sections.
-    strict_state = not args.initialize_baseline and not args.dry_run
+    strict_state = (
+        not args.initialize_baseline
+        and not recovery_mode
+        and not args.dry_run
+    )
     try:
         state = load_state(
             STATE_FILE,
@@ -3158,8 +3324,39 @@ def main():
         logger.error("Regulatory monitor state is unavailable: %s", exc)
         sys.exit(2)
 
-    if strict_state:
-        state_errors = _validate_regulatory_state(state, source_keys)
+    trusted_state = None
+    if recovery_mode:
+        trusted_path = Path(args.recovery_from_state).resolve()
+        if trusted_path == STATE_FILE.resolve():
+            logger.error("Recovery reference must be distinct from live state")
+            sys.exit(2)
+        try:
+            trusted_state = load_state(
+                trusted_path,
+                allow_empty=False,
+                migrate=False,
+            )
+        except StateLoadError as exc:
+            logger.error("Trusted recovery state is unavailable: %s", exc)
+            sys.exit(2)
+        for source_key in source_keys:
+            trusted_source = get_source_state(trusted_state, source_key)
+            if (
+                not isinstance(trusted_source.get("entries"), dict)
+                or not _state_date(trusted_source)
+            ):
+                logger.error(
+                    "Trusted recovery state is missing %s entries or watermark",
+                    source_key,
+                )
+                sys.exit(2)
+
+    if strict_state or recovery_mode:
+        state_errors = _validate_regulatory_state(
+            state,
+            source_keys,
+            allow_legacy_finra_identity_proof=recovery_mode,
+        )
         if state_errors:
             for error in state_errors:
                 logger.error("Regulatory monitor state invalid: %s", error)
@@ -3195,6 +3392,11 @@ def main():
     if args.source in ['federal-register', 'all']:
         logger.info("\n--- Federal Register ---")
         fed_state = get_source_state(state, SOURCE_KEY_FEDERAL_REGISTER)
+        comparison_fed_state = (
+            get_source_state(trusted_state, SOURCE_KEY_FEDERAL_REGISTER)
+            if recovery_mode
+            else fed_state
+        )
 
         # First-run baseline suppression: when there is no prior persisted state
         # for this source, record the current items as the baseline silently
@@ -3206,7 +3408,7 @@ def main():
         )
 
         # Determine since_date (last check or 30 days ago)
-        since_date = fed_state.get('last_checked')
+        since_date = comparison_fed_state.get('last_checked')
         if not since_date:
             since_date = (datetime.now(timezone.utc) - timedelta(days=30)).strftime('%Y-%m-%d')
             logger.info("No prior state, fetching documents from last 30 days")
@@ -3227,6 +3429,11 @@ def main():
     if args.source in ['finra', 'all']:
         logger.info("\n--- FINRA Notices ---")
         finra_state = get_source_state(state, SOURCE_KEY_FINRA)
+        comparison_finra_state = (
+            get_source_state(trusted_state, SOURCE_KEY_FINRA)
+            if recovery_mode
+            else finra_state
+        )
 
         # First-run baseline suppression (mirrors Federal Register / learn_monitor).
         finra_is_baseline = (
@@ -3248,7 +3455,7 @@ def main():
                 session,
                 config,
                 limit=args.limit,
-                since_date=_state_date(finra_state),
+                since_date=_state_date(comparison_finra_state),
                 known_urls=finra_refresh_urls,
                 fallback_urls=finra_fallback_urls,
             )
@@ -3274,7 +3481,19 @@ def main():
     if not args.dry_run:
         for source_key, source_state, is_baseline, result in source_runs:
             items = list(result)
-            if is_baseline:
+            if recovery_mode:
+                trusted_source = get_source_state(trusted_state, source_key)
+                new_items = check_for_recovery_items(
+                    source_key,
+                    items,
+                    trusted_source,
+                )
+                logger.info(
+                    f"{source_key}: {len(new_items)} recovered findings "
+                    "after trusted watermark"
+                )
+                all_new_items.extend(new_items)
+            elif is_baseline:
                 logger.info(
                     f"{source_key}: first run - baseline established, no changes "
                     f"reported on first run ({len(items)} items recorded)"

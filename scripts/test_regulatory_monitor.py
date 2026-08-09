@@ -112,6 +112,13 @@ def test_save_state_atomic_arg_order(monkeypatch):
                     "declared_pages": 1,
                     "detail_count": 0,
                     "page_numbers": [0],
+                    "page_identities": [
+                        {"requested": 0, "final": 0, "active": 0},
+                    ],
+                    "fetched_entry_identities": [],
+                    "fetched_entry_identity_digest": regulatory_monitor._identity_digest([]),
+                    "entry_identity_digest": regulatory_monitor._identity_digest([]),
+                    "migration_ledger": [],
                     "raw_row_count": 0,
                     "resolved_row_count": 0,
                     "unresolved_row_count": 0,
@@ -125,6 +132,7 @@ def test_save_state_atomic_arg_order(monkeypatch):
                             "page_identities": [{"requested": 0, "final": 0, "active": 0}],
                             "page_row_counts": [0],
                             "page_row_digests": [compute_hash("[]")],
+                            "page_row_payloads": [[]],
                             "raw_row_count": 0,
                             "resolved_row_count": 0,
                             "unresolved_row_count": 0,
@@ -138,6 +146,7 @@ def test_save_state_atomic_arg_order(monkeypatch):
                             "page_identities": [{"requested": 0, "final": 0, "active": 0}],
                             "page_row_counts": [0],
                             "page_row_digests": [compute_hash("[]")],
+                            "page_row_payloads": [[]],
                             "raw_row_count": 0,
                             "resolved_row_count": 0,
                             "unresolved_row_count": 0,
@@ -218,6 +227,17 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "declared_pages": 1,
                 "detail_count": len(entries),
                 "page_numbers": [0],
+                "page_identities": [
+                    {"requested": 0, "final": 0, "active": 0},
+                ],
+                "fetched_entry_identities": sorted(entries),
+                "fetched_entry_identity_digest": regulatory_monitor._identity_digest(
+                    entries
+                ),
+                "entry_identity_digest": regulatory_monitor._identity_digest(
+                    entries
+                ),
+                "migration_ledger": [],
                 "raw_row_count": len(entries),
                 "resolved_row_count": len(entries),
                 "unresolved_row_count": 0,
@@ -228,8 +248,12 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                         "declared_pages": 1,
                         "pages_fetched": 1,
                         "page_numbers": [0],
+                        "page_identities": [
+                            {"requested": 0, "final": 0, "active": 0},
+                        ],
                         "page_row_counts": [len(entries)],
                         "page_row_digests": [regulatory_monitor._entries_digest(entries)],
+                        "page_row_payloads": [[]],
                         "raw_row_count": len(entries),
                         "resolved_row_count": len(entries),
                         "unresolved_row_count": 0,
@@ -240,8 +264,12 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                         "declared_pages": 1,
                         "pages_fetched": 1,
                         "page_numbers": [0],
+                        "page_identities": [
+                            {"requested": 0, "final": 0, "active": 0},
+                        ],
                         "page_row_counts": [len(entries)],
                         "page_row_digests": [regulatory_monitor._entries_digest(entries)],
+                        "page_row_payloads": [[]],
                         "raw_row_count": len(entries),
                         "resolved_row_count": len(entries),
                         "unresolved_row_count": 0,
@@ -291,6 +319,22 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "declared_pages": 1,
                 "detail_count": len(items),
                 "page_numbers": [0],
+                "page_identities": [
+                    {"requested": 0, "final": 0, "active": 0},
+                ],
+                "fetched_entry_identities": sorted(
+                    item.document_id if item.document_id else item.url
+                    for item in items
+                ),
+                "fetched_entry_identity_digest": regulatory_monitor._identity_digest(
+                    item.document_id if item.document_id else item.url
+                    for item in items
+                ),
+                "entry_identity_digest": regulatory_monitor._identity_digest(
+                    item.document_id if item.document_id else item.url
+                    for item in items
+                ),
+                "migration_ledger": [],
                 "raw_row_count": len(items),
                 "resolved_row_count": len(items),
                 "unresolved_row_count": 0,
@@ -301,8 +345,12 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                         "declared_pages": 1,
                         "pages_fetched": 1,
                         "page_numbers": [0],
+                        "page_identities": [
+                            {"requested": 0, "final": 0, "active": 0},
+                        ],
                         "page_row_counts": [len(items)],
                         "page_row_digests": [compute_hash(str(items))],
+                        "page_row_payloads": [[]],
                         "raw_row_count": len(items),
                         "resolved_row_count": len(items),
                         "unresolved_row_count": 0,
@@ -313,8 +361,12 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                         "declared_pages": 1,
                         "pages_fetched": 1,
                         "page_numbers": [0],
+                        "page_identities": [
+                            {"requested": 0, "final": 0, "active": 0},
+                        ],
                         "page_row_counts": [len(items)],
                         "page_row_digests": [compute_hash(str(items))],
+                        "page_row_payloads": [[]],
                         "raw_row_count": len(items),
                         "resolved_row_count": len(items),
                         "unresolved_row_count": 0,
@@ -556,6 +608,13 @@ def test_finra_zero_result_coverage_proof_is_valid():
             "declared_pages": 0,
             "detail_count": 0,
             "page_numbers": [0],
+            "page_identities": [
+                {"requested": 0, "final": 0, "active": 0},
+            ],
+            "fetched_entry_identities": [],
+            "fetched_entry_identity_digest": regulatory_monitor._identity_digest([]),
+            "entry_identity_digest": regulatory_monitor._identity_digest([]),
+            "migration_ledger": [],
             "raw_row_count": 0,
             "resolved_row_count": 0,
             "unresolved_row_count": 0,
@@ -566,8 +625,12 @@ def test_finra_zero_result_coverage_proof_is_valid():
                     "declared_pages": 0,
                     "pages_fetched": 1,
                     "page_numbers": [0],
+                    "page_identities": [
+                        {"requested": 0, "final": 0, "active": 0},
+                    ],
                     "page_row_counts": [0],
                     "page_row_digests": [compute_hash("[]")],
+                    "page_row_payloads": [[]],
                     "raw_row_count": 0,
                     "resolved_row_count": 0,
                     "unresolved_row_count": 0,
@@ -578,8 +641,12 @@ def test_finra_zero_result_coverage_proof_is_valid():
                     "declared_pages": 0,
                     "pages_fetched": 1,
                     "page_numbers": [0],
+                    "page_identities": [
+                        {"requested": 0, "final": 0, "active": 0},
+                    ],
                     "page_row_counts": [0],
                     "page_row_digests": [compute_hash("[]")],
+                    "page_row_payloads": [[]],
                     "raw_row_count": 0,
                     "resolved_row_count": 0,
                     "unresolved_row_count": 0,
@@ -597,6 +664,30 @@ def test_finra_zero_result_coverage_proof_is_valid():
     ) == []
 
 
+def test_finra_coverage_rejects_stale_unseen_entry():
+    """A watermark cannot advance with an entry absent from fetched identities."""
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    source_state["entries"]["FINRA stale-unseen"] = "sha256:stale"
+    source_state["coverage"]["entry_count"] = len(source_state["entries"])
+    source_state["coverage"]["entries_digest"] = regulatory_monitor._entries_digest(
+        source_state["entries"]
+    )
+    source_state["coverage"]["entry_identity_digest"] = (
+        regulatory_monitor._identity_digest(source_state["entries"])
+    )
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any("stale or unaccounted identities" in error for error in errors)
+
+
 def test_baseline_mode_requires_manual_approval_and_rejects_ci(monkeypatch):
     """Baseline initialization cannot be reached from an unattended workflow."""
     monkeypatch.delenv("REGULATORY_MONITOR_BASELINE_APPROVED", raising=False)
@@ -610,6 +701,51 @@ def test_baseline_mode_requires_manual_approval_and_rejects_ci(monkeypatch):
     with pytest.raises(SystemExit) as exc:
         regulatory_monitor.main()
     assert exc.value.code == 2
+
+
+def test_recovery_findings_do_not_suppress_post_watermark_high_items():
+    """Trusted July-20 history must leave FINRA 26-15 and later items reportable."""
+    pre_watermark = _make_item(
+        "Historical notice",
+        "FINRA 26-01",
+        pub_date="2026-07-20",
+        source="FINRA",
+        agency="FINRA",
+    )
+    post_watermark = _make_item(
+        "FINRA Requests Comment on Modernizing Best Execution Guidance",
+        "FINRA 26-15",
+        pub_date="2026-07-24",
+        source="FINRA",
+        agency="FINRA",
+    )
+    post_watermark.classification = regulatory_monitor.CLASSIFICATION_HIGH
+    changed_known = _make_item(
+        "Edited historical notice",
+        "FINRA 26-01",
+        abstract="Edited after the trusted watermark.",
+        pub_date="2026-07-20",
+        source="FINRA",
+        agency="FINRA",
+    )
+    trusted = {
+        "last_run": "2026-07-20T09:56:38.066467+00:00",
+        "entries": {
+            "FINRA 26-01": _item_hash(pre_watermark),
+        },
+    }
+
+    findings = regulatory_monitor.check_for_recovery_items(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        [pre_watermark, post_watermark, changed_known],
+        trusted,
+    )
+
+    assert {item.document_id for item in findings} == {
+        "FINRA 26-15",
+        "FINRA 26-01",
+    }
+    assert post_watermark.classification == regulatory_monitor.CLASSIFICATION_HIGH
 
 
 def test_subsequent_run_still_detects_new_items(monkeypatch):
@@ -1281,33 +1417,127 @@ def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
 
 
 def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
-    """A cache-busted pass with shifted ordered rows cannot prove coverage."""
-    base = _synthetic_finra_listing([
-        _synthetic_finra_row(
-            "https://www.finra.org/rules-guidance/notices/26-14",
-            "url:/rules-guidance/notices/26-14",
-        )
-    ])
-    shifted = _synthetic_finra_listing([
-        _synthetic_finra_row(
-            "https://www.finra.org/rules-guidance/notices/26-15",
-            "url:/rules-guidance/notices/26-15",
-        )
+    """A [A,B]/[C] -> [X,A]/[B,C] shift fails after both passes complete."""
+    def pass_result(pages, token):
+        rows = []
+        page_digests = []
+        page_payloads = []
+        for page, page_urls in enumerate(pages):
+            page_rows = []
+            for row_index, slug in enumerate(page_urls):
+                row = _synthetic_finra_row(
+                    f"https://www.finra.org/rules-guidance/notices/{slug}",
+                    f"url:/rules-guidance/notices/{slug}",
+                    title=slug,
+                )
+                row["page"] = page
+                row["row_index"] = row_index
+                page_rows.append(row)
+            rows.extend(page_rows)
+            payloads = [row["raw_payload"] for row in page_rows]
+            page_payloads.append(payloads)
+            page_digests.append(compute_hash(json.dumps(
+                payloads,
+                sort_keys=True,
+                separators=(",", ":"),
+            )))
+        proof = {
+            "token": token,
+            "declared_pages": len(pages),
+            "pages_fetched": len(pages),
+            "page_numbers": list(range(len(pages))),
+            "page_identities": [
+                {"requested": page, "final": page, "active": page}
+                for page in range(len(pages))
+            ],
+            "page_row_counts": [len(page) for page in pages],
+            "page_row_digests": page_digests,
+            "page_row_payloads": page_payloads,
+            "raw_row_count": len(rows),
+            "resolved_row_count": len(rows),
+            "unresolved_row_count": 0,
+            "unique_node_count": len({row["node_identity"] for row in rows}),
+        }
+        return {
+            "complete": True,
+            "rows": rows,
+            "records": [
+                (row["detail_url"], row["title"], row["listing_date"])
+                for row in rows
+            ],
+            "pages_fetched": len(pages),
+            "declared_pages": len(pages),
+            "cutoff_page": None,
+            "pass_proof": proof,
+        }
+
+    results = iter([
+        pass_result([["A", "B"], ["C"]], "pass-1"),
+        pass_result([["X", "A"], ["B", "C"]], "pass-2"),
     ])
     monkeypatch.setattr(
         regulatory_monitor,
-        "_fetch_finra_listing_passes_interleaved",
-        lambda *_args: {
-            "complete": False,
-            "error": "FINRA two-pass listing mismatch in page_row_digests",
-            "pass_proofs": [base["pass_proof"], shifted["pass_proof"]],
-        },
+        "_fetch_finra_listing_pass",
+        lambda *_args: next(results),
     )
     result = regulatory_monitor._fetch_finra_listing_records(
         _FakeSession([]), None
     )
     assert result["complete"] is False
-    assert "two-pass listing mismatch" in result["error"]
+    assert "independent-pass mismatch" in result["error"]
+
+
+def test_finra_passes_create_independent_sessions_sequentially(monkeypatch):
+    """Pass two starts only after pass one has fully closed."""
+    events = []
+
+    class _PassSession:
+        def close(self):
+            events.append("close")
+
+    proof = {
+        "token": "pass",
+        "declared_pages": 1,
+        "pages_fetched": 1,
+        "page_numbers": [0],
+        "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+        "page_row_counts": [0],
+        "page_row_digests": [compute_hash("[]")],
+        "page_row_payloads": [[]],
+        "raw_row_count": 0,
+        "resolved_row_count": 0,
+        "unresolved_row_count": 0,
+        "unique_node_count": 0,
+    }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_new_finra_pass_session",
+        lambda _template: (events.append("new") or _PassSession()),
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_pass",
+        lambda *_args: (
+            events.append("fetch")
+            or {
+                "complete": True,
+                "rows": [],
+                "records": [],
+                "pages_fetched": 1,
+                "declared_pages": 1,
+                "cutoff_page": None,
+                "pass_proof": proof,
+            }
+        ),
+    )
+
+    result = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([]), None
+    )
+
+    assert result["complete"] is True
+    assert events == ["new", "fetch", "close", "new", "fetch", "close"]
 
 
 def test_finra_complete_unfiltered_listing_catches_taxonomy_omissions(monkeypatch):
@@ -1849,10 +2079,102 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
     assert primary == backup
     assert primary["sources"]["learn"] == backup["sources"]["learn"]
     assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["entries"]) == 506
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 3614
+    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 4238
     assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) >= 57
-    assert primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["last_checked"] == "2026-08-09"
-    assert primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["last_run"].startswith("2026-08-09")
+    assert primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["last_checked"] >= "2026-08-09"
+    assert primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["last_run"] >= "2026-08-09"
+    finra_coverage = primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["coverage"]
+    assert finra_coverage["raw_row_count"] == 3671
+    assert finra_coverage["detail_count"] == 3616
+    assert finra_coverage["unique_node_count"] == 3616
+    assert len(finra_coverage["duplicate_ledger"]) == 55
+    assert len(finra_coverage["migration_ledger"]) == 622
+    assert finra_coverage["pages_fetched"] == 92
+    assert finra_coverage["declared_pages"] == 92
+    assert len(finra_coverage["fetched_entry_identities"]) == finra_coverage["detail_count"]
+    assert finra_coverage["entry_identity_digest"] == regulatory_monitor._identity_digest(
+        sorted(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"])
+    )
+
+
+def test_legacy_finra_proof_requires_explicit_recovery_migration():
+    """Legacy FINRA coverage is admitted only by the approved recovery path."""
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    legacy_state = deepcopy(state)
+    coverage = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["coverage"]
+    for key in (
+        "fetched_entry_identities",
+        "fetched_entry_identity_digest",
+        "entry_identity_digest",
+        "migration_ledger",
+    ):
+        coverage.pop(key, None)
+
+    normal_errors = regulatory_monitor._validate_regulatory_state(
+        legacy_state,
+        [
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+            regulatory_monitor.SOURCE_KEY_FINRA,
+        ],
+    )
+    assert any("fetched_entry_identities" in error for error in normal_errors)
+
+    recovery_errors = regulatory_monitor._validate_regulatory_state(
+        legacy_state,
+        [
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+            regulatory_monitor.SOURCE_KEY_FINRA,
+        ],
+        allow_legacy_finra_identity_proof=True,
+    )
+    assert recovery_errors == []
+
+
+def test_known_corrupt_incident_state_fails_coverage_validation():
+    """The 332/2 state cannot hide behind Aug-9 watermarks."""
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    incident = json.loads(state_path.read_text(encoding="utf-8"))
+    incident["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["entries"] = dict(
+        list(
+            incident["sources"][
+                regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER
+            ]["entries"].items()
+        )[:332]
+    )
+    incident["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"] = dict(
+        list(
+            incident["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"].items()
+        )[:2]
+    )
+    for source_key in (
+        regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+        regulatory_monitor.SOURCE_KEY_FINRA,
+    ):
+        source_state = incident["sources"][source_key]
+        source_state["last_run"] = "2026-08-09T20:39:20+00:00"
+        coverage = source_state["coverage"]
+        coverage["entry_count"] = len(source_state["entries"])
+        coverage["entries_digest"] = regulatory_monitor._entries_digest(
+            source_state["entries"]
+        )
+        coverage["watermark"]["last_run"] = source_state["last_run"]
+    fr_coverage = incident["sources"][
+        regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER
+    ]["coverage"]
+    fr_coverage["expected_count"] = 332
+    fr_coverage["fetched_count"] = 332
+    errors = regulatory_monitor._validate_regulatory_state(
+        incident,
+        [
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+            regulatory_monitor.SOURCE_KEY_FINRA,
+        ],
+    )
+    assert any(
+        "identity digest" in error or "unaccounted identities" in error
+        for error in errors
+    )
 
 
 def test_dry_run_does_not_fetch_or_persist_watermarks(monkeypatch):
