@@ -15,7 +15,6 @@ from __future__ import annotations
 import json
 import sys
 from copy import deepcopy
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -24,6 +23,7 @@ from bs4 import BeautifulSoup
 SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
+import monitoring_shared  # noqa: E402
 import regulatory_monitor  # noqa: E402
 from monitoring_shared import compute_hash  # noqa: E402
 
@@ -68,6 +68,54 @@ def test_save_state_atomic_arg_order(monkeypatch):
         regulatory_monitor, 'fetch_finra_notices',
         lambda *a, **k: [],
     )
+    run_state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "last_checked": "2026-08-01",
+                "entries": {},
+                "coverage": {
+                    "schema_version": 1,
+                    "source": regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+                    "entry_count": 0,
+                    "entries_digest": regulatory_monitor._entries_digest({}),
+                    "watermark": {
+                        "last_run": "2026-08-01T00:00:00+00:00",
+                        "last_checked": "2026-08-01",
+                    },
+                    "complete": True,
+                    "window_start": "2026-08-01",
+                    "query": {},
+                    "expected_count": 0,
+                    "fetched_count": 0,
+                    "pages_fetched": 1,
+                    "declared_pages": 1,
+                    "page_numbers": [1],
+                },
+            },
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "entries": {},
+                "coverage": {
+                    "schema_version": 1,
+                    "source": regulatory_monitor.SOURCE_KEY_FINRA,
+                    "entry_count": 0,
+                    "entries_digest": regulatory_monitor._entries_digest({}),
+                    "watermark": {"last_run": "2026-08-01T00:00:00+00:00"},
+                    "complete": True,
+                    "listing_mode": "complete-unfiltered",
+                    "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+                    "listing_record_count": 0,
+                    "pages_fetched": 1,
+                    "declared_pages": 1,
+                    "detail_count": 0,
+                    "page_numbers": [0],
+                },
+            },
+        },
+    }
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: run_state)
 
     # Run the real (non --dry-run) code path.
     monkeypatch.setattr(sys, 'argv', ['regulatory_monitor.py'])
@@ -98,6 +146,45 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
 
     Returns (exit_code, saved_state, reported_items).
     """
+    for source_key in (
+        regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+        regulatory_monitor.SOURCE_KEY_FINRA,
+    ):
+        source_state = state.get("sources", {}).get(source_key)
+        if not isinstance(source_state, dict) or "coverage" in source_state:
+            continue
+        entries = source_state.get("entries", {})
+        if not isinstance(entries, dict):
+            continue
+        common = {
+            "schema_version": 1,
+            "source": source_key,
+            "entry_count": len(entries),
+            "entries_digest": regulatory_monitor._entries_digest(entries),
+            "watermark": regulatory_monitor._coverage_watermark(source_state),
+            "complete": True,
+        }
+        if source_key == regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER:
+            common.update({
+                "window_start": source_state.get("last_checked", "2026-01-01"),
+                "query": {},
+                "expected_count": len(entries),
+                "fetched_count": len(entries),
+                "pages_fetched": 1,
+                "declared_pages": 1,
+                "page_numbers": [1],
+            })
+        else:
+            common.update({
+                "listing_mode": "complete-unfiltered",
+                "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+                "listing_record_count": len(entries),
+                "pages_fetched": 1,
+                "declared_pages": 1,
+                "detail_count": len(entries),
+                "page_numbers": [0],
+            })
+        source_state["coverage"] = common
     captured = {'saved_state': None, 'report_items': None}
 
     monkeypatch.setattr(regulatory_monitor, 'load_state', lambda *a, **k: state)
@@ -112,13 +199,45 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
 
     monkeypatch.setattr(regulatory_monitor, 'generate_regulatory_report', fake_report)
 
+    def as_result(items, source_key):
+        if isinstance(items, regulatory_monitor.FetchResult):
+            return items
+        items = list(items)
+        if source_key == regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER:
+            coverage = {
+                "complete": True,
+                "window_start": "2026-01-01",
+                "query": {},
+                "expected_count": len(items),
+                "fetched_count": len(items),
+                "pages_fetched": 1,
+                "declared_pages": 1,
+                "page_numbers": [1],
+            }
+        else:
+            coverage = {
+                "complete": True,
+                "listing_mode": "complete-unfiltered",
+                "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+                "listing_record_count": len(items),
+                "pages_fetched": 1,
+                "declared_pages": 1,
+                "detail_count": len(items),
+                "page_numbers": [0],
+            }
+        return regulatory_monitor.FetchResult(
+            items,
+            complete=True,
+            coverage=coverage,
+        )
+
     monkeypatch.setattr(
         regulatory_monitor, 'fetch_federal_register_documents',
-        lambda *a, **k: fed_items,
+        lambda *a, **k: as_result(fed_items, regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER),
     )
     monkeypatch.setattr(
         regulatory_monitor, 'fetch_finra_notices',
-        lambda *a, **k: finra_items,
+        lambda *a, **k: as_result(finra_items, regulatory_monitor.SOURCE_KEY_FINRA),
     )
 
     monkeypatch.setattr(
@@ -240,6 +359,113 @@ def test_corrupt_regulatory_state_fails_before_baseline_suppression(monkeypatch)
     assert exc.value.code == 2
 
 
+def test_known_incident_state_rejects_watermarks_without_coverage_proof(monkeypatch):
+    """The e802babd 332/2 state cannot advance Aug-9 watermarks."""
+    corrupt_state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER: {
+                "last_run": "2026-08-09T08:21:38+00:00",
+                "last_checked": "2026-08-09",
+                "entries": {
+                    f"2026-{number:05d}": "sha256:corrupt"
+                    for number in range(332)
+                },
+            },
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-09T08:21:38+00:00",
+                "entries": {
+                    f"FINRA 26-{number:02d}": "sha256:corrupt"
+                    for number in range(1, 3)
+                },
+            },
+        },
+    }
+    fetch_calls = []
+    monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: corrupt_state)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_federal_register_documents",
+        lambda *a, **k: fetch_calls.append("federal") or [],
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_finra_notices",
+        lambda *a, **k: fetch_calls.append("finra") or [],
+    )
+    monkeypatch.setattr(sys, "argv", ["regulatory_monitor.py"])
+
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+
+    assert exc.value.code == 2
+    assert fetch_calls == []
+
+
+def test_coverage_proof_rejects_entry_count_or_digest_drift():
+    """A proof cannot be reused after entries change under the watermark."""
+    source_state = {
+        "last_run": "2026-08-09T08:21:38+00:00",
+        "last_checked": "2026-08-09",
+        "entries": {"2026-00001": "sha256:one"},
+        "coverage": {
+            "schema_version": 1,
+            "source": regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+            "entry_count": 1,
+            "entries_digest": regulatory_monitor._entries_digest(
+                {"2026-00001": "sha256:old"}
+            ),
+            "watermark": {
+                "last_run": "2026-08-09T08:21:38+00:00",
+                "last_checked": "2026-08-09",
+            },
+            "complete": True,
+            "window_start": "2026-08-09",
+            "query": {},
+            "expected_count": 1,
+            "fetched_count": 1,
+            "pages_fetched": 1,
+            "declared_pages": 1,
+            "page_numbers": [1],
+        },
+    }
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+        source_state,
+    )
+
+    assert any("entries_digest" in error for error in errors)
+
+
+def test_finra_zero_result_coverage_proof_is_valid():
+    """The explicit zero-result response is a complete, verifiable shape."""
+    source_state = {
+        "last_run": "2026-08-09T08:21:38+00:00",
+        "entries": {},
+        "coverage": {
+            "schema_version": 1,
+            "source": regulatory_monitor.SOURCE_KEY_FINRA,
+            "entry_count": 0,
+            "entries_digest": regulatory_monitor._entries_digest({}),
+            "watermark": {"last_run": "2026-08-09T08:21:38+00:00"},
+            "complete": True,
+            "listing_mode": "complete-unfiltered",
+            "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+            "listing_record_count": 0,
+            "pages_fetched": 1,
+            "declared_pages": 0,
+            "detail_count": 0,
+            "page_numbers": [0],
+        },
+    }
+
+    assert regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    ) == []
+
+
 def test_baseline_mode_requires_manual_approval_and_rejects_ci(monkeypatch):
     """Baseline initialization cannot be reached from an unattended workflow."""
     monkeypatch.delenv("REGULATORY_MONITOR_BASELINE_APPROVED", raising=False)
@@ -354,6 +580,33 @@ class _FakeResponse:
 
     def json(self):
         return self.payload
+
+
+class _FakeHttpResponse:
+    def __init__(self, status_code, *, retry_after=None, url="https://example.test"):
+        self.status_code = status_code
+        self.headers = {"Retry-After": str(retry_after)} if retry_after is not None else {}
+        self.url = url
+        self.text = "ok" if status_code == 200 else ""
+
+
+def test_shared_fetch_page_honors_valid_retry_after(monkeypatch):
+    """Shared monitor callers must wait the server-advertised 60 seconds."""
+    responses = [
+        _FakeHttpResponse(429, retry_after=60),
+        _FakeHttpResponse(200),
+    ]
+    sleeps = []
+
+    class Session:
+        def get(self, *_args, **_kwargs):
+            return responses.pop(0)
+
+    monkeypatch.setattr(monitoring_shared.time, "sleep", sleeps.append)
+    result = monitoring_shared.fetch_page("https://example.test", Session(), max_retries=2)
+
+    assert result["status_code"] == 200
+    assert sleeps == [60]
 
 
 class _FakeSession:
@@ -584,46 +837,11 @@ def _finra_listing_page(page, total_pages, records):
     )
     pager = (
         '<nav class="pagination">'
+        f'<li class="page-item active"><span class="page-link">{page + 1}</span></li>'
         f'<a href="?page={total_pages - 1}">Last >> Last page</a>'
         '</nav>'
     )
     return f"<html><body>{rows}{pager}</body></html>"
-
-
-def _finra_year_listing_page(
-    year,
-    filter_value,
-    records,
-    *,
-    selected=True,
-    total_pages=None,
-    empty=False,
-):
-    selected_attr = " selected" if selected else ""
-    rows = "\n".join(
-        f'<tr><td><time datetime="{date}T12:00:00Z"></time>'
-        f'<a href="{href}">{title}</a></td></tr>'
-        for href, title, date in records
-    )
-    pager = ""
-    if total_pages and total_pages > 1:
-        pager = (
-            '<nav class="pagination">'
-            f'<a href="?combine_1={filter_value}&page={total_pages - 1}">'
-            "Last >> Last page</a></nav>"
-        )
-    empty_markup = '<div class="view-empty">No results</div>' if empty else ""
-    return f"""
-    <html><body>
-      <form>
-        <select name="combine_1">
-          <option value="All">- Any -</option>
-          <option value="{filter_value}"{selected_attr}>{year}</option>
-        </select>
-      </form>
-      {rows}{pager}{empty_markup}
-    </body></html>
-    """
 
 
 def _finra_detail_page(title, date, summary):
@@ -640,35 +858,49 @@ def _finra_detail_page(title, date, summary):
     """
 
 
-def test_finra_authoritative_year_filter_bounds_incremental_crawl(monkeypatch):
-    """Incremental runs use the selected FINRA year boundary, not 92 pages."""
+def test_finra_complete_unfiltered_listing_catches_taxonomy_omissions(monkeypatch):
+    """Selected-year taxonomy omissions cannot make the unfiltered crawl incomplete."""
     monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
-    year = datetime.now(timezone.utc).year
-    record = (
-        "/rules-guidance/notices/26-15",
-        "Regulatory Notice 26-15",
-        f"{year}-07-24",
-    )
-    base = _finra_year_listing_page(year, "1", [], selected=False, total_pages=92)
-    filtered = _finra_year_listing_page(year, "1", [record], total_pages=None)
-    detail_url = "https://www.finra.org/rules-guidance/notices/26-15"
-    pages = {
-        regulatory_monitor.FINRA_NOTICES_URL: base,
-        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1": filtered,
-        detail_url: _finra_detail_page(
-            "FINRA Requests Comment on Best Execution Guidance",
-            f"{year}-07-24",
-            "Comments are requested.",
+    page_records = {
+        0: [
+            ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24"),
+        ],
+        1: [
+            ("/rules-guidance/notices/26-05", "Regulatory Notice 26-05", "2026-02-27"),
+        ],
+    }
+    details = {
+        "/rules-guidance/notices/26-15": _finra_detail_page(
+            "Notice 26-15", "2026-07-24", "Current notice content."
+        ),
+        "/rules-guidance/notices/26-05": _finra_detail_page(
+            "Notice 26-05", "2026-02-27", "Omitted by selected-year taxonomy."
         ),
     }
     requested = []
 
     def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
+        if url == regulatory_monitor.FINRA_NOTICES_URL:
+            page = 0
+        elif "?page=" in url:
+            page = int(url.rsplit("=", 1)[1])
+        else:
+            path = url.removeprefix("https://www.finra.org")
+            return {
+                "status_code": 200,
+                "content": details[path],
+                "final_url": url,
+                "url": url,
+                "was_redirected": False,
+                "error": None,
+            }
+        content = _finra_listing_page(page, 2, page_records[page])
         return {
             "status_code": 200,
-            "content": pages[url],
+            "content": content,
             "final_url": url,
+            "url": url,
             "was_redirected": False,
             "error": None,
         }
@@ -677,92 +909,12 @@ def test_finra_authoritative_year_filter_bounds_incremental_crawl(monkeypatch):
     result = regulatory_monitor.fetch_finra_notices(
         _FakeSession([]),
         {"regulatory": {}, "keyword_control_map": []},
-        since_date=f"{year}-01-01",
+        since_date="2026-08-08",
     )
 
     assert result.complete is True
-    assert result.declared_pages == 1
-    assert result.pages_fetched == 1
-    assert result[0].document_id == "FINRA 26-15"
-    assert requested[:2] == [
-        regulatory_monitor.FINRA_NOTICES_URL,
-        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1",
-    ]
-    assert not any("?page=" in url for url in requested)
-
-
-def test_finra_selected_year_filter_metadata_mismatch_fails_closed(monkeypatch):
-    """A claimed year boundary with contradictory selection is unverifiable."""
-    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
-    year = datetime.now(timezone.utc).year
-    record = (
-        "/rules-guidance/notices/26-15",
-        "Regulatory Notice 26-15",
-        f"{year}-07-24",
-    )
-    pages = {
-        regulatory_monitor.FINRA_NOTICES_URL: _finra_year_listing_page(
-            year, "1", [], selected=False, total_pages=92
-        ),
-        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1":
-            _finra_year_listing_page(year, "1", [record], selected=False),
-    }
-
-    monkeypatch.setattr(
-        regulatory_monitor,
-        "fetch_page",
-        lambda url, _session, **_kwargs: {
-            "status_code": 200,
-            "content": pages[url],
-            "final_url": url,
-            "was_redirected": False,
-            "error": None,
-        },
-    )
-    result = regulatory_monitor.fetch_finra_notices(
-        _FakeSession([]),
-        {"regulatory": {}, "keyword_control_map": []},
-        since_date=f"{year}-01-01",
-    )
-
-    assert result.complete is False
-    assert "selected" in result.error
-
-
-def test_finra_authoritative_year_filter_accepts_explicit_zero_result(monkeypatch):
-    """A selected year with an explicit empty shape is a verified zero result."""
-    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
-    year = datetime.now(timezone.utc).year
-    pages = {
-        regulatory_monitor.FINRA_NOTICES_URL: _finra_year_listing_page(
-            year, "1", [], selected=False, total_pages=92
-        ),
-        f"{regulatory_monitor.FINRA_NOTICES_URL}?combine_1=1":
-            _finra_year_listing_page(year, "1", [], empty=True),
-    }
-
-    monkeypatch.setattr(
-        regulatory_monitor,
-        "fetch_page",
-        lambda url, _session, **_kwargs: {
-            "status_code": 200,
-            "content": pages[url],
-            "final_url": url,
-            "was_redirected": False,
-            "error": None,
-        },
-    )
-    result = regulatory_monitor.fetch_finra_notices(
-        _FakeSession([]),
-        {"regulatory": {}, "keyword_control_map": []},
-        since_date=f"{year}-01-01",
-    )
-
-    assert result.complete is True
-    assert result == []
-    assert result.expected_count == 0
-    assert result.declared_pages == 0
-    assert result.pages_fetched == 1
+    assert {item.document_id for item in result} == {"FINRA 26-15", "FINRA 26-05"}
+    assert not any("combine_1" in url for url in requested)
 
 
 def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
@@ -896,8 +1048,8 @@ def test_finra_pagination_overlap_fails_closed(monkeypatch):
     assert "overlap" in result.error
 
 
-def test_finra_identical_listing_overlap_is_deduplicated(monkeypatch):
-    """An identical repeated record is safe to deduplicate while pages complete."""
+def test_finra_identical_listing_overlap_fails_closed(monkeypatch):
+    """Even identical cross-page records are unverifiable overlap."""
     record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
     listing = {
         regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
@@ -925,9 +1077,82 @@ def test_finra_identical_listing_overlap_is_deduplicated(monkeypatch):
         _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
     )
 
-    assert result.complete is True
-    assert result.pages_fetched == 2
-    assert [item.document_id for item in result] == ["FINRA 26-15"]
+    assert result.complete is False
+    assert "repeated record" in result.error
+
+
+def test_finra_repeated_page_identity_fails_closed(monkeypatch):
+    """A response claiming the previous page cannot advance coverage."""
+    record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
+    listing = {
+        regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
+        "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(
+            0, 2, [record]
+        ),
+    }
+
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": listing[url],
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+
+    assert result.complete is False
+    assert "identity mismatch" in result.error
+
+
+def test_finra_active_pager_ignores_global_navigation_current_page():
+    """Global aria-current navigation must not mask the listing pager."""
+    soup = BeautifulSoup(
+        """
+        <a aria-current="page" class="nav-link active">Notices</a>
+        <nav aria-labelledby="pagination-heading">
+          <ul class="pagination">
+            <li class="page-item active"><span class="page-link">1</span></li>
+            <li class="page-item"><a class="page-link" href="?page=1">2</a></li>
+          </ul>
+        </nav>
+        """,
+        "html.parser",
+    )
+
+    assert regulatory_monitor._extract_finra_active_page(soup) == 0
+
+
+def test_finra_listing_collects_all_notice_slug_types():
+    """Election/trade notices are not silently omitted from full coverage."""
+    soup = BeautifulSoup(
+        """
+        <table><tbody>
+          <tr><td><a href="/rules-guidance/notices/election-notice-091809">
+            Election Notice - 9/18/09</a></td></tr>
+          <tr><td><a href="/rules-guidance/notices/trade-reporting-notice-022409">
+            Trade Reporting Notice</a></td></tr>
+          <tr><td><a href="/rules-guidance/notices/09-29">
+            Regulatory Notice 09-29</a></td></tr>
+        </tbody></table>
+        """,
+        "html.parser",
+    )
+
+    records = regulatory_monitor._extract_finra_notice_links(soup)
+
+    assert [record[0].rsplit("/", 1)[-1] for record in records] == [
+        "election-notice-091809",
+        "trade-reporting-notice-022409",
+        "09-29",
+    ]
 
 
 def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch):
@@ -1580,10 +1805,10 @@ def test_finra_cloudflare_email_tokens_are_canonicalized_before_hashing():
 
 
 def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
-    """A transient 429 is paced and retried rather than skipping the notice."""
+    """A transient 429 honors Retry-After and retries the exact URL."""
     responses = [
         {"status_code": 429, "content": "", "final_url": "https://example.test/finra",
-         "was_redirected": False, "error": "rate limited", "retry_after": 10},
+         "was_redirected": False, "error": "rate limited", "retry_after": 60},
         {"status_code": 200, "content": "ok", "final_url": "https://example.test/finra",
          "was_redirected": False, "error": None},
     ]
@@ -1604,28 +1829,20 @@ def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
     assert result["status_code"] == 200
     assert responses == []
     assert 1 in sleeps
-    assert 10 in sleeps
+    assert 60 in sleeps
     assert calls[0] == "https://example.test/finra"
     assert calls[1]["max_retries"] == 1
-    assert calls[2] == "https://example.test/finra/"
+    assert calls[2] == "https://example.test/finra"
     assert calls[3]["max_retries"] == 1
 
 
-def test_finra_rate_limit_uses_authoritative_notice_query_variant(monkeypatch):
-    """A cache-only 429 can fall back to FINRA's equivalent notice query."""
+def test_finra_rate_limit_preserves_listing_page_url(monkeypatch):
+    """A 429 on page 1 must retry page 1, never page 0 or a slash variant."""
     responses = [
         {
             "status_code": 429,
             "content": "",
-            "final_url": "https://example.test/finra",
-            "was_redirected": False,
-            "error": "rate limited",
-            "retry_after": 0,
-        },
-        {
-            "status_code": 429,
-            "content": "",
-            "final_url": "https://example.test/finra/",
+            "final_url": "https://example.test/finra?page=1",
             "was_redirected": False,
             "error": "rate limited",
             "retry_after": 0,
@@ -1633,7 +1850,7 @@ def test_finra_rate_limit_uses_authoritative_notice_query_variant(monkeypatch):
         {
             "status_code": 200,
             "content": "notice",
-            "final_url": "https://example.test/finra?type=notice",
+            "final_url": "https://example.test/finra?page=1",
             "was_redirected": False,
             "error": None,
         },
@@ -1649,17 +1866,14 @@ def test_finra_rate_limit_uses_authoritative_notice_query_variant(monkeypatch):
     monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: 0.0)
 
     result = regulatory_monitor._fetch_finra_page(
-        "https://example.test/finra", _FakeSession([])
+        "https://example.test/finra?page=1", _FakeSession([])
     )
 
     assert result["status_code"] == 200
-    assert requested[:2] == [
-        "https://example.test/finra",
-        "https://example.test/finra/",
+    assert requested == [
+        "https://example.test/finra?page=1",
+        "https://example.test/finra?page=1",
     ]
-    assert requested[2].startswith(
-        "https://example.test/finra?type=notice&_finra_retry=2-"
-    )
 
 
 def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch):

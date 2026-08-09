@@ -46,7 +46,7 @@ except ImportError as e:
 # === Configuration Constants ===
 REQUEST_TIMEOUT = 30  # seconds
 MAX_RETRIES = 3
-MAX_RATE_LIMIT_WAIT = 15  # seconds; never let one 429 stall a monitor run indefinitely
+MAX_RATE_LIMIT_WAIT = 15  # seconds; cap only fallback waits for missing/invalid hints
 
 # Default path to monitoring configuration file
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "config" / "monitoring-config.yaml"
@@ -80,12 +80,13 @@ def fetch_page(url: str, session: requests.Session, max_retries: int = MAX_RETRI
                     retry_after_seconds = max(0, int(retry_after))
                 except (TypeError, ValueError):
                     retry_after_seconds = 0
-                # Honor a server hint when it is reasonable, but cap it and
-                # apply exponential backoff so a bad/missing header cannot
-                # stall a scheduled monitor for minutes per URL.
-                wait_time = min(
-                    MAX_RATE_LIMIT_WAIT,
-                    max(retry_after_seconds, 2 ** attempt),
+                # A valid Retry-After is authoritative. Only the fallback
+                # exponential delay is capped so a missing/malformed hint
+                # cannot stall a scheduled monitor indefinitely.
+                wait_time = (
+                    retry_after_seconds
+                    if retry_after_seconds > 0
+                    else min(MAX_RATE_LIMIT_WAIT, 2 ** attempt)
                 )
                 if attempt == max_retries - 1:
                     return {

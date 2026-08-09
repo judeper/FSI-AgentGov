@@ -267,13 +267,12 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 
 **Process:**
 1. Query Federal Register API for recent documents from target agencies
-2. Scrape FINRA regulatory notices. Incremental runs first use FINRA's
-   authoritative year filter for every year covered by the persisted date
-   boundary, so backdated notices in that year are included without assuming
-   that an old-page cutoff is safe. Each filtered result is validated for its
-   selected year and complete pager/zero-result shape. If the filter cannot be
-   proven authoritative, the monitor falls back to the complete unfiltered
-   pager crawl and fails closed on missing or contradictory pagination.
+2. Scrape every page of FINRA's complete, unfiltered regulatory-notice listing.
+   The selected-year taxonomy filter is advisory only and is never used as a
+   completeness proof. Each requested page must retain its exact URL, final
+   URL, active page identity, and unique notice records; missing, contradictory,
+   repeated, or overlapping pages fail closed. Explicit one-page and
+   zero-result shapes are the only permitted exceptions.
 3. For each new item:
    - Extract title, abstract, document type
    - Compute content hash
@@ -308,7 +307,12 @@ Scheduled mutation also requires both regulatory source sections to be valid
 objects with an entries map and a parseable `last_run`. Missing or corrupt
 state fails before any fetch or write. Baseline initialization is an
 explicitly approved local-only `--initialize-baseline` operation and is never
-available from GitHub Actions.
+available from GitHub Actions. Each persisted regulatory watermark is bound to
+a coverage proof containing the entry count, stable entry-map digest, source
+identity, query/window metadata, declared and fetched page counts, and exact
+page identities (plus FINRA listing/detail counts). The proof is validated
+before the next fetch; a missing or mismatched proof cannot advance a
+watermark.
 
 **Keywords for Control Mapping:**
 
