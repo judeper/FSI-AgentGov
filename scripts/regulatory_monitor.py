@@ -924,8 +924,12 @@ def _finra_retry_url(url: str, attempt: int) -> str:
         return f"{url.rstrip('/')}/"
     separator = "&" if "?" in url else "?"
     if attempt == 2:
-        return f"{url}{separator}download=1"
+        # FINRA's edge cache can serve the canonical detail URL as 429 while
+        # the equivalent Drupal-rendered notice query remains available.
+        return f"{url}{separator}type=notice"
     if attempt == 3:
+        return f"{url}{separator}download=1"
+    if attempt == 4:
         return f"{url}{separator}page=0"
     return f"{url}{separator}_finra_retry={attempt}"
 

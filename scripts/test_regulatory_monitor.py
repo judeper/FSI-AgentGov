@@ -1102,6 +1102,55 @@ def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
     assert calls[3]["max_retries"] == 1
 
 
+def test_finra_rate_limit_uses_authoritative_notice_query_variant(monkeypatch):
+    """A cache-only 429 can fall back to FINRA's equivalent notice query."""
+    responses = [
+        {
+            "status_code": 429,
+            "content": "",
+            "final_url": "https://example.test/finra",
+            "was_redirected": False,
+            "error": "rate limited",
+            "retry_after": 0,
+        },
+        {
+            "status_code": 429,
+            "content": "",
+            "final_url": "https://example.test/finra/",
+            "was_redirected": False,
+            "error": "rate limited",
+            "retry_after": 0,
+        },
+        {
+            "status_code": 200,
+            "content": "notice",
+            "final_url": "https://example.test/finra?type=notice",
+            "was_redirected": False,
+            "error": None,
+        },
+    ]
+    requested = []
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        requested.append(url)
+        return responses.pop(0)
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: 0.0)
+
+    result = regulatory_monitor._fetch_finra_page(
+        "https://example.test/finra", _FakeSession([])
+    )
+
+    assert result["status_code"] == 200
+    assert requested == [
+        "https://example.test/finra",
+        "https://example.test/finra/",
+        "https://example.test/finra?type=notice",
+    ]
+
+
 def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
     """A 429 cooldown applies to the next FINRA request, not just one URL."""
     clock = [0.0]
