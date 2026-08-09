@@ -930,7 +930,11 @@ def _fetch_finra_page(url: str, session: requests.Session) -> dict:
             time.sleep(FINRA_REQUEST_INTERVAL_SECONDS - elapsed)
         # The shared helper normally retries 429s itself. FINRA uses one
         # attempt here so the session cooldown remains the only retry loop.
-        result = fetch_page(url, session, max_retries=1)
+        request_url = url
+        if attempt:
+            separator = "&" if "?" in url else "?"
+            request_url = f"{url}{separator}_finra_retry={attempt}"
+        result = fetch_page(request_url, session, max_retries=1)
         try:
             session._finra_last_request_at = time.monotonic()
         except AttributeError:
