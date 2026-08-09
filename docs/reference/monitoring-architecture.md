@@ -269,10 +269,16 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 1. Query Federal Register API for recent documents from target agencies
 2. Scrape every page of FINRA's complete, unfiltered regulatory-notice listing.
    The selected-year taxonomy filter is advisory only and is never used as a
-   completeness proof. Each requested page must retain its exact URL, final
-   URL, active page identity, and unique notice records; missing, contradictory,
-   repeated, or overlapping pages fail closed. Explicit one-page and
-   zero-result shapes are the only permitted exceptions.
+   completeness proof. Two independently cache-busted passes must agree on
+   declared totals, page identities, ordered raw-row counts, and row digests.
+   Each scoped row must resolve to a same-origin canonical notice or numeric
+   node URL; unresolved or contradictory metadata fails closed. Raw rows are
+   retained in the coverage proof. Stable cross-page duplicates are coalesced
+   only after authoritative detail content hashes match and are recorded in a
+   duplicate ledger. Listing-row formatting/title/date differences are retained
+   as duplicate-ledger evidence when the authoritative node/detail agrees;
+   conflicting detail payloads fail closed. Explicit
+   one-page and zero-result shapes are the only permitted exceptions.
 3. For each new item:
    - Extract title, abstract, document type
    - Compute content hash

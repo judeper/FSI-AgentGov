@@ -16,6 +16,7 @@ import json
 import sys
 from copy import deepcopy
 from pathlib import Path
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import pytest
 from bs4 import BeautifulSoup
@@ -111,6 +112,40 @@ def test_save_state_atomic_arg_order(monkeypatch):
                     "declared_pages": 1,
                     "detail_count": 0,
                     "page_numbers": [0],
+                    "raw_row_count": 0,
+                    "resolved_row_count": 0,
+                    "unresolved_row_count": 0,
+                    "unique_node_count": 0,
+                    "pass_proofs": [
+                        {
+                            "token": "test-pass-1",
+                            "declared_pages": 1,
+                            "pages_fetched": 1,
+                            "page_numbers": [0],
+                            "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+                            "page_row_counts": [0],
+                            "page_row_digests": [compute_hash("[]")],
+                            "raw_row_count": 0,
+                            "resolved_row_count": 0,
+                            "unresolved_row_count": 0,
+                            "unique_node_count": 0,
+                        },
+                        {
+                            "token": "test-pass-2",
+                            "declared_pages": 1,
+                            "pages_fetched": 1,
+                            "page_numbers": [0],
+                            "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+                            "page_row_counts": [0],
+                            "page_row_digests": [compute_hash("[]")],
+                            "raw_row_count": 0,
+                            "resolved_row_count": 0,
+                            "unresolved_row_count": 0,
+                            "unique_node_count": 0,
+                        },
+                    ],
+                    "duplicate_ledger": [],
+                    "conflict_ledger": [],
                 },
             },
         },
@@ -183,6 +218,38 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "declared_pages": 1,
                 "detail_count": len(entries),
                 "page_numbers": [0],
+                "raw_row_count": len(entries),
+                "resolved_row_count": len(entries),
+                "unresolved_row_count": 0,
+                "unique_node_count": len(entries),
+                "pass_proofs": [
+                    {
+                        "token": "test-pass-1",
+                        "declared_pages": 1,
+                        "pages_fetched": 1,
+                        "page_numbers": [0],
+                        "page_row_counts": [len(entries)],
+                        "page_row_digests": [regulatory_monitor._entries_digest(entries)],
+                        "raw_row_count": len(entries),
+                        "resolved_row_count": len(entries),
+                        "unresolved_row_count": 0,
+                        "unique_node_count": len(entries),
+                    },
+                    {
+                        "token": "test-pass-2",
+                        "declared_pages": 1,
+                        "pages_fetched": 1,
+                        "page_numbers": [0],
+                        "page_row_counts": [len(entries)],
+                        "page_row_digests": [regulatory_monitor._entries_digest(entries)],
+                        "raw_row_count": len(entries),
+                        "resolved_row_count": len(entries),
+                        "unresolved_row_count": 0,
+                        "unique_node_count": len(entries),
+                    },
+                ],
+                "duplicate_ledger": [],
+                "conflict_ledger": [],
             })
         source_state["coverage"] = common
     captured = {'saved_state': None, 'report_items': None}
@@ -224,6 +291,38 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "declared_pages": 1,
                 "detail_count": len(items),
                 "page_numbers": [0],
+                "raw_row_count": len(items),
+                "resolved_row_count": len(items),
+                "unresolved_row_count": 0,
+                "unique_node_count": len(items),
+                "pass_proofs": [
+                    {
+                        "token": "test-pass-1",
+                        "declared_pages": 1,
+                        "pages_fetched": 1,
+                        "page_numbers": [0],
+                        "page_row_counts": [len(items)],
+                        "page_row_digests": [compute_hash(str(items))],
+                        "raw_row_count": len(items),
+                        "resolved_row_count": len(items),
+                        "unresolved_row_count": 0,
+                        "unique_node_count": len(items),
+                    },
+                    {
+                        "token": "test-pass-2",
+                        "declared_pages": 1,
+                        "pages_fetched": 1,
+                        "page_numbers": [0],
+                        "page_row_counts": [len(items)],
+                        "page_row_digests": [compute_hash(str(items))],
+                        "raw_row_count": len(items),
+                        "resolved_row_count": len(items),
+                        "unresolved_row_count": 0,
+                        "unique_node_count": len(items),
+                    },
+                ],
+                "duplicate_ledger": [],
+                "conflict_ledger": [],
             }
         return regulatory_monitor.FetchResult(
             items,
@@ -457,6 +556,38 @@ def test_finra_zero_result_coverage_proof_is_valid():
             "declared_pages": 0,
             "detail_count": 0,
             "page_numbers": [0],
+            "raw_row_count": 0,
+            "resolved_row_count": 0,
+            "unresolved_row_count": 0,
+            "unique_node_count": 0,
+            "pass_proofs": [
+                {
+                    "token": "zero-pass-1",
+                    "declared_pages": 0,
+                    "pages_fetched": 1,
+                    "page_numbers": [0],
+                    "page_row_counts": [0],
+                    "page_row_digests": [compute_hash("[]")],
+                    "raw_row_count": 0,
+                    "resolved_row_count": 0,
+                    "unresolved_row_count": 0,
+                    "unique_node_count": 0,
+                },
+                {
+                    "token": "zero-pass-2",
+                    "declared_pages": 0,
+                    "pages_fetched": 1,
+                    "page_numbers": [0],
+                    "page_row_counts": [0],
+                    "page_row_digests": [compute_hash("[]")],
+                    "raw_row_count": 0,
+                    "resolved_row_count": 0,
+                    "unresolved_row_count": 0,
+                    "unique_node_count": 0,
+                },
+            ],
+            "duplicate_ledger": [],
+            "conflict_ledger": [],
         },
     }
 
@@ -858,6 +989,327 @@ def _finra_detail_page(title, date, summary):
     """
 
 
+def _finra_request_base(url):
+    """Remove only the pass cache token from a test request URL."""
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    query.pop(regulatory_monitor.FINRA_CACHE_BUST_PARAM, None)
+    base = parsed._replace(query=urlencode(query, doseq=True))
+    return urlunparse(base)
+
+
+def _synthetic_finra_listing(rows):
+    """Build a complete listing result for detail/duplicate unit tests."""
+    proof = {
+        "token": "test-pass-1",
+        "declared_pages": 1,
+        "pages_fetched": 1,
+        "page_numbers": [0],
+        "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+        "page_row_counts": [len(rows)],
+        "page_row_digests": [compute_hash(json.dumps(
+            [row["raw_payload"] for row in rows],
+            sort_keys=True,
+            separators=(",", ":"),
+        ))],
+        "raw_row_count": len(rows),
+        "resolved_row_count": len(rows),
+        "unresolved_row_count": 0,
+        "unique_node_count": len({row["node_identity"] for row in rows}),
+    }
+    proof2 = dict(proof, token="test-pass-2")
+    return {
+        "complete": True,
+        "rows": rows,
+        "pass_proof": proof,
+        "pages_fetched": 1,
+        "declared_pages": 1,
+        "cutoff_page": None,
+        "coverage": {
+            "complete": True,
+            "listing_mode": "complete-unfiltered",
+            "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+            "listing_record_count": len(rows),
+            "raw_row_count": len(rows),
+            "resolved_row_count": len(rows),
+            "unresolved_row_count": 0,
+            "unique_node_count": len({row["node_identity"] for row in rows}),
+            "pages_fetched": 1,
+            "declared_pages": 1,
+            "page_numbers": [0],
+            "pass_proofs": [proof, proof2],
+            "duplicate_ledger": [],
+            "conflict_ledger": [],
+        },
+    }
+
+
+def _synthetic_finra_row(url, node_identity, title="Notice 26-14"):
+    payload = {"text": title, "links": [{"href": url, "text": title}]}
+    return {
+        "row_index": 0,
+        "page": 0,
+        "raw_payload": payload,
+        "raw_row_digest": compute_hash(json.dumps(
+            payload, sort_keys=True, separators=(",", ":")
+        )),
+        "detail_url": url,
+        "node_identity": node_identity,
+        "title": title,
+        "listing_date": "2026-07-09",
+        "unresolved": False,
+    }
+
+
+def test_finra_normalizes_index_php_and_numeric_node_links():
+    """Legacy and node links resolve to stable same-origin identities."""
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "/index.php/rules-guidance/notices/26-14"
+    ) == (
+        "https://www.finra.org/rules-guidance/notices/26-14",
+        "url:/rules-guidance/notices/26-14",
+    )
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "/node/382806"
+    ) == ("https://www.finra.org/node/382806", "node:382806")
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "https://evil.example/notice"
+    ) == (None, None)
+
+
+def test_finra_listing_rows_preserve_legacy_targets_and_unresolved_rows():
+    """Scoped Drupal rows retain supported aliases and fail closed on bad links."""
+    soup = BeautifulSoup(
+        """
+        <div class="view-content">
+          <div class="views-row">
+            <a href="/index.php/rules-guidance/notices/26-14">Legacy notice</a>
+          </div>
+          <div class="views-row">
+            <a href="/node/382806">Numeric node</a>
+          </div>
+          <div class="views-row">
+            <a href="https://evil.example/notices/26-15">Unsupported notice</a>
+          </div>
+        </div>
+        """,
+        "html.parser",
+    )
+
+    rows, unresolved = regulatory_monitor._extract_finra_listing_rows(soup)
+
+    assert len(rows) == 3
+    assert unresolved == 1
+    assert rows[0]["node_identity"] == "url:/rules-guidance/notices/26-14"
+    assert rows[1]["node_identity"] == "node:382806"
+    assert rows[2]["detail_url"] is None
+
+
+def test_finra_active_last_page_is_included_in_declared_total():
+    """An active zero-based page 91 proves a 92-page listing."""
+    soup = BeautifulSoup(
+        """
+        <nav aria-labelledby="pagination-heading"><ul class="pagination">
+          <li class="page-item active"><span class="page-link">92</span></li>
+          <li><a href="?page=90">Last</a></li>
+        </ul></nav>
+        """,
+        "html.parser",
+    )
+    assert regulatory_monitor._extract_finra_declared_pages(soup) == 92
+
+
+def test_finra_same_numeric_node_duplicate_coalesces_after_detail_proof(monkeypatch):
+    """Repeated numeric-node rows coalesce after identical authoritative details."""
+    rows = [
+        _synthetic_finra_row(
+            "https://www.finra.org/node/382806",
+            "node:382806",
+            title="Legacy duplicate listing",
+        ),
+        _synthetic_finra_row(
+            "https://www.finra.org/node/382806",
+            "node:382806",
+        ),
+    ]
+    listing = _synthetic_finra_listing(rows)
+    detail = _finra_detail_page("Notice 26-14", "2026-07-09", "Stable content.")
+    detail = detail.replace(
+        "</body>", '<link rel="shortlink" href="/node/382806"></body>'
+    )
+
+    monkeypatch.setattr(
+        regulatory_monitor, "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor, "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": detail,
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+    assert result.complete is True
+    assert len(result) == 1
+    assert result.coverage["unique_node_count"] == 1
+    assert len(result.coverage["duplicate_ledger"]) == 1
+    assert result.coverage["duplicate_ledger"][0]["raw_row_conflicts_with_first"] is True
+
+
+def test_finra_same_numeric_node_conflicting_detail_fails_closed(monkeypatch):
+    """A duplicate node whose authoritative content changes is unverifiable."""
+    rows = [
+        _synthetic_finra_row(
+            "https://www.finra.org/rules-guidance/notices/26-14",
+            "url:/rules-guidance/notices/26-14",
+        ),
+        _synthetic_finra_row(
+            "https://www.finra.org/node/382806",
+            "node:382806",
+        ),
+    ]
+    listing = _synthetic_finra_listing(rows)
+    details = {
+        "https://www.finra.org/rules-guidance/notices/26-14":
+            _finra_detail_page("Notice 26-14", "2026-07-09", "Version one."),
+        "https://www.finra.org/node/382806":
+            _finra_detail_page("Notice 26-14", "2026-07-09", "Version two."),
+    }
+    for key in details:
+        details[key] = details[key].replace(
+            "</body>", '<link rel="shortlink" href="/node/382806"></body>'
+        )
+    monkeypatch.setattr(
+        regulatory_monitor, "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor, "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": details[url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+    assert result.complete is False
+    assert "duplicate detail conflict" in result.error
+
+
+def test_finra_authoritative_node_resolves_duplicate_listing_date_conflict(monkeypatch):
+    """A stale duplicate row is safe only when another URL resolves its node/detail."""
+    rows = [
+        _synthetic_finra_row(
+            "https://www.finra.org/rules-guidance/notices/fyi-10-2002",
+            "url:/rules-guidance/notices/fyi-10-2002",
+            title="FYI 10-2002",
+        ),
+        _synthetic_finra_row(
+            "https://www.finra.org/node/126166",
+            "node:126166",
+            title="FYI 10-2002 (legacy)",
+        ),
+    ]
+    rows[0]["listing_date"] = "2002-10-01"
+    rows[1]["listing_date"] = "2002-10-02"
+    listing = _synthetic_finra_listing(rows)
+    detail = _finra_detail_page("FYI 10-2002", "2002-10-02", "Stable content.")
+    detail = detail.replace(
+        "</body>", '<link rel="shortlink" href="/node/126166"></body>'
+    )
+    monkeypatch.setattr(
+        regulatory_monitor, "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor, "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": detail,
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+
+    assert result.complete is True
+    assert len(result) == 1
+    duplicate = result.coverage["duplicate_ledger"][0]
+    assert duplicate["resolves_listing_date_conflict"] is True
+
+
+def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
+    """A scoped row without a supported detail target cannot complete."""
+    listing = """
+    <nav aria-labelledby="pagination-heading"><ul class="pagination">
+      <li class="page-item active"><span class="page-link">1</span></li>
+    </ul></nav>
+    <table><tbody><tr><td><a href="https://evil.example/notices/26-14">
+      Notice 26-14</a></td></tr></tbody></table>
+    """
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": listing,
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    result = regulatory_monitor._fetch_finra_listing_pass(
+        _FakeSession([]), None, "test-token"
+    )
+    assert result["complete"] is False
+    assert "unresolved" in result["error"]
+
+
+def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
+    """A cache-busted pass with shifted ordered rows cannot prove coverage."""
+    base = _synthetic_finra_listing([
+        _synthetic_finra_row(
+            "https://www.finra.org/rules-guidance/notices/26-14",
+            "url:/rules-guidance/notices/26-14",
+        )
+    ])
+    shifted = _synthetic_finra_listing([
+        _synthetic_finra_row(
+            "https://www.finra.org/rules-guidance/notices/26-15",
+            "url:/rules-guidance/notices/26-15",
+        )
+    ])
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_passes_interleaved",
+        lambda *_args: {
+            "complete": False,
+            "error": "FINRA two-pass listing mismatch in page_row_digests",
+            "pass_proofs": [base["pass_proof"], shifted["pass_proof"]],
+        },
+    )
+    result = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([]), None
+    )
+    assert result["complete"] is False
+    assert "two-pass listing mismatch" in result["error"]
+
+
 def test_finra_complete_unfiltered_listing_catches_taxonomy_omissions(monkeypatch):
     """Selected-year taxonomy omissions cannot make the unfiltered crawl incomplete."""
     monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
@@ -881,12 +1333,13 @@ def test_finra_complete_unfiltered_listing_catches_taxonomy_omissions(monkeypatc
 
     def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
-        if url == regulatory_monitor.FINRA_NOTICES_URL:
+        base_url = _finra_request_base(url)
+        if base_url == regulatory_monitor.FINRA_NOTICES_URL:
             page = 0
-        elif "?page=" in url:
-            page = int(url.rsplit("=", 1)[1])
+        elif "?page=" in base_url:
+            page = int(base_url.rsplit("=", 1)[1])
         else:
-            path = url.removeprefix("https://www.finra.org")
+            path = base_url.removeprefix("https://www.finra.org")
             return {
                 "status_code": 200,
                 "content": details[path],
@@ -970,12 +1423,13 @@ def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
 
     def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
-        if url == regulatory_monitor.FINRA_NOTICES_URL:
+        base_url = _finra_request_base(url)
+        if base_url == regulatory_monitor.FINRA_NOTICES_URL:
             page = 0
-        elif "?page=" in url:
-            page = int(url.rsplit("=", 1)[1])
+        elif "?page=" in base_url:
+            page = int(base_url.rsplit("=", 1)[1])
         else:
-            path = url.removeprefix("https://www.finra.org")
+            path = base_url.removeprefix("https://www.finra.org")
             content = details[path]
             return {
                 "status_code": 200,
@@ -1008,32 +1462,29 @@ def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
     assert "FINRA 26-12" in ids
     assert "FINRA 26-99" in ids
     assert len(ids) == sum(len(records) for records in page_records.values())
-    assert "https://www.finra.org/rules-guidance/notices?page=2" in requested
-    assert "https://www.finra.org/rules-guidance/notices?page=3" in requested
-    assert "https://www.finra.org/rules-guidance/notices?page=91" in requested
+    requested_bases = {_finra_request_base(url) for url in requested}
+    assert "https://www.finra.org/rules-guidance/notices?page=2" in requested_bases
+    assert "https://www.finra.org/rules-guidance/notices?page=3" in requested_bases
+    assert "https://www.finra.org/rules-guidance/notices?page=91" in requested_bases
     edited = next(item for item in result if item.document_id == "FINRA 26-15")
     assert "Edited summary" in edited.abstract
 
 
-def test_finra_pagination_overlap_fails_closed(monkeypatch):
-    """A conflicting repeated notice record remains an unverifiable overlap."""
+def test_finra_pagination_overlap_detail_date_conflict_fails_closed(monkeypatch):
+    """An unpaired listing/detail date conflict fails closed."""
     record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
-    conflicting_record = (
-        "/rules-guidance/notices/26-15",
-        "Regulatory Notice 26-15 edited",
-        "2026-07-23",
-    )
     pages = {
-        regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
-        "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(
-            1, 2, [conflicting_record]
+        regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 1, [record]),
+        "https://www.finra.org/rules-guidance/notices/26-15": _finra_detail_page(
+            "Notice 26-15", "2026-07-23", "Stable authoritative content."
         ),
     }
 
     def fake_fetch_page(url, _session, **_kwargs):
+        lookup_url = _finra_request_base(url)
         return {
             "status_code": 200,
-            "content": pages[url],
+            "content": pages[lookup_url],
             "final_url": url,
             "was_redirected": False,
             "error": None,
@@ -1045,11 +1496,11 @@ def test_finra_pagination_overlap_fails_closed(monkeypatch):
     )
 
     assert result.complete is False
-    assert "overlap" in result.error
+    assert "date conflict" in result.error
 
 
-def test_finra_identical_listing_overlap_fails_closed(monkeypatch):
-    """Even identical cross-page records are unverifiable overlap."""
+def test_finra_identical_listing_overlap_is_coalesced(monkeypatch):
+    """Stable cross-page duplicate rows coalesce after detail verification."""
     record = ("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")
     listing = {
         regulatory_monitor.FINRA_NOTICES_URL: _finra_listing_page(0, 2, [record]),
@@ -1067,7 +1518,7 @@ def test_finra_identical_listing_overlap_fails_closed(monkeypatch):
         "fetch_page",
         lambda url, _session, **_kwargs: {
             "status_code": 200,
-            "content": listing[url],
+            "content": listing[_finra_request_base(url)],
             "final_url": url,
             "was_redirected": False,
             "error": None,
@@ -1077,8 +1528,9 @@ def test_finra_identical_listing_overlap_fails_closed(monkeypatch):
         _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
     )
 
-    assert result.complete is False
-    assert "repeated record" in result.error
+    assert result.complete is True
+    assert len(result) == 1
+    assert len(result.coverage["duplicate_ledger"]) == 1
 
 
 def test_finra_repeated_page_identity_fails_closed(monkeypatch):
@@ -1097,7 +1549,7 @@ def test_finra_repeated_page_identity_fails_closed(monkeypatch):
         "fetch_page",
         lambda url, _session, **_kwargs: {
             "status_code": 200,
-            "content": listing[url],
+            "content": listing[_finra_request_base(url)],
             "final_url": url,
             "url": url,
             "was_redirected": False,
@@ -1194,9 +1646,10 @@ def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch
             "https://www.finra.org/rules-guidance/notices/26-15": detail_26_15,
             "https://www.finra.org/rules-guidance/notices/26-14": detail_26_14,
         }
+        lookup_url = _finra_request_base(url)
         return {
             "status_code": 200,
-            "content": pages[url],
+            "content": pages[lookup_url],
             "final_url": url,
             "was_redirected": False,
             "error": None,
@@ -1243,7 +1696,11 @@ def test_finra_missing_date_remains_unknown(monkeypatch):
     """
 
     def fake_fetch_page(url, _session, **_kwargs):
-        content = listing_html if url == regulatory_monitor.FINRA_NOTICES_URL else detail_html
+        content = (
+            listing_html
+            if _finra_request_base(url) == regulatory_monitor.FINRA_NOTICES_URL
+            else detail_html
+        )
         return {"status_code": 200, "content": content, "final_url": url,
                 "was_redirected": False, "error": None}
 
@@ -1391,8 +1848,8 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
 
     assert primary == backup
     assert primary["sources"]["learn"] == backup["sources"]["learn"]
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["entries"]) == 494
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 78
+    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["entries"]) == 506
+    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 3614
     assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) >= 57
     assert primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["last_checked"] == "2026-08-09"
     assert primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["last_run"].startswith("2026-08-09")
@@ -1478,7 +1935,7 @@ def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
 
     def fake_single_page(url, _session, **_kwargs):
         requested.append(url)
-        if url == regulatory_monitor.FINRA_NOTICES_URL:
+        if _finra_request_base(url) == regulatory_monitor.FINRA_NOTICES_URL:
             content = """
             <nav aria-labelledby="pagination-heading">
               <ul class="pagination">
@@ -1535,8 +1992,15 @@ def test_finra_refreshes_known_notice_outside_listing_window(monkeypatch):
 
     def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
-        return {"status_code": 200, "content": listing if url == regulatory_monitor.FINRA_NOTICES_URL
-                else details[url], "final_url": url, "was_redirected": False, "error": None}
+        base_url = _finra_request_base(url)
+        return {
+            "status_code": 200,
+            "content": listing if base_url == regulatory_monitor.FINRA_NOTICES_URL
+            else details[base_url],
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
 
     monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
     result = regulatory_monitor.fetch_finra_notices(
@@ -1593,7 +2057,7 @@ def test_finra_hashes_and_classifies_non_summary_edits(monkeypatch):
             "fetch_page",
             lambda url, _session, **_kwargs: {
                 "status_code": 200,
-                "content": pages[url],
+                "content": pages[_finra_request_base(url)],
                 "final_url": url,
                 "was_redirected": False,
                 "error": None,
@@ -1888,10 +2352,11 @@ def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch
 
     def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
-        if url == regulatory_monitor.FINRA_NOTICES_URL:
+        base_url = _finra_request_base(url)
+        if base_url == regulatory_monitor.FINRA_NOTICES_URL:
             content = listing
             status = 200
-        elif url == node_url:
+        elif base_url == node_url:
             content = detail
             status = 200
         else:

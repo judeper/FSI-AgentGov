@@ -33,6 +33,7 @@ import os
 import re
 import sys
 import time
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -90,6 +91,7 @@ FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
+FINRA_CACHE_BUST_PARAM = "_finra_pass"
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -282,10 +284,17 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
             "listing_mode",
             "listing_url",
             "listing_record_count",
+            "raw_row_count",
+            "resolved_row_count",
+            "unresolved_row_count",
+            "unique_node_count",
             "pages_fetched",
             "declared_pages",
             "detail_count",
             "page_numbers",
+            "pass_proofs",
+            "duplicate_ledger",
+            "conflict_ledger",
         )
         for key in required:
             if key not in coverage:
@@ -296,6 +305,24 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
             )
         if coverage.get("listing_url") != FINRA_NOTICES_URL:
             errors.append(f"{source_key} coverage listing_url is not authoritative")
+        if coverage.get("unresolved_row_count") != 0:
+            errors.append(f"{source_key} coverage contains unresolved listing rows")
+        raw_row_count = coverage.get("raw_row_count")
+        resolved_row_count = coverage.get("resolved_row_count")
+        unresolved_row_count = coverage.get("unresolved_row_count")
+        unique_node_count = coverage.get("unique_node_count")
+        if any(
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+            for value in (
+                raw_row_count,
+                resolved_row_count,
+                unresolved_row_count,
+                unique_node_count,
+            )
+        ):
+            errors.append(f"{source_key} coverage row counts are invalid")
+        elif raw_row_count != resolved_row_count + unresolved_row_count:
+            errors.append(f"{source_key} coverage row counts do not reconcile")
         pages_fetched = coverage.get("pages_fetched")
         declared_pages = coverage.get("declared_pages")
         if (
@@ -323,8 +350,8 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
             or detail_count < 0
         ):
             errors.append(f"{source_key} coverage detail counts are invalid")
-        elif listing_count != detail_count:
-            errors.append(f"{source_key} coverage detail crawl is incomplete")
+        elif listing_count != resolved_row_count:
+            errors.append(f"{source_key} listing row count is incomplete")
         expected_page_numbers = (
             [0] if declared_pages == 0 and pages_fetched == 1
             else list(range(pages_fetched))
@@ -337,6 +364,71 @@ def _validate_source_coverage(source_key: str, source_state: dict) -> list[str]:
             coverage.get("page_numbers") != expected_page_numbers
         ):
             errors.append(f"{source_key} coverage page identities are invalid")
+        proofs = coverage.get("pass_proofs")
+        if not isinstance(proofs, list) or len(proofs) != 2:
+            errors.append(f"{source_key} coverage must contain two pass proofs")
+        else:
+            comparable = (
+                "declared_pages",
+                "pages_fetched",
+                "page_numbers",
+                "page_row_counts",
+                "page_row_digests",
+                "raw_row_count",
+                "resolved_row_count",
+                "unresolved_row_count",
+                "unique_node_count",
+            )
+            if any(not isinstance(proof, dict) for proof in proofs):
+                errors.append(f"{source_key} coverage pass proof is malformed")
+            else:
+                tokens = [proof.get("token") for proof in proofs]
+                if (
+                    not all(isinstance(token, str) and token for token in tokens)
+                    or tokens[0] == tokens[1]
+                ):
+                    errors.append(f"{source_key} coverage pass tokens are invalid")
+                for proof in proofs:
+                    if proof.get("unresolved_row_count") != 0:
+                        errors.append(
+                            f"{source_key} pass proof contains unresolved rows"
+                        )
+                    if proof.get("raw_row_count") != raw_row_count:
+                        errors.append(
+                            f"{source_key} pass proof raw row count is inconsistent"
+                        )
+                if all(isinstance(proof, dict) for proof in proofs):
+                    for key in comparable:
+                        if proofs[0].get(key) != proofs[1].get(key):
+                            errors.append(
+                                f"{source_key} pass proofs disagree on {key}"
+                            )
+                    if proofs[0].get("declared_pages") != declared_pages:
+                        errors.append(
+                            f"{source_key} coverage declared_pages is not proof-bound"
+                        )
+                    if proofs[0].get("pages_fetched") != pages_fetched:
+                        errors.append(
+                            f"{source_key} coverage pages_fetched is not proof-bound"
+                        )
+                    if proofs[0].get("page_numbers") != coverage.get("page_numbers"):
+                        errors.append(
+                            f"{source_key} coverage page identities are not proof-bound"
+                        )
+        if not isinstance(coverage.get("duplicate_ledger"), list):
+            errors.append(f"{source_key} duplicate ledger is invalid")
+        if not isinstance(coverage.get("conflict_ledger"), list):
+            errors.append(f"{source_key} conflict ledger is invalid")
+        elif coverage.get("conflict_ledger"):
+            errors.append(f"{source_key} coverage contains conflicts")
+        if (
+            isinstance(detail_count, int)
+            and not isinstance(detail_count, bool)
+            and isinstance(unique_node_count, int)
+            and not isinstance(unique_node_count, bool)
+            and detail_count != unique_node_count
+        ):
+            errors.append(f"{source_key} detail count is not node-bound")
     return errors
 
 
@@ -1119,6 +1211,12 @@ def _finra_page_url(page: int) -> str:
     return f"{FINRA_NOTICES_URL}?{urlencode({'page': page})}"
 
 
+def _finra_cache_busted_url(url: str, token: str) -> str:
+    """Add a pass-specific cache token without changing the page identity."""
+    separator = "&" if "?" in url else "?"
+    return f"{url}{separator}{FINRA_CACHE_BUST_PARAM}={token}"
+
+
 def _finra_query_page_url(page: int, query: Optional[dict[str, str]] = None) -> str:
     """Build a FINRA listing URL while preserving authoritative filters."""
     params = dict(query or {})
@@ -1157,13 +1255,16 @@ def _extract_finra_declared_pages(soup: BeautifulSoup) -> Optional[int]:
             return None
         page_numbers.append(int(raw_pages[0]))
 
-    if page_numbers:
-        return max(page_numbers) + 1
-
     active_page = pager.select_one('.page-item.active .page-link, .pager__item.is-active')
-    if active_page and active_page.get_text(' ', strip=True) == '1':
-        return 1
-    return None
+    if active_page:
+        value = active_page.get_text(' ', strip=True)
+        if not re.fullmatch(r"\d+", value):
+            return None
+        active_number = int(value) - 1
+        if active_number < 0:
+            return None
+        page_numbers.append(active_number)
+    return max(page_numbers) + 1 if page_numbers else None
 
 
 def _extract_finra_active_page(soup: BeautifulSoup) -> Optional[int]:
@@ -1317,23 +1418,117 @@ def _finra_refresh_batch(source_state: dict) -> list[str]:
 
 
 def _extract_finra_notice_links(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
-    """Collect every canonical notice link and its optional listing date."""
-    notice_pattern = re.compile(r"^/rules-guidance/notices/[^/?#]+/?$")
-    notice_urls = []
-    seen_urls = set()
-    listing_links = soup.select("table tbody tr a[href]")
-    links = listing_links or soup.find_all("a", href=True)
-    for link in links:
-        href = link.get('href', '').split('#', 1)[0]
-        if not notice_pattern.match(href):
-            continue
-        url = urljoin(FINRA_NOTICES_URL, href)
-        if url not in seen_urls:
-            seen_urls.add(url)
-            notice_urls.append(
-                (url, link.get_text(' ', strip=True), _extract_listing_date(link))
+    """Collect every resolved notice link from scoped listing rows."""
+    return [
+        (row["detail_url"], row["title"], row["listing_date"])
+        for row in _extract_finra_listing_rows(soup)[0]
+        if row["detail_url"]
+    ]
+
+
+def _finra_normalize_detail_link(href: str) -> tuple[Optional[str], Optional[str]]:
+    """Resolve supported same-origin FINRA notice forms to stable identities."""
+    base = urlparse(FINRA_NOTICES_URL)
+    parsed = urlparse(urljoin(FINRA_NOTICES_URL, href.strip()))
+    if parsed.scheme != base.scheme or parsed.netloc.lower() != base.netloc.lower():
+        return None, None
+    path = parsed.path.rstrip("/") or "/"
+    if path.startswith("/index.php/rules-guidance/notices/"):
+        path = path[len("/index.php"):]
+    node_match = re.fullmatch(r"/node/(\d+)", path)
+    if node_match:
+        node_id = f"node:{node_match.group(1)}"
+        return f"{base.scheme}://{base.netloc}/node/{node_match.group(1)}", node_id
+    if re.fullmatch(r"/rules-guidance/notices/[^/]+", path):
+        canonical = f"{base.scheme}://{base.netloc}{path}"
+        return canonical, f"url:{path}"
+    return None, None
+
+
+def _finra_listing_row_payload(row) -> dict:
+    """Build a stable raw-row payload without discarding duplicate rows."""
+    links = []
+    row_links = (
+        [row] if row.name == "a" and row.get("href") else row.find_all("a", href=True)
+    )
+    for link in row_links:
+        links.append({
+            "href": " ".join(str(link.get("href", "")).split()),
+            "text": " ".join(link.get_text(" ", strip=True).split()),
+        })
+    return {
+        "text": " ".join(row.get_text(" ", strip=True).split()),
+        "links": links,
+    }
+
+
+def _extract_finra_listing_rows(
+    soup: BeautifulSoup,
+) -> tuple[list[dict], int]:
+    """Parse all scoped rows and count rows that cannot resolve a detail target."""
+    table_rows = soup.select("table tbody tr")
+    if table_rows:
+        rows = table_rows
+    else:
+        # Some live/legacy views use Drupal row containers instead of a table.
+        # Prefer those containers so unsupported links remain visible as
+        # unresolved rows instead of being silently filtered out.
+        rows = []
+        for selector in (".views-row", ".view-content > li", ".view-content > div"):
+            rows = soup.select(selector)
+            if rows:
+                break
+        if not rows:
+            # Small synthetic pages may omit both the table and row wrapper.
+            # Treat supported notice anchors as individual rows.
+            rows = [
+                link
+                for link in soup.find_all("a", href=True)
+                if _finra_normalize_detail_link(link.get("href", ""))[0]
+            ]
+    parsed_rows = []
+    unresolved = 0
+    for row_index, row in enumerate(rows):
+        payload = _finra_listing_row_payload(row)
+        candidates = []
+        row_links = (
+            [row]
+            if row.name == "a" and row.get("href")
+            else row.find_all("a", href=True)
+        )
+        for link in row_links:
+            detail_url, node_identity = _finra_normalize_detail_link(
+                link.get("href", "")
             )
-    return notice_urls
+            if detail_url:
+                candidates.append((detail_url, node_identity, link))
+        distinct_targets = {(url, node) for url, node, _ in candidates}
+        if len(distinct_targets) != 1:
+            unresolved += 1
+            detail_url = None
+            node_identity = None
+            title = ""
+            listing_date = ""
+        else:
+            detail_url, node_identity = next(iter(distinct_targets))
+            link = next(
+                link for url, node, link in candidates
+                if (url, node) == (detail_url, node_identity)
+            )
+            title = " ".join(link.get_text(" ", strip=True).split())
+            listing_date = _extract_listing_date(link)
+        parsed_rows.append({
+            "row_index": row_index,
+            "raw_payload": payload,
+            "raw_row_digest": compute_hash(json.dumps(
+                payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+            )),
+            "detail_url": detail_url,
+            "node_identity": node_identity,
+            "title": title,
+            "listing_date": listing_date,
+        })
+    return parsed_rows, unresolved
 
 
 def _merge_finra_listing_records(
@@ -1353,7 +1548,7 @@ def _merge_finra_listing_records(
     return None
 
 
-def _fetch_finra_listing_records(
+def _fetch_finra_listing_records_legacy(
     session: requests.Session,
     since_date: Optional[str],
 ) -> dict:
@@ -1632,7 +1827,814 @@ def _fetch_finra_listing_records(
     }
 
 
+def _finra_pass_token(pass_number: int) -> str:
+    """Create a distinct opaque cache token for each listing pass."""
+    return f"{pass_number}-{uuid.uuid4().hex}"
+
+
+def _fetch_finra_listing_pass(
+    session: requests.Session,
+    since_date: Optional[str],
+    token: str,
+) -> dict:
+    """Fetch one complete, tokenized FINRA listing pass without coalescing rows."""
+    rows: list[dict] = []
+    page_numbers: list[int] = []
+    page_identities: list[dict[str, Optional[int]]] = []
+    page_row_counts: list[int] = []
+    page_row_digests: list[str] = []
+    page_row_payloads: list[list[dict]] = []
+    pages_fetched = 0
+    declared_pages = None
+    cutoff_page = None
+
+    for page in range(FINRA_MAX_PAGES):
+        expected_url = _finra_cache_busted_url(_finra_page_url(page), token)
+        result = _fetch_finra_page(expected_url, session)
+        if result["status_code"] != 200:
+            return {
+                "complete": False,
+                "error": (
+                    f"FINRA notices page {page} returned status "
+                    f"{result['status_code']}: "
+                    f"{result.get('error') or 'unavailable'}"
+                ),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+            }
+        returned_url = result.get("url") or expected_url
+        if returned_url != expected_url:
+            return {
+                "complete": False,
+                "error": (
+                    f"FINRA listing request URL changed for page {page}: "
+                    f"expected {expected_url}, got {returned_url}"
+                ),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+            }
+        soup = BeautifulSoup(result["content"], "html.parser")
+        final_page = _finra_listing_page_number(
+            result.get("final_url") or expected_url
+        )
+        active_page = _extract_finra_active_page(soup)
+        zero_shape = page == 0 and _finra_is_explicit_zero_result(soup)
+        page_declared = _extract_finra_declared_pages(soup)
+        if page_declared is None:
+            return {
+                "complete": False,
+                "error": "FINRA pagination metadata was missing or unparseable",
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+            }
+        if final_page != page or (active_page != page and not zero_shape):
+            return {
+                "complete": False,
+                "error": (
+                    f"FINRA listing page identity mismatch for page {page}: "
+                    f"final={final_page}, active={active_page}"
+                ),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+            }
+        if declared_pages is None:
+            declared_pages = page_declared
+            if declared_pages > FINRA_MAX_PAGES:
+                return {
+                    "complete": False,
+                    "error": (
+                        f"FINRA pagination declared {declared_pages} pages, "
+                        f"exceeding safe cutoff {FINRA_MAX_PAGES}"
+                    ),
+                    "pages_fetched": pages_fetched,
+                    "declared_pages": declared_pages,
+                }
+        elif page_declared != declared_pages:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA pagination metadata changed or disappeared "
+                    "while traversing pages"
+                ),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+            }
+
+        page_rows, unresolved = _extract_finra_listing_rows(soup)
+        pages_fetched += 1
+        page_numbers.append(page)
+        page_identities.append({
+            "requested": page,
+            "final": final_page,
+            "active": active_page,
+        })
+        page_row_counts.append(len(page_rows))
+        page_row_digests.append(compute_hash(json.dumps(
+            [row["raw_payload"] for row in page_rows],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )))
+        page_row_payloads.append([row["raw_payload"] for row in page_rows])
+        for row in page_rows:
+            row["page"] = page
+            row["unresolved"] = not row["detail_url"]
+        rows.extend(page_rows)
+
+        if unresolved:
+            return {
+                "complete": False,
+                "error": (
+                    f"FINRA page {page} contained {unresolved} "
+                    "unresolved listing row(s)"
+                ),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "rows": rows,
+            }
+        if not page_rows:
+            if page == 0 and declared_pages == 0 and zero_shape:
+                break
+            return {
+                "complete": False,
+                "error": f"FINRA page {page} contained no scoped listing rows",
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "rows": rows,
+            }
+        if declared_pages == 0:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA pagination declared zero pages but returned "
+                    "listing rows"
+                ),
+                "pages_fetched": pages_fetched,
+                "declared_pages": declared_pages,
+                "rows": rows,
+            }
+        if (
+            cutoff_page is None
+            and since_date
+            and all(
+                row["listing_date"] and row["listing_date"] < since_date
+                for row in page_rows
+            )
+        ):
+            cutoff_page = page
+        if page + 1 >= declared_pages:
+            break
+    else:
+        return {
+            "complete": False,
+            "error": f"FINRA pagination exceeded safe cutoff of {FINRA_MAX_PAGES} pages",
+            "pages_fetched": pages_fetched,
+            "declared_pages": declared_pages,
+            "rows": rows,
+        }
+
+    if declared_pages is None or (
+        declared_pages != 0 and pages_fetched != declared_pages
+    ):
+        return {
+            "complete": False,
+            "error": (
+                "FINRA pagination incomplete: "
+                f"declared {declared_pages} pages, fetched {pages_fetched}"
+            ),
+            "pages_fetched": pages_fetched,
+            "declared_pages": declared_pages,
+            "rows": rows,
+        }
+
+    resolved_rows = [row for row in rows if row["detail_url"]]
+    pass_proof = {
+        # The opaque cache token is intentionally request-only. Persist a
+        # stable pass identity so identical source data does not dirty state
+        # on every scheduled run.
+        "token": f"pass-{token.split('-', 1)[0]}",
+        "declared_pages": declared_pages,
+        "pages_fetched": pages_fetched,
+        "page_numbers": page_numbers,
+        "page_identities": page_identities,
+        "page_row_counts": page_row_counts,
+        "page_row_digests": page_row_digests,
+        "page_row_payloads": page_row_payloads,
+        "raw_row_count": len(rows),
+        "resolved_row_count": len(resolved_rows),
+        "unresolved_row_count": len(rows) - len(resolved_rows),
+        "unique_node_count": len({
+            row["node_identity"] for row in resolved_rows
+        }),
+    }
+    return {
+        "complete": True,
+        "rows": rows,
+        "records": [
+            (row["detail_url"], row["title"], row["listing_date"])
+            for row in rows
+        ],
+        "pages_fetched": pages_fetched,
+        "declared_pages": declared_pages,
+        "cutoff_page": cutoff_page,
+        "pass_proof": pass_proof,
+    }
+
+
+def _fetch_finra_listing_page(
+    session: requests.Session,
+    page: int,
+    token: str,
+) -> dict:
+    """Fetch and validate one tokenized FINRA listing page."""
+    expected_url = _finra_cache_busted_url(_finra_page_url(page), token)
+    result = _fetch_finra_page(expected_url, session)
+    if result["status_code"] != 200:
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA notices page {page} returned status "
+                f"{result['status_code']}: "
+                f"{result.get('error') or 'unavailable'}"
+            ),
+        }
+    returned_url = result.get("url") or expected_url
+    if returned_url != expected_url:
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA listing request URL changed for page {page}: "
+                f"expected {expected_url}, got {returned_url}"
+            ),
+        }
+    soup = BeautifulSoup(result["content"], "html.parser")
+    final_page = _finra_listing_page_number(
+        result.get("final_url") or expected_url
+    )
+    active_page = _extract_finra_active_page(soup)
+    zero_shape = page == 0 and _finra_is_explicit_zero_result(soup)
+    page_declared = _extract_finra_declared_pages(soup)
+    if page_declared is None:
+        return {
+            "complete": False,
+            "error": "FINRA pagination metadata was missing or unparseable",
+        }
+    if final_page != page or (active_page != page and not zero_shape):
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA listing page identity mismatch for page {page}: "
+                f"final={final_page}, active={active_page}"
+            ),
+        }
+    page_rows, unresolved = _extract_finra_listing_rows(soup)
+    return {
+        "complete": True,
+        "page_declared": page_declared,
+        "final_page": final_page,
+        "active_page": active_page,
+        "zero_shape": zero_shape,
+        "page_rows": page_rows,
+        "unresolved": unresolved,
+    }
+
+
+def _finra_listing_pass_proof(state: dict) -> dict:
+    """Build a deterministic proof from one accumulated listing pass."""
+    rows = state["rows"]
+    resolved_rows = [row for row in rows if row["detail_url"]]
+    return {
+        "token": f"pass-{state['token'].split('-', 1)[0]}",
+        "declared_pages": state["declared_pages"],
+        "pages_fetched": state["pages_fetched"],
+        "page_numbers": state["page_numbers"],
+        "page_identities": state["page_identities"],
+        "page_row_counts": state["page_row_counts"],
+        "page_row_digests": state["page_row_digests"],
+        "page_row_payloads": state["page_row_payloads"],
+        "raw_row_count": len(rows),
+        "resolved_row_count": len(resolved_rows),
+        "unresolved_row_count": len(rows) - len(resolved_rows),
+        "unique_node_count": len({
+            row["node_identity"] for row in resolved_rows
+        }),
+    }
+
+
+def _fetch_finra_listing_passes_interleaved(
+    session: requests.Session,
+    since_date: Optional[str],
+) -> dict:
+    """Fetch two cache-busted passes page-by-page to minimize listing drift."""
+    states = [
+        {
+            "token": _finra_pass_token(index),
+            "rows": [],
+            "page_numbers": [],
+            "page_identities": [],
+            "page_row_counts": [],
+            "page_row_digests": [],
+            "page_row_payloads": [],
+            "pages_fetched": 0,
+            "declared_pages": None,
+            "cutoff_page": None,
+        }
+        for index in (1, 2)
+    ]
+
+    def failed(error: str) -> dict:
+        return {
+            "complete": False,
+            "error": error,
+            "pages_fetched": min(state["pages_fetched"] for state in states),
+            "declared_pages": states[0]["declared_pages"],
+            "pass_proofs": [
+                _finra_listing_pass_proof(state) for state in states
+            ],
+        }
+
+    for page in range(FINRA_MAX_PAGES):
+        results = [
+            _fetch_finra_listing_page(session, page, state["token"])
+            for state in states
+        ]
+        for result in results:
+            if not result["complete"]:
+                return failed(result["error"])
+
+        declared = results[0]["page_declared"]
+        if results[1]["page_declared"] != declared:
+            return failed(
+                "FINRA two-pass listing mismatch in declared_pages: "
+                f"{declared!r} != {results[1]['page_declared']!r}"
+            )
+        if declared > FINRA_MAX_PAGES:
+            return failed(
+                f"FINRA pagination declared {declared} pages, "
+                f"exceeding safe cutoff {FINRA_MAX_PAGES}"
+            )
+
+        for state, result in zip(states, results, strict=True):
+            if (
+                state["declared_pages"] is not None
+                and state["declared_pages"] != declared
+            ):
+                return failed(
+                    "FINRA pagination metadata changed or disappeared "
+                    "while traversing pages"
+                )
+            state["declared_pages"] = declared
+            page_rows = result["page_rows"]
+            state["pages_fetched"] += 1
+            state["page_numbers"].append(page)
+            state["page_identities"].append({
+                "requested": page,
+                "final": result["final_page"],
+                "active": result["active_page"],
+            })
+            state["page_row_counts"].append(len(page_rows))
+            state["page_row_digests"].append(compute_hash(json.dumps(
+                [row["raw_payload"] for row in page_rows],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )))
+            state["page_row_payloads"].append([
+                row["raw_payload"] for row in page_rows
+            ])
+            for row in page_rows:
+                row["page"] = page
+                row["unresolved"] = not row["detail_url"]
+            state["rows"].extend(page_rows)
+            if (
+                state["cutoff_page"] is None
+                and since_date
+                and all(
+                    row["listing_date"]
+                    and row["listing_date"] < since_date
+                    for row in page_rows
+                )
+            ):
+                state["cutoff_page"] = page
+
+        for key, label in (
+            ("page_identities", "page identity"),
+            ("page_row_counts", "page row counts"),
+            ("page_row_digests", "page_row_digests"),
+            ("page_row_payloads", "page row payloads"),
+        ):
+            first = states[0][key][-1]
+            second = states[1][key][-1]
+            if first != second:
+                return failed(
+                    f"FINRA two-pass listing mismatch in {label} "
+                    f"at page {page}: {first!r} != {second!r}"
+                )
+        unresolved = [result["unresolved"] for result in results]
+        if any(unresolved):
+            return failed(
+                f"FINRA page {page} contained "
+                f"{max(unresolved)} unresolved listing row(s)"
+            )
+        if any(not result["page_rows"] for result in results):
+            if not (
+                page == 0
+                and declared == 0
+                and all(result["zero_shape"] for result in results)
+            ):
+                return failed(
+                    f"FINRA page {page} contained no scoped listing rows"
+                )
+        if declared == 0 or page + 1 >= declared:
+            break
+    else:
+        return failed(
+            f"FINRA pagination exceeded safe cutoff of {FINRA_MAX_PAGES} pages"
+        )
+
+    if any(
+        state["declared_pages"] is None
+        or (
+            state["declared_pages"] != 0
+            and state["pages_fetched"] != state["declared_pages"]
+        )
+        for state in states
+    ):
+        return failed(
+            "FINRA pagination incomplete: "
+            f"declared {states[0]['declared_pages']}, fetched "
+            f"{states[0]['pages_fetched']}"
+        )
+
+    proofs = [_finra_listing_pass_proof(state) for state in states]
+    return {
+        "complete": True,
+        "rows": states[0]["rows"],
+        "records": [
+            (row["detail_url"], row["title"], row["listing_date"])
+            for row in states[0]["rows"]
+        ],
+        "pages_fetched": states[0]["pages_fetched"],
+        "declared_pages": states[0]["declared_pages"],
+        "cutoff_page": states[0]["cutoff_page"],
+        "pass_proofs": proofs,
+        "coverage": {
+            "complete": True,
+            "listing_mode": "complete-unfiltered",
+            "listing_url": FINRA_NOTICES_URL,
+            "listing_record_count": proofs[0]["resolved_row_count"],
+            "raw_row_count": proofs[0]["raw_row_count"],
+            "resolved_row_count": proofs[0]["resolved_row_count"],
+            "unresolved_row_count": proofs[0]["unresolved_row_count"],
+            "unique_node_count": proofs[0]["unique_node_count"],
+            "pages_fetched": proofs[0]["pages_fetched"],
+            "declared_pages": proofs[0]["declared_pages"],
+            "page_numbers": proofs[0]["page_numbers"],
+            "page_identities": proofs[0]["page_identities"],
+            "pass_proofs": proofs,
+            "duplicate_ledger": [],
+            "conflict_ledger": [],
+        },
+    }
+
+
+def _fetch_finra_listing_records(
+    session: requests.Session,
+    since_date: Optional[str],
+) -> dict:
+    """Require two stable, independently cache-busted listing passes."""
+    return _fetch_finra_listing_passes_interleaved(session, since_date)
+
+
 def fetch_finra_notices(
+    session: requests.Session,
+    config: dict,
+    limit: Optional[int] = None,
+    since_date: Optional[str] = None,
+    known_urls: Optional[list[str]] = None,
+    fallback_urls: Optional[dict[str, str]] = None,
+) -> FetchResult:
+    """Fetch FINRA listing rows and authoritative notice details fail-closed."""
+    items: list[RegulatoryItem] = []
+    resolved_fallback_urls = dict(fallback_urls or {})
+
+    if limit is not None and limit < 0:
+        return _incomplete_result(error=f"FINRA limit must be non-negative, got {limit}")
+
+    try:
+        logger.info("Fetching FINRA notices from %s...", FINRA_NOTICES_URL)
+        listing = _fetch_finra_listing_records(session, since_date)
+        if not listing.get("complete"):
+            return _incomplete_result(
+                error=listing.get("error") or "FINRA listing was incomplete",
+                expected_count=listing.get("expected_count"),
+                pages_fetched=listing.get("pages_fetched", 0),
+                declared_pages=listing.get("declared_pages"),
+                cutoff_page=listing.get("cutoff_page"),
+                coverage={"pass_proofs": listing.get("pass_proofs", [])},
+            )
+
+        rows = [dict(row) for row in listing.get("rows", [])]
+        # Keep compatibility with callers/tests that provide the pre-row
+        # listing shape; production crawls always include raw row proofs.
+        if not rows and listing.get("records"):
+            for row_index, (detail_url, title, listing_date) in enumerate(
+                listing["records"]
+            ):
+                canonical_url, node_identity = _finra_normalize_detail_link(
+                    detail_url
+                )
+                if not canonical_url:
+                    return _incomplete_result(
+                        error=f"FINRA listing record was unresolved: {detail_url}",
+                        coverage=listing.get("coverage", {}),
+                    )
+                payload = {
+                    "text": " ".join(f"{title} {listing_date}".split()),
+                    "links": [{"href": canonical_url, "text": title}],
+                }
+                rows.append({
+                    "row_index": row_index,
+                    "page": None,
+                    "raw_payload": payload,
+                    "raw_row_digest": compute_hash(json.dumps(
+                        payload,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )),
+                    "detail_url": canonical_url,
+                    "node_identity": node_identity,
+                    "title": title,
+                    "listing_date": listing_date,
+                    "unresolved": False,
+                })
+        seen_urls = {row["detail_url"] for row in rows if row.get("detail_url")}
+        for known_url in sorted(set(known_urls or [])):
+            canonical_url, node_identity = _finra_normalize_detail_link(known_url)
+            if not canonical_url:
+                return _incomplete_result(
+                    error=f"FINRA known refresh URL was unsupported: {known_url}",
+                    coverage=listing.get("coverage", {}),
+                )
+            if canonical_url not in seen_urls:
+                rows.append({
+                    "row_index": -1,
+                    "page": None,
+                    "raw_payload": {"known_refresh_url": canonical_url},
+                    "raw_row_digest": compute_hash(canonical_url),
+                    "detail_url": canonical_url,
+                    "node_identity": node_identity,
+                    "title": "",
+                    "listing_date": "",
+                    "unresolved": False,
+                })
+                seen_urls.add(canonical_url)
+
+        if limit is not None:
+            rows = rows[:limit]
+            logger.info("Limited to %s notices for testing; state will not advance", limit)
+
+        detail_cache: dict[str, dict] = {}
+        node_groups: dict[str, dict] = {}
+        duplicate_ledger: list[dict] = []
+        conflict_ledger: list[dict] = []
+
+        for row in rows:
+            url = row["detail_url"]
+            listing_title = row.get("title", "")
+            listing_date = row.get("listing_date", "")
+            fallback_url = _validate_finra_node_url(
+                resolved_fallback_urls.get(url, "")
+            )
+            detail = detail_cache.get(url)
+            if detail is None:
+                detail = _fetch_finra_page(
+                    url,
+                    session,
+                    max_attempts=1 if fallback_url and fallback_url != url else None,
+                )
+                detail_cache[url] = detail
+            if detail["status_code"] != 200 and fallback_url and fallback_url != url:
+                logger.warning(
+                    "FINRA canonical detail for %s was unavailable; retrying "
+                    "authoritative node fallback %s",
+                    url,
+                    fallback_url,
+                )
+                detail = _fetch_finra_page(fallback_url, session)
+                detail_cache[url] = detail
+            if detail["status_code"] != 200:
+                return _incomplete_result(
+                    items,
+                    error=(
+                        f"FINRA notice detail page returned status "
+                        f"{detail['status_code']}: {url}: "
+                        f"{detail.get('error') or 'unavailable'}"
+                    ),
+                    expected_count=len(rows),
+                    pages_fetched=listing["pages_fetched"],
+                    declared_pages=listing["declared_pages"],
+                    cutoff_page=listing["cutoff_page"],
+                    limited=limit is not None,
+                    fallback_urls=resolved_fallback_urls,
+                    coverage=listing.get("coverage", {}),
+                )
+
+            detail_soup = BeautifulSoup(detail["content"], "html.parser")
+            shortlink = _extract_finra_shortlink(detail_soup)
+            _, shortlink_node_identity = (
+                _finra_normalize_detail_link(shortlink)
+                if shortlink
+                else (None, None)
+            )
+            if shortlink:
+                resolved_fallback_urls[url] = shortlink
+            title_node = (
+                detail_soup.select_one(".field--name-field-notice-title-tx")
+                or detail_soup.find("h1")
+            )
+            title = (
+                " ".join(title_node.get_text(" ", strip=True).split())
+                if title_node
+                else " ".join(listing_title.split())
+            )
+            publication_date = _extract_finra_publication_date(detail_soup)
+            abstract = _extract_finra_summary(detail_soup)
+            substantive_content = _extract_finra_substantive_content(
+                detail_soup, url
+            )
+            if not substantive_content:
+                return _incomplete_result(
+                    items,
+                    error=f"FINRA notice detail had no substantive content: {url}",
+                    expected_count=len(rows),
+                    pages_fetched=listing["pages_fetched"],
+                    declared_pages=listing["declared_pages"],
+                    cutoff_page=listing["cutoff_page"],
+                    limited=limit is not None,
+                    coverage=listing.get("coverage", {}),
+                )
+
+            final_url, final_node_identity = _finra_normalize_detail_link(
+                detail.get("final_url") or url
+            )
+            node_identity = (
+                shortlink_node_identity
+                or
+                final_node_identity
+                or row.get("node_identity")
+                or f"url:{url}"
+            )
+            detail_hash = compute_hash(substantive_content)
+            listing_date_conflict = bool(
+                listing_date
+                and publication_date
+                and listing_date != publication_date
+            )
+            existing = node_groups.get(node_identity)
+            if existing is not None:
+                if existing["detail_hash"] != detail_hash:
+                    conflict = {
+                        "node_identity": node_identity,
+                        "existing_detail_hash": existing["detail_hash"],
+                        "new_detail_hash": detail_hash,
+                        "existing_raw_row_digest": existing["raw_row_digest"],
+                        "new_raw_row_digest": row["raw_row_digest"],
+                        "existing_url": existing["url"],
+                        "new_url": url,
+                    }
+                    conflict_ledger.append(conflict)
+                    return _incomplete_result(
+                        items,
+                        error=f"FINRA duplicate detail conflict for {node_identity}",
+                        expected_count=len(rows),
+                        pages_fetched=listing["pages_fetched"],
+                        declared_pages=listing["declared_pages"],
+                        cutoff_page=listing["cutoff_page"],
+                        limited=limit is not None,
+                        coverage={
+                            **listing.get("coverage", {}),
+                            "duplicate_ledger": duplicate_ledger,
+                            "conflict_ledger": conflict_ledger,
+                        },
+                    )
+                duplicate_ledger.append({
+                    "node_identity": node_identity,
+                    "detail_hash": detail_hash,
+                    "page": row.get("page"),
+                    "row_index": row.get("row_index"),
+                    "raw_row_digest": row["raw_row_digest"],
+                    "raw_row_conflicts_with_first": (
+                        existing["raw_row_digest"] != row["raw_row_digest"]
+                    ),
+                    "listing_date_conflict": listing_date_conflict,
+                    "resolves_listing_date_conflict": bool(
+                        existing.get("listing_date_conflicts")
+                    ),
+                    "raw_payload": row["raw_payload"],
+                })
+                if existing.get("listing_date_conflicts"):
+                    existing["listing_date_conflicts"] = []
+                continue
+
+            document_id = _extract_finra_document_id(final_url or url)
+            tier, reason = classify_regulatory_relevance(
+                title, substantive_content, config
+            )
+            affected_controls = find_affected_controls_by_keywords(
+                title, substantive_content, config
+            )
+            node_groups[node_identity] = {
+                "detail_hash": detail_hash,
+                "raw_row_digest": row["raw_row_digest"],
+                "url": url,
+                "listing_date_conflicts": (
+                    [{
+                        "listing_date": listing_date,
+                        "publication_date": publication_date,
+                        "url": url,
+                    }]
+                    if listing_date_conflict
+                    else []
+                ),
+            }
+            items.append(
+                RegulatoryItem(
+                    source="FINRA",
+                    agency="FINRA",
+                    title=title,
+                    url=url,
+                    publication_date=publication_date,
+                    doc_type="NOTICE",
+                    abstract=abstract,
+                    document_id=document_id,
+                    classification=tier,
+                    classification_reason=reason,
+                    affected_controls=affected_controls,
+                    substantive_content=substantive_content,
+                )
+            )
+
+        unresolved_date_conflicts = [
+            node_identity
+            for node_identity, group in node_groups.items()
+            if group.get("listing_date_conflicts")
+        ]
+        if unresolved_date_conflicts:
+            return _incomplete_result(
+                items,
+                error=(
+                    "FINRA listing/detail date conflict for "
+                    f"{unresolved_date_conflicts[0]}"
+                ),
+                expected_count=len(rows),
+                pages_fetched=listing["pages_fetched"],
+                declared_pages=listing["declared_pages"],
+                cutoff_page=listing["cutoff_page"],
+                limited=limit is not None,
+                fallback_urls=resolved_fallback_urls,
+                coverage={
+                    **listing.get("coverage", {}),
+                    "duplicate_ledger": duplicate_ledger,
+                    "conflict_ledger": conflict_ledger,
+                },
+            )
+
+        coverage = {
+            **listing.get("coverage", {}),
+            "detail_count": len(items),
+            "unique_node_count": len(node_groups),
+            "duplicate_ledger": duplicate_ledger,
+            "conflict_ledger": conflict_ledger,
+        }
+        if limit is not None:
+            return _incomplete_result(
+                items,
+                error="FINRA fetch was explicitly limited",
+                expected_count=len(rows),
+                pages_fetched=listing["pages_fetched"],
+                declared_pages=listing["declared_pages"],
+                cutoff_page=listing["cutoff_page"],
+                limited=True,
+                coverage=coverage,
+            )
+        return _complete_result(
+            items,
+            expected_count=len(rows),
+            pages_fetched=listing["pages_fetched"],
+            declared_pages=listing["declared_pages"],
+            cutoff_page=listing["cutoff_page"],
+            fallback_urls=resolved_fallback_urls,
+            coverage=coverage,
+        )
+    except requests.RequestException as e:
+        return _incomplete_result(items, error=f"FINRA notices scraping error: {e}")
+    except (ValueError, TypeError) as e:
+        return _incomplete_result(items, error=f"FINRA notices parsing error: {e}")
+
+
+def _fetch_finra_notices_legacy(
     session: requests.Session,
     config: dict,
     limit: Optional[int] = None,
