@@ -1144,11 +1144,13 @@ def test_finra_rate_limit_uses_authoritative_notice_query_variant(monkeypatch):
     )
 
     assert result["status_code"] == 200
-    assert requested == [
+    assert requested[:2] == [
         "https://example.test/finra",
         "https://example.test/finra/",
-        "https://example.test/finra?type=notice",
     ]
+    assert requested[2].startswith(
+        "https://example.test/finra?type=notice&_finra_retry=2-"
+    )
 
 
 def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
