@@ -916,6 +916,20 @@ def _finra_is_explicit_zero_result(soup: BeautifulSoup) -> bool:
     )
 
 
+def _finra_retry_url(url: str, attempt: int) -> str:
+    """Use harmless URL variants when an edge cache repeatedly returns 429."""
+    if attempt == 0:
+        return url
+    if attempt == 1:
+        return f"{url.rstrip('/')}/"
+    separator = "&" if "?" in url else "?"
+    if attempt == 2:
+        return f"{url}{separator}download=1"
+    if attempt == 3:
+        return f"{url}{separator}page=0"
+    return f"{url}{separator}_finra_retry={attempt}"
+
+
 def _fetch_finra_page(url: str, session: requests.Session) -> dict:
     """Use one request per attempt with a coordinated session-wide cooldown."""
     for attempt in range(FINRA_MAX_RETRY_ATTEMPTS):
@@ -930,10 +944,7 @@ def _fetch_finra_page(url: str, session: requests.Session) -> dict:
             time.sleep(FINRA_REQUEST_INTERVAL_SECONDS - elapsed)
         # The shared helper normally retries 429s itself. FINRA uses one
         # attempt here so the session cooldown remains the only retry loop.
-        request_url = url
-        if attempt:
-            separator = "&" if "?" in url else "?"
-            request_url = f"{url}{separator}_finra_retry={attempt}"
+        request_url = _finra_retry_url(url, attempt)
         result = fetch_page(request_url, session, max_retries=1)
         try:
             session._finra_last_request_at = time.monotonic()

@@ -1098,7 +1098,7 @@ def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
     assert 10 in sleeps
     assert calls[0] == "https://example.test/finra"
     assert calls[1]["max_retries"] == 1
-    assert "_finra_retry=1" in calls[2]
+    assert calls[2] == "https://example.test/finra/"
     assert calls[3]["max_retries"] == 1
 
 
@@ -1140,7 +1140,8 @@ def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
         clock[0] += seconds
 
     def fake_fetch_page(url, _session, **_kwargs):
-        return responses[url.split("?", 1)[0]].pop(0)
+        key = url.split("?", 1)[0].rstrip("/")
+        return responses[key].pop(0)
 
     monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
     monkeypatch.setattr(regulatory_monitor.time, "sleep", fake_sleep)
