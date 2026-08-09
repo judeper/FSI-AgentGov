@@ -95,6 +95,7 @@ def fetch_page(url: str, session: requests.Session, max_retries: int = MAX_RETRI
                         'final_url': response.url,
                         'was_redirected': response.url != url,
                         'error': f"rate limited after {max_retries} attempts",
+                        'retry_after': retry_after_seconds,
                     }
                 print(f"  Rate limited, retrying in {wait_time}s...")
                 time.sleep(wait_time)

@@ -87,7 +87,9 @@ FINRA_MAX_PAGES = 100
 FINRA_REFETCH_PAGES = 1
 FINRA_REFRESH_BATCH_SIZE = 25
 FINRA_REQUEST_INTERVAL_SECONDS = 1.00
-FINRA_MAX_RETRY_WAIT_SECONDS = 15
+FINRA_RETRY_BASE_WAIT_SECONDS = 5
+FINRA_MAX_RETRY_WAIT_SECONDS = 60
+FINRA_MAX_RETRY_ATTEMPTS = 4
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -690,6 +692,18 @@ _FINRA_TRACKING_QUERY_KEYS = {
 }
 
 
+def _decode_cloudflare_email_token(token: str) -> Optional[str]:
+    """Decode Cloudflare's XOR-obfuscated email token when it is well formed."""
+    if not re.fullmatch(r"[0-9a-fA-F]{4,}", token or "") or len(token) % 2:
+        return None
+    try:
+        key = int(token[:2], 16)
+        encoded = bytes.fromhex(token[2:])
+    except (UnicodeDecodeError, ValueError):
+        return None
+    return bytes(value ^ key for value in encoded).decode("utf-8", errors="strict")
+
+
 def _normalize_finra_date_values(text: str) -> str:
     """Keep substantive dates while making equivalent display formats stable."""
     month_date = re.compile(
@@ -727,6 +741,13 @@ def _canonicalize_finra_href(href: str, base_url: str) -> str:
     """Retain authoritative link targets while removing tracking-only noise."""
     absolute = urljoin(base_url, href)
     parsed = urlparse(absolute)
+    if (
+        parsed.path.rstrip("/") == "/cdn-cgi/l/email-protection"
+        and parsed.fragment
+    ):
+        email = _decode_cloudflare_email_token(parsed.fragment)
+        if email:
+            return f"mailto:{email.strip().casefold()}"
     query = parse_qs(parsed.query, keep_blank_values=True)
     filtered = [
         (key, value)
@@ -896,20 +917,52 @@ def _finra_is_explicit_zero_result(soup: BeautifulSoup) -> bool:
 
 
 def _fetch_finra_page(url: str, session: requests.Session) -> dict:
-    """Pace FINRA requests and resume bounded retries after throttling/errors."""
-    for attempt in range(5):
+    """Use one request per attempt with a coordinated session-wide cooldown."""
+    for attempt in range(FINRA_MAX_RETRY_ATTEMPTS):
         last_request = getattr(session, '_finra_last_request_at', 0.0)
-        elapsed = time.monotonic() - last_request
+        now = time.monotonic()
+        cooldown_until = getattr(session, '_finra_cooldown_until', 0.0)
+        if cooldown_until > now:
+            time.sleep(cooldown_until - now)
+            now = time.monotonic()
+        elapsed = now - last_request
         if elapsed < FINRA_REQUEST_INTERVAL_SECONDS:
             time.sleep(FINRA_REQUEST_INTERVAL_SECONDS - elapsed)
-        result = fetch_page(url, session)
+        # The shared helper normally retries 429s itself. FINRA uses one
+        # attempt here so the session cooldown remains the only retry loop.
+        result = fetch_page(url, session, max_retries=1)
         try:
             session._finra_last_request_at = time.monotonic()
         except AttributeError:
             pass
-        if result['status_code'] not in (0, 429) or attempt == 4:
+        if result['status_code'] not in (0, 429) or attempt == FINRA_MAX_RETRY_ATTEMPTS - 1:
+            if result['status_code'] not in (0, 429):
+                try:
+                    session._finra_backoff_seconds = FINRA_RETRY_BASE_WAIT_SECONDS
+                except AttributeError:
+                    pass
             return result
-        wait_time = min(FINRA_MAX_RETRY_WAIT_SECONDS, 2 ** attempt)
+        previous_wait = getattr(
+            session,
+            '_finra_backoff_seconds',
+            FINRA_RETRY_BASE_WAIT_SECONDS,
+        )
+        retry_after = result.get('retry_after')
+        wait_time = max(
+            retry_after if isinstance(retry_after, int) else 0,
+            previous_wait,
+        )
+        wait_time = min(FINRA_MAX_RETRY_WAIT_SECONDS, wait_time)
+        try:
+            session._finra_cooldown_until = (
+                time.monotonic() + wait_time
+            )
+            session._finra_backoff_seconds = min(
+                FINRA_MAX_RETRY_WAIT_SECONDS,
+                max(FINRA_RETRY_BASE_WAIT_SECONDS, previous_wait * 2),
+            )
+        except AttributeError:
+            pass
         logger.warning(
             "FINRA request for %s returned %s; retrying in %ss",
             url,

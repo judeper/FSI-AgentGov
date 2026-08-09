@@ -491,7 +491,7 @@ def test_finra_paginates_to_cutoff_and_refetches_overlap_window(monkeypatch):
     }
     requested = []
 
-    def fake_fetch_page(url, _session):
+    def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
         if url == regulatory_monitor.FINRA_NOTICES_URL:
             page = 0
@@ -548,7 +548,7 @@ def test_finra_pagination_overlap_fails_closed(monkeypatch):
         "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(1, 2, [record]),
     }
 
-    def fake_fetch_page(url, _session):
+    def fake_fetch_page(url, _session, **_kwargs):
         return {
             "status_code": 200,
             "content": pages[url],
@@ -599,7 +599,7 @@ def test_finra_uses_authoritative_detail_fields_and_classifies_26_15(monkeypatch
     </body></html>
     """
 
-    def fake_fetch_page(url, _session):
+    def fake_fetch_page(url, _session, **_kwargs):
         pages = {
             regulatory_monitor.FINRA_NOTICES_URL: listing_html,
             "https://www.finra.org/rules-guidance/notices/26-15": detail_26_15,
@@ -653,7 +653,7 @@ def test_finra_missing_date_remains_unknown(monkeypatch):
     </body></html>
     """
 
-    def fake_fetch_page(url, _session):
+    def fake_fetch_page(url, _session, **_kwargs):
         content = listing_html if url == regulatory_monitor.FINRA_NOTICES_URL else detail_html
         return {"status_code": 200, "content": content, "final_url": url,
                 "was_redirected": False, "error": None}
@@ -691,7 +691,7 @@ def test_finra_missing_pager_fails_closed(monkeypatch):
     monkeypatch.setattr(
         regulatory_monitor,
         "fetch_page",
-        lambda _url, _session: {
+        lambda _url, _session, **_kwargs: {
             "status_code": 200,
             "content": listing_html,
             "final_url": regulatory_monitor.FINRA_NOTICES_URL,
@@ -720,7 +720,7 @@ def test_finra_malformed_pager_fails_closed(monkeypatch):
     monkeypatch.setattr(
         regulatory_monitor,
         "fetch_page",
-        lambda _url, _session: {
+        lambda _url, _session, **_kwargs: {
             "status_code": 200,
             "content": listing_html,
             "final_url": regulatory_monitor.FINRA_NOTICES_URL,
@@ -742,7 +742,7 @@ def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
     detail = _finra_detail_page("Notice title", "2026-07-24", "Summary text.")
     requested = []
 
-    def fake_single_page(url, _session):
+    def fake_single_page(url, _session, **_kwargs):
         requested.append(url)
         if url == regulatory_monitor.FINRA_NOTICES_URL:
             content = """
@@ -768,7 +768,7 @@ def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
     monkeypatch.setattr(
         regulatory_monitor,
         "fetch_page",
-        lambda url, _session: {
+        lambda url, _session, **_kwargs: {
             "status_code": 200,
             "content": '<div class="view-empty">No results found.</div>',
             "final_url": url,
@@ -799,7 +799,7 @@ def test_finra_refreshes_known_notice_outside_listing_window(monkeypatch):
     }
     requested = []
 
-    def fake_fetch_page(url, _session):
+    def fake_fetch_page(url, _session, **_kwargs):
         requested.append(url)
         return {"status_code": 200, "content": listing if url == regulatory_monitor.FINRA_NOTICES_URL
                 else details[url], "final_url": url, "was_redirected": False, "error": None}
@@ -857,7 +857,7 @@ def test_finra_hashes_and_classifies_non_summary_edits(monkeypatch):
         monkeypatch.setattr(
             regulatory_monitor,
             "fetch_page",
-            lambda url, _session: {
+            lambda url, _session, **_kwargs: {
                 "status_code": 200,
                 "content": pages[url],
                 "final_url": url,
@@ -890,6 +890,7 @@ def _finra_canonicalization_fixture(
     comments: str = "No comments.",
     attachment_href: str = "/sites/default/files/attachment-v1.pdf",
     deadline: str = "09/11/2026",
+    contact_href: str = "",
     formatted: bool = False,
 ) -> str:
     """Build a notice with separate mutable comments and authoritative content."""
@@ -897,6 +898,11 @@ def _finra_canonicalization_fixture(
         "<p>Action <strong>required</strong>.</p>"
         if formatted
         else "<p>Action required.</p>"
+    )
+    contact = (
+        f'<p>Contact <a href="{contact_href}">FINRA staff</a>.</p>'
+        if contact_href
+        else ""
     )
     return f"""
     <html><body>
@@ -910,6 +916,7 @@ def _finra_canonicalization_fixture(
       <div id="notice" class="tab-pane">
         <h2>Summary</h2><p>Stable authoritative summary.</p>
         <h2>Action Required</h2>{action}
+        {contact}
         <h2>Endnotes</h2>
         <p><a href="#_ednref1">1</a> Authoritative endnote.</p>
       </div>
@@ -1026,16 +1033,59 @@ def test_finra_canonicalization_ignores_formatting_and_tracking_noise():
     )
 
 
+def _cloudflare_email_href(email: str, key: int) -> str:
+    """Encode a fixture email using Cloudflare's XOR email-protection format."""
+    encoded = bytes(ord(character) ^ key for character in email)
+    return (
+        "https://www.finra.org/cdn-cgi/l/email-protection#"
+        f"{key:02x}{encoded.hex()}"
+    )
+
+
+def test_finra_cloudflare_email_tokens_are_canonicalized_before_hashing():
+    """Randomized Cloudflare tokens for one email must not churn provenance."""
+    token_v1 = _cloudflare_email_href("notices@example.test", 0x12)
+    token_v2 = _cloudflare_email_href("notices@example.test", 0xA7)
+    different_email = _cloudflare_email_href("changed@example.test", 0x12)
+
+    def content(token):
+        return regulatory_monitor._extract_finra_substantive_content(
+            BeautifulSoup(
+                _finra_canonicalization_fixture(contact_href=token),
+                "html.parser",
+            ),
+            "https://www.finra.org/rules-guidance/notices/26-14",
+        )
+
+    content_v1 = content(token_v1)
+    content_v2 = content(token_v2)
+    content_different = content(different_email)
+
+    assert "mailto:notices@example.test" in content_v1
+    assert regulatory_monitor.compute_hash(content_v1) == (
+        regulatory_monitor.compute_hash(content_v2)
+    )
+    assert regulatory_monitor.compute_hash(content_v1) != (
+        regulatory_monitor.compute_hash(content_different)
+    )
+
+
 def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
     """A transient 429 is paced and retried rather than skipping the notice."""
     responses = [
         {"status_code": 429, "content": "", "final_url": "https://example.test/finra",
-         "was_redirected": False, "error": "rate limited"},
+         "was_redirected": False, "error": "rate limited", "retry_after": 10},
         {"status_code": 200, "content": "ok", "final_url": "https://example.test/finra",
          "was_redirected": False, "error": None},
     ]
     sleeps = []
-    monkeypatch.setattr(regulatory_monitor, "fetch_page", lambda _url, _session: responses.pop(0))
+    calls = []
+
+    def fake_fetch_page(_url, _session, **kwargs):
+        calls.append(kwargs)
+        return responses.pop(0)
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
     monkeypatch.setattr(regulatory_monitor.time, "sleep", sleeps.append)
     monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: 0.0)
 
@@ -1044,6 +1094,63 @@ def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
     assert result["status_code"] == 200
     assert responses == []
     assert 1 in sleeps
+    assert 10 in sleeps
+    assert all(call["max_retries"] == 1 for call in calls)
+
+
+def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
+    """A 429 cooldown applies to the next FINRA request, not just one URL."""
+    clock = [0.0]
+    sleeps = []
+    responses = {
+        "https://example.test/first": [
+            {
+                "status_code": 429,
+                "content": "",
+                "final_url": "https://example.test/first",
+                "was_redirected": False,
+                "error": "rate limited",
+                "retry_after": 10,
+            },
+            {
+                "status_code": 200,
+                "content": "first",
+                "final_url": "https://example.test/first",
+                "was_redirected": False,
+                "error": None,
+            },
+        ],
+        "https://example.test/second": [
+            {
+                "status_code": 200,
+                "content": "second",
+                "final_url": "https://example.test/second",
+                "was_redirected": False,
+                "error": None,
+            },
+        ],
+    }
+
+    def fake_sleep(seconds):
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        return responses[url].pop(0)
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", fake_sleep)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: clock[0])
+    session = _FakeSession([])
+
+    assert regulatory_monitor._fetch_finra_page(
+        "https://example.test/first", session
+    )["status_code"] == 200
+    assert regulatory_monitor._fetch_finra_page(
+        "https://example.test/second", session
+    )["status_code"] == 200
+    assert 10 in sleeps
+    assert sleeps.count(10) == 1
 
 
 def test_main_does_not_advance_finra_on_detail_failure(monkeypatch):
