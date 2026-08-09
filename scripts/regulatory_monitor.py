@@ -128,6 +128,7 @@ class FetchResult(list):
         cutoff_page: Optional[int] = None,
         error: Optional[str] = None,
         limited: bool = False,
+        fallback_urls: Optional[dict[str, str]] = None,
     ):
         super().__init__(items)
         self.complete = complete
@@ -137,6 +138,7 @@ class FetchResult(list):
         self.cutoff_page = cutoff_page
         self.error = error
         self.limited = limited
+        self.fallback_urls = dict(fallback_urls or {})
 
 
 def _complete_result(items: list[RegulatoryItem], **kwargs) -> FetchResult:
@@ -640,6 +642,30 @@ def _extract_finra_publication_date(soup: BeautifulSoup) -> str:
     return ""
 
 
+def _extract_finra_shortlink(soup: BeautifulSoup) -> Optional[str]:
+    """Read FINRA's stable numeric node URL for rate-limit fallback."""
+    link = soup.select_one('link[rel="shortlink"][href]')
+    if link is None:
+        return None
+    return _validate_finra_node_url(
+        urljoin(FINRA_NOTICES_URL, link.get("href", ""))
+    )
+
+
+def _validate_finra_node_url(href: str) -> Optional[str]:
+    """Accept only same-origin numeric FINRA node URLs as fallbacks."""
+    parsed = urlparse(href)
+    if (
+        parsed.scheme.casefold() == "https"
+        and parsed.netloc.casefold() == "www.finra.org"
+        and re.fullmatch(r"/node/\d+", parsed.path)
+        and not parsed.query
+        and not parsed.fragment
+    ):
+        return href
+    return None
+
+
 def _extract_listing_date(link) -> str:
     """Read the optional authoritative date rendered beside a FINRA listing link."""
     row = link.find_parent('tr')
@@ -1047,6 +1073,7 @@ def fetch_finra_notices(
     limit: Optional[int] = None,
     since_date: Optional[str] = None,
     known_urls: Optional[list[str]] = None,
+    fallback_urls: Optional[dict[str, str]] = None,
 ) -> FetchResult:
     """
     Scrape FINRA regulatory notices page.
@@ -1059,11 +1086,16 @@ def fetch_finra_notices(
             listing cutoff stops before their historical page. The unchanged
             source watermark makes a failed refresh safely resumable on the
             next scheduled run.
+        fallback_urls: Persisted FINRA numeric node URLs learned from an
+            authoritative notice page's shortlink. These are transport-only
+            fallbacks for edge-cache 429 responses; the canonical notice URL
+            remains the item identity and hashing base.
 
     Returns:
         FetchResult: List-compatible items plus a completeness verdict.
     """
     items = []
+    resolved_fallback_urls = dict(fallback_urls or {})
 
     if limit is not None and limit < 0:
         return _incomplete_result(error=f"FINRA limit must be non-negative, got {limit}")
@@ -1226,6 +1258,18 @@ def fetch_finra_notices(
         for url, listing_title, listing_date in page_records:
             detail = _fetch_finra_page(url, session)
             if detail['status_code'] != 200:
+                fallback_url = _validate_finra_node_url(
+                    resolved_fallback_urls.get(url, "")
+                )
+                if fallback_url and fallback_url != url:
+                    logger.warning(
+                        "FINRA canonical detail for %s was unavailable; "
+                        "retrying authoritative node fallback %s",
+                        url,
+                        fallback_url,
+                    )
+                    detail = _fetch_finra_page(fallback_url, session)
+            if detail['status_code'] != 200:
                 return _incomplete_result(
                     items,
                     error=(
@@ -1238,9 +1282,13 @@ def fetch_finra_notices(
                     declared_pages=declared_pages,
                     cutoff_page=cutoff_page,
                     limited=limit is not None,
+                    fallback_urls=resolved_fallback_urls,
                 )
 
             detail_soup = BeautifulSoup(detail['content'], 'html.parser')
+            shortlink = _extract_finra_shortlink(detail_soup)
+            if shortlink:
+                resolved_fallback_urls[url] = shortlink
             title_node = detail_soup.select_one('.field--name-field-notice-title-tx') or detail_soup.find('h1')
             title = (
                 ' '.join(title_node.get_text(' ', strip=True).split())
@@ -1327,6 +1375,7 @@ def fetch_finra_notices(
             pages_fetched=pages_fetched,
             declared_pages=declared_pages,
             cutoff_page=cutoff_page,
+            fallback_urls=resolved_fallback_urls,
         )
 
     except requests.RequestException as e:
@@ -1374,6 +1423,7 @@ def update_source_state(
     state: dict,
     *,
     refreshed_urls: Optional[list[str]] = None,
+    fallback_urls: Optional[dict[str, str]] = None,
 ) -> None:
     """
     Update source state with new item hashes.
@@ -1391,6 +1441,15 @@ def update_source_state(
         entries[entry_key] = _item_content_hash(item)
 
     source_state['entries'] = entries
+    if source_key == SOURCE_KEY_FINRA and fallback_urls is not None:
+        persisted_fallbacks = source_state.get('fallback_urls', {})
+        if not isinstance(persisted_fallbacks, dict):
+            persisted_fallbacks = {}
+        for canonical_url, node_url in fallback_urls.items():
+            valid_node_url = _validate_finra_node_url(node_url)
+            if valid_node_url:
+                persisted_fallbacks[canonical_url] = valid_node_url
+        source_state['fallback_urls'] = persisted_fallbacks
     if source_key == SOURCE_KEY_FINRA and refreshed_urls is not None:
         known_urls = _finra_known_notice_urls(source_state)
         if known_urls:
@@ -1628,6 +1687,7 @@ def main():
     all_new_items = []
     source_runs = []
     finra_refresh_urls = []
+    finra_fallback_urls = {}
 
     # Fetch from Federal Register
     if args.source in ['federal-register', 'all']:
@@ -1666,6 +1726,14 @@ def main():
         # First-run baseline suppression (mirrors Federal Register / learn_monitor).
         finra_is_baseline = finra_state.get('last_run') is None
         finra_refresh_urls = _finra_refresh_batch(finra_state)
+        persisted_fallback_urls = finra_state.get('fallback_urls', {})
+        if isinstance(persisted_fallback_urls, dict):
+            finra_fallback_urls = {
+                canonical_url: node_url
+                for canonical_url, node_url in persisted_fallback_urls.items()
+                if isinstance(canonical_url, str)
+                and _validate_finra_node_url(node_url)
+            }
 
         finra_result = _coerce_fetch_result(
             fetch_finra_notices(
@@ -1674,6 +1742,7 @@ def main():
                 limit=args.limit,
                 since_date=_state_date(finra_state),
                 known_urls=finra_refresh_urls,
+                fallback_urls=finra_fallback_urls,
             )
         )
         source_runs.append((
@@ -1712,6 +1781,11 @@ def main():
                 state,
                 refreshed_urls=(
                     finra_refresh_urls if source_key == SOURCE_KEY_FINRA else None
+                ),
+                fallback_urls=(
+                    result.fallback_urls
+                    if source_key == SOURCE_KEY_FINRA
+                    else None
                 ),
             )
             if source_key == SOURCE_KEY_FEDERAL_REGISTER:

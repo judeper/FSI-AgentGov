@@ -1153,6 +1153,60 @@ def test_finra_rate_limit_uses_authoritative_notice_query_variant(monkeypatch):
     )
 
 
+def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch):
+    """A learned FINRA node shortlink can recover a canonical-page 429."""
+    canonical = "https://www.finra.org/rules-guidance/notices/26-14"
+    node_url = "https://www.finra.org/node/382806"
+    listing = _finra_listing_page(
+        0, 1, [("/rules-guidance/notices/26-14", "Regulatory Notice 26-14", "2026-07-09")]
+    )
+    detail = _finra_detail_page("Regulatory Notice 26-14", "2026-07-09", "Stable content.")
+    requested = []
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        requested.append(url)
+        if url == regulatory_monitor.FINRA_NOTICES_URL:
+            content = listing
+            status = 200
+        elif url == node_url:
+            content = detail
+            status = 200
+        else:
+            content = ""
+            status = 429
+        return {
+            "status_code": status,
+            "content": content,
+            "final_url": url,
+            "was_redirected": False,
+            "error": "rate limited" if status == 429 else None,
+            "retry_after": 0,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", lambda _seconds: None)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        fallback_urls={canonical: node_url},
+    )
+
+    assert result.complete is True
+    assert result[0].url == canonical
+    assert node_url in requested
+    assert result.fallback_urls[canonical] == node_url
+    state = {"sources": {regulatory_monitor.SOURCE_KEY_FINRA: {"entries": {}}}}
+    regulatory_monitor.update_source_state(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        list(result),
+        state,
+        fallback_urls=result.fallback_urls,
+    )
+    assert state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["fallback_urls"] == {
+        canonical: node_url
+    }
+
+
 def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
     """A 429 cooldown applies to the next FINRA request, not just one URL."""
     clock = [0.0]
