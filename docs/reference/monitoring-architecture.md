@@ -320,11 +320,13 @@ identity, query/window metadata, declared and fetched page counts, and exact
 page identities (plus FINRA listing/detail counts). The proof is validated
 before the next fetch; a missing or mismatched proof cannot advance a
 watermark. FINRA also binds the sorted fetched-detail identity set and digest
-to the persisted entry identity set. Any prior identity outside the current
-detail crawl must have an explicit migration/refresh-ledger reason; stale or
-unaccounted identities fail closed. Recovery may admit a legacy proof only
-through the explicitly approved local recovery mode, which rewrites the proof
-from a successful complete crawl.
+to the persisted entry identity set. Legacy identities are retained only in a
+separate one-to-one alias ledger containing source-hash evidence; aliases do
+not count as persisted entries or coverage. Every alias target must remain a
+fetched canonical identity, and stale, cyclic, conflicting, or unverified
+identities fail closed. Recovery may admit a legacy proof only through the
+explicitly approved local recovery mode, which rewrites the proof from a
+successful complete crawl.
 
 **Keywords for Control Mapping:**
 

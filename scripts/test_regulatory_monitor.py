@@ -48,6 +48,160 @@ def _item_hash(item):
     return compute_hash(f"{item.title}|{item.abstract}|{item.publication_date}")
 
 
+def _alias(old_identity, canonical_identity, source_hash):
+    return {
+        "old_identity": old_identity,
+        "canonical_identity": canonical_identity,
+        "source_hash": source_hash,
+        "evidence": {
+            "source_hash_at_migration": source_hash,
+            "canonical_hash_at_migration": source_hash,
+            "reason": "legacy duplicate migrated to canonical node identity",
+        },
+    }
+
+
+def test_finra_alias_migration_removes_duplicate_entries_and_requires_evidence():
+    """Legacy aliases are ledger-only and cannot be inferred from a partial refresh."""
+    source_hash = "sha256:legacy"
+    migrated = regulatory_monitor._build_finra_alias_ledger(
+        {"legacy notice": source_hash},
+        {"node-123": source_hash},
+        legacy_migration_ledger=[
+            {"identity": "legacy notice", "reason": "verified duplicate"},
+        ],
+    )
+    assert migrated[0]["old_identity"] == "legacy notice"
+    assert migrated[0]["canonical_identity"] == "node-123"
+    assert migrated[0]["source_hash"] == source_hash
+    assert migrated[0]["evidence"]["reason"] == "verified duplicate"
+    with pytest.raises(ValueError, match="lack explicit migration evidence"):
+        regulatory_monitor._build_finra_alias_ledger(
+            {"legacy notice": source_hash},
+            {"node-123": source_hash},
+        )
+
+
+def test_finra_alias_survives_canonical_content_update_without_stale_entry():
+    """A later canonical update changes only the fetched node entry."""
+    old_hash = "sha256:old"
+    new_hash = "sha256:new"
+    ledger = [_alias("legacy notice", "node-123", old_hash)]
+    entries = {"node-123": new_hash}
+    assert regulatory_monitor._validate_finra_alias_ledger(
+        ledger, entries, ["node-123"]
+    ) == []
+    source_state = {"coverage": {"alias_ledger": ledger}}
+    assert regulatory_monitor._resolve_finra_identity(
+        source_state, "legacy notice"
+    ) == "node-123"
+    rebuilt = regulatory_monitor._build_finra_alias_ledger(
+        entries,
+        entries,
+        existing_alias_ledger=ledger,
+    )
+    assert rebuilt == ledger
+    assert "legacy notice" not in entries
+
+
+@pytest.mark.parametrize(
+    "ledger, expected",
+    [
+        (
+            [
+                _alias("a", "b", "sha256:x"),
+                _alias("b", "c", "sha256:x"),
+            ],
+            "cycle",
+        ),
+        (
+            [
+                _alias("a", "b", "sha256:x"),
+                _alias("a", "c", "sha256:x"),
+            ],
+            "multiple targets",
+        ),
+        (
+            [
+                _alias("a", "b", "sha256:x"),
+                _alias("c", "b", "sha256:x"),
+            ],
+            "one-to-one",
+        ),
+        (
+            [
+                {
+                    **_alias("a", "b", "sha256:x"),
+                    "evidence": {
+                        "source_hash_at_migration": "sha256:wrong",
+                        "canonical_hash_at_migration": "sha256:x",
+                        "reason": "unverified",
+                    },
+                }
+            ],
+            "source hash evidence",
+        ),
+    ],
+)
+def test_finra_alias_ledger_rejects_cycles_conflicts_and_unverified_evidence(
+    ledger, expected
+):
+    errors = regulatory_monitor._validate_finra_alias_ledger(
+        ledger,
+        {"b": "sha256:x", "c": "sha256:x"},
+        ["b", "c"],
+    )
+    assert any(expected in error for error in errors)
+
+
+def test_finra_unaccounted_leftover_identity_fails_closed():
+    """A persisted identity outside the fetched set cannot hide behind a watermark."""
+    state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "entries": {"node-123": "sha256:x", "stale": "sha256:y"},
+                "coverage": {
+                    "schema_version": 1,
+                    "source": regulatory_monitor.SOURCE_KEY_FINRA,
+                    "entry_count": 2,
+                    "entries_digest": regulatory_monitor._entries_digest(
+                        {"node-123": "sha256:x", "stale": "sha256:y"}
+                    ),
+                    "listing_mode": "complete-unfiltered",
+                    "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+                    "listing_record_count": 1,
+                    "raw_row_count": 1,
+                    "resolved_row_count": 1,
+                    "unresolved_row_count": 0,
+                    "unique_node_count": 1,
+                    "pages_fetched": 1,
+                    "declared_pages": 1,
+                    "detail_count": 1,
+                    "page_numbers": [0],
+                    "pass_proofs": [],
+                    "duplicate_ledger": [],
+                    "conflict_ledger": [],
+                    "fetched_entry_identities": ["node-123"],
+                    "fetched_entry_identity_digest": regulatory_monitor._identity_digest(
+                        ["node-123"]
+                    ),
+                    "entry_identity_digest": regulatory_monitor._identity_digest(
+                        ["node-123", "stale"]
+                    ),
+                    "alias_ledger": [],
+                    "alias_ledger_digest": regulatory_monitor._alias_ledger_digest([]),
+                },
+            }
+        }
+    }
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA],
+    )
+    assert any("stale or unaccounted identities" in error for error in errors)
+
+
 def test_save_state_atomic_arg_order(monkeypatch):
     """Real (non-dry-run) save path must pass (dict, path), not (path, dict)."""
     captured = {}
@@ -118,7 +272,8 @@ def test_save_state_atomic_arg_order(monkeypatch):
                     "fetched_entry_identities": [],
                     "fetched_entry_identity_digest": regulatory_monitor._identity_digest([]),
                     "entry_identity_digest": regulatory_monitor._identity_digest([]),
-                    "migration_ledger": [],
+                    "alias_ledger": [],
+                    "alias_ledger_digest": regulatory_monitor._alias_ledger_digest([]),
                     "raw_row_count": 0,
                     "resolved_row_count": 0,
                     "unresolved_row_count": 0,
@@ -237,7 +392,8 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "entry_identity_digest": regulatory_monitor._identity_digest(
                     entries
                 ),
-                "migration_ledger": [],
+                "alias_ledger": [],
+                "alias_ledger_digest": regulatory_monitor._alias_ledger_digest([]),
                 "raw_row_count": len(entries),
                 "resolved_row_count": len(entries),
                 "unresolved_row_count": 0,
@@ -334,7 +490,8 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                     item.document_id if item.document_id else item.url
                     for item in items
                 ),
-                "migration_ledger": [],
+                "alias_ledger": [],
+                "alias_ledger_digest": regulatory_monitor._alias_ledger_digest([]),
                 "raw_row_count": len(items),
                 "resolved_row_count": len(items),
                 "unresolved_row_count": 0,
@@ -614,7 +771,8 @@ def test_finra_zero_result_coverage_proof_is_valid():
             "fetched_entry_identities": [],
             "fetched_entry_identity_digest": regulatory_monitor._identity_digest([]),
             "entry_identity_digest": regulatory_monitor._identity_digest([]),
-            "migration_ledger": [],
+            "alias_ledger": [],
+            "alias_ledger_digest": regulatory_monitor._alias_ledger_digest([]),
             "raw_row_count": 0,
             "resolved_row_count": 0,
             "unresolved_row_count": 0,
@@ -791,18 +949,20 @@ def test_subsequent_run_still_detects_new_items(monkeypatch):
 
 def test_successful_no_findings_runs_advance_cursor_across_committed_state(monkeypatch):
     """Exit-0 refresh progress must persist and continue from the next batch."""
-    stable_item = _make_item(
-        "FINRA Notice 26-01",
-        "FINRA 26-01",
-        source="FINRA",
-        agency="FINRA",
-        url="https://www.finra.org/rules-guidance/notices/26-01",
-    )
-    entries = {
-        f"FINRA 26-{number:02d}": "sha256:old"
+    known_items = [
+        _make_item(
+            f"FINRA Notice 26-{number:02d}",
+            f"FINRA 26-{number:02d}",
+            source="FINRA",
+            agency="FINRA",
+            url=f"https://www.finra.org/rules-guidance/notices/26-{number:02d}",
+        )
         for number in range(1, 41)
+    ]
+    entries = {
+        item.document_id: _item_hash(item)
+        for item in known_items
     }
-    entries[stable_item.document_id] = _item_hash(stable_item)
     state = {
         "version": 1,
         "sources": {
@@ -818,14 +978,14 @@ def test_successful_no_findings_runs_advance_cursor_across_committed_state(monke
         monkeypatch,
         state=deepcopy(state),
         fed_items=[],
-        finra_items=[stable_item],
+        finra_items=known_items,
         args=["--source", "finra"],
     )
     second_code, second_state, second_report = _run_main(
         monkeypatch,
         state=deepcopy(first_state),
         fed_items=[],
-        finra_items=[stable_item],
+        finra_items=known_items,
         args=["--source", "finra"],
     )
 
@@ -2079,7 +2239,7 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
     assert primary == backup
     assert primary["sources"]["learn"] == backup["sources"]["learn"]
     assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["entries"]) == 506
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 4238
+    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 3616
     assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) >= 57
     assert primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["last_checked"] >= "2026-08-09"
     assert primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["last_run"] >= "2026-08-09"
@@ -2088,7 +2248,16 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
     assert finra_coverage["detail_count"] == 3616
     assert finra_coverage["unique_node_count"] == 3616
     assert len(finra_coverage["duplicate_ledger"]) == 55
-    assert len(finra_coverage["migration_ledger"]) == 622
+    assert len(finra_coverage["alias_ledger"]) == 622
+    assert finra_coverage["alias_ledger_digest"] == regulatory_monitor._alias_ledger_digest(
+        finra_coverage["alias_ledger"]
+    )
+    assert not (
+        {
+            item["old_identity"] for item in finra_coverage["alias_ledger"]
+        }
+        & set(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"])
+    )
     assert finra_coverage["pages_fetched"] == 92
     assert finra_coverage["declared_pages"] == 92
     assert len(finra_coverage["fetched_entry_identities"]) == finra_coverage["detail_count"]
@@ -2103,13 +2272,31 @@ def test_legacy_finra_proof_requires_explicit_recovery_migration():
     state = json.loads(state_path.read_text(encoding="utf-8"))
     legacy_state = deepcopy(state)
     coverage = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["coverage"]
+    prior_alias_ledger = coverage.get("alias_ledger", [])
+    prior_migration_ledger = coverage.get("migration_ledger", [])
     for key in (
-        "fetched_entry_identities",
-        "fetched_entry_identity_digest",
-        "entry_identity_digest",
-        "migration_ledger",
+        "alias_ledger",
+        "alias_ledger_digest",
     ):
         coverage.pop(key, None)
+    coverage["migration_ledger"] = prior_migration_ledger or [
+        {
+            "identity": item["old_identity"],
+            "reason": item["evidence"]["reason"],
+        }
+        for item in prior_alias_ledger
+    ]
+    for item in prior_alias_ledger:
+        legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"][
+            item["old_identity"]
+        ] = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
+            "entries"
+        ][item["canonical_identity"]]
+    legacy_entries = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
+        "entries"
+    ]
+    coverage["entry_count"] = len(legacy_entries)
+    coverage["entries_digest"] = regulatory_monitor._entries_digest(legacy_entries)
 
     normal_errors = regulatory_monitor._validate_regulatory_state(
         legacy_state,
@@ -2118,7 +2305,7 @@ def test_legacy_finra_proof_requires_explicit_recovery_migration():
             regulatory_monitor.SOURCE_KEY_FINRA,
         ],
     )
-    assert any("fetched_entry_identities" in error for error in normal_errors)
+    assert any("alias_ledger" in error for error in normal_errors)
 
     recovery_errors = regulatory_monitor._validate_regulatory_state(
         legacy_state,

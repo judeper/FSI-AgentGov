@@ -195,6 +195,199 @@ def _identity_digest(identities) -> str:
     ))
 
 
+def _alias_ledger_digest(ledger: list[dict]) -> str:
+    """Compute a stable digest over validated FINRA alias mappings."""
+    normalized = sorted(
+        ledger,
+        key=lambda item: (
+            item.get("old_identity", ""),
+            item.get("canonical_identity", ""),
+        ),
+    )
+    return compute_hash(json.dumps(
+        normalized,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
+def _resolve_finra_identity(source_state: dict, identity: str) -> str:
+    """Resolve a historical FINRA identity through the alias ledger."""
+    coverage = source_state.get("coverage")
+    ledger = coverage.get("alias_ledger", []) if isinstance(coverage, dict) else []
+    aliases = {
+        item.get("old_identity"): item.get("canonical_identity")
+        for item in ledger
+        if isinstance(item, dict)
+    }
+    current = identity
+    seen = set()
+    while current in aliases:
+        if current in seen:
+            raise ValueError(f"FINRA alias cycle detected for {identity}")
+        seen.add(current)
+        current = aliases[current]
+    return current
+
+
+def _validate_finra_alias_ledger(
+    ledger: object,
+    entries: dict,
+    fetched_entry_identities: list[str],
+) -> list[str]:
+    """Validate aliases without treating them as persisted regulatory entries."""
+    errors = []
+    if not isinstance(ledger, list):
+        return ["regulatory-finra alias ledger is invalid"]
+
+    fetched = set(fetched_entry_identities)
+    old_identities = set()
+    canonical_identities = set()
+    for item in ledger:
+        if not isinstance(item, dict):
+            errors.append("regulatory-finra alias ledger contains a malformed item")
+            continue
+        old_identity = item.get("old_identity")
+        canonical_identity = item.get("canonical_identity")
+        source_hash = item.get("source_hash")
+        evidence = item.get("evidence")
+        if (
+            not isinstance(old_identity, str)
+            or not old_identity
+            or not isinstance(canonical_identity, str)
+            or not canonical_identity
+            or not isinstance(source_hash, str)
+            or not source_hash
+            or not isinstance(evidence, dict)
+        ):
+            errors.append("regulatory-finra alias ledger item is malformed")
+            continue
+        if old_identity in old_identities:
+            errors.append(
+                f"regulatory-finra alias has multiple targets: {old_identity}"
+            )
+        old_identities.add(old_identity)
+        if canonical_identity in canonical_identities:
+            errors.append(
+                "regulatory-finra alias ledger violates one-to-one targets"
+            )
+        canonical_identities.add(canonical_identity)
+        if old_identity in entries:
+            errors.append(
+                f"regulatory-finra alias is also persisted as an entry: {old_identity}"
+            )
+        if old_identity in fetched:
+            errors.append(
+                f"regulatory-finra alias conflicts with canonical identity: {old_identity}"
+            )
+        if canonical_identity not in entries or canonical_identity not in fetched:
+            errors.append(
+                "regulatory-finra alias target is not a fetched persisted identity"
+            )
+        if evidence.get("source_hash_at_migration") != source_hash:
+            errors.append(
+                "regulatory-finra alias source hash evidence is invalid"
+            )
+        if evidence.get("canonical_hash_at_migration") != source_hash:
+            errors.append(
+                "regulatory-finra alias canonical hash evidence is invalid"
+            )
+        if not isinstance(evidence.get("reason"), str) or not evidence["reason"]:
+            errors.append("regulatory-finra alias evidence is missing a reason")
+
+    if old_identities & canonical_identities:
+        errors.append("regulatory-finra alias ledger contains a cycle")
+    return errors
+
+
+def _build_finra_alias_ledger(
+    previous_entries: dict,
+    fetched_entries: dict,
+    *,
+    existing_alias_ledger: Optional[list[dict]] = None,
+    legacy_migration_ledger: Optional[list[dict]] = None,
+) -> list[dict]:
+    """Migrate legacy duplicate identities to one canonical fetched identity."""
+    existing_alias_ledger = list(existing_alias_ledger or [])
+    legacy_migration_ledger = list(legacy_migration_ledger or [])
+    legacy_reasons = {
+        item.get("identity"): item.get("reason")
+        for item in legacy_migration_ledger
+        if isinstance(item, dict)
+    }
+    previous_ids = set(previous_entries)
+    fetched_ids = set(fetched_entries)
+    legacy_ids = previous_ids - fetched_ids
+    if legacy_ids and not legacy_migration_ledger:
+        raise ValueError(
+            "FINRA prior identities are outside the complete fetch and lack "
+            "explicit migration evidence"
+        )
+    if legacy_migration_ledger and set(legacy_reasons) != legacy_ids:
+        raise ValueError(
+            "FINRA legacy migration ledger does not account for every alias"
+        )
+
+    ledger = []
+    target_ids = set()
+    old_ids = set()
+    for item in existing_alias_ledger:
+        if not isinstance(item, dict):
+            raise ValueError("FINRA alias ledger is malformed")
+        old_identity = item.get("old_identity")
+        canonical_identity = item.get("canonical_identity")
+        if old_identity in old_ids or canonical_identity in target_ids:
+            raise ValueError("FINRA alias ledger violates one-to-one constraints")
+        old_ids.add(old_identity)
+        target_ids.add(canonical_identity)
+        ledger.append(item)
+
+    for old_identity in sorted(legacy_ids):
+        source_hash = previous_entries[old_identity]
+        candidates = [
+            identity
+            for identity, content_hash in fetched_entries.items()
+            if content_hash == source_hash
+        ]
+        if len(candidates) != 1:
+            raise ValueError(
+                "FINRA legacy identity lacks exactly one matching canonical "
+                f"detail identity: {old_identity}"
+            )
+        canonical_identity = candidates[0]
+        if old_identity in old_ids or canonical_identity in target_ids:
+            raise ValueError("FINRA alias ledger violates one-to-one constraints")
+        old_ids.add(old_identity)
+        target_ids.add(canonical_identity)
+        reason = legacy_reasons.get(old_identity) or (
+            "legacy identity migrated to the unique fetched canonical detail "
+            "with matching content hash"
+        )
+        ledger.append({
+            "old_identity": old_identity,
+            "canonical_identity": canonical_identity,
+            "source_hash": source_hash,
+            "evidence": {
+                "source_hash_at_migration": source_hash,
+                "canonical_hash_at_migration": fetched_entries[canonical_identity],
+                "reason": reason,
+            },
+        })
+
+    errors = _validate_finra_alias_ledger(
+        ledger,
+        fetched_entries,
+        sorted(fetched_ids),
+    )
+    if errors:
+        raise ValueError(errors[0])
+    return sorted(
+        ledger,
+        key=lambda item: (item["old_identity"], item["canonical_identity"]),
+    )
+
+
 def _coverage_watermark(source_state: dict) -> dict:
     """Return the persisted watermark fields bound by a coverage proof."""
     return {
@@ -298,11 +491,13 @@ def _validate_source_coverage(
             "fetched_entry_identities",
             "fetched_entry_identity_digest",
             "entry_identity_digest",
-            "migration_ledger",
+            "alias_ledger",
+            "alias_ledger_digest",
         )
         legacy_identity_proof = (
             allow_legacy_finra_identity_proof
-            and any(key not in coverage for key in identity_proof_fields)
+            and "alias_ledger" not in coverage
+            and "migration_ledger" in coverage
         )
         required = (
             "listing_mode",
@@ -380,28 +575,53 @@ def _validate_source_coverage(
             errors.append(f"{source_key} listing row count is incomplete")
         entry_identities = sorted(entries)
         fetched_entry_identities = []
+        fetched_entry_identities = coverage.get("fetched_entry_identities")
+        if (
+            not isinstance(fetched_entry_identities, list)
+            or any(
+                not isinstance(identity, str) or not identity
+                for identity in fetched_entry_identities
+            )
+            or fetched_entry_identities != sorted(set(fetched_entry_identities))
+        ):
+            errors.append(f"{source_key} fetched entry identities are invalid")
+            fetched_entry_identities = []
+        if coverage.get("fetched_entry_identity_digest") != _identity_digest(
+            fetched_entry_identities
+        ):
+            errors.append(
+                f"{source_key} fetched entry identity digest is invalid"
+            )
         if not legacy_identity_proof:
-            fetched_entry_identities = coverage.get("fetched_entry_identities")
-            if (
-                not isinstance(fetched_entry_identities, list)
-                or any(
-                    not isinstance(identity, str) or not identity
-                    for identity in fetched_entry_identities
-                )
-                or fetched_entry_identities != sorted(set(fetched_entry_identities))
-            ):
-                errors.append(f"{source_key} fetched entry identities are invalid")
-                fetched_entry_identities = []
-            if coverage.get("fetched_entry_identity_digest") != _identity_digest(
-                fetched_entry_identities
-            ):
-                errors.append(
-                    f"{source_key} fetched entry identity digest is invalid"
-                )
             if coverage.get("entry_identity_digest") != _identity_digest(
                 entry_identities
             ):
                 errors.append(f"{source_key} entry identity digest is invalid")
+            if set(entry_identities) != set(fetched_entry_identities):
+                errors.append(
+                    f"{source_key} entries contain stale or unaccounted identities"
+                )
+            alias_ledger = coverage.get("alias_ledger")
+            errors.extend(
+                _validate_finra_alias_ledger(
+                    alias_ledger,
+                    entries,
+                    fetched_entry_identities,
+                )
+            )
+            if coverage.get("alias_ledger_digest") != _alias_ledger_digest(
+                alias_ledger if isinstance(alias_ledger, list) else []
+            ):
+                errors.append(f"{source_key} alias ledger digest is invalid")
+            if (
+                isinstance(detail_count, int)
+                and not isinstance(detail_count, bool)
+                and len(fetched_entry_identities) != detail_count
+            ):
+                errors.append(
+                    f"{source_key} fetched identity count is not detail-bound"
+                )
+        else:
             migration_ledger = coverage.get("migration_ledger")
             if (
                 not isinstance(migration_ledger, list)
@@ -425,14 +645,6 @@ def _validate_source_coverage(
             if set(entry_identities) != expected_entry_identities:
                 errors.append(
                     f"{source_key} entries contain stale or unaccounted identities"
-                )
-            if (
-                isinstance(detail_count, int)
-                and not isinstance(detail_count, bool)
-                and len(fetched_entry_identities) != detail_count
-            ):
-                errors.append(
-                    f"{source_key} fetched identity count is not detail-bound"
                 )
         expected_page_numbers = (
             [0] if declared_pages == 0 and pages_fetched == 1
@@ -1494,13 +1706,28 @@ def _fetch_finra_page(
 
 def _finra_known_notice_urls(source_state: dict) -> list[str]:
     """Resolve persisted FINRA identities to canonical URLs for refresh."""
+    identities = set(source_state.get("entries", {}))
+    coverage = source_state.get("coverage")
+    if isinstance(coverage, dict):
+        for alias in coverage.get("alias_ledger", []):
+            if isinstance(alias, dict) and isinstance(
+                alias.get("old_identity"), str
+            ):
+                identities.add(
+                    _resolve_finra_identity(
+                        source_state,
+                        alias["old_identity"],
+                    )
+                )
+
     urls = []
-    for key in source_state.get('entries', {}):
-        if isinstance(key, str) and key.startswith('http'):
-            if '/rules-guidance/notices/' in key:
-                urls.append(key)
+    for key in identities:
+        if isinstance(key, str) and key.startswith("http"):
+            canonical_url, _ = _finra_normalize_detail_link(key)
+            if canonical_url:
+                urls.append(canonical_url)
             continue
-        match = re.fullmatch(r'FINRA (\d{2}-\d{2})', str(key))
+        match = re.fullmatch(r"FINRA (\d{2}-\d{2})", str(key))
         if match:
             urls.append(f"{FINRA_NOTICES_URL}/{match.group(1)}")
     return sorted(set(urls))
@@ -2657,12 +2884,15 @@ def fetch_finra_notices(
             "fetched_entry_identities": sorted({
                 item.document_id or item.url for item in items
             }),
-            "migration_ledger": [],
+            "alias_ledger": [],
             "duplicate_ledger": duplicate_ledger,
             "conflict_ledger": conflict_ledger,
         }
         coverage["fetched_entry_identity_digest"] = _identity_digest(
             coverage["fetched_entry_identities"]
+        )
+        coverage["alias_ledger_digest"] = _alias_ledger_digest(
+            coverage["alias_ledger"]
         )
         if limit is not None:
             return _incomplete_result(
@@ -2908,11 +3138,15 @@ def check_for_new_items(source_key: str, items: list[RegulatoryItem], source_sta
         # Compute hash of the item content
         content_hash = _item_content_hash(item)
 
+        comparison_key = entry_key
+        if source_key == SOURCE_KEY_FINRA:
+            comparison_key = _resolve_finra_identity(source_state, entry_key)
+
         # Check if this is a new item or changed item
-        if entry_key not in existing_entries:
+        if comparison_key not in existing_entries:
             logger.info(f"  New item: {item.title[:60]}... ({item.agency})")
             new_items.append(item)
-        elif existing_entries[entry_key] != content_hash:
+        elif existing_entries[comparison_key] != content_hash:
             logger.info(f"  Updated item: {item.title[:60]}... ({item.agency})")
             new_items.append(item)
 
@@ -2988,49 +3222,25 @@ def update_source_state(
             raise ValueError(
                 "FINRA coverage identities do not match fetched detail identities"
             )
-        migration_ledger = coverage.get("migration_ledger", [])
-        if not isinstance(migration_ledger, list):
-            raise ValueError("FINRA migration ledger is malformed")
-        accounted_migrations = {
-            item.get("identity")
-            for item in migration_ledger
-            if isinstance(item, dict)
-        }
-        for identity in sorted(set(entries) - set(fetched_entries)):
-            if identity not in accounted_migrations:
-                migration_ledger.append({
-                    "identity": identity,
-                    "reason": (
-                        "retained prior-state identity outside the current "
-                        "complete detail crawl"
-                    ),
-                })
-        migration_identities = set()
-        for migration in migration_ledger:
-            if (
-                not isinstance(migration, dict)
-                or not isinstance(migration.get("identity"), str)
-                or not migration["identity"]
-                or not isinstance(migration.get("reason"), str)
-                or not migration["reason"]
-            ):
-                raise ValueError("FINRA migration ledger is malformed")
-            migration_identities.add(migration["identity"])
-        stale_identities = (
-            set(entries) - set(fetched_entries) - migration_identities
+        prior_coverage = source_state.get("coverage", {})
+        existing_alias_ledger = (
+            prior_coverage.get("alias_ledger", [])
+            if isinstance(prior_coverage, dict)
+            else []
         )
-        if stale_identities:
-            raise ValueError(
-                "FINRA state contains stale identities outside fetched coverage: "
-                f"{sorted(stale_identities)[:3]}"
-            )
+        legacy_migration_ledger = coverage.get("migration_ledger")
+        if legacy_migration_ledger is None and isinstance(prior_coverage, dict):
+            legacy_migration_ledger = prior_coverage.get("migration_ledger")
+        alias_ledger = _build_finra_alias_ledger(
+            entries,
+            fetched_entries,
+            existing_alias_ledger=existing_alias_ledger,
+            legacy_migration_ledger=legacy_migration_ledger,
+        )
+        coverage["alias_ledger"] = alias_ledger
+        coverage["alias_ledger_digest"] = _alias_ledger_digest(alias_ledger)
+        coverage.pop("migration_ledger", None)
         entries = dict(fetched_entries)
-        for identity in migration_identities:
-            if identity not in source_state.get("entries", {}):
-                raise ValueError(
-                    f"FINRA migration identity is not present in state: {identity}"
-                )
-            entries[identity] = source_state["entries"][identity]
     else:
         for entry_key, content_hash in fetched_entries.items():
             entries[entry_key] = content_hash
@@ -3069,6 +3279,10 @@ def update_source_state(
     })
     if source_key == SOURCE_KEY_FINRA:
         coverage_proof["entry_identity_digest"] = _identity_digest(entries)
+        coverage_proof["alias_ledger_digest"] = _alias_ledger_digest(
+            coverage_proof.get("alias_ledger", [])
+        )
+        coverage_proof.pop("migration_ledger", None)
     source_state["coverage"] = coverage_proof
 
     set_source_state(state, source_key, source_state)
