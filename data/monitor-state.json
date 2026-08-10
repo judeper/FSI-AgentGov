@@ -3004,17 +3004,23 @@
         "2026-14100": "sha256:cda0f5d60b6bd7502c49648c7849a1eb25156316c14d40fb5f34686402cf6337",
         "2026-14091": "sha256:ca617cf96241f7424dbc2a22fb57358e06a071796c5545d0f472aafd741976a8",
         "2026-14089": "sha256:cde18762edaaa268e0e2e112ac223a88df5d669d07b8340c5baad3f397d7610a",
-        "2026-14088": "sha256:0d83114251ac861a9b68a6c9898d45551cbab864c15867fa9f556e38e8e9c276"
+        "2026-14088": "sha256:0d83114251ac861a9b68a6c9898d45551cbab864c15867fa9f556e38e8e9c276",
+        "2026-16233": "sha256:11c2fc31c209df544dda30157180ba268e744192d7fdc9975bd5ce25ee9d1797",
+        "2026-16202": "sha256:4619e9270452a330f44153446bc028cbb156b77ea81f2f4cebd5c7445853bba4",
+        "2026-16201": "sha256:324295e6e8ea880e8c98bd5943c6fc4797ba54b578b53f6b714090dcf5b5cb43",
+        "2026-16199": "sha256:cc1932c51edf894a59e14a0824b8bd61103c03bf417f513534b42fe65c9565cc",
+        "2026-16198": "sha256:0c00c48131ec526a746626551be0234090213a99d113928888f1a3a5d6791340"
       },
-      "last_run": "2026-08-09T07:43:50.780262+00:00",
-      "last_checked": "2026-08-09"
+      "last_run": "2026-08-10T08:24:18.824369+00:00",
+      "last_checked": "2026-08-10"
     },
     "regulatory-finra": {
       "entries": {
         "https://www.finra.org/rules-guidance/notices/information-notice-20260617": "sha256:be605c3cbc7d1b503bf161a3c3d6e42db963f5bfc18b4aa4fcc4b24662564a45",
-        "FINRA 26-14": "sha256:7523e9366e48fa69407f73d0280cb941e1e37f9120cad641e5b3a4a1e87c7b69"
+        "FINRA 26-14": "sha256:7523e9366e48fa69407f73d0280cb941e1e37f9120cad641e5b3a4a1e87c7b69",
+        "https://www.finra.org/rules-guidance/notices/information-notice-20260803": "sha256:43a72514f9b3c81f1423d13f9824dde73f0f645e533c6c89306325513c0e43be"
       },
-      "last_run": "2026-08-09T07:43:50.784019+00:00",
+      "last_run": "2026-08-10T08:24:19.214516+00:00",
       "refresh_cursor": 11,
       "fallback_urls": {
         "https://www.finra.org/rules-guidance/notices/information-notice-20260803": "https://www.finra.org/node/383961",
