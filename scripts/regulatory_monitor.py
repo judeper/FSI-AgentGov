@@ -567,6 +567,86 @@ def _finra_pass_proof_recomputation_errors(
     return errors
 
 
+def _finra_alias_map(alias_ledger: object) -> dict:
+    """Build an old->canonical resolver from a (possibly malformed) ledger."""
+    alias_map: dict[str, str] = {}
+    if not isinstance(alias_ledger, list):
+        return alias_map
+    for item in alias_ledger:
+        if (
+            isinstance(item, dict)
+            and isinstance(item.get("old_identity"), str)
+            and item["old_identity"]
+            and isinstance(item.get("canonical_identity"), str)
+            and item["canonical_identity"]
+        ):
+            alias_map[item["old_identity"]] = item["canonical_identity"]
+    return alias_map
+
+
+def _finra_resolve_identity_via_ledger(identity: str, alias_map: dict) -> str:
+    """Resolve a raw FINRA identity to canonical through an alias map."""
+    current = identity
+    seen: set[str] = set()
+    while current in alias_map and current not in seen:
+        seen.add(current)
+        current = alias_map[current]
+    return current
+
+
+def _finra_row_detail_target(row: object) -> Optional[str]:
+    """Return the single canonical detail URL a retained raw row denotes."""
+    if not isinstance(row, dict):
+        return None
+    targets: set[str] = set()
+    links = row.get("links")
+    if isinstance(links, list):
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            href = link.get("href")
+            if isinstance(href, str):
+                detail_url, _ = _finra_normalize_detail_link(href)
+                if detail_url:
+                    targets.add(detail_url)
+    # Known-refresh rows carry their canonical URL directly rather than links.
+    known_refresh = row.get("known_refresh_url")
+    if isinstance(known_refresh, str):
+        detail_url, _ = _finra_normalize_detail_link(known_refresh)
+        if detail_url:
+            targets.add(detail_url)
+    if len(targets) != 1:
+        return None
+    return next(iter(targets))
+
+
+def _finra_pass_proof_entry_identities(proof: dict, alias_map: dict) -> set:
+    """Map a pass proof's resolvable rows to canonical entry identities.
+
+    Each retained listing row denotes exactly one detail URL; the canonical
+    entry identity is the same ``document_id`` production persists, resolved
+    through the trusted alias ledger. Rows that do not resolve to a single
+    supported detail target contribute nothing here (they are counted as
+    unresolved by the recomputation proof).
+    """
+    identities: set[str] = set()
+    payloads = proof.get("page_row_payloads")
+    if not isinstance(payloads, list):
+        return identities
+    for page in payloads:
+        if not isinstance(page, list):
+            continue
+        for row in page:
+            detail_url = _finra_row_detail_target(row)
+            if detail_url is None:
+                continue
+            document_id = _extract_finra_document_id(detail_url)
+            identities.add(
+                _finra_resolve_identity_via_ledger(document_id, alias_map)
+            )
+    return identities
+
+
 def _coverage_watermark(source_state: dict) -> dict:
     """Return the persisted watermark fields bound by a coverage proof."""
     return {
@@ -917,19 +997,100 @@ def _validate_source_coverage(
                         errors.append(
                             f"{source_key} coverage page identity proof is not bound"
                         )
-        if not isinstance(coverage.get("duplicate_ledger"), list):
-            errors.append(f"{source_key} duplicate ledger is invalid")
-        elif (
-            isinstance(resolved_row_count, int)
-            and not isinstance(resolved_row_count, bool)
-            and isinstance(unique_node_count, int)
-            and not isinstance(unique_node_count, bool)
-            and len(coverage["duplicate_ledger"])
-            < resolved_row_count - unique_node_count
+        # Blockers 5 & 6: bind the retained listing rows to the canonical
+        # fetched entries. Every resolvable row must map, through the validated
+        # alias ledger, onto a fetched entry, and together the two passes must
+        # reconstruct exactly the fetched entry set. This is the check that
+        # actually rejects a redirected alias -- the repointed canonical becomes
+        # unreachable from the independent listing rows -- or a forged/injected
+        # pass row (it resolves outside the fetched entries), even when every
+        # self-supplied evidence field and digest has been recomputed to agree.
+        if (
+            not legacy_identity_proof
+            and isinstance(proofs, list)
+            and len(proofs) == 2
+            and all(isinstance(proof, dict) for proof in proofs)
         ):
-            errors.append(
-                f"{source_key} duplicate ledger does not account for coalesced rows"
-            )
+            alias_map = _finra_alias_map(coverage.get("alias_ledger"))
+            fetched_identity_set = set(fetched_entry_identities)
+            for index, proof in enumerate(proofs):
+                resolved_identities = _finra_pass_proof_entry_identities(
+                    proof, alias_map
+                )
+                if not resolved_identities <= fetched_identity_set:
+                    errors.append(
+                        f"{source_key} pass proof {index} rows resolve to "
+                        "identities outside the fetched entries"
+                    )
+                elif resolved_identities != fetched_identity_set:
+                    errors.append(
+                        f"{source_key} pass proof {index} rows do not "
+                        "reconstruct the fetched entry identities"
+                    )
+
+        duplicate_ledger = coverage.get("duplicate_ledger")
+        if not isinstance(duplicate_ledger, list):
+            errors.append(f"{source_key} duplicate ledger is invalid")
+        else:
+            if (
+                isinstance(resolved_row_count, int)
+                and not isinstance(resolved_row_count, bool)
+                and isinstance(unique_node_count, int)
+                and not isinstance(unique_node_count, bool)
+                and len(duplicate_ledger)
+                < resolved_row_count - unique_node_count
+            ):
+                errors.append(
+                    f"{source_key} duplicate ledger does not account for coalesced rows"
+                )
+            # Blocker 6: a duplicate record must carry real coalesced-row
+            # evidence, not just occupy a slot. Validate each record's payload
+            # digest and bind it to an actual repeated row that resolves, via
+            # the alias ledger, to a fetched entry -- so an empty dict or a
+            # forged payload pointing nowhere fails closed.
+            if not legacy_identity_proof:
+                dup_alias_map = _finra_alias_map(coverage.get("alias_ledger"))
+                dup_fetched = set(fetched_entry_identities)
+                for d_index, record in enumerate(duplicate_ledger):
+                    label = f"{source_key} duplicate ledger record {d_index}"
+                    if not isinstance(record, dict):
+                        errors.append(f"{label} is malformed")
+                        continue
+                    node_identity = record.get("node_identity")
+                    detail_hash = record.get("detail_hash")
+                    raw_row_digest = record.get("raw_row_digest")
+                    raw_payload = record.get("raw_payload")
+                    if (
+                        not isinstance(node_identity, str) or not node_identity
+                        or not isinstance(detail_hash, str) or not detail_hash
+                        or not isinstance(raw_row_digest, str) or not raw_row_digest
+                        or not isinstance(raw_payload, dict)
+                    ):
+                        errors.append(
+                            f"{label} is missing required duplicate evidence"
+                        )
+                        continue
+                    recomputed_digest = compute_hash(json.dumps(
+                        raw_payload,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ))
+                    if recomputed_digest != raw_row_digest:
+                        errors.append(
+                            f"{label} raw row digest is not recomputable from its payload"
+                        )
+                    detail_url = _finra_row_detail_target(raw_payload)
+                    if detail_url is None:
+                        errors.append(
+                            f"{label} payload does not resolve to a single detail target"
+                        )
+                    elif _finra_resolve_identity_via_ledger(
+                        _extract_finra_document_id(detail_url), dup_alias_map
+                    ) not in dup_fetched:
+                        errors.append(
+                            f"{label} does not coalesce into a fetched entry"
+                        )
         if not isinstance(coverage.get("conflict_ledger"), list):
             errors.append(f"{source_key} conflict ledger is invalid")
         elif coverage.get("conflict_ledger"):
@@ -3448,6 +3609,31 @@ def update_source_state(
             prior_coverage.get("alias_ledger", [])
             if isinstance(prior_coverage, dict)
             else []
+        )
+        # Blocker 4: a listing/detail fetch (e.g. via node-transport fallback)
+        # can surface an identity that production already migrated to a
+        # canonical node entry -- e.g. "FINRA 00-01" for the canonical
+        # node/6547. Resolve every fetched identity through the trusted prior
+        # alias ledger BEFORE rebuilding entries so it updates the existing
+        # canonical entry in place instead of orphaning it (which would both
+        # break the alias chain-head binding and strand the canonical node).
+        alias_map = _finra_alias_map(existing_alias_ledger)
+        resolved_fetched: dict[str, str] = {}
+        for raw_key, content_hash in fetched_entries.items():
+            canonical_key = _finra_resolve_identity_via_ledger(raw_key, alias_map)
+            if (
+                canonical_key in resolved_fetched
+                and resolved_fetched[canonical_key] != content_hash
+            ):
+                raise ValueError(
+                    "FINRA fetched identities collide on canonical identity "
+                    f"{canonical_key} with conflicting content"
+                )
+            resolved_fetched[canonical_key] = content_hash
+        fetched_entries = resolved_fetched
+        coverage["fetched_entry_identities"] = sorted(fetched_entries)
+        coverage["fetched_entry_identity_digest"] = _identity_digest(
+            coverage["fetched_entry_identities"]
         )
         legacy_migration_ledger = coverage.get("migration_ledger")
         if legacy_migration_ledger is None and isinstance(prior_coverage, dict):
