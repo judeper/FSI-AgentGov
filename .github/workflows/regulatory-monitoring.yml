@@ -258,9 +258,56 @@ jobs:
             echo "::error::Missing captured state SHA; refusing state PR." >&2
             exit 2
           fi
+
+          # Bind the run to the exact generated output. Every path the monitor
+          # mutated is recorded with BOTH its git blob SHA (the object the PR
+          # will carry) and its sha256 content hash, so the auto-merge gate can
+          # require the PR head to contain exactly this set and nothing else.
+          ALLOWED_PATHS='^(data/monitor-state\.json(\.backup)?|reports/monitoring/regulatory-changes-[0-9]{4}-[0-9]{2}-[0-9]{2}\.md)$'
+          GENERATED_PATHS=$(git status --porcelain=v1 --untracked-files=all \
+            | sed -E 's/^.. //' | LC_ALL=C sort)
+          MANIFEST=""
+          if [ -n "$GENERATED_PATHS" ]; then
+            while IFS= read -r generated_path; do
+              [ -n "$generated_path" ] || continue
+              if ! printf '%s\n' "$generated_path" | grep -qE "$ALLOWED_PATHS"; then
+                echo "::error::Unexpected generated file: $generated_path" >&2
+                exit 2
+              fi
+              if [ ! -f "$generated_path" ]; then
+                echo "::error::Generated path is missing: $generated_path" >&2
+                exit 2
+              fi
+              GENERATED_BLOB=$(git hash-object -- "$generated_path")
+              GENERATED_CONTENT=$(sha256sum -- "$generated_path" | awk '{print $1}')
+              if [ -z "$GENERATED_BLOB" ] || [ -z "$GENERATED_CONTENT" ]; then
+                echo "::error::Could not hash generated path: $generated_path" >&2
+                exit 2
+              fi
+              MANIFEST=$(printf '%s\n%s %s %s' \
+                "$MANIFEST" "$generated_path" "$GENERATED_BLOB" "$GENERATED_CONTENT")
+            done <<GENERATED_EOF
+          $GENERATED_PATHS
+          GENERATED_EOF
+            MANIFEST=$(printf '%s\n' "$MANIFEST" | awk 'NF')
+          fi
+
+          # The manifest must agree with the state hash this step just validated.
+          MANIFEST_STATE=$(printf '%s\n' "$MANIFEST" \
+            | awk '$1 == "data/monitor-state.json" {print $3; exit}')
+          if [ -n "$MANIFEST_STATE" ] && [ "$MANIFEST_STATE" != "$CURRENT_STATE" ]; then
+            echo "::error::Generated manifest does not bind the validated state." >&2
+            exit 2
+          fi
+
           echo "base_sha=$EXPECTED_BASE" >> "$GITHUB_OUTPUT"
           echo "state_sha_before=$EXPECTED_STATE" >> "$GITHUB_OUTPUT"
           echo "state_sha_after=$CURRENT_STATE" >> "$GITHUB_OUTPUT"
+          {
+            echo "generated_manifest<<GENERATED_MANIFEST_EOF"
+            printf '%s\n' "$MANIFEST"
+            echo "GENERATED_MANIFEST_EOF"
+          } >> "$GITHUB_OUTPUT"
           echo "valid=true" >> "$GITHUB_OUTPUT"
 
       - name: Determine whether to create a monitor PR
@@ -452,44 +499,131 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+          EXPECTED_BASE: ${{ steps.cas.outputs.base_sha }}
+          EXPECTED_STATE_AFTER: ${{ steps.cas.outputs.state_sha_after }}
+          EXPECTED_HEAD: ${{ steps.create_pr.outputs.pull-request-head-sha }}
+          GENERATED_MANIFEST: ${{ steps.cas.outputs.generated_manifest }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          # The PR must still be based on the exact default-branch commit
-          # captured before the monitor ran. If main moved, leave it open for
-          # guarded review rather than merging a mixed state baseline.
-          EXPECTED_BASE="${{ steps.cas.outputs.base_sha }}"
-          DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
-          PR_BASE=$(gh pr view "$NEW_PR" --json baseRefName,baseRefOid \
-            --jq '"\(.baseRefName) \(.baseRefOid)"')
-          read -r PR_BASE_NAME PR_BASE_SHA <<< "$PR_BASE"
-          if [ "$PR_BASE_NAME" != "$DEFAULT_BRANCH" ] || [ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]; then
-            echo "::error::Maintenance PR base CAS mismatch; refusing auto-merge." >&2
+          set -euo pipefail
+
+          flag_for_review() {
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+          }
+
+          # Every binding below must be present. A missing CAS/generated-output
+          # value is a fail-closed condition, never an implicit "unbound merge".
+          if [ -z "$EXPECTED_BASE" ] || [ -z "$EXPECTED_STATE_AFTER" ] \
+            || [ -z "$EXPECTED_HEAD" ] || [ -z "$GENERATED_MANIFEST" ]; then
+            echo "::error::Missing CAS/generated-output binding; refusing auto-merge." >&2
+            flag_for_review
             exit 2
           fi
 
-          # Defense in depth: only auto-merge if EVERY changed file is a
-          # state/report file. Use the paginated REST API because
+          # The PR must still be based on the exact default-branch commit
+          # captured before the monitor ran, and must still point at the exact
+          # head the create step produced. If either moved, leave it open for
+          # guarded review rather than merging a mixed state baseline.
+          PR_VIEW=$(gh pr view "$NEW_PR" --json baseRefName,baseRefOid,headRefOid \
+            --jq '"\(.baseRefName) \(.baseRefOid) \(.headRefOid)"')
+          read -r PR_BASE_NAME PR_BASE_SHA PR_HEAD_SHA <<< "$PR_VIEW"
+          if [ "$PR_BASE_NAME" != "$DEFAULT_BRANCH" ] || [ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]; then
+            echo "::error::Maintenance PR base CAS mismatch; refusing auto-merge." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]; then
+            echo "::error::Maintenance PR head moved after creation; refusing auto-merge." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          # Re-verify the validated generated output has not changed on disk
+          # since the CAS step, then bind state_sha_after into this final gate.
+          CURRENT_STATE_SHA=$(sha256sum data/monitor-state.json | awk '{print $1}')
+          if [ "$CURRENT_STATE_SHA" != "$EXPECTED_STATE_AFTER" ]; then
+            echo "::error::Monitor state changed after CAS validation; refusing auto-merge." >&2
+            flag_for_review
+            exit 2
+          fi
+          MANIFEST_STATE_SHA=$(printf '%s\n' "$GENERATED_MANIFEST" \
+            | awk '$1 == "data/monitor-state.json" {print $3; exit}')
+          MANIFEST_STATE_BLOB=$(printf '%s\n' "$GENERATED_MANIFEST" \
+            | awk '$1 == "data/monitor-state.json" {print $2; exit}')
+          if [ "$MANIFEST_STATE_SHA" != "$EXPECTED_STATE_AFTER" ] \
+            || [ "$MANIFEST_STATE_BLOB" != "$(git hash-object -- data/monitor-state.json)" ]; then
+            echo "::error::Generated state hashes do not match the validated run; refusing auto-merge." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          # Defense in depth: only auto-merge if the PR head carries EXACTLY the
+          # validated generated blobs. Use the paginated REST API because
           # `gh pr view --json files` truncates at 100 files. Fail CLOSED: if the
           # file listing can't be obtained, skip auto-merge.
-          FILES=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NEW_PR}/files" --paginate --jq '.[].filename') || FILES=""
-          if [ -z "$FILES" ]; then
+          PR_FILES=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NEW_PR}/files" --paginate \
+            --jq '.[] | "\(.filename) \(.sha)"' | LC_ALL=C sort) || PR_FILES=""
+          if [ -z "$PR_FILES" ]; then
             echo "::warning::Could not list files for PR #$NEW_PR (API error or empty); skipping auto-merge (manual review required)."
-            gh pr edit "$NEW_PR" --add-label needs-review || true
+            flag_for_review
             exit 0
           fi
-          NON_STATE=$(printf '%s\n' "$FILES" \
+          NON_STATE=$(printf '%s\n' "$PR_FILES" | awk '{print $1}' \
             | grep -vcE '^data/monitor-state\.json(\.backup)?$|^reports/monitoring/.*\.md$' || true)
           if [ "${NON_STATE:-1}" != "0" ]; then
             echo "::warning::PR #$NEW_PR contains non-state file(s) (count=${NON_STATE:-unknown}); skipping auto-merge (manual review required)."
-            gh pr edit "$NEW_PR" --add-label needs-review || true
+            flag_for_review
             exit 0
           fi
+          EXPECTED_FILES=$(printf '%s\n' "$GENERATED_MANIFEST" \
+            | awk 'NF {print $1, $2}' | LC_ALL=C sort)
+          if [ "$PR_FILES" != "$EXPECTED_FILES" ]; then
+            echo "::error::PR #$NEW_PR does not carry exactly the validated generated output." >&2
+            echo "expected:" >&2
+            printf '%s\n' "$EXPECTED_FILES" >&2
+            echo "actual:" >&2
+            printf '%s\n' "$PR_FILES" >&2
+            flag_for_review
+            exit 2
+          fi
+
+          # Live CAS: re-read the default branch tip immediately before merge.
+          # The historical PR baseRefOid alone cannot prove main is still where
+          # the monitor read it, so an advanced default branch fails closed.
+          LIVE_BASE=$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" \
+            --jq '.object.sha') || LIVE_BASE=""
+          if [ -z "$LIVE_BASE" ]; then
+            echo "::warning::Could not re-read the live default branch; skipping auto-merge."
+            flag_for_review
+            exit 0
+          fi
+          if [ "$LIVE_BASE" != "$EXPECTED_BASE" ]; then
+            echo "::error::Default branch advanced to $LIVE_BASE (expected $EXPECTED_BASE); refusing auto-merge." >&2
+            flag_for_review
+            exit 2
+          fi
+
           # Enable auto-merge FIRST; only drop the needs-review label once that
           # succeeds, so a failed `gh pr merge` (e.g. repo auto-merge disabled)
           # leaves the PR visibly needs-review instead of open + unlabeled + stuck.
-          if gh pr merge "$NEW_PR" --auto --squash --delete-branch; then
+          # --match-head-commit is passed through as the GraphQL expectedHeadOid,
+          # so the queued merge itself stays bound to the validated head.
+          if gh pr merge "$NEW_PR" --auto --squash --delete-branch \
+            --match-head-commit "$EXPECTED_HEAD"; then
+            # Close the enable-window TOCTOU: if the default branch moved while
+            # auto-merge was being enabled, revoke it rather than leaving a queued
+            # merge bound to a base that is no longer the validated one.
+            POST_BASE=$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" \
+              --jq '.object.sha') || POST_BASE=""
+            if [ "$POST_BASE" != "$EXPECTED_BASE" ]; then
+              echo "::error::Default branch moved to ${POST_BASE:-unknown} while enabling auto-merge; revoking." >&2
+              gh pr merge "$NEW_PR" --disable-auto || true
+              flag_for_review
+              exit 2
+            fi
             gh pr edit "$NEW_PR" --remove-label needs-review || true
             echo "Auto-merge enabled for state-only regulatory PR #$NEW_PR (merges once required checks pass)."
           else
             echo "::warning::Could not enable auto-merge for PR #$NEW_PR; leaving needs-review for manual handling."
-            gh pr edit "$NEW_PR" --add-label needs-review || true
+            flag_for_review
           fi

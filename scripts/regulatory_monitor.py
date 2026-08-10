@@ -34,6 +34,7 @@ import re
 import sys
 import time
 import uuid
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -212,6 +213,49 @@ def _alias_ledger_digest(ledger: list[dict]) -> str:
     ))
 
 
+def _finra_identity_notice_number(identity: object) -> Optional[str]:
+    """Derive the immutable FINRA notice number an identity denotes, if any."""
+    if not isinstance(identity, str) or not identity:
+        return None
+    match = re.fullmatch(r"FINRA (\d{2}-\d{2})", identity.strip())
+    if match:
+        return match.group(1)
+    canonical_url, _ = _finra_normalize_detail_link(identity)
+    if not canonical_url:
+        return None
+    match = re.search(r"/notices/(\d{2}-\d{2})$", urlparse(canonical_url).path)
+    return match.group(1) if match else None
+
+
+def _finra_alias_chain_head(alias: dict) -> tuple[Optional[str], list[str]]:
+    """Replay an alias content-update chain from its immutable migration hash."""
+    errors: list[str] = []
+    evidence = alias.get("evidence")
+    source_hash = alias.get("source_hash")
+    if not isinstance(evidence, dict) or not isinstance(source_hash, str):
+        return None, ["regulatory-finra alias evidence is malformed"]
+    updates = evidence.get("content_updates", [])
+    if not isinstance(updates, list):
+        return None, ["regulatory-finra alias content update chain is invalid"]
+    head = source_hash
+    for update in updates:
+        if (
+            not isinstance(update, dict)
+            or not isinstance(update.get("from"), str)
+            or not update["from"]
+            or not isinstance(update.get("to"), str)
+            or not update["to"]
+            or update["from"] == update["to"]
+            or update["from"] != head
+        ):
+            errors.append(
+                "regulatory-finra alias content update chain is not contiguous"
+            )
+            return None, errors
+        head = update["to"]
+    return head, errors
+
+
 def _resolve_finra_identity(source_state: dict, identity: str) -> str:
     """Resolve a historical FINRA identity through the alias ledger."""
     coverage = source_state.get("coverage")
@@ -236,7 +280,15 @@ def _validate_finra_alias_ledger(
     entries: dict,
     fetched_entry_identities: list[str],
 ) -> list[str]:
-    """Validate aliases without treating them as persisted regulatory entries."""
+    """Validate aliases against verifiable state, not self-duplicating evidence.
+
+    Every alias must be bound to facts that live outside the alias record: the
+    immutable FINRA notice number both identities denote, and the canonical
+    entry hash currently persisted in ``entries``. Evidence fields that merely
+    repeat one another prove nothing, so an alias may only claim a hash the
+    canonical entry actually carries, reached through an explicit, contiguous
+    content-update chain that starts at the migration hash.
+    """
     errors = []
     if not isinstance(ledger, list):
         return ["regulatory-finra alias ledger is invalid"]
@@ -263,6 +315,10 @@ def _validate_finra_alias_ledger(
         ):
             errors.append("regulatory-finra alias ledger item is malformed")
             continue
+        if old_identity == canonical_identity:
+            errors.append(
+                f"regulatory-finra alias points at itself: {old_identity}"
+            )
         if old_identity in old_identities:
             errors.append(
                 f"regulatory-finra alias has multiple targets: {old_identity}"
@@ -296,9 +352,54 @@ def _validate_finra_alias_ledger(
         if not isinstance(evidence.get("reason"), str) or not evidence["reason"]:
             errors.append("regulatory-finra alias evidence is missing a reason")
 
+        # Immutable identity binding: when both sides denote a FINRA notice
+        # number, a migration may never move between two different notices.
+        old_notice = _finra_identity_notice_number(old_identity)
+        canonical_notice = _finra_identity_notice_number(canonical_identity)
+        if old_notice and canonical_notice and old_notice != canonical_notice:
+            errors.append(
+                "regulatory-finra alias migrates between different notices: "
+                f"{old_identity} -> {canonical_identity}"
+            )
+
+        # Verifiable content binding: replay the recorded migration transition
+        # against the persisted canonical entry hash instead of trusting the
+        # duplicated evidence fields above.
+        chain_head, chain_errors = _finra_alias_chain_head(item)
+        errors.extend(chain_errors)
+        if chain_head is not None and canonical_identity in entries:
+            if entries[canonical_identity] != chain_head:
+                errors.append(
+                    "regulatory-finra alias is not bound to its canonical "
+                    f"entry hash: {old_identity}"
+                )
+
     if old_identities & canonical_identities:
         errors.append("regulatory-finra alias ledger contains a cycle")
     return errors
+
+
+def _rebind_finra_alias(alias: dict, fetched_entries: dict) -> dict:
+    """Record an observed canonical content transition without rewriting history."""
+    canonical_identity = alias.get("canonical_identity")
+    if canonical_identity not in fetched_entries:
+        raise ValueError(
+            "FINRA alias target is not a fetched canonical identity: "
+            f"{canonical_identity}"
+        )
+    head, errors = _finra_alias_chain_head(alias)
+    if head is None:
+        raise ValueError(errors[0] if errors else "FINRA alias evidence is malformed")
+    current_hash = fetched_entries[canonical_identity]
+    if current_hash == head:
+        return deepcopy(alias)
+    rebound = deepcopy(alias)
+    evidence = rebound["evidence"]
+    evidence["content_updates"] = [
+        *evidence.get("content_updates", []),
+        {"from": head, "to": current_hash},
+    ]
+    return rebound
 
 
 def _build_finra_alias_ledger(
@@ -341,7 +442,7 @@ def _build_finra_alias_ledger(
             raise ValueError("FINRA alias ledger violates one-to-one constraints")
         old_ids.add(old_identity)
         target_ids.add(canonical_identity)
-        ledger.append(item)
+        ledger.append(_rebind_finra_alias(item, fetched_entries))
 
     for old_identity in sorted(legacy_ids):
         source_hash = previous_entries[old_identity]
@@ -386,6 +487,84 @@ def _build_finra_alias_ledger(
         ledger,
         key=lambda item: (item["old_identity"], item["canonical_identity"]),
     )
+
+
+def _finra_pass_proof_recomputation_errors(
+    source_key: str,
+    proof: dict,
+    index: int,
+) -> list[str]:
+    """Recompute every derived pass-proof value from the retained raw payloads."""
+    errors: list[str] = []
+    label = f"{source_key} pass proof {index}"
+    payloads = proof.get("page_row_payloads")
+    if not isinstance(payloads, list) or any(
+        not isinstance(page, list)
+        or any(not isinstance(row, dict) for row in page)
+        for page in payloads
+    ):
+        return [f"{label} page row payloads are missing or invalid"]
+
+    for key in (
+        "page_numbers",
+        "page_identities",
+        "page_row_counts",
+        "page_row_digests",
+    ):
+        value = proof.get(key)
+        if not isinstance(value, list) or len(value) != len(payloads):
+            errors.append(f"{label} {key} do not match the retained payloads")
+    if proof.get("pages_fetched") != len(payloads):
+        errors.append(f"{label} pages_fetched does not match the retained payloads")
+
+    recomputed_counts = [len(page) for page in payloads]
+    recomputed_digests = [
+        compute_hash(json.dumps(
+            page,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ))
+        for page in payloads
+    ]
+    if proof.get("page_row_counts") != recomputed_counts:
+        errors.append(f"{label} page row counts are not recomputable from payloads")
+    if proof.get("page_row_digests") != recomputed_digests:
+        errors.append(f"{label} page row digests are not recomputable from payloads")
+
+    resolved = 0
+    unresolved = 0
+    node_identities = set()
+    for page in payloads:
+        for row in page:
+            links = row.get("links")
+            targets = set()
+            for link in links if isinstance(links, list) else []:
+                if not isinstance(link, dict):
+                    continue
+                href = link.get("href")
+                if not isinstance(href, str):
+                    continue
+                detail_url, node_identity = _finra_normalize_detail_link(href)
+                if detail_url:
+                    targets.add((detail_url, node_identity))
+            if len(targets) == 1:
+                resolved += 1
+                node_identities.add(next(iter(targets))[1])
+            else:
+                unresolved += 1
+
+    if proof.get("raw_row_count") != sum(recomputed_counts):
+        errors.append(f"{label} raw row count is not recomputable from payloads")
+    if proof.get("resolved_row_count") != resolved:
+        errors.append(f"{label} resolved row count is not recomputable from payloads")
+    if proof.get("unresolved_row_count") != unresolved:
+        errors.append(
+            f"{label} unresolved row count is not recomputable from payloads"
+        )
+    if proof.get("unique_node_count") != len(node_identities):
+        errors.append(f"{label} unique node count is not recomputable from payloads")
+    return errors
 
 
 def _coverage_watermark(source_state: dict) -> dict:
@@ -693,6 +872,27 @@ def _validate_source_coverage(
                         errors.append(
                             f"{source_key} pass proof raw row count is inconsistent"
                         )
+                    if proof.get("resolved_row_count") != resolved_row_count:
+                        errors.append(
+                            f"{source_key} pass proof resolved row count is "
+                            "inconsistent"
+                        )
+                    if proof.get("unresolved_row_count") != unresolved_row_count:
+                        errors.append(
+                            f"{source_key} pass proof unresolved row count is "
+                            "inconsistent"
+                        )
+                    if proof.get("unique_node_count") != unique_node_count:
+                        errors.append(
+                            f"{source_key} pass proof unique node count is "
+                            "inconsistent"
+                        )
+                for index, proof in enumerate(proofs):
+                    errors.extend(
+                        _finra_pass_proof_recomputation_errors(
+                            source_key, proof, index
+                        )
+                    )
                 if all(isinstance(proof, dict) for proof in proofs):
                     for key in comparable:
                         if proofs[0].get(key) != proofs[1].get(key):
@@ -719,6 +919,17 @@ def _validate_source_coverage(
                         )
         if not isinstance(coverage.get("duplicate_ledger"), list):
             errors.append(f"{source_key} duplicate ledger is invalid")
+        elif (
+            isinstance(resolved_row_count, int)
+            and not isinstance(resolved_row_count, bool)
+            and isinstance(unique_node_count, int)
+            and not isinstance(unique_node_count, bool)
+            and len(coverage["duplicate_ledger"])
+            < resolved_row_count - unique_node_count
+        ):
+            errors.append(
+                f"{source_key} duplicate ledger does not account for coalesced rows"
+            )
         if not isinstance(coverage.get("conflict_ledger"), list):
             errors.append(f"{source_key} conflict ledger is invalid")
         elif coverage.get("conflict_ledger"):
@@ -2699,6 +2910,10 @@ def fetch_finra_notices(
                     fallback_url,
                 )
                 detail = _fetch_finra_page(fallback_url, session)
+                # The node URL is transport only. Record that this response did
+                # not come from the canonical document URL so the notice keeps
+                # its listing identity instead of adopting the transport URL.
+                detail["transport_fallback_url"] = fallback_url
                 detail_cache[url] = detail
             if detail["status_code"] != 200:
                 return _incomplete_result(
@@ -2755,6 +2970,12 @@ def fetch_finra_notices(
             final_url, final_node_identity = _finra_normalize_detail_link(
                 detail.get("final_url") or url
             )
+            # A node URL used purely as a rate-limit transport must never
+            # replace the listing/canonical document identity; doing so would
+            # orphan the existing canonical entry and force an alias migration
+            # that has no legitimate evidence behind it.
+            transport_fallback = bool(detail.get("transport_fallback_url"))
+            identity_url = url if transport_fallback else (final_url or url)
             node_identity = (
                 shortlink_node_identity
                 or
@@ -2814,7 +3035,7 @@ def fetch_finra_notices(
                     existing["listing_date_conflicts"] = []
                 continue
 
-            document_id = _extract_finra_document_id(final_url or url)
+            document_id = _extract_finra_document_id(identity_url)
             tier, reason = classify_regulatory_relevance(
                 title, substantive_content, config
             )

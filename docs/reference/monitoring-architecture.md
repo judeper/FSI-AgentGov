@@ -304,7 +304,14 @@ mutating job checks out the trusted default branch with credentials persistence
 disabled, and only requests the App token after monitor success and CAS
 validation. Before creating or auto-merging a state PR, the workflow
 revalidates the captured default-branch commit and state-file SHA; a changed
-base fails closed. Successful runs may change only
+base fails closed. The CAS step additionally publishes a manifest of every
+mutated path with both its git blob SHA and its sha256 content hash, and the
+auto-merge gate consumes that manifest together with `state_sha_after`, the
+exact created head (`--match-head-commit`), and a live re-read of the default
+branch tip taken immediately before and after auto-merge is enabled. A PR that
+does not carry exactly the validated blobs, an unexpected generated file, a
+moved head, or an advanced default branch all fail closed to `needs-review`.
+Successful runs may change only
 `data/monitor-state.json`, its atomic backup, or a regenerated regulatory
 report. Exit-0 state-only PRs are clearly identified and may use the existing
 kill-switch-gated, file-allowlisted auto-merge path; CRITICAL/HIGH findings
@@ -319,12 +326,26 @@ a coverage proof containing the entry count, stable entry-map digest, source
 identity, query/window metadata, declared and fetched page counts, and exact
 page identities (plus FINRA listing/detail counts). The proof is validated
 before the next fetch; a missing or mismatched proof cannot advance a
-watermark. FINRA also binds the sorted fetched-detail identity set and digest
+watermark. Each FINRA pass proof retains the raw listing-row payloads, and
+every derived count and digest it carries (row counts, row digests, raw row
+total, resolved/unresolved rows, unique nodes) is recomputed from those
+payloads at validation time, so replacing the payloads while keeping the
+duplicated evidence fields fails closed. The duplicate ledger must also account
+for every listing row coalesced into a shared node. FINRA also binds the sorted
+fetched-detail identity set and digest
 to the persisted entry identity set. Legacy identities are retained only in a
 separate one-to-one alias ledger containing source-hash evidence; aliases do
 not count as persisted entries or coverage. Every alias target must remain a
 fetched canonical identity, and stale, cyclic, conflicting, or unverified
-identities fail closed. Recovery may admit a legacy proof only through the
+identities fail closed. Aliases are additionally bound to facts outside the
+alias record: a migration may never move between two different FINRA notice
+numbers, and the alias must reach the hash the canonical entry actually carries
+through an explicit, contiguous, append-only content-update chain starting at
+its immutable migration hash — so recomputing the ledger digest cannot launder a
+redirected alias. When a canonical detail fetch is rate-limited and a
+`/node/<id>` URL is used as a transport fallback, the notice keeps its
+listing/canonical identity rather than adopting the transport URL. Recovery may
+admit a legacy proof only through the
 explicitly approved local recovery mode, which rewrites the proof from a
 successful complete crawl.
 

@@ -28,6 +28,16 @@ import monitoring_shared  # noqa: E402
 import regulatory_monitor  # noqa: E402
 from monitoring_shared import compute_hash  # noqa: E402
 
+# Anti-truncation floors for the shipped recovery state. These sit just under
+# the recovered 2026-08-09 baseline so legitimate archive growth never freezes
+# the suite, while any regression toward the 332/2-entry incident state fails.
+MIN_FEDERAL_REGISTER_ENTRIES = 500
+MIN_FINRA_ENTRIES = 3600
+MIN_FINRA_ALIASES = 600
+MIN_FINRA_LISTING_PAGES = 90
+MIN_FINRA_RAW_LISTING_ROWS = 3650
+RECOVERY_WATERMARK_DATE = "2026-08-09"
+
 
 def _make_item(title, doc_id, *, abstract="", pub_date="2026-01-01",
                source="Federal Register", agency="SEC", url=None):
@@ -61,6 +71,52 @@ def _alias(old_identity, canonical_identity, source_hash):
     }
 
 
+def _page_row_digest(payloads):
+    """Mirror the production page-row digest over raw listing payloads."""
+    return compute_hash(json.dumps(
+        payloads,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
+def _synthetic_row_payload(identity, index):
+    """Build one resolvable raw listing-row payload for a synthetic identity."""
+    return {
+        "text": str(identity),
+        "links": [
+            {
+                "href": f"https://www.finra.org/node/{900000 + index}",
+                "text": str(identity),
+            }
+        ],
+    }
+
+
+def _synthetic_pass_proofs(identities):
+    """Build two pass proofs whose every derived value recomputes from payloads."""
+    payloads = [
+        _synthetic_row_payload(identity, index)
+        for index, identity in enumerate(identities)
+    ]
+    proof = {
+        "token": "test-pass-1",
+        "declared_pages": 1,
+        "pages_fetched": 1,
+        "page_numbers": [0],
+        "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+        "page_row_counts": [len(payloads)],
+        "page_row_digests": [_page_row_digest(payloads)],
+        "page_row_payloads": [payloads],
+        "raw_row_count": len(payloads),
+        "resolved_row_count": len(payloads),
+        "unresolved_row_count": 0,
+        "unique_node_count": len(payloads),
+    }
+    return [proof, dict(deepcopy(proof), token="test-pass-2")]
+
+
 def test_finra_alias_migration_removes_duplicate_entries_and_requires_evidence():
     """Legacy aliases are ledger-only and cannot be inferred from a partial refresh."""
     source_hash = "sha256:legacy"
@@ -82,26 +138,151 @@ def test_finra_alias_migration_removes_duplicate_entries_and_requires_evidence()
         )
 
 
-def test_finra_alias_survives_canonical_content_update_without_stale_entry():
-    """A later canonical update changes only the fetched node entry."""
+def test_finra_alias_survives_canonical_content_update_with_recorded_transition():
+    """A later canonical update must be recorded, not silently absorbed."""
     old_hash = "sha256:old"
     new_hash = "sha256:new"
     ledger = [_alias("legacy notice", "node-123", old_hash)]
-    entries = {"node-123": new_hash}
+    unchanged_entries = {"node-123": old_hash}
+    updated_entries = {"node-123": new_hash}
+
     assert regulatory_monitor._validate_finra_alias_ledger(
-        ledger, entries, ["node-123"]
+        ledger, unchanged_entries, ["node-123"]
     ) == []
+
+    # An unrecorded canonical content change breaks the alias binding.
+    stale_errors = regulatory_monitor._validate_finra_alias_ledger(
+        ledger, updated_entries, ["node-123"]
+    )
+    assert any(
+        "not bound to its canonical entry hash" in error for error in stale_errors
+    )
+
     source_state = {"coverage": {"alias_ledger": ledger}}
     assert regulatory_monitor._resolve_finra_identity(
         source_state, "legacy notice"
     ) == "node-123"
+
     rebuilt = regulatory_monitor._build_finra_alias_ledger(
-        entries,
-        entries,
+        updated_entries,
+        updated_entries,
         existing_alias_ledger=ledger,
     )
-    assert rebuilt == ledger
-    assert "legacy notice" not in entries
+    assert rebuilt[0]["source_hash"] == old_hash
+    assert rebuilt[0]["evidence"]["content_updates"] == [
+        {"from": old_hash, "to": new_hash},
+    ]
+    assert regulatory_monitor._validate_finra_alias_ledger(
+        rebuilt, updated_entries, ["node-123"]
+    ) == []
+    assert "legacy notice" not in updated_entries
+    # The recorded transition is append-only and stable across reruns.
+    assert regulatory_monitor._build_finra_alias_ledger(
+        updated_entries,
+        updated_entries,
+        existing_alias_ledger=rebuilt,
+    ) == rebuilt
+
+
+def test_finra_alias_cannot_be_redirected_to_an_unrelated_notice():
+    """Recomputing the ledger digest cannot launder a forged alias target."""
+    entries = {
+        "FINRA 26-15": "sha256:unrelated",
+        "https://www.finra.org/node/6547": "sha256:canonical",
+    }
+    forged_notice_redirect = [{
+        # Every self-referential evidence field is recomputed to agree with the
+        # forged target, and the ledger digest would recompute cleanly too.
+        "old_identity": "FINRA 00-01",
+        "canonical_identity": "FINRA 26-15",
+        "source_hash": "sha256:unrelated",
+        "evidence": {
+            "source_hash_at_migration": "sha256:unrelated",
+            "canonical_hash_at_migration": "sha256:unrelated",
+            "reason": "legacy duplicate migrated to canonical node identity",
+        },
+    }]
+    notice_errors = regulatory_monitor._validate_finra_alias_ledger(
+        forged_notice_redirect,
+        entries,
+        sorted(entries),
+    )
+    assert any(
+        "migrates between different notices" in error for error in notice_errors
+    )
+
+    forged_node_redirect = [
+        _alias("FINRA 00-01", "https://www.finra.org/node/6547", "sha256:legacy")
+    ]
+    node_errors = regulatory_monitor._validate_finra_alias_ledger(
+        forged_node_redirect,
+        entries,
+        sorted(entries),
+    )
+    assert any(
+        "not bound to its canonical entry hash" in error for error in node_errors
+    )
+
+    forged_chain = deepcopy(forged_node_redirect)
+    forged_chain[0]["evidence"]["content_updates"] = [
+        {"from": "sha256:unrelated", "to": "sha256:canonical"},
+    ]
+    chain_errors = regulatory_monitor._validate_finra_alias_ledger(
+        forged_chain,
+        entries,
+        sorted(entries),
+    )
+    assert any("not contiguous" in error for error in chain_errors)
+
+
+def test_finra_pass_proofs_must_recompute_from_retained_payloads():
+    """Replaced pass payloads cannot hide behind retained digests and counts."""
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    assert regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    ) == []
+
+    forged = deepcopy(source_state)
+    for proof in forged["coverage"]["pass_proofs"]:
+        # Keep every duplicated count/digest evidence field byte-identical and
+        # swap only the underlying payload the proof claims to summarize.
+        proof["page_row_payloads"][0] = [
+            {"text": "forged", "links": []}
+            for _ in proof["page_row_payloads"][0]
+        ]
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+    assert any("not recomputable from payloads" in error for error in errors)
+
+    dropped = deepcopy(source_state)
+    for proof in dropped["coverage"]["pass_proofs"]:
+        proof.pop("page_row_payloads")
+    dropped_errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        dropped,
+    )
+    assert any(
+        "page row payloads are missing or invalid" in error
+        for error in dropped_errors
+    )
+
+    emptied = deepcopy(source_state)
+    emptied["coverage"]["duplicate_ledger"] = []
+    duplicate_errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        emptied,
+    )
+    assert any(
+        "duplicate ledger does not account for coalesced rows" in error
+        for error in duplicate_errors
+    )
 
 
 @pytest.mark.parametrize(
@@ -398,40 +579,7 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "resolved_row_count": len(entries),
                 "unresolved_row_count": 0,
                 "unique_node_count": len(entries),
-                "pass_proofs": [
-                    {
-                        "token": "test-pass-1",
-                        "declared_pages": 1,
-                        "pages_fetched": 1,
-                        "page_numbers": [0],
-                        "page_identities": [
-                            {"requested": 0, "final": 0, "active": 0},
-                        ],
-                        "page_row_counts": [len(entries)],
-                        "page_row_digests": [regulatory_monitor._entries_digest(entries)],
-                        "page_row_payloads": [[]],
-                        "raw_row_count": len(entries),
-                        "resolved_row_count": len(entries),
-                        "unresolved_row_count": 0,
-                        "unique_node_count": len(entries),
-                    },
-                    {
-                        "token": "test-pass-2",
-                        "declared_pages": 1,
-                        "pages_fetched": 1,
-                        "page_numbers": [0],
-                        "page_identities": [
-                            {"requested": 0, "final": 0, "active": 0},
-                        ],
-                        "page_row_counts": [len(entries)],
-                        "page_row_digests": [regulatory_monitor._entries_digest(entries)],
-                        "page_row_payloads": [[]],
-                        "raw_row_count": len(entries),
-                        "resolved_row_count": len(entries),
-                        "unresolved_row_count": 0,
-                        "unique_node_count": len(entries),
-                    },
-                ],
+                "pass_proofs": _synthetic_pass_proofs(sorted(entries)),
                 "duplicate_ledger": [],
                 "conflict_ledger": [],
             })
@@ -496,40 +644,10 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "resolved_row_count": len(items),
                 "unresolved_row_count": 0,
                 "unique_node_count": len(items),
-                "pass_proofs": [
-                    {
-                        "token": "test-pass-1",
-                        "declared_pages": 1,
-                        "pages_fetched": 1,
-                        "page_numbers": [0],
-                        "page_identities": [
-                            {"requested": 0, "final": 0, "active": 0},
-                        ],
-                        "page_row_counts": [len(items)],
-                        "page_row_digests": [compute_hash(str(items))],
-                        "page_row_payloads": [[]],
-                        "raw_row_count": len(items),
-                        "resolved_row_count": len(items),
-                        "unresolved_row_count": 0,
-                        "unique_node_count": len(items),
-                    },
-                    {
-                        "token": "test-pass-2",
-                        "declared_pages": 1,
-                        "pages_fetched": 1,
-                        "page_numbers": [0],
-                        "page_identities": [
-                            {"requested": 0, "final": 0, "active": 0},
-                        ],
-                        "page_row_counts": [len(items)],
-                        "page_row_digests": [compute_hash(str(items))],
-                        "page_row_payloads": [[]],
-                        "raw_row_count": len(items),
-                        "resolved_row_count": len(items),
-                        "unresolved_row_count": 0,
-                        "unique_node_count": len(items),
-                    },
-                ],
+                "pass_proofs": _synthetic_pass_proofs(sorted(
+                    item.document_id if item.document_id else item.url
+                    for item in items
+                )),
                 "duplicate_ledger": [],
                 "conflict_ledger": [],
             }
@@ -1296,6 +1414,7 @@ def _finra_request_base(url):
 
 def _synthetic_finra_listing(rows):
     """Build a complete listing result for detail/duplicate unit tests."""
+    payloads = [row["raw_payload"] for row in rows]
     proof = {
         "token": "test-pass-1",
         "declared_pages": 1,
@@ -1303,17 +1422,14 @@ def _synthetic_finra_listing(rows):
         "page_numbers": [0],
         "page_identities": [{"requested": 0, "final": 0, "active": 0}],
         "page_row_counts": [len(rows)],
-        "page_row_digests": [compute_hash(json.dumps(
-            [row["raw_payload"] for row in rows],
-            sort_keys=True,
-            separators=(",", ":"),
-        ))],
+        "page_row_digests": [_page_row_digest(payloads)],
+        "page_row_payloads": [payloads],
         "raw_row_count": len(rows),
         "resolved_row_count": len(rows),
         "unresolved_row_count": 0,
         "unique_node_count": len({row["node_identity"] for row in rows}),
     }
-    proof2 = dict(proof, token="test-pass-2")
+    proof2 = dict(deepcopy(proof), token="test-pass-2")
     return {
         "complete": True,
         "rows": rows,
@@ -2216,6 +2332,111 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
     assert "private-key:" not in read_only_block
 
 
+def _workflow_text() -> str:
+    return (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+
+
+def test_cas_step_publishes_a_manifest_of_the_exact_generated_output():
+    """The CAS step must record every mutated path with its blob AND content hash.
+
+    Without a manifest the auto-merge gate can only reason about a shape
+    ("looks like state files"), which cannot distinguish the validated output
+    from any other state-shaped payload pushed onto the same branch.
+    """
+    workflow = _workflow_text()
+    cas_block = workflow.split(
+        "- name: Validate default-branch monitor CAS", 1
+    )[1].split("- name:", 1)[0]
+
+    assert "ALLOWED_PATHS=" in cas_block
+    assert "git status --porcelain=v1 --untracked-files=all" in cas_block
+    assert "Unexpected generated file" in cas_block
+    assert "Generated path is missing" in cas_block
+    assert "git hash-object" in cas_block
+    assert "sha256sum -- \"$generated_path\"" in cas_block
+    assert "Generated manifest does not bind the validated state" in cas_block
+    assert "generated_manifest<<GENERATED_MANIFEST_EOF" in cas_block
+    assert 'echo "state_sha_after=$CURRENT_STATE" >> "$GITHUB_OUTPUT"' in cas_block
+
+    # Every fail-closed branch must exit non-zero, never fall through to `valid=true`.
+    for message in (
+        "Unexpected generated file",
+        "Generated path is missing",
+        "Could not hash generated path",
+        "Generated manifest does not bind the validated state",
+    ):
+        tail = cas_block.split(message, 1)[1].split("fi", 1)[0]
+        assert "exit 2" in tail, message
+
+
+def test_auto_merge_rereads_live_default_branch_and_binds_generated_output():
+    """Blockers 1 and 2: live base CAS + exact generated-output binding.
+
+    A historical `baseRefOid` only proves where main was when the PR was
+    opened. It cannot prove main is still there at merge time, so the live ref
+    must be re-read immediately before (and after) auto-merge is enabled.
+    Separately, the merge must be bound to the exact validated head and the
+    exact validated blobs, so a state-shaped-but-different payload fails closed.
+    """
+    workflow = _workflow_text()
+    merge_block = workflow.split(
+        "- name: Enable auto-merge for the state-only PR", 1
+    )[1]
+
+    # Bindings are injected via env (not inline expansion) and are all required.
+    for binding in (
+        "EXPECTED_BASE: ${{ steps.cas.outputs.base_sha }}",
+        "EXPECTED_STATE_AFTER: ${{ steps.cas.outputs.state_sha_after }}",
+        "EXPECTED_HEAD: ${{ steps.create_pr.outputs.pull-request-head-sha }}",
+        "GENERATED_MANIFEST: ${{ steps.cas.outputs.generated_manifest }}",
+    ):
+        assert binding in merge_block, binding
+    assert "Missing CAS/generated-output binding" in merge_block
+
+    # Blocker 1: the live default-branch tip is re-read from the API and must
+    # equal the captured trusted base, both before and after enabling merge.
+    assert 'gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}"' in merge_block
+    assert merge_block.count("git/ref/heads/") >= 2
+    assert '[ "$LIVE_BASE" != "$EXPECTED_BASE" ]' in merge_block
+    assert "Default branch advanced to" in merge_block
+    assert '[ "$POST_BASE" != "$EXPECTED_BASE" ]' in merge_block
+    assert "--disable-auto" in merge_block
+
+    # Blocker 2: head + state + blob-set binding, all consumed in the final gate.
+    assert "headRefOid" in merge_block
+    assert '[ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]' in merge_block
+    assert '[ "$CURRENT_STATE_SHA" != "$EXPECTED_STATE_AFTER" ]' in merge_block
+    assert '"$MANIFEST_STATE_SHA" != "$EXPECTED_STATE_AFTER"' in merge_block
+    assert 'git hash-object -- data/monitor-state.json' in merge_block
+    assert "does not carry exactly the validated generated output" in merge_block
+    assert '[ "$PR_FILES" != "$EXPECTED_FILES" ]' in merge_block
+    assert "--match-head-commit \"$EXPECTED_HEAD\"" in merge_block
+
+    # The PR file listing is compared as "<path> <blob sha>" pairs, so an extra
+    # or substituted blob is a mismatch rather than a shape-only pass.
+    assert '--jq \'.[] | "\\(.filename) \\(.sha)"\'' in merge_block
+    assert "awk 'NF {print $1, $2}'" in merge_block
+
+    # Every mismatch path must both flag for review and stop.
+    for message in (
+        "Missing CAS/generated-output binding",
+        "Maintenance PR base CAS mismatch",
+        "Maintenance PR head moved after creation",
+        "Monitor state changed after CAS validation",
+        "Generated state hashes do not match the validated run",
+        "does not carry exactly the validated generated output",
+        "Default branch advanced to",
+    ):
+        tail = merge_block.split(message, 1)[1].split("fi", 1)[0]
+        assert "flag_for_review" in tail, message
+        assert "exit 2" in tail, message
+
+
 def test_baseline_initialization_requires_manual_approval_and_is_not_in_workflow():
     """The exceptional baseline path cannot be invoked by Actions automation."""
     workflow = (
@@ -2230,40 +2451,97 @@ def test_baseline_initialization_requires_manual_approval_and_is_not_in_workflow
 
 
 def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_only_corruption():
-    """Recovery state must retain all sources and keep primary/backup identical."""
+    """Recovery state must stay complete, self-consistent and byte-identical.
+
+    Deliberately expressed as floors plus internal reconciliation rather than
+    frozen live-source totals: the FINRA archive and the Federal Register
+    accumulate over time, so equality assertions on today's counts would fail
+    the moment a legitimate future run adds a notice. The floors sit just under
+    the recovered Aug-2026 baseline (506 Federal Register entries, 3,616 FINRA
+    entries across 92 listing pages, 3,671 raw rows, 622 aliases) so truncation
+    or regression toward the 332/2-entry incident state still fails closed.
+    """
     primary_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
     backup_path = primary_path.with_name("monitor-state.json.backup")
+    assert primary_path.read_bytes() == backup_path.read_bytes()
+
     primary = json.loads(primary_path.read_text(encoding="utf-8"))
     backup = json.loads(backup_path.read_text(encoding="utf-8"))
-
     assert primary == backup
     assert primary["sources"]["learn"] == backup["sources"]["learn"]
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["entries"]) == 506
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) == 3616
-    assert len(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"]) >= 57
-    assert primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]["last_checked"] >= "2026-08-09"
-    assert primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["last_run"] >= "2026-08-09"
-    finra_coverage = primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["coverage"]
-    assert finra_coverage["raw_row_count"] == 3671
-    assert finra_coverage["detail_count"] == 3616
-    assert finra_coverage["unique_node_count"] == 3616
-    assert len(finra_coverage["duplicate_ledger"]) == 55
-    assert len(finra_coverage["alias_ledger"]) == 622
+
+    # The full fail-closed proof chain must hold on the shipped state.
+    assert regulatory_monitor._validate_regulatory_state(
+        primary,
+        [
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
+            regulatory_monitor.SOURCE_KEY_FINRA,
+        ],
+    ) == []
+
+    federal = primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]
+    federal_coverage = federal["coverage"]
+    assert len(federal["entries"]) >= MIN_FEDERAL_REGISTER_ENTRIES
+    assert federal_coverage["entry_count"] == len(federal["entries"])
+    assert federal_coverage["expected_count"] == federal_coverage["fetched_count"]
+    assert federal["last_checked"] >= RECOVERY_WATERMARK_DATE
+
+    finra = primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    entries = finra["entries"]
+    finra_coverage = finra["coverage"]
+    assert finra["last_run"] >= RECOVERY_WATERMARK_DATE
+    assert len(entries) >= MIN_FINRA_ENTRIES
+    assert finra_coverage["pages_fetched"] >= MIN_FINRA_LISTING_PAGES
+    assert finra_coverage["raw_row_count"] >= MIN_FINRA_RAW_LISTING_ROWS
+
+    # Internal reconciliation replaces frozen totals.
+    assert finra_coverage["entry_count"] == len(entries)
+    assert finra_coverage["detail_count"] == len(entries)
+    assert finra_coverage["unique_node_count"] == finra_coverage["detail_count"]
+    assert finra_coverage["unresolved_row_count"] == 0
+    assert finra_coverage["raw_row_count"] == (
+        finra_coverage["resolved_row_count"]
+        + finra_coverage["unresolved_row_count"]
+    )
+    assert finra_coverage["listing_record_count"] == finra_coverage["resolved_row_count"]
+    assert finra_coverage["pages_fetched"] == finra_coverage["declared_pages"]
+    assert len(finra_coverage["page_numbers"]) == finra_coverage["pages_fetched"]
+    # Every listing row coalesced into a shared node must be ledgered.
+    assert len(finra_coverage["duplicate_ledger"]) >= (
+        finra_coverage["resolved_row_count"] - finra_coverage["unique_node_count"]
+    )
+    assert finra_coverage["conflict_ledger"] == []
+
+    # Proof/count/digest reconciliation, recomputed rather than trusted.
+    assert len(finra_coverage["fetched_entry_identities"]) == finra_coverage["detail_count"]
+    assert finra_coverage["fetched_entry_identity_digest"] == (
+        regulatory_monitor._identity_digest(
+            finra_coverage["fetched_entry_identities"]
+        )
+    )
+    assert finra_coverage["entry_identity_digest"] == regulatory_monitor._identity_digest(
+        sorted(entries)
+    )
+    assert finra_coverage["entries_digest"] == regulatory_monitor._entries_digest(entries)
+    assert set(finra_coverage["fetched_entry_identities"]) == set(entries)
+    for index, proof in enumerate(finra_coverage["pass_proofs"]):
+        assert regulatory_monitor._finra_pass_proof_recomputation_errors(
+            regulatory_monitor.SOURCE_KEY_FINRA, proof, index
+        ) == []
+
+    # Alias ledger: recovered aliases stay ledger-only and hash-bound.
+    alias_ledger = finra_coverage["alias_ledger"]
+    assert len(alias_ledger) >= MIN_FINRA_ALIASES
     assert finra_coverage["alias_ledger_digest"] == regulatory_monitor._alias_ledger_digest(
-        finra_coverage["alias_ledger"]
+        alias_ledger
     )
     assert not (
-        {
-            item["old_identity"] for item in finra_coverage["alias_ledger"]
-        }
-        & set(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"])
+        {item["old_identity"] for item in alias_ledger} & set(entries)
     )
-    assert finra_coverage["pages_fetched"] == 92
-    assert finra_coverage["declared_pages"] == 92
-    assert len(finra_coverage["fetched_entry_identities"]) == finra_coverage["detail_count"]
-    assert finra_coverage["entry_identity_digest"] == regulatory_monitor._identity_digest(
-        sorted(primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"])
-    )
+    for alias in alias_ledger:
+        head, chain_errors = regulatory_monitor._finra_alias_chain_head(alias)
+        assert chain_errors == []
+        assert entries[alias["canonical_identity"]] == head
 
 
 def test_legacy_finra_proof_requires_explicit_recovery_migration():
@@ -2903,6 +3181,95 @@ def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch
     assert state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["fallback_urls"] == {
         canonical: node_url
     }
+
+
+def test_finra_node_transport_fallback_preserves_canonical_identity(monkeypatch):
+    """A node-URL transport fallback must not rewrite an existing notice identity."""
+    canonical = "https://www.finra.org/rules-guidance/notices/26-14"
+    node_url = "https://www.finra.org/node/382806"
+    listing = _finra_listing_page(
+        0, 1, [("/rules-guidance/notices/26-14", "Regulatory Notice 26-14", "2026-07-09")]
+    )
+    detail = _finra_detail_page(
+        "Regulatory Notice 26-14", "2026-07-09", "Updated content."
+    )
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        base_url = _finra_request_base(url)
+        if base_url == regulatory_monitor.FINRA_NOTICES_URL:
+            content, status = listing, 200
+        elif base_url == node_url:
+            content, status = detail, 200
+        else:
+            content, status = "", 429
+        return {
+            "status_code": status,
+            "content": content,
+            "final_url": url,
+            "was_redirected": False,
+            "error": "rate limited" if status == 429 else None,
+            "retry_after": 0,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", lambda _seconds: None)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        fallback_urls={canonical: node_url},
+    )
+
+    assert result.complete is True
+    assert result[0].document_id == "FINRA 26-14"
+    assert result[0].url == canonical
+    assert result.coverage["fetched_entry_identities"] == ["FINRA 26-14"]
+
+    # The existing canonical entry updates in place: no orphaned identity, no
+    # alias migration, and the change is still reported as an update.
+    finra_state = {
+        "entries": {"FINRA 26-14": "sha256:previous"},
+        "coverage": {"alias_ledger": []},
+    }
+    state = {"sources": {regulatory_monitor.SOURCE_KEY_FINRA: finra_state}}
+    new_items = regulatory_monitor.check_for_new_items(
+        regulatory_monitor.SOURCE_KEY_FINRA, list(result), finra_state
+    )
+    assert [item.document_id for item in new_items] == ["FINRA 26-14"]
+
+    regulatory_monitor.update_source_state(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        list(result),
+        state,
+        fallback_urls=result.fallback_urls,
+        coverage=deepcopy(dict(result.coverage)),
+    )
+    persisted = state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    assert set(persisted["entries"]) == {"FINRA 26-14"}
+    assert persisted["entries"]["FINRA 26-14"] != "sha256:previous"
+    assert persisted["coverage"]["alias_ledger"] == []
+    assert persisted["fallback_urls"] == {canonical: node_url}
+
+    # Alias migration stays fail closed: an identity that leaves the complete
+    # crawl without explicit evidence still refuses to persist.
+    orphaned = {
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "entries": {
+                    "FINRA 26-14": "sha256:previous",
+                    "FINRA 26-13": "sha256:orphan",
+                },
+                "coverage": {"alias_ledger": []},
+            }
+        }
+    }
+    with pytest.raises(ValueError, match="lack explicit migration evidence"):
+        regulatory_monitor.update_source_state(
+            regulatory_monitor.SOURCE_KEY_FINRA,
+            list(result),
+            orphaned,
+            fallback_urls=result.fallback_urls,
+            coverage=deepcopy(dict(result.coverage)),
+        )
 
 
 def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
