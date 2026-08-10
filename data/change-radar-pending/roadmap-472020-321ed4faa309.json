@@ -1,17 +1,17 @@
 {
   "change_type": "withdrawn",
-  "content_hash": "sha256:8a1631724feb986e9fdcfbbc9829d07f508e69e1cae76308bfe7621c3166ae42",
+  "content_hash": "sha256:321ed4faa30906f65a18246b6971ea873070eaea461766c7f58bd015f512456b",
   "detected_at": "2026-08-10T08:20:17Z",
   "ga_date": null,
-  "id": 542181,
+  "id": 472020,
   "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
   "preview_date": null,
   "products": [],
   "raw_description": null,
-  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=542181",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=472020",
   "schema_version": 1,
   "source": "roadmap",
   "status": "Withdrawn",
   "suggested_controls": [],
-  "title": "Microsoft Copilot (Microsoft 365): Agent Mode in Excel for GCC"
+  "title": "Microsoft Viva: Copilot Studio agents report in Viva Insights analyst workbench"
 }

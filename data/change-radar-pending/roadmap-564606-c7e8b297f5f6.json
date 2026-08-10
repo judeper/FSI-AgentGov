@@ -1,0 +1,32 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:c7e8b297f5f6a54630262955c09c9dc46a12ba5a23c24ad45c1b6c4c3a118cc2",
+  "detected_at": "2026-08-10T08:20:17Z",
+  "ga_date": "June CY2026",
+  "id": 564606,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "Declarative Agents with Actions enable Microsoft 365 Copilot to take real-world actions by invoking APIs, plugins, and enterprise workflows directly within the chat experience. Using custom actions, declarative agents can call external systems, execute operations, and retrieve or update data, moving beyond Q&A to full task completion. These actions are powered through API plugins, MCP tools, and enterprise connectors, allowing seamless integration with line-of-business applications and services. The Copilot platform dynamically reasons over available actions and selects the appropriate tool to fulfill user intent, enabling multi-step workflows such as creating records, submitting requests, or triggering business processes within a single conversational flow",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=564606",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:connector"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Declarative agents with Actions available in GCC High and DoD"
+}

@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:15a4040080f43cc0f6dd5805ae875aac871bb59f57afd1de5122cb5fb39cb454",
+  "detected_at": "2026-08-10T08:20:17Z",
+  "ga_date": "September CY2026",
+  "id": 568930,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "August CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "The Azure SQL Knowledge Source capability extends the range of enterprise data sources that makers can leverage when building agents in Copilot Studio. This enables organizations to bring business-critical information stored in Azure SQL into their agent experiences using the same knowledge-centric approach that customers already use across other supported knowledge sources. Azure SQL knowledge support represents another step toward a unified knowledge platform strategy, where customers can connect enterprise data sources through a common knowledge framework and leverage those sources consistently across agent experiences. It also strengthens the story for organizations seeking to build grounded, enterprise-ready AI solutions using existing Microsoft data assets.\n",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=568930",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot Studio: SQL server Support in Microsoft Copilot Studio"
+}

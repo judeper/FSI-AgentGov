@@ -1,0 +1,29 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:6951c9db9de7bc80907a5a96670916c1fd5450bd74db0594fbedf336d20c13d5",
+  "detected_at": "2026-08-10T08:20:17Z",
+  "ga_date": "September CY2026",
+  "id": 499898,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2025",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Viva"
+  ],
+  "raw_description": "Agents in Viva Engage communities supports communities by answering questions, facilitating knowledge sharing, citing sources, and scaling expertise.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=499898",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:sharing"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:sharing"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Viva Engage - Agents in communities"
+}

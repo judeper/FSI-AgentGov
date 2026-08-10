@@ -1,0 +1,24 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:02bdcf1f41c2f80815dbd605228a66446b53a1fa94d4a6424fc78c9f88f4e147",
+  "detected_at": "2026-08-10T08:20:17Z",
+  "ga_date": "July CY2026",
+  "id": 564766,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Teams"
+  ],
+  "raw_description": "Admins will be able to manage Teams built-in agents across core Teams experiences, including chats, channels, and meetings, through a dedicated experience in the Teams admin center. From a centralized location, admins can control agents’ availability for users and groups. These agents will be enabled by default for licensed users and managed independently from org-wide Microsoft app settings.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=564766",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.26",
+      "source": "keyword:entra"
+    }
+  ],
+  "title": "Microsoft Teams: Manage Built-in Teams agents in the Teams admin center"
+}

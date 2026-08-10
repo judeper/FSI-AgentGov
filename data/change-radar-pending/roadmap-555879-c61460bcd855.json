@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:c61460bcd85548a13deb3cf51b7e944301dd2c1e2f73dcac031c1928059a2248",
+  "detected_at": "2026-08-10T08:20:17Z",
+  "ga_date": "June CY2026",
+  "id": 555879,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "PowerPoint"
+  ],
+  "raw_description": "When creating a presentation with Copilot in PowerPoint using Agent Mode, you can reference an existing PowerPoint file, so Copilot applies its theme and styles to the new deck, keeping formatting consistent. Updated June 5, 2026: This feature is still in development and will begin rolling out mid-June 2026. We apologize for the inconvenience.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=555879",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Reference an attached PowerPoint deck’s style when creating a new presentation with Agent Mode in PowerPoint"
+}
