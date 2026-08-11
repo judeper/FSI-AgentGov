@@ -35,7 +35,7 @@ def test_federal_register_failures_are_retried_not_accepted():
     federal_headers = [
         item["headers"]
         for item in config["httpHeaders"]
-        if "https://www.federalregister.gov" in item["urls"]
+        if item["urls"] == ["https://www.federalregister.gov"]
     ]
     assert len(federal_headers) == 1
     assert federal_headers[0]["User-Agent"].startswith("Mozilla/5.0")
