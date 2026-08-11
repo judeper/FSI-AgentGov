@@ -227,6 +227,19 @@ def _finra_identity_notice_number(identity: object) -> Optional[str]:
     return match.group(1) if match else None
 
 
+def _finra_alias_source_url(identity: object) -> Optional[str]:
+    """Resolve a legacy identity to the listing URL that produced it."""
+    notice_number = _finra_identity_notice_number(identity)
+    if notice_number:
+        return f"{FINRA_NOTICES_URL}/{notice_number}"
+    if not isinstance(identity, str):
+        return None
+    canonical_url, node_identity = _finra_normalize_detail_link(identity)
+    if canonical_url and node_identity and node_identity.startswith("url:"):
+        return canonical_url
+    return None
+
+
 def _finra_alias_chain_head(alias: dict) -> tuple[Optional[str], list[str]]:
     """Replay an alias content-update chain from its immutable migration hash."""
     errors: list[str] = []
@@ -279,15 +292,18 @@ def _validate_finra_alias_ledger(
     ledger: object,
     entries: dict,
     fetched_entry_identities: list[str],
+    *,
+    fallback_urls: object = None,
 ) -> list[str]:
     """Validate aliases against verifiable state, not self-duplicating evidence.
 
     Every alias must be bound to facts that live outside the alias record: the
-    immutable FINRA notice number both identities denote, and the canonical
-    entry hash currently persisted in ``entries``. Evidence fields that merely
-    repeat one another prove nothing, so an alias may only claim a hash the
-    canonical entry actually carries, reached through an explicit, contiguous
-    content-update chain that starts at the migration hash.
+    immutable FINRA notice number, the canonical entry hash currently persisted
+    in ``entries``, and the independently learned listing-URL -> numeric-node
+    mapping from FINRA's authoritative detail-page shortlink. Evidence fields
+    that merely repeat one another prove nothing, so an alias may only claim a
+    hash the canonical entry actually carries, reached through an explicit,
+    contiguous content-update chain that starts at the migration hash.
     """
     errors = []
     if not isinstance(ledger, list):
@@ -362,6 +378,23 @@ def _validate_finra_alias_ledger(
                 f"{old_identity} -> {canonical_identity}"
             )
 
+        source_url = _finra_alias_source_url(old_identity)
+        observed_node = (
+            _validate_finra_node_url(fallback_urls.get(source_url, ""))
+            if isinstance(fallback_urls, dict) and source_url
+            else None
+        )
+        if observed_node is None:
+            errors.append(
+                "regulatory-finra alias lacks an independent detail-node "
+                f"binding: {old_identity}"
+            )
+        elif observed_node != canonical_identity:
+            errors.append(
+                "regulatory-finra alias target does not match its "
+                f"independent detail-node binding: {old_identity}"
+            )
+
         # Verifiable content binding: replay the recorded migration transition
         # against the persisted canonical entry hash instead of trusting the
         # duplicated evidence fields above.
@@ -408,6 +441,7 @@ def _build_finra_alias_ledger(
     *,
     existing_alias_ledger: Optional[list[dict]] = None,
     legacy_migration_ledger: Optional[list[dict]] = None,
+    fallback_urls: object = None,
 ) -> list[dict]:
     """Migrate legacy duplicate identities to one canonical fetched identity."""
     existing_alias_ledger = list(existing_alias_ledger or [])
@@ -480,6 +514,7 @@ def _build_finra_alias_ledger(
         ledger,
         fetched_entries,
         sorted(fetched_ids),
+        fallback_urls=fallback_urls,
     )
     if errors:
         raise ValueError(errors[0])
@@ -866,6 +901,7 @@ def _validate_source_coverage(
                     alias_ledger,
                     entries,
                     fetched_entry_identities,
+                    fallback_urls=source_state.get("fallback_urls"),
                 )
             )
             if coverage.get("alias_ledger_digest") != _alias_ledger_digest(
@@ -3031,6 +3067,19 @@ def fetch_finra_notices(
                     "unresolved": False,
                 })
         seen_urls = {row["detail_url"] for row in rows if row.get("detail_url")}
+        seen_node_urls = {
+            node_url
+            for listing_url in seen_urls
+            if (
+                node_url := (
+                    _validate_finra_node_url(listing_url)
+                    or _validate_finra_node_url(
+                        resolved_fallback_urls.get(listing_url, "")
+                    )
+                )
+            )
+        }
+        unproven_known_urls = []
         for known_url in sorted(set(known_urls or [])):
             canonical_url, node_identity = _finra_normalize_detail_link(known_url)
             if not canonical_url:
@@ -3038,12 +3087,32 @@ def fetch_finra_notices(
                     error=f"FINRA known refresh URL was unsupported: {known_url}",
                     coverage=listing.get("coverage", {}),
                 )
-            if canonical_url not in seen_urls:
+            known_node_url = (
+                canonical_url
+                if node_identity and node_identity.startswith("node:")
+                else _validate_finra_node_url(
+                    resolved_fallback_urls.get(canonical_url, "")
+                )
+            )
+            represented_by_listing = (
+                canonical_url in seen_urls
+                or (
+                    known_node_url is not None
+                    and known_node_url in seen_node_urls
+                )
+            )
+            if not represented_by_listing:
+                raw_payload = {"known_refresh_url": canonical_url}
                 rows.append({
                     "row_index": -1,
                     "page": None,
-                    "raw_payload": {"known_refresh_url": canonical_url},
-                    "raw_row_digest": compute_hash(canonical_url),
+                    "raw_payload": raw_payload,
+                    "raw_row_digest": compute_hash(json.dumps(
+                        raw_payload,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )),
                     "detail_url": canonical_url,
                     "node_identity": node_identity,
                     "title": "",
@@ -3051,6 +3120,7 @@ def fetch_finra_notices(
                     "unresolved": False,
                 })
                 seen_urls.add(canonical_url)
+                unproven_known_urls.append(canonical_url)
 
         if limit is not None:
             rows = rows[:limit]
@@ -3289,6 +3359,22 @@ def fetch_finra_notices(
         coverage["alias_ledger_digest"] = _alias_ledger_digest(
             coverage["alias_ledger"]
         )
+        if unproven_known_urls:
+            return _incomplete_result(
+                items,
+                error=(
+                    "FINRA known refresh target was absent from both complete "
+                    f"listing proofs: {unproven_known_urls[0]}"
+                ),
+                expected_count=listing.get("coverage", {}).get(
+                    "listing_record_count"
+                ),
+                pages_fetched=listing["pages_fetched"],
+                declared_pages=listing["declared_pages"],
+                cutoff_page=listing["cutoff_page"],
+                fallback_urls=resolved_fallback_urls,
+                coverage=coverage,
+            )
         if limit is not None:
             return _incomplete_result(
                 items,
@@ -3599,6 +3685,20 @@ def update_source_state(
     source_state = get_source_state(state, source_key)
     entries = source_state.get('entries', {})
     fetched_entries = {}
+    finra_fallback_urls = None
+
+    if source_key == SOURCE_KEY_FINRA:
+        persisted_fallbacks = source_state.get('fallback_urls', {})
+        finra_fallback_urls = (
+            dict(persisted_fallbacks)
+            if isinstance(persisted_fallbacks, dict)
+            else {}
+        )
+        if fallback_urls is not None:
+            for canonical_url, node_url in fallback_urls.items():
+                valid_node_url = _validate_finra_node_url(node_url)
+                if valid_node_url:
+                    finra_fallback_urls[canonical_url] = valid_node_url
 
     for item in items:
         entry_key = item.document_id if item.document_id else item.url
@@ -3656,6 +3756,7 @@ def update_source_state(
             fetched_entries,
             existing_alias_ledger=existing_alias_ledger,
             legacy_migration_ledger=legacy_migration_ledger,
+            fallback_urls=finra_fallback_urls,
         )
         coverage["alias_ledger"] = alias_ledger
         coverage["alias_ledger_digest"] = _alias_ledger_digest(alias_ledger)
@@ -3666,15 +3767,12 @@ def update_source_state(
             entries[entry_key] = content_hash
 
     source_state['entries'] = entries
-    if source_key == SOURCE_KEY_FINRA and fallback_urls is not None:
-        persisted_fallbacks = source_state.get('fallback_urls', {})
-        if not isinstance(persisted_fallbacks, dict):
-            persisted_fallbacks = {}
-        for canonical_url, node_url in fallback_urls.items():
-            valid_node_url = _validate_finra_node_url(node_url)
-            if valid_node_url:
-                persisted_fallbacks[canonical_url] = valid_node_url
-        source_state['fallback_urls'] = persisted_fallbacks
+    if (
+        source_key == SOURCE_KEY_FINRA
+        and fallback_urls is not None
+        and finra_fallback_urls is not None
+    ):
+        source_state['fallback_urls'] = finra_fallback_urls
     if source_key == SOURCE_KEY_FINRA and refreshed_urls is not None:
         known_urls = _finra_known_notice_urls(source_state)
         if known_urls:
@@ -4154,6 +4252,11 @@ def main():
                 ),
                 coverage=result.coverage,
             )
+        updated_state_errors = _validate_regulatory_state(state, source_keys)
+        if updated_state_errors:
+            for error in updated_state_errors:
+                logger.error("Updated regulatory monitor state invalid: %s", error)
+            sys.exit(2)
     else:
         # The dry-run path exits before fetching, but keep this guard explicit
         # if a caller exercises main with a patched source in the future.

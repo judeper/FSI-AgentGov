@@ -302,20 +302,21 @@ separate read-only job (`contents: read`, `persist-credentials: false`) and
 execute only `--dry-run`; they never receive the App/write token. The
 mutating job checks out the trusted default branch with credentials persistence
 disabled, and only requests the App token after monitor success and CAS
-validation. Before creating or auto-merging a state PR, the workflow
-revalidates the captured default-branch commit and state-file SHA; a changed
-base fails closed. The CAS step additionally publishes a manifest of every
-mutated path with both its git blob SHA and its sha256 content hash, and the
-auto-merge gate consumes that manifest together with `state_sha_after`, the
-exact created head (`--match-head-commit`), and a live re-read of the default
-branch tip taken immediately before and after auto-merge is enabled. A PR that
-does not carry exactly the validated blobs, an unexpected generated file, a
-moved head, or an advanced default branch all fail closed to `needs-review`.
-Successful runs may change only
+validation. Before creating a state PR, the workflow revalidates the captured
+default-branch commit and state-file SHA; a changed base fails closed. The CAS
+step publishes a manifest of every mutated path with both its git blob SHA and
+its sha256 content hash. After PR creation, the workflow reads the immutable PR
+head through the GitHub API, verifies every manifested blob and the exact file
+set, and fails to `needs-review` if any binding is missing or changed.
+
+The privileged workflow deliberately stops at that verified PR. It does not
+merge or enable auto-merge because no available merge primitive atomically
+binds both the validated base and head. The existing external guarded sweep or
+a human performs the final up-to-date merge gate. `REGULATORY_STATE_AUTOMERGE`
+does not authorize merging; it only gates consolidation of older,
+non-`needs-review` monitor PRs. Successful runs may change only
 `data/monitor-state.json`, its atomic backup, or a regenerated regulatory
-report. Exit-0 state-only PRs are clearly identified and may use the existing
-kill-switch-gated, file-allowlisted auto-merge path; CRITICAL/HIGH findings
-remain human-reviewable.
+report.
 
 Scheduled mutation also requires both regulatory source sections to be valid
 objects with an entries map and a parseable `last_run`. Missing or corrupt
@@ -338,14 +339,18 @@ separate one-to-one alias ledger containing source-hash evidence; aliases do
 not count as persisted entries or coverage. Every alias target must remain a
 fetched canonical identity, and stale, cyclic, conflicting, or unverified
 identities fail closed. Aliases are additionally bound to facts outside the
-alias record: a migration may never move between two different FINRA notice
-numbers, and the alias must reach the hash the canonical entry actually carries
-through an explicit, contiguous, append-only content-update chain starting at
-its immutable migration hash — so recomputing the ledger digest cannot launder a
-redirected alias. When a canonical detail fetch is rate-limited and a
-`/node/<id>` URL is used as a transport fallback, the notice keeps its
-listing/canonical identity rather than adopting the transport URL. Recovery may
-admit a legacy proof only through the
+alias record: the legacy listing identity must map through the independently
+learned detail-page shortlink to that exact numeric canonical node, a migration
+may never move between two different FINRA notice numbers, and the alias must
+reach the hash the canonical entry actually carries through an explicit,
+contiguous, append-only content-update chain. Swapping aliases and recomputing
+their hashes or aggregate digest therefore fails validation. When a canonical
+detail fetch is rate-limited and a `/node/<id>` URL is used as a transport
+fallback, the notice keeps its listing/canonical identity rather than adopting
+the transport URL. A known refresh target absent from both complete listing
+passes makes the run incomplete; after all in-memory updates, the complete
+regulatory state is validated again before any report or state save. Recovery
+may admit a legacy proof only through the
 explicitly approved local recovery mode, which rewrites the proof from a
 successful complete crawl.
 

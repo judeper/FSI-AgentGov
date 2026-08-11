@@ -139,21 +139,28 @@ def _synthetic_pass_proofs(identities):
 def test_finra_alias_migration_removes_duplicate_entries_and_requires_evidence():
     """Legacy aliases are ledger-only and cannot be inferred from a partial refresh."""
     source_hash = "sha256:legacy"
+    old_identity = "FINRA 26-01"
+    canonical_identity = "https://www.finra.org/node/382801"
+    fallback_urls = {
+        "https://www.finra.org/rules-guidance/notices/26-01": canonical_identity,
+    }
     migrated = regulatory_monitor._build_finra_alias_ledger(
-        {"legacy notice": source_hash},
-        {"node-123": source_hash},
+        {old_identity: source_hash},
+        {canonical_identity: source_hash},
         legacy_migration_ledger=[
-            {"identity": "legacy notice", "reason": "verified duplicate"},
+            {"identity": old_identity, "reason": "verified duplicate"},
         ],
+        fallback_urls=fallback_urls,
     )
-    assert migrated[0]["old_identity"] == "legacy notice"
-    assert migrated[0]["canonical_identity"] == "node-123"
+    assert migrated[0]["old_identity"] == old_identity
+    assert migrated[0]["canonical_identity"] == canonical_identity
     assert migrated[0]["source_hash"] == source_hash
     assert migrated[0]["evidence"]["reason"] == "verified duplicate"
     with pytest.raises(ValueError, match="lack explicit migration evidence"):
         regulatory_monitor._build_finra_alias_ledger(
-            {"legacy notice": source_hash},
-            {"node-123": source_hash},
+            {old_identity: source_hash},
+            {canonical_identity: source_hash},
+            fallback_urls=fallback_urls,
         )
 
 
@@ -161,17 +168,28 @@ def test_finra_alias_survives_canonical_content_update_with_recorded_transition(
     """A later canonical update must be recorded, not silently absorbed."""
     old_hash = "sha256:old"
     new_hash = "sha256:new"
-    ledger = [_alias("legacy notice", "node-123", old_hash)]
-    unchanged_entries = {"node-123": old_hash}
-    updated_entries = {"node-123": new_hash}
+    old_identity = "FINRA 26-01"
+    canonical_identity = "https://www.finra.org/node/382801"
+    fallback_urls = {
+        "https://www.finra.org/rules-guidance/notices/26-01": canonical_identity,
+    }
+    ledger = [_alias(old_identity, canonical_identity, old_hash)]
+    unchanged_entries = {canonical_identity: old_hash}
+    updated_entries = {canonical_identity: new_hash}
 
     assert regulatory_monitor._validate_finra_alias_ledger(
-        ledger, unchanged_entries, ["node-123"]
+        ledger,
+        unchanged_entries,
+        [canonical_identity],
+        fallback_urls=fallback_urls,
     ) == []
 
     # An unrecorded canonical content change breaks the alias binding.
     stale_errors = regulatory_monitor._validate_finra_alias_ledger(
-        ledger, updated_entries, ["node-123"]
+        ledger,
+        updated_entries,
+        [canonical_identity],
+        fallback_urls=fallback_urls,
     )
     assert any(
         "not bound to its canonical entry hash" in error for error in stale_errors
@@ -179,27 +197,32 @@ def test_finra_alias_survives_canonical_content_update_with_recorded_transition(
 
     source_state = {"coverage": {"alias_ledger": ledger}}
     assert regulatory_monitor._resolve_finra_identity(
-        source_state, "legacy notice"
-    ) == "node-123"
+        source_state, old_identity
+    ) == canonical_identity
 
     rebuilt = regulatory_monitor._build_finra_alias_ledger(
         updated_entries,
         updated_entries,
         existing_alias_ledger=ledger,
+        fallback_urls=fallback_urls,
     )
     assert rebuilt[0]["source_hash"] == old_hash
     assert rebuilt[0]["evidence"]["content_updates"] == [
         {"from": old_hash, "to": new_hash},
     ]
     assert regulatory_monitor._validate_finra_alias_ledger(
-        rebuilt, updated_entries, ["node-123"]
+        rebuilt,
+        updated_entries,
+        [canonical_identity],
+        fallback_urls=fallback_urls,
     ) == []
-    assert "legacy notice" not in updated_entries
+    assert old_identity not in updated_entries
     # The recorded transition is append-only and stable across reruns.
     assert regulatory_monitor._build_finra_alias_ledger(
         updated_entries,
         updated_entries,
         existing_alias_ledger=rebuilt,
+        fallback_urls=fallback_urls,
     ) == rebuilt
 
 
@@ -311,16 +334,8 @@ def _load_shipped_finra_source_state():
     return deepcopy(state["sources"][regulatory_monitor.SOURCE_KEY_FINRA])
 
 
-def test_finra_alias_redirect_with_recomputed_evidence_rejected_by_coverage_binding():
-    """A fully self-consistent alias repoint is caught by the pass-proof binding.
-
-    Blocker 5: source_hash and every evidence field are self-supplied and a node
-    target carries no derivable notice number, so the local alias-ledger
-    validator can be fully satisfied by recomputing the evidence AND the ledger
-    digest to agree with a forged target. The independent anchor is the retained
-    listing rows: the original canonical is reachable ONLY through this alias, so
-    repointing it drops that canonical out of the reconstructed fetched set.
-    """
+def test_finra_alias_redirect_with_recomputed_evidence_rejected_by_node_binding():
+    """A self-consistent alias repoint still fails its independent node binding."""
     source_state = _load_shipped_finra_source_state()
     assert regulatory_monitor._validate_source_coverage(
         regulatory_monitor.SOURCE_KEY_FINRA, source_state
@@ -357,20 +372,72 @@ def test_finra_alias_redirect_with_recomputed_evidence_rejected_by_coverage_bind
         forged["coverage"]["alias_ledger"]
     )
 
-    # The isolated alias-ledger validator is fully satisfied by the recomputed
-    # evidence -- this is exactly the residual self-attestation gap.
-    assert regulatory_monitor._validate_finra_alias_ledger(
+    alias_errors = regulatory_monitor._validate_finra_alias_ledger(
         forged["coverage"]["alias_ledger"],
         forged["entries"],
         forged["coverage"]["fetched_entry_identities"],
-    ) == []
+        fallback_urls=forged["fallback_urls"],
+    )
+    assert any(
+        "independent detail-node binding" in error for error in alias_errors
+    )
 
-    # ...but full coverage validation rejects it: the original canonical, which
-    # only the redirected alias reached, no longer reconstructs from the rows.
     errors = regulatory_monitor._validate_source_coverage(
         regulatory_monitor.SOURCE_KEY_FINRA, forged
     )
     assert any(
+        "independent detail-node binding" in error for error in errors
+    )
+    assert any(
+        "do not reconstruct the fetched entry identities" in error
+        for error in errors
+    )
+
+
+def test_finra_swapped_aliases_fail_independent_detail_node_binding():
+    """Swapping two aliases cannot preserve validity by rebinding hashes."""
+    source_state = _load_shipped_finra_source_state()
+    forged = deepcopy(source_state)
+    first, second = forged["coverage"]["alias_ledger"][:2]
+    first_target = first["canonical_identity"]
+    second_target = second["canonical_identity"]
+    first["canonical_identity"] = second_target
+    second["canonical_identity"] = first_target
+
+    for alias in (first, second):
+        target_hash = forged["entries"][alias["canonical_identity"]]
+        alias["source_hash"] = target_hash
+        alias["evidence"] = {
+            "source_hash_at_migration": target_hash,
+            "canonical_hash_at_migration": target_hash,
+            "reason": "forged alias swap with rebound self-attestation",
+        }
+    forged["coverage"]["alias_ledger_digest"] = (
+        regulatory_monitor._alias_ledger_digest(
+            forged["coverage"]["alias_ledger"]
+        )
+    )
+
+    # The target set and every alias-local hash/digest still reconcile, but
+    # each legacy identity remains bound to the node learned from its detail.
+    alias_errors = regulatory_monitor._validate_finra_alias_ledger(
+        forged["coverage"]["alias_ledger"],
+        forged["entries"],
+        forged["coverage"]["fetched_entry_identities"],
+        fallback_urls=forged["fallback_urls"],
+    )
+    assert any(
+        "independent detail-node binding" in error for error in alias_errors
+    )
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+    assert any(
+        "independent detail-node binding" in error for error in errors
+    )
+    assert not any(
         "do not reconstruct the fetched entry identities" in error
         for error in errors
     )
@@ -599,16 +666,6 @@ def test_save_state_atomic_arg_order(monkeypatch):
     # Capture the save call instead of writing to disk.
     monkeypatch.setattr(regulatory_monitor, 'save_state_atomic', fake_save)
 
-    # Stub network fetches so no items are "new" -> no-changes branch, which
-    # still performs a real save_state_atomic call.
-    monkeypatch.setattr(
-        regulatory_monitor, 'fetch_federal_register_documents',
-        lambda *a, **k: [],
-    )
-    monkeypatch.setattr(
-        regulatory_monitor, 'fetch_finra_notices',
-        lambda *a, **k: [],
-    )
     run_state = {
         "version": 1,
         "sources": {
@@ -700,6 +757,34 @@ def test_save_state_atomic_arg_order(monkeypatch):
             },
         },
     }
+    # Stub complete, proof-carrying source results so the no-changes path
+    # reaches the real save after post-update state validation.
+    monkeypatch.setattr(
+        regulatory_monitor,
+        'fetch_federal_register_documents',
+        lambda *a, **k: regulatory_monitor.FetchResult(
+            [],
+            complete=True,
+            coverage=deepcopy(
+                run_state["sources"][
+                    regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER
+                ]["coverage"]
+            ),
+        ),
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        'fetch_finra_notices',
+        lambda *a, **k: regulatory_monitor.FetchResult(
+            [],
+            complete=True,
+            coverage=deepcopy(
+                run_state["sources"][
+                    regulatory_monitor.SOURCE_KEY_FINRA
+                ]["coverage"]
+            ),
+        ),
+    )
     monkeypatch.setattr(regulatory_monitor, "load_state", lambda *a, **k: run_state)
 
     # Run the real (non --dry-run) code path.
@@ -899,7 +984,13 @@ def test_first_run_establishes_baseline_without_reporting(monkeypatch):
         _make_item("CFTC Rule B", "fr-2", agency="CFTC"),
     ]
     finra_items = [
-        _make_item("FINRA Notice 26-01", "finra-1", source="FINRA", agency="FINRA"),
+        _make_item(
+            "FINRA Notice 26-01",
+            "FINRA 26-01",
+            source="FINRA",
+            agency="FINRA",
+            url="https://www.finra.org/rules-guidance/notices/26-01",
+        ),
     ]
 
     # Empty unified state => no prior state for either source.
@@ -921,7 +1012,9 @@ def test_first_run_establishes_baseline_without_reporting(monkeypatch):
     assert fed_state.get('last_run'), "fed baseline last_run must be recorded"
     assert set(fed_state['entries']) == {'fr-1', 'fr-2'}, "fed baseline entries persisted"
     assert finra_state.get('last_run'), "finra baseline last_run must be recorded"
-    assert set(finra_state['entries']) == {'finra-1'}, "finra baseline entries persisted"
+    assert set(finra_state['entries']) == {'FINRA 26-01'}, (
+        "finra baseline entries persisted"
+    )
 
 
 def test_missing_regulatory_state_fails_before_fetch_or_write(monkeypatch):
@@ -3054,8 +3147,8 @@ def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
     assert zero.declared_pages == 0
 
 
-def test_finra_refreshes_known_notice_outside_listing_window(monkeypatch):
-    """Known old notices are detailed every run even when cutoff pagination omits them."""
+def test_finra_known_notice_outside_listing_proof_fails_closed(monkeypatch):
+    """A detail refresh absent from both listing proofs cannot advance state."""
     listing = _finra_listing_page(
         0, 1, [("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")]
     )
@@ -3089,9 +3182,129 @@ def test_finra_refreshes_known_notice_outside_listing_window(monkeypatch):
         known_urls=["https://www.finra.org/rules-guidance/notices/26-14"],
     )
 
-    assert result.complete is True
+    assert result.complete is False
     assert {item.document_id for item in result} == {"FINRA 26-15", "FINRA 26-14"}
     assert "https://www.finra.org/rules-guidance/notices/26-14" in requested
+    assert "absent from both complete listing proofs" in result.error
+
+
+def test_finra_known_node_refresh_uses_independent_listing_binding(monkeypatch):
+    """A known node is proof-bound when its listing URL maps to that node."""
+    listing_url = "https://www.finra.org/rules-guidance/notices/26-14"
+    node_url = "https://www.finra.org/node/382806"
+    listing = _finra_listing_page(
+        0, 1, [("/rules-guidance/notices/26-14", "Regulatory Notice 26-14", "2026-07-09")]
+    )
+    detail = _finra_detail_page(
+        "Current notice", "2026-07-09", "Current summary."
+    ).replace(
+        "</body>", '<link rel="shortlink" href="/node/382806"></body>'
+    )
+    requested = []
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        requested.append(url)
+        base_url = _finra_request_base(url)
+        is_listing = base_url == regulatory_monitor.FINRA_NOTICES_URL
+        return {
+            "status_code": 200,
+            "content": listing if is_listing else detail,
+            "final_url": url if is_listing else node_url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        known_urls=[node_url],
+        fallback_urls={listing_url: node_url},
+    )
+
+    assert result.complete is True
+    assert [item.document_id for item in result] == [node_url]
+    assert node_url not in requested
+
+
+def test_main_rejects_detail_state_not_reconstructable_from_listing_proofs(
+    monkeypatch,
+):
+    """A falsely complete known refresh cannot report or save invalid state."""
+    listed = _make_item(
+        "FINRA Notice 26-15",
+        "FINRA 26-15",
+        source="FINRA",
+        agency="FINRA",
+        url="https://www.finra.org/rules-guidance/notices/26-15",
+    )
+    outside_listing = _make_item(
+        "FINRA Notice 26-14",
+        "FINRA 26-14",
+        source="FINRA",
+        agency="FINRA",
+        url="https://www.finra.org/rules-guidance/notices/26-14",
+    )
+    fetched_identities = ["FINRA 26-14", "FINRA 26-15"]
+    divergent = regulatory_monitor.FetchResult(
+        [listed, outside_listing],
+        complete=True,
+        coverage={
+            "complete": True,
+            "listing_mode": "complete-unfiltered",
+            "listing_url": regulatory_monitor.FINRA_NOTICES_URL,
+            "listing_record_count": 1,
+            "pages_fetched": 1,
+            "declared_pages": 1,
+            "detail_count": 2,
+            "page_numbers": [0],
+            "page_identities": [
+                {"requested": 0, "final": 0, "active": 0},
+            ],
+            "fetched_entry_identities": fetched_identities,
+            "fetched_entry_identity_digest": (
+                regulatory_monitor._identity_digest(fetched_identities)
+            ),
+            "entry_identity_digest": (
+                regulatory_monitor._identity_digest(fetched_identities)
+            ),
+            "alias_ledger": [],
+            "alias_ledger_digest": (
+                regulatory_monitor._alias_ledger_digest([])
+            ),
+            "raw_row_count": 1,
+            "resolved_row_count": 1,
+            "unresolved_row_count": 0,
+            "unique_node_count": 1,
+            "pass_proofs": _synthetic_pass_proofs(["FINRA 26-15"]),
+            "duplicate_ledger": [],
+            "conflict_ledger": [],
+        },
+    )
+    state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-08-01T00:00:00+00:00",
+                "entries": {
+                    outside_listing.document_id: _item_hash(outside_listing),
+                },
+                "refresh_cursor": 0,
+            },
+        },
+    }
+
+    code, saved_state, report_items = _run_main(
+        monkeypatch,
+        state=state,
+        fed_items=[],
+        finra_items=divergent,
+        args=["--source", "finra"],
+    )
+
+    assert code == 2
+    assert saved_state is None
+    assert report_items is None
 
 
 def test_finra_known_refresh_is_bounded_and_resumable():
@@ -3589,6 +3802,9 @@ def test_finra_fallback_identity_resolves_through_existing_alias_ledger():
     alias = _alias("FINRA 00-01", canonical_identity, canonical_hash)
     finra_state = {
         "entries": {canonical_identity: canonical_hash},
+        "fallback_urls": {
+            "https://www.finra.org/rules-guidance/notices/00-01": canonical_identity,
+        },
         "coverage": {"alias_ledger": [alias]},
     }
     state = {"sources": {regulatory_monitor.SOURCE_KEY_FINRA: finra_state}}
