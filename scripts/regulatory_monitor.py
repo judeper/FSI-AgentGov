@@ -1310,7 +1310,16 @@ def fetch_federal_register_documents(
         'conditions[publication_date][gte]': since_date,
         'per_page': 100,  # API max is 1000
         'order': 'newest',
-        'fields[]': ['document_number', 'title', 'abstract', 'publication_date', 'type', 'html_url', 'agencies'],
+        'fields[]': [
+            'document_number',
+            'title',
+            'abstract',
+            'publication_date',
+            'type',
+            'html_url',
+            'raw_text_url',
+            'agencies',
+        ],
     }
 
     if limit is not None and limit < 0:
@@ -1508,7 +1517,11 @@ def fetch_federal_register_documents(
                     source='Federal Register',
                     agency=agency_short,
                     title=title,
-                    url=doc.get('html_url') or '',
+                    # The Federal Register HTML frontend intermittently returns
+                    # 5xx responses under link-check concurrency. The official
+                    # plain-text document is stable, human-readable, and still
+                    # bound to the same immutable document number.
+                    url=doc.get('raw_text_url') or doc.get('html_url') or '',
                     publication_date=doc.get('publication_date') or '',
                     doc_type=doc.get('type') or '',
                     abstract=abstract,

@@ -1383,6 +1383,10 @@ def _federal_doc(document_id):
         "publication_date": "2026-08-01",
         "type": "NOTICE",
         "html_url": f"https://www.federalregister.gov/{document_id}",
+        "raw_text_url": (
+            "https://www.federalregister.gov/documents/full_text/text/"
+            f"2026/08/01/{document_id}.txt"
+        ),
         "agencies": [{"slug": "securities-and-exchange-commission", "name": "SEC"}],
     }
 
@@ -1418,6 +1422,8 @@ def test_federal_register_fetches_and_validates_all_pages():
     assert result.expected_count == 3
     assert result.pages_fetched == 2
     assert [item.document_id for item in result] == ["fr-1", "fr-2", "fr-3"]
+    assert result[0].url.endswith("/2026/08/01/fr-1.txt")
+    assert "raw_text_url" in session.calls[0][1]["params"]["fields[]"]
     assert len(session.calls) == 2
 
 
