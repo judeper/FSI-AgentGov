@@ -339,18 +339,23 @@ separate one-to-one alias ledger containing source-hash evidence; aliases do
 not count as persisted entries or coverage. Every alias target must remain a
 fetched canonical identity, and stale, cyclic, conflicting, or unverified
 identities fail closed. Aliases are additionally bound to facts outside the
-alias record: the legacy listing identity must map through the independently
-learned detail-page shortlink to that exact numeric canonical node, a migration
-may never move between two different FINRA notice numbers, and the alias must
-reach the hash the canonical entry actually carries through an explicit,
-contiguous, append-only content-update chain. Swapping aliases and recomputing
-their hashes or aggregate digest therefore fails validation. When a canonical
-detail fetch is rate-limited and a `/node/<id>` URL is used as a transport
-fallback, the notice keeps its listing/canonical identity rather than adopting
-the transport URL. A known refresh target absent from both complete listing
-passes makes the run incomplete; after all in-memory updates, the complete
-regulatory state is validated again before any report or state save. Recovery
-may admit a legacy proof only through the
+alias record. Each legacy identity requires a retained raw detail-page identity
+envelope whose canonical link, numeric-node shortlink, `page-node-*` body class,
+and authoritative node title agree, and whose canonical URL occurs in both
+listing proofs. The complete derived alias-binding set must also match the
+reviewed code-held recovery anchor, which a state-only monitor run cannot
+rewrite. The mutable `fallback_urls` transport cache is never accepted as alias
+evidence. A migration may never move between two different FINRA
+notice numbers, and the alias must reach the hash the canonical entry actually
+carries through an explicit, contiguous, append-only content-update chain.
+Swapping aliases, fallback mappings, shortlinks, hashes, or aggregate digests
+without rewriting the retained source envelope therefore fails validation.
+When a canonical detail fetch is rate-limited and a `/node/<id>` URL is used as
+a transport fallback, the notice keeps its listing/canonical identity rather
+than adopting the transport URL. A known refresh target absent from both
+complete listing passes makes the run incomplete; after all in-memory updates,
+the complete regulatory state is validated again before any report or state
+save. Recovery may admit a legacy proof only through the
 explicitly approved local recovery mode, which rewrites the proof from a
 successful complete crawl.
 

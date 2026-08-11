@@ -93,6 +93,13 @@ FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
 FINRA_CACHE_BUST_PARAM = "_finra_pass"
+# State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
+# alias migration requires a separate code review that adds a new anchor.
+FINRA_DETAIL_IDENTITY_ANCHORS = {
+    "recovery-2026-08-09-v1": (
+        "sha256:4942b9dd838d4e893a1c07ecb140b70de96db7d57f5842e066e95a39195f1c89"
+    ),
+}
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -240,6 +247,188 @@ def _finra_alias_source_url(identity: object) -> Optional[str]:
     return None
 
 
+def _finra_detail_identity_proof_digest(proofs: list[str]) -> str:
+    """Compute a stable digest over retained raw detail identity envelopes."""
+    return compute_hash(json.dumps(
+        sorted(proofs),
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ))
+
+
+def _finra_detail_identity_binding_digest(bindings: dict[str, str]) -> str:
+    """Compute a stable digest over canonical notice -> numeric node bindings."""
+    return compute_hash(json.dumps(
+        sorted(bindings.items()),
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ))
+
+
+def _finra_detail_identity_from_proof(
+    proof: object,
+) -> Optional[tuple[str, str]]:
+    """Derive one canonical notice -> node binding from retained page evidence."""
+    if not isinstance(proof, str) or not proof:
+        return None
+    soup = BeautifulSoup(proof, "html.parser")
+    canonical_links = soup.select('link[rel="canonical"][href]')
+    shortlinks = soup.select('link[rel="shortlink"][href]')
+    bodies = soup.find_all("body")
+    titles = soup.select("#node-title")
+    if not (
+        len(canonical_links) == 1
+        and len(shortlinks) == 1
+        and len(bodies) == 1
+        and len(titles) == 1
+    ):
+        return None
+
+    canonical_url, canonical_identity = _finra_normalize_detail_link(
+        canonical_links[0].get("href", "")
+    )
+    node_url = _validate_finra_node_url(shortlinks[0].get("href", ""))
+    notice_number = _finra_identity_notice_number(canonical_url)
+    if (
+        canonical_url is None
+        or canonical_identity is None
+        or not canonical_identity.startswith("url:")
+        or node_url is None
+    ):
+        return None
+
+    node_id = urlparse(node_url).path.rsplit("/", 1)[-1]
+    body_node_ids = {
+        match.group(1)
+        for css_class in bodies[0].get("class", [])
+        if (
+            match := re.fullmatch(r"page-node-(\d+)", str(css_class))
+        )
+    }
+    title_text = titles[0].get_text(" ", strip=True)
+    title_numbers = set(re.findall(
+        r"(?<!\d)(\d{2}-\d{2})(?!\d)",
+        title_text,
+    ))
+    if body_node_ids != {node_id} or not title_text:
+        return None
+    if notice_number is not None and title_numbers != {notice_number}:
+        return None
+    return canonical_url, node_url
+
+
+def _capture_finra_detail_identity_proof(
+    soup: BeautifulSoup,
+) -> Optional[str]:
+    """Retain the raw, redundant identity-bearing fragments of a detail page."""
+    canonical_links = soup.select('link[rel="canonical"][href]')
+    shortlinks = soup.select('link[rel="shortlink"][href]')
+    title = soup.select_one("#node-title")
+    body = soup.body
+    if (
+        len(canonical_links) != 1
+        or len(shortlinks) != 1
+        or title is None
+        or body is None
+    ):
+        return None
+
+    body_marker = deepcopy(body)
+    body_marker.clear()
+    proof = "\n".join((
+        str(canonical_links[0]),
+        str(shortlinks[0]),
+        str(body_marker),
+        str(title),
+    ))
+    return proof if _finra_detail_identity_from_proof(proof) else None
+
+
+def _validate_finra_detail_identity_proofs(
+    proofs: object,
+    *,
+    retained_detail_urls: object = None,
+) -> tuple[dict[str, str], list[str]]:
+    """Validate raw detail evidence and derive its intrinsic identity bindings."""
+    errors: list[str] = []
+    bindings: dict[str, str] = {}
+    node_sources: dict[str, str] = {}
+    if not isinstance(proofs, list):
+        return {}, ["regulatory-finra detail identity proofs are invalid"]
+
+    retained = (
+        set(retained_detail_urls)
+        if isinstance(retained_detail_urls, (set, list, tuple))
+        else None
+    )
+    for index, proof in enumerate(proofs):
+        binding = _finra_detail_identity_from_proof(proof)
+        if binding is None:
+            errors.append(
+                "regulatory-finra retained detail-page evidence is malformed "
+                f"at index {index}"
+            )
+            continue
+        source_url, node_url = binding
+        if source_url in bindings:
+            errors.append(
+                "regulatory-finra retained detail-page evidence has a "
+                f"duplicate canonical URL: {source_url}"
+            )
+            continue
+        if node_url in node_sources:
+            errors.append(
+                "regulatory-finra retained detail-page evidence violates "
+                f"one-to-one node identity: {node_url}"
+            )
+            continue
+        if retained is not None and source_url not in retained:
+            errors.append(
+                "regulatory-finra retained detail-page evidence is not bound "
+                f"to both listing proofs: {source_url}"
+            )
+        bindings[source_url] = node_url
+        node_sources[node_url] = source_url
+    return bindings, errors
+
+
+def _merge_finra_detail_identity_proofs(
+    existing_proofs: object,
+    current_proofs: object,
+    *,
+    retained_detail_urls: object,
+) -> list[str]:
+    """Preserve prior raw envelopes and append only newly observed identities."""
+    existing_bindings, existing_errors = _validate_finra_detail_identity_proofs(
+        existing_proofs,
+        retained_detail_urls=retained_detail_urls,
+    )
+    current_bindings, current_errors = _validate_finra_detail_identity_proofs(
+        current_proofs,
+        retained_detail_urls=retained_detail_urls,
+    )
+    errors = [*existing_errors, *current_errors]
+    if errors:
+        raise ValueError(errors[0])
+
+    for source_url, node_url in existing_bindings.items():
+        current_node = current_bindings.get(source_url)
+        if current_node is not None and current_node != node_url:
+            raise ValueError(
+                "FINRA retained detail-page identity changed for "
+                f"{source_url}: {node_url} -> {current_node}"
+            )
+
+    proof_by_source: dict[str, str] = {}
+    for proof in existing_proofs:
+        source_url, _ = _finra_detail_identity_from_proof(proof)
+        proof_by_source[source_url] = proof
+    for proof in current_proofs:
+        source_url, _ = _finra_detail_identity_from_proof(proof)
+        proof_by_source.setdefault(source_url, proof)
+    return [proof_by_source[url] for url in sorted(proof_by_source)]
+
+
 def _finra_alias_chain_head(alias: dict) -> tuple[Optional[str], list[str]]:
     """Replay an alias content-update chain from its immutable migration hash."""
     errors: list[str] = []
@@ -293,25 +482,34 @@ def _validate_finra_alias_ledger(
     entries: dict,
     fetched_entry_identities: list[str],
     *,
-    fallback_urls: object = None,
+    detail_identity_proofs: object = None,
+    retained_detail_urls: object = None,
+    immutable_binding_digest: Optional[str] = None,
 ) -> list[str]:
     """Validate aliases against verifiable state, not self-duplicating evidence.
 
     Every alias must be bound to facts that live outside the alias record: the
     immutable FINRA notice number, the canonical entry hash currently persisted
-    in ``entries``, and the independently learned listing-URL -> numeric-node
-    mapping from FINRA's authoritative detail-page shortlink. Evidence fields
-    that merely repeat one another prove nothing, so an alias may only claim a
-    hash the canonical entry actually carries, reached through an explicit,
+    in ``entries``, and a retained raw detail-page envelope whose canonical
+    link, shortlink, body node class, and node title agree. Evidence fields that
+    merely repeat one another prove nothing, so an alias may only claim a hash
+    the canonical entry actually carries, reached through an explicit,
     contiguous content-update chain that starts at the migration hash.
     """
     errors = []
     if not isinstance(ledger, list):
         return ["regulatory-finra alias ledger is invalid"]
 
+    detail_bindings, detail_errors = _validate_finra_detail_identity_proofs(
+        detail_identity_proofs,
+        retained_detail_urls=retained_detail_urls,
+    )
+    errors.extend(detail_errors)
     fetched = set(fetched_entry_identities)
     old_identities = set()
     canonical_identities = set()
+    alias_source_urls: set[str] = set()
+    alias_detail_bindings: dict[str, str] = {}
     for item in ledger:
         if not isinstance(item, dict):
             errors.append("regulatory-finra alias ledger contains a malformed item")
@@ -379,21 +577,21 @@ def _validate_finra_alias_ledger(
             )
 
         source_url = _finra_alias_source_url(old_identity)
-        observed_node = (
-            _validate_finra_node_url(fallback_urls.get(source_url, ""))
-            if isinstance(fallback_urls, dict) and source_url
-            else None
-        )
+        if source_url:
+            alias_source_urls.add(source_url)
+        observed_node = detail_bindings.get(source_url)
         if observed_node is None:
             errors.append(
-                "regulatory-finra alias lacks an independent detail-node "
+                "regulatory-finra alias lacks immutable detail-page "
                 f"binding: {old_identity}"
             )
         elif observed_node != canonical_identity:
             errors.append(
                 "regulatory-finra alias target does not match its "
-                f"independent detail-node binding: {old_identity}"
+                f"immutable detail-page binding: {old_identity}"
             )
+        if source_url and observed_node:
+            alias_detail_bindings[source_url] = observed_node
 
         # Verifiable content binding: replay the recorded migration transition
         # against the persisted canonical entry hash instead of trusting the
@@ -409,6 +607,23 @@ def _validate_finra_alias_ledger(
 
     if old_identities & canonical_identities:
         errors.append("regulatory-finra alias ledger contains a cycle")
+    if set(detail_bindings) != alias_source_urls:
+        errors.append(
+            "regulatory-finra retained detail-page evidence does not exactly "
+            "cover the alias ledger"
+        )
+    if ledger:
+        if not isinstance(immutable_binding_digest, str):
+            errors.append(
+                "regulatory-finra alias ledger lacks an immutable binding anchor"
+            )
+        elif _finra_detail_identity_binding_digest(
+            alias_detail_bindings
+        ) != immutable_binding_digest:
+            errors.append(
+                "regulatory-finra retained detail-page bindings do not match "
+                "the immutable recovery anchor"
+            )
     return errors
 
 
@@ -441,7 +656,9 @@ def _build_finra_alias_ledger(
     *,
     existing_alias_ledger: Optional[list[dict]] = None,
     legacy_migration_ledger: Optional[list[dict]] = None,
-    fallback_urls: object = None,
+    detail_identity_proofs: object = None,
+    retained_detail_urls: object = None,
+    immutable_binding_digest: Optional[str] = None,
 ) -> list[dict]:
     """Migrate legacy duplicate identities to one canonical fetched identity."""
     existing_alias_ledger = list(existing_alias_ledger or [])
@@ -510,11 +727,38 @@ def _build_finra_alias_ledger(
             },
         })
 
+    proof_by_source = {
+        binding[0]: proof
+        for proof in (
+            detail_identity_proofs
+            if isinstance(detail_identity_proofs, list)
+            else []
+        )
+        if (
+            binding := _finra_detail_identity_from_proof(proof)
+        )
+    }
+    alias_source_urls = sorted({
+        source_url
+        for alias in ledger
+        if (
+            source_url := _finra_alias_source_url(
+                alias.get("old_identity")
+            )
+        )
+    })
+    alias_detail_proofs = [
+        proof_by_source[source_url]
+        for source_url in alias_source_urls
+        if source_url in proof_by_source
+    ]
     errors = _validate_finra_alias_ledger(
         ledger,
         fetched_entries,
         sorted(fetched_ids),
-        fallback_urls=fallback_urls,
+        detail_identity_proofs=alias_detail_proofs,
+        retained_detail_urls=retained_detail_urls,
+        immutable_binding_digest=immutable_binding_digest,
     )
     if errors:
         raise ValueError(errors[0])
@@ -682,6 +926,31 @@ def _finra_pass_proof_entry_identities(proof: dict, alias_map: dict) -> set:
     return identities
 
 
+def _finra_retained_listing_detail_urls(proofs: object) -> set[str]:
+    """Return detail URLs independently present in both retained listing passes."""
+    if (
+        not isinstance(proofs, list)
+        or len(proofs) != 2
+        or any(not isinstance(proof, dict) for proof in proofs)
+    ):
+        return set()
+    pass_urls = []
+    for proof in proofs:
+        urls: set[str] = set()
+        payloads = proof.get("page_row_payloads")
+        if not isinstance(payloads, list):
+            return set()
+        for page in payloads:
+            if not isinstance(page, list):
+                return set()
+            for row in page:
+                detail_url = _finra_row_detail_target(row)
+                if detail_url:
+                    urls.add(detail_url)
+        pass_urls.append(urls)
+    return pass_urls[0] & pass_urls[1]
+
+
 def _coverage_watermark(source_state: dict) -> dict:
     """Return the persisted watermark fields bound by a coverage proof."""
     return {
@@ -787,6 +1056,9 @@ def _validate_source_coverage(
             "entry_identity_digest",
             "alias_ledger",
             "alias_ledger_digest",
+            "detail_identity_proofs",
+            "detail_identity_proof_digest",
+            "detail_identity_anchor",
         )
         legacy_identity_proof = (
             allow_legacy_finra_identity_proof
@@ -896,18 +1168,40 @@ def _validate_source_coverage(
                     f"{source_key} entries contain stale or unaccounted identities"
                 )
             alias_ledger = coverage.get("alias_ledger")
+            detail_identity_proofs = coverage.get("detail_identity_proofs")
+            detail_identity_anchor = coverage.get("detail_identity_anchor")
             errors.extend(
                 _validate_finra_alias_ledger(
                     alias_ledger,
                     entries,
                     fetched_entry_identities,
-                    fallback_urls=source_state.get("fallback_urls"),
+                    detail_identity_proofs=detail_identity_proofs,
+                    retained_detail_urls=_finra_retained_listing_detail_urls(
+                        coverage.get("pass_proofs")
+                    ),
+                    immutable_binding_digest=(
+                        FINRA_DETAIL_IDENTITY_ANCHORS.get(
+                            detail_identity_anchor
+                        )
+                        if isinstance(detail_identity_anchor, str)
+                        else None
+                    ),
                 )
             )
             if coverage.get("alias_ledger_digest") != _alias_ledger_digest(
                 alias_ledger if isinstance(alias_ledger, list) else []
             ):
                 errors.append(f"{source_key} alias ledger digest is invalid")
+            if coverage.get(
+                "detail_identity_proof_digest"
+            ) != _finra_detail_identity_proof_digest(
+                detail_identity_proofs
+                if isinstance(detail_identity_proofs, list)
+                else []
+            ):
+                errors.append(
+                    f"{source_key} detail identity proof digest is invalid"
+                )
             if (
                 isinstance(detail_count, int)
                 and not isinstance(detail_count, bool)
@@ -3127,6 +3421,7 @@ def fetch_finra_notices(
             logger.info("Limited to %s notices for testing; state will not advance", limit)
 
         detail_cache: dict[str, dict] = {}
+        detail_identity_proofs: dict[str, str] = {}
         node_groups: dict[str, dict] = {}
         duplicate_ledger: list[dict] = []
         conflict_ledger: list[dict] = []
@@ -3177,6 +3472,11 @@ def fetch_finra_notices(
                 )
 
             detail_soup = BeautifulSoup(detail["content"], "html.parser")
+            detail_identity_proof = _capture_finra_detail_identity_proof(
+                detail_soup
+            )
+            if detail_identity_proof is not None:
+                detail_identity_proofs[url] = detail_identity_proof
             shortlink = _extract_finra_shortlink(detail_soup)
             _, shortlink_node_identity = (
                 _finra_normalize_detail_link(shortlink)
@@ -3350,6 +3650,11 @@ def fetch_finra_notices(
                 item.document_id or item.url for item in items
             }),
             "alias_ledger": [],
+            "detail_identity_proofs": [
+                detail_identity_proofs[url]
+                for url in sorted(detail_identity_proofs)
+            ],
+            "detail_identity_anchor": None,
             "duplicate_ledger": duplicate_ledger,
             "conflict_ledger": conflict_ledger,
         }
@@ -3358,6 +3663,11 @@ def fetch_finra_notices(
         )
         coverage["alias_ledger_digest"] = _alias_ledger_digest(
             coverage["alias_ledger"]
+        )
+        coverage["detail_identity_proof_digest"] = (
+            _finra_detail_identity_proof_digest(
+                coverage["detail_identity_proofs"]
+            )
         )
         if unproven_known_urls:
             return _incomplete_result(
@@ -3751,13 +4061,54 @@ def update_source_state(
         legacy_migration_ledger = coverage.get("migration_ledger")
         if legacy_migration_ledger is None and isinstance(prior_coverage, dict):
             legacy_migration_ledger = prior_coverage.get("migration_ledger")
+        detail_identity_anchor = (
+            prior_coverage.get("detail_identity_anchor")
+            if isinstance(prior_coverage, dict)
+            else None
+        ) or coverage.get("detail_identity_anchor")
+        retained_detail_urls = _finra_retained_listing_detail_urls(
+            coverage.get("pass_proofs")
+        )
+        merged_detail_proofs = _merge_finra_detail_identity_proofs(
+            (
+                prior_coverage.get("detail_identity_proofs", [])
+                if isinstance(prior_coverage, dict)
+                else []
+            ),
+            coverage.get("detail_identity_proofs"),
+            retained_detail_urls=retained_detail_urls,
+        )
         alias_ledger = _build_finra_alias_ledger(
             entries,
             fetched_entries,
             existing_alias_ledger=existing_alias_ledger,
             legacy_migration_ledger=legacy_migration_ledger,
-            fallback_urls=finra_fallback_urls,
+            detail_identity_proofs=merged_detail_proofs,
+            retained_detail_urls=retained_detail_urls,
+            immutable_binding_digest=(
+                FINRA_DETAIL_IDENTITY_ANCHORS.get(detail_identity_anchor)
+                if isinstance(detail_identity_anchor, str)
+                else None
+            ),
         )
+        proof_by_source = {
+            _finra_detail_identity_from_proof(proof)[0]: proof
+            for proof in merged_detail_proofs
+        }
+        alias_source_urls = sorted({
+            source_url
+            for alias in alias_ledger
+            if (
+                source_url := _finra_alias_source_url(
+                    alias.get("old_identity")
+                )
+            )
+        })
+        coverage["detail_identity_proofs"] = [
+            proof_by_source[source_url]
+            for source_url in alias_source_urls
+        ]
+        coverage["detail_identity_anchor"] = detail_identity_anchor
         coverage["alias_ledger"] = alias_ledger
         coverage["alias_ledger_digest"] = _alias_ledger_digest(alias_ledger)
         coverage.pop("migration_ledger", None)
@@ -3799,6 +4150,11 @@ def update_source_state(
         coverage_proof["entry_identity_digest"] = _identity_digest(entries)
         coverage_proof["alias_ledger_digest"] = _alias_ledger_digest(
             coverage_proof.get("alias_ledger", [])
+        )
+        coverage_proof["detail_identity_proof_digest"] = (
+            _finra_detail_identity_proof_digest(
+                coverage_proof.get("detail_identity_proofs", [])
+            )
         )
         coverage_proof.pop("migration_ledger", None)
     source_state["coverage"] = coverage_proof
