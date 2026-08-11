@@ -2917,6 +2917,32 @@ def test_workflow_stops_at_verified_pr_without_auto_merge():
         assert "exit 2" in tail, message
 
 
+def test_workflow_consolidates_only_after_successful_pr_verification():
+    """Older trusted PRs survive unless the newest PR is fully verified."""
+    workflow = _workflow_text()
+    verify_name = "- name: Verify created PR binds the validated generated output"
+    consolidate_name = "- name: Consolidate superseded Regulatory-monitor PRs"
+
+    assert workflow.index(verify_name) < workflow.index(consolidate_name)
+    consolidate_block = workflow.split(consolidate_name, 1)[1]
+    condition = consolidate_block.split("env:", 1)[0]
+    for guard in (
+        "steps.create_pr.outputs.pull-request-number",
+        "steps.cas.outputs.valid == 'true'",
+        "steps.verify_pr.outputs.verified == 'true'",
+        "vars.REGULATORY_STATE_AUTOMERGE == 'true'",
+    ):
+        assert guard in condition, guard
+
+    verify_block = workflow.split(verify_name, 1)[1].split(
+        consolidate_name, 1
+    )[0]
+    assert 'echo "verified=true" >> "$GITHUB_OUTPUT"' in verify_block
+    assert "gh pr close" not in verify_block
+    assert "gh pr close" in consolidate_block
+    assert "--delete-branch" in consolidate_block
+
+
 def test_baseline_initialization_requires_manual_approval_and_is_not_in_workflow():
     """The exceptional baseline path cannot be invoked by Actions automation."""
     workflow = (

@@ -309,12 +309,14 @@ its sha256 content hash. After PR creation, the workflow reads the immutable PR
 head through the GitHub API, verifies every manifested blob and the exact file
 set, and fails to `needs-review` if any binding is missing or changed.
 
-The privileged workflow deliberately stops at that verified PR. It does not
-merge or enable auto-merge because no available merge primitive atomically
-binds both the validated base and head. The existing external guarded sweep or
-a human performs the final up-to-date merge gate. `REGULATORY_STATE_AUTOMERGE`
-does not authorize merging; it only gates consolidation of older,
-non-`needs-review` monitor PRs. Successful runs may change only
+The privileged workflow deliberately leaves the newest verified PR open. It
+does not merge or enable auto-merge because no available merge primitive
+atomically binds both the validated base and head. The existing external
+guarded sweep or a human performs the final up-to-date merge gate.
+`REGULATORY_STATE_AUTOMERGE` does not authorize merging; only after
+`verify_pr` emits `verified=true` does it permit consolidation of older,
+non-`needs-review` monitor PRs. A failed or skipped verification leaves every
+older PR and branch untouched. Successful runs may change only
 `data/monitor-state.json`, its atomic backup, or a regenerated regulatory
 report.
 

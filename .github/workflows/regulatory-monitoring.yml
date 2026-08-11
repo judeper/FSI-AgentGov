@@ -435,45 +435,6 @@ jobs:
 
             > 💡 **Tip:** Review CRITICAL and HIGH items first. Check the "Potentially Affected Controls" section for keyword-based suggestions.
 
-      # --- consolidation of superseded state-only regulatory PRs ---
-      # Regulatory PRs only ever touch data/monitor-state.json(.backup) and
-      # reports/monitoring/*.md (no customer-facing docs). The newest run carries
-      # the cumulative monitor-state.json baseline, so prior superseded
-      # regulatory PRs are safe to close. PRs that still carry `needs-review`
-      # (CRITICAL/HIGH items) are NEVER closed here — they are preserved for
-      # human review. This workflow never merges; the newest PR is left open for
-      # the existing external guarded sweep / human merge gate.
-      - name: Consolidate superseded Regulatory-monitor PRs
-        # Gated by the REGULATORY_STATE_AUTOMERGE kill-switch: turning automation
-        # off disables this destructive (PR-closing) step too. Closes ONLY
-        # non-needs-review superseded PRs; CRITICAL/HIGH PRs keep their
-        # needs-review label and are left open for a human.
-        if: >-
-          steps.create_pr.outputs.pull-request-number &&
-          steps.cas.outputs.valid == 'true' &&
-          vars.REGULATORY_STATE_AUTOMERGE == 'true'
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
-          RUN_NUMBER: ${{ github.run_number }}
-        run: |
-          # Close ONLY older bot-created regulatory PRs that are non-needs-review:
-          # they must carry the `regulatory` label, NOT carry `needs-review`
-          # (CRITICAL/HIGH PRs keep it and must stay open for a human), match the
-          # exact branch pattern `monitoring/regulatory-<digits>`, and have a run
-          # number strictly lower than this run. This avoids closing human PRs,
-          # unreviewed CRITICAL/HIGH PRs, the current PR, or racing another run.
-          gh pr list --state open --label regulatory --json number,headRefName,labels \
-            --jq '.[] | select(.headRefName | test("^monitoring/regulatory-[0-9]+$")) | select(any(.labels[]; .name == "needs-review") | not) | "\(.number) \(.headRefName)"' \
-          | while read -r n branch; do
-              run="${branch#monitoring/regulatory-}"
-              if [ "$n" != "$NEW_PR" ] && [ "$run" -lt "$RUN_NUMBER" ]; then
-                echo "Closing superseded PR #$n (run $run < $RUN_NUMBER)"
-                gh pr close "$n" --delete-branch \
-                  --comment "Superseded by #${NEW_PR}, which carries the cumulative \`data/monitor-state.json\` baseline (run ${RUN_NUMBER} > ${run}). Auto-closed by the Regulatory Monitor consolidation step." || true
-              fi
-            done
-
       - name: Verify created PR binds the validated generated output
         # Blockers 1 & 2: this privileged monitor workflow does NOT auto-merge.
         # No GitHub merge API binds BOTH the exact base and the exact head
@@ -609,3 +570,45 @@ jobs:
           echo "Verified PR #$NEW_PR carries exactly the CAS-validated generated output at head $EXPECTED_HEAD."
           echo "::notice::Regulatory state PR #$NEW_PR is validated and awaiting the external guarded sweep / human merge gate (no auto-merge)."
           echo "verified=true" >> "$GITHUB_OUTPUT"
+
+      # --- consolidation of superseded state-only regulatory PRs ---
+      # Regulatory PRs only ever touch data/monitor-state.json(.backup) and
+      # reports/monitoring/*.md (no customer-facing docs). Only after the newest
+      # PR is proven to carry the exact CAS-validated output is its cumulative
+      # monitor-state.json baseline allowed to supersede older PRs. A failed or
+      # skipped verification leaves every older PR and branch untouched. PRs
+      # that still carry `needs-review` (CRITICAL/HIGH items) are NEVER closed
+      # here — they are preserved for human review. This workflow never merges;
+      # the newest PR is left open for the existing external guarded sweep /
+      # human merge gate.
+      - name: Consolidate superseded Regulatory-monitor PRs
+        # The legacy-named REGULATORY_STATE_AUTOMERGE switch gates only this
+        # destructive consolidation step. Closes ONLY non-needs-review
+        # superseded PRs after verified handoff; CRITICAL/HIGH PRs keep their
+        # needs-review label and are left open for a human.
+        if: >-
+          steps.create_pr.outputs.pull-request-number &&
+          steps.cas.outputs.valid == 'true' &&
+          steps.verify_pr.outputs.verified == 'true' &&
+          vars.REGULATORY_STATE_AUTOMERGE == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          # Close ONLY older bot-created regulatory PRs that are non-needs-review:
+          # they must carry the `regulatory` label, NOT carry `needs-review`
+          # (CRITICAL/HIGH PRs keep it and must stay open for a human), match the
+          # exact branch pattern `monitoring/regulatory-<digits>`, and have a run
+          # number strictly lower than this run. This avoids closing human PRs,
+          # unreviewed CRITICAL/HIGH PRs, the current PR, or racing another run.
+          gh pr list --state open --label regulatory --json number,headRefName,labels \
+            --jq '.[] | select(.headRefName | test("^monitoring/regulatory-[0-9]+$")) | select(any(.labels[]; .name == "needs-review") | not) | "\(.number) \(.headRefName)"' \
+          | while read -r n branch; do
+              run="${branch#monitoring/regulatory-}"
+              if [ "$n" != "$NEW_PR" ] && [ "$run" -lt "$RUN_NUMBER" ]; then
+                echo "Closing superseded PR #$n (run $run < $RUN_NUMBER)"
+                gh pr close "$n" --delete-branch \
+                  --comment "Superseded by #${NEW_PR}, which carries the cumulative \`data/monitor-state.json\` baseline (run ${RUN_NUMBER} > ${run}). Auto-closed by the Regulatory Monitor consolidation step." || true
+              fi
+            done
