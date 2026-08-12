@@ -626,8 +626,8 @@
     },
     {
       "id": 568930,
-      "title": "Azure SQL knowledge sources in Copilot Studio",
-      "summary": "Copilot Studio can ground agents in enterprise data stored in Azure SQL through its knowledge-source framework.",
+      "title": "SQL data-source support in Copilot Studio",
+      "summary": "Copilot Studio is adding support for using data from a SQL server as an agent knowledge source.",
       "products": [
         "Microsoft Copilot Studio"
       ],
@@ -643,7 +643,7 @@
         },
         {
           "id": "2.16",
-          "rationale": "Azure SQL grounding data should be validated for quality, currency, and permissions."
+          "rationale": "Data used for SQL-backed grounding should be validated for quality, currency, and permissions."
         }
       ],
       "whatToReview": "Limit exposed schemas and records, validate source quality and permissions, and test grounded responses.",
