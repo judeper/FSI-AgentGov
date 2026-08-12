@@ -278,7 +278,10 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
    only after authoritative detail content hashes match and are recorded in a
    duplicate ledger. Listing-row formatting/title/date differences are retained
    as duplicate-ledger evidence when the authoritative node/detail agrees;
-   conflicting detail payloads fail closed. Explicit
+   a conflicting or missing duplicate date is cleared only when another
+   retained occurrence normalizes exactly to the authoritative detail
+   publication date. If no occurrence matches, the crawl fails closed.
+   Conflicting detail payloads fail closed. Explicit
    one-page and zero-result shapes are the only permitted exceptions.
 3. For each new item:
    - Extract title, abstract, document type
@@ -340,7 +343,10 @@ duplicated evidence fields fails closed. Validation independently derives the
 exact duplicate-occurrence multiset from both retained passes and binds each
 ledger record's page/row occurrence, listing target, fetched node identity,
 detail hash, raw payload, and payload digest. Missing, extra, fabricated, or
-count-drifted duplicate records fail closed. FINRA also binds the sorted
+count-drifted duplicate records fail closed. Duplicate-date resolutions are
+separately bound to both retained row occurrences and normalized authoritative
+detail content whose hash must equal the fetched entry; a missing, mutated, or
+fabricated resolver therefore fails validation. FINRA also binds the sorted
 fetched-detail identity set and digest
 to the persisted entry identity set. Legacy identities are retained only in a
 separate one-to-one alias ledger containing source-hash evidence; aliases do

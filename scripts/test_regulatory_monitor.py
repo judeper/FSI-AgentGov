@@ -676,6 +676,8 @@ def test_finra_duplicate_ledger_rejects_empty_and_forged_records():
         "missing-record",
         "extra-record",
         "duplicate-occurrence",
+        "date-conflict",
+        "date-resolver",
     ),
 )
 def test_finra_duplicate_ledger_exactly_matches_both_retained_passes(tamper):
@@ -704,6 +706,17 @@ def test_finra_duplicate_ledger_exactly_matches_both_retained_passes(tamper):
         ledger.append(deepcopy(ledger[0]))
     elif tamper == "duplicate-occurrence":
         ledger[0]["row_index"] += 1
+    elif tamper == "date-conflict":
+        ledger[0]["listing_date_conflict"] = not (
+            ledger[0]["listing_date_conflict"]
+        )
+    elif tamper == "date-resolver":
+        resolver = next(
+            record
+            for record in ledger
+            if record["resolves_listing_date_conflict"]
+        )
+        resolver["resolves_listing_date_conflict"] = False
     else:  # pragma: no cover - parametrization is closed above
         raise AssertionError(f"unknown tamper case: {tamper}")
 
@@ -717,6 +730,49 @@ def test_finra_duplicate_ledger_exactly_matches_both_retained_passes(tamper):
         in error
         for error in errors
     ), errors
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    (
+        "missing-record",
+        "missing-resolver",
+        "mutated-resolver",
+        "fabricated-resolver",
+        "mutated-detail-date",
+    ),
+)
+def test_finra_date_resolution_evidence_is_proof_bound(tamper):
+    """Persisted duplicate-date resolution must replay from rows and detail hash."""
+    source_state = _load_shipped_finra_source_state()
+    forged = deepcopy(source_state)
+    ledger = forged["coverage"]["date_resolution_ledger"]
+
+    if tamper == "missing-record":
+        ledger.pop()
+    elif tamper == "missing-resolver":
+        ledger[0].pop("resolver")
+    elif tamper == "mutated-resolver":
+        ledger[0]["resolver"]["row_index"] += 1
+    elif tamper == "fabricated-resolver":
+        ledger[0]["resolver"] = deepcopy(ledger[0]["conflicts"][0])
+    elif tamper == "mutated-detail-date":
+        old_date = ledger[0]["publication_date"]
+        new_date = ledger[0]["conflicts"][0]["listing_date"]
+        ledger[0]["detail_content"] = ledger[0]["detail_content"].replace(
+            f"Published Date: {old_date}",
+            f"Published Date: {new_date}",
+            1,
+        )
+    else:  # pragma: no cover - parametrization is closed above
+        raise AssertionError(f"unknown tamper case: {tamper}")
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+
+    assert any("date resolution" in error for error in errors), errors
 
 
 @pytest.mark.parametrize(
@@ -796,6 +852,7 @@ def test_finra_unaccounted_leftover_identity_fails_closed():
                     "page_numbers": [0],
                     "pass_proofs": [],
                     "duplicate_ledger": [],
+                    "date_resolution_ledger": [],
                     "conflict_ledger": [],
                     "fetched_entry_identities": ["node-123"],
                     "fetched_entry_identity_digest": regulatory_monitor._identity_digest(
@@ -924,6 +981,7 @@ def test_save_state_atomic_arg_order(monkeypatch):
                         },
                     ],
                     "duplicate_ledger": [],
+                    "date_resolution_ledger": [],
                     "conflict_ledger": [],
                 },
             },
@@ -1048,6 +1106,7 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                 "unique_node_count": len(entries),
                 "pass_proofs": _synthetic_pass_proofs(sorted(entries)),
                 "duplicate_ledger": [],
+                "date_resolution_ledger": [],
                 "conflict_ledger": [],
             })
         source_state["coverage"] = common
@@ -1121,6 +1180,7 @@ def _run_main(monkeypatch, *, state, fed_items, finra_items, args=None):
                     for item in items
                 )),
                 "duplicate_ledger": [],
+                "date_resolution_ledger": [],
                 "conflict_ledger": [],
             }
         return regulatory_monitor.FetchResult(
@@ -1415,6 +1475,7 @@ def test_finra_zero_result_coverage_proof_is_valid():
                 },
             ],
             "duplicate_ledger": [],
+            "date_resolution_ledger": [],
             "conflict_ledger": [],
         },
     }
@@ -1950,6 +2011,11 @@ def _finra_request_base(url):
 
 def _synthetic_finra_listing(rows):
     """Build a complete listing result for detail/duplicate unit tests."""
+    for row_index, row in enumerate(rows):
+        row["row_index"] = row_index
+        row["page"] = 0
+        row["raw_payload"]["listing_date"] = row["listing_date"]
+        row["raw_row_digest"] = _page_row_digest(row["raw_payload"])
     payloads = [row["raw_payload"] for row in rows]
     proof = {
         "token": "test-pass-1",
@@ -1987,13 +2053,19 @@ def _synthetic_finra_listing(rows):
             "page_numbers": [0],
             "pass_proofs": [proof, proof2],
             "duplicate_ledger": [],
+            "date_resolution_ledger": [],
             "conflict_ledger": [],
         },
     }
 
 
 def _synthetic_finra_row(url, node_identity, title="Notice 26-14"):
-    payload = {"text": title, "links": [{"href": url, "text": title}]}
+    listing_date = "2026-07-09"
+    payload = {
+        "text": title,
+        "links": [{"href": url, "text": title}],
+        "listing_date": listing_date,
+    }
     return {
         "row_index": 0,
         "page": 0,
@@ -2004,7 +2076,7 @@ def _synthetic_finra_row(url, node_identity, title="Notice 26-14"):
         "detail_url": url,
         "node_identity": node_identity,
         "title": title,
-        "listing_date": "2026-07-09",
+        "listing_date": listing_date,
         "unresolved": False,
     }
 
@@ -2154,8 +2226,11 @@ def test_finra_same_numeric_node_conflicting_detail_fails_closed(monkeypatch):
     assert "duplicate detail conflict" in result.error
 
 
-def test_finra_authoritative_node_resolves_duplicate_listing_date_conflict(monkeypatch):
-    """A stale duplicate row is safe only when another URL resolves its node/detail."""
+def _fetch_finra_duplicate_date_case(
+    monkeypatch,
+    listing_dates,
+    publication_date="2002-10-02",
+):
     rows = [
         _synthetic_finra_row(
             "https://www.finra.org/rules-guidance/notices/fyi-10-2002",
@@ -2168,10 +2243,12 @@ def test_finra_authoritative_node_resolves_duplicate_listing_date_conflict(monke
             title="FYI 10-2002 (legacy)",
         ),
     ]
-    rows[0]["listing_date"] = "2002-10-01"
-    rows[1]["listing_date"] = "2002-10-02"
+    for row, listing_date in zip(rows, listing_dates, strict=True):
+        row["listing_date"] = listing_date
     listing = _synthetic_finra_listing(rows)
-    detail = _finra_detail_page("FYI 10-2002", "2002-10-02", "Stable content.")
+    detail = _finra_detail_page(
+        "FYI 10-2002", publication_date, "Stable content."
+    )
     detail = detail.replace(
         "</body>", '<link rel="shortlink" href="/node/126166"></body>'
     )
@@ -2190,14 +2267,84 @@ def test_finra_authoritative_node_resolves_duplicate_listing_date_conflict(monke
         },
     )
 
-    result = regulatory_monitor.fetch_finra_notices(
+    return regulatory_monitor.fetch_finra_notices(
         _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
+    )
+
+
+def test_finra_authoritative_node_resolves_duplicate_listing_date_conflict(monkeypatch):
+    """A stale row is safe only when a retained duplicate matches the detail date."""
+    result = _fetch_finra_duplicate_date_case(
+        monkeypatch,
+        ("2002-10-01", "October 2, 2002"),
     )
 
     assert result.complete is True
     assert len(result) == 1
     duplicate = result.coverage["duplicate_ledger"][0]
     assert duplicate["resolves_listing_date_conflict"] is True
+    resolution = result.coverage["date_resolution_ledger"]
+    assert len(resolution) == 1
+    assert resolution[0]["publication_date"] == "2002-10-02"
+    assert resolution[0]["resolver"]["row_index"] == 1
+    assert resolution[0]["conflicts"][0]["listing_date"] == "2002-10-01"
+
+
+@pytest.mark.parametrize(
+    "listing_dates",
+    [
+        ("2002-10-01", "2002-10-03"),
+        ("2002-10-01", ""),
+        ("", ""),
+        ("2002-10-01", "not-a-date"),
+    ],
+    ids=(
+        "two-conflicting-dates",
+        "missing-duplicate-date",
+        "all-dates-missing",
+        "ambiguous-duplicate-date",
+    ),
+)
+def test_finra_duplicate_dates_without_authoritative_match_fail_closed(
+    monkeypatch,
+    listing_dates,
+):
+    """Conflicting or absent duplicate dates cannot erase an unresolved conflict."""
+    result = _fetch_finra_duplicate_date_case(monkeypatch, listing_dates)
+
+    assert result.complete is False
+    assert "listing/detail date conflict" in result.error
+    assert result.coverage["date_resolution_ledger"] == []
+
+
+def test_finra_matching_first_row_resolves_later_duplicate_conflict(monkeypatch):
+    """Resolution is order-independent when the retained first row matches."""
+    result = _fetch_finra_duplicate_date_case(
+        monkeypatch,
+        ("2002-10-02", "2002-10-03"),
+    )
+
+    assert result.complete is True
+    duplicate = result.coverage["duplicate_ledger"][0]
+    assert duplicate["listing_date_conflict"] is True
+    assert duplicate["resolves_listing_date_conflict"] is False
+    resolution = result.coverage["date_resolution_ledger"][0]
+    assert resolution["resolver"]["row_index"] == 0
+    assert resolution["conflicts"][0]["row_index"] == 1
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("2002-10-02T12:00:00Z", "2002-10-02"),
+        ("October 2, 2002", "2002-10-02"),
+        ("10/2/2002", "2002-10-02"),
+        ("2002-02-30", ""),
+        ("October 2, 2002 and October 3, 2002", ""),
+    ],
+)
+def test_finra_duplicate_date_normalization_is_unambiguous(value, expected):
+    assert regulatory_monitor._normalize_finra_date(value) == expected
 
 
 def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
@@ -3582,6 +3729,7 @@ def test_main_rejects_detail_state_not_reconstructable_from_listing_proofs(
             "unique_node_count": 1,
             "pass_proofs": _synthetic_pass_proofs(["FINRA 26-15"]),
             "duplicate_ledger": [],
+            "date_resolution_ledger": [],
             "conflict_ledger": [],
         },
     )
