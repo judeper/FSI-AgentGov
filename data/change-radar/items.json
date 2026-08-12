@@ -259,7 +259,7 @@
         "Microsoft Copilot (Microsoft 365)",
         "Microsoft 365 admin center"
       ],
-      "status": "In development",
+      "status": "Available",
       "timing": "GA Jul 2026",
       "gaDate": "2026-07",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=494809",
@@ -280,7 +280,7 @@
       ],
       "whatToReview": "Decide who owns agent approval decisions and how requests are triaged.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26"
+      "lastReviewed": "2026-08-12"
     },
     {
       "id": 562221,
@@ -335,6 +335,320 @@
       "whatToReview": "Set limits and oversight for agent-to-agent orchestration depth.",
       "addedOn": "2026-06-26",
       "lastReviewed": "2026-06-26"
+    },
+    {
+      "id": 515145,
+      "title": "Workforce Insights agent for organizational data",
+      "summary": "A Copilot agent gives authorized leaders, managers, and delegates views of organizational structure, staffing, skills, and work-pattern data.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "In development",
+      "timing": "GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=515145",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.14",
+          "rationale": "Workforce queries should be limited to the organizational data needed for the user's role."
+        },
+        {
+          "id": "1.18",
+          "rationale": "Role-based access should restrict workforce insights to authorized leaders, managers, and delegates."
+        }
+      ],
+      "whatToReview": "Define eligible roles, delegated access, and the minimum workforce data exposed through the agent.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 516032,
+      "title": "Insider risk indicators and scoring for agents",
+      "summary": "Purview Insider Risk Management adds agent-specific activity indicators and risk scoring to investigations of potentially harmful agent behavior.",
+      "products": [
+        "Microsoft Purview"
+      ],
+      "status": "Available",
+      "timing": "Preview Dec 2025, GA Jun 2026",
+      "gaDate": "2026-06",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=516032",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.12",
+          "rationale": "Agent-specific indicators and scores extend insider-risk detection and triage to agent activity."
+        }
+      ],
+      "whatToReview": "Add agent indicators to insider-risk policies, alert triage, and investigation procedures.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 557683,
+      "title": "Data Security Triage Agent investigation enhancements",
+      "summary": "Purview's triage agent adds clearer risk-pattern and activity summaries to Insider Risk Management investigations.",
+      "products": [
+        "Microsoft Purview"
+      ],
+      "status": "Available",
+      "timing": "Preview Mar 2026, GA Jun 2026",
+      "gaDate": "2026-06",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=557683",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.12",
+          "rationale": "Revised summaries support insider-risk triage and investigation of detected activity patterns."
+        }
+      ],
+      "whatToReview": "Validate how the revised summaries affect triage decisions, escalation criteria, and analyst review.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 561920,
+      "title": "SharePoint lists as Agent Builder knowledge",
+      "summary": "Agent Builder can ground an agent in one SharePoint list of up to 20,000 items, alongside other supported knowledge sources.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Jun 2026",
+      "gaDate": "2026-06",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=561920",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.14",
+          "rationale": "List selection and exposed fields should be limited to the data the agent needs."
+        },
+        {
+          "id": "2.16",
+          "rationale": "Structured list data should be validated for quality, currency, and permissions before grounding."
+        },
+        {
+          "id": "4.6",
+          "rationale": "The selected SharePoint list defines an additional grounding boundary for the agent."
+        }
+      ],
+      "whatToReview": "Approve eligible lists, validate list quality and permissions, and account for unsupported attachments and lookup columns.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 564766,
+      "title": "Teams built-in agent management",
+      "summary": "Teams admin center provides centralized availability controls for built-in agents used in chats, channels, and meetings.",
+      "products": [
+        "Microsoft Teams"
+      ],
+      "status": "Available",
+      "timing": "GA Jul 2026",
+      "gaDate": "2026-07",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=564766",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.2",
+          "rationale": "Built-in Teams agents should be included in the centrally managed agent inventory."
+        },
+        {
+          "id": "2.24",
+          "rationale": "User and group availability settings govern where built-in agents are enabled."
+        }
+      ],
+      "whatToReview": "Inventory built-in Teams agents and set availability by user and group before relying on licensed-user defaults.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 567472,
+      "title": "Insider risk triage summaries in Defender",
+      "summary": "Defender alert queues can show Purview Insider Risk Management triage-agent summaries, with deeper investigation remaining in Purview.",
+      "products": [
+        "Microsoft Purview"
+      ],
+      "status": "In development",
+      "timing": "Preview Aug 2026, GA Dec 2026",
+      "gaDate": "2026-12",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567472",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.12",
+          "rationale": "Cross-portal summaries affect insider-risk alert triage and investigation workflows."
+        }
+      ],
+      "whatToReview": "Confirm analysts understand the summary's limits and retain a handoff to the full Purview investigation.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 567667,
+      "title": "Agent 365 dashboard for leaders",
+      "summary": "Copilot Analytics adds an Agent 365 dashboard with historical activity for registered agents.",
+      "products": [
+        "Microsoft Viva"
+      ],
+      "status": "In development",
+      "timing": "GA Jul 2026",
+      "gaDate": "2026-07",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567667",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "3.2",
+          "rationale": "Historical Agent 365 activity expands usage analytics and monitoring for registered agents."
+        }
+      ],
+      "whatToReview": "Define who can view agent activity, which usage trends are monitored, and how findings are escalated.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 567670,
+      "title": "Agent2Agent connections for Agent 365 agents",
+      "summary": "Agents registered in Agent 365 can act as connected agents in Agent Builder or Copilot Studio when they implement the Agent2Agent protocol.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "In development",
+      "timing": "GA Aug 2026",
+      "gaDate": "2026-08",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567670",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "2.17",
+          "rationale": "Connected-agent use requires limits on trust, invocation paths, and orchestration scope."
+        }
+      ],
+      "whatToReview": "Set approval, trust, and orchestration limits before allowing registered agents to be connected.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 567883,
+      "title": "Unified app and agent installation management",
+      "summary": "Installation changes made in Microsoft 365 or Teams admin center apply consistently across Teams, Outlook, and Microsoft 365 Copilot.",
+      "products": [
+        "Microsoft Teams"
+      ],
+      "status": "In development",
+      "timing": "GA Aug 2026",
+      "gaDate": "2026-08",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567883",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.2",
+          "rationale": "Unified installation settings consolidate agent and app management across supported surfaces."
+        }
+      ],
+      "whatToReview": "Reconcile existing installation policies and verify the unified setting produces the intended inventory and access state.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 567893,
+      "title": "Agent 365 dashboard for managers",
+      "summary": "Copilot Analytics gives managers historical activity views for agents registered through Agent 365.",
+      "products": [
+        "Microsoft Viva"
+      ],
+      "status": "In development",
+      "timing": "GA Aug 2026",
+      "gaDate": "2026-08",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567893",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "3.2",
+          "rationale": "Manager-facing history provides another view of registered-agent activity and usage trends."
+        }
+      ],
+      "whatToReview": "Set manager access boundaries and define which usage patterns require follow-up.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 567894,
+      "title": "Run-only sharing for autonomous agents",
+      "summary": "Copilot Studio makers can share autonomous agents with users for execution without granting edit rights or ownership.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "Preview Aug 2026, GA Jan 2027",
+      "gaDate": "2027-01",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567894",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.1",
+          "rationale": "Authorization should govern who may publish or share autonomous agents for use."
+        },
+        {
+          "id": "1.18",
+          "rationale": "Run-only access separates execution rights from editing and ownership privileges."
+        }
+      ],
+      "whatToReview": "Define who may share autonomous agents and verify run-only users cannot edit or assume ownership.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 568762,
+      "title": "Agent readiness checks before publishing",
+      "summary": "Copilot Studio surfaces policy restrictions, missing evaluations, and other readiness risks in the agent build experience before publication.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=568762",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.28",
+          "rationale": "Readiness findings expose policy restrictions that affect whether an agent can be published."
+        },
+        {
+          "id": "2.5",
+          "rationale": "Missing evaluations and other readiness risks should feed pre-publication quality gates."
+        }
+      ],
+      "whatToReview": "Incorporate readiness findings into publish gates and require unresolved policy or evaluation issues to be reviewed.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
+    },
+    {
+      "id": 568930,
+      "title": "SQL data-source support in Copilot Studio",
+      "summary": "Copilot Studio is adding support for using data from a SQL server as an agent knowledge source.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "Preview Aug 2026, GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=568930",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.14",
+          "rationale": "SQL schemas and records exposed to an agent should be limited to its approved purpose."
+        },
+        {
+          "id": "2.16",
+          "rationale": "Data used for SQL-backed grounding should be validated for quality, currency, and permissions."
+        }
+      ],
+      "whatToReview": "Limit exposed schemas and records, validate source quality and permissions, and test grounded responses.",
+      "addedOn": "2026-08-12",
+      "lastReviewed": "2026-08-12"
     }
   ]
 }
