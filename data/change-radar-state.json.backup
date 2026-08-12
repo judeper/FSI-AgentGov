@@ -2,8 +2,32 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-07-13T10:15:26Z",
+      "last_run": "2026-07-20T09:49:11Z",
       "items": {
+        "567893": {
+          "hash": "sha256:faae09ebc04d83a0b685b8c7568f19255b4822a79867efce82b9a2cb62564c57",
+          "status": "In development",
+          "title": "Microsoft Viva: Copilot Analytics - Agent 365 dashboard for managers",
+          "detected_at": "2026-07-20T09:49:11Z"
+        },
+        "567670": {
+          "hash": "sha256:33c0f22d72b7a755712bc80898532b66c30004029f3963200e6d84a8c82929e0",
+          "status": "In development",
+          "title": "Microsoft Copilot (Microsoft 365): Use Agent 365 agents within Microsoft 365 Copilot Chat and Declarative Agents",
+          "detected_at": "2026-07-20T09:49:11Z"
+        },
+        "567671": {
+          "hash": "sha256:be610a27488e0be86ccd0f34a4180ac537733bdb53323b32e795967cf62ce945",
+          "status": "In development",
+          "title": "Planner: Planner Agent chat in Basic Plans",
+          "detected_at": "2026-07-20T09:49:11Z"
+        },
+        "567667": {
+          "hash": "sha256:d5e5b52742a2241d867c5bcbb78872dbbab08e2377c2d55e4b84a9c87e9b28b9",
+          "status": "In development",
+          "title": "Microsoft Viva: Copilot Analytics - Agent 365 Dashboard in Insights ",
+          "detected_at": "2026-07-20T09:49:11Z"
+        },
         "566999": {
           "hash": "sha256:97ff453e8c6d95e180c12ce67056dadf6bd5c829c6407707367921675aaecbfc",
           "status": "In development",
@@ -149,8 +173,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "561920": {
-          "hash": "sha256:b6a3cbadf1b6471fa1e5680f896a076722bfd68e570a02a13850d73b9d56214f",
-          "status": "In development",
+          "hash": "sha256:34595126ff5f8efdd9d078d23ba001bcd01457b4d25024f12800a00d318ec918",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): SharePoint list support in Agent Builder",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -419,8 +443,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "553136": {
-          "hash": "sha256:a7b5a290e47fbb5391364ba7cf795f75660fcdd82bd30de5e825aa9a62eed5d7",
-          "status": "Rolling out",
+          "hash": "sha256:0c6b15f3c376045926b1ac5f31334ff82e7e818a79c9912cfd7e099677b3320c",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Surveys Agent and Copilot Chat in Microsoft Forms",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -437,7 +461,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "545063": {
-          "hash": "sha256:01edcdde0ef9e582214bc3e62ff66dedc73c8a6fc799c1961810a455a9a35811",
+          "hash": "sha256:867d4cedf6c55d7762dd88b1a30f5a9efc3dfcdbea82660cf3d51d950df3b8a4",
           "status": "In development",
           "title": "Microsoft Purview: Insider Risk Management- Insider risk management for agents",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -485,7 +509,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "542181": {
-          "hash": "sha256:fdf10b6ee3926ff984c038438aeb3f113447e6699b2391fdd5568f53f8b2e1cc",
+          "hash": "sha256:8a1631724feb986e9fdcfbbc9829d07f508e69e1cae76308bfe7621c3166ae42",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): Agent Mode in Excel for GCC",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -503,8 +527,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "516032": {
-          "hash": "sha256:aff880fccce4698998b68ba777ef7168d257baae79ea9ebe914c92b5c474dab4",
-          "status": "In development",
+          "hash": "sha256:3e08c55977db7b852086aac2f2b795267d27a2c0f25f8ba0e612ec53bb7984a3",
+          "status": "Launched",
           "title": "Microsoft Purview: Insider Risk Management-Insider risk management for agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -878,12 +902,6 @@
           "hash": "sha256:c1a7637fac19ca29e43ed10a6ab93165135fa9d7761fc3aaf703589a87b552e0",
           "status": "Rolling out",
           "title": "Microsoft Copilot (Microsoft 365): Employee Self-Service Agent in M365 Copilot",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "482410": {
-          "hash": "sha256:69296982414e50d3c33584a0788924bf3281e3219b6fab4a5df444d9dea3f737",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): Agents in Copilot Chat available on Edge Sidebar",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "487857": {
