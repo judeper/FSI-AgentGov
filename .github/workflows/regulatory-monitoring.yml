@@ -497,6 +497,11 @@ jobs:
             flag_for_review
             exit 2
           fi
+          if [ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]; then
+            echo "::error::Created PR base moved after validation ($PR_BASE_SHA != $EXPECTED_BASE)." >&2
+            flag_for_review
+            exit 2
+          fi
           if [ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]; then
             echo "::error::Created PR head moved after creation ($PR_HEAD_SHA != $EXPECTED_HEAD)." >&2
             flag_for_review
@@ -594,21 +599,81 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+          EXPECTED_HEAD: ${{ steps.create_pr.outputs.pull-request-head-sha }}
+          EXPECTED_BASE: ${{ steps.cas.outputs.base_sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
+          set -euo pipefail
+
+          flag_for_review() {
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+          }
+
           # Close ONLY older bot-created regulatory PRs that are non-needs-review:
           # they must carry the `regulatory` label, NOT carry `needs-review`
           # (CRITICAL/HIGH PRs keep it and must stay open for a human), match the
           # exact branch pattern `monitoring/regulatory-<digits>`, and have a run
           # number strictly lower than this run. This avoids closing human PRs,
           # unreviewed CRITICAL/HIGH PRs, the current PR, or racing another run.
-          gh pr list --state open --label regulatory --json number,headRefName,labels \
+          if [ -z "$EXPECTED_HEAD" ] || [ -z "$EXPECTED_BASE" ] \
+            || [ -z "$DEFAULT_BRANCH" ]; then
+            echo "::error::Missing verified handoff binding before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          if ! CANDIDATES=$(gh pr list --state open --label regulatory \
+            --json number,headRefName,labels \
             --jq '.[] | select(.headRefName | test("^monitoring/regulatory-[0-9]+$")) | select(any(.labels[]; .name == "needs-review") | not) | "\(.number) \(.headRefName)"' \
-          | while read -r n branch; do
+          ); then
+            echo "::error::Could not list consolidation candidates." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          CONSOLIDATION_VIEW=$(gh pr view "$NEW_PR" --json baseRefName,baseRefOid,headRefOid \
+            --jq '"\(.baseRefName) \(.baseRefOid) \(.headRefOid)"') || CONSOLIDATION_VIEW=""
+          if [ -z "$CONSOLIDATION_VIEW" ]; then
+            echo "::error::Could not read PR metadata before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+          read -r PR_BASE_NAME PR_BASE_SHA PR_HEAD_SHA <<< "$CONSOLIDATION_VIEW"
+          CURRENT_BASE=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${DEFAULT_BRANCH}" --jq '.sha') || CURRENT_BASE=""
+          if [ -z "$CURRENT_BASE" ]; then
+            echo "::error::Could not read the default branch before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_BASE_NAME" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Created PR no longer targets the default branch before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]; then
+            echo "::error::Created PR base changed before consolidation ($PR_BASE_SHA != $EXPECTED_BASE)." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$CURRENT_BASE" != "$EXPECTED_BASE" ]; then
+            echo "::error::Default branch moved before consolidation ($CURRENT_BASE != $EXPECTED_BASE)." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]; then
+            echo "::error::Created PR head changed before consolidation ($PR_HEAD_SHA != $EXPECTED_HEAD)." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          if [ -n "$CANDIDATES" ]; then
+            while read -r n branch; do
               run="${branch#monitoring/regulatory-}"
               if [ "$n" != "$NEW_PR" ] && [ "$run" -lt "$RUN_NUMBER" ]; then
                 echo "Closing superseded PR #$n (run $run < $RUN_NUMBER)"
                 gh pr close "$n" --delete-branch \
                   --comment "Superseded by #${NEW_PR}, which carries the cumulative \`data/monitor-state.json\` baseline (run ${RUN_NUMBER} > ${run}). Auto-closed by the Regulatory Monitor consolidation step." || true
               fi
-            done
+            done <<< "$CANDIDATES"
+          fi

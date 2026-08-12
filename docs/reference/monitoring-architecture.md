@@ -306,8 +306,9 @@ validation. Before creating a state PR, the workflow revalidates the captured
 default-branch commit and state-file SHA; a changed base fails closed. The CAS
 step publishes a manifest of every mutated path with both its git blob SHA and
 its sha256 content hash. After PR creation, the workflow reads the immutable PR
-head through the GitHub API, verifies every manifested blob and the exact file
-set, and fails to `needs-review` if any binding is missing or changed.
+head through the GitHub API, requires the PR base OID to equal the captured CAS
+base, verifies every manifested blob and the exact file set, and fails to
+`needs-review` if any binding is missing or changed.
 
 The privileged workflow deliberately leaves the newest verified PR open. It
 does not merge or enable auto-merge because no available merge primitive
@@ -315,8 +316,10 @@ atomically binds both the validated base and head. The existing external
 guarded sweep or a human performs the final up-to-date merge gate.
 `REGULATORY_STATE_AUTOMERGE` does not authorize merging; only after
 `verify_pr` emits `verified=true` does it permit consolidation of older,
-non-`needs-review` monitor PRs. A failed or skipped verification leaves every
-older PR and branch untouched. Successful runs may change only
+non-`needs-review` monitor PRs. Immediately before consolidation it re-reads
+the PR base/head and the current default-branch SHA; any movement from the
+verified CAS binding fails closed. A failed or skipped verification leaves
+every older PR and branch untouched. Successful runs may change only
 `data/monitor-state.json`, its atomic backup, or a regenerated regulatory
 report.
 
@@ -333,8 +336,11 @@ watermark. Each FINRA pass proof retains the raw listing-row payloads, and
 every derived count and digest it carries (row counts, row digests, raw row
 total, resolved/unresolved rows, unique nodes) is recomputed from those
 payloads at validation time, so replacing the payloads while keeping the
-duplicated evidence fields fails closed. The duplicate ledger must also account
-for every listing row coalesced into a shared node. FINRA also binds the sorted
+duplicated evidence fields fails closed. Validation independently derives the
+exact duplicate-occurrence multiset from both retained passes and binds each
+ledger record's page/row occurrence, listing target, fetched node identity,
+detail hash, raw payload, and payload digest. Missing, extra, fabricated, or
+count-drifted duplicate records fail closed. FINRA also binds the sorted
 fetched-detail identity set and digest
 to the persisted entry identity set. Legacy identities are retained only in a
 separate one-to-one alias ledger containing source-hash evidence; aliases do

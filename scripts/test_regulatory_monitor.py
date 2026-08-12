@@ -667,6 +667,59 @@ def test_finra_duplicate_ledger_rejects_empty_and_forged_records():
 
 
 @pytest.mark.parametrize(
+    "tamper",
+    (
+        "fabricated-payload",
+        "target",
+        "node-identity",
+        "detail-hash",
+        "missing-record",
+        "extra-record",
+        "duplicate-occurrence",
+    ),
+)
+def test_finra_duplicate_ledger_exactly_matches_both_retained_passes(tamper):
+    """Every duplicate record must be the exact occurrence proven by both passes."""
+    source_state = _load_shipped_finra_source_state()
+    forged = deepcopy(source_state)
+    ledger = forged["coverage"]["duplicate_ledger"]
+
+    if tamper == "fabricated-payload":
+        ledger[0]["raw_payload"]["text"] += " fabricated"
+        ledger[0]["raw_row_digest"] = _page_row_digest(
+            ledger[0]["raw_payload"]
+        )
+    elif tamper == "target":
+        ledger[0]["raw_payload"] = deepcopy(ledger[1]["raw_payload"])
+        ledger[0]["raw_row_digest"] = _page_row_digest(
+            ledger[0]["raw_payload"]
+        )
+    elif tamper == "node-identity":
+        ledger[0]["node_identity"] = "node:99999999"
+    elif tamper == "detail-hash":
+        ledger[0]["detail_hash"] = "sha256:" + ("0" * 64)
+    elif tamper == "missing-record":
+        ledger.pop()
+    elif tamper == "extra-record":
+        ledger.append(deepcopy(ledger[0]))
+    elif tamper == "duplicate-occurrence":
+        ledger[0]["row_index"] += 1
+    else:  # pragma: no cover - parametrization is closed above
+        raise AssertionError(f"unknown tamper case: {tamper}")
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+
+    assert any(
+        "duplicate ledger does not exactly match duplicates proven by both passes"
+        in error
+        for error in errors
+    ), errors
+
+
+@pytest.mark.parametrize(
     "ledger, expected",
     [
         (
@@ -1454,6 +1507,45 @@ def test_recovery_findings_do_not_suppress_post_watermark_high_items():
         "FINRA 26-01",
     }
     assert post_watermark.classification == regulatory_monitor.CLASSIFICATION_HIGH
+
+
+def test_recovery_reports_absent_identity_on_watermark_calendar_day():
+    """Same-day recovery reports absent identities but not unchanged known ones."""
+    same_day_missing = _make_item(
+        "Same-day missing notice",
+        "FINRA 26-02",
+        pub_date="2026-07-20T23:30:00-05:00",
+        source="FINRA",
+        agency="FINRA",
+    )
+    same_day_known = _make_item(
+        "Same-day known notice",
+        "FINRA 26-01",
+        pub_date="2026-07-20T08:00:00+09:00",
+        source="FINRA",
+        agency="FINRA",
+    )
+    earlier_missing = _make_item(
+        "Earlier missing notice",
+        "FINRA 25-99",
+        pub_date="2026-07-19T23:59:59-05:00",
+        source="FINRA",
+        agency="FINRA",
+    )
+    trusted = {
+        "last_run": "2026-07-20T09:56:38.066467+00:00",
+        "entries": {
+            same_day_known.document_id: _item_hash(same_day_known),
+        },
+    }
+
+    findings = regulatory_monitor.check_for_recovery_items(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        [same_day_missing, same_day_known, earlier_missing],
+        trusted,
+    )
+
+    assert [item.document_id for item in findings] == ["FINRA 26-02"]
 
 
 def test_subsequent_run_still_detects_new_items(monkeypatch):
@@ -2852,9 +2944,10 @@ def test_workflow_stops_at_verified_pr_without_auto_merge():
     assert (
         "- name: Verify created PR binds the validated generated output" in workflow
     )
+    consolidate_name = "- name: Consolidate superseded Regulatory-monitor PRs"
     verify_block = workflow.split(
         "- name: Verify created PR binds the validated generated output", 1
-    )[1]
+    )[1].split(consolidate_name, 1)[0]
 
     # Bindings are injected via env (not inline expansion) and are all required.
     for binding in (
@@ -2877,6 +2970,7 @@ def test_workflow_stops_at_verified_pr_without_auto_merge():
         in verify_block
     )
     assert '[ "$PR_BASE_NAME" != "$DEFAULT_BRANCH" ]' in verify_block
+    assert '[ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]' in verify_block
     assert '[ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]' in verify_block
 
     # Blocker 2: each manifested path is bound to the EXACT git blob carried by
@@ -2906,6 +3000,7 @@ def test_workflow_stops_at_verified_pr_without_auto_merge():
     for message in (
         "Missing CAS/generated-output binding",
         "Created PR is not based on the default branch",
+        "Created PR base moved after validation",
         "Created PR head moved after creation",
         "does not match the validated generated blob",
         "Manifest state content hash does not match",
@@ -2941,6 +3036,50 @@ def test_workflow_consolidates_only_after_successful_pr_verification():
     assert "gh pr close" not in verify_block
     assert "gh pr close" in consolidate_block
     assert "--delete-branch" in consolidate_block
+
+
+def test_workflow_rechecks_exact_base_immediately_before_consolidation():
+    """A moved default branch must strand older PRs instead of closing them."""
+    workflow = _workflow_text()
+    consolidate_name = "- name: Consolidate superseded Regulatory-monitor PRs"
+    consolidate_block = workflow.split(consolidate_name, 1)[1]
+
+    for binding in (
+        "EXPECTED_HEAD: ${{ steps.create_pr.outputs.pull-request-head-sha }}",
+        "EXPECTED_BASE: ${{ steps.cas.outputs.base_sha }}",
+        "DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}",
+    ):
+        assert binding in consolidate_block, binding
+
+    assert "CANDIDATES=$(gh pr list" in consolidate_block
+    assert (
+        'CONSOLIDATION_VIEW=$(gh pr view "$NEW_PR" '
+        "--json baseRefName,baseRefOid,headRefOid"
+    ) in consolidate_block
+    assert (
+        'CURRENT_BASE=$(gh api "repos/${GITHUB_REPOSITORY}/commits/'
+        '${DEFAULT_BRANCH}" --jq \'.sha\')'
+    ) in consolidate_block
+    assert '[ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]' in consolidate_block
+    assert '[ "$CURRENT_BASE" != "$EXPECTED_BASE" ]' in consolidate_block
+    assert '[ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]' in consolidate_block
+
+    list_index = consolidate_block.index("CANDIDATES=$(gh pr list")
+    recheck_index = consolidate_block.index("CONSOLIDATION_VIEW=$(gh pr view")
+    current_base_index = consolidate_block.index("CURRENT_BASE=$(gh api")
+    loop_index = consolidate_block.index("while read -r n branch")
+    close_index = consolidate_block.index('gh pr close "$n"')
+    assert list_index < recheck_index < current_base_index < loop_index < close_index
+
+    for message in (
+        "Could not read PR metadata before consolidation",
+        "Created PR base changed before consolidation",
+        "Default branch moved before consolidation",
+        "Created PR head changed before consolidation",
+    ):
+        tail = consolidate_block.split(message, 1)[1].split("fi", 1)[0]
+        assert "flag_for_review" in tail, message
+        assert "exit 2" in tail, message
 
 
 def test_baseline_initialization_requires_manual_approval_and_is_not_in_workflow():

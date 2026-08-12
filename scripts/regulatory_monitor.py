@@ -34,6 +34,7 @@ import re
 import sys
 import time
 import uuid
+from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -926,6 +927,147 @@ def _finra_pass_proof_entry_identities(proof: dict, alias_map: dict) -> set:
     return identities
 
 
+def _finra_duplicate_evidence_key(
+    *,
+    page: int,
+    row_index: int,
+    target: str,
+    node_identity: str,
+    detail_hash: str,
+    raw_row_digest: str,
+    raw_payload: dict,
+    raw_row_conflicts_with_first: bool,
+) -> tuple:
+    """Return the exact, hashable identity of one coalesced listing occurrence."""
+    return (
+        page,
+        row_index,
+        target,
+        node_identity,
+        detail_hash,
+        raw_row_digest,
+        json.dumps(
+            raw_payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        raw_row_conflicts_with_first,
+    )
+
+
+def _finra_duplicate_evidence_from_pass(
+    source_key: str,
+    proof: dict,
+    index: int,
+    entries: dict,
+    alias_map: dict,
+    fallback_urls: dict,
+) -> tuple[Counter, list[str]]:
+    """Derive every duplicate occurrence from one retained listing pass."""
+    errors: list[str] = []
+    evidence: Counter = Counter()
+    payload_pages = proof.get("page_row_payloads")
+    page_numbers = proof.get("page_numbers")
+    if (
+        not isinstance(payload_pages, list)
+        or not isinstance(page_numbers, list)
+        or len(payload_pages) != len(page_numbers)
+    ):
+        return evidence, [
+            f"{source_key} pass proof {index} cannot derive duplicate evidence"
+        ]
+
+    first_digest_by_node: dict[str, str] = {}
+    for page_index, rows in enumerate(payload_pages):
+        page_number = page_numbers[page_index]
+        if (
+            not isinstance(page_number, int)
+            or isinstance(page_number, bool)
+            or not isinstance(rows, list)
+        ):
+            errors.append(
+                f"{source_key} pass proof {index} duplicate page evidence is invalid"
+            )
+            continue
+        for row_index, raw_payload in enumerate(rows):
+            target = _finra_row_detail_target(raw_payload)
+            if target is None:
+                errors.append(
+                    f"{source_key} pass proof {index} duplicate row "
+                    f"{page_number}:{row_index} has no single detail target"
+                )
+                continue
+
+            entry_identity = _finra_resolve_identity_via_ledger(
+                _extract_finra_document_id(target),
+                alias_map,
+            )
+            detail_hash = entries.get(entry_identity)
+            if not isinstance(detail_hash, str) or not detail_hash:
+                errors.append(
+                    f"{source_key} pass proof {index} duplicate row "
+                    f"{page_number}:{row_index} is not bound to fetched detail content"
+                )
+                continue
+
+            fallback_value = fallback_urls.get(target)
+            if fallback_value is not None:
+                fallback_url = (
+                    _validate_finra_node_url(fallback_value)
+                    if isinstance(fallback_value, str)
+                    else None
+                )
+                if fallback_url is None:
+                    errors.append(
+                        f"{source_key} pass proof {index} duplicate row "
+                        f"{page_number}:{row_index} has invalid fetched node evidence"
+                    )
+                    continue
+                _, node_identity = _finra_normalize_detail_link(fallback_url)
+            else:
+                _, resolved_node_identity = _finra_normalize_detail_link(
+                    entry_identity
+                )
+                _, target_node_identity = _finra_normalize_detail_link(target)
+                node_identity = (
+                    resolved_node_identity
+                    if (
+                        isinstance(resolved_node_identity, str)
+                        and resolved_node_identity.startswith("node:")
+                    )
+                    else target_node_identity
+                )
+            if not isinstance(node_identity, str) or not node_identity:
+                errors.append(
+                    f"{source_key} pass proof {index} duplicate row "
+                    f"{page_number}:{row_index} has no fetched node identity"
+                )
+                continue
+
+            raw_row_digest = compute_hash(json.dumps(
+                raw_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
+            first_digest = first_digest_by_node.get(node_identity)
+            if first_digest is None:
+                first_digest_by_node[node_identity] = raw_row_digest
+                continue
+            evidence[_finra_duplicate_evidence_key(
+                page=page_number,
+                row_index=row_index,
+                target=target,
+                node_identity=node_identity,
+                detail_hash=detail_hash,
+                raw_row_digest=raw_row_digest,
+                raw_payload=raw_payload,
+                raw_row_conflicts_with_first=(first_digest != raw_row_digest),
+            )] += 1
+    return evidence, errors
+
+
 def _finra_retained_listing_detail_urls(proofs: object) -> set[str]:
     """Return detail URLs independently present in both retained listing passes."""
     if (
@@ -1381,20 +1523,33 @@ def _validate_source_coverage(
             if not legacy_identity_proof:
                 dup_alias_map = _finra_alias_map(coverage.get("alias_ledger"))
                 dup_fetched = set(fetched_entry_identities)
+                ledger_evidence: Counter = Counter()
                 for d_index, record in enumerate(duplicate_ledger):
                     label = f"{source_key} duplicate ledger record {d_index}"
                     if not isinstance(record, dict):
                         errors.append(f"{label} is malformed")
                         continue
+                    page = record.get("page")
+                    row_index = record.get("row_index")
                     node_identity = record.get("node_identity")
                     detail_hash = record.get("detail_hash")
                     raw_row_digest = record.get("raw_row_digest")
                     raw_payload = record.get("raw_payload")
+                    raw_row_conflicts = record.get(
+                        "raw_row_conflicts_with_first"
+                    )
                     if (
-                        not isinstance(node_identity, str) or not node_identity
+                        not isinstance(page, int) or isinstance(page, bool)
+                        or page < 0
+                        or not isinstance(row_index, int)
+                        or isinstance(row_index, bool)
+                        or row_index < 0
+                        or not isinstance(node_identity, str)
+                        or not node_identity
                         or not isinstance(detail_hash, str) or not detail_hash
                         or not isinstance(raw_row_digest, str) or not raw_row_digest
                         or not isinstance(raw_payload, dict)
+                        or not isinstance(raw_row_conflicts, bool)
                     ):
                         errors.append(
                             f"{label} is missing required duplicate evidence"
@@ -1415,11 +1570,85 @@ def _validate_source_coverage(
                         errors.append(
                             f"{label} payload does not resolve to a single detail target"
                         )
-                    elif _finra_resolve_identity_via_ledger(
-                        _extract_finra_document_id(detail_url), dup_alias_map
-                    ) not in dup_fetched:
+                    else:
+                        resolved_identity = _finra_resolve_identity_via_ledger(
+                            _extract_finra_document_id(detail_url), dup_alias_map
+                        )
+                        if resolved_identity not in dup_fetched:
+                            errors.append(
+                                f"{label} does not coalesce into a fetched entry"
+                            )
+                        ledger_evidence[_finra_duplicate_evidence_key(
+                            page=page,
+                            row_index=row_index,
+                            target=detail_url,
+                            node_identity=node_identity,
+                            detail_hash=detail_hash,
+                            raw_row_digest=raw_row_digest,
+                            raw_payload=raw_payload,
+                            raw_row_conflicts_with_first=raw_row_conflicts,
+                        )] += 1
+
+                fallback_urls = source_state.get("fallback_urls", {})
+                if not isinstance(fallback_urls, dict):
+                    errors.append(
+                        f"{source_key} fetched node evidence is invalid"
+                    )
+                    fallback_urls = {}
+                proof_duplicate_evidence = []
+                if (
+                    isinstance(proofs, list)
+                    and len(proofs) == 2
+                    and all(isinstance(proof, dict) for proof in proofs)
+                ):
+                    for index, proof in enumerate(proofs):
+                        pass_evidence, pass_errors = (
+                            _finra_duplicate_evidence_from_pass(
+                                source_key,
+                                proof,
+                                index,
+                                entries,
+                                dup_alias_map,
+                                fallback_urls,
+                            )
+                        )
+                        proof_duplicate_evidence.append(pass_evidence)
+                        errors.extend(pass_errors)
+                if len(proof_duplicate_evidence) == 2:
+                    expected_duplicate_count = (
+                        resolved_row_count - unique_node_count
+                        if (
+                            isinstance(resolved_row_count, int)
+                            and not isinstance(resolved_row_count, bool)
+                            and isinstance(unique_node_count, int)
+                            and not isinstance(unique_node_count, bool)
+                        )
+                        else None
+                    )
+                    if (
+                        expected_duplicate_count is not None
+                        and any(
+                            sum(pass_evidence.values())
+                            != expected_duplicate_count
+                            for pass_evidence in proof_duplicate_evidence
+                        )
+                    ):
                         errors.append(
-                            f"{label} does not coalesce into a fetched entry"
+                            f"{source_key} retained duplicate occurrences do not "
+                            "reconcile with proof-bound row counts"
+                        )
+                    if (
+                        proof_duplicate_evidence[0]
+                        != proof_duplicate_evidence[1]
+                    ):
+                        errors.append(
+                            f"{source_key} retained passes disagree on exact "
+                            "duplicate evidence"
+                        )
+                    elif ledger_evidence != proof_duplicate_evidence[0]:
+                        errors.append(
+                            f"{source_key} duplicate ledger does not exactly "
+                            "match duplicates proven by both passes"
                         )
         if not isinstance(coverage.get("conflict_ledger"), list):
             errors.append(f"{source_key} conflict ledger is invalid")
@@ -3961,16 +4190,21 @@ def check_for_recovery_items(
     for item in items:
         entry_key = item.document_id if item.document_id else item.url
         content_hash = _item_content_hash(item)
+        comparison_key = entry_key
+        if source_key == SOURCE_KEY_FINRA:
+            comparison_key = _resolve_finra_identity(
+                trusted_source_state,
+                entry_key,
+            )
         publication_date = item.publication_date[:10] if (
             isinstance(item.publication_date, str)
             and re.match(r"^\d{4}-\d{2}-\d{2}", item.publication_date)
         ) else None
-        if publication_date is None or publication_date > watermark:
-            findings.append(item)
-        elif (
-            entry_key in trusted_entries
-            and trusted_entries[entry_key] != content_hash
-        ):
+        if comparison_key in trusted_entries:
+            if trusted_entries[comparison_key] != content_hash:
+                findings.append(item)
+            continue
+        if publication_date is None or publication_date >= watermark:
             findings.append(item)
     return findings
 
