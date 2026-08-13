@@ -46,6 +46,7 @@ except ImportError as e:
 # === Configuration Constants ===
 REQUEST_TIMEOUT = 30  # seconds
 MAX_RETRIES = 3
+MAX_RATE_LIMIT_WAIT = 15  # seconds; cap only fallback waits for missing/invalid hints
 
 # Default path to monitoring configuration file
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "config" / "monitoring-config.yaml"
@@ -74,8 +75,30 @@ def fetch_page(url: str, session: requests.Session, max_retries: int = MAX_RETRI
             response = session.get(url, timeout=REQUEST_TIMEOUT, allow_redirects=True)
 
             if response.status_code == 429:
-                wait_time = int(response.headers.get("Retry-After", 60))
-                print(f"  Rate limited, waiting {wait_time}s...")
+                retry_after = response.headers.get("Retry-After")
+                try:
+                    retry_after_seconds = max(0, int(retry_after))
+                except (TypeError, ValueError):
+                    retry_after_seconds = 0
+                # A valid Retry-After is authoritative. Only the fallback
+                # exponential delay is capped so a missing/malformed hint
+                # cannot stall a scheduled monitor indefinitely.
+                wait_time = (
+                    retry_after_seconds
+                    if retry_after_seconds > 0
+                    else min(MAX_RATE_LIMIT_WAIT, 2 ** attempt)
+                )
+                if attempt == max_retries - 1:
+                    return {
+                        'url': url,
+                        'status_code': 429,
+                        'content': "",
+                        'final_url': response.url,
+                        'was_redirected': response.url != url,
+                        'error': f"rate limited after {max_retries} attempts",
+                        'retry_after': retry_after_seconds,
+                    }
+                print(f"  Rate limited, retrying in {wait_time}s...")
                 time.sleep(wait_time)
                 continue
 
@@ -388,7 +411,16 @@ def format_change_summary(changes: list) -> str:
 
 
 # === Unified State Management ===
-def load_state(state_path) -> dict:
+class StateLoadError(RuntimeError):
+    """Raised when strict state loading cannot prove a usable state file."""
+
+
+def load_state(
+    state_path,
+    *,
+    allow_empty: bool = True,
+    migrate: bool = True,
+) -> dict:
     """
     Load unified monitoring state from JSON file.
 
@@ -406,6 +438,9 @@ def load_state(state_path) -> dict:
 
     Args:
         state_path: Path to state file (should be data/monitor-state.json)
+        allow_empty: Return an empty state when the file is absent/corrupt.
+            Strict callers must set this to False.
+        migrate: Allow legacy Learn-state migration, which may write state.
 
     Returns:
         dict with unified state structure
@@ -417,19 +452,45 @@ def load_state(state_path) -> dict:
     state = None
     if state_path.exists():
         try:
-            state = json.loads(state_path.read_text(encoding='utf-8'))
+            loaded_state = json.loads(state_path.read_text(encoding='utf-8'))
+            if not isinstance(loaded_state, dict):
+                raise StateLoadError("Unified state file must contain a JSON object")
+            state = loaded_state
             if "version" not in state:
+                if not allow_empty:
+                    raise StateLoadError("Unified state file is missing version")
                 state["version"] = 1
             if "sources" not in state:
+                if not allow_empty:
+                    raise StateLoadError("Unified state file is missing sources")
                 state["sources"] = {}
-        except json.JSONDecodeError:
+            elif not isinstance(state["sources"], dict):
+                if not allow_empty:
+                    raise StateLoadError("Unified state sources must be an object")
+                state["sources"] = {}
+        except json.JSONDecodeError as exc:
+            if not allow_empty:
+                raise StateLoadError(
+                    f"State file is not valid JSON: {state_path}"
+                ) from exc
             print("WARNING: State file corrupt, will attempt migration or start fresh")
             state = None
+        except StateLoadError:
+            raise
+        except (OSError, UnicodeError) as exc:
+            if not allow_empty:
+                raise StateLoadError(f"Unable to read state file {state_path}: {exc}") from exc
+            print(f"WARNING: Unable to read state file, will start fresh: {exc}")
+            state = None
+    elif not allow_empty and not migrate:
+        raise StateLoadError(f"State file does not exist: {state_path}")
 
     # Check for old format and migrate if unified state is missing or empty
     old_state_path = state_path.parent / "learn-monitor-state.json"
     needs_migration = (
-        old_state_path.exists()
+        migrate
+        and allow_empty
+        and old_state_path.exists()
         and (state is None or not state.get("sources", {}).get("learn"))
     )
     if needs_migration:
@@ -451,6 +512,9 @@ def load_state(state_path) -> dict:
 
     if state is not None:
         return state
+
+    if not allow_empty:
+        raise StateLoadError(f"State file could not be loaded: {state_path}")
 
     # Return empty unified state
     return {
@@ -765,6 +829,7 @@ __all__ = [
     'format_change_summary',
     # State management
     'load_state',
+    'StateLoadError',
     'save_state_atomic',
     'get_source_state',
     'set_source_state',

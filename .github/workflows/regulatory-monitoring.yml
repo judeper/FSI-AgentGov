@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - 'scripts/regulatory_monitor.py'
+      - 'scripts/regulatory_recovery_anchors.py'
       - 'scripts/monitoring_shared.py'
       - '.github/workflows/regulatory-monitoring.yml'
   pull_request:
     paths:
       - 'scripts/regulatory_monitor.py'
+      - 'scripts/regulatory_recovery_anchors.py'
       - 'scripts/monitoring_shared.py'
       - '.github/workflows/regulatory-monitoring.yml'
   schedule:
@@ -18,24 +20,31 @@ on:
     # Allow manual triggering
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
-  # Serialize Regulatory Monitor runs so two runs never consolidate/auto-merge
-  # each other's PRs.
+  # Serialize Regulatory Monitor runs so two runs never consolidate each
+  # other's PRs.
   group: regulatory-monitor
   cancel-in-progress: false
 
 jobs:
-  monitor-regulatory:
+  validate-read-only:
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name != 'pull_request' &&
+      github.ref_name != github.event.repository.default_branch)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (read-only)
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -46,26 +55,86 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pyyaml
 
-      - name: Run Regulatory Monitor (PR smoke, dry-run)
-        if: github.event_name == 'pull_request'
+      - name: Run Regulatory Monitor (read-only dry validation)
         run: python scripts/regulatory_monitor.py --dry-run
+
+  monitor-regulatory:
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify trusted default-branch checkout
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "${{ github.event.repository.default_branch }}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 pyyaml
 
       - name: Run Regulatory Monitor
         id: monitor
-        if: github.event_name != 'pull_request'
-        continue-on-error: true
         run: |
+          set -euo pipefail
+          BASE_SHA=$(git rev-parse HEAD)
+          STATE_SHA_BEFORE=$(sha256sum data/monitor-state.json | awk '{print $1}')
+          echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "state_sha_before=$STATE_SHA_BEFORE" >> "$GITHUB_OUTPUT"
+
           # Run the monitor and capture exit code
           # Disable set -e so exit code 1 (changes detected) doesn't abort the script
           set +e
           python scripts/regulatory_monitor.py
           EXIT_CODE=$?
           set -e
-          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+          case "$EXIT_CODE" in
+            0|1)
+              ;;
+            *)
+              echo "::error::Regulatory monitor returned undocumented exit code $EXIT_CODE" >&2
+              exit "$EXIT_CODE"
+              ;;
+          esac
+
+          # Exit 0 is still a successful run: the monitor may have advanced
+          # refresh cursors, last_run metadata, or learned FINRA fallbacks.
+          # Those state-only updates must be persisted just like findings.
+          if [ "$EXIT_CODE" -eq 0 ]; then
+            echo "run_kind=state-maintenance" >> $GITHUB_OUTPUT
+            echo "critical_items=0" >> $GITHUB_OUTPUT
+            echo "high_items=0" >> $GITHUB_OUTPUT
+            echo "medium_items=0" >> $GITHUB_OUTPUT
+            echo "noise_items=0" >> $GITHUB_OUTPUT
+          fi
 
           # If changes were detected, extract summary stats from the report
           if [ "$EXIT_CODE" -eq 1 ]; then
+            echo "run_kind=findings" >> $GITHUB_OUTPUT
             REPORT_FILE=$(ls -t reports/monitoring/regulatory-changes-*.md 2>/dev/null | head -1)
+            if [ -z "$REPORT_FILE" ]; then
+              echo "::error::Monitor returned findings but did not produce a report." >&2
+              exit 2
+            fi
             if [ -n "$REPORT_FILE" ]; then
               # Extract counts from the report. Use `| head -1 || true` (NOT
               # `|| echo 0`) so a grep miss / PCRE-unavailable / report-format
@@ -74,17 +143,6 @@ jobs:
               HIGH=$(grep -oP 'HIGH Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
               MEDIUM=$(grep -oP 'MEDIUM Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
               NOISE=$(grep -oP 'NOISE Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
-
-              # FAIL-CLOSED auto-merge eligibility, computed from the RAW counts
-              # BEFORE any display fallback. Only 'true' when BOTH CRITICAL and HIGH
-              # parsed as exactly "0". An empty value (parse failure / format drift)
-              # is NOT "0", so it can never present as "0 critical/high" and slip an
-              # unreviewed item through the unattended auto-merge gate.
-              if [ "$CRITICAL" = "0" ] && [ "$HIGH" = "0" ]; then
-                echo "automerge_eligible=true" >> $GITHUB_OUTPUT
-              else
-                echo "automerge_eligible=false" >> $GITHUB_OUTPUT
-              fi
 
               # Display counts (PR title/body): empty -> 0 for readable output only.
               echo "critical_items=${CRITICAL:-0}" >> $GITHUB_OUTPUT
@@ -95,9 +153,182 @@ jobs:
             fi
           fi
 
+      - name: Validate monitor outcome and outputs
+        id: monitor_guard
+        if: always()
+        run: |
+          set -euo pipefail
+          OUTCOME="${{ steps.monitor.outcome }}"
+          EXIT_CODE="${{ steps.monitor.outputs.exit_code }}"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "::error::Regulatory monitor step did not complete successfully (outcome=$OUTCOME)." >&2
+            exit 2
+          fi
+          case "$EXIT_CODE" in
+            0|1)
+              ;;
+            *)
+              echo "::error::Regulatory monitor exit_code output is missing or undocumented: '$EXIT_CODE'." >&2
+              exit 2
+              ;;
+          esac
+
+      - name: Detect persisted monitor changes
+        id: state_changes
+        if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
+          github.event_name != 'pull_request' &&
+          github.ref_name == github.event.repository.default_branch &&
+          (steps.monitor.outputs.exit_code == '0' ||
+          steps.monitor.outputs.exit_code == '1')
+        run: |
+          set -euo pipefail
+
+          # The monitor is allowed to change only its state/backup and
+          # regulatory report outputs. Any other mutation is a fail-closed
+          # workflow error rather than an accidental PR payload.
+          ALLOWED_PATHS='^(data/monitor-state\.json(\.backup)?|reports/monitoring/regulatory-changes-[0-9]{4}-[0-9]{2}-[0-9]{2}\.md)$'
+          CHANGED_PATHS=$(git status --porcelain=v1 --untracked-files=all | sed -E 's/^.. //')
+          if [ -n "$CHANGED_PATHS" ]; then
+            UNEXPECTED_PATHS=$(printf '%s\n' "$CHANGED_PATHS" | grep -vE "$ALLOWED_PATHS" || true)
+            if [ -n "$UNEXPECTED_PATHS" ]; then
+              echo "::error::Unexpected monitor mutation(s):"
+              printf '%s\n' "$UNEXPECTED_PATHS" >&2
+              exit 2
+            fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "changed_paths<<EOF" >> "$GITHUB_OUTPUT"
+            printf '%s\n' "$CHANGED_PATHS" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate default-branch monitor CAS
+        id: cas
+        if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
+          github.event_name != 'pull_request' &&
+          github.ref_name == github.event.repository.default_branch &&
+          (steps.monitor.outputs.exit_code == '0' ||
+          steps.monitor.outputs.exit_code == '1')
+        run: |
+          set -euo pipefail
+          EXPECTED_BASE="${{ steps.monitor.outputs.base_sha }}"
+          EXPECTED_STATE="${{ steps.monitor.outputs.state_sha_before }}"
+          CURRENT_BASE=$(git rev-parse HEAD)
+          DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
+
+          if [ "${GITHUB_REF_NAME}" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Mutating monitor run is not on the default branch." >&2
+            exit 2
+          fi
+          if [ "$CURRENT_BASE" != "$EXPECTED_BASE" ]; then
+            echo "::error::Checked-out base changed during monitor execution." >&2
+            exit 2
+          fi
+
+          git fetch --no-tags origin "$DEFAULT_BRANCH"
+          REMOTE_BASE=$(git rev-parse "origin/$DEFAULT_BRANCH")
+          if [ "$REMOTE_BASE" != "$EXPECTED_BASE" ]; then
+            echo "::error::Default branch advanced during monitor execution; refusing state PR." >&2
+            exit 2
+          fi
+
+          BASE_STATE=$(git show "$EXPECTED_BASE:data/monitor-state.json" | sha256sum | awk '{print $1}')
+          if [ "$BASE_STATE" != "$EXPECTED_STATE" ]; then
+            echo "::error::Captured state SHA does not match captured base commit; refusing state PR." >&2
+            exit 2
+          fi
+
+          CURRENT_STATE=$(sha256sum data/monitor-state.json | awk '{print $1}')
+          if [ -z "$EXPECTED_STATE" ] || [ -z "$CURRENT_STATE" ]; then
+            echo "::error::Missing captured state SHA; refusing state PR." >&2
+            exit 2
+          fi
+
+          # Bind the run to the exact generated output. Every path the monitor
+          # mutated is recorded with BOTH its git blob SHA (the object the PR
+          # will carry) and its sha256 content hash, so the post-create
+          # verification can require the PR head to contain exactly this set and
+          # nothing else.
+          ALLOWED_PATHS='^(data/monitor-state\.json(\.backup)?|reports/monitoring/regulatory-changes-[0-9]{4}-[0-9]{2}-[0-9]{2}\.md)$'
+          GENERATED_PATHS=$(git status --porcelain=v1 --untracked-files=all \
+            | sed -E 's/^.. //' | LC_ALL=C sort)
+          MANIFEST=""
+          if [ -n "$GENERATED_PATHS" ]; then
+            while IFS= read -r generated_path; do
+              [ -n "$generated_path" ] || continue
+              if ! printf '%s\n' "$generated_path" | grep -qE "$ALLOWED_PATHS"; then
+                echo "::error::Unexpected generated file: $generated_path" >&2
+                exit 2
+              fi
+              if [ ! -f "$generated_path" ]; then
+                echo "::error::Generated path is missing: $generated_path" >&2
+                exit 2
+              fi
+              GENERATED_BLOB=$(git hash-object -- "$generated_path")
+              GENERATED_CONTENT=$(sha256sum -- "$generated_path" | awk '{print $1}')
+              if [ -z "$GENERATED_BLOB" ] || [ -z "$GENERATED_CONTENT" ]; then
+                echo "::error::Could not hash generated path: $generated_path" >&2
+                exit 2
+              fi
+              MANIFEST=$(printf '%s\n%s %s %s' \
+                "$MANIFEST" "$generated_path" "$GENERATED_BLOB" "$GENERATED_CONTENT")
+            done <<GENERATED_EOF
+          $GENERATED_PATHS
+          GENERATED_EOF
+            MANIFEST=$(printf '%s\n' "$MANIFEST" | awk 'NF')
+          fi
+
+          # The manifest must agree with the state hash this step just validated.
+          MANIFEST_STATE=$(printf '%s\n' "$MANIFEST" \
+            | awk '$1 == "data/monitor-state.json" {print $3; exit}')
+          if [ -n "$MANIFEST_STATE" ] && [ "$MANIFEST_STATE" != "$CURRENT_STATE" ]; then
+            echo "::error::Generated manifest does not bind the validated state." >&2
+            exit 2
+          fi
+
+          echo "base_sha=$EXPECTED_BASE" >> "$GITHUB_OUTPUT"
+          echo "state_sha_before=$EXPECTED_STATE" >> "$GITHUB_OUTPUT"
+          echo "state_sha_after=$CURRENT_STATE" >> "$GITHUB_OUTPUT"
+          {
+            echo "generated_manifest<<GENERATED_MANIFEST_EOF"
+            printf '%s\n' "$MANIFEST"
+            echo "GENERATED_MANIFEST_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "valid=true" >> "$GITHUB_OUTPUT"
+
+      - name: Determine whether to create a monitor PR
+        id: should_create_pr
+        if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
+          steps.cas.outputs.valid == 'true' &&
+          (steps.monitor.outputs.exit_code == '0' ||
+          steps.monitor.outputs.exit_code == '1')
+        run: |
+          set -euo pipefail
+          EXIT_CODE="${{ steps.monitor.outputs.exit_code }}"
+          STATE_CHANGED="${{ steps.state_changes.outputs.changed }}"
+
+          # Findings always need a PR. A successful no-findings run needs one
+          # only when it actually persisted monitor state; clean runs are silent.
+          if [ "$EXIT_CODE" = "1" ] || { [ "$EXIT_CODE" = "0" ] && [ "$STATE_CHANGED" = "true" ]; }; then
+            echo "create_pr=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "create_pr=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Generate GitHub App token
         id: app-token
-        if: steps.monitor.outputs.exit_code == '1'
+        if: >-
+          steps.monitor.outcome == 'success' &&
+          steps.monitor_guard.outcome == 'success' &&
+          steps.cas.outputs.valid == 'true' &&
+          steps.should_create_pr.outputs.create_pr == 'true'
         uses: actions/create-github-app-token@v3
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
@@ -105,31 +336,31 @@ jobs:
 
       - name: Create Pull Request
         id: create_pr
-        if: steps.monitor.outputs.exit_code == '1'
+        if: >-
+          steps.cas.outputs.valid == 'true' &&
+          steps.should_create_pr.outputs.create_pr == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
           # Only ever stage state/report files so the PR cannot accidentally carry
-          # customer-facing docs into the unattended auto-merge path. The regulatory
-          # monitor writes only data/monitor-state.json(.backup) and
+          # customer-facing docs into the state-only PR. The regulatory monitor
+          # writes only data/monitor-state.json(.backup) and
           # reports/monitoring/regulatory-changes-*.md.
           add-paths: |
             data/monitor-state.json
             data/monitor-state.json.backup
             reports/monitoring/*.md
-          commit-message: |
-            Monitoring: Regulatory changes detected
-
-            - Detected new regulatory items from Federal Register and FINRA
-            - See reports/monitoring/ for detailed change reports
-            - Automated update from regulatory-monitor workflow (unified monitoring framework)
+          commit-message: "Monitoring: Persist regulatory monitor state (${{ github.run_number }})"
           branch: monitoring/regulatory-${{ github.run_number }}
+          base: ${{ github.event.repository.default_branch }}
           delete-branch: true
-          title: 'Monitoring: ${{ steps.monitor.outputs.critical_items }} CRITICAL, ${{ steps.monitor.outputs.high_items }} HIGH regulatory items (${{ github.run_number }})'
+          title: "Monitoring: ${{ steps.monitor.outputs.exit_code == '1' && 'regulatory findings detected' || 'successful state maintenance' }} (${{ github.run_number }})"
           body: |
             ## Regulatory Monitor Report
 
-            This PR contains new regulatory items detected from Federal Register (SEC, CFTC, OCC, Federal Reserve) and FINRA notices.
+            **Run type:** ${{ steps.monitor.outputs.exit_code == '1' && 'Regulatory findings detected' || 'Successful state maintenance (no content findings)' }}
+
+            ${{ steps.monitor.outputs.exit_code == '0' && 'This maintenance-only PR persists verified monitor progress (refresh cursors, timestamps, and learned source fallbacks) so the next run does not repeat the same batch.' || 'This PR contains new regulatory items detected from Federal Register (SEC, CFTC, OCC, Federal Reserve) and FINRA notices.' }}
 
             ### Change Summary
 
@@ -144,10 +375,7 @@ jobs:
 
             ### Next Steps
 
-            1. Review the full report: `${{ steps.monitor.outputs.report_file }}`
-            2. For CRITICAL/HIGH items, check suggested affected controls
-            3. Update framework documentation if regulatory changes require it
-            4. Merge to update baseline for future monitoring
+            ${{ steps.monitor.outputs.exit_code == '1' && format('1. Review the full report: `{0}`; 2. For CRITICAL/HIGH items, check suggested affected controls; 3. Update framework documentation if regulatory changes require it; 4. Merge to update baseline for future monitoring.', steps.monitor.outputs.report_file) || '1. Verify the diff contains only expected monitor-state, backup, and maintenance metadata changes; 2. Merge to persist progress for the next refresh batch.' }}
 
             ### Review Instructions
 
@@ -162,7 +390,7 @@ jobs:
             ### Files Modified
 
             - `data/monitor-state.json` - Updated with new regulatory item hashes (unified state for all monitoring sources)
-            - `${{ steps.monitor.outputs.report_file }}` - Detailed change report with control-to-keyword mapping
+            ${{ steps.monitor.outputs.exit_code == '1' && format('- `{0}` - Detailed change report with control-to-keyword mapping', steps.monitor.outputs.report_file) || '- `data/monitor-state.json.backup` - Atomic rollback copy of the persisted state' }}
 
             ---
 
@@ -170,7 +398,7 @@ jobs:
           labels: |
             monitoring
             regulatory
-            needs-review
+            ${{ steps.monitor.outputs.exit_code == '1' && 'needs-review' || '' }}
           assignees: ${{ github.repository_owner }}
 
       - name: Add summary comment with priority items
@@ -209,80 +437,245 @@ jobs:
 
             > 💡 **Tip:** Review CRITICAL and HIGH items first. Check the "Potentially Affected Controls" section for keyword-based suggestions.
 
-      # --- consolidation + auto-merge of state-only regulatory PRs ---
-      # Regulatory PRs only ever touch data/monitor-state.json(.backup) and
-      # reports/monitoring/*.md (no customer-facing docs). The newest run carries
-      # the cumulative monitor-state.json baseline, so prior auto-merge-eligible
-      # regulatory PRs are superseded and safe to close. PRs that still carry
-      # `needs-review` (CRITICAL/HIGH items) are NEVER closed here — they are
-      # preserved for human review. The newest is auto-merged ONLY when it has
-      # zero CRITICAL/HIGH items.
-      - name: Consolidate superseded Regulatory-monitor PRs
-        # Gated by the same kill-switch as auto-merge: turning automation off
-        # disables this destructive (PR-closing) step too. Closes ONLY
-        # auto-merge-eligible (non-needs-review) superseded PRs; CRITICAL/HIGH PRs
-        # keep their needs-review label and are left open for a human.
-        if: steps.create_pr.outputs.pull-request-number && vars.REGULATORY_STATE_AUTOMERGE == 'true'
+      - name: Verify created PR binds the validated generated output
+        # Blockers 1 & 2: this privileged monitor workflow does NOT auto-merge.
+        # No GitHub merge API binds BOTH the exact base and the exact head
+        # atomically (REST merge and GraphQL mergePullRequest / auto-merge accept
+        # only expectedHeadOid), and there is no branch protection/ruleset to
+        # require an up-to-date base. A post-call main re-read is a TOCTOU check
+        # that races the queued merge, so unattended auto-merge cannot be made
+        # fail-closed against a stale-main race. We therefore stop at a validated
+        # PR and leave the merge to the existing external guarded sweep / human
+        # gate. This step only PROVES the created PR faithfully carries the exact
+        # CAS-validated output; it never merges.
+        #
+        # peter-evans/create-pull-request restores the base checkout after
+        # opening the PR, so the generated files are no longer on disk. The
+        # binding is verified against the PR head commit's git objects via the
+        # API (git blob SHAs are content-addressed), never by rehashing the
+        # restored workspace.
+        id: verify_pr
+        if: >-
+          steps.create_pr.outputs.pull-request-number &&
+          steps.cas.outputs.valid == 'true' &&
+          steps.should_create_pr.outputs.create_pr == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+          EXPECTED_HEAD: ${{ steps.create_pr.outputs.pull-request-head-sha }}
+          EXPECTED_BASE: ${{ steps.cas.outputs.base_sha }}
+          EXPECTED_STATE_AFTER: ${{ steps.cas.outputs.state_sha_after }}
+          GENERATED_MANIFEST: ${{ steps.cas.outputs.generated_manifest }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+
+          flag_for_review() {
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+          }
+
+          # Every binding below must be present. A missing CAS/generated-output
+          # value is a fail-closed condition, never an implicit "unbound PR".
+          if [ -z "$EXPECTED_HEAD" ] || [ -z "$EXPECTED_BASE" ] \
+            || [ -z "$EXPECTED_STATE_AFTER" ] || [ -z "$GENERATED_MANIFEST" ]; then
+            echo "::error::Missing CAS/generated-output binding; cannot verify created PR." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          # The created PR must be based on the default branch and must point at
+          # the exact head the create step produced. The head OID is what binds
+          # every git-blob check below to a single immutable commit.
+          PR_VIEW=$(gh pr view "$NEW_PR" --json baseRefName,baseRefOid,headRefOid \
+            --jq '"\(.baseRefName) \(.baseRefOid) \(.headRefOid)"') || PR_VIEW=""
+          if [ -z "$PR_VIEW" ]; then
+            echo "::error::Could not read PR #$NEW_PR metadata; cannot verify created PR." >&2
+            flag_for_review
+            exit 2
+          fi
+          read -r PR_BASE_NAME PR_BASE_SHA PR_HEAD_SHA <<< "$PR_VIEW"
+          if [ "$PR_BASE_NAME" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Created PR is not based on the default branch." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]; then
+            echo "::error::Created PR base moved after validation ($PR_BASE_SHA != $EXPECTED_BASE)." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]; then
+            echo "::error::Created PR head moved after creation ($PR_HEAD_SHA != $EXPECTED_HEAD)." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          # Bind every manifested path to the EXACT git blob carried by the PR
+          # head commit. contents?ref=<head> returns the blob SHA of the file in
+          # that commit; matching the CAS-recorded blob proves byte-identical
+          # content with no reliance on the restored workspace. The state file
+          # blob must additionally match the CAS-validated state content hash.
+          while IFS=' ' read -r manifest_path manifest_blob manifest_content; do
+            [ -n "$manifest_path" ] || continue
+            if [ -z "$manifest_blob" ] || [ -z "$manifest_content" ]; then
+              echo "::error::Malformed generated manifest entry for $manifest_path." >&2
+              flag_for_review
+              exit 2
+            fi
+            HEAD_BLOB=$(gh api \
+              "repos/${GITHUB_REPOSITORY}/contents/${manifest_path}?ref=${EXPECTED_HEAD}" \
+              --jq '.sha') || HEAD_BLOB=""
+            if [ -z "$HEAD_BLOB" ]; then
+              echo "::error::Could not read $manifest_path at PR head $EXPECTED_HEAD." >&2
+              flag_for_review
+              exit 2
+            fi
+            if [ "$HEAD_BLOB" != "$manifest_blob" ]; then
+              echo "::error::$manifest_path at the PR head does not match the validated generated blob." >&2
+              flag_for_review
+              exit 2
+            fi
+            if [ "$manifest_path" = "data/monitor-state.json" ] \
+              && [ "$manifest_content" != "$EXPECTED_STATE_AFTER" ]; then
+              echo "::error::Manifest state content hash does not match the CAS-validated state." >&2
+              flag_for_review
+              exit 2
+            fi
+          done <<< "$(printf '%s\n' "$GENERATED_MANIFEST" | awk 'NF')"
+
+          # And ensure the PR carries EXACTLY the validated file set and nothing
+          # else. Use the paginated REST API (gh pr view --json files truncates
+          # at 100 files). Compare "<path> <blob sha>" pairs so an extra or
+          # substituted blob is a mismatch, not a shape-only pass. Fail CLOSED on
+          # an unreadable listing.
+          PR_FILES=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NEW_PR}/files" --paginate \
+            --jq '.[] | "\(.filename) \(.sha)"' | LC_ALL=C sort) || PR_FILES=""
+          if [ -z "$PR_FILES" ]; then
+            echo "::error::Could not list files for PR #$NEW_PR; cannot verify generated output." >&2
+            flag_for_review
+            exit 2
+          fi
+          NON_STATE=$(printf '%s\n' "$PR_FILES" | awk '{print $1}' \
+            | grep -vcE '^data/monitor-state\.json(\.backup)?$|^reports/monitoring/.*\.md$' || true)
+          if [ "${NON_STATE:-1}" != "0" ]; then
+            echo "::error::PR #$NEW_PR contains non-state file(s) (count=${NON_STATE:-unknown})." >&2
+            flag_for_review
+            exit 2
+          fi
+          EXPECTED_FILES=$(printf '%s\n' "$GENERATED_MANIFEST" \
+            | awk 'NF {print $1, $2}' | LC_ALL=C sort)
+          if [ "$PR_FILES" != "$EXPECTED_FILES" ]; then
+            echo "::error::PR #$NEW_PR does not carry exactly the validated generated output." >&2
+            echo "expected:" >&2
+            printf '%s\n' "$EXPECTED_FILES" >&2
+            echo "actual:" >&2
+            printf '%s\n' "$PR_FILES" >&2
+            flag_for_review
+            exit 2
+          fi
+
+          echo "Verified PR #$NEW_PR carries exactly the CAS-validated generated output at head $EXPECTED_HEAD."
+          echo "::notice::Regulatory state PR #$NEW_PR is validated and awaiting the external guarded sweep / human merge gate (no auto-merge)."
+          echo "verified=true" >> "$GITHUB_OUTPUT"
+
+      # --- consolidation of superseded state-only regulatory PRs ---
+      # Regulatory PRs only ever touch data/monitor-state.json(.backup) and
+      # reports/monitoring/*.md (no customer-facing docs). Only after the newest
+      # PR is proven to carry the exact CAS-validated output is its cumulative
+      # monitor-state.json baseline allowed to supersede older PRs. A failed or
+      # skipped verification leaves every older PR and branch untouched. PRs
+      # that still carry `needs-review` (CRITICAL/HIGH items) are NEVER closed
+      # here — they are preserved for human review. This workflow never merges;
+      # the newest PR is left open for the existing external guarded sweep /
+      # human merge gate.
+      - name: Consolidate superseded Regulatory-monitor PRs
+        # The legacy-named REGULATORY_STATE_AUTOMERGE switch gates only this
+        # destructive consolidation step. Closes ONLY non-needs-review
+        # superseded PRs after verified handoff; CRITICAL/HIGH PRs keep their
+        # needs-review label and are left open for a human.
+        if: >-
+          steps.create_pr.outputs.pull-request-number &&
+          steps.cas.outputs.valid == 'true' &&
+          steps.verify_pr.outputs.verified == 'true' &&
+          vars.REGULATORY_STATE_AUTOMERGE == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+          EXPECTED_HEAD: ${{ steps.create_pr.outputs.pull-request-head-sha }}
+          EXPECTED_BASE: ${{ steps.cas.outputs.base_sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
-          # Close ONLY older bot-created regulatory PRs that are auto-merge-eligible:
+          set -euo pipefail
+
+          flag_for_review() {
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+          }
+
+          # Close ONLY older bot-created regulatory PRs that are non-needs-review:
           # they must carry the `regulatory` label, NOT carry `needs-review`
           # (CRITICAL/HIGH PRs keep it and must stay open for a human), match the
           # exact branch pattern `monitoring/regulatory-<digits>`, and have a run
           # number strictly lower than this run. This avoids closing human PRs,
           # unreviewed CRITICAL/HIGH PRs, the current PR, or racing another run.
-          gh pr list --state open --label regulatory --json number,headRefName,labels \
+          if [ -z "$EXPECTED_HEAD" ] || [ -z "$EXPECTED_BASE" ] \
+            || [ -z "$DEFAULT_BRANCH" ]; then
+            echo "::error::Missing verified handoff binding before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          if ! CANDIDATES=$(gh pr list --state open --label regulatory \
+            --json number,headRefName,labels \
             --jq '.[] | select(.headRefName | test("^monitoring/regulatory-[0-9]+$")) | select(any(.labels[]; .name == "needs-review") | not) | "\(.number) \(.headRefName)"' \
-          | while read -r n branch; do
+          ); then
+            echo "::error::Could not list consolidation candidates." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          CONSOLIDATION_VIEW=$(gh pr view "$NEW_PR" --json baseRefName,baseRefOid,headRefOid \
+            --jq '"\(.baseRefName) \(.baseRefOid) \(.headRefOid)"') || CONSOLIDATION_VIEW=""
+          if [ -z "$CONSOLIDATION_VIEW" ]; then
+            echo "::error::Could not read PR metadata before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+          read -r PR_BASE_NAME PR_BASE_SHA PR_HEAD_SHA <<< "$CONSOLIDATION_VIEW"
+          CURRENT_BASE=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${DEFAULT_BRANCH}" --jq '.sha') || CURRENT_BASE=""
+          if [ -z "$CURRENT_BASE" ]; then
+            echo "::error::Could not read the default branch before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_BASE_NAME" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Created PR no longer targets the default branch before consolidation." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_BASE_SHA" != "$EXPECTED_BASE" ]; then
+            echo "::error::Created PR base changed before consolidation ($PR_BASE_SHA != $EXPECTED_BASE)." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$CURRENT_BASE" != "$EXPECTED_BASE" ]; then
+            echo "::error::Default branch moved before consolidation ($CURRENT_BASE != $EXPECTED_BASE)." >&2
+            flag_for_review
+            exit 2
+          fi
+          if [ "$PR_HEAD_SHA" != "$EXPECTED_HEAD" ]; then
+            echo "::error::Created PR head changed before consolidation ($PR_HEAD_SHA != $EXPECTED_HEAD)." >&2
+            flag_for_review
+            exit 2
+          fi
+
+          if [ -n "$CANDIDATES" ]; then
+            while read -r n branch; do
               run="${branch#monitoring/regulatory-}"
               if [ "$n" != "$NEW_PR" ] && [ "$run" -lt "$RUN_NUMBER" ]; then
                 echo "Closing superseded PR #$n (run $run < $RUN_NUMBER)"
                 gh pr close "$n" --delete-branch \
                   --comment "Superseded by #${NEW_PR}, which carries the cumulative \`data/monitor-state.json\` baseline (run ${RUN_NUMBER} > ${run}). Auto-closed by the Regulatory Monitor consolidation step." || true
               fi
-            done
-
-      - name: Enable auto-merge for the state-only PR (no CRITICAL/HIGH items)
-        # Kill-switch: set repo variable REGULATORY_STATE_AUTOMERGE to 'true' to
-        # enable unattended merging of state-only regulatory PRs. Additionally
-        # gated on the FAIL-CLOSED automerge_eligible signal (both CRITICAL and
-        # HIGH positively parsed as 0); CRITICAL/HIGH or unparseable counts keep
-        # the `needs-review` label for a human.
-        if: >-
-          steps.create_pr.outputs.pull-request-number &&
-          vars.REGULATORY_STATE_AUTOMERGE == 'true' &&
-          steps.monitor.outputs.automerge_eligible == 'true'
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
-        run: |
-          # Defense in depth: only auto-merge if EVERY changed file is a
-          # state/report file. Use the paginated REST API because
-          # `gh pr view --json files` truncates at 100 files. Fail CLOSED: if the
-          # file listing can't be obtained, skip auto-merge.
-          FILES=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NEW_PR}/files" --paginate --jq '.[].filename') || FILES=""
-          if [ -z "$FILES" ]; then
-            echo "::warning::Could not list files for PR #$NEW_PR (API error or empty); skipping auto-merge (manual review required)."
-            gh pr edit "$NEW_PR" --add-label needs-review || true
-            exit 0
-          fi
-          NON_STATE=$(printf '%s\n' "$FILES" \
-            | grep -vcE '^data/monitor-state\.json(\.backup)?$|^reports/monitoring/.*\.md$' || true)
-          if [ "${NON_STATE:-1}" != "0" ]; then
-            echo "::warning::PR #$NEW_PR contains non-state file(s) (count=${NON_STATE:-unknown}); skipping auto-merge (manual review required)."
-            gh pr edit "$NEW_PR" --add-label needs-review || true
-            exit 0
-          fi
-          # Enable auto-merge FIRST; only drop the needs-review label once that
-          # succeeds, so a failed `gh pr merge` (e.g. repo auto-merge disabled)
-          # leaves the PR visibly needs-review instead of open + unlabeled + stuck.
-          if gh pr merge "$NEW_PR" --auto --squash --delete-branch; then
-            gh pr edit "$NEW_PR" --remove-label needs-review || true
-            echo "Auto-merge enabled for state-only regulatory PR #$NEW_PR (merges once required checks pass)."
-          else
-            echo "::warning::Could not enable auto-merge for PR #$NEW_PR; leaving needs-review for manual handling."
-            gh pr edit "$NEW_PR" --add-label needs-review || true
+            done <<< "$CANDIDATES"
           fi
