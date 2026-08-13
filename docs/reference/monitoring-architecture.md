@@ -355,8 +355,20 @@ That proof must bind one canonical detail identity, the exact numeric node, and
 one official publication date; the same date must occur in normalized
 substantive content whose hash equals the persisted fetched entry. Listing-date
 conflicts replay only against this authority and require a retained matching
-occurrence. Deleting the authority after coherently rewriting both listing
-passes therefore fails validation. FINRA also binds the sorted
+occurrence. The 55 duplicate nodes recovered on 2026-08-09 are additionally
+bound to the reviewed, code-held
+`scripts/regulatory_recovery_anchors.py` v2 trust root. Each immutable anchor
+record fixes the canonical URL, numeric node URL, normalized authoritative
+publication date, raw authoritative-proof hash, and substantive-detail hash.
+Validation recomputes those facts from the retained raw proof and detail
+content, requires the state to name the exact reviewed version/digest, and
+requires exact equality with the complete canonical anchor set. Missing,
+extra, altered, duplicated, ambiguous, or reordered code-held records fail
+closed even when every mutable row, flag, entry, and aggregate digest has been
+coherently recomputed. The scope is deliberately limited to that reviewed
+recovery duplicate set; later duplicate nodes remain governed by the live
+proof validators without being silently frozen into this historical anchor.
+FINRA also binds the sorted
 fetched-detail identity set and digest
 to the persisted entry identity set. Legacy identities are retained only in a
 separate one-to-one alias ledger containing source-hash evidence; aliases do
@@ -368,8 +380,10 @@ envelope whose canonical link, numeric-node shortlink, `page-node-*` body class,
 and authoritative node title agree, and whose canonical URL occurs in both
 listing proofs. The complete derived alias-binding set must also match the
 reviewed code-held recovery anchor, which a state-only monitor run cannot
-rewrite. The mutable `fallback_urls` transport cache is never accepted as alias
-evidence. A migration may never move between two different FINRA
+rewrite. The v2 duplicate anchor carries the same URL-to-node binding digest,
+so extending date/content provenance cannot weaken or replace the original
+alias root. The mutable `fallback_urls` transport cache is never accepted as
+alias evidence. A migration may never move between two different FINRA
 notice numbers, and the alias must reach the hash the canonical entry actually
 carries through an explicit, contiguous, append-only content-update chain.
 Swapping aliases, fallback mappings, shortlinks, hashes, or aggregate digests

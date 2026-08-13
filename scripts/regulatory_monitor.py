@@ -62,6 +62,17 @@ from monitoring_shared import (
     validate_config,
     write_report,
 )
+from regulatory_recovery_anchors import (
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_DETAIL_IDENTITY_BINDING_DIGEST,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_FIELDS,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORDS,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_SCHEMA_VERSION,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_SCOPE,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_SOURCE,
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION,
+)
 
 try:
     import requests
@@ -97,8 +108,8 @@ FINRA_CACHE_BUST_PARAM = "_finra_pass"
 # State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
 # alias migration requires a separate code review that adds a new anchor.
 FINRA_DETAIL_IDENTITY_ANCHORS = {
-    "recovery-2026-08-09-v1": (
-        "sha256:4942b9dd838d4e893a1c07ecb140b70de96db7d57f5842e066e95a39195f1c89"
+    FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION: (
+        FINRA_RECOVERY_DUPLICATE_ANCHOR_DETAIL_IDENTITY_BINDING_DIGEST
     ),
 }
 
@@ -362,6 +373,297 @@ def _finra_duplicate_date_proof_facts(
     if not publication_date:
         return None
     return identity[0], identity[1], publication_date
+
+
+def _finra_recovery_duplicate_anchor_records() -> list[dict]:
+    """Return the reviewed duplicate anchor in its canonical record schema."""
+    return [
+        dict(zip(
+            FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_FIELDS,
+            record,
+            strict=False,
+        ))
+        for record in FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORDS
+    ]
+
+
+def _finra_recovery_duplicate_anchor_payload() -> dict:
+    """Return the complete code-held payload covered by the anchor digest."""
+    return {
+        "schema_version": FINRA_RECOVERY_DUPLICATE_ANCHOR_SCHEMA_VERSION,
+        "version": FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION,
+        "source": FINRA_RECOVERY_DUPLICATE_ANCHOR_SOURCE,
+        "scope": FINRA_RECOVERY_DUPLICATE_ANCHOR_SCOPE,
+        "detail_identity_binding_digest": (
+            FINRA_RECOVERY_DUPLICATE_ANCHOR_DETAIL_IDENTITY_BINDING_DIGEST
+        ),
+        "record_count": FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT,
+        "records": _finra_recovery_duplicate_anchor_records(),
+    }
+
+
+def _finra_recovery_duplicate_anchor_digest() -> str:
+    """Recompute the reviewed anchor digest independently from persisted state."""
+    return compute_hash(json.dumps(
+        _finra_recovery_duplicate_anchor_payload(),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
+def _finra_recovery_duplicate_anchor_catalog_errors() -> list[str]:
+    """Validate the repository-held trust root before using it."""
+    label = "regulatory-finra code-held duplicate recovery anchor"
+    errors: list[str] = []
+    if FINRA_RECOVERY_DUPLICATE_ANCHOR_SCHEMA_VERSION != 1:
+        errors.append(f"{label} schema version is unsupported")
+    if (
+        FINRA_RECOVERY_DUPLICATE_ANCHOR_SOURCE != SOURCE_KEY_FINRA
+        or FINRA_RECOVERY_DUPLICATE_ANCHOR_SCOPE
+        != "duplicate-nodes-observed-in-reviewed-recovery-2026-08-09"
+    ):
+        errors.append(f"{label} scope is invalid")
+    if (
+        FINRA_DETAIL_IDENTITY_ANCHORS.get(
+            FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION
+        )
+        != FINRA_RECOVERY_DUPLICATE_ANCHOR_DETAIL_IDENTITY_BINDING_DIGEST
+    ):
+        errors.append(
+            f"{label} is not bound to the immutable URL-to-node anchor"
+        )
+    if FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_FIELDS != (
+        "canonical_url",
+        "canonical_node_identity",
+        "authoritative_publication_date",
+        "raw_authoritative_proof_hash",
+        "substantive_detail_hash",
+    ):
+        errors.append(f"{label} record schema is invalid")
+
+    records = FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORDS
+    if not isinstance(records, tuple):
+        errors.append(f"{label} records are not immutable")
+        records = ()
+    if (
+        FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT != 55
+        or len(records) != FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT
+    ):
+        errors.append(f"{label} record count is invalid")
+
+    valid_records: list[tuple[str, str, str, str, str]] = []
+    for index, record in enumerate(records):
+        if (
+            not isinstance(record, tuple)
+            or len(record) != len(FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_FIELDS)
+            or any(not isinstance(value, str) or not value for value in record)
+        ):
+            errors.append(f"{label} record {index} is malformed")
+            continue
+        (
+            canonical_url,
+            canonical_node_identity,
+            publication_date,
+            proof_hash,
+            detail_hash,
+        ) = record
+        normalized_url, _ = _finra_normalize_detail_link(canonical_url)
+        if normalized_url != canonical_url:
+            errors.append(f"{label} record {index} canonical URL is invalid")
+        if _validate_finra_node_url(
+            canonical_node_identity
+        ) != canonical_node_identity:
+            errors.append(f"{label} record {index} node identity is invalid")
+        if _normalize_finra_date(publication_date) != publication_date:
+            errors.append(
+                f"{label} record {index} publication date is invalid"
+            )
+        if any(
+            re.fullmatch(r"sha256:[0-9a-f]{64}", value) is None
+            for value in (proof_hash, detail_hash)
+        ):
+            errors.append(f"{label} record {index} hash is invalid")
+        valid_records.append(record)
+
+    if valid_records != sorted(
+        valid_records,
+        key=lambda record: (record[0], record[1]),
+    ):
+        errors.append(f"{label} records are not in canonical order")
+    if (
+        len({record[0] for record in valid_records}) != len(valid_records)
+        or len({record[1] for record in valid_records}) != len(valid_records)
+        or len(set(valid_records)) != len(valid_records)
+    ):
+        errors.append(f"{label} records are duplicate or ambiguous")
+    if (
+        re.fullmatch(
+            r"sha256:[0-9a-f]{64}",
+            FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST,
+        )
+        is None
+        or _finra_recovery_duplicate_anchor_digest()
+        != FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST
+    ):
+        errors.append(f"{label} digest is invalid")
+    return errors
+
+
+def _finra_duplicate_anchor_record_from_resolution(
+    record: object,
+) -> tuple[Optional[dict], list[str], set[str], set[str]]:
+    """Derive one anchor candidate from raw proof/content, not stored hashes."""
+    errors: list[str] = []
+    canonical_urls: set[str] = set()
+    node_urls: set[str] = set()
+    if not isinstance(record, dict):
+        return None, errors, canonical_urls, node_urls
+
+    node_identity = record.get("node_identity")
+    ledger_node_url = None
+    if (
+        isinstance(node_identity, str)
+        and re.fullmatch(r"node:\d+", node_identity)
+    ):
+        ledger_node_url = (
+            f"https://www.finra.org/node/{node_identity.split(':', 1)[1]}"
+        )
+        node_urls.add(ledger_node_url)
+
+    proof = record.get("detail_date_proof")
+    proof_identity = _finra_detail_identity_from_proof(proof)
+    if proof_identity is not None:
+        canonical_urls.add(proof_identity[0])
+        node_urls.add(proof_identity[1])
+    proof_facts = _finra_duplicate_date_proof_facts(proof)
+    detail_content = record.get("detail_content")
+    if (
+        proof_facts is None
+        or ledger_node_url is None
+        or not isinstance(proof, str)
+        or not proof
+        or not isinstance(detail_content, str)
+        or not detail_content
+    ):
+        return None, errors, canonical_urls, node_urls
+
+    canonical_url, proof_node_url, proof_date = proof_facts
+    candidate = {
+        "canonical_url": canonical_url,
+        "canonical_node_identity": ledger_node_url,
+        "authoritative_publication_date": proof_date,
+        "raw_authoritative_proof_hash": compute_hash(proof),
+        "substantive_detail_hash": compute_hash(detail_content),
+    }
+    if ledger_node_url != proof_node_url:
+        errors.append(
+            "regulatory-finra duplicate recovery anchor node is ambiguous"
+        )
+    if record.get("publication_date") != proof_date:
+        errors.append(
+            "regulatory-finra duplicate recovery anchor date is ambiguous"
+        )
+    if record.get("detail_date_proof_hash") != candidate[
+        "raw_authoritative_proof_hash"
+    ]:
+        errors.append(
+            "regulatory-finra duplicate recovery anchor proof hash is invalid"
+        )
+    if record.get("detail_hash") != candidate["substantive_detail_hash"]:
+        errors.append(
+            "regulatory-finra duplicate recovery anchor detail hash is invalid"
+        )
+    if (
+        _finra_publication_date_from_substantive_content(detail_content)
+        != proof_date
+    ):
+        errors.append(
+            "regulatory-finra duplicate recovery anchor date is not "
+            "substantive-detail-bound"
+        )
+    return candidate, errors, canonical_urls, node_urls
+
+
+def _validate_finra_recovery_duplicate_anchor(
+    ledger: object,
+    *,
+    detail_identity_anchor: object,
+    persisted_anchor_digest: object,
+) -> list[str]:
+    """Bind the reviewed recovery duplicate subset to repository-held facts."""
+    errors: list[str] = []
+    if detail_identity_anchor != FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION:
+        if persisted_anchor_digest is not None:
+            errors.append(
+                "regulatory-finra duplicate recovery anchor references an "
+                "unknown recovery version"
+            )
+        return errors
+
+    catalog_errors = _finra_recovery_duplicate_anchor_catalog_errors()
+    errors.extend(catalog_errors)
+    if (
+        persisted_anchor_digest != FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST
+        or persisted_anchor_digest
+        != _finra_recovery_duplicate_anchor_digest()
+    ):
+        errors.append(
+            "regulatory-finra duplicate recovery anchor digest is invalid"
+        )
+    if catalog_errors:
+        return errors
+    if not isinstance(ledger, list):
+        errors.append(
+            "regulatory-finra duplicate recovery anchor evidence is invalid"
+        )
+        return errors
+
+    expected = _finra_recovery_duplicate_anchor_records()
+    expected_urls = {record["canonical_url"] for record in expected}
+    expected_nodes = {
+        record["canonical_node_identity"] for record in expected
+    }
+    actual: list[dict] = []
+    for record in ledger:
+        candidate, record_errors, canonical_urls, node_urls = (
+            _finra_duplicate_anchor_record_from_resolution(record)
+        )
+        in_scope = bool(
+            canonical_urls & expected_urls or node_urls & expected_nodes
+        )
+        if not in_scope:
+            continue
+        errors.extend(record_errors)
+        if candidate is not None:
+            actual.append(candidate)
+
+    field_order = FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_FIELDS
+    expected_keys = [
+        tuple(record[field] for field in field_order) for record in expected
+    ]
+    actual_keys = [
+        tuple(record[field] for field in field_order) for record in actual
+    ]
+    if len(set(actual_keys)) != len(actual_keys):
+        errors.append(
+            "regulatory-finra duplicate recovery anchor records are duplicated"
+        )
+    if len({record[0] for record in actual_keys}) != len(actual_keys) or len(
+        {record[1] for record in actual_keys}
+    ) != len(actual_keys):
+        errors.append(
+            "regulatory-finra duplicate recovery anchor records are ambiguous"
+        )
+    if sorted(actual_keys) != expected_keys:
+        missing = len(set(expected_keys) - set(actual_keys))
+        extra = len(set(actual_keys) - set(expected_keys))
+        errors.append(
+            "regulatory-finra reviewed duplicate recovery anchor does not "
+            "exactly match the retained recovery duplicate set "
+            f"(missing={missing}, extra={extra})"
+        )
+    return errors
 
 
 def _capture_finra_duplicate_date_proof(
@@ -1655,6 +1957,9 @@ def _validate_source_coverage(
             alias_ledger = coverage.get("alias_ledger")
             detail_identity_proofs = coverage.get("detail_identity_proofs")
             detail_identity_anchor = coverage.get("detail_identity_anchor")
+            duplicate_recovery_anchor_digest = coverage.get(
+                "duplicate_recovery_anchor_digest"
+            )
             errors.extend(
                 _validate_finra_alias_ledger(
                     alias_ledger,
@@ -2046,6 +2351,13 @@ def _validate_source_coverage(
                 duplicate_ledger,
                 entries,
                 _finra_alias_map(coverage.get("alias_ledger")),
+            ))
+            errors.extend(_validate_finra_recovery_duplicate_anchor(
+                date_resolution_ledger,
+                detail_identity_anchor=detail_identity_anchor,
+                persisted_anchor_digest=(
+                    duplicate_recovery_anchor_digest
+                ),
             ))
         if not isinstance(coverage.get("conflict_ledger"), list):
             errors.append(f"{source_key} conflict ledger is invalid")
@@ -4917,6 +5229,15 @@ def update_source_state(
             for source_url in alias_source_urls
         ]
         coverage["detail_identity_anchor"] = detail_identity_anchor
+        if (
+            detail_identity_anchor
+            == FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION
+        ):
+            coverage["duplicate_recovery_anchor_digest"] = (
+                FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST
+            )
+        else:
+            coverage.pop("duplicate_recovery_anchor_digest", None)
         coverage["alias_ledger"] = alias_ledger
         coverage["alias_ledger_digest"] = _alias_ledger_digest(alias_ledger)
         coverage.pop("migration_ledger", None)

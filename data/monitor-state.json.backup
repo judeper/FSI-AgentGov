@@ -91492,7 +91492,8 @@
           "<link href=\"https://www.finra.org/rules-guidance/notices/y2000-10-1999\" rel=\"canonical\"/>\n<link href=\"https://www.finra.org/node/126296\" rel=\"shortlink\"/>\n<body class=\"layout-one-sidebar layout-sidebar-first page-node-126296\"></body>\n<span class=\"field field--name-title field--type-string field--label-hidden\" id=\"node-title\"><span class=\"red-title\">Y2000 Update - October 1999</span></span>"
         ],
         "detail_identity_proof_digest": "sha256:4277e4fbfb5548887f3c863e8f5e9979a75ae4563d8879025f66e5047d43e511",
-        "detail_identity_anchor": "recovery-2026-08-09-v1"
+        "detail_identity_anchor": "recovery-2026-08-09-v2",
+        "duplicate_recovery_anchor_digest": "sha256:48895b9585b3bc79232e8db4ff39a7a9a56e4a22145511317c8a6f14d6ab1e4b"
       }
     }
   }

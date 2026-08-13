@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - 'scripts/regulatory_monitor.py'
+      - 'scripts/regulatory_recovery_anchors.py'
       - 'scripts/monitoring_shared.py'
       - '.github/workflows/regulatory-monitoring.yml'
   pull_request:
     paths:
       - 'scripts/regulatory_monitor.py'
+      - 'scripts/regulatory_recovery_anchors.py'
       - 'scripts/monitoring_shared.py'
       - '.github/workflows/regulatory-monitoring.yml'
   schedule:
