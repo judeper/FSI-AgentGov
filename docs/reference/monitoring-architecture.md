@@ -267,7 +267,26 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 
 **Process:**
 1. Query Federal Register API for recent documents from target agencies
-2. Scrape FINRA regulatory notices
+2. Scrape every page of FINRA's complete, unfiltered regulatory-notice listing.
+   The selected-year taxonomy filter is advisory only and is never used as a
+   completeness proof. The first complete pass finishes before a second
+   independent session begins; the two cache-busted passes must agree on
+   declared totals, page identities, ordered raw-row counts, and row digests.
+   Each scoped row must resolve to a same-origin canonical notice or numeric
+   node URL; unresolved or contradictory metadata fails closed. Raw rows are
+   retained in the coverage proof. Stable cross-page duplicates are coalesced
+   only after authoritative detail content hashes match and are recorded in a
+   duplicate ledger. Listing-row formatting/title/date differences are retained
+   as duplicate-ledger evidence when the authoritative node/detail agrees.
+   Every duplicate node also retains a separate raw detail-date proof containing
+   the canonical URL, numeric shortlink, node marker, title, and official date
+   field. Its hash, exact node binding, normalized detail-content hash, and
+   persisted entry hash must agree independently of the listing rows. A
+   conflicting or missing listing date is cleared only when another retained
+   occurrence normalizes exactly to that bound authoritative date. Missing or
+   unverifiable authority, or no matching occurrence, fails closed.
+   Conflicting detail payloads fail closed. Explicit
+   one-page and zero-result shapes are the only permitted exceptions.
 3. For each new item:
    - Extract title, abstract, document type
    - Compute content hash
@@ -278,9 +297,105 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 5. Update state file
 
 **Exit Codes:**
-- `0` - No new items
-- `1` - New items detected (triggers PR creation)
-- `2` - Error during execution
+- `0` - No new items; a maintenance PR is created only when the successful run
+  changed persisted state (for example, a refresh cursor, timestamp, or learned
+  FINRA fallback). A clean run stays silent.
+- `1` - New items detected; creates a findings PR containing the report and state.
+- `2` - Error during execution; fails closed and never creates a state PR.
+
+**Persistence and PR safety:** Only a run on the default branch may mutate
+state or create a state PR. Feature-branch and pull-request runs use a
+separate read-only job (`contents: read`, `persist-credentials: false`) and
+execute only `--dry-run`; they never receive the App/write token. The
+mutating job checks out the trusted default branch with credentials persistence
+disabled, and only requests the App token after monitor success and CAS
+validation. Before creating a state PR, the workflow revalidates the captured
+default-branch commit and state-file SHA; a changed base fails closed. The CAS
+step publishes a manifest of every mutated path with both its git blob SHA and
+its sha256 content hash. After PR creation, the workflow reads the immutable PR
+head through the GitHub API, requires the PR base OID to equal the captured CAS
+base, verifies every manifested blob and the exact file set, and fails to
+`needs-review` if any binding is missing or changed.
+
+The privileged workflow deliberately leaves the newest verified PR open. It
+does not merge or enable auto-merge because no available merge primitive
+atomically binds both the validated base and head. The existing external
+guarded sweep or a human performs the final up-to-date merge gate.
+`REGULATORY_STATE_AUTOMERGE` does not authorize merging; only after
+`verify_pr` emits `verified=true` does it permit consolidation of older,
+non-`needs-review` monitor PRs. Immediately before consolidation it re-reads
+the PR base/head and the current default-branch SHA; any movement from the
+verified CAS binding fails closed. A failed or skipped verification leaves
+every older PR and branch untouched. Successful runs may change only
+`data/monitor-state.json`, its atomic backup, or a regenerated regulatory
+report.
+
+Scheduled mutation also requires both regulatory source sections to be valid
+objects with an entries map and a parseable `last_run`. Missing or corrupt
+state fails before any fetch or write. Baseline initialization is an
+explicitly approved local-only `--initialize-baseline` operation and is never
+available from GitHub Actions. Each persisted regulatory watermark is bound to
+a coverage proof containing the entry count, stable entry-map digest, source
+identity, query/window metadata, declared and fetched page counts, and exact
+page identities (plus FINRA listing/detail counts). The proof is validated
+before the next fetch; a missing or mismatched proof cannot advance a
+watermark. Each FINRA pass proof retains the raw listing-row payloads, and
+every derived count and digest it carries (row counts, row digests, raw row
+total, resolved/unresolved rows, unique nodes) is recomputed from those
+payloads at validation time, so replacing the payloads while keeping the
+duplicated evidence fields fails closed. Validation independently derives the
+exact duplicate-occurrence multiset from both retained passes and binds each
+ledger record's page/row occurrence, listing target, fetched node identity,
+detail hash, raw payload, and payload digest. Missing, extra, fabricated, or
+count-drifted duplicate records fail closed. Retained rows must use the exact
+production `text`/`links` schema; synthetic metadata such as a persisted
+`listing_date` field is rejected. Every duplicate node, including duplicates
+whose listing dates agree, requires a separately hashed raw detail-date proof.
+That proof must bind one canonical detail identity, the exact numeric node, and
+one official publication date; the same date must occur in normalized
+substantive content whose hash equals the persisted fetched entry. Listing-date
+conflicts replay only against this authority and require a retained matching
+occurrence. The 55 duplicate nodes recovered on 2026-08-09 are additionally
+bound to the reviewed, code-held
+`scripts/regulatory_recovery_anchors.py` v2 trust root. Each immutable anchor
+record fixes the canonical URL, numeric node URL, normalized authoritative
+publication date, raw authoritative-proof hash, and substantive-detail hash.
+Validation recomputes those facts from the retained raw proof and detail
+content, requires the state to name the exact reviewed version/digest, and
+requires exact equality with the complete canonical anchor set. Missing,
+extra, altered, duplicated, ambiguous, or reordered code-held records fail
+closed even when every mutable row, flag, entry, and aggregate digest has been
+coherently recomputed. The scope is deliberately limited to that reviewed
+recovery duplicate set; later duplicate nodes remain governed by the live
+proof validators without being silently frozen into this historical anchor.
+FINRA also binds the sorted
+fetched-detail identity set and digest
+to the persisted entry identity set. Legacy identities are retained only in a
+separate one-to-one alias ledger containing source-hash evidence; aliases do
+not count as persisted entries or coverage. Every alias target must remain a
+fetched canonical identity, and stale, cyclic, conflicting, or unverified
+identities fail closed. Aliases are additionally bound to facts outside the
+alias record. Each legacy identity requires a retained raw detail-page identity
+envelope whose canonical link, numeric-node shortlink, `page-node-*` body class,
+and authoritative node title agree, and whose canonical URL occurs in both
+listing proofs. The complete derived alias-binding set must also match the
+reviewed code-held recovery anchor, which a state-only monitor run cannot
+rewrite. The v2 duplicate anchor carries the same URL-to-node binding digest,
+so extending date/content provenance cannot weaken or replace the original
+alias root. The mutable `fallback_urls` transport cache is never accepted as
+alias evidence. A migration may never move between two different FINRA
+notice numbers, and the alias must reach the hash the canonical entry actually
+carries through an explicit, contiguous, append-only content-update chain.
+Swapping aliases, fallback mappings, shortlinks, hashes, or aggregate digests
+without rewriting the retained source envelope therefore fails validation.
+When a canonical detail fetch is rate-limited and a `/node/<id>` URL is used as
+a transport fallback, the notice keeps its listing/canonical identity rather
+than adopting the transport URL. A known refresh target absent from both
+complete listing passes makes the run incomplete; after all in-memory updates,
+the complete regulatory state is validated again before any report or state
+save. Recovery may admit a legacy proof only through the
+explicitly approved local recovery mode, which rewrites the proof from a
+successful complete crawl.
 
 **Keywords for Control Mapping:**
 
