@@ -277,10 +277,14 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
    retained in the coverage proof. Stable cross-page duplicates are coalesced
    only after authoritative detail content hashes match and are recorded in a
    duplicate ledger. Listing-row formatting/title/date differences are retained
-   as duplicate-ledger evidence when the authoritative node/detail agrees;
-   a conflicting or missing duplicate date is cleared only when another
-   retained occurrence normalizes exactly to the authoritative detail
-   publication date. If no occurrence matches, the crawl fails closed.
+   as duplicate-ledger evidence when the authoritative node/detail agrees.
+   Every duplicate node also retains a separate raw detail-date proof containing
+   the canonical URL, numeric shortlink, node marker, title, and official date
+   field. Its hash, exact node binding, normalized detail-content hash, and
+   persisted entry hash must agree independently of the listing rows. A
+   conflicting or missing listing date is cleared only when another retained
+   occurrence normalizes exactly to that bound authoritative date. Missing or
+   unverifiable authority, or no matching occurrence, fails closed.
    Conflicting detail payloads fail closed. Explicit
    one-page and zero-result shapes are the only permitted exceptions.
 3. For each new item:
@@ -343,10 +347,16 @@ duplicated evidence fields fails closed. Validation independently derives the
 exact duplicate-occurrence multiset from both retained passes and binds each
 ledger record's page/row occurrence, listing target, fetched node identity,
 detail hash, raw payload, and payload digest. Missing, extra, fabricated, or
-count-drifted duplicate records fail closed. Duplicate-date resolutions are
-separately bound to both retained row occurrences and normalized authoritative
-detail content whose hash must equal the fetched entry; a missing, mutated, or
-fabricated resolver therefore fails validation. FINRA also binds the sorted
+count-drifted duplicate records fail closed. Retained rows must use the exact
+production `text`/`links` schema; synthetic metadata such as a persisted
+`listing_date` field is rejected. Every duplicate node, including duplicates
+whose listing dates agree, requires a separately hashed raw detail-date proof.
+That proof must bind one canonical detail identity, the exact numeric node, and
+one official publication date; the same date must occur in normalized
+substantive content whose hash equals the persisted fetched entry. Listing-date
+conflicts replay only against this authority and require a retained matching
+occurrence. Deleting the authority after coherently rewriting both listing
+passes therefore fails validation. FINRA also binds the sorted
 fetched-detail identity set and digest
 to the persisted entry identity set. Legacy identities are retained only in a
 separate one-to-one alias ledger containing source-hash evidence; aliases do

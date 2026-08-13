@@ -361,10 +361,15 @@ def test_finra_pass_proofs_must_recompute_from_retained_payloads():
     )
 
 
+def _load_shipped_state():
+    """Return a deep copy of the shipped, checked-in unified state."""
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    return json.loads(state_path.read_text(encoding="utf-8"))
+
+
 def _load_shipped_finra_source_state():
     """Return a deep copy of the shipped, checked-in FINRA source state."""
-    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state = _load_shipped_state()
     return deepcopy(state["sources"][regulatory_monitor.SOURCE_KEY_FINRA])
 
 
@@ -747,19 +752,25 @@ def test_finra_date_resolution_evidence_is_proof_bound(tamper):
     source_state = _load_shipped_finra_source_state()
     forged = deepcopy(source_state)
     ledger = forged["coverage"]["date_resolution_ledger"]
+    record_index = next(
+        index
+        for index, record in enumerate(ledger)
+        if record["node_identity"] == "node:126166"
+    )
+    record = ledger[record_index]
 
     if tamper == "missing-record":
-        ledger.pop()
+        ledger.pop(record_index)
     elif tamper == "missing-resolver":
-        ledger[0].pop("resolver")
+        record.pop("resolver")
     elif tamper == "mutated-resolver":
-        ledger[0]["resolver"]["row_index"] += 1
+        record["resolver"]["row_index"] += 1
     elif tamper == "fabricated-resolver":
-        ledger[0]["resolver"] = deepcopy(ledger[0]["conflicts"][0])
+        record["resolver"] = deepcopy(record["conflicts"][0])
     elif tamper == "mutated-detail-date":
-        old_date = ledger[0]["publication_date"]
-        new_date = ledger[0]["conflicts"][0]["listing_date"]
-        ledger[0]["detail_content"] = ledger[0]["detail_content"].replace(
+        old_date = record["publication_date"]
+        new_date = record["conflicts"][0]["listing_date"]
+        record["detail_content"] = record["detail_content"].replace(
             f"Published Date: {old_date}",
             f"Published Date: {new_date}",
             1,
@@ -773,6 +784,191 @@ def test_finra_date_resolution_evidence_is_proof_bound(tamper):
     )
 
     assert any("date resolution" in error for error in errors), errors
+
+
+def _retained_finra_rows_for_node(source_state, proof, node_identity):
+    """Yield page positions whose canonical/fallback target reaches one node."""
+    fallbacks = source_state.get("fallback_urls", {})
+    for page_index, rows in enumerate(proof["page_row_payloads"]):
+        page_number = proof["page_numbers"][page_index]
+        for row_index, row in enumerate(rows):
+            target = regulatory_monitor._finra_row_detail_target(row)
+            if target is None:
+                continue
+            _, target_node = regulatory_monitor._finra_normalize_detail_link(
+                target
+            )
+            fallback = fallbacks.get(target, "")
+            _, fallback_node = regulatory_monitor._finra_normalize_detail_link(
+                fallback
+            )
+            if node_identity in {target_node, fallback_node}:
+                yield page_index, page_number, row_index, row
+
+
+def _rewrite_finra_row_date(row, replacement):
+    date_prefix = re.compile(
+        r"^(?:(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|"
+        r"Sunday),?\s+)?"
+        r"(?:January|February|March|April|May|June|July|August|"
+        r"September|October|November|December)\s+\d{1,2},\s+\d{4}\b",
+        re.IGNORECASE,
+    )
+    rewritten, count = date_prefix.subn(replacement, row["text"], count=1)
+    assert count == 1
+    row["text"] = rewritten
+
+
+def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected():
+    """Recomputed rows/flags cannot replace independent detail-date authority."""
+    forged_state = _load_shipped_state()
+    forged = forged_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    coverage = forged["coverage"]
+    node_identity = "node:126166"
+
+    for proof in coverage["pass_proofs"]:
+        affected_pages = set()
+        rows = list(_retained_finra_rows_for_node(
+            forged, proof, node_identity
+        ))
+        assert len(rows) == 2
+        for page_index, _page, _row_index, row in rows:
+            _rewrite_finra_row_date(row, "Thursday, October 31, 2002")
+            affected_pages.add(page_index)
+        for page_index in affected_pages:
+            proof["page_row_digests"][page_index] = _page_row_digest(
+                proof["page_row_payloads"][page_index]
+            )
+
+    duplicate = next(
+        record
+        for record in coverage["duplicate_ledger"]
+        if record["node_identity"] == node_identity
+    )
+    proof = coverage["pass_proofs"][0]
+    retained = next(
+        row
+        for _page_index, page, row_index, row
+        in _retained_finra_rows_for_node(forged, proof, node_identity)
+        if page == duplicate["page"] and row_index == duplicate["row_index"]
+    )
+    duplicate["raw_payload"] = deepcopy(retained)
+    duplicate["raw_row_digest"] = _page_row_digest(retained)
+    duplicate["listing_date_conflict"] = False
+    duplicate["resolves_listing_date_conflict"] = False
+    coverage["date_resolution_ledger"] = [
+        record
+        for record in coverage["date_resolution_ledger"]
+        if record["node_identity"] != node_identity
+    ]
+
+    for index, retained_proof in enumerate(coverage["pass_proofs"]):
+        assert regulatory_monitor._finra_pass_proof_recomputation_errors(
+            regulatory_monitor.SOURCE_KEY_FINRA,
+            retained_proof,
+            index,
+        ) == []
+
+    errors = regulatory_monitor._validate_regulatory_state(
+        forged_state,
+        [regulatory_monitor.SOURCE_KEY_FINRA],
+    )
+    assert not any(
+        "duplicate ledger does not exactly match duplicates proven by both passes"
+        in error
+        for error in errors
+    ), errors
+    assert any("every duplicate node" in error for error in errors), errors
+
+
+def test_finra_pass_proof_rejects_fabricated_listing_date_field():
+    """Persisted rows accept only text/links, exactly as production emits."""
+    source_state = _load_shipped_finra_source_state()
+    forged = deepcopy(source_state)
+    for proof in forged["coverage"]["pass_proofs"]:
+        proof["page_row_payloads"][0][0]["listing_date"] = "2026-01-01"
+        proof["page_row_digests"][0] = _page_row_digest(
+            proof["page_row_payloads"][0]
+        )
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+    assert any(
+        "production row evidence schema" in error for error in errors
+    ), errors
+
+
+@pytest.mark.parametrize(
+    ("tamper", "expected"),
+    (
+        ("wrong-node", "bound to the wrong node"),
+        ("wrong-date", "authoritative publication date"),
+        ("wrong-detail-hash", "detail content does not match its hash"),
+        ("wrong-proof-hash", "date proof does not match its hash"),
+    ),
+)
+def test_finra_duplicate_authority_rejects_wrong_node_date_or_hash(
+    tamper,
+    expected,
+):
+    """The raw date proof, detail payload, node, and both hashes must agree."""
+    source_state = _load_shipped_finra_source_state()
+    forged = deepcopy(source_state)
+    record = next(
+        item
+        for item in forged["coverage"]["date_resolution_ledger"]
+        if item["node_identity"] == "node:126166"
+    )
+
+    if tamper == "wrong-node":
+        record["detail_date_proof"] = record["detail_date_proof"].replace(
+            "126166", "999999"
+        )
+        record["detail_date_proof_hash"] = compute_hash(
+            record["detail_date_proof"]
+        )
+    elif tamper == "wrong-date":
+        record["publication_date"] = "2002-10-31"
+    elif tamper == "wrong-detail-hash":
+        record["detail_hash"] = "sha256:" + ("0" * 64)
+    elif tamper == "wrong-proof-hash":
+        record["detail_date_proof_hash"] = "sha256:" + ("0" * 64)
+    else:  # pragma: no cover - parametrization is closed above
+        raise AssertionError(f"unknown tamper case: {tamper}")
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+    assert any(expected in error for error in errors), errors
+
+
+def test_finra_every_duplicate_has_legitimate_authoritative_date_evidence():
+    """Matching duplicates remain valid, but none may omit detail-date proof."""
+    source_state = _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    duplicate_nodes = {
+        record["node_identity"] for record in coverage["duplicate_ledger"]
+    }
+    authority_nodes = {
+        record["node_identity"]
+        for record in coverage["date_resolution_ledger"]
+    }
+
+    assert len(coverage["duplicate_ledger"]) == 55
+    assert len(duplicate_nodes) == 55
+    assert authority_nodes == duplicate_nodes
+    assert len(coverage["date_resolution_ledger"]) == 55
+    assert any(
+        not record["conflicts"]
+        for record in coverage["date_resolution_ledger"]
+    )
+    assert regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    ) == []
 
 
 @pytest.mark.parametrize(
@@ -2000,6 +2196,37 @@ def _finra_detail_page(title, date, summary):
     """
 
 
+def _finra_detail_page_with_identity(
+    title,
+    date,
+    summary,
+    *,
+    canonical_url,
+    node_id,
+):
+    """Add the raw canonical/node/title envelope production retains."""
+    detail = _finra_detail_page(title, date, summary)
+    return (
+        detail.replace(
+            "<html><body>",
+            (
+                f'<html><link rel="canonical" href="{canonical_url}">'
+                f'<body class="layout-two-sidebars page-node-{node_id}">'
+                f'<span id="node-title">{title}</span>'
+            ),
+            1,
+        )
+        .replace(
+            "</body>",
+            (
+                '<link rel="shortlink" '
+                f'href="https://www.finra.org/node/{node_id}"></body>'
+            ),
+            1,
+        )
+    )
+
+
 def _finra_request_base(url):
     """Remove only the pass cache token from a test request URL."""
     parsed = urlparse(url)
@@ -2014,7 +2241,23 @@ def _synthetic_finra_listing(rows):
     for row_index, row in enumerate(rows):
         row["row_index"] = row_index
         row["page"] = 0
-        row["raw_payload"]["listing_date"] = row["listing_date"]
+        normalized_date = regulatory_monitor._normalize_finra_date(
+            row["listing_date"]
+        )
+        if normalized_date:
+            year, month, day = normalized_date.split("-")
+            month_name = (
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November",
+                "December",
+            )[int(month) - 1]
+            date_prefix = f"{month_name} {int(day)}, {year} "
+        else:
+            date_prefix = ""
+        row["raw_payload"] = {
+            "text": f"{date_prefix}{row['title']}",
+            "links": deepcopy(row["raw_payload"]["links"]),
+        }
         row["raw_row_digest"] = _page_row_digest(row["raw_payload"])
     payloads = [row["raw_payload"] for row in rows]
     proof = {
@@ -2062,9 +2305,8 @@ def _synthetic_finra_listing(rows):
 def _synthetic_finra_row(url, node_identity, title="Notice 26-14"):
     listing_date = "2026-07-09"
     payload = {
-        "text": title,
+        "text": f"July 9, 2026 {title}",
         "links": [{"href": url, "text": title}],
-        "listing_date": listing_date,
     }
     return {
         "row_index": 0,
@@ -2153,9 +2395,12 @@ def test_finra_same_numeric_node_duplicate_coalesces_after_detail_proof(monkeypa
         ),
     ]
     listing = _synthetic_finra_listing(rows)
-    detail = _finra_detail_page("Notice 26-14", "2026-07-09", "Stable content.")
-    detail = detail.replace(
-        "</body>", '<link rel="shortlink" href="/node/382806"></body>'
+    detail = _finra_detail_page_with_identity(
+        "Notice 26-14",
+        "2026-07-09",
+        "Stable content.",
+        canonical_url="https://www.finra.org/rules-guidance/notices/26-14",
+        node_id="382806",
     )
 
     monkeypatch.setattr(
@@ -2180,6 +2425,20 @@ def test_finra_same_numeric_node_duplicate_coalesces_after_detail_proof(monkeypa
     assert result.coverage["unique_node_count"] == 1
     assert len(result.coverage["duplicate_ledger"]) == 1
     assert result.coverage["duplicate_ledger"][0]["raw_row_conflicts_with_first"] is True
+    authority = result.coverage["date_resolution_ledger"]
+    assert len(authority) == 1
+    assert authority[0]["publication_date"] == "2026-07-09"
+    assert authority[0]["conflicts"] == []
+    assert regulatory_monitor._finra_duplicate_date_proof_facts(
+        authority[0]["detail_date_proof"]
+    ) == (
+        "https://www.finra.org/rules-guidance/notices/26-14",
+        "https://www.finra.org/node/382806",
+        "2026-07-09",
+    )
+    assert authority[0]["detail_date_proof_hash"] == compute_hash(
+        authority[0]["detail_date_proof"]
+    )
 
 
 def test_finra_same_numeric_node_conflicting_detail_fails_closed(monkeypatch):
@@ -2246,11 +2505,14 @@ def _fetch_finra_duplicate_date_case(
     for row, listing_date in zip(rows, listing_dates, strict=True):
         row["listing_date"] = listing_date
     listing = _synthetic_finra_listing(rows)
-    detail = _finra_detail_page(
-        "FYI 10-2002", publication_date, "Stable content."
-    )
-    detail = detail.replace(
-        "</body>", '<link rel="shortlink" href="/node/126166"></body>'
+    detail = _finra_detail_page_with_identity(
+        "FYI 10-2002",
+        publication_date,
+        "Stable content.",
+        canonical_url=(
+            "https://www.finra.org/rules-guidance/notices/fyi-10-2002"
+        ),
+        node_id="126166",
     )
     monkeypatch.setattr(
         regulatory_monitor, "_fetch_finra_listing_records",
@@ -2696,8 +2958,15 @@ def test_finra_identical_listing_overlap_is_coalesced(monkeypatch):
         "https://www.finra.org/rules-guidance/notices?page=1": _finra_listing_page(
             1, 2, [record]
         ),
-        "https://www.finra.org/rules-guidance/notices/26-15": _finra_detail_page(
-            "Notice", "2026-07-24", "Stable content."
+        "https://www.finra.org/rules-guidance/notices/26-15":
+        _finra_detail_page_with_identity(
+            "Regulatory Notice 26-15",
+            "2026-07-24",
+            "Stable content.",
+            canonical_url=(
+                "https://www.finra.org/rules-guidance/notices/26-15"
+            ),
+            node_id="382807",
         ),
     }
 
@@ -2720,6 +2989,7 @@ def test_finra_identical_listing_overlap_is_coalesced(monkeypatch):
     assert result.complete is True
     assert len(result) == 1
     assert len(result.coverage["duplicate_ledger"]) == 1
+    assert len(result.coverage["date_resolution_ledger"]) == 1
 
 
 def test_finra_repeated_page_identity_fails_closed(monkeypatch):

@@ -345,6 +345,61 @@ def _capture_finra_detail_identity_proof(
     return proof if _finra_detail_identity_from_proof(proof) else None
 
 
+def _finra_duplicate_date_proof_facts(
+    proof: object,
+) -> Optional[tuple[str, str, str]]:
+    """Recover canonical URL, node URL, and official date from one raw proof."""
+    if not isinstance(proof, str) or not proof:
+        return None
+    identity = _finra_detail_identity_from_proof(proof)
+    if identity is None:
+        return None
+    soup = BeautifulSoup(proof, "html.parser")
+    official_fields = soup.select(".field--name-field-core-official-dt")
+    if len(official_fields) != 1:
+        return None
+    publication_date = _extract_finra_publication_date(soup)
+    if not publication_date:
+        return None
+    return identity[0], identity[1], publication_date
+
+
+def _capture_finra_duplicate_date_proof(
+    soup: BeautifulSoup,
+) -> Optional[str]:
+    """Capture raw identity and official-date fragments for duplicate nodes."""
+    canonical_links = soup.select('link[rel="canonical"][href]')
+    shortlinks = soup.select('link[rel="shortlink"][href]')
+    titles = soup.select("#node-title")
+    bodies = soup.select("body")
+    official_fields = soup.select(".field--name-field-core-official-dt")
+    canonical_by_href = {
+        str(link.get("href", "")): link for link in canonical_links
+    }
+    shortlink_by_href = {
+        str(link.get("href", "")): link for link in shortlinks
+    }
+    if (
+        len(canonical_by_href) != 1
+        or len(shortlink_by_href) != 1
+        or len(titles) != 1
+        or len(bodies) != 1
+        or len(official_fields) != 1
+    ):
+        return None
+
+    body_marker = deepcopy(bodies[0])
+    body_marker.clear()
+    proof = "\n".join((
+        str(next(iter(canonical_by_href.values()))),
+        str(next(iter(shortlink_by_href.values()))),
+        str(body_marker),
+        str(titles[0]),
+        str(official_fields[0]),
+    ))
+    return proof if _finra_duplicate_date_proof_facts(proof) else None
+
+
 def _validate_finra_detail_identity_proofs(
     proofs: object,
     *,
@@ -797,6 +852,14 @@ def _finra_pass_proof_recomputation_errors(
     if proof.get("pages_fetched") != len(payloads):
         errors.append(f"{label} pages_fetched does not match the retained payloads")
 
+    for page_index, page in enumerate(payloads):
+        for row_index, row in enumerate(page):
+            if not _is_finra_listing_row_payload(row):
+                errors.append(
+                    f"{label} row {page_index}:{row_index} does not match "
+                    "the production row evidence schema"
+                )
+
     recomputed_counts = [len(page) for page in payloads]
     recomputed_digests = [
         compute_hash(json.dumps(
@@ -845,6 +908,27 @@ def _finra_pass_proof_recomputation_errors(
     if proof.get("unique_node_count") != len(node_identities):
         errors.append(f"{label} unique node count is not recomputable from payloads")
     return errors
+
+
+def _is_finra_listing_row_payload(row: object) -> bool:
+    """Accept exactly the raw row shape emitted by the production scraper."""
+    if (
+        not isinstance(row, dict)
+        or set(row) != {"text", "links"}
+        or not isinstance(row["text"], str)
+        or row["text"] != " ".join(row["text"].split())
+        or not isinstance(row["links"], list)
+    ):
+        return False
+    return all(
+        isinstance(link, dict)
+        and set(link) == {"href", "text"}
+        and isinstance(link["href"], str)
+        and link["href"] == " ".join(link["href"].split())
+        and isinstance(link["text"], str)
+        and link["text"] == " ".join(link["text"].split())
+        for link in row["links"]
+    )
 
 
 def _finra_alias_map(alias_ledger: object) -> dict:
@@ -1128,20 +1212,24 @@ def _validate_finra_date_resolution_ledger(
     ledger: object,
     pass_date_occurrences: list[dict[str, list[dict]]],
     duplicate_ledger: object,
+    entries: dict,
+    alias_map: dict,
 ) -> list[str]:
-    """Bind duplicate-date resolutions to retained rows and fetched details."""
+    """Bind every duplicate node to independent authoritative date evidence."""
     if not isinstance(ledger, list):
         return [f"{source_key} date resolution ledger is invalid"]
 
     errors: list[str] = []
     duplicate_hashes: dict[str, set[str]] = {}
-    flagged_nodes: set[str] = set()
+    duplicate_nodes: set[str] = set()
     if isinstance(duplicate_ledger, list):
         for record in duplicate_ledger:
             if not isinstance(record, dict):
                 continue
             node_identity = record.get("node_identity")
             detail_hash = record.get("detail_hash")
+            if isinstance(node_identity, str) and node_identity:
+                duplicate_nodes.add(node_identity)
             if (
                 isinstance(node_identity, str)
                 and node_identity
@@ -1151,11 +1239,6 @@ def _validate_finra_date_resolution_ledger(
                 duplicate_hashes.setdefault(node_identity, set()).add(
                     detail_hash
                 )
-                if (
-                    record.get("listing_date_conflict") is True
-                    or record.get("resolves_listing_date_conflict") is True
-                ):
-                    flagged_nodes.add(node_identity)
 
     if (
         len(pass_date_occurrences) != 2
@@ -1168,20 +1251,7 @@ def _validate_finra_date_resolution_ledger(
     else:
         occurrences_by_node = pass_date_occurrences[0]
 
-    ambiguous_nodes = {
-        node_identity
-        for node_identity, occurrences in occurrences_by_node.items()
-        if (
-            len(occurrences) > 1
-            and (
-                any(not occurrence["listing_date"] for occurrence in occurrences)
-                or len({
-                    occurrence["listing_date"] for occurrence in occurrences
-                }) > 1
-            )
-        )
-    }
-    expected_nodes = ambiguous_nodes | flagged_nodes
+    expected_nodes = duplicate_nodes
     actual_nodes: set[str] = set()
 
     required_record_keys = {
@@ -1189,6 +1259,8 @@ def _validate_finra_date_resolution_ledger(
         "detail_hash",
         "publication_date",
         "detail_content",
+        "detail_date_proof",
+        "detail_date_proof_hash",
         "resolver",
         "conflicts",
     }
@@ -1209,17 +1281,26 @@ def _validate_finra_date_resolution_ledger(
         detail_hash = record["detail_hash"]
         publication_date = record["publication_date"]
         detail_content = record["detail_content"]
+        detail_date_proof = record["detail_date_proof"]
+        detail_date_proof_hash = record["detail_date_proof_hash"]
         resolver = record["resolver"]
         conflicts = record["conflicts"]
         if (
             not isinstance(node_identity, str)
-            or not node_identity
+            or re.fullmatch(r"node:\d+", node_identity) is None
             or not isinstance(detail_hash, str)
-            or not detail_hash
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", detail_hash) is None
             or not isinstance(publication_date, str)
+            or not publication_date
             or _normalize_finra_date(publication_date) != publication_date
             or not isinstance(detail_content, str)
             or not detail_content
+            or not isinstance(detail_date_proof, str)
+            or not detail_date_proof
+            or not isinstance(detail_date_proof_hash, str)
+            or re.fullmatch(
+                r"sha256:[0-9a-f]{64}", detail_date_proof_hash
+            ) is None
             or not isinstance(resolver, dict)
             or set(resolver) != required_occurrence_keys
             or not isinstance(conflicts, list)
@@ -1238,6 +1319,36 @@ def _validate_finra_date_resolution_ledger(
 
         if compute_hash(detail_content) != detail_hash:
             errors.append(f"{label} detail content does not match its hash")
+        if compute_hash(detail_date_proof) != detail_date_proof_hash:
+            errors.append(
+                f"{label} authoritative date proof does not match its hash"
+            )
+        proof_facts = _finra_duplicate_date_proof_facts(detail_date_proof)
+        if proof_facts is None:
+            errors.append(f"{label} authoritative date proof is malformed")
+        else:
+            source_url, node_url, proof_date = proof_facts
+            expected_node_url = (
+                f"https://www.finra.org/node/{node_identity.split(':', 1)[1]}"
+            )
+            if node_url != expected_node_url:
+                errors.append(
+                    f"{label} authoritative date proof is bound to the wrong node"
+                )
+            entry_identity = _finra_resolve_identity_via_ledger(
+                _extract_finra_document_id(source_url),
+                alias_map,
+            )
+            if entries.get(entry_identity) != detail_hash:
+                errors.append(
+                    f"{label} detail hash is not bound to its authoritative "
+                    "detail identity"
+                )
+            if proof_date != publication_date:
+                errors.append(
+                    f"{label} authoritative publication date is not "
+                    "identity-proof-bound"
+                )
         if (
             _finra_publication_date_from_substantive_content(detail_content)
             != publication_date
@@ -1249,6 +1360,32 @@ def _validate_finra_date_resolution_ledger(
             errors.append(f"{label} detail hash is not duplicate-bound")
 
         occurrences = occurrences_by_node.get(node_identity, [])
+        for occurrence in [resolver, *conflicts]:
+            if (
+                not isinstance(occurrence["page"], int)
+                or isinstance(occurrence["page"], bool)
+                or occurrence["page"] < 0
+                or not isinstance(occurrence["row_index"], int)
+                or isinstance(occurrence["row_index"], bool)
+                or occurrence["row_index"] < 0
+                or not isinstance(occurrence["target"], str)
+                or _finra_normalize_detail_link(
+                    occurrence["target"]
+                )[0] != occurrence["target"]
+                or not isinstance(occurrence["raw_row_digest"], str)
+                or re.fullmatch(
+                    r"sha256:[0-9a-f]{64}",
+                    occurrence["raw_row_digest"],
+                ) is None
+                or not isinstance(occurrence["listing_date"], str)
+                or (
+                    occurrence["listing_date"]
+                    and _normalize_finra_date(occurrence["listing_date"])
+                    != occurrence["listing_date"]
+                )
+            ):
+                errors.append(f"{label} retained date occurrence is malformed")
+                break
         matching = [
             occurrence
             for occurrence in occurrences
@@ -1269,7 +1406,7 @@ def _validate_finra_date_resolution_ledger(
     if actual_nodes != expected_nodes:
         errors.append(
             f"{source_key} date resolution ledger does not exactly match "
-            "ambiguous duplicate dates"
+            "every duplicate node"
         )
     return errors
 
@@ -1717,6 +1854,8 @@ def _validate_source_coverage(
                 if (
                     isinstance(node_identity, str)
                     and node_identity
+                    and isinstance(publication_date, str)
+                    and publication_date
                     and _normalize_finra_date(publication_date)
                     == publication_date
                     and node_identity not in publication_dates_by_node
@@ -1798,6 +1937,11 @@ def _validate_source_coverage(
                     if recomputed_digest != raw_row_digest:
                         errors.append(
                             f"{label} raw row digest is not recomputable from its payload"
+                        )
+                    if not _is_finra_listing_row_payload(raw_payload):
+                        errors.append(
+                            f"{label} payload does not match the production "
+                            "row evidence schema"
                         )
                     detail_url = _finra_row_detail_target(raw_payload)
                     if detail_url is None:
@@ -1900,6 +2044,8 @@ def _validate_source_coverage(
                 date_resolution_ledger,
                 proof_date_occurrences,
                 duplicate_ledger,
+                entries,
+                _finra_alias_map(coverage.get("alias_ledger")),
             ))
         if not isinstance(coverage.get("conflict_ledger"), list):
             errors.append(f"{source_key} conflict ledger is invalid")
@@ -2606,12 +2752,23 @@ def _normalize_finra_date(value: object) -> str:
         return ""
 
 
+def _finra_listing_text_with_date(title: str, listing_date: object) -> str:
+    """Render compatibility rows in the same text-only shape as production."""
+    normalized_date = _normalize_finra_date(listing_date)
+    if not normalized_date:
+        return " ".join(title.split())
+    value = datetime.strptime(normalized_date, "%Y-%m-%d")
+    return (
+        f"{value.strftime('%B')} {value.day}, {value.year} "
+        f"{' '.join(title.split())}"
+    ).strip()
+
+
 def _finra_listing_date_from_payload(raw_payload: object) -> str:
-    """Derive a retained row's listing date, rejecting contradictory evidence."""
-    if not isinstance(raw_payload, dict):
+    """Derive the date only from the exact raw row shape production emits."""
+    if not _is_finra_listing_row_payload(raw_payload):
         return ""
     text = raw_payload.get("text")
-    text_date = ""
     if isinstance(text, str):
         prefix = re.match(
             r"^(?:(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|"
@@ -2622,14 +2779,8 @@ def _finra_listing_date_from_payload(raw_payload: object) -> str:
             re.IGNORECASE,
         )
         if prefix is not None:
-            text_date = _normalize_finra_date(prefix.group(1))
-
-    if "listing_date" not in raw_payload:
-        return text_date
-    explicit_date = _normalize_finra_date(raw_payload.get("listing_date"))
-    if not explicit_date or (text_date and text_date != explicit_date):
-        return ""
-    return explicit_date
+            return _normalize_finra_date(prefix.group(1))
+    return ""
 
 
 def _finra_publication_date_from_substantive_content(content: object) -> str:
@@ -3875,9 +4026,10 @@ def fetch_finra_notices(
                         coverage=listing.get("coverage", {}),
                     )
                 payload = {
-                    "text": " ".join(f"{title} {listing_date}".split()),
+                    "text": _finra_listing_text_with_date(
+                        title, listing_date
+                    ),
                     "links": [{"href": canonical_url, "text": title}],
-                    "listing_date": _normalize_finra_date(listing_date),
                 }
                 rows.append({
                     "row_index": row_index,
@@ -4011,6 +4163,9 @@ def fetch_finra_notices(
             detail_identity_proof = _capture_finra_detail_identity_proof(
                 detail_soup
             )
+            detail_date_proof = _capture_finra_duplicate_date_proof(
+                detail_soup
+            )
             if detail_identity_proof is not None:
                 detail_identity_proofs[url] = detail_identity_proof
             shortlink = _extract_finra_shortlink(detail_soup)
@@ -4082,6 +4237,42 @@ def fetch_finra_notices(
             )
             existing = node_groups.get(node_identity)
             if existing is not None:
+                existing_proof_facts = _finra_duplicate_date_proof_facts(
+                    existing["detail_date_proof"]
+                )
+                current_proof_facts = _finra_duplicate_date_proof_facts(
+                    detail_date_proof
+                )
+                if (
+                    existing_proof_facts is not None
+                    and current_proof_facts is not None
+                    and existing_proof_facts != current_proof_facts
+                ):
+                    return _incomplete_result(
+                        items,
+                        error=(
+                            "FINRA duplicate authoritative date proof "
+                            f"conflict for {node_identity}"
+                        ),
+                        expected_count=len(rows),
+                        pages_fetched=listing["pages_fetched"],
+                        declared_pages=listing["declared_pages"],
+                        cutoff_page=listing["cutoff_page"],
+                        limited=limit is not None,
+                        coverage={
+                            **listing.get("coverage", {}),
+                            "duplicate_ledger": duplicate_ledger,
+                            "date_resolution_ledger": (
+                                date_resolution_ledger
+                            ),
+                            "conflict_ledger": conflict_ledger,
+                        },
+                    )
+                if (
+                    existing_proof_facts is None
+                    and current_proof_facts is not None
+                ):
+                    existing["detail_date_proof"] = detail_date_proof
                 if (
                     existing["detail_hash"] != detail_hash
                     or existing["publication_date"]
@@ -4157,6 +4348,7 @@ def fetch_finra_notices(
                 "url": url,
                 "publication_date": normalized_publication_date,
                 "substantive_content": substantive_content,
+                "detail_date_proof": detail_date_proof,
                 "date_occurrences": [date_occurrence],
             }
             items.append(
@@ -4202,18 +4394,34 @@ def fetch_finra_notices(
                 if occurrence["listing_date"] != publication_date
                 or not publication_date
             ]
-            if conflicts and not matching:
+            detail_date_proof = group["detail_date_proof"]
+            proof_facts = _finra_duplicate_date_proof_facts(
+                detail_date_proof
+            )
+            expected_node_url = (
+                f"https://www.finra.org/node/{node_identity.split(':', 1)[1]}"
+                if re.fullmatch(r"node:\d+", node_identity)
+                else None
+            )
+            if (
+                not matching
+                or proof_facts is None
+                or expected_node_url is None
+                or proof_facts[1] != expected_node_url
+                or proof_facts[2] != publication_date
+            ):
                 unresolved_date_conflicts.append(node_identity)
                 continue
-            if conflicts:
-                date_resolution_ledger.append({
-                    "node_identity": node_identity,
-                    "detail_hash": group["detail_hash"],
-                    "publication_date": publication_date,
-                    "detail_content": group["substantive_content"],
-                    "resolver": matching[0],
-                    "conflicts": conflicts,
-                })
+            date_resolution_ledger.append({
+                "node_identity": node_identity,
+                "detail_hash": group["detail_hash"],
+                "publication_date": publication_date,
+                "detail_content": group["substantive_content"],
+                "detail_date_proof": detail_date_proof,
+                "detail_date_proof_hash": compute_hash(detail_date_proof),
+                "resolver": matching[0],
+                "conflicts": conflicts,
+            })
 
         if unresolved_date_conflicts:
             return _incomplete_result(
