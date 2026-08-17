@@ -1,0 +1,29 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:5226ee03b6a7a2e3df959fc33e193f2f7d3b2f541325a2ee21ac2d3dad29c96f",
+  "detected_at": "2026-08-17T07:42:30Z",
+  "ga_date": "July CY2026",
+  "id": 497999,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "August CY2025",
+  "products": [
+    "Microsoft 365 admin center",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "A new agents usage report will be available in the Microsoft 365 admin center. The report will be scoped to include agents in M365 Copilot and Copilot Chat with usage by both M365 Copilot licensed and unlicensed users. The report will include total active agent users, total active agents, active users segmentation by licensed and unlicensed users, and active users and active agents segmentation by publisher type (i.e. user-created agents, agents built by your org, agents built by Microsoft, agents built by Microsoft partners). The report will also include usage details per user, agent, and user-agent pair. #copilotcontrolsystem",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=497999",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:publish"
+    }
+  ],
+  "title": "Microsoft 365 admin center: Agents usage report"
+}

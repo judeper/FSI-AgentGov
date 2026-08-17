@@ -2,8 +2,20 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-08-10T08:20:17Z",
+      "last_run": "2026-08-17T07:42:30Z",
       "items": {
+        "569213": {
+          "hash": "sha256:38ed2eb8eff668fb51c9980557ccdcb46c415d895f1f0c501d68800e08e4a640",
+          "status": "In development",
+          "title": "Microsoft Copilot (Microsoft 365): Add Agents and Skills from the Plus menu",
+          "detected_at": "2026-08-17T07:42:30Z"
+        },
+        "568929": {
+          "hash": "sha256:b859717275f8784a5944a6474646b4c6644c61a3494422d8302b315489a196ed",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Dataverse integration on Copilot Studio",
+          "detected_at": "2026-08-17T07:42:30Z"
+        },
         "568930": {
           "hash": "sha256:15a4040080f43cc0f6dd5805ae875aac871bb59f57afd1de5122cb5fb39cb454",
           "status": "In development",
@@ -280,12 +292,6 @@
           "title": "Microsoft Purview: Data Loss Prevention - Data Security Triage Agent summaries and categorizations for DLP alerts will be made available in DLP Alerts in Microsoft Defender XDR ",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "558255": {
-          "hash": "sha256:8685e2a6eb46a2a798ff8284e2c7d7a3a8c526255d65550abbc55b2705cace0d",
-          "status": "Cancelled",
-          "title": "Microsoft Teams: Run SMB admin tasks faster with Microsoft 365 Admin Agent in Microsoft Teams",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "558436": {
           "hash": "sha256:e97084c3f3e6b144584395a2aee21acbeadf4d174528e37feb12c0e2db4f9c0b",
           "status": "In development",
@@ -533,8 +539,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "542790": {
-          "hash": "sha256:30676bf333e5f948ad644afb688b790ac2ef5c07d8a80cc234dd97aa80780322",
-          "status": "Rolling out",
+          "hash": "sha256:892ef54b99cc005ac1cc0cf3607b114cb790d1d2b0c4bdeca4dd2f044c7e205f",
+          "status": "Launched",
           "title": "Microsoft Purview: Data Security Posture Management-Data Security Posture Agent in DSPM",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -826,12 +832,6 @@
           "title": "Microsoft Teams: Permission and Privilege level of Apps and Agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "502516": {
-          "hash": "sha256:6f5472b907905252624dd2ab215b78f71e416ca0786fe9c849c71d04ef4742d9",
-          "status": "Launched",
-          "title": "SharePoint: Metadata understanding in SharePoint agents",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "498219": {
           "hash": "sha256:be44631a0283fc6ce0875981987af03aaa273291a2df3aac675a58a203385c29",
           "status": "Launched",
@@ -875,8 +875,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "497999": {
-          "hash": "sha256:4227d81232875b1f31a79c66c38e5b23049714b5cd5b1c5d1cbd873bba6d3775",
-          "status": "In development",
+          "hash": "sha256:5226ee03b6a7a2e3df959fc33e193f2f7d3b2f541325a2ee21ac2d3dad29c96f",
+          "status": "Launched",
           "title": "Microsoft 365 admin center: Agents usage report",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -896,12 +896,6 @@
           "hash": "sha256:77d4359b6a7188f694227d44aef0e773c29197587cdcc342fc42d8cca2f34eb0",
           "status": "In development",
           "title": "Microsoft Teams:  Interactive Agents for Teams Meetings and Calls",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "489492": {
-          "hash": "sha256:7c3011b99d7a44a8e7f7c9c11a73a5e05da6cfe9ffd2f870b7a10568cd6dc1e3",
-          "status": "Launched",
-          "title": "Microsoft Purview compliance portal: Microsoft Purview Data Security Posture Management for AI Apps and agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "482601": {

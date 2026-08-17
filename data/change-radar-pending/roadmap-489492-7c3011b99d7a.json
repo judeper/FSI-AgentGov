@@ -1,0 +1,26 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:7c3011b99d7a44a8e7f7c9c11a73a5e05da6cfe9ffd2f870b7a10568cd6dc1e3",
+  "detected_at": "2026-08-17T07:42:30Z",
+  "ga_date": null,
+  "id": 489492,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=489492",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "1.24",
+      "source": "keyword:data security posture"
+    },
+    {
+      "id": "1.6",
+      "source": "keyword:data security posture"
+    }
+  ],
+  "title": "Microsoft Purview compliance portal: Microsoft Purview Data Security Posture Management for AI Apps and agents"
+}

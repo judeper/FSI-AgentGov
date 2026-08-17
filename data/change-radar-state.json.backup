@@ -2,8 +2,44 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-07-20T09:49:11Z",
+      "last_run": "2026-08-10T08:20:17Z",
       "items": {
+        "568930": {
+          "hash": "sha256:15a4040080f43cc0f6dd5805ae875aac871bb59f57afd1de5122cb5fb39cb454",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: SQL server Support in Microsoft Copilot Studio",
+          "detected_at": "2026-08-10T08:20:17Z"
+        },
+        "568762": {
+          "hash": "sha256:87e1419edcbef7d95c9e5677273f4567b1a383ba1b7707b22c93b66a95ad7f0a",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Agent Readiness in Microsoft Copilot Studio",
+          "detected_at": "2026-08-10T08:20:17Z"
+        },
+        "567886": {
+          "hash": "sha256:607d07cd5160e9d7a6037b17549a80182a87697139691b487e4df15adf52e7a8",
+          "status": "In development",
+          "title": "Planner: AI-generated Status Reports in Planner Agent",
+          "detected_at": "2026-08-10T08:20:17Z"
+        },
+        "515145": {
+          "hash": "sha256:18fe83a6fe614f310ffa551f050779d7cb4c5e4f017936cec2ed888934cc214c",
+          "status": "In development",
+          "title": "Microsoft Copilot (Microsoft 365): Workforce Insights Agent",
+          "detected_at": "2026-08-10T08:20:17Z"
+        },
+        "567894": {
+          "hash": "sha256:2839371982e31ba73487806b584c77f549b0803b6ba4f82e69574b75618c4a98",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Share Autonomous Agents to End Users (Run-Only)",
+          "detected_at": "2026-08-10T08:20:17Z"
+        },
+        "567883": {
+          "hash": "sha256:a26e3211e16edbe367073e4b09c3522206b81759287b79175c11a082a212df5a",
+          "status": "In development",
+          "title": "Microsoft Teams: Unified Agent and App Installation Management Across Microsoft 365 and Teams Admin Center",
+          "detected_at": "2026-08-10T08:20:17Z"
+        },
         "567893": {
           "hash": "sha256:faae09ebc04d83a0b685b8c7568f19255b4822a79867efce82b9a2cb62564c57",
           "status": "In development",
@@ -107,13 +143,13 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "564766": {
-          "hash": "sha256:7b380c4aaaae56bf2897d8f5e6beb9b8b5826fb4629f313ea34d28b05b978746",
-          "status": "Rolling out",
+          "hash": "sha256:02bdcf1f41c2f80815dbd605228a66446b53a1fa94d4a6424fc78c9f88f4e147",
+          "status": "Launched",
           "title": "Microsoft Teams: Manage Built-in Teams agents in the Teams admin center",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "564608": {
-          "hash": "sha256:c25474cc9367b34217f3defff4b362d8bb547a6b667d366923884fe7b5744bc6",
+          "hash": "sha256:ea5e0edd96a53a3ab9f6fd4a000a58fcec7e14b92c1865d0fc07d974d1d086a7",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): Support for MCP Agents with Interactive UI Widgets in Government Clouds",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -125,8 +161,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "564606": {
-          "hash": "sha256:c2058a7e60d89089d9aab72fadfe5f21aab60236ecdaa4dba59e356813c22049",
-          "status": "In development",
+          "hash": "sha256:c7e8b297f5f6a54630262955c09c9dc46a12ba5a23c24ad45c1b6c4c3a118cc2",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Declarative agents with Actions available in GCC High and DoD",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -245,8 +281,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "558255": {
-          "hash": "sha256:f92dbb387f9d62ddbf88657cadf85a56462fad9c58bf912d5b5fc12cdc8be2ad",
-          "status": "In development",
+          "hash": "sha256:8685e2a6eb46a2a798ff8284e2c7d7a3a8c526255d65550abbc55b2705cace0d",
+          "status": "Cancelled",
           "title": "Microsoft Teams: Run SMB admin tasks faster with Microsoft 365 Admin Agent in Microsoft Teams",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -275,8 +311,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "557683": {
-          "hash": "sha256:12e44fec32828d6303708b282768c31f0201b2c83bd4730046d15939cefec1e4",
-          "status": "In development",
+          "hash": "sha256:665b49b87316b2665ce4fe5a0ae441022d62dbcf46081c0bc1b91a5ddd854e57",
+          "status": "Launched",
           "title": "Microsoft Purview: Insider Risk Management- Data Security Triage Agent in IRM Enhancements",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -305,20 +341,20 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555880": {
-          "hash": "sha256:a053dd6c79f186e8b2e2ac7c46e8e69e28543fab46f789bbe57c384b20cf948a",
-          "status": "In development",
+          "hash": "sha256:8f2829b4a6bccbca662e783debb85cdd646dd7982d9b7e06e334506b4ed95e22",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Reference an attached PowerPoint deck’s style when creating a new presentation with Agent Mode in PowerPoint",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555879": {
-          "hash": "sha256:5768d08752d583099663c87f6a794e3469fb10e88231ee66e438f477fe1abed4",
-          "status": "In development",
+          "hash": "sha256:c61460bcd85548a13deb3cf51b7e944301dd2c1e2f73dcac031c1928059a2248",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Reference an attached PowerPoint deck’s style when creating a new presentation with Agent Mode in PowerPoint",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555878": {
-          "hash": "sha256:707302c4596ebac6dadb363c77780e60a286585f7ce3e712594fa1caaea584d3",
-          "status": "In development",
+          "hash": "sha256:39474f5a3a18c5dd53d4542fe8ce9ca96d1483f2620ed691842545a76c36ac04",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Reference an attached PowerPoint deck’s style when creating a new presentation with Agent Mode in PowerPoint",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -508,12 +544,6 @@
           "title": "Microsoft Copilot (Microsoft 365): Agent Mode in Excel for desktop apps",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "542181": {
-          "hash": "sha256:8a1631724feb986e9fdcfbbc9829d07f508e69e1cae76308bfe7621c3166ae42",
-          "status": "In development",
-          "title": "Microsoft Copilot (Microsoft 365): Agent Mode in Excel for GCC",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "542190": {
           "hash": "sha256:88a99395bdbb2ea59f0c0b5f1b4f127bc1ef0234431b377dc30bdd2b1758ac6f",
           "status": "Launched",
@@ -566,12 +596,6 @@
           "hash": "sha256:25d84ebfb1e0c0624987a1ac2b756194b937b073b3c3108fb76e8239876a3153",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Now smarter with visuals: Declarative Agents leverage embedded images for richer, more accurate answers",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "531759": {
-          "hash": "sha256:1aefbb52d4f46f4d9de1e9ec2ef05a80d3293f3ffab28b109026cf7fbff850d5",
-          "status": "Cancelled",
-          "title": "Microsoft Copilot (Microsoft 365): Scheduled prompts for Agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "527837": {
@@ -659,7 +683,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "503772": {
-          "hash": "sha256:768c6c4a5e79f58c21095f51b3df51be44d78b362609ad2783117408de9cc95f",
+          "hash": "sha256:f15fe1faf853e92a0b0e324f56a390a9eb47146e8fbeb477cde14278ca64c584",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users in DoD will be able to use custom engine agents",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -683,7 +707,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "503771": {
-          "hash": "sha256:5526b263a860bb056c24c116d95f19144fbbc6c05cdd90461f18bf24d6027524",
+          "hash": "sha256:798d3eb6c7afc5d9bb5c42e8a906be7b7855735b643f6f79cbf4c407f9b3ab80",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users in GCC-H will be able to use custom engine agents",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -707,7 +731,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "501111": {
-          "hash": "sha256:c390c21057756da2d6b50bb2b89932acd6a1e23a67ba12b98f0adb30c68dd2eb",
+          "hash": "sha256:f672d9ca49e85d450597ae649b29ddf848f745bdbcac0e29898d6ce5774b4123",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users in GCC-M will able to use custom engine agents",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -731,7 +755,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "499898": {
-          "hash": "sha256:a02741c0e4f713508254045c006dc0c1cf4ea71343bd2f5184f256037d7f8341",
+          "hash": "sha256:6951c9db9de7bc80907a5a96670916c1fd5450bd74db0594fbedf336d20c13d5",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): Viva Engage - Agents in communities",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -808,12 +832,6 @@
           "title": "SharePoint: Metadata understanding in SharePoint agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "502617": {
-          "hash": "sha256:998db8eaa90554b5b5b5638a0e1d7c4c9b81b53c3e499b61a6857c204b605205",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): Permission details for agents in MAC",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "498219": {
           "hash": "sha256:be44631a0283fc6ce0875981987af03aaa273291a2df3aac675a58a203385c29",
           "status": "Launched",
@@ -872,12 +890,6 @@
           "hash": "sha256:455d77c763043ccb826a58db2336abceb97e4b3af9af891914b6f7119daf550c",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Frontier and Microsoft agent user request approval flow in Microsoft 365 admin center",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "494152": {
-          "hash": "sha256:f311362cb6af30a4d6119f72ed1203e19f9c6b2ab6b18a52374ad45fb4fd4633",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): Copilot Extensibility - Hebrew support in Agent builder",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "490564": {
@@ -958,28 +970,10 @@
           "title": "Outlook: Agents for Microsoft 365 Copilot available in Copilot Chat in classic Outlook for Windows",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "481826": {
-          "hash": "sha256:418aeb701971ebb75a0edfa6be85e1836f3c811bb823964976b7c12c58dc13b8",
-          "status": "Launched",
-          "title": "Add multiple SharePoint agents in a single Teams conversation",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "481824": {
-          "hash": "sha256:8964d7ecc3cb380ed62e124850452c6f0d9b7cf2771b5900e9db2a27c1c19c81",
-          "status": "Launched",
-          "title": "SharePoint: SharePoint agents are available in Teams app Store",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "481823": {
           "hash": "sha256:aaed831588035a86bb7dfc74e38d0eceb386cd9c797d2d48fbcc5791118d77bf",
           "status": "In development",
           "title": "SharePoint: SharePoint agents in Teams Mobile",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "481822": {
-          "hash": "sha256:04e1c287f4dd6fab6a3d06005a2239c4b73b52e0c4b9017a54535167243883f9",
-          "status": "Launched",
-          "title": "SharePoint: SharePoint Agents in Teams Channels",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "480726": {
@@ -1010,18 +1004,6 @@
           "hash": "sha256:dd1b9edddb5e2c1b53757f3b6890977450a1ca75d9239f7792110550e1ab63c4",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): Copilot extensibility – Developers can build custom engine agents with the Microsoft 365 Agents SDK",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "472020": {
-          "hash": "sha256:321ed4faa30906f65a18246b6971ea873070eaea461766c7f58bd015f512456b",
-          "status": "Launched",
-          "title": "Microsoft Viva: Copilot Studio agents report in Viva Insights analyst workbench",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "433687": {
-          "hash": "sha256:e34189e3ce47870184d42a28f86fcd871afee63c0c365acc566eadd25fa39108",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365):  Discover, acquire, and manage agents through in-app store in Word and PowerPoint ",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "469503": {

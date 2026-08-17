@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:38ed2eb8eff668fb51c9980557ccdcb46c415d895f1f0c501d68800e08e4a640",
+  "detected_at": "2026-08-17T07:42:30Z",
+  "ga_date": "September CY2026",
+  "id": 569213,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "Users will be able to insert Agents and Skills in prompts for specialized tasks. They can add them from the Agents and Skills tab after selecting 'Add work content' from the plus (+) menu. Users can also access Agents and Skills by typing / and @ in their prompt.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569213",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Add Agents and Skills from the Plus menu"
+}
