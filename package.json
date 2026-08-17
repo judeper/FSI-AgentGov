@@ -14,7 +14,7 @@
     "verify:vendor-runtime": "node scripts/verify-vendored-runtime.mjs"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.12.1",
+    "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.62.1",
     "@vitest/ui": "4.1.10",
     "ajv": "8.20.0",
