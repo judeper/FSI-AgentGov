@@ -979,3 +979,60 @@ test.describe("AS12 task-list a11y @regression", () => {
     },
   );
 });
+
+// =============================================================================
+// A11Y-01 guard: Material renders multiple label[for="__drawer"] nodes. The
+// visible hamburger control is .md-header__button; the backdrop overlay is
+// .md-overlay. The a11y shim must not put aria-label on the overlay (axe
+// 4.13 flags that as aria-prohibited-attr). Instead it injects hidden text
+// into the real hamburger label.
+// =============================================================================
+test.describe("A11Y-01 drawer toggle labelling @regression", () => {
+  test(
+    "assessment drawer toggle uses hidden text and leaves overlay unlabelled @regression",
+    async ({ page }) => {
+      await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
+      await page
+        .locator('label.md-header__button[for="__drawer"]')
+        .first()
+        .waitFor({ state: "attached", timeout: 10_000 });
+
+      await page.waitForFunction(
+        () => {
+          const overlay = document.querySelector('label.md-overlay[for="__drawer"]');
+          const toggle = document.querySelector('label.md-header__button[for="__drawer"]');
+          const label = toggle &&
+            toggle.querySelector('[data-fsi-a11y-label="drawer-toggle"]');
+          return Boolean(
+            overlay &&
+            toggle &&
+            label &&
+            label.textContent.trim() === "Toggle navigation" &&
+            !overlay.hasAttribute("aria-label"),
+          );
+        },
+        null,
+        { timeout: 5_000 },
+      );
+
+      const audit = await page.evaluate(() => {
+        const overlay = document.querySelector('label.md-overlay[for="__drawer"]');
+        const toggle = document.querySelector('label.md-header__button[for="__drawer"]');
+        const label = toggle &&
+          toggle.querySelector('[data-fsi-a11y-label="drawer-toggle"]');
+        const icon = toggle && toggle.querySelector("svg");
+        return {
+          overlayAriaLabel: overlay && overlay.getAttribute("aria-label"),
+          toggleAriaLabel: toggle && toggle.getAttribute("aria-label"),
+          hiddenLabelText: label && label.textContent.trim(),
+          iconAriaHidden: icon && icon.getAttribute("aria-hidden"),
+        };
+      });
+
+      expect(audit.overlayAriaLabel).toBeNull();
+      expect(audit.toggleAriaLabel).toBeNull();
+      expect(audit.hiddenLabelText).toBe("Toggle navigation");
+      expect(audit.iconAriaHidden).toBe("true");
+    },
+  );
+});
