@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-12T12:44:09Z",
-  "count": 25,
+  "generatedAt": "2026-08-18T10:17:24Z",
+  "count": 28,
   "items": [
     {
       "id": 500376,
@@ -1137,6 +1137,142 @@
           "url": "/controls/pillar-2-management/2.16-rag-source-integrity-validation/",
           "pillar": "Management",
           "rationale": "Data used for SQL-backed grounding should be validated for quality, currency, and permissions."
+        }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-24-09",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P"
+      ]
+    },
+    {
+      "id": 497999,
+      "title": "Agents usage report in the Microsoft 365 admin center",
+      "summary": "A Microsoft 365 admin center report shows agent usage across Microsoft 365 Copilot and Copilot Chat, including active agents, active licensed and unlicensed users, and a breakdown by agent publisher type.",
+      "products": [
+        "Microsoft 365 admin center",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "Preview Aug 2025, GA Jul 2026",
+      "gaDate": "2026-07",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=497999",
+      "lifecycle": "active",
+      "whatToReview": "Decide who may view agent usage data and fold active-agent and publisher-type metrics into your agent inventory and monitoring reviews.",
+      "addedOn": "2026-08-18",
+      "lastReviewed": "2026-08-18",
+      "controls": [
+        {
+          "id": "3.2",
+          "title": "Usage Analytics and Activity Monitoring",
+          "url": "/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/",
+          "pillar": "Reporting",
+          "rationale": "Active-agent and active-user metrics extend usage analytics and activity monitoring to agents."
+        },
+        {
+          "id": "3.1",
+          "title": "Agent Inventory and Metadata Management",
+          "url": "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+          "pillar": "Reporting",
+          "rationale": "Publisher-type and per-agent usage detail supports the agent inventory and metadata record."
+        }
+      ],
+      "pillars": [
+        "Reporting"
+      ],
+      "regulations": [
+        "FINRA-24-09",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 542790,
+      "title": "Data Security Posture Agent in Purview DSPM",
+      "summary": "A Purview DSPM agent uses large language models to discover sensitive data across documents, emails, and messages from a natural-language intent and to assess the associated risks.",
+      "products": [
+        "Microsoft Purview"
+      ],
+      "status": "Available",
+      "timing": "Preview Dec 2025, GA Jun 2026",
+      "gaDate": "2026-06",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=542790",
+      "lifecycle": "active",
+      "whatToReview": "Scope who may run the agent and over which data, and fold its risk findings into your DSPM triage and oversight process.",
+      "addedOn": "2026-08-18",
+      "lastReviewed": "2026-08-18",
+      "controls": [
+        {
+          "id": "1.6",
+          "title": "Microsoft Purview DSPM for AI",
+          "url": "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
+          "pillar": "Security",
+          "rationale": "The agent extends Purview DSPM for AI with model-based discovery of sensitive data across the estate."
+        },
+        {
+          "id": "1.14",
+          "title": "Data Minimization and Agent Scope Control",
+          "url": "/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
+          "pillar": "Security",
+          "rationale": "Discovery runs read documents, emails, and messages broadly, so their scope and authorization should be reviewed."
+        }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-24-09",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 568929,
+      "title": "Dataverse as a Copilot Studio knowledge source",
+      "summary": "Copilot Studio adds Microsoft Dataverse as a native knowledge source, letting agents ground responses in structured business records and application data.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "Preview Aug 2026, GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=568929",
+      "lifecycle": "active",
+      "whatToReview": "Limit which Dataverse tables and records ground the agent, and validate source quality and permissions before relying on grounded answers.",
+      "addedOn": "2026-08-18",
+      "lastReviewed": "2026-08-18",
+      "controls": [
+        {
+          "id": "1.14",
+          "title": "Data Minimization and Agent Scope Control",
+          "url": "/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
+          "pillar": "Security",
+          "rationale": "Dataverse tables and records exposed to an agent should be limited to its approved purpose."
+        },
+        {
+          "id": "2.16",
+          "title": "RAG Source Integrity Validation",
+          "url": "/controls/pillar-2-management/2.16-rag-source-integrity-validation/",
+          "pillar": "Management",
+          "rationale": "Dataverse data used for grounding should be validated for quality, currency, and permissions."
         }
       ],
       "pillars": [
