@@ -11,12 +11,14 @@
  *                                     Screen readers announce the input as
  *                                     "checkbox unchecked" with no purpose context.
  *
- *   A11Y-01  — Mobile hamburger / nav-drawer toggle (<label for="__drawer">) has no
- *              accessible name. Material 9.7.6 renders the button as a bare <label>
- *              wrapping an SVG icon; VoiceOver/NVDA/JAWS announce it as "unlabelled
- *              button" or skip it. Fix: set aria-label="Toggle navigation" at DOM-
- *              ready time. Guard prevents double-annotation if a future Material
- *              version adds the attribute natively.
+ *   A11Y-01  — Mobile hamburger / nav-drawer toggle (<label class="md-header__button"
+ *              for="__drawer">) has no accessible name. A previous fix used the
+ *              broad selector label[for="__drawer"], which actually hits Material's
+ *              backdrop overlay first and adds aria-label to a non-interactive
+ *              <label class="md-overlay">. axe-core 4.13 correctly flags that as
+ *              aria-prohibited-attr. Fix: remove any stale overlay aria-label and
+ *              add visually-hidden text to the real hamburger label so the control
+ *              is named without prohibited ARIA.
  *
  *   A11Y-02  — All content data tables missing scope="col" on <th> cells.
  *              JAWS/NVDA cannot reliably associate headers with data cells
@@ -48,14 +50,36 @@
 (function () {
   function applyA11yFixes() {
     // --- A11Y-01: Mobile nav toggle (hamburger) missing accessible name.
-    //     Material 9.7.6 renders <label class="md-header__button md-icon" for="__drawer">
-    //     with an SVG icon but no text content or aria-label. Screen readers
-    //     (VoiceOver, NVDA, JAWS) cannot announce the button purpose.
-    //     Guard: only set if the attribute is absent so a future Material version
-    //     that adds aria-label natively won't be overridden.
-    var navToggle = document.querySelector('label[for="__drawer"]');
-    if (navToggle && !navToggle.getAttribute("aria-label")) {
-      navToggle.setAttribute("aria-label", "Toggle navigation");
+    //     Material renders multiple <label for="__drawer"> elements:
+    //       * .md-overlay              -> backdrop click target (not the control)
+    //       * .md-header__button       -> visible hamburger icon button
+    //       * .md-nav__title           -> drawer title toggle
+    //     The overlay must stay unlabelled; adding aria-label there triggers
+    //     axe-core 4.13 aria-prohibited-attr on the welcome screen. Name the
+    //     actual hamburger control by injecting visually-hidden text instead.
+    var drawerOverlay = document.querySelector('label.md-overlay[for="__drawer"]');
+    if (drawerOverlay && drawerOverlay.getAttribute("aria-label")) {
+      drawerOverlay.removeAttribute("aria-label");
+    }
+    var navToggle = document.querySelector('label.md-header__button[for="__drawer"]');
+    if (navToggle) {
+      var existingNavLabel = navToggle.querySelector('[data-fsi-a11y-label="drawer-toggle"]');
+      if (!existingNavLabel) {
+        var srText = document.createElement("span");
+        srText.setAttribute("data-fsi-a11y-label", "drawer-toggle");
+        srText.textContent = "Toggle navigation";
+        srText.style.cssText =
+          "position:absolute;width:1px;height:1px;padding:0;margin:-1px;" +
+          "overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0";
+        navToggle.appendChild(srText);
+      }
+      var navIcon = navToggle.querySelector("svg");
+      if (navIcon && !navIcon.getAttribute("aria-hidden")) {
+        navIcon.setAttribute("aria-hidden", "true");
+      }
+      if (navToggle.getAttribute("aria-label")) {
+        navToggle.removeAttribute("aria-label");
+      }
     }
 
     // --- A11Y-02 (R4): Palette toggle radio inputs are 0×0 / opacity-0 but sit
