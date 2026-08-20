@@ -13,6 +13,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { bootApp } from "./_bootSpa.mjs";
+import { loadSpa } from "./_loadSpa.mjs";
 
 function baseValidPayload() {
   return {
@@ -32,6 +33,17 @@ function baseValidPayload() {
 }
 
 describe("import payload prototype-pollution validator", () => {
+  it("rejects forbidden collector keys without mutating object prototypes", () => {
+    const SPA = loadSpa();
+    const payload = { controlId: "1.1" };
+    Object.defineProperty(payload, "__proto__", {
+      value: { polluted: true }, enumerable: true,
+    });
+
+    expect(SPA.validateCollectorPayload(payload)).toBe(false);
+    expect(({}).polluted).toBeUndefined();
+  });
+
   it("Object.prototype is NOT polluted after importing a __proto__ payload (sanity)", async () => {
     const { app, window } = await bootApp();
     window.alert = () => {};

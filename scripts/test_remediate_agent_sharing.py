@@ -6,6 +6,7 @@ import pytest
 from remediate_agent_sharing import (
     build_permission_object,
     get_zone_remediation_principals,
+    remediate_agent,
     update_compliance_record,
     validate_remediation,
 )
@@ -507,6 +508,45 @@ def test_remediate_agent_single_agent_mode():
     pass
 
 
+def test_remediate_agent_uses_supported_zone_classifier_arguments():
+    """Zone classification receives the environment identity and policy client."""
+    bap_client = mock.MagicMock()
+    dataverse_client = mock.MagicMock()
+    response = mock.MagicMock(status_code=404)
+    dataverse_client._session.get.return_value = response
+    dataverse_client._get_headers.return_value = {}
+    dataverse_client.api_url = "https://example.crm.dynamics.com/api/data/v9.2"
+    args = mock.Mock(zone_override=None, verbose=False, whatif=True)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Production",
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch("remediate_agent_sharing.classify_environment_zone", return_value=2) as classify,
+        mock.patch(
+            "remediate_agent_sharing.parse_sharing_principals",
+            return_value={"principals": []},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals",
+            return_value=[],
+        ),
+        mock.patch("remediate_agent_sharing.print_agent_summary"),
+    ):
+        result = remediate_agent(agent_data, bap_client, dataverse_client, args)
+
+    assert result == {"success": True, "whatif": True, "error": None}
+    classify.assert_called_once_with(
+        environment_id="env-456",
+        environment_name="Production",
+        client=dataverse_client,
+    )
+
+
 # =========================================================================
 # Exception handling tests (Phase 4)
 # =========================================================================
@@ -708,4 +748,3 @@ def test_remediate_agent_proceeds_with_no_exception():
                         
                         # Verify PATCH was attempted
                         mock_bap_client.modify_agent_permissions.assert_called_once()
-

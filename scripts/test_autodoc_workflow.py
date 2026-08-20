@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import autodoc_workflow as workflow
 import pytest
+
+WORKFLOW_PATH = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "autodoc-verify.yml"
 
 
 @pytest.mark.parametrize("head_ref", ["autodoc/abc123", "copilot/autodoc-fix"])
@@ -54,3 +57,19 @@ def test_main_writes_fail_closed_metadata_outputs(tmp_path) -> None:
     outputs = dict(line.split("=", 1) for line in output_path.read_text(encoding="utf-8").splitlines())
     assert outputs["is_autodoc"] == "true"
     assert outputs["head_ref"] == "copilot/autodoc-fix"
+
+
+def test_workflow_uses_trusted_base_and_builtin_token() -> None:
+    text = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "pull_request_target:" in text
+    assert "issues: write" in text
+    assert "ref: ${{ steps.pr.outputs.base_sha }}" in text
+    assert "persist-credentials: false" in text
+    assert "actions/create-github-app-token" not in text
+    assert "pull-requests: write" not in text
+    assert text.count("GH_TOKEN: ${{ github.token }}") >= 4
+    assert "only Markdown files may be fetched under pull_request_target" in text
+    assert text.index("Refuse forked autodoc PRs") < text.index(
+        "Fetch diff and allowed PR head markdown files"
+    )

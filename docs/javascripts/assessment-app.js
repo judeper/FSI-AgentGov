@@ -201,19 +201,13 @@
   }
 
   // ---- Collector payload validation (security) --------------------------
-  // Note: object-literal `__proto__` sets the prototype rather than an own
-  // property. Use Object.create(null) + bracket assignment so the key lookup
-  // via hasOwnProperty matches the string "__proto__".
-  var _COLLECTOR_FORBIDDEN_KEYS = Object.create(null);
-  _COLLECTOR_FORBIDDEN_KEYS["__proto__"] = 1;
-  _COLLECTOR_FORBIDDEN_KEYS["constructor"] = 1;
-  _COLLECTOR_FORBIDDEN_KEYS["prototype"] = 1;
+  var _COLLECTOR_FORBIDDEN_KEYS = ["__proto__", "constructor", "prototype"];
   var _COLLECTOR_AUTOMATION = { automated: 1, manual: 1, hybrid: 1 };
   function validateCollectorPayload(p) {
     if (!p || typeof p !== "object" || Array.isArray(p)) return false;
     var keys = Object.keys(p);
     for (var i = 0; i < keys.length; i++) {
-      if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, keys[i])) return false;
+      if (_COLLECTOR_FORBIDDEN_KEYS.indexOf(keys[i]) !== -1) return false;
     }
     if (typeof p.controlId !== "string" || !/^\d+\.\d+$/.test(p.controlId)) return false;
     if (p.evidenceRef !== undefined &&
@@ -237,7 +231,7 @@
     if (!node || typeof node !== "object") return false;
     var keys = Object.keys(node);
     for (var i = 0; i < keys.length; i++) {
-      if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, keys[i])) return true;
+      if (_COLLECTOR_FORBIDDEN_KEYS.indexOf(keys[i]) !== -1) return true;
       if (_hasForbiddenKey(node[keys[i]], depth + 1)) return true;
     }
     return false;
@@ -263,7 +257,7 @@
     }
     Object.keys(src).forEach(function (k) {
       if (k === "notes" || k === "evidenceRef" || k === "automationStatus" || k === "severity") return;
-      if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, k)) return;
+      if (_COLLECTOR_FORBIDDEN_KEYS.indexOf(k) !== -1) return;
       var v = src[k];
       if (v === "yes" || v === "no") out[k] = v;
     });

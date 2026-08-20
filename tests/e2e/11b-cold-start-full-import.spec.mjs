@@ -1,8 +1,7 @@
 import { test } from "@playwright/test";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { tmpdir } from "node:os";
 import {
   clearAllStorage,
   clearPageStorage,
@@ -41,7 +40,7 @@ test.describe("cold-start full-assessment import @regression", () => {
   test("imports JSON into fresh browser, persists across reload, collision is non-corrupting @regression", async ({
     page,
     context,
-  }) => {
+  }, testInfo) => {
     page.on("dialog", (d) => d.accept().catch(() => {}));
     await freezeTime(page);
 
@@ -132,9 +131,7 @@ test.describe("cold-start full-assessment import @regression", () => {
     //   - This is the documented "Same-id round-trip is not destructive"
     //     contract. A future change toward a merge strategy would have to
     //     update both the SPA comment and this spec's expectation.
-    const collisionDir = join(tmpdir(), "fsi-agentgov-e2e");
-    mkdirSync(collisionDir, { recursive: true });
-    const collisionPath = join(collisionDir, "full-cco-collision.json");
+    const collisionPath = testInfo.outputPath("full-cco-collision.json");
     const collidingPayload = {
       ...exported,
       assessmentName: "Globex Financial — collision",

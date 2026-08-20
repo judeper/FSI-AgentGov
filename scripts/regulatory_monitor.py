@@ -3386,8 +3386,12 @@ def _fetch_finra_page(
         )
         retry_after = result.get('retry_after')
         if isinstance(retry_after, int) and retry_after > 0:
-            # Retry-After is an authoritative server cooldown. Do not shorten
-            # it merely to fit the monitor's fallback backoff ceiling.
+            if retry_after > FINRA_MAX_RETRY_WAIT_SECONDS:
+                result['error'] = (
+                    f"Retry-After {retry_after}s exceeds "
+                    f"{FINRA_MAX_RETRY_WAIT_SECONDS}s FINRA retry budget"
+                )
+                return result
             wait_time = retry_after
         else:
             wait_time = min(

@@ -13,7 +13,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
-  issues: read
+  issues: write
 
 jobs:
   autodoc-verify:
@@ -21,14 +21,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout trusted base verifier
-        uses: actions/checkout@v7
-        with:
-          ref: main
-          fetch-depth: 1
-
-      - name: Resolve PR metadata (API only)
-        id: meta
+      - name: Resolve pull request and trusted base SHA (API only)
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
@@ -37,19 +31,52 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          mkdir -p .autodoc
+          BOOTSTRAP_DIR="$RUNNER_TEMP/autodoc-bootstrap"
+          mkdir -p "$BOOTSTRAP_DIR"
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             PR_NUMBER="$INPUT_PR"
           else
             PR_NUMBER="$EVENT_PR"
           fi
-          if [ -z "$PR_NUMBER" ]; then
-            echo "Unable to determine pull request number." >&2
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid pull request number: $PR_NUMBER" >&2
             exit 1
           fi
 
-          gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json
-          gh api "repos/$REPO/issues/$PR_NUMBER/labels?per_page=100" > .autodoc/pr-labels.json
+          gh api "repos/$REPO/pulls/$PR_NUMBER" > "$BOOTSTRAP_DIR/pr-meta.json"
+          gh api "repos/$REPO/issues/$PR_NUMBER/labels?per_page=100" > "$BOOTSTRAP_DIR/pr-labels.json"
+          export BOOTSTRAP_DIR
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          bootstrap_dir = Path(os.environ["BOOTSTRAP_DIR"])
+          pr = json.loads((bootstrap_dir / "pr-meta.json").read_text(encoding="utf-8"))
+          base_sha = pr.get("base", {}).get("sha", "")
+          if not re.fullmatch(r"[0-9a-f]{40}", base_sha):
+              raise SystemExit("Pull request metadata has an invalid base.sha.")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"base_sha={base_sha}\n")
+          PY
+
+      - name: Checkout trusted base verifier
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.pr.outputs.base_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Classify pull request from trusted base code
+        id: meta
+        env:
+          BOOTSTRAP_DIR: ${{ runner.temp }}/autodoc-bootstrap
+        run: |
+          set -euo pipefail
+          mkdir -p .autodoc
+          cp "$BOOTSTRAP_DIR/pr-meta.json" .autodoc/pr-meta.json
+          cp "$BOOTSTRAP_DIR/pr-labels.json" .autodoc/pr-labels.json
           python scripts/autodoc_workflow.py \
             --pr-json .autodoc/pr-meta.json \
             --labels-json .autodoc/pr-labels.json \
@@ -72,17 +99,6 @@ jobs:
           echo "Autodoc verification only supports same-repository autodoc/* or copilot/* PRs." >&2
           exit 1
 
-      - name: Generate GitHub App token
-        id: app-token
-        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          permission-contents: read
-          permission-pull-requests: read
-          permission-issues: write
-
       - name: Set up Python
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
         uses: actions/setup-python@v7
@@ -97,7 +113,7 @@ jobs:
         id: contract
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ steps.meta.outputs.pr }}
           HEAD_REPO: ${{ steps.meta.outputs.head_repo }}
@@ -237,7 +253,7 @@ jobs:
       - name: Fetch diff and allowed PR head markdown files
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           BASE_SHA: ${{ steps.contract.outputs.base_sha }}
           HEAD_SHA: ${{ steps.contract.outputs.head_sha }}
@@ -300,7 +316,7 @@ jobs:
       - name: Label and comment for human review
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.gate.outputs.exit_code == '2'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ steps.meta.outputs.pr }}
         run: |
           set -euo pipefail

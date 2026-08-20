@@ -602,8 +602,9 @@ def remediate_agent(
             logger.debug("Using zone override: %d", zone)
         else:
             zone = classify_environment_zone(
+                environment_id=environment_id,
                 environment_name=environment_name,
-                environment_metadata={"displayName": environment_name},
+                client=dataverse_client,
             )
         
         agent_data["zone"] = zone

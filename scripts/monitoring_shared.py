@@ -46,7 +46,8 @@ except ImportError as e:
 # === Configuration Constants ===
 REQUEST_TIMEOUT = 30  # seconds
 MAX_RETRIES = 3
-MAX_RATE_LIMIT_WAIT = 15  # seconds; cap only fallback waits for missing/invalid hints
+MAX_RATE_LIMIT_WAIT = 15  # seconds; cap fallback waits for missing/invalid hints
+MAX_RETRY_AFTER_WAIT = 60  # seconds; longer server hints fail closed for a later run
 
 # Default path to monitoring configuration file
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "config" / "monitoring-config.yaml"
@@ -80,9 +81,19 @@ def fetch_page(url: str, session: requests.Session, max_retries: int = MAX_RETRI
                     retry_after_seconds = max(0, int(retry_after))
                 except (TypeError, ValueError):
                     retry_after_seconds = 0
-                # A valid Retry-After is authoritative. Only the fallback
-                # exponential delay is capped so a missing/malformed hint
-                # cannot stall a scheduled monitor indefinitely.
+                if retry_after_seconds > MAX_RETRY_AFTER_WAIT:
+                    return {
+                        'url': url,
+                        'status_code': 429,
+                        'content': "",
+                        'final_url': response.url,
+                        'was_redirected': response.url != url,
+                        'error': (
+                            f"Retry-After {retry_after_seconds}s exceeds "
+                            f"{MAX_RETRY_AFTER_WAIT}s retry budget"
+                        ),
+                        'retry_after': retry_after_seconds,
+                    }
                 wait_time = (
                     retry_after_seconds
                     if retry_after_seconds > 0

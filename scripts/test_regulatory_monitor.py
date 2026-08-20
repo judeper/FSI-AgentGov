@@ -2307,6 +2307,24 @@ def test_shared_fetch_page_honors_valid_retry_after(monkeypatch):
     assert sleeps == [60]
 
 
+def test_shared_fetch_page_fails_closed_on_oversized_retry_after(monkeypatch):
+    """A server cannot stall the scheduled monitor beyond its retry budget."""
+    responses = [_FakeHttpResponse(429, retry_after=3600)]
+    sleeps = []
+
+    class Session:
+        def get(self, *_args, **_kwargs):
+            return responses.pop(0)
+
+    monkeypatch.setattr(monitoring_shared.time, "sleep", sleeps.append)
+    result = monitoring_shared.fetch_page("https://example.test", Session(), max_retries=2)
+
+    assert result["status_code"] == 429
+    assert result["retry_after"] == 3600
+    assert "exceeds 60s retry budget" in result["error"]
+    assert sleeps == []
+
+
 class _FakeSession:
     def __init__(self, responses):
         self.responses = list(responses)
@@ -5002,6 +5020,40 @@ def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
     )["status_code"] == 200
     assert 10 in sleeps
     assert sleeps.count(10) == 1
+
+
+def test_finra_oversized_retry_after_fails_closed_without_sleep(monkeypatch):
+    """FINRA defers oversized cooldowns to a later workflow run."""
+    calls = []
+    sleeps = []
+
+    def fake_fetch_page(url, _session, **kwargs):
+        calls.append((url, kwargs))
+        return {
+            "status_code": 429,
+            "content": "",
+            "final_url": url,
+            "was_redirected": False,
+            "error": "rate limited",
+            "retry_after": 3600,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", sleeps.append)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: 0.0)
+    session = _FakeSession([])
+    session._finra_last_request_at = -1.0
+
+    result = regulatory_monitor._fetch_finra_page(
+        "https://example.test/finra",
+        session,
+        max_attempts=2,
+    )
+
+    assert result["status_code"] == 429
+    assert "exceeds 60s FINRA retry budget" in result["error"]
+    assert len(calls) == 1
+    assert sleeps == []
 
 
 def test_main_does_not_advance_finra_on_detail_failure(monkeypatch):
