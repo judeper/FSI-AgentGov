@@ -3676,6 +3676,23 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
     assert "private-key:" not in read_only_block
 
 
+def test_regulatory_workflow_rerun_verifies_checked_out_default_branch():
+    """Reruns compare HEAD to fetched main, not the original run's GITHUB_SHA."""
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+    verify_step = workflow.split(
+        "- name: Verify trusted default-branch checkout", 1
+    )[1].split("- name: Set up Python", 1)[0]
+    assert "GITHUB_SHA" not in verify_step
+    assert 'REMOTE_HEAD=$(git rev-parse "refs/remotes/origin/$DEFAULT_BRANCH")' in verify_step
+    assert 'if [ "${GITHUB_REF_NAME}" != "$DEFAULT_BRANCH" ]; then' in verify_step
+    assert 'if [ "$CURRENT_HEAD" != "$REMOTE_HEAD" ]; then' in verify_step
+
+
 def _workflow_text() -> str:
     return (
         Path(__file__).resolve().parents[1]
