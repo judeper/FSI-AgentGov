@@ -72,17 +72,6 @@ jobs:
           echo "Autodoc verification only supports same-repository autodoc/* or copilot/* PRs." >&2
           exit 1
 
-      - name: Generate GitHub App token
-        id: app-token
-        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          permission-contents: read
-          permission-pull-requests: read
-          permission-issues: write
-
       - name: Set up Python
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
         uses: actions/setup-python@v7
@@ -97,147 +86,61 @@ jobs:
         id: contract
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ steps.meta.outputs.pr }}
-          HEAD_REPO: ${{ steps.meta.outputs.head_repo }}
         run: |
           set -euo pipefail
           mkdir -p .autodoc
-          gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json
           python - <<'PY'
           from __future__ import annotations
 
-          import fnmatch
           import json
           import os
-          import re
           import subprocess
-          import urllib.parse
-          from pathlib import Path, PurePosixPath
+          from pathlib import Path
 
-          def _linked_issue_number(body: str) -> int | None:
-              match = re.search(r"\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b", body, re.IGNORECASE)
-              return int(match.group(1)) if match else None
-
-          def _fetch_issue(repository: str, number: int) -> dict:
-              return _gh_json(f"repos/{repository}/issues/{number}")
-
-          def _find_issue_by_fingerprint(repository: str, fingerprint_value: str) -> dict | None:
-              query = f'repo:{repository} type:issue "AUTODOC-FINGERPRINT: {fingerprint_value}"'
-              endpoint = "search/issues?q=" + urllib.parse.quote(query) + "&per_page=5"
-              search = _gh_json(endpoint)
-              for item in search.get("items", []):
-                  body = item.get("body") or ""
-                  if f"AUTODOC-FINGERPRINT: {fingerprint_value}" in body:
-                      return item
-              return None
-
-          def _extract_contract(issue_body: str, fingerprint_value: str) -> dict:
-              for match in re.finditer(r"```json\s*(\{.*?\})\s*```", issue_body, re.DOTALL):
-                  try:
-                      contract_obj = json.loads(match.group(1))
-                  except json.JSONDecodeError:
-                      continue
-                  if contract_obj.get("fingerprint") == fingerprint_value:
-                      return contract_obj
-              raise SystemExit("Linked issue does not contain a JSON contract matching the PR fingerprint.")
-
-          def _preflight_paths(paths: list[str], contract_obj: dict) -> None:
-              allowed = {_safe_repo_path(path) for path in contract_obj.get("allowed_files", [])}
-              forbidden = [_safe_repo_glob(pattern) for pattern in contract_obj.get("forbidden_paths", [])]
-              failures: list[str] = []
-              for path in sorted(set(paths)):
-                  if not path.endswith(".md"):
-                      failures.append(f"{path}: only Markdown files may be fetched under pull_request_target")
-                  if path not in allowed:
-                      failures.append(f"{path}: not listed in contract allowed_files")
-                  matched = next((pattern for pattern in forbidden if _matches(path, pattern)), None)
-                  if matched:
-                      failures.append(f"{path}: matches forbidden_paths pattern {matched}")
-              if failures:
-                  raise SystemExit("Changed-file preflight failed:\n" + "\n".join(failures))
-
-          def _safe_repo_path(path: str) -> str:
-              normalized = path.replace("\\", "/").strip().lstrip("/")
-              while normalized.startswith("./"):
-                  normalized = normalized[2:]
-              if not normalized or any(part in {"", ".", ".."} for part in normalized.split("/")):
-                  raise SystemExit(f"Unsafe repository path: {path}")
-              return normalized
-
-          def _safe_repo_glob(pattern: str) -> str:
-              return pattern.replace("\\", "/").strip().lstrip("/")
-
-          def _matches(path: str, pattern: str) -> bool:
-              return fnmatch.fnmatchcase(path, pattern) or PurePosixPath(path).match(pattern)
+          import autodoc_workflow as workflow
 
           def _gh_json(endpoint: str) -> dict:
               completed = subprocess.run(["gh", "api", endpoint], check=True, capture_output=True, text=True)
               return json.loads(completed.stdout)
 
           repo = os.environ["REPO"]
-          head_repo = os.environ["HEAD_REPO"]
-          if head_repo != repo:
-              raise SystemExit(f"Autodoc PR head repo must be {repo}; got {head_repo}.")
-
           work = Path(".autodoc")
           pr = json.loads((work / "pr-meta.json").read_text(encoding="utf-8"))
           base_sha = pr["base"]["sha"]
           head_sha = pr["head"]["sha"]
           pr_body = pr.get("body") or ""
           (work / "pr-body.txt").write_text(pr_body, encoding="utf-8")
-
-          fingerprint_match = re.search(r"^AUTODOC-FINGERPRINT:\s*(\S+)\s*$", pr_body, re.MULTILINE)
-          if not fingerprint_match:
-              raise SystemExit("PR body is missing AUTODOC-FINGERPRINT.")
-          fingerprint = fingerprint_match.group(1)
-
-          issue_number = _linked_issue_number(pr_body)
-          issue = _fetch_issue(repo, issue_number) if issue_number else _find_issue_by_fingerprint(repo, fingerprint)
-          if not issue:
-              raise SystemExit("Could not find linked autodoc issue by Closes # reference or fingerprint search.")
-
-          contract = _extract_contract(issue.get("body") or "", fingerprint)
-          report_path = _safe_repo_path(str(contract.get("report_path", "")))
-          if not report_path.startswith("reports/monitoring/"):
-              raise SystemExit(f"Contract report_path must be under reports/monitoring/: {report_path}")
-          if not Path(report_path).is_file():
-              raise SystemExit(f"Contract report_path does not exist on base checkout: {report_path}")
+          trusted = workflow.derive_trusted_contract(pr_body, repo_root=".")
+          contract = trusted["contract"]
+          report_path = str(trusted["report_path"])
+          fingerprint = str(trusted["fingerprint"])
+          route = str(trusted["route"])
 
           compare = _gh_json(f"repos/{repo}/compare/{base_sha}...{head_sha}")
           changed_files = compare.get("files", [])
           if len(changed_files) >= 300:
               raise SystemExit("Changed-file preflight reached the GitHub compare file-list cap; failing closed.")
-          fetch_paths: list[str] = []
-          preflight_paths: list[str] = []
-          status_failures: list[str] = []
-          for item in changed_files:
-              path = _safe_repo_path(item["filename"])
-              fetch_paths.append(path)
-              preflight_paths.append(path)
-              if item.get("previous_filename"):
-                  preflight_paths.append(_safe_repo_path(item["previous_filename"]))
-              if item.get("status") not in {"added", "modified"}:
-                  status_failures.append(f"{path}: unsupported file status {item.get('status')}")
-          if status_failures:
-              raise SystemExit("Changed-file preflight failed:\n" + "\n".join(status_failures))
-          _preflight_paths(preflight_paths, contract)
+          fetch_paths = workflow.preflight_changed_files(changed_files, contract)
 
           (work / "contract.json").write_text(json.dumps(contract, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           (work / "changed-files.json").write_text(json.dumps(fetch_paths, indent=2) + "\n", encoding="utf-8")
           with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
               handle.write(f"report_path={report_path}\n")
-              handle.write(f"issue_number={issue['number']}\n")
+              handle.write(f"route={route}\n")
               handle.write(f"base_sha={base_sha}\n")
               handle.write(f"head_sha={head_sha}\n")
-          print(f"Contract fingerprint {fingerprint} from issue #{issue['number']}; {len(fetch_paths)} changed file(s) passed preflight.")
+          print(
+              f"Trusted contract fingerprint {fingerprint} route={route}; "
+              f"{len(fetch_paths)} changed file(s) passed preflight."
+          )
           PY
 
       - name: Fetch diff and allowed PR head markdown files
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           BASE_SHA: ${{ steps.contract.outputs.base_sha }}
           HEAD_SHA: ${{ steps.contract.outputs.head_sha }}
@@ -297,8 +200,18 @@ jobs:
           echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Label and comment for human review
+      - name: Generate GitHub App token for escalation writes
+        id: app-token
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.gate.outputs.exit_code == '2'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-issues: write
+
+      - name: Label and comment for human review
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.gate.outputs.exit_code == '2' && steps.app-token.outputs.token != ''
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR_NUMBER: ${{ steps.meta.outputs.pr }}
