@@ -3,10 +3,35 @@
 from __future__ import annotations
 
 import json
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 import autodoc_workflow as workflow
 import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+WORKFLOW_PATH = REPO_ROOT / ".github" / "workflows" / "autodoc-verify.yml"
+
+
+def test_workflow_imports_trusted_helper_from_repo_root() -> None:
+    workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
+    import_match = re.search(
+        r"^\s*((?:from scripts )?import autodoc_workflow as workflow)\s*$",
+        workflow_text,
+        re.MULTILINE,
+    )
+
+    assert import_match is not None
+    completed = subprocess.run(
+        [sys.executable, "-c", import_match.group(1)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 @pytest.mark.parametrize("head_ref", ["autodoc/abc123", "copilot/autodoc-fix"])

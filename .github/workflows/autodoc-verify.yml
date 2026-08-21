@@ -99,7 +99,7 @@ jobs:
           import subprocess
           from pathlib import Path
 
-          import autodoc_workflow as workflow
+          from scripts import autodoc_workflow as workflow
 
           def _gh_json(endpoint: str) -> dict:
               completed = subprocess.run(["gh", "api", endpoint], check=True, capture_output=True, text=True)
