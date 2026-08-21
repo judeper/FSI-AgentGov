@@ -10,6 +10,7 @@ requiring a live Dataverse connection.
 from __future__ import annotations
 
 import json
+from unittest import mock
 
 from asard_zone_rules import (
     ZONE_SHARING_RULES,
@@ -91,6 +92,24 @@ class TestClassifyEnvironmentZone:
         # Should not raise when client=None
         result = classify_environment_zone("env-9", "Production", client=None)
         assert result == 3
+
+    def test_policy_lookup_uses_deployed_logical_names_and_overrides_name(self):
+        client = mock.MagicMock()
+        client.query.return_value = [{"fsi_zone": 1}]
+
+        result = classify_environment_zone(
+            "env-9",
+            "Production",
+            client=client,
+        )
+
+        assert result == 1
+        client.query.assert_called_once_with(
+            "fsi_environmentpolicies",
+            filter="fsi_environmentid eq 'env-9'",
+            select=["fsi_zone"],
+            top=1,
+        )
 
 
 # =========================================================================

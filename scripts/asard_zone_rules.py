@@ -113,7 +113,7 @@ def classify_environment_zone(
 
     1. **Environment policy lookup:** If ``client`` is provided, query
        ``fsi_EnvironmentPolicy`` table for environment. If a policy
-       record exists with ``fsi_governance_zone``, return that zone.
+       record exists with ``fsi_zone``, return that zone.
     2. **Naming convention:** Check environment name against known patterns
        (case-insensitive). "prod"/"production"/"enterprise" → Zone 3;
        "test"/"qa"/"staging"/"uat" → Zone 2;
@@ -141,12 +141,12 @@ def classify_environment_zone(
         try:
             records = client.query(
                 "fsi_environmentpolicies",
-                filter=f"fsi_environment_id eq '{environment_id}'",
-                select=["fsi_governance_zone"],
+                filter=f"fsi_environmentid eq '{environment_id}'",
+                select=["fsi_zone"],
                 top=1,
             )
             if records:
-                zone = records[0].get("fsi_governance_zone")
+                zone = records[0].get("fsi_zone")
                 if zone is not None:
                     logger.info(
                         "Environment %s classified as Zone %d via policy lookup",
