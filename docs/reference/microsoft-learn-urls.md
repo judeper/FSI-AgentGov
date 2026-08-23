@@ -50,7 +50,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Copilot Hub** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Jan 2026 |
 | **Maker Onboarding (Welcome Content)** | https://learn.microsoft.com/en-us/power-platform/admin/welcome-content | Jan 2026 |
 | **Agent Access Points** | https://learn.microsoft.com/en-us/power-platform/admin/security/identity-access-management#agent-access-points-preview | Jan 2026 |
-| **Copilot Studio Message Capacity** | https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity | Jan 2026 |
+| **Copilot Credits and Capacity for Copilot Studio** | https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity | Jan 2026 |
 | **Business Continuity** | https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery | Jan 2026 |
 | Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Jan 2026 |
 | Regions Overview | https://learn.microsoft.com/en-us/power-platform/admin/regions-overview | Jan 2026 |
