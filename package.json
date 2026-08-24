@@ -16,13 +16,13 @@
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.62.1",
-    "@vitest/ui": "4.1.10",
+    "@vitest/ui": "4.1.11",
     "ajv": "8.20.0",
     "get-port": "7.2.0",
     "jsdom": "29.1.1",
     "markdown-it": "^15.0.0",
     "pdf-parse": "2.4.5",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }
