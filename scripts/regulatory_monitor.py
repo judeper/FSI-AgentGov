@@ -3373,6 +3373,12 @@ def _fetch_finra_page(
         except AttributeError:
             pass
         if result['status_code'] not in (0, 429) or attempt == attempts - 1:
+            if result['status_code'] == 429 and attempt == attempts - 1:
+                result = dict(result)
+                attempt_label = "attempt" if attempts == 1 else "attempts"
+                result['error'] = (
+                    f"rate limited after {attempts} {attempt_label}"
+                )
             if result['status_code'] not in (0, 429):
                 try:
                     session._finra_backoff_seconds = FINRA_RETRY_BASE_WAIT_SECONDS
