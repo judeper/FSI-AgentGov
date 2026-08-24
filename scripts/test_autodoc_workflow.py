@@ -15,6 +15,29 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_PATH = REPO_ROOT / ".github" / "workflows" / "autodoc-verify.yml"
 
 
+def test_workflow_persists_pr_metadata_before_contract_extraction() -> None:
+    workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    pr_number = workflow_text.index('PR_NUMBER="$EVENT_PR"')
+    metadata_write = workflow_text.index(
+        'gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json'
+    )
+    metadata_read = workflow_text.index(
+        'pr = json.loads((work / "pr-meta.json").read_text(encoding="utf-8"))'
+    )
+
+    assert pr_number < metadata_write < metadata_read
+
+
+def test_workflow_fails_explicitly_when_escalation_token_is_unavailable() -> None:
+    workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
+
+    assert "Refuse silent escalation when write token is unavailable" in workflow_text
+    assert "steps.app-token.outputs.token == ''" in workflow_text
+    assert "no label or comment was written" in workflow_text
+    assert "steps.app-token.outputs.token != ''" in workflow_text
+
+
 def test_workflow_imports_trusted_helper_from_repo_root() -> None:
     workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
     import_match = re.search(

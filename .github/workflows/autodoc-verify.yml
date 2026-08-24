@@ -210,6 +210,12 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           permission-issues: write
 
+      - name: Refuse silent escalation when write token is unavailable
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.gate.outputs.exit_code == '2' && steps.app-token.outputs.token == ''
+        run: |
+          echo "Autodoc requires human review, but the escalation write token could not be created; no label or comment was written." >&2
+          exit 1
+
       - name: Label and comment for human review
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.gate.outputs.exit_code == '2' && steps.app-token.outputs.token != ''
         env:
