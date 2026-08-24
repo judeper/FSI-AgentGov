@@ -110,6 +110,10 @@ jobs:
           case "$EXIT_CODE" in
             0|1)
               ;;
+            2)
+              echo "::error::Regulatory monitor returned documented fail-closed exit code 2; no state or report PR will be created." >&2
+              exit 2
+              ;;
             *)
               echo "::error::Regulatory monitor returned undocumented exit code $EXIT_CODE" >&2
               exit "$EXIT_CODE"
@@ -160,15 +164,23 @@ jobs:
           set -euo pipefail
           OUTCOME="${{ steps.monitor.outcome }}"
           EXIT_CODE="${{ steps.monitor.outputs.exit_code }}"
-          if [ "$OUTCOME" != "success" ]; then
-            echo "::error::Regulatory monitor step did not complete successfully (outcome=$OUTCOME)." >&2
-            exit 2
-          fi
           case "$EXIT_CODE" in
             0|1)
+              if [ "$OUTCOME" != "success" ]; then
+                echo "::error::Regulatory monitor step did not complete successfully (outcome=$OUTCOME)." >&2
+                exit 2
+              fi
+              ;;
+            2)
+              echo "::error::Regulatory monitor reported documented fail-closed exit code 2; downstream state mutation is blocked." >&2
+              exit 2
+              ;;
+            "")
+              echo "::error::Regulatory monitor exit_code output is missing." >&2
+              exit 2
               ;;
             *)
-              echo "::error::Regulatory monitor exit_code output is missing or undocumented: '$EXIT_CODE'." >&2
+              echo "::error::Regulatory monitor exit_code output is undocumented: '$EXIT_CODE'." >&2
               exit 2
               ;;
           esac

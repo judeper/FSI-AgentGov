@@ -3540,8 +3540,8 @@ def test_finra_missing_date_remains_unknown(monkeypatch):
     assert "2026-01-01" not in result[0].publication_date
 
 
-def test_workflow_fails_closed_for_monitor_exit_two_or_more():
-    """Preflight and undocumented monitor statuses fail the mutation job."""
+def test_workflow_documents_fail_closed_exit_two_and_rejects_unknown_statuses():
+    """Exit 2 is a known failure contract; unknown statuses still fail closed."""
     workflow = (
         Path(__file__).resolve().parents[1]
         / ".github"
@@ -3551,11 +3551,13 @@ def test_workflow_fails_closed_for_monitor_exit_two_or_more():
 
     assert 'exit "$EXIT_CODE"' in workflow
     assert '0|1)' in workflow
+    assert "documented fail-closed exit code 2" in workflow
     assert "undocumented exit code" in workflow
     assert "- name: Validate monitor outcome and outputs" in workflow
     assert 'if: always()' in workflow
     assert 'steps.monitor.outcome' in workflow
-    assert "exit_code output is missing or undocumented" in workflow
+    assert "exit_code output is missing" in workflow
+    assert "exit_code output is undocumented" in workflow
     assert "continue-on-error:" not in workflow
 
 
@@ -4719,6 +4721,43 @@ def test_finra_rate_limit_preserves_listing_page_url(monkeypatch):
         "https://example.test/finra?page=1",
         "https://example.test/finra?page=1",
     ]
+
+
+def test_finra_rate_limit_exhaustion_reports_aggregate_attempts(monkeypatch):
+    """The terminal 429 reports the FINRA retry loop, not one inner attempt."""
+    responses = [
+        {
+            "status_code": 429,
+            "content": "",
+            "final_url": "https://example.test/finra?page=6",
+            "was_redirected": False,
+            "error": "rate limited after 1 attempt",
+            "retry_after": 0,
+        }
+        for _ in range(regulatory_monitor.FINRA_MAX_RETRY_ATTEMPTS)
+    ]
+    requested = []
+
+    def fake_fetch_page(url, _session, **kwargs):
+        requested.append((url, kwargs))
+        return responses.pop(0)
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: 0.0)
+
+    result = regulatory_monitor._fetch_finra_page(
+        "https://example.test/finra?page=6", _FakeSession([])
+    )
+
+    assert result["status_code"] == 429
+    assert result["error"] == "rate limited after 6 attempts"
+    assert len(requested) == regulatory_monitor.FINRA_MAX_RETRY_ATTEMPTS
+    assert all(
+        url == "https://example.test/finra?page=6"
+        and kwargs["max_retries"] == 1
+        for url, kwargs in requested
+    )
 
 
 def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch):
