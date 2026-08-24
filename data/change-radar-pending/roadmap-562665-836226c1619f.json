@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:836226c1619fcc645880e40357be8285161f9fefe3b7a7e5be68429c9d421d32",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "August CY2026",
+  "id": 562665,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Teams"
+  ],
+  "raw_description": "The Interpreter agent acts as a translator in Microsoft Teams meetings, allowing participants to listen to the meeting in their chosen language with real-time translation so speaking different languages isn’t a barrier to effective understanding and collaboration. It's now available in Teams Rooms on Android licensed for Teams Rooms Pro.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562665",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Rolling out",
+  "suggested_controls": [],
+  "title": "Microsoft Teams: Interpreter agent support in Teams Rooms on Android"
+}

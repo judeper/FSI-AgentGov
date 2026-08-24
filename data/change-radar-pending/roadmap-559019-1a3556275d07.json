@@ -1,0 +1,24 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:1a3556275d07f874380ad522359a1eb67b07cdb95f4c647b430447a164c04ea1",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "June CY2026",
+  "id": 559019,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "Enables programmatic access to first‑party and tenant‑defined declarative agents via the Work IQ endpoint, allowing applications to trigger specialized agents for domain‑specific tasks within broader workflows.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=559019",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Work IQ APIs - Endpoints: Declarative Agent Access"
+}

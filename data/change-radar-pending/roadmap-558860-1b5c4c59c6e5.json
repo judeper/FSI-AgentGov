@@ -1,0 +1,28 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:1b5c4c59c6e52a342acc0d81688cdf561b8c27098af703044b8168917e86f98f",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "August CY2027",
+  "id": 558860,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2026",
+  "products": [
+    "Microsoft Purview"
+  ],
+  "raw_description": "Data Security Triage Agent summaries and categorizations for DLP alerts will be made available in DLP Alerts in Microsoft Defender XDR.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=558860",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.17",
+      "source": "keyword:dlp"
+    },
+    {
+      "id": "1.5",
+      "source": "keyword:dlp"
+    }
+  ],
+  "title": "Microsoft Purview: Data Loss Prevention - Data Security Triage Agent summaries and categorizations for DLP alerts will be made available in DLP Alerts in Microsoft Defender XDR "
+}

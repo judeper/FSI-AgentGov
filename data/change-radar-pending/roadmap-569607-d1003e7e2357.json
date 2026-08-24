@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:d1003e7e235788df359b58543dadd31a0726f0257d51efa695b38c01cfaa2aa1",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "September CY2026",
+  "id": 569607,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "Microsoft Copilot Studio is enhancing the Evaluations experience to help makers better understand agent quality and behavior. New capabilities include richer evaluation explanations, agent reasoning traces, cited knowledge sources, evaluation run comparison, support for larger datasets, customizable test generation, and dataset generation from knowledge sources. These improvements help makers identify quality issues more quickly, understand why evaluations succeed or fail, compare results across runs, and create higher quality evaluation datasets with less manual effort. Additional validation and guidance will help makers resolve configuration issues before running evaluations.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569607",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot Studio: Improvements to agent evaluations experience"
+}
