@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:4c41e3bf241772e250fb0a4c4ee70a8db5fc09605b3bf2d81c0cbcb17a23be27",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "September CY2026",
+  "id": 490564,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Teams"
+  ],
+  "raw_description": "After further review, we are not able to continue rolling this out at this time.  We apologize for any inconvenience. Introducing a new feature that brings interactive agents into your Teams meetings and 1-on-1 calls. Engage with agents as a group or privately, with zero state prompts and history support for seamless interactions. Currently, only agents built on Copilot support sessions, meaning they can remember the context of previous interactions within the same session for more relevant responses. Custom agents do not yet have session support. All agents from BizChat/Copilot Studio are now available for use in your meetings and calls. This feature allows secure testing and iteration, inviting colleagues for feedback without affecting sensitive data or production channels. Updated August 17, 2026: We have decided not to move forward with this change at this time. We apologize for any inconvenience. \n",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=490564",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Cancelled",
+  "suggested_controls": [],
+  "title": "Microsoft Teams:  Interactive Agents for Teams Meetings and Calls"
+}

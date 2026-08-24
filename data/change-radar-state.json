@@ -2,8 +2,14 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-08-17T07:42:30Z",
+      "last_run": "2026-08-24T07:49:10Z",
       "items": {
+        "569607": {
+          "hash": "sha256:d1003e7e235788df359b58543dadd31a0726f0257d51efa695b38c01cfaa2aa1",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Improvements to agent evaluations experience",
+          "detected_at": "2026-08-24T07:49:10Z"
+        },
         "569213": {
           "hash": "sha256:38ed2eb8eff668fb51c9980557ccdcb46c415d895f1f0c501d68800e08e4a640",
           "status": "In development",
@@ -131,7 +137,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "566314": {
-          "hash": "sha256:2075ece36d196fb47986777e6f4f0fd0d2eac7c6001b94e45870c3bf1569603b",
+          "hash": "sha256:08d178d40f5dbc46e97b662d22e8d543c93d7af1dc895509806e91213736ec5c",
           "status": "In development",
           "title": "Planner: Save AI-generated filters in Planner Agent chat",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -161,8 +167,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "564608": {
-          "hash": "sha256:ea5e0edd96a53a3ab9f6fd4a000a58fcec7e14b92c1865d0fc07d974d1d086a7",
-          "status": "In development",
+          "hash": "sha256:cdf3d235038a2186749434058ebdffe889de772cb6f81a85d970fa3e07d1355d",
+          "status": "Rolling out",
           "title": "Microsoft Copilot (Microsoft 365): Support for MCP Agents with Interactive UI Widgets in Government Clouds",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -179,8 +185,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "562665": {
-          "hash": "sha256:17cf2fead109d800ed8001734ff3b115af6956cd5b60e5a42d7e53ec0aa37d30",
-          "status": "In development",
+          "hash": "sha256:836226c1619fcc645880e40357be8285161f9fefe3b7a7e5be68429c9d421d32",
+          "status": "Rolling out",
           "title": "Microsoft Teams: Interpreter agent support in Teams Rooms on Android",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -227,19 +233,19 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "559021": {
-          "hash": "sha256:ab0ad76dfc010a818211af8ac9be255b7debcbef32a8979af51a6d1f775681f5",
-          "status": "In development",
+          "hash": "sha256:6a0b651e335f638a45cfc15f995965bcbbd648eebff63bde498a0155a91ff9c9",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Work IQ APIs – Unified REST Endpoint for Agents and Workflows",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "559019": {
-          "hash": "sha256:0c18abf880f730e1fe603049fead376aa2ca2ff63df09fc8caf7ac0d353101a1",
-          "status": "In development",
+          "hash": "sha256:1a3556275d07f874380ad522359a1eb67b07cdb95f4c647b430447a164c04ea1",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Work IQ APIs - Endpoints: Declarative Agent Access",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "560597": {
-          "hash": "sha256:19b465201b327fe2e22545ee4637cc1e5dc9bb79db47dabed1155dd4a0e5d37d",
+          "hash": "sha256:49dc28f3e97cb2549aed10dc37937435e8d4f3d8f6cbfd43b0ef0de0334b610c",
           "status": "In development",
           "title": "Microsoft Purview: Data Security Triage Agent in Data Loss Prevention - Reasoning Trace and Confidence Score for agent-triaged alerts",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -287,7 +293,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "558860": {
-          "hash": "sha256:b34836703670757375b8b163f1bdf775c293c3c9d3ffbf6c92fd150e4c475b1b",
+          "hash": "sha256:1b5c4c59c6e52a342acc0d81688cdf561b8c27098af703044b8168917e86f98f",
           "status": "In development",
           "title": "Microsoft Purview: Data Loss Prevention - Data Security Triage Agent summaries and categorizations for DLP alerts will be made available in DLP Alerts in Microsoft Defender XDR ",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -299,15 +305,15 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555897": {
-          "hash": "sha256:4b92b09bc6d7eb39eea50dae71f57e2ef9230155e6337a411617b09e5dca4486",
+          "hash": "sha256:7799d409317db0bfc95ed7e3de433b92d6c3f1be74dad6dcc2f7df55d88dc3d3",
           "status": "In development",
-          "title": "Microsoft Copilot (Microsoft 365): Reference SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint",
+          "title": "Microsoft Copilot (Microsoft 365): Reference files saved in SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555895": {
-          "hash": "sha256:a925dfa24394e4e335e25d4e78cb7c020cd54e0a592a51c8dae6b60152317765",
+          "hash": "sha256:2a681851acf5f06865e4556bfaf498ff01449c07053d256a4b92775c0572bdc5",
           "status": "In development",
-          "title": "Microsoft Copilot (Microsoft 365): Reference SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint",
+          "title": "Microsoft Copilot (Microsoft 365): Reference files saved in SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "557947": {
@@ -383,9 +389,9 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555894": {
-          "hash": "sha256:b928c7a1d5529bc390606a22f1f1fe33b60bd18cf61c97881c943f1082c07e5a",
+          "hash": "sha256:cbc8fae0ea489e81d6ca3fb5349f2742d87136090c6e289bbe6a656639f78213",
           "status": "In development",
-          "title": "Microsoft Copilot (Microsoft 365): Reference SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint",
+          "title": "Microsoft Copilot (Microsoft 365): Reference files saved in SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555893": {
@@ -437,8 +443,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555882": {
-          "hash": "sha256:f8d5eec44d0b0b0b12b6bc7fad282e0c12f101324a3a8c0b5f52751c51f283f6",
-          "status": "Rolling out",
+          "hash": "sha256:c31e74807d287d51681373737e1827d7f4a8d15929a35f6a77a2d997acfd7771",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Attach and reference an image when creating a presentation with Copilot in PowerPoint using Agent Mode.",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -893,8 +899,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "490564": {
-          "hash": "sha256:77d4359b6a7188f694227d44aef0e773c29197587cdcc342fc42d8cca2f34eb0",
-          "status": "In development",
+          "hash": "sha256:4c41e3bf241772e250fb0a4c4ee70a8db5fc09605b3bf2d81c0cbcb17a23be27",
+          "status": "Cancelled",
           "title": "Microsoft Teams:  Interactive Agents for Teams Meetings and Calls",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -980,12 +986,6 @@
           "hash": "sha256:4f6547b7f152a64ab56cd45a393b8e0964b4ed6165f2e1454abdde5540b522a2",
           "status": "In development",
           "title": "Microsoft Copilot (Microsoft 365): Developers building agents in Azure AI Foundry can ground their agent in files stored in SharePoint",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "478611": {
-          "hash": "sha256:41108be8b594c2ed918a82ad933e8241d1bc3e252d67118edeb13a9f56c1f61c",
-          "status": "Launched",
-          "title": "Microsoft Teams: Facilitator Agent",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "474448": {

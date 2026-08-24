@@ -1,0 +1,37 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:7799d409317db0bfc95ed7e3de433b92d6c3f1be74dad6dcc2f7df55d88dc3d3",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "June CY2026",
+  "id": 555897,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "PowerPoint"
+  ],
+  "raw_description": "You can now reference files saved in SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=555897",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "4.1",
+      "source": "keyword:sharepoint"
+    },
+    {
+      "id": "4.5",
+      "source": "keyword:sharepoint"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Reference files saved in SharePoint libraries and OneDrive folders when creating a presentation with Agent Mode in PowerPoint"
+}

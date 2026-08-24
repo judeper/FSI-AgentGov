@@ -1,0 +1,24 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:6a0b651e335f638a45cfc15f995965bcbbd648eebff63bde498a0155a91ff9c9",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": "June CY2026",
+  "id": 559021,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "May CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "Introduces a new REST endpoint for Work IQ that serves as a unified entry point for invoking agents and workflows, providing a consistent, scalable alternative to legacy Copilot Chat endpoints.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=559021",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Work IQ APIs – Unified REST Endpoint for Agents and Workflows"
+}

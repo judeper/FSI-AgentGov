@@ -1,0 +1,17 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:41108be8b594c2ed918a82ad933e8241d1bc3e252d67118edeb13a9f56c1f61c",
+  "detected_at": "2026-08-24T07:49:10Z",
+  "ga_date": null,
+  "id": 478611,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=478611",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [],
+  "title": "Microsoft Teams: Facilitator Agent"
+}
