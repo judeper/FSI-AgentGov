@@ -186,7 +186,10 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _route_specs_for_report(report_text: str, report_name: str, repo_root: str | Path) -> list[dict[str, Any]]:
-    import autodoc_route
+    if __package__:
+        from . import autodoc_route
+    else:
+        import autodoc_route
 
     return autodoc_route.route_report(
         report_text,

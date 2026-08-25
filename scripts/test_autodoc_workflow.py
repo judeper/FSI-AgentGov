@@ -57,6 +57,35 @@ def test_workflow_imports_trusted_helper_from_repo_root() -> None:
     assert completed.returncode == 0, completed.stderr
 
 
+def test_route_specs_from_repo_root_derives_real_contract_without_mocking() -> None:
+    report = "reports/monitoring/learn-changes-2026-06-18.md"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import json; from pathlib import Path; "
+                "from scripts.autodoc_workflow import _route_specs_for_report; "
+                f"report = Path({report!r}); "
+                "specs = _route_specs_for_report(report.read_text(encoding='utf-8'), report.name, Path('.')); "
+                "contract = json.loads(next(spec['body'] for spec in specs if spec['route'] == 'autodraft')"
+                ".split('```json\\n', 1)[1].split('\\n```', 1)[0]); "
+                "print(json.dumps({'count': len(specs), 'contract': contract}))"
+            ),
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    derived = json.loads(completed.stdout)
+    assert derived["count"] == 23
+    assert derived["contract"]["report_path"] == report
+    assert derived["contract"]["allowed_files"] == ["docs/reference/microsoft-learn-urls.md"]
+
+
 @pytest.mark.parametrize("head_ref", ["autodoc/abc123", "copilot/autodoc-fix"])
 def test_is_autodoc_pr_accepts_both_pipeline_prefixes(head_ref: str) -> None:
     assert workflow.is_autodoc_pr(head_ref, {"autodoc"})
