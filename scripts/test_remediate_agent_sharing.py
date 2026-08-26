@@ -493,6 +493,55 @@ def test_update_compliance_record_failure(mock_dataverse_client):
 # =========================================================================
 
 
+def test_remediate_agent_calls_classifier_with_supported_arguments():
+    """Test non-override remediation uses the classifier's supported contract."""
+    import argparse
+
+    from remediate_agent_sharing import remediate_agent
+
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = mock.MagicMock()
+    mock_dataverse_client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    mock_dataverse_client._session.get.return_value.status_code = 404
+    args = argparse.Namespace(whatif=True, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Production-Finance",
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.classify_environment_zone",
+            autospec=True,
+            return_value=3,
+        ) as mock_classify,
+        mock.patch(
+            "remediate_agent_sharing.parse_sharing_principals",
+            return_value={"principals": []},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals",
+            return_value=[],
+        ),
+    ):
+        result = remediate_agent(
+            agent_data,
+            mock_bap_client,
+            mock_dataverse_client,
+            args,
+        )
+
+    assert result == {"success": True, "whatif": True, "error": None}
+    mock_classify.assert_called_once_with(
+        environment_id="env-456",
+        environment_name="Production-Finance",
+        client=mock_dataverse_client,
+    )
+
+
 def test_remediate_agent_whatif_mode():
     """Test remediate_agent in WhatIf mode (no PATCH executed)."""
     # This test would require mocking argparse.Namespace and full workflow
@@ -708,4 +757,3 @@ def test_remediate_agent_proceeds_with_no_exception():
                         
                         # Verify PATCH was attempted
                         mock_bap_client.modify_agent_permissions.assert_called_once()
-

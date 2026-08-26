@@ -113,7 +113,8 @@ def classify_environment_zone(
 
     1. **Environment policy lookup:** If ``client`` is provided, query
        ``fsi_EnvironmentPolicy`` table for environment. If a policy
-       record exists with ``fsi_governance_zone``, return that zone.
+       record exists with a usable ``fsi_zone`` value (1–3), return that
+       zone. Zone 0 is unclassified and falls through.
     2. **Naming convention:** Check environment name against known patterns
        (case-insensitive). "prod"/"production"/"enterprise" → Zone 3;
        "test"/"qa"/"staging"/"uat" → Zone 2;
@@ -141,19 +142,27 @@ def classify_environment_zone(
         try:
             records = client.query(
                 "fsi_environmentpolicies",
-                filter=f"fsi_environment_id eq '{environment_id}'",
-                select=["fsi_governance_zone"],
+                filter=f"fsi_environmentid eq '{environment_id}'",
+                select=["fsi_zone"],
                 top=1,
             )
             if records:
-                zone = records[0].get("fsi_governance_zone")
-                if zone is not None:
-                    logger.info(
-                        "Environment %s classified as Zone %d via policy lookup",
-                        environment_id,
-                        zone,
-                    )
-                    return int(zone)
+                zone_value = records[0].get("fsi_zone")
+                if zone_value is not None:
+                    zone = int(zone_value)
+                    if zone not in (1, 2, 3):
+                        logger.warning(
+                            "Environment %s policy returned unusable Zone %d — falling back to naming convention",
+                            environment_id,
+                            zone,
+                        )
+                    else:
+                        logger.info(
+                            "Environment %s classified as Zone %d via policy lookup",
+                            environment_id,
+                            zone,
+                        )
+                        return zone
         except Exception as exc:
             logger.warning(
                 "Policy lookup failed for environment %s: %s — falling back to naming convention",
