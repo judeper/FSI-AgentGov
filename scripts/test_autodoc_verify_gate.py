@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -228,6 +230,63 @@ def test_main_logs_sanitized_findings(
     assert exit_code == 1
     assert "Deterministic findings (1):" in out
     assert "- [block] path_allowlist scripts/x.py: blocked" in out
+
+
+def test_cli_logs_unicode_findings_with_restrictive_stdout_encoding(workspace: Path) -> None:
+    paths = _write_cli_inputs(workspace)
+    contract = json.loads(paths["contract"].read_text(encoding="utf-8"))
+    contract["allowed_headings"].append("Test")
+    paths["contract"].write_text(json.dumps(contract), encoding="utf-8")
+    finding_message = "Line 3: ✅ ::error::spoofed " + ("→" * (gate._LOG_MESSAGE_LIMIT + 50))
+    linter_output = f"❌ {ALLOWED_PATH} [Tier 1]\n  {finding_message}\n"
+    linter = paths["head_dir"] / "scripts" / "verify_language_rules.py"
+    linter.parent.mkdir(parents=True)
+    linter.write_text(
+        "import sys\n"
+        f"sys.stdout.buffer.write({linter_output.encode('utf-8')!r})\n"
+        "raise SystemExit(1)\n",
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "cp1252:strict"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_DIR / "autodoc_verify_gate.py"),
+            "--contract",
+            str(paths["contract"]),
+            "--report",
+            str(paths["report"]),
+            "--diff",
+            str(paths["diff"]),
+            "--head-dir",
+            str(paths["head_dir"]),
+            "--pr-body",
+            str(paths["pr_body"]),
+            "--out",
+            str(paths["out"]),
+        ],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+        check=False,
+    )
+
+    result = json.loads(paths["out"].read_text(encoding="utf-8"))
+    finding_lines = [line for line in completed.stdout.splitlines() if line.startswith("- [")]
+
+    assert completed.returncode == 1
+    assert "Traceback" not in completed.stderr
+    assert len(finding_lines) == 1
+    logged_message = finding_lines[0].split(": ", 1)[1]
+    assert len(logged_message) <= gate._LOG_MESSAGE_LIMIT
+    assert logged_message.startswith("Line 3: ✅ ::error::spoofed")
+    assert logged_message.endswith("...")
+    assert all(not line.lstrip().startswith("::") for line in completed.stdout.splitlines())
+    assert result["conclusion"] == "fail"
+    assert result["deterministic"]["findings"][0]["message"] == finding_message
 
 
 def _write_cli_inputs(workspace: Path) -> dict[str, Path]:
