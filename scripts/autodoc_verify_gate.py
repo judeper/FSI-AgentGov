@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Callable
@@ -19,6 +20,21 @@ Conclusion = str
 DeterministicVerifier = Callable[..., dict[str, Any]]
 
 _EXIT_CODES = {"pass": 0, "fail": 1, "needs_human": 2}
+
+_LOG_FINDING_LIMIT = 20
+_LOG_FIELD_LIMIT = 120
+_LOG_MESSAGE_LIMIT = 400
+# The longest line the field caps above can already produce: "- [severity] check path: message".
+# Escaped fallback renderings are held to the same bound instead of the caller's raw length,
+# so a short line keeps its detail while a hostile one still cannot inflate the log.
+_LOG_LINE_LIMIT = _LOG_MESSAGE_LIMIT + 3 * _LOG_FIELD_LIMIT
+_CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f]")
+
+# Every way a diagnostic stream is known to refuse work: absent or ``None`` (``pythonw``),
+# a wrapper without the attribute (``io.StringIO``, capture shims) -> AttributeError;
+# closed or detached -> ValueError; unwritable or unflushable -> OSError. Encoding refusals
+# are UnicodeError, a ValueError subclass, so handlers that retry must catch it first.
+_DIAGNOSTIC_STREAM_ERRORS = (AttributeError, ValueError, OSError)
 
 
 def run_gate(
@@ -101,8 +117,134 @@ def main(argv: list[str] | None = None) -> int:
         }
 
     _write_json(args.out, result)
-    print(f"Autodoc verify gate: {result['conclusion']} - {result['summary']}")
+    emit_diagnostic(
+        f"Autodoc verify gate: {sanitize_log_text(result['conclusion'], _LOG_FIELD_LIMIT)}"
+        f" - {sanitize_log_text(result['summary'], _LOG_MESSAGE_LIMIT)}"
+    )
+    log_findings(result)
+    flush_diagnostics()
     return _EXIT_CODES.get(result["conclusion"], 2)
+
+
+def configure_diagnostic_streams() -> None:
+    """Best-effort switch of the diagnostic streams to UTF-8 with replacement.
+
+    Reconfiguration is an optimization, never a precondition. ``sys.stdout`` and
+    ``sys.stderr`` may be ``None`` (``pythonw``), may lack ``reconfigure`` (``io.StringIO``,
+    an embedding host's capture shim), or may be closed or detached. Such a stream is left
+    exactly as it is rather than raising before ``gate.json`` and the gate's exit code
+    exist; :func:`emit_diagnostic` then degrades the log line instead of the run.
+    """
+
+    for name in ("stdout", "stderr"):
+        try:
+            reconfigure = getattr(getattr(sys, name, None), "reconfigure", None)
+            if reconfigure is None:
+                continue
+            reconfigure(encoding="utf-8", errors="replace")
+        except _DIAGNOSTIC_STREAM_ERRORS:
+            continue
+
+
+def ascii_fallback(text: str) -> str:
+    """Render *text* as ASCII any stream can encode, bounded and unable to raise.
+
+    ``backslashreplace`` cannot fail for any ``str`` - lone surrogates included - but expands
+    each non-ASCII character to up to six, so the rendering is capped at ``_LOG_LINE_LIMIT``.
+    Escaping adds no line break of its own, but it does not remove one either: ASCII control
+    characters pass through untouched, so callers must sanitize before emitting.
+    """
+
+    rendered = text.encode("ascii", "backslashreplace").decode("ascii")
+    if len(rendered) <= _LOG_LINE_LIMIT:
+        return rendered
+    return rendered[: _LOG_LINE_LIMIT - 3] + "..."
+
+
+def emit_diagnostic(line: str) -> bool:
+    """Write one sanitized diagnostic line to stdout, degrading instead of raising.
+
+    Returns ``True`` when the line reached the stream. A stream that cannot encode the line
+    is retried once with :func:`ascii_fallback`; a stream that is missing, closed or
+    unwritable simply loses the diagnostic. Losing diagnostics never costs the caller
+    ``gate.json`` or its defined exit code, which are this gate's only consumed contract.
+
+    *line* must already be sanitized by :func:`sanitize_log_text`; neither this function nor
+    the fallback strips control characters.
+    """
+
+    for candidate in (line, ascii_fallback(line)):
+        try:
+            stream = sys.stdout
+            if stream is None:
+                return False
+            stream.write(candidate + "\n")
+            return True
+        except UnicodeError:
+            continue
+        except _DIAGNOSTIC_STREAM_ERRORS:
+            return False
+    return False
+
+
+def flush_diagnostics() -> None:
+    """Flush the diagnostic streams, detaching any stream that cannot be flushed.
+
+    CPython replaces the process exit status with 120 when finalization fails to flush
+    ``sys.stdout``/``sys.stderr``. Both consumers of this gate read only the exit code, so a
+    deferred flush failure would silently rewrite ``needs_human`` into an unroutable status.
+    Dropping an unflushable stream here contains that failure while it is still containable.
+    """
+
+    for name in ("stdout", "stderr"):
+        try:
+            stream = getattr(sys, name, None)
+            if stream is None:
+                continue
+            stream.flush()
+        except _DIAGNOSTIC_STREAM_ERRORS:
+            setattr(sys, name, None)
+
+
+def sanitize_log_text(value: Any, limit: int) -> str:
+    """Flatten pull-request-controlled text into one safe single-line log fragment.
+
+    Control characters are stripped and all whitespace is collapsed, so a rendered
+    line always begins with this module's own literal prefix. That prevents PR
+    content from ever being parsed as a GitHub Actions workflow command (``::...``).
+    """
+
+    collapsed = " ".join(_CONTROL_CHARS_RE.sub(" ", str(value)).split())
+    if len(collapsed) > limit:
+        collapsed = collapsed[: max(limit - 3, 0)] + "..."
+    return collapsed
+
+
+def log_findings(result: dict[str, Any]) -> None:
+    """Print sanitized deterministic findings so CI failures are diagnosable from logs."""
+
+    deterministic = result.get("deterministic")
+    findings = deterministic.get("findings") if isinstance(deterministic, dict) else None
+    if not isinstance(findings, list) or not findings:
+        return
+
+    if not emit_diagnostic(f"Deterministic findings ({len(findings)}):"):
+        return
+    for finding in findings[:_LOG_FINDING_LIMIT]:
+        if not isinstance(finding, dict):
+            line = f"- [unknown] {sanitize_log_text(finding, _LOG_MESSAGE_LIMIT)}"
+        else:
+            severity = sanitize_log_text(finding.get("severity", "unknown"), _LOG_FIELD_LIMIT)
+            check = sanitize_log_text(finding.get("check", "unknown"), _LOG_FIELD_LIMIT)
+            path = sanitize_log_text(finding.get("path", ""), _LOG_FIELD_LIMIT)
+            message = sanitize_log_text(finding.get("message", ""), _LOG_MESSAGE_LIMIT)
+            line = f"- [{severity}] {check} {path}: {message}"
+        if not emit_diagnostic(line):
+            return
+
+    omitted = len(findings) - _LOG_FINDING_LIMIT
+    if omitted > 0:
+        emit_diagnostic(f"- ... {omitted} additional finding(s) omitted from this log.")
 
 
 def _result(
@@ -132,4 +274,5 @@ def _write_json(path: str, result: dict[str, Any]) -> None:
 
 
 if __name__ == "__main__":
+    configure_diagnostic_streams()
     raise SystemExit(main())

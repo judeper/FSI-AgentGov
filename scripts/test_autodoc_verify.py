@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -117,6 +118,104 @@ def _lint_repo(tmp_path: Path) -> Path:
         encoding="utf-8",
     )
     return repo
+
+
+REDIRECT_OLD_ROW = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+REDIRECT_NEW_ROW = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+
+# Relative --head-dir exactly as .github/workflows/autodoc-verify.yml passes it.
+WORKFLOW_HEAD_DIR_ARG = ".autodoc/head"
+
+
+def _workflow_runner_workspace(
+    root: Path,
+    *,
+    head_markdown: str,
+    diff_text: str,
+    pr_body: str = REDIRECT_PR_BODY,
+) -> dict[str, str]:
+    """Materialize the runner layout that .github/workflows/autodoc-verify.yml builds.
+
+    Mirrors the workflow steps: the trusted base checkout supplies the contract and the
+    monitoring report at their real repo-relative paths, the base-code language linter is
+    copied into ``.autodoc/head/scripts``, and the allowed PR head Markdown is written into
+    ``.autodoc/head`` as LF bytes the way the Contents API serves it. Returned argument
+    values are repo-relative, so the gate runs against a relative ``--head-dir``.
+    """
+
+    trusted = autodoc_workflow.derive_trusted_contract(pr_body, repo_root=PROJECT_ROOT)
+    contract = trusted["contract"]
+    report_path = str(trusted["report_path"])
+
+    work = root / ".autodoc"
+    work.mkdir(parents=True, exist_ok=True)
+
+    base_report = root / Path(*report_path.split("/"))
+    base_report.parent.mkdir(parents=True, exist_ok=True)
+    base_report.write_bytes((PROJECT_ROOT / report_path).read_text(encoding="utf-8").encode("utf-8"))
+
+    head_dir = work / "head"
+    linter = head_dir / "scripts" / "verify_language_rules.py"
+    linter.parent.mkdir(parents=True)
+    linter.write_bytes((SCRIPT_DIR / "verify_language_rules.py").read_text(encoding="utf-8").encode("utf-8"))
+
+    head_file = head_dir / Path(*REDIRECT_PATH.split("/"))
+    head_file.parent.mkdir(parents=True, exist_ok=True)
+    head_file.write_bytes(head_markdown.encode("utf-8"))
+
+    (work / "contract.json").write_bytes((json.dumps(contract, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    (work / "pr.diff").write_bytes(diff_text.encode("utf-8"))
+    (work / "pr-body.txt").write_bytes(pr_body.encode("utf-8"))
+
+    return {
+        "contract": ".autodoc/contract.json",
+        "report": report_path,
+        "diff": ".autodoc/pr.diff",
+        "head_dir": WORKFLOW_HEAD_DIR_ARG,
+        "pr_body": ".autodoc/pr-body.txt",
+        "out": ".autodoc/gate.json",
+    }
+
+
+def _run_workflow_gate(
+    root: Path, args: dict[str, str], monkeypatch: pytest.MonkeyPatch
+) -> tuple[int, dict]:
+    """Invoke the gate CLI from the runner workspace root, as the workflow step does."""
+
+    monkeypatch.chdir(root)
+    exit_code = autodoc_verify_gate.main(
+        [
+            "--contract",
+            args["contract"],
+            "--report",
+            args["report"],
+            "--diff",
+            args["diff"],
+            "--head-dir",
+            args["head_dir"],
+            "--pr-body",
+            args["pr_body"],
+            "--out",
+            args["out"],
+        ]
+    )
+    result = json.loads((root / Path(*args["out"].split("/"))).read_text(encoding="utf-8"))
+    return exit_code, result
+
+
+def _assert_linter_started(result: dict) -> None:
+    """Fail if the language linter never launched instead of judging the content."""
+
+    for finding in result.get("deterministic", {}).get("findings", []):
+        message = str(finding.get("message", ""))
+        assert "No such file or directory" not in message, f"language linter did not start: {message}"
+        assert "can't open file" not in message, f"language linter did not start: {message}"
+        assert "was not found under repo_root" not in message, f"language linter did not start: {message}"
+
+
+def _redirect_head_markdown(new_row: str = REDIRECT_NEW_ROW) -> str:
+    before = REDIRECT_BEFORE_FIXTURE.read_text(encoding="utf-8")
+    return before.replace(REDIRECT_OLD_ROW, new_row, 1)
 
 
 def test_path_allowlist_blocks_forbidden_paths() -> None:
@@ -587,6 +686,124 @@ def test_language_subprocess_exception_fails_closed(tmp_path: Path, monkeypatch:
     assert findings[0].check == "language"
     assert findings[0].severity == "block"
     assert "failed closed" in findings[0].message
+
+
+def test_language_starts_linter_from_relative_repo_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The linter must actually start when repo_root is a relative path.
+
+    The workflow passes ``--head-dir .autodoc/head``. A relative script path handed to a
+    child process running with ``cwd=repo_root`` is re-anchored against repo_root a second
+    time, so the linter never launched and produced a spurious blocking finding.
+    """
+
+    repo = _lint_repo(tmp_path)
+    target = repo / "docs" / "clean.md"
+    target.write_text(REDIRECT_BEFORE_FIXTURE.read_text(encoding="utf-8"), encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    assert check_language(["docs/clean.md"], Path("repo")) == []
+
+
+def test_language_reports_real_violations_from_relative_repo_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = _lint_repo(tmp_path)
+    (repo / "docs" / "bad.md").write_text("# Bad\n\nThis guarantees compliance.\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    findings = check_language(["docs/bad.md"], Path("repo"))
+
+    assert findings
+    assert findings[0].check == "language"
+    assert findings[0].severity == "block"
+    assert findings[0].path == "docs/bad.md"
+    assert "No such file or directory" not in findings[0].message
+
+
+def test_workflow_gate_passes_trusted_redirect_from_relative_head_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression for PR #1228: the pull_request_target gate must pass the trusted redirect.
+
+    Reproduces the workflow context end to end - base-code verifier, base-code language
+    linter copied into ``.autodoc/head``, PR head Markdown in ``.autodoc/head``, and the
+    relative ``--head-dir`` the workflow passes - rather than a pure-function approximation.
+    """
+
+    args = _workflow_runner_workspace(
+        tmp_path,
+        head_markdown=_redirect_head_markdown(),
+        diff_text=_redirect_diff(REDIRECT_OLD_ROW, REDIRECT_NEW_ROW),
+    )
+
+    exit_code, result = _run_workflow_gate(tmp_path, args, monkeypatch)
+
+    _assert_linter_started(result)
+    assert result["deterministic"]["findings"] == []
+    assert result["conclusion"] == "pass"
+    assert exit_code == 0
+
+
+@pytest.mark.parametrize(
+    ("case", "new_row", "extra"),
+    [
+        (
+            "second-cell-date",
+            f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Feb 2027 |",
+            "",
+        ),
+        (
+            "malformed-title-cell",
+            f"| **Copilot Studio Message Capacity (Renamed)** | {REDIRECT_NEW_URL} | Jan 2026 |",
+            "",
+        ),
+        (
+            "extra-prose-line",
+            REDIRECT_NEW_ROW,
+            "+This update guarantees compliance for every regulated tenant.\n",
+        ),
+    ],
+)
+def test_workflow_gate_still_blocks_out_of_contract_edits_from_relative_head_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str, new_row: str, extra: str
+) -> None:
+    """The relative-head-dir fix must not weaken any content constraint."""
+
+    head_markdown = _redirect_head_markdown(new_row)
+    if extra:
+        head_markdown = f"{head_markdown}{extra[1:]}"
+
+    args = _workflow_runner_workspace(
+        tmp_path,
+        head_markdown=head_markdown,
+        diff_text=_redirect_diff(REDIRECT_OLD_ROW, new_row, extra),
+    )
+
+    exit_code, result = _run_workflow_gate(tmp_path, args, monkeypatch)
+
+    _assert_linter_started(result)
+    assert result["conclusion"] == "fail", case
+    assert exit_code == 1, case
+    assert result["deterministic"]["summary"]["block_findings"] >= 1, case
+
+
+def test_workflow_gate_blocks_forged_fingerprint_from_relative_head_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    args = _workflow_runner_workspace(
+        tmp_path,
+        head_markdown=_redirect_head_markdown(),
+        diff_text=_redirect_diff(REDIRECT_OLD_ROW, REDIRECT_NEW_ROW),
+    )
+    body_path = tmp_path / ".autodoc" / "pr-body.txt"
+    body_path.write_bytes(REDIRECT_PR_BODY.replace(REDIRECT_FINGERPRINT, "sha256:forged").encode("utf-8"))
+
+    exit_code, result = _run_workflow_gate(tmp_path, args, monkeypatch)
+
+    _assert_linter_started(result)
+    assert result["conclusion"] == "fail"
+    assert exit_code == 1
+    assert any(finding["check"] == "fingerprint" for finding in result["deterministic"]["findings"])
 
 
 def test_verify_passes_clean_faithful_additive_edit(tmp_path: Path) -> None:
