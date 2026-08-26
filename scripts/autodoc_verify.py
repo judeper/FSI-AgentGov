@@ -480,6 +480,104 @@ def check_claim_support(added_lines: list[str], report_text: str) -> list[Findin
     return findings
 
 
+def check_redirect_contract(diff_text: str, contract: dict[str, Any]) -> list[Finding]:
+    """Require a trusted REDIRECT contract to match one exact clean URL-cell swap."""
+
+    if contract.get("classification") != "REDIRECT":
+        return []
+
+    try:
+        if __package__:
+            from . import autodoc_redirect_ci_verify as redirect_verify
+        else:
+            import autodoc_redirect_ci_verify as redirect_verify
+    except Exception as exc:
+        return [
+            Finding(
+                check="redirect_contract",
+                severity="block",
+                path="",
+                message=f"Redirect verifier could not be loaded; failing closed: {type(exc).__name__}: {exc}",
+            )
+        ]
+
+    expected_old = contract.get("source_url")
+    expected_new = contract.get("destination_url")
+    if not isinstance(expected_old, str) or not isinstance(expected_new, str):
+        return [
+            Finding(
+                check="redirect_contract",
+                severity="block",
+                path="",
+                message="Trusted REDIRECT contract must include string source_url and destination_url values.",
+            )
+        ]
+
+    if contract.get("allowed_files") != [redirect_verify.TARGET_FILE]:
+        return [
+            Finding(
+                check="redirect_contract",
+                severity="block",
+                path="",
+                message=f"Trusted REDIRECT contract must allow only {redirect_verify.TARGET_FILE}.",
+            )
+        ]
+
+    canonical_expected_old = redirect_verify._canonicalize_url(expected_old)  # noqa: SLF001
+    canonical_expected_new = redirect_verify._canonicalize_url(expected_new)  # noqa: SLF001
+    if (
+        not canonical_expected_old
+        or not canonical_expected_new
+        or expected_old != canonical_expected_old
+        or expected_new != canonical_expected_new
+    ):
+        return [
+            Finding(
+                check="redirect_contract",
+                severity="block",
+                path="",
+                message="Trusted REDIRECT contract URLs must be non-empty canonical values.",
+            )
+        ]
+
+    try:
+        actual_old, actual_new = redirect_verify.verify_redirect_diff(diff_text)
+    except redirect_verify.NotCleanRedirect as exc:
+        return [
+            Finding(
+                check="redirect_contract",
+                severity="block",
+                path="",
+                message=f"Redirect diff is not an exact URL-only cell swap: {exc}",
+            )
+        ]
+
+    if (
+        redirect_verify._canonicalize_url(actual_old) != canonical_expected_old  # noqa: SLF001
+        or redirect_verify._canonicalize_url(actual_new) != canonical_expected_new  # noqa: SLF001
+    ):
+        return [
+            Finding(
+                check="redirect_contract",
+                severity="block",
+                path=redirect_verify.TARGET_FILE,
+                message="Redirect URL pair does not match the trusted source_url and destination_url.",
+            )
+        ]
+
+    return []
+
+
+def _claim_support_lines(file_changes: dict[str, FileChange], contract: dict[str, Any]) -> list[str]:
+    """Return only the diff content that can introduce factual claims."""
+
+    if contract.get("classification") == "REDIRECT":
+        # check_redirect_contract binds the sole changed URL cell to trusted report data.
+        # The other cells in its replacement table row are unchanged context, not new claims.
+        return []
+    return [line for change in file_changes.values() for line in change.added_lines]
+
+
 def verify(
     contract: str | Path | dict[str, Any],
     diff_text: str,
@@ -502,7 +600,8 @@ def verify(
     findings.extend(check_path_allowlist(changed_paths, loaded_contract))
     findings.extend(check_diff_minimality(file_changes, loaded_contract))
     findings.extend(check_section_allowlist(file_contents, file_changes, loaded_contract))
-    findings.extend(check_claim_support(added_lines, report_text))
+    findings.extend(check_redirect_contract(diff_text, loaded_contract))
+    findings.extend(check_claim_support(_claim_support_lines(file_changes, loaded_contract), report_text))
     try:
         findings.extend(check_language([path for path in changed_paths if path.endswith(".md")], repo_root))
     except Exception as exc:

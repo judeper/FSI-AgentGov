@@ -12,6 +12,8 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import autodoc_verify  # noqa: E402
+import autodoc_verify_gate  # noqa: E402
+import autodoc_workflow  # noqa: E402
 from autodoc_verify import (  # noqa: E402
     FileChange,
     check_claim_support,
@@ -25,6 +27,55 @@ from autodoc_verify import (  # noqa: E402
 )
 
 ALLOWED_PATH = "docs/controls/pillar-2-management/2.4-test.md"
+PROJECT_ROOT = SCRIPT_DIR.parent
+REDIRECT_PATH = "docs/reference/microsoft-learn-urls.md"
+REDIRECT_OLD_URL = "https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-messages-capacity"
+REDIRECT_NEW_URL = "https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity"
+REDIRECT_FINGERPRINT = "sha256:c3af9af0d43c439f7f51ca530185d7eff9816ba23445ea038e07f18d67a791ed"
+REDIRECT_REPORT_PATH = "reports/monitoring/learn-changes-2026-08-20.md"
+REDIRECT_PR_BODY = f"""Automated **deterministic** Learn-URL redirect update.
+
+AUTODOC-FINGERPRINT: {REDIRECT_FINGERPRINT}
+Source report: {REDIRECT_REPORT_PATH}
+
+`{REDIRECT_OLD_URL}`
+→ `{REDIRECT_NEW_URL}`
+
+No LLM was involved: the runner applied the exact URL swap and verified the staged diff is a clean URL-only change in the Learn URL list.
+
+Merge policy: OceanSquad reviews and SHA-pinned merges after all required checks pass. Owner review is required only if automation escalates the PR.
+"""
+
+
+def _redirect_diff(old_row: str, new_row: str, extra: str = "") -> str:
+    return f"""diff --git a/{REDIRECT_PATH} b/{REDIRECT_PATH}
+index db8f29dcf9..97f02f633b 100644
+--- a/{REDIRECT_PATH}
++++ b/{REDIRECT_PATH}
+@@ -50,7 +50,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the
+| **Copilot Hub** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Jan 2026 |
+| **Maker Onboarding (Welcome Content)** | https://learn.microsoft.com/en-us/power-platform/admin/welcome-content | Jan 2026 |
+| **Agent Access Points** | https://learn.microsoft.com/en-us/power-platform/admin/security/identity-access-management#agent-access-points-preview | Jan 2026 |
+-{old_row}
++{new_row}
+| **Business Continuity** | https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery | Jan 2026 |
+| Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Jan 2026 |
+| Regions Overview | https://learn.microsoft.com/en-us/power-platform/admin/regions-overview | Jan 2026 |
+{extra}"""
+
+
+def _trusted_redirect_fixture(tmp_path: Path) -> tuple[dict, str, str, str, Path]:
+    trusted = autodoc_workflow.derive_trusted_contract(REDIRECT_PR_BODY, repo_root=PROJECT_ROOT)
+    report = (PROJECT_ROOT / REDIRECT_REPORT_PATH).read_text(encoding="utf-8")
+    before = (PROJECT_ROOT / REDIRECT_PATH).read_text(encoding="utf-8")
+    after = before.replace(REDIRECT_OLD_URL, REDIRECT_NEW_URL, 1)
+    assert after != before
+
+    repo = _lint_repo(tmp_path)
+    target = repo / Path(*REDIRECT_PATH.split("/"))
+    target.parent.mkdir(parents=True)
+    target.write_text(after, encoding="utf-8")
+    return trusted["contract"], report, before, after, repo
 
 
 def _contract(**overrides):
@@ -244,6 +295,222 @@ def test_claim_support_allows_supported_numeric_context() -> None:
     )
 
     assert findings == []
+
+
+def test_verify_keeps_claim_support_for_non_redirect_autodrafts(tmp_path: Path) -> None:
+    repo = _lint_repo(tmp_path)
+    target = repo / Path(*ALLOWED_PATH.split("/"))
+    target.parent.mkdir(parents=True)
+    content = "# Control\n\n## Additional Resources\nAvailable starting March 2027.\n"
+    target.write_text(content, encoding="utf-8")
+    contract = _contract(classification="MEDIUM", route="autodraft")
+
+    verdict = verify(
+        contract,
+        _diff(ALLOWED_PATH, "Available starting March 2027."),
+        {ALLOWED_PATH: content},
+        "The source report mentions April 2027 only.",
+        pr_body="AUTODOC-FINGERPRINT: sha256:test\n",
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(finding["check"] == "claim_support" for finding in verdict["findings"])
+
+
+def test_trusted_1228_redirect_passes_without_treating_unchanged_date_as_claim(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+    diff = _redirect_diff(old_row, new_row)
+
+    # This is the parent behavior: every `+` row was passed to claim-support, so the
+    # unchanged `Jan 2026` table cell was mistaken for a newly authored claim.
+    parent_findings = check_claim_support(parse_unified_diff(diff)[REDIRECT_PATH].added_lines, report)
+    assert any(finding.check == "claim_support" for finding in parent_findings)
+
+    verdict = verify(
+        contract,
+        diff,
+        {REDIRECT_PATH: after},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert contract["fingerprint"] == REDIRECT_FINGERPRINT
+    assert contract["report_path"] == REDIRECT_REPORT_PATH
+    assert contract["classification"] == "REDIRECT"
+    assert contract["source_url"] == REDIRECT_OLD_URL
+    assert contract["destination_url"] == REDIRECT_NEW_URL
+    assert contract["allowed_files"] == [REDIRECT_PATH]
+    assert verdict["pass"] is True
+    assert verdict["findings"] == []
+
+    gate = autodoc_verify_gate.run_gate(
+        contract,
+        report,
+        diff,
+        {REDIRECT_PATH: after},
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+    assert gate["conclusion"] == "pass"
+
+
+def test_trusted_redirect_rejects_changed_date_cell(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Feb 2026 |"
+    altered = after.replace(
+        f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |",
+        new_row,
+        1,
+    )
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row),
+        {REDIRECT_PATH: altered},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(finding["check"] == "redirect_contract" for finding in verdict["findings"])
+
+
+def test_trusted_redirect_rejects_changed_title_cell(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Unexpected Title** | {REDIRECT_NEW_URL} | Jan 2026 |"
+    altered = after.replace(
+        "| **Copilot Studio Message Capacity** |",
+        "| **Unexpected Title** |",
+        1,
+    )
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row),
+        {REDIRECT_PATH: altered},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(finding["check"] == "redirect_contract" for finding in verdict["findings"])
+
+
+def test_trusted_redirect_rejects_added_prose(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+    altered = after + "\nNew unrelated prose.\n"
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row, "+New unrelated prose.\n"),
+        {REDIRECT_PATH: altered},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(finding["check"] == "redirect_contract" for finding in verdict["findings"])
+
+
+def test_trusted_redirect_rejects_unrelated_file(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+    unrelated_path = "docs/reference/unrelated.md"
+    unrelated_diff = f"""diff --git a/{unrelated_path} b/{unrelated_path}
+--- a/{unrelated_path}
++++ b/{unrelated_path}
+@@ -1 +1 @@
+-Existing.
++Changed.
+"""
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row) + unrelated_diff,
+        {REDIRECT_PATH: after, unrelated_path: "Changed.\n"},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    checks = {finding["check"] for finding in verdict["findings"]}
+    assert {"path_allowlist", "redirect_contract"} <= checks
+
+
+def test_trusted_redirect_rejects_widened_allowed_file_contract(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    contract["allowed_files"].append("docs/reference/unrelated.md")
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row),
+        {REDIRECT_PATH: after},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(
+        finding["check"] == "redirect_contract" and "allow only" in finding["message"]
+        for finding in verdict["findings"]
+    )
+
+
+def test_trusted_redirect_rejects_wrong_url_pair(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    unexpected_url = "https://learn.microsoft.com/en-us/power-platform/admin/unexpected-capacity"
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {unexpected_url} | Jan 2026 |"
+    altered = after.replace(REDIRECT_NEW_URL, unexpected_url, 1)
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row),
+        {REDIRECT_PATH: altered},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(
+        finding["check"] == "redirect_contract" and "does not match" in finding["message"]
+        for finding in verdict["findings"]
+    )
+
+
+def test_trusted_redirect_rejects_mismatched_fingerprint(tmp_path: Path) -> None:
+    contract, report, _before, after, repo = _trusted_redirect_fixture(tmp_path)
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row),
+        {REDIRECT_PATH: after},
+        report,
+        pr_body=REDIRECT_PR_BODY.replace(REDIRECT_FINGERPRINT, "sha256:wrong"),
+        repo_root=repo,
+    )
+
+    assert verdict["pass"] is False
+    assert any(finding["check"] == "fingerprint" for finding in verdict["findings"])
 
 
 def test_language_blocks_banned_phrase(tmp_path: Path) -> None:

@@ -11,8 +11,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import autodoc_classifier as classifier
-import autodoc_verify
+if __package__:
+    from . import autodoc_classifier as classifier
+    from . import autodoc_verify
+else:
+    import autodoc_classifier as classifier
+    import autodoc_verify
 
 ALLOWED_HEADINGS = [
     "Additional Resources",
