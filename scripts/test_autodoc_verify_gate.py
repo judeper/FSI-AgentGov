@@ -149,6 +149,87 @@ def test_main_exit_codes(
     assert result["conclusion"] == expected_conclusion
 
 
+def test_sanitize_log_text_collapses_whitespace_and_strips_control_characters() -> None:
+    assert gate.sanitize_log_text("a\x00b\tc\r\nd", 100) == "a b c d"
+    assert gate.sanitize_log_text("x" * 50, 10) == "xxxxxxx..."
+    assert gate.sanitize_log_text("", 10) == ""
+
+
+def test_log_findings_neutralizes_actions_workflow_commands(capsys: pytest.CaptureFixture[str]) -> None:
+    """PR-controlled finding text must never render as a GitHub Actions log command."""
+
+    result = {
+        "deterministic": {
+            "findings": [
+                {
+                    "check": "language",
+                    "severity": "block",
+                    "path": "docs/x.md",
+                    "message": "Line 3\n::error::spoofed\n::add-mask::secret",
+                }
+            ]
+        }
+    }
+
+    gate.log_findings(result)
+    out = capsys.readouterr().out
+
+    assert "::error::spoofed" in out
+    assert all(not line.lstrip().startswith("::") for line in out.splitlines())
+    assert len([line for line in out.splitlines() if line.startswith("- [")]) == 1
+
+
+def test_log_findings_truncates_long_finding_lists(capsys: pytest.CaptureFixture[str]) -> None:
+    findings = [
+        {"check": "language", "severity": "block", "path": f"docs/{index}.md", "message": "bad"}
+        for index in range(gate._LOG_FINDING_LIMIT + 3)
+    ]
+
+    gate.log_findings({"deterministic": {"findings": findings}})
+    out = capsys.readouterr().out
+
+    assert out.startswith(f"Deterministic findings ({len(findings)}):")
+    assert len([line for line in out.splitlines() if line.startswith("- [")]) == gate._LOG_FINDING_LIMIT
+    assert "3 additional finding(s) omitted" in out
+
+
+def test_log_findings_is_silent_without_findings(capsys: pytest.CaptureFixture[str]) -> None:
+    gate.log_findings({"deterministic": {"findings": []}})
+    gate.log_findings({"deterministic": {}})
+    gate.log_findings({})
+
+    assert capsys.readouterr().out == ""
+
+
+def test_main_logs_sanitized_findings(
+    monkeypatch: pytest.MonkeyPatch, workspace: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    paths = _write_cli_inputs(workspace)
+    monkeypatch.setattr(gate.autodoc_verify, "verify", _det_fail)
+
+    exit_code = gate.main(
+        [
+            "--contract",
+            str(paths["contract"]),
+            "--report",
+            str(paths["report"]),
+            "--diff",
+            str(paths["diff"]),
+            "--head-dir",
+            str(paths["head_dir"]),
+            "--pr-body",
+            str(paths["pr_body"]),
+            "--out",
+            str(paths["out"]),
+        ]
+    )
+    out = capsys.readouterr().out
+
+    assert exit_code == 1
+    assert "Deterministic findings (1):" in out
+    assert "- [block] path_allowlist scripts/x.py: blocked" in out
+
+
 def _write_cli_inputs(workspace: Path) -> dict[str, Path]:
     contract = workspace / "contract.json"
     report = workspace / "report.md"

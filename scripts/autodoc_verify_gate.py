@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Callable
@@ -19,6 +20,11 @@ Conclusion = str
 DeterministicVerifier = Callable[..., dict[str, Any]]
 
 _EXIT_CODES = {"pass": 0, "fail": 1, "needs_human": 2}
+
+_LOG_FINDING_LIMIT = 20
+_LOG_FIELD_LIMIT = 120
+_LOG_MESSAGE_LIMIT = 400
+_CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f]")
 
 
 def run_gate(
@@ -102,7 +108,46 @@ def main(argv: list[str] | None = None) -> int:
 
     _write_json(args.out, result)
     print(f"Autodoc verify gate: {result['conclusion']} - {result['summary']}")
+    log_findings(result)
     return _EXIT_CODES.get(result["conclusion"], 2)
+
+
+def sanitize_log_text(value: Any, limit: int) -> str:
+    """Flatten pull-request-controlled text into one safe single-line log fragment.
+
+    Control characters are stripped and all whitespace is collapsed, so a rendered
+    line always begins with this module's own literal prefix. That prevents PR
+    content from ever being parsed as a GitHub Actions workflow command (``::...``).
+    """
+
+    collapsed = " ".join(_CONTROL_CHARS_RE.sub(" ", str(value)).split())
+    if len(collapsed) > limit:
+        collapsed = collapsed[: max(limit - 3, 0)] + "..."
+    return collapsed
+
+
+def log_findings(result: dict[str, Any]) -> None:
+    """Print sanitized deterministic findings so CI failures are diagnosable from logs."""
+
+    deterministic = result.get("deterministic")
+    findings = deterministic.get("findings") if isinstance(deterministic, dict) else None
+    if not isinstance(findings, list) or not findings:
+        return
+
+    print(f"Deterministic findings ({len(findings)}):")
+    for finding in findings[:_LOG_FINDING_LIMIT]:
+        if not isinstance(finding, dict):
+            print(f"- [unknown] {sanitize_log_text(finding, _LOG_MESSAGE_LIMIT)}")
+            continue
+        severity = sanitize_log_text(finding.get("severity", "unknown"), _LOG_FIELD_LIMIT)
+        check = sanitize_log_text(finding.get("check", "unknown"), _LOG_FIELD_LIMIT)
+        path = sanitize_log_text(finding.get("path", ""), _LOG_FIELD_LIMIT)
+        message = sanitize_log_text(finding.get("message", ""), _LOG_MESSAGE_LIMIT)
+        print(f"- [{severity}] {check} {path}: {message}")
+
+    omitted = len(findings) - _LOG_FINDING_LIMIT
+    if omitted > 0:
+        print(f"- ... {omitted} additional finding(s) omitted from this log.")
 
 
 def _result(

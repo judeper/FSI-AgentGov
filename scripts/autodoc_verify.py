@@ -424,11 +424,18 @@ def check_language(changed_md_paths: list[str], repo_root: str | Path) -> list[F
             )
         ]
 
-    cmd = [sys.executable, str(script_path), *[_to_os_relative_path(path) for path in md_paths]]
+    # The linter runs with cwd=repo_root, so a relative script path would be re-anchored
+    # against repo_root a second time (".autodoc/head/.autodoc/head/scripts/...") and the
+    # linter would fail to start. Absolutize against the caller's working directory, where
+    # the existence check above just succeeded, before handing the path to the child.
+    absolute_root = repo_root_path.absolute()
+    absolute_script = script_path.absolute()
+
+    cmd = [sys.executable, str(absolute_script), *[_to_os_relative_path(path) for path in md_paths]]
     try:
         result = subprocess.run(
             cmd,
-            cwd=repo_root_path,
+            cwd=absolute_root,
             capture_output=True,
             text=True,
             encoding="utf-8",
