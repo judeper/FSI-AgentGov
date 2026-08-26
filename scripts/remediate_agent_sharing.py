@@ -54,6 +54,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from asard_zone_rules import (
+    ENFORCEABLE_ZONES,
     check_agent_compliance,
     classify_environment_zone,
     get_approved_groups_for_zone,
@@ -285,6 +286,7 @@ def validate_remediation(
     environment_name: str,
     bap_client: BAPAdminClient,
     dataverse_client: CAAClient,
+    zone: int,
     max_retries: int = MAX_VALIDATION_RETRIES,
 ) -> Dict[str, Any]:
     """Validate that remediation succeeded by re-scanning agent permissions.
@@ -301,6 +303,10 @@ def validate_remediation(
         BAP Admin API client.
     dataverse_client : CAAClient
         Dataverse client.
+    zone : int
+        Enforceable zone (1, 2, or 3) that was resolved for — and applied by —
+        the remediation being validated. Validation evaluates this exact zone
+        instead of re-classifying the environment.
     max_retries : int, optional
         Maximum validation attempts (default: 3).
 
@@ -319,7 +325,25 @@ def validate_remediation(
     Notes
     -----
     Retries with delays [2, 5, 10] seconds to handle BAP API eventual consistency.
+
+    Fails closed on zone contract violations: an unenforceable ``zone`` is
+    refused before any re-scan, and a compliance verdict that was evaluated
+    under a different zone is never accepted as compliant.
     """
+    if zone not in ENFORCEABLE_ZONES:
+        error = (
+            f"Post-remediation validation refused: zone {zone!r} is not enforceable "
+            f"(expected one of {ENFORCEABLE_ZONES}). Validation must evaluate the same "
+            "zone rules the remediation applied."
+        )
+        logger.error("Validation refused for agent %s: %s", agent_id, error)
+        return {
+            "validated": False,
+            "compliant": False,
+            "attempts": 0,
+            "error": error,
+        }
+
     for attempt in range(max_retries):
         delay = VALIDATION_DELAYS[attempt] if attempt < len(VALIDATION_DELAYS) else 10
         
@@ -357,8 +381,33 @@ def validate_remediation(
                 environment_name=environment_name,
                 sharing_principals_json=permissions_json,
                 client=dataverse_client,
+                zone=zone,
             )
             
+            evaluated_zone = compliance_result.get("zone")
+            if evaluated_zone != zone:
+                mismatch = (
+                    f"Validation evaluated Zone {evaluated_zone!r} but remediation applied "
+                    f"Zone {zone} rules — refusing to accept the compliance verdict."
+                )
+                logger.error(
+                    "Validation attempt %d for agent %s: %s",
+                    attempt + 1,
+                    agent_id,
+                    mismatch,
+                )
+
+                # Never treat a zone-mismatched verdict as compliant; retry in
+                # case the disagreement was transient, then fail closed.
+                if attempt >= max_retries - 1:
+                    return {
+                        "validated": False,
+                        "compliant": False,
+                        "attempts": attempt + 1,
+                        "error": mismatch,
+                    }
+                continue
+
             if compliance_result["compliant"]:
                 logger.info(
                     "Validation succeeded for agent %s after %d attempt(s)",
@@ -614,7 +663,10 @@ def remediate_agent(
                 "or pass an explicit --zone-override."
             )
             logger.error("Refusing remediation for agent %s: %s", agent_id, error)
-            return {"success": False, "whatif": args.whatif, "error": error}
+            # Failure returns always carry whatif=False: the run summary buckets
+            # WhatIf ahead of success, so a failure flagged whatif=True would be
+            # reported as a simulated run instead of a failure.
+            return {"success": False, "whatif": False, "error": error}
         
         agent_data["zone"] = zone
         
@@ -699,6 +751,7 @@ def remediate_agent(
             environment_name=environment_name,
             bap_client=bap_client,
             dataverse_client=dataverse_client,
+            zone=zone,
         )
         
         # Update Dataverse compliance record
@@ -832,6 +885,33 @@ def load_agents_from_csv(csv_path: str) -> List[Dict[str, Any]]:
     except Exception as exc:
         logger.error("Failed to load agents from CSV: %s", exc, exc_info=True)
         return []
+
+
+def summarize_result_bucket(result: Dict[str, Any]) -> str:
+    """Map a ``remediate_agent()`` result to its run-summary bucket.
+
+    Parameters
+    ----------
+    result : dict
+        Result returned by ``remediate_agent()``.
+
+    Returns
+    -------
+    str
+        One of ``"skipped"``, ``"failed"``, ``"whatif"``, ``"succeeded"``.
+
+    Notes
+    -----
+    Failure is evaluated before WhatIf so an unsuccessful remediation can never
+    be reported as a simulated (WhatIf) run.
+    """
+    if result.get("skipped"):
+        return "skipped"
+    if not result["success"]:
+        return "failed"
+    if result["whatif"]:
+        return "whatif"
+    return "succeeded"
 
 
 def main():
@@ -1032,14 +1112,7 @@ def main():
         
         result = remediate_agent(agent_data, bap_client, dataverse_client, args)
         
-        if result.get("skipped"):
-            stats["skipped"] += 1
-        elif result["whatif"]:
-            stats["whatif"] += 1
-        elif result["success"]:
-            stats["succeeded"] += 1
-        else:
-            stats["failed"] += 1
+        stats[summarize_result_bucket(result)] += 1
         
         # Batch pause (rate limit mitigation)
         if i % args.batch_size == 0 and i < len(agents):

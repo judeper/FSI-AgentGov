@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 from unittest import mock
 
+import pytest
 from asard_zone_rules import (
     ZONE_SHARING_RULES,
     check_agent_compliance,
@@ -248,3 +249,70 @@ class TestCheckAgentCompliance:
         )
         # Empty principals = compliant (no violations detected)
         assert result["zone"] == 3
+
+
+class TestCheckAgentComplianceExplicitZone:
+    """Verify the explicit-zone contract used by post-remediation validation."""
+
+    def test_explicit_zone_skips_classification(self):
+        client = mock.MagicMock()
+        client.query.return_value = []
+        principals = json.dumps(
+            [{"type": "group", "id": "group-1", "displayName": "Finance Team"}]
+        )
+
+        with mock.patch(
+            "asard_zone_rules.classify_environment_zone", autospec=True
+        ) as mock_classify:
+            result = check_agent_compliance(
+                agent_id="agent-1",
+                environment_id="env-1",
+                environment_name="MyCustomEnv",
+                sharing_principals_json=principals,
+                client=client,
+                zone=1,
+            )
+
+        mock_classify.assert_not_called()
+        assert result["zone"] == 1
+        assert result["compliant"] is False
+        assert result["violation_type"] == "UnapprovedGroup"
+
+    @pytest.mark.parametrize("zone", [0, 4, "1"])
+    def test_unenforceable_explicit_zone_fails_closed(self, zone):
+        principals = json.dumps(
+            [{"type": "group", "id": "group-1", "displayName": "Finance Team"}]
+        )
+
+        with mock.patch(
+            "asard_zone_rules.classify_environment_zone", autospec=True
+        ) as mock_classify:
+            result = check_agent_compliance(
+                agent_id="agent-1",
+                environment_id="env-1",
+                environment_name="Dev Sandbox",
+                sharing_principals_json=principals,
+                zone=zone,
+            )
+
+        mock_classify.assert_not_called()
+        assert result["compliant"] is False
+        assert result["violation_type"] == "Error"
+        assert result["zone"] == zone
+
+    def test_omitted_zone_still_classifies(self):
+        with mock.patch(
+            "asard_zone_rules.classify_environment_zone",
+            autospec=True,
+            return_value=2,
+        ) as mock_classify:
+            result = check_agent_compliance(
+                agent_id="agent-1",
+                environment_id="env-1",
+                environment_name="QA Testing",
+                sharing_principals_json=json.dumps([{"type": "Everyone", "id": "all"}]),
+            )
+
+        mock_classify.assert_called_once()
+        assert result["zone"] == 2
+        assert result["violation_type"] == "Everyone"
