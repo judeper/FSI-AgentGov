@@ -33,6 +33,7 @@ REDIRECT_OLD_URL = "https://learn.microsoft.com/en-us/power-platform/admin/manag
 REDIRECT_NEW_URL = "https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity"
 REDIRECT_FINGERPRINT = "sha256:c3af9af0d43c439f7f51ca530185d7eff9816ba23445ea038e07f18d67a791ed"
 REDIRECT_REPORT_PATH = "reports/monitoring/learn-changes-2026-08-20.md"
+REDIRECT_BEFORE_FIXTURE = PROJECT_ROOT / "tests" / "fixtures" / "autodoc" / "trusted-redirect-before.md"
 REDIRECT_PR_BODY = f"""Automated **deterministic** Learn-URL redirect update.
 
 AUTODOC-FINGERPRINT: {REDIRECT_FINGERPRINT}
@@ -64,10 +65,14 @@ index db8f29dcf9..97f02f633b 100644
 {extra}"""
 
 
-def _trusted_redirect_fixture(tmp_path: Path) -> tuple[dict, str, str, str, Path]:
-    trusted = autodoc_workflow.derive_trusted_contract(REDIRECT_PR_BODY, repo_root=PROJECT_ROOT)
-    report = (PROJECT_ROOT / REDIRECT_REPORT_PATH).read_text(encoding="utf-8")
-    before = (PROJECT_ROOT / REDIRECT_PATH).read_text(encoding="utf-8")
+def _trusted_redirect_fixture(
+    tmp_path: Path, *, trusted_repo_root: Path = PROJECT_ROOT
+) -> tuple[dict, str, str, str, Path]:
+    trusted = autodoc_workflow.derive_trusted_contract(REDIRECT_PR_BODY, repo_root=trusted_repo_root)
+    report = (trusted_repo_root / REDIRECT_REPORT_PATH).read_text(encoding="utf-8")
+    before = REDIRECT_BEFORE_FIXTURE.read_text(encoding="utf-8")
+    assert before.count(REDIRECT_OLD_URL) == 1
+    assert REDIRECT_NEW_URL not in before
     after = before.replace(REDIRECT_OLD_URL, REDIRECT_NEW_URL, 1)
     assert after != before
 
@@ -356,6 +361,48 @@ def test_trusted_1228_redirect_passes_without_treating_unchanged_date_as_claim(t
         repo_root=repo,
     )
     assert gate["conclusion"] == "pass"
+
+
+@pytest.mark.parametrize(
+    "checkout_url",
+    [REDIRECT_OLD_URL, REDIRECT_NEW_URL],
+    ids=["checkout-before-redirect", "checkout-after-redirect"],
+)
+def test_trusted_redirect_fixture_is_independent_of_checkout_url_state(
+    tmp_path: Path, checkout_url: str
+) -> None:
+    fixture_before = REDIRECT_BEFORE_FIXTURE.read_text(encoding="utf-8")
+    checkout_content = fixture_before.replace(REDIRECT_OLD_URL, checkout_url, 1)
+    trusted_repo_root = tmp_path / "trusted-base"
+    checkout_path = trusted_repo_root / Path(*REDIRECT_PATH.split("/"))
+    report_path = trusted_repo_root / Path(*REDIRECT_REPORT_PATH.split("/"))
+    checkout_path.parent.mkdir(parents=True)
+    report_path.parent.mkdir(parents=True)
+    checkout_path.write_text(checkout_content, encoding="utf-8")
+    report_path.write_text((PROJECT_ROOT / REDIRECT_REPORT_PATH).read_text(encoding="utf-8"), encoding="utf-8")
+
+    contract, report, before, after, repo = _trusted_redirect_fixture(
+        tmp_path / "verification",
+        trusted_repo_root=trusted_repo_root,
+    )
+    old_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_OLD_URL} | Jan 2026 |"
+    new_row = f"| **Copilot Studio Message Capacity** | {REDIRECT_NEW_URL} | Jan 2026 |"
+    verdict = verify(
+        contract,
+        _redirect_diff(old_row, new_row),
+        {REDIRECT_PATH: after},
+        report,
+        pr_body=REDIRECT_PR_BODY,
+        repo_root=repo,
+    )
+
+    checkout_text = checkout_path.read_text(encoding="utf-8")
+    assert (REDIRECT_OLD_URL in checkout_text) is (checkout_url == REDIRECT_OLD_URL)
+    assert (REDIRECT_NEW_URL in checkout_text) is (checkout_url == REDIRECT_NEW_URL)
+    assert before == fixture_before
+    assert REDIRECT_OLD_URL in before
+    assert REDIRECT_NEW_URL in after
+    assert verdict["pass"] is True
 
 
 def test_trusted_redirect_rejects_changed_date_cell(tmp_path: Path) -> None:
