@@ -542,6 +542,114 @@ def test_remediate_agent_calls_classifier_with_supported_arguments():
     )
 
 
+def test_remediate_agent_fails_closed_for_unclassified_single_agent_context():
+    """Test GUID-only single-agent context cannot remediate as Zone 0."""
+    import argparse
+
+    from remediate_agent_sharing import remediate_agent
+
+    environment_id = "11111111-2222-3333-4444-555555555555"
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = mock.MagicMock()
+    mock_dataverse_client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    mock_dataverse_client._session.get.return_value.status_code = 404
+    mock_dataverse_client.query.return_value = []
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "agent-123",
+        "environment_id": environment_id,
+        "environment_name": environment_id,
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch("remediate_agent_sharing.parse_sharing_principals") as mock_parse,
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals"
+        ) as mock_remediation,
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record"
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data,
+            mock_bap_client,
+            mock_dataverse_client,
+            args,
+        )
+
+    assert result["success"] is False
+    assert result["whatif"] is False
+    assert "usable environment policy" in result["error"]
+    assert "recognizable environment name" in result["error"]
+    assert "--zone-override" in result["error"]
+    mock_parse.assert_not_called()
+    mock_remediation.assert_not_called()
+    mock_bap_client.modify_agent_permissions.assert_not_called()
+    mock_update.assert_not_called()
+
+
+@pytest.mark.parametrize("zone", [1, 2, 3])
+def test_remediate_agent_classified_zones_still_proceed(zone):
+    """Test classified zones still mutate permissions and write compliance."""
+    import argparse
+
+    from remediate_agent_sharing import remediate_agent
+
+    mock_bap_client = mock.MagicMock()
+    mock_bap_client.modify_agent_permissions.return_value = True
+    mock_dataverse_client = mock.MagicMock()
+    mock_dataverse_client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    mock_dataverse_client._session.get.return_value.status_code = 404
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Recognized Environment",
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.classify_environment_zone",
+            autospec=True,
+            return_value=zone,
+        ),
+        mock.patch(
+            "remediate_agent_sharing.parse_sharing_principals",
+            return_value={"principals": []},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_approved_groups_for_zone",
+            return_value=[],
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals",
+            return_value=[],
+        ),
+        mock.patch(
+            "remediate_agent_sharing.validate_remediation",
+            return_value={"compliant": True, "attempts": 1},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record",
+            return_value=True,
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data,
+            mock_bap_client,
+            mock_dataverse_client,
+            args,
+        )
+
+    assert result == {"success": True, "whatif": False, "error": None}
+    mock_bap_client.modify_agent_permissions.assert_called_once()
+    mock_update.assert_called_once()
+
+
 def test_remediate_agent_whatif_mode():
     """Test remediate_agent in WhatIf mode (no PATCH executed)."""
     # This test would require mocking argparse.Namespace and full workflow

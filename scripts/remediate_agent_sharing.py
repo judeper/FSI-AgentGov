@@ -606,6 +606,15 @@ def remediate_agent(
                 environment_name=environment_name,
                 client=dataverse_client,
             )
+
+        if zone == 0:
+            error = (
+                "Environment zone is unclassified (Zone 0); configure a usable "
+                "environment policy, provide a recognizable environment name, "
+                "or pass an explicit --zone-override."
+            )
+            logger.error("Refusing remediation for agent %s: %s", agent_id, error)
+            return {"success": False, "whatif": args.whatif, "error": error}
         
         agent_data["zone"] = zone
         
