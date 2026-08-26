@@ -58,7 +58,6 @@ from asard_zone_rules import (
     check_agent_compliance,
     classify_environment_zone,
     get_approved_groups_for_zone,
-    parse_sharing_principals,
 )
 from bap_admin_client import BAPAdminClient
 from caa_client import CAAClient
@@ -74,10 +73,89 @@ VALIDATION_DELAYS = [2, 5, 10]  # seconds between validation attempts
 
 logger = logging.getLogger(__name__)
 
+_SUPPORTED_FLAT_PRINCIPAL_TYPES = {
+    "user",
+    "individual",
+    "group",
+    "securitygroup",
+    "security_group",
+    "everyone",
+    "public",
+    "organization",
+    "org",
+    "tenant",
+}
+
 
 # =========================================================================
 # Helper functions
 # =========================================================================
+
+
+def _validate_remediation_principal(
+    principal: Any, index: int
+) -> Dict[str, Any]:
+    """Validate one raw flat BAP sharing principal."""
+    if not isinstance(principal, dict):
+        raise ValueError(
+            f"Sharing principal at index {index} must be a flat JSON object"
+        )
+
+    principal_type = principal.get("type")
+    principal_id = principal.get("id")
+    display_name = principal.get("displayName", "")
+
+    if not isinstance(principal_type, str) or not principal_type.strip():
+        raise ValueError(
+            f"Sharing principal at index {index} requires a non-empty string type"
+        )
+    normalized_type = principal_type.strip().lower()
+    if normalized_type not in _SUPPORTED_FLAT_PRINCIPAL_TYPES:
+        raise ValueError(
+            f"Sharing principal at index {index} has unsupported type "
+            f"{principal_type!r}"
+        )
+    if not isinstance(principal_id, str) or not principal_id.strip():
+        raise ValueError(
+            f"Sharing principal at index {index} requires a non-empty string id"
+        )
+    if not isinstance(display_name, str):
+        raise ValueError(
+            f"Sharing principal at index {index} displayName must be a string"
+        )
+
+    return principal
+
+
+def parse_remediation_principals(principals_json: str) -> List[Dict[str, Any]]:
+    """Parse and validate the raw flat BAP sharing-principal payload.
+
+    Remediation must preserve the original principal list because the BAP
+    permissions PATCH is replace-all. The compliance parser intentionally
+    returns only aggregate summary fields and is not a mutation input.
+
+    Raises
+    ------
+    ValueError
+        If the JSON is malformed, is not a list, or contains an item outside
+        the repository's flat ``type`` / ``id`` / optional ``displayName``
+        contract.
+    """
+    try:
+        principals = json.loads(principals_json)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ValueError(f"Invalid sharing principals JSON: {exc}") from exc
+
+    if not isinstance(principals, list):
+        raise ValueError(
+            "Sharing principals payload must be a JSON list of flat principal objects"
+        )
+
+    validated: List[Dict[str, Any]] = []
+    for index, principal in enumerate(principals):
+        validated.append(_validate_remediation_principal(principal, index))
+
+    return validated
 
 
 def build_permission_object(
@@ -190,12 +268,16 @@ def get_zone_remediation_principals(
     - **Zone 2:** Remove Everyone/Public/organization, preserve named groups + users
     - **Zone 3:** Replace ALL with approved groups from policy table
     """
+    for index, principal in enumerate(current_principals):
+        _validate_remediation_principal(principal, index)
+
     remediation_principals = []
 
     if zone == 1:
         # Zone 1: Remove ALL group sharing, preserve individual users
         for principal in current_principals:
-            if principal.get("type", "").lower() == "user":
+            principal_type = principal["type"].strip().lower()
+            if principal_type in {"user", "individual"}:
                 # Build permission object for user
                 remediation_principals.append(
                     {
@@ -218,8 +300,8 @@ def get_zone_remediation_principals(
     elif zone == 2:
         # Zone 2: Remove Everyone/Public/organization, preserve named groups + users
         for principal in current_principals:
-            principal_type = principal.get("type", "").lower()
-            principal_id = principal.get("id", "").lower()
+            principal_type = principal["type"].strip().lower()
+            principal_id = principal["id"].lower()
             display_name = principal.get("displayName", "").lower()
             
             # Skip Everyone, Public, organization-wide principals
@@ -230,7 +312,8 @@ def get_zone_remediation_principals(
             if (
                 display_name in _system_names
                 or principal_id in ["everyone", "public", "all"]
-                or principal_type in ["organization", "tenant"]
+                or principal_type
+                in ["everyone", "public", "organization", "org", "tenant"]
             ):
                 logger.debug(
                     "Zone 2: Removing Everyone/Public principal: %s", display_name
@@ -238,14 +321,21 @@ def get_zone_remediation_principals(
                 continue
             
             # Preserve named groups and individual users
-            if principal_type in ["user", "group"]:
+            canonical_type = {
+                "user": "User",
+                "individual": "User",
+                "group": "Group",
+                "securitygroup": "Group",
+                "security_group": "Group",
+            }.get(principal_type)
+            if canonical_type:
                 remediation_principals.append(
                     {
                         "properties": {
                             "roleName": "CanView",
                             "principal": {
                                 "id": principal.get("id"),
-                                "type": principal_type.capitalize(),
+                                "type": canonical_type,
                                 "displayName": principal.get("displayName", ""),
                             },
                         }
@@ -670,10 +760,10 @@ def remediate_agent(
         
         agent_data["zone"] = zone
         
-        # Parse current sharing principals
+        # Parse the raw flat principal list. The compliance parser returns only
+        # summary fields and cannot safely drive a replace-all permissions PATCH.
         sharing_principals_json = agent_data.get("sharing_principals_json", "[]")
-        parsed = parse_sharing_principals(sharing_principals_json)
-        current_principals = parsed.get("principals", [])
+        current_principals = parse_remediation_principals(sharing_principals_json)
         
         logger.debug(
             "Agent %s has %d current principal(s) in Zone %d",
@@ -914,8 +1004,14 @@ def summarize_result_bucket(result: Dict[str, Any]) -> str:
     return "succeeded"
 
 
-def main():
-    """Main entry point."""
+def main() -> int:
+    """Main entry point.
+
+    Returns
+    -------
+    int
+        Exit code (0 = all processed successfully or WhatIf-only, 1 = error).
+    """
     parser = argparse.ArgumentParser(
         description="Remediate agent sharing violations with zone-specific enforcement",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1019,11 +1115,11 @@ def main():
     # Validate CLI arguments
     if args.agent_id and not args.environment_id:
         logger.error("--agent-id requires --environment-id")
-        sys.exit(1)
+        return 1
     
     if args.environment_id and not args.agent_id:
         logger.error("--environment-id requires --agent-id")
-        sys.exit(1)
+        return 1
     
     # Initialize clients
     logger.info("Initializing BAP Admin and Dataverse clients")
@@ -1046,13 +1142,13 @@ def main():
         # Test connections
         if not bap_client.test_connection():
             logger.error("BAP Admin API connection test failed")
-            sys.exit(1)
+            return 1
         
         logger.info("Client initialization successful")
         
     except Exception as exc:
         logger.error("Failed to initialize clients: %s", exc, exc_info=True)
-        sys.exit(1)
+        return 1
     
     # Load agents
     agents = []
@@ -1072,7 +1168,7 @@ def main():
                 args.agent_id,
                 args.environment_id,
             )
-            sys.exit(1)
+            return 1
         
         agents.append(
             {
@@ -1094,7 +1190,7 @@ def main():
     
     if len(agents) == 0:
         logger.warning("No agents to remediate")
-        sys.exit(0)
+        return 0
     
     logger.info("Processing %d agent(s)", len(agents))
     
@@ -1130,8 +1226,15 @@ def main():
     print(f"  Skipped (active exceptions): {stats['skipped']}")
     print("=" * 80 + "\n")
     
+    if stats["failed"] > 0:
+        logger.error(
+            "Remediation script completed with %d failed agent(s)", stats["failed"]
+        )
+        return 1
+
     logger.info("Remediation script completed")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
