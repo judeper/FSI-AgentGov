@@ -85,6 +85,11 @@ ZONE_SHARING_RULES: Dict[int, Dict[str, Any]] = {
     },
 }
 
+# Zones that carry enforceable remediation rules. Zone 0 (Unclassified) is a
+# permissive detection-time fallback only — it must never be used to decide
+# whether a remediation succeeded.
+ENFORCEABLE_ZONES = (1, 2, 3)
+
 # =========================================================================
 # Naming convention patterns for zone classification
 # =========================================================================
@@ -113,7 +118,8 @@ def classify_environment_zone(
 
     1. **Environment policy lookup:** If ``client`` is provided, query
        ``fsi_EnvironmentPolicy`` table for environment. If a policy
-       record exists with ``fsi_governance_zone``, return that zone.
+       record exists with a usable ``fsi_zone`` value (1–3), return that
+       zone. Zone 0 is unclassified and falls through.
     2. **Naming convention:** Check environment name against known patterns
        (case-insensitive). "prod"/"production"/"enterprise" → Zone 3;
        "test"/"qa"/"staging"/"uat" → Zone 2;
@@ -141,19 +147,27 @@ def classify_environment_zone(
         try:
             records = client.query(
                 "fsi_environmentpolicies",
-                filter=f"fsi_environment_id eq '{environment_id}'",
-                select=["fsi_governance_zone"],
+                filter=f"fsi_environmentid eq '{environment_id}'",
+                select=["fsi_zone"],
                 top=1,
             )
             if records:
-                zone = records[0].get("fsi_governance_zone")
-                if zone is not None:
-                    logger.info(
-                        "Environment %s classified as Zone %d via policy lookup",
-                        environment_id,
-                        zone,
-                    )
-                    return int(zone)
+                zone_value = records[0].get("fsi_zone")
+                if zone_value is not None:
+                    zone = int(zone_value)
+                    if zone not in (1, 2, 3):
+                        logger.warning(
+                            "Environment %s policy returned unusable Zone %d — falling back to naming convention",
+                            environment_id,
+                            zone,
+                        )
+                    else:
+                        logger.info(
+                            "Environment %s classified as Zone %d via policy lookup",
+                            environment_id,
+                            zone,
+                        )
+                        return zone
         except Exception as exc:
             logger.warning(
                 "Policy lookup failed for environment %s: %s — falling back to naming convention",
@@ -447,12 +461,14 @@ def check_agent_compliance(
     sharing_principals_json: str,
     client: Any = None,
     default_zone: int = 0,
+    zone: Optional[int] = None,
 ) -> Dict[str, Any]:
     """Orchestrate a full compliance check for a single agent.
 
     Workflow:
 
-    1. Classify environment zone via ``classify_environment_zone()``
+    1. Classify environment zone via ``classify_environment_zone()`` (skipped
+       when the caller supplies an explicit ``zone``)
     2. Parse sharing principals via ``parse_sharing_principals()``
     3. Get approved groups for zone (Zone 3 only, if client available)
     4. Evaluate compliance via ``evaluate_zone_compliance()``
@@ -472,6 +488,14 @@ def check_agent_compliance(
         Dataverse client for policy lookups and approved group queries.
     default_zone : int
         Fallback zone if environment cannot be classified (default: 0).
+    zone : int | None
+        Pre-resolved governance zone. When supplied, classification is skipped
+        entirely and compliance is evaluated against this exact zone — used by
+        post-remediation validation so it cannot silently re-classify to a more
+        permissive zone than the one the remediation applied. Must be one of
+        ``ENFORCEABLE_ZONES``; any other value (including 0) fails closed with
+        a non-compliant ``Error`` result. When *None* (default), the zone is
+        classified as before.
 
     Returns
     -------
@@ -489,10 +513,31 @@ def check_agent_compliance(
             }
     """
     try:
-        # 1. Classify zone
-        zone = classify_environment_zone(
-            environment_id, environment_name, client=client, default_zone=default_zone
-        )
+        # 1. Resolve zone — an explicitly supplied zone wins over classification
+        if zone is None:
+            zone = classify_environment_zone(
+                environment_id, environment_name, client=client, default_zone=default_zone
+            )
+        elif zone not in ENFORCEABLE_ZONES:
+            # Fail closed: an explicit but unenforceable zone (notably Zone 0)
+            # would otherwise be evaluated against permissive fallback rules.
+            logger.error(
+                "Compliance check refused for agent %s: caller supplied unenforceable zone %r",
+                agent_id,
+                zone,
+            )
+            return {
+                "agent_id": agent_id,
+                "environment_id": environment_id,
+                "zone": zone,
+                "zone_name": ZONE_SHARING_RULES.get(zone, ZONE_SHARING_RULES[0])["name"],
+                "compliant": False,
+                "violation_type": "Error",
+                "details": (
+                    f"Caller supplied unenforceable zone {zone!r}; compliance can only be "
+                    f"evaluated against zones {ENFORCEABLE_ZONES}."
+                ),
+            }
         zone_name = ZONE_SHARING_RULES.get(zone, ZONE_SHARING_RULES[0])["name"]
 
         # 2. Parse principals

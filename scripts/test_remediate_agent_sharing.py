@@ -1,11 +1,19 @@
 """Unit tests for remediate_agent_sharing.py."""
 
+import argparse
+import json
+import sys
 from unittest import mock
 
 import pytest
+from asard_zone_rules import check_agent_compliance as real_check_agent_compliance
 from remediate_agent_sharing import (
     build_permission_object,
     get_zone_remediation_principals,
+    main,
+    parse_remediation_principals,
+    remediate_agent,
+    summarize_result_bucket,
     update_compliance_record,
     validate_remediation,
 )
@@ -13,6 +21,27 @@ from remediate_agent_sharing import (
 # =========================================================================
 # Test fixtures
 # =========================================================================
+
+
+def _make_dataverse_client(approved_group_ids=None):
+    """Build a Dataverse mock with no policy record and no active exception.
+
+    ``fsi_environmentpolicies`` returns no rows, so any zone classification
+    falls through to naming convention — the condition that lets validation
+    drift to Zone 0 when the resolved zone is not threaded through.
+    """
+    client = mock.MagicMock()
+    client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    client._session.get.return_value.status_code = 404
+    client.execute_query.return_value = {"value": []}
+
+    def _query(entity_set, **_kwargs):
+        if entity_set == "fsi_approvedsecuritygrouppolicies":
+            return [{"fsi_group_id": gid} for gid in (approved_group_ids or [])]
+        return []
+
+    client.query.side_effect = _query
+    return client
 
 
 @pytest.fixture
@@ -69,6 +98,34 @@ def test_build_permission_object_default_role():
     assert result["properties"]["roleName"] == "CanView"
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "{bad json}",
+        json.dumps({"type": "user", "id": "user-1"}),
+        json.dumps([42]),
+        json.dumps([{"id": "user-1"}]),
+        json.dumps([{"type": "user"}]),
+        json.dumps([{"type": "mystery", "id": "principal-1"}]),
+        json.dumps(
+            [
+                {
+                    "properties": {
+                        "principal": {"type": "User", "id": "user-1"}
+                    }
+                }
+            ]
+        ),
+    ],
+)
+def test_parse_remediation_principals_rejects_malformed_or_unknown_flat_items(
+    payload,
+):
+    """Mutation input rejects malformed, nested, and unknown principal shapes."""
+    with pytest.raises(ValueError):
+        parse_remediation_principals(payload)
+
+
 # =========================================================================
 # Zone remediation logic tests
 # =========================================================================
@@ -97,6 +154,21 @@ def test_zone_1_remediation_removes_all_groups(mock_dataverse_client):
     )
     assert result[0]["properties"]["principal"]["displayName"] == "John Doe"
     assert result[1]["properties"]["principal"]["displayName"] == "Jane Smith"
+
+
+def test_zone_remediation_helper_rejects_unknown_flat_principal(
+    mock_dataverse_client,
+):
+    """The mutation helper itself cannot silently discard an unknown type."""
+    with pytest.raises(ValueError, match="unsupported type"):
+        get_zone_remediation_principals(
+            zone=2,
+            current_principals=[
+                {"type": "mystery", "id": "principal-1", "displayName": "Unknown"}
+            ],
+            approved_groups=[],
+            dataverse_client=mock_dataverse_client,
+        )
 
 
 def test_zone_1_remediation_no_users_returns_empty(mock_dataverse_client):
@@ -303,7 +375,7 @@ def test_validate_remediation_success_first_attempt(mock_bap_client, mock_datave
     """Test validate_remediation succeeds on first attempt."""
     # Mock successful compliance check
     with mock.patch("remediate_agent_sharing.check_agent_compliance") as mock_check:
-        mock_check.return_value = {"compliant": True}
+        mock_check.return_value = {"compliant": True, "zone": 3}
 
         # Mock BAP API returns approved groups
         mock_bap_client.get_agent_permissions.return_value = [
@@ -316,6 +388,7 @@ def test_validate_remediation_success_first_attempt(mock_bap_client, mock_datave
             environment_name="Production",
             bap_client=mock_bap_client,
             dataverse_client=mock_dataverse_client,
+            zone=3,
             max_retries=3,
         )
 
@@ -330,8 +403,8 @@ def test_validate_remediation_success_after_retry(mock_bap_client, mock_datavers
     # Mock compliance check fails first, then succeeds
     with mock.patch("remediate_agent_sharing.check_agent_compliance") as mock_check:
         mock_check.side_effect = [
-            {"compliant": False, "violation_type": "UnauthorizedGroupSharing"},
-            {"compliant": True},
+            {"compliant": False, "violation_type": "UnauthorizedGroupSharing", "zone": 3},
+            {"compliant": True, "zone": 3},
         ]
 
         # Mock BAP API returns approved groups
@@ -345,6 +418,7 @@ def test_validate_remediation_success_after_retry(mock_bap_client, mock_datavers
             environment_name="Production",
             bap_client=mock_bap_client,
             dataverse_client=mock_dataverse_client,
+            zone=3,
             max_retries=3,
         )
 
@@ -361,6 +435,7 @@ def test_validate_remediation_failure_after_max_retries(mock_bap_client, mock_da
             "compliant": False,
             "violation_type": "UnauthorizedGroupSharing",
             "details": "Agent still has Everyone group",
+            "zone": 3,
         }
 
         # Mock BAP API returns old principals (not updated)
@@ -374,6 +449,7 @@ def test_validate_remediation_failure_after_max_retries(mock_bap_client, mock_da
             environment_name="Production",
             bap_client=mock_bap_client,
             dataverse_client=mock_dataverse_client,
+            zone=3,
             max_retries=3,
         )
 
@@ -394,6 +470,7 @@ def test_validate_remediation_exception_handling(mock_bap_client, mock_dataverse
         environment_name="Production",
         bap_client=mock_bap_client,
         dataverse_client=mock_dataverse_client,
+        zone=3,
         max_retries=3,
     )
 
@@ -493,18 +570,365 @@ def test_update_compliance_record_failure(mock_dataverse_client):
 # =========================================================================
 
 
-def test_remediate_agent_whatif_mode():
-    """Test remediate_agent in WhatIf mode (no PATCH executed)."""
-    # This test would require mocking argparse.Namespace and full workflow
-    # Deferred to integration testing (Phase 5)
-    pass
+def test_remediate_agent_calls_classifier_with_supported_arguments():
+    """Test non-override remediation uses the classifier's supported contract."""
+    import argparse
+
+    from remediate_agent_sharing import remediate_agent
+
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = mock.MagicMock()
+    mock_dataverse_client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    mock_dataverse_client._session.get.return_value.status_code = 404
+    args = argparse.Namespace(whatif=True, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Production-Finance",
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.classify_environment_zone",
+            autospec=True,
+            return_value=3,
+        ) as mock_classify,
+        mock.patch(
+            "remediate_agent_sharing.parse_remediation_principals",
+            wraps=parse_remediation_principals,
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals",
+            return_value=[],
+        ),
+    ):
+        result = remediate_agent(
+            agent_data,
+            mock_bap_client,
+            mock_dataverse_client,
+            args,
+        )
+
+    assert result == {"success": True, "whatif": True, "error": None}
+    mock_classify.assert_called_once_with(
+        environment_id="env-456",
+        environment_name="Production-Finance",
+        client=mock_dataverse_client,
+    )
 
 
-def test_remediate_agent_single_agent_mode():
-    """Test remediate_agent processes single agent successfully."""
-    # This test would require mocking BAP + Dataverse clients and full workflow
-    # Deferred to integration testing (Phase 5)
-    pass
+def test_remediate_agent_fails_closed_for_unclassified_single_agent_context():
+    """Test GUID-only single-agent context cannot remediate as Zone 0."""
+    import argparse
+
+    from remediate_agent_sharing import remediate_agent
+
+    environment_id = "11111111-2222-3333-4444-555555555555"
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = mock.MagicMock()
+    mock_dataverse_client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    mock_dataverse_client._session.get.return_value.status_code = 404
+    mock_dataverse_client.query.return_value = []
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "agent-123",
+        "environment_id": environment_id,
+        "environment_name": environment_id,
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.parse_remediation_principals",
+            wraps=parse_remediation_principals,
+        ) as mock_parse,
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals"
+        ) as mock_remediation,
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record"
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data,
+            mock_bap_client,
+            mock_dataverse_client,
+            args,
+        )
+
+    assert result["success"] is False
+    assert result["whatif"] is False
+    assert "usable environment policy" in result["error"]
+    assert "recognizable environment name" in result["error"]
+    assert "--zone-override" in result["error"]
+    mock_parse.assert_not_called()
+    mock_remediation.assert_not_called()
+    mock_bap_client.modify_agent_permissions.assert_not_called()
+    mock_update.assert_not_called()
+
+
+@pytest.mark.parametrize("zone", [1, 2, 3])
+def test_remediate_agent_classified_zones_still_proceed(zone):
+    """Test classified zones still mutate permissions and write compliance."""
+    import argparse
+
+    from remediate_agent_sharing import remediate_agent
+
+    mock_bap_client = mock.MagicMock()
+    mock_bap_client.modify_agent_permissions.return_value = True
+    mock_dataverse_client = mock.MagicMock()
+    mock_dataverse_client.api_url = "https://test.crm.dynamics.com/api/data/v9.2"
+    mock_dataverse_client._session.get.return_value.status_code = 404
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Recognized Environment",
+        "sharing_principals_json": "[]",
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.classify_environment_zone",
+            autospec=True,
+            return_value=zone,
+        ),
+        mock.patch(
+            "remediate_agent_sharing.parse_remediation_principals",
+            wraps=parse_remediation_principals,
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_approved_groups_for_zone",
+            return_value=[],
+        ),
+        mock.patch(
+            "remediate_agent_sharing.get_zone_remediation_principals",
+            return_value=[],
+        ),
+        mock.patch(
+            "remediate_agent_sharing.validate_remediation",
+            return_value={"compliant": True, "attempts": 1},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record",
+            return_value=True,
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data,
+            mock_bap_client,
+            mock_dataverse_client,
+            args,
+        )
+
+    assert result == {"success": True, "whatif": False, "error": None}
+    mock_bap_client.modify_agent_permissions.assert_called_once()
+    mock_update.assert_called_once()
+
+
+def test_zone_1_flat_payload_preserves_user_in_exact_replace_body():
+    """Zone 1 keeps the raw-payload user and removes the raw-payload group."""
+    current_principals = [
+        {"type": "user", "id": "user-1", "displayName": "Alex User"},
+        {"type": "group", "id": "group-1", "displayName": "Finance Team"},
+    ]
+    mock_bap_client = mock.MagicMock()
+    mock_bap_client.modify_agent_permissions.return_value = True
+    mock_dataverse_client = _make_dataverse_client()
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=1)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Test Environment",
+        "sharing_principals_json": json.dumps(current_principals),
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.validate_remediation",
+            return_value={"compliant": True, "attempts": 1},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record", return_value=True
+        ),
+    ):
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    expected_body = {
+        "put": [
+            {
+                "properties": {
+                    "roleName": "CanView",
+                    "principal": {
+                        "id": "user-1",
+                        "type": "User",
+                        "displayName": "Alex User",
+                    },
+                }
+            }
+        ]
+    }
+    call = mock_bap_client.modify_agent_permissions.call_args.kwargs
+    assert result == {"success": True, "whatif": False, "error": None}
+    assert call["environment_id"] == "env-456"
+    assert call["agent_id"] == "agent-123"
+    assert {"put": call["principals"]} == expected_body
+
+
+def test_zone_2_flat_payload_removes_everyone_in_exact_replace_body():
+    """Zone 2 keeps raw users/groups and removes Everyone from the replace body."""
+    current_principals = [
+        {"type": "user", "id": "user-1", "displayName": "Alex User"},
+        {"type": "group", "id": "group-1", "displayName": "Finance Team"},
+        {"type": "Everyone", "id": "everyone", "displayName": "Everyone"},
+    ]
+    mock_bap_client = mock.MagicMock()
+    mock_bap_client.modify_agent_permissions.return_value = True
+    mock_dataverse_client = _make_dataverse_client()
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=2)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Test Environment",
+        "sharing_principals_json": json.dumps(current_principals),
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.validate_remediation",
+            return_value={"compliant": True, "attempts": 1},
+        ),
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record", return_value=True
+        ),
+    ):
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    expected_body = {
+        "put": [
+            {
+                "properties": {
+                    "roleName": "CanView",
+                    "principal": {
+                        "id": "user-1",
+                        "type": "User",
+                        "displayName": "Alex User",
+                    },
+                }
+            },
+            {
+                "properties": {
+                    "roleName": "CanView",
+                    "principal": {
+                        "id": "group-1",
+                        "type": "Group",
+                        "displayName": "Finance Team",
+                    },
+                }
+            },
+        ]
+    }
+    call = mock_bap_client.modify_agent_permissions.call_args.kwargs
+    assert result == {"success": True, "whatif": False, "error": None}
+    assert call["environment_id"] == "env-456"
+    assert call["agent_id"] == "agent-123"
+    assert {"put": call["principals"]} == expected_body
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "{bad json}",
+        json.dumps({"type": "user", "id": "user-1"}),
+        json.dumps([{"type": "unknown", "id": "principal-1"}]),
+        json.dumps(
+            [
+                {
+                    "properties": {
+                        "principal": {"type": "User", "id": "user-1"}
+                    }
+                }
+            ]
+        ),
+    ],
+)
+def test_remediate_agent_invalid_flat_payload_fails_before_mutation(payload):
+    """Invalid raw payloads cannot reach replace-all PATCH or compliance writes."""
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = _make_dataverse_client()
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=2)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Test Environment",
+        "sharing_principals_json": payload,
+    }
+
+    with mock.patch(
+        "remediate_agent_sharing.update_compliance_record"
+    ) as mock_update:
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    assert result["success"] is False
+    assert result["whatif"] is False
+    assert result["error"]
+    mock_bap_client.modify_agent_permissions.assert_not_called()
+    mock_update.assert_not_called()
+
+
+def test_remediate_agent_whatif_uses_true_flat_payload_counts(capsys):
+    """WhatIf previews the real current/proposed counts and never mutates."""
+    current_principals = [
+        {"type": "user", "id": "user-1", "displayName": "Alex User"},
+        {"type": "group", "id": "group-1", "displayName": "Finance Team"},
+        {"type": "Everyone", "id": "everyone", "displayName": "Everyone"},
+    ]
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = _make_dataverse_client()
+    args = argparse.Namespace(whatif=True, verbose=False, zone_override=2)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": "Test Environment",
+        "sharing_principals_json": json.dumps(current_principals),
+    }
+
+    with (
+        mock.patch(
+            "remediate_agent_sharing.validate_remediation"
+        ) as mock_validate,
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record"
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    output = capsys.readouterr().out
+    assert result == {"success": True, "whatif": True, "error": None}
+    assert "Current sharing: 3 principal(s)" in output
+    assert "Proposed sharing: 2 principal(s)" in output
+    assert "Alex User (user)" in output
+    assert "Finance Team (group)" in output
+    assert "[WHATIF] No changes applied" in output
+    mock_bap_client.modify_agent_permissions.assert_not_called()
+    mock_validate.assert_not_called()
+    mock_update.assert_not_called()
 
 
 # =========================================================================
@@ -592,33 +1016,34 @@ def test_remediate_agent_proceeds_with_expired_exception():
     # Mock classify_environment_zone
     with mock.patch("remediate_agent_sharing.classify_environment_zone") as mock_classify:
         mock_classify.return_value = 2  # Zone 2
-        
-        # Mock parse_sharing_principals
-        with mock.patch("remediate_agent_sharing.parse_sharing_principals") as mock_parse:
-            mock_parse.return_value = {"principals": [{"type": "user", "id": "user-1"}]}
-            
+
+        # Exercise the real raw flat-payload parser contract.
+        with mock.patch(
+            "remediate_agent_sharing.parse_remediation_principals",
+            wraps=parse_remediation_principals,
+        ):
             # Mock get_zone_remediation_principals
             with mock.patch("remediate_agent_sharing.get_zone_remediation_principals") as mock_remediate:
                 mock_remediate.return_value = [{"properties": {"roleName": "CanView"}}]
-                
+
                 # Mock BAP client modify_agent_permissions (success)
                 mock_bap_client.modify_agent_permissions.return_value = True
-                
+
                 # Mock validate_remediation
                 with mock.patch("remediate_agent_sharing.validate_remediation") as mock_validate:
                     mock_validate.return_value = {"compliant": True, "attempts": 1}
-                    
+
                     # Mock update_compliance_record
                     with mock.patch("remediate_agent_sharing.update_compliance_record") as mock_update:
                         mock_update.return_value = True
-                        
+
                         # Mock argparse.Namespace
                         args = argparse.Namespace(
                             whatif=False,
                             verbose=False,
                             zone_override=None,
                         )
-                        
+
                         # Agent data
                         agent_data = {
                             "agent_id": "agent-123",
@@ -627,16 +1052,16 @@ def test_remediate_agent_proceeds_with_expired_exception():
                             "environment_name": "Test Environment",
                             "sharing_principals_json": '[{"type":"user","id":"user-1"}]',
                         }
-                        
+
                         # Import function
                         from remediate_agent_sharing import remediate_agent
-                        
+
                         # Call remediate_agent
                         result = remediate_agent(agent_data, mock_bap_client, mock_dataverse_client, args)
-                        
+
                         # Verify agent was NOT skipped (expired exception ignored)
                         assert result.get("skipped") is not True
-                        
+
                         # Verify PATCH was attempted
                         mock_bap_client.modify_agent_permissions.assert_called_once()
 
@@ -661,33 +1086,34 @@ def test_remediate_agent_proceeds_with_no_exception():
     # Mock classify_environment_zone
     with mock.patch("remediate_agent_sharing.classify_environment_zone") as mock_classify:
         mock_classify.return_value = 2  # Zone 2
-        
-        # Mock parse_sharing_principals
-        with mock.patch("remediate_agent_sharing.parse_sharing_principals") as mock_parse:
-            mock_parse.return_value = {"principals": [{"type": "user", "id": "user-1"}]}
-            
+
+        # Exercise the real raw flat-payload parser contract.
+        with mock.patch(
+            "remediate_agent_sharing.parse_remediation_principals",
+            wraps=parse_remediation_principals,
+        ):
             # Mock get_zone_remediation_principals
             with mock.patch("remediate_agent_sharing.get_zone_remediation_principals") as mock_remediate:
                 mock_remediate.return_value = [{"properties": {"roleName": "CanView"}}]
-                
+
                 # Mock BAP client modify_agent_permissions (success)
                 mock_bap_client.modify_agent_permissions.return_value = True
-                
+
                 # Mock validate_remediation
                 with mock.patch("remediate_agent_sharing.validate_remediation") as mock_validate:
                     mock_validate.return_value = {"compliant": True, "attempts": 1}
-                    
+
                     # Mock update_compliance_record
                     with mock.patch("remediate_agent_sharing.update_compliance_record") as mock_update:
                         mock_update.return_value = True
-                        
+
                         # Mock argparse.Namespace
                         args = argparse.Namespace(
                             whatif=False,
                             verbose=False,
                             zone_override=None,
                         )
-                        
+
                         # Agent data
                         agent_data = {
                             "agent_id": "agent-123",
@@ -696,16 +1122,332 @@ def test_remediate_agent_proceeds_with_no_exception():
                             "environment_name": "Test Environment",
                             "sharing_principals_json": '[{"type":"user","id":"user-1"}]',
                         }
-                        
+
                         # Import function
                         from remediate_agent_sharing import remediate_agent
-                        
+
                         # Call remediate_agent
                         result = remediate_agent(agent_data, mock_bap_client, mock_dataverse_client, args)
-                        
+
                         # Verify agent was NOT skipped
                         assert result.get("skipped") is not True
-                        
+
                         # Verify PATCH was attempted
                         mock_bap_client.modify_agent_permissions.assert_called_once()
 
+
+# =========================================================================
+# WhatIf accounting regression tests
+# =========================================================================
+
+
+def test_summarize_result_bucket_never_reports_failure_as_simulated():
+    """Test a failed result is bucketed as failed even when WhatIf was set."""
+    assert (
+        summarize_result_bucket({"success": False, "whatif": True, "error": "boom"})
+        == "failed"
+    )
+    assert (
+        summarize_result_bucket({"success": False, "whatif": False, "error": "boom"})
+        == "failed"
+    )
+    assert (
+        summarize_result_bucket({"success": True, "whatif": True, "error": None})
+        == "whatif"
+    )
+    assert (
+        summarize_result_bucket({"success": True, "whatif": False, "error": None})
+        == "succeeded"
+    )
+    assert (
+        summarize_result_bucket(
+            {"success": True, "whatif": False, "error": None, "skipped": True}
+        )
+        == "skipped"
+    )
+
+
+def test_remediate_agent_zone_zero_guard_is_a_failure_under_whatif():
+    """Test the Zone 0 refusal counts as a failure, not a simulated run."""
+    environment_id = "11111111-2222-3333-4444-555555555555"
+    mock_bap_client = mock.MagicMock()
+    mock_dataverse_client = _make_dataverse_client()
+    args = argparse.Namespace(whatif=True, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "agent-123",
+        "environment_id": environment_id,
+        "environment_name": environment_id,
+        "sharing_principals_json": "[]",
+    }
+
+    with mock.patch("remediate_agent_sharing.update_compliance_record") as mock_update:
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    assert result["success"] is False
+    assert result["whatif"] is False
+    assert summarize_result_bucket(result) == "failed"
+    mock_bap_client.modify_agent_permissions.assert_not_called()
+    mock_update.assert_not_called()
+
+
+# =========================================================================
+# Validation zone-contract regression tests
+# =========================================================================
+
+
+@pytest.mark.parametrize("zone", [0, None, 4, "1"])
+def test_validate_remediation_refuses_unenforceable_zone(
+    mock_bap_client, mock_dataverse_client, zone
+):
+    """Test validation never runs without an enforceable Zone 1/2/3."""
+    with mock.patch("remediate_agent_sharing.check_agent_compliance") as mock_check:
+        result = validate_remediation(
+            agent_id="agent-1",
+            environment_id="env-1",
+            environment_name="MyCustomEnv",
+            bap_client=mock_bap_client,
+            dataverse_client=mock_dataverse_client,
+            zone=zone,
+            max_retries=3,
+        )
+
+    assert result["validated"] is False
+    assert result["compliant"] is False
+    assert result["attempts"] == 0
+    assert "not enforceable" in result["error"]
+    mock_check.assert_not_called()
+    mock_bap_client.get_agent_permissions.assert_not_called()
+
+
+@pytest.mark.parametrize("zone", [1, 2, 3])
+def test_validate_remediation_evaluates_the_resolved_zone(
+    mock_bap_client, mock_dataverse_client, zone
+):
+    """Test the resolved remediation zone is what validation evaluates."""
+    mock_bap_client.get_agent_permissions.return_value = [
+        {"type": "group", "id": "group-1", "displayName": "Finance Team"}
+    ]
+
+    with (
+        mock.patch("remediate_agent_sharing.time.sleep"),
+        mock.patch("remediate_agent_sharing.check_agent_compliance") as mock_check,
+    ):
+        mock_check.return_value = {"compliant": True, "zone": zone}
+
+        result = validate_remediation(
+            agent_id="agent-1",
+            environment_id="env-1",
+            environment_name="MyCustomEnv",
+            bap_client=mock_bap_client,
+            dataverse_client=mock_dataverse_client,
+            zone=zone,
+            max_retries=3,
+        )
+
+    assert result["compliant"] is True
+    assert mock_check.call_args.kwargs["zone"] == zone
+
+
+def test_validate_remediation_fails_closed_when_evaluated_zone_disagrees(
+    mock_bap_client, mock_dataverse_client
+):
+    """Test a Zone 0 verdict can never validate a Zone 1 remediation."""
+    mock_bap_client.get_agent_permissions.return_value = [
+        {"type": "group", "id": "group-1", "displayName": "Finance Team"}
+    ]
+
+    with (
+        mock.patch("remediate_agent_sharing.time.sleep"),
+        mock.patch("remediate_agent_sharing.check_agent_compliance") as mock_check,
+    ):
+        mock_check.return_value = {"compliant": True, "zone": 0}
+
+        result = validate_remediation(
+            agent_id="agent-1",
+            environment_id="env-1",
+            environment_name="MyCustomEnv",
+            bap_client=mock_bap_client,
+            dataverse_client=mock_dataverse_client,
+            zone=1,
+            max_retries=3,
+        )
+
+    assert result["validated"] is False
+    assert result["compliant"] is False
+    assert result["attempts"] == 3
+    assert "Zone 1" in result["error"]
+    assert mock_check.call_count == 3
+
+
+def test_remediate_agent_override_zone_1_persisting_group_never_writes_compliant():
+    """Test --zone-override 1 with a surviving group fails closed end-to-end.
+
+    Without the resolved zone threaded into validation, the unclassifiable
+    environment re-classifies to Zone 0, whose permissive rules accept the
+    surviving group and write Compliant.
+    """
+    environment_id = "11111111-2222-3333-4444-555555555555"
+    surviving_group = {
+        "type": "group",
+        "id": "group-still-shared",
+        "displayName": "Finance Team",
+    }
+
+    mock_bap_client = mock.MagicMock()
+    mock_bap_client.modify_agent_permissions.return_value = True
+    mock_bap_client.get_agent_permissions.return_value = [surviving_group]
+    mock_dataverse_client = _make_dataverse_client()
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=1)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "agent-123",
+        "environment_id": environment_id,
+        "environment_name": environment_id,
+        "sharing_principals_json": json.dumps([surviving_group]),
+    }
+
+    with (
+        mock.patch("remediate_agent_sharing.time.sleep"),
+        mock.patch(
+            "remediate_agent_sharing.check_agent_compliance",
+            wraps=real_check_agent_compliance,
+        ) as spy_check,
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record", return_value=True
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    assert result["success"] is False
+    assert result["whatif"] is False
+    assert summarize_result_bucket(result) == "failed"
+
+    # The surviving group was judged by the Zone 1 rules the remediation applied
+    assert {call.kwargs["zone"] for call in spy_check.call_args_list} == {1}
+    assert "Zone 1" in result["error"]
+    assert "does not allow group sharing" in result["error"]
+
+    # Retried per existing convention before failing
+    assert mock_bap_client.get_agent_permissions.call_count == 3
+
+    # Wrote Error (3) and never Compliant (0)
+    statuses = [call.kwargs["status"] for call in mock_update.call_args_list]
+    assert statuses == [3]
+
+
+@pytest.mark.parametrize(
+    ("environment_name", "expected_zone"),
+    [("QA-Testing", 2), ("Production-Finance", 3)],
+)
+def test_remediate_agent_classified_zone_validation_matches_remediation_zone(
+    environment_name, expected_zone
+):
+    """Test classified Zone 2/3 remediations are validated under the same zone."""
+    surviving_everyone = {"type": "Everyone", "id": "all", "displayName": "Everyone"}
+
+    mock_bap_client = mock.MagicMock()
+    mock_bap_client.modify_agent_permissions.return_value = True
+    mock_bap_client.get_agent_permissions.return_value = [surviving_everyone]
+    mock_dataverse_client = _make_dataverse_client(approved_group_ids=["approved-1"])
+    args = argparse.Namespace(whatif=False, verbose=False, zone_override=None)
+    agent_data = {
+        "agent_id": "agent-123",
+        "agent_name": "Test Agent",
+        "environment_id": "env-456",
+        "environment_name": environment_name,
+        "sharing_principals_json": json.dumps([surviving_everyone]),
+    }
+
+    with (
+        mock.patch("remediate_agent_sharing.time.sleep"),
+        mock.patch(
+            "remediate_agent_sharing.check_agent_compliance",
+            wraps=real_check_agent_compliance,
+        ) as spy_check,
+        mock.patch(
+            "remediate_agent_sharing.update_compliance_record", return_value=True
+        ) as mock_update,
+    ):
+        result = remediate_agent(
+            agent_data, mock_bap_client, mock_dataverse_client, args
+        )
+
+    assert spy_check.call_count == 3
+    assert {call.kwargs["zone"] for call in spy_check.call_args_list} == {expected_zone}
+    assert result["success"] is False
+    assert result["whatif"] is False
+    assert f"Zone {expected_zone}" in result["error"]
+
+    statuses = [call.kwargs["status"] for call in mock_update.call_args_list]
+    assert statuses == [3]
+
+
+# =========================================================================
+# CLI exit-code regression tests
+# =========================================================================
+
+
+@pytest.mark.parametrize(
+    ("cli_args", "remediation_result", "expected_exit"),
+    [
+        (
+            [],
+            {"success": False, "whatif": False, "error": "mutation refused"},
+            1,
+        ),
+        (
+            [],
+            {"success": True, "whatif": False, "error": None},
+            0,
+        ),
+        (
+            ["--whatif"],
+            {"success": True, "whatif": True, "error": None},
+            0,
+        ),
+    ],
+)
+def test_main_returns_failure_only_when_processing_has_failures(
+    cli_args, remediation_result, expected_exit
+):
+    """CLI exits nonzero for failed agents and zero for success/WhatIf-only."""
+    bap_client = mock.MagicMock()
+    bap_client.test_connection.return_value = True
+    dataverse_client = mock.MagicMock()
+    agents = [
+        {
+            "agent_id": "agent-123",
+            "agent_name": "Test Agent",
+            "environment_id": "env-456",
+            "environment_name": "Test Environment",
+            "sharing_principals_json": "[]",
+        }
+    ]
+
+    with (
+        mock.patch.object(
+            sys, "argv", ["remediate_agent_sharing.py", *cli_args]
+        ),
+        mock.patch(
+            "remediate_agent_sharing.BAPAdminClient", return_value=bap_client
+        ),
+        mock.patch(
+            "remediate_agent_sharing.CAAClient", return_value=dataverse_client
+        ),
+        mock.patch(
+            "remediate_agent_sharing.load_agents_from_dataverse",
+            return_value=agents,
+        ),
+        mock.patch(
+            "remediate_agent_sharing.remediate_agent",
+            return_value=remediation_result,
+        ),
+    ):
+        exit_code = main()
+
+    assert exit_code == expected_exit
