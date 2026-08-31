@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:2e1788565cae8bd6913b3881cba4c9effacbd4d5ce908a78da31af9a5b469498",
+  "detected_at": "2026-08-31T14:33:17Z",
+  "ga_date": "May CY2026",
+  "id": 558448,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Agent 365"
+  ],
+  "raw_description": "Agent 365 is the control plane for AI agents. It empowers IT and security administrators to observe, govern, and secure agents across Microsoft 365 and connected platforms at scale.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=558448",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Agent 365: the control plane for agents"
+}

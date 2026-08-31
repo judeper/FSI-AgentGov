@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:28c708a9190ba3e6545208de3044b7f6ee116062cf9acddfd9d4e915837643af",
+  "detected_at": "2026-08-31T14:33:17Z",
+  "ga_date": "October CY2026",
+  "id": 536576,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2025",
+  "products": [
+    "Microsoft Purview"
+  ],
+  "raw_description": "This feature in Purview Compliance Manager shall enable customers to automatically access the compliance posture of Agents created in AI Foundry. Customers can map Agents being created in AI Foundry to compliance regulations and assessments in Purview Compliance Manager and get to know the compliance status and improvement actions to be innovative and compliant.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=536576",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Purview: Compliance Manager-Purview Compliance Manager integration with Microsoft Foundry for automated mapping of AI regulations and evaluation of Compliance controls for Foundry Agents "
+}

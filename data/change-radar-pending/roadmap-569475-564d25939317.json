@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:564d25939317f00e89dc21866929ff583633c99aa48850b614ddcd38c8e73bb3",
+  "detected_at": "2026-08-31T14:33:17Z",
+  "ga_date": "October CY2026",
+  "id": 569475,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "Enables sharing of agents with other makers in the new GHCP harness. Makers can grant other makers Agent Viewer (view analytics/evaluations only) or Editor (view, edit, configure, share, publish) access to an agent, with auto-assigned security roles.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569475",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:publish"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Agent Sharing amongst makers"
+}
