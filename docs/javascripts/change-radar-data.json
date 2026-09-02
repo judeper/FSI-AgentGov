@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-18T10:17:24Z",
-  "count": 28,
+  "generatedAt": "2026-09-02T00:06:26Z",
+  "count": 31,
   "items": [
     {
       "id": 500376,
@@ -946,14 +946,14 @@
       "products": [
         "Microsoft Teams"
       ],
-      "status": "In development",
+      "status": "Rolling out",
       "timing": "GA Aug 2026",
       "gaDate": "2026-08",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567883",
       "lifecycle": "active",
       "whatToReview": "Reconcile existing installation policies and verify the unified setting produces the intended inventory and access state.",
       "addedOn": "2026-08-12",
-      "lastReviewed": "2026-08-12",
+      "lastReviewed": "2026-09-01",
       "controls": [
         {
           "id": "1.2",
@@ -1287,6 +1287,135 @@
         "GLBA",
         "OCC-2026-13",
         "Reg-S-P"
+      ]
+    },
+    {
+      "id": 550514,
+      "title": "Declarative agents can ground on scanned PDFs",
+      "summary": "Newly created declarative agents can ground answers in scanned and image-based PDF documents referenced from SharePoint.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Launched",
+      "timing": "GA Feb 2026",
+      "gaDate": "2026-02",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=550514",
+      "lifecycle": "active",
+      "whatToReview": "Re-check SharePoint access governance, restricted content discovery, and monitoring coverage for scanned and image-based documents used by agents.",
+      "addedOn": "2026-09-01",
+      "lastReviewed": "2026-09-01",
+      "controls": [
+        {
+          "id": "4.1",
+          "title": "SharePoint Information Access Governance (IAG) / Restricted Content Discovery",
+          "url": "/controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
+          "pillar": "SharePoint",
+          "rationale": "Image-based SharePoint content becomes available for agent grounding, so site access governance and restricted-content controls must cover it."
+        },
+        {
+          "id": "4.5",
+          "title": "SharePoint Security and Compliance Monitoring",
+          "url": "/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/",
+          "pillar": "SharePoint",
+          "rationale": "Security and compliance monitoring should include scanned documents that agents can now retrieve from SharePoint."
+        }
+      ],
+      "pillars": [
+        "SharePoint"
+      ],
+      "regulations": [
+        "FINRA-24-09",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 569930,
+      "title": "Conversational connector configuration in Copilot Studio",
+      "summary": "Makers can add and authenticate connectors for an agent through an in-chat flow instead of using the full settings experience.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569930",
+      "lifecycle": "active",
+      "whatToReview": "Verify connector policy, data loss prevention, authentication, and consent scope remain enforced when connectors are configured through the conversational flow.",
+      "addedOn": "2026-09-01",
+      "lastReviewed": "2026-09-01",
+      "controls": [
+        {
+          "id": "1.4",
+          "title": "Advanced Connector Policies (ACP)",
+          "url": "/controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
+          "pillar": "Security",
+          "rationale": "The lower-friction connector setup path must remain governed by Advanced Connector Policies and data loss prevention controls."
+        }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-24-09",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 569475,
+      "title": "Maker-to-maker agent sharing",
+      "summary": "Makers can grant other makers Viewer or Editor access to an agent, with the corresponding security roles assigned automatically.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "Preview Sep 2026, GA Oct 2026",
+      "gaDate": "2026-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569475",
+      "lifecycle": "active",
+      "whatToReview": "Review who may grant Viewer or Editor access, validate automatic role assignment against least privilege, and confirm publishing restrictions still apply to shared agents.",
+      "addedOn": "2026-09-01",
+      "lastReviewed": "2026-09-01",
+      "controls": [
+        {
+          "id": "1.1",
+          "title": "Restrict Agent Publishing by Authorization",
+          "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
+          "rationale": "Maker sharing can grant edit and publish capabilities, so authorization must restrict who may assign those privileges."
+        },
+        {
+          "id": "1.28",
+          "title": "Policy-Based Agent Publishing Restrictions",
+          "url": "/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
+          "pillar": "Security",
+          "rationale": "Policy-based publishing restrictions should continue to constrain agents shared with makers who receive Editor access."
+        }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-24-09",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     }
   ]
