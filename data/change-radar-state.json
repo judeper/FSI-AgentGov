@@ -2,8 +2,26 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-08-24T07:49:10Z",
+      "last_run": "2026-08-31T14:33:17Z",
       "items": {
+        "569608": {
+          "hash": "sha256:95fcffc4514bb2e1958392b3a26cdf73e6bc2ce312456da4052c887581abd9ae",
+          "status": "In development",
+          "title": "Microsoft Teams: Enable agents for existing applications in your organization",
+          "detected_at": "2026-08-31T14:33:17Z"
+        },
+        "569475": {
+          "hash": "sha256:564d25939317f00e89dc21866929ff583633c99aa48850b614ddcd38c8e73bb3",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Agent Sharing amongst makers",
+          "detected_at": "2026-08-31T14:33:17Z"
+        },
+        "569930": {
+          "hash": "sha256:10ba186c7214dfe64b7977139f5447c0156457a4d79af660a74e7266af9ecf9c",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Conversational configuration of connectors in Copilot Studio",
+          "detected_at": "2026-08-31T14:33:17Z"
+        },
         "569607": {
           "hash": "sha256:d1003e7e235788df359b58543dadd31a0726f0257d51efa695b38c01cfaa2aa1",
           "status": "In development",
@@ -53,8 +71,8 @@
           "detected_at": "2026-08-10T08:20:17Z"
         },
         "567883": {
-          "hash": "sha256:a26e3211e16edbe367073e4b09c3522206b81759287b79175c11a082a212df5a",
-          "status": "In development",
+          "hash": "sha256:878e2a3e1710d6313d108f49120bac80a1fce06c2ae9e40124841952dfb75874",
+          "status": "Rolling out",
           "title": "Microsoft Teams: Unified Agent and App Installation Management Across Microsoft 365 and Teams Admin Center",
           "detected_at": "2026-08-10T08:20:17Z"
         },
@@ -287,8 +305,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "558448": {
-          "hash": "sha256:798ae40abba4e6ddc65bbd75a15ce6e57938fc84ce889804d9c0f1d4082b8279",
-          "status": "In development",
+          "hash": "sha256:2e1788565cae8bd6913b3881cba4c9effacbd4d5ce908a78da31af9a5b469498",
+          "status": "Launched",
           "title": "Microsoft Agent 365: the control plane for agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -497,8 +515,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "550514": {
-          "hash": "sha256:40d1ea4fefb69573af943fa73bb8df1b7f5cb0711ae7b5afa2b7d9d7d132ac6a",
-          "status": "In development",
+          "hash": "sha256:4ca7d831564b15c6acecb025365c3e2548c36d5dddc1946104354f5e99546898",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Newly created Declarative Agents now understand referenced scanned PDFs",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -587,7 +605,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "536576": {
-          "hash": "sha256:f807fe4fc0fca7627dae6e06da1988ae05188d9dd7c8e58ad177304286ff6046",
+          "hash": "sha256:28c708a9190ba3e6545208de3044b7f6ee116062cf9acddfd9d4e915837643af",
           "status": "In development",
           "title": "Microsoft Purview: Compliance Manager-Purview Compliance Manager integration with Microsoft Foundry for automated mapping of AI regulations and evaluation of Compliance controls for Foundry Agents ",
           "detected_at": "2026-07-09T15:16:01Z"

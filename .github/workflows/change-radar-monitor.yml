@@ -78,7 +78,6 @@ jobs:
           # is hand-authored and must never be auto-committed here.
           add-paths: |
             data/change-radar-state.json
-            data/change-radar-state.json.backup
             data/change-radar-pending/*.json
             reports/monitoring/change-radar-*.md
           commit-message: |

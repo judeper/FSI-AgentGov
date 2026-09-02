@@ -535,7 +535,7 @@
       "products": [
         "Microsoft Teams"
       ],
-      "status": "In development",
+      "status": "Rolling out",
       "timing": "GA Aug 2026",
       "gaDate": "2026-08",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567883",
@@ -548,7 +548,7 @@
       ],
       "whatToReview": "Reconcile existing installation policies and verify the unified setting produces the intended inventory and access state.",
       "addedOn": "2026-08-12",
-      "lastReviewed": "2026-08-12"
+      "lastReviewed": "2026-09-01"
     },
     {
       "id": 567893,
@@ -728,6 +728,80 @@
       "whatToReview": "Limit which Dataverse tables and records ground the agent, and validate source quality and permissions before relying on grounded answers.",
       "addedOn": "2026-08-18",
       "lastReviewed": "2026-08-18"
+    },
+    {
+      "id": 550514,
+      "title": "Declarative agents can ground on scanned PDFs",
+      "summary": "Newly created declarative agents can ground answers in scanned and image-based PDF documents referenced from SharePoint.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Launched",
+      "timing": "GA Feb 2026",
+      "gaDate": "2026-02",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=550514",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "4.1",
+          "rationale": "Image-based SharePoint content becomes available for agent grounding, so site access governance and restricted-content controls must cover it."
+        },
+        {
+          "id": "4.5",
+          "rationale": "Security and compliance monitoring should include scanned documents that agents can now retrieve from SharePoint."
+        }
+      ],
+      "whatToReview": "Re-check SharePoint access governance, restricted content discovery, and monitoring coverage for scanned and image-based documents used by agents.",
+      "addedOn": "2026-09-01",
+      "lastReviewed": "2026-09-01"
+    },
+    {
+      "id": 569930,
+      "title": "Conversational connector configuration in Copilot Studio",
+      "summary": "Makers can add and authenticate connectors for an agent through an in-chat flow instead of using the full settings experience.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569930",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.4",
+          "rationale": "The lower-friction connector setup path must remain governed by Advanced Connector Policies and data loss prevention controls."
+        }
+      ],
+      "whatToReview": "Verify connector policy, data loss prevention, authentication, and consent scope remain enforced when connectors are configured through the conversational flow.",
+      "addedOn": "2026-09-01",
+      "lastReviewed": "2026-09-01"
+    },
+    {
+      "id": 569475,
+      "title": "Maker-to-maker agent sharing",
+      "summary": "Makers can grant other makers Viewer or Editor access to an agent, with the corresponding security roles assigned automatically.",
+      "products": [
+        "Microsoft Copilot Studio"
+      ],
+      "status": "In development",
+      "timing": "Preview Sep 2026, GA Oct 2026",
+      "gaDate": "2026-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569475",
+      "lifecycle": "active",
+      "controls": [
+        {
+          "id": "1.1",
+          "rationale": "Maker sharing can grant edit and publish capabilities, so authorization must restrict who may assign those privileges."
+        },
+        {
+          "id": "1.28",
+          "rationale": "Policy-based publishing restrictions should continue to constrain agents shared with makers who receive Editor access."
+        }
+      ],
+      "whatToReview": "Review who may grant Viewer or Editor access, validate automatic role assignment against least privilege, and confirm publishing restrictions still apply to shared agents.",
+      "addedOn": "2026-09-01",
+      "lastReviewed": "2026-09-01"
     }
   ]
 }
