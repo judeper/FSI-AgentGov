@@ -39,3 +39,17 @@
 /scripts/autodoc_*.py               @judeper
 /.github/workflows/                 @judeper
 /.github/CODEOWNERS                 @judeper
+
+# --- Trusted dependency-artifact gate (base-controlled; highest trust) ---
+# These paths are the authoritative supply-chain policy. They are read only from
+# the protected default branch, and the gate fails closed when a pull request
+# changes any of them alongside a guarded dependency path. Changing an expected
+# pin, an allowlist, or the gate itself is a deliberate, separately reviewed act.
+# See .github/TRUSTED-DEPENDENCY-GATE.md.
+/.github/trusted-policy/            @judeper
+/.github/branch-protection.json     @judeper
+/scripts/trusted/                   @judeper
+
+# Reviewed dependency artifacts and the verifiers that bind them.
+/scripts/verify-*.mjs               @judeper
+/vendor/                            @judeper

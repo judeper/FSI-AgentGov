@@ -33,7 +33,60 @@ import { dirname, join, relative } from "node:path";
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..");
 export const PROTECTION_FILE = join(repoRoot, ".github", "branch-protection.json");
+export const PROTECTION_META_FILE = join(
+  repoRoot,
+  ".github",
+  "branch-protection.meta.json",
+);
 export const WORKFLOWS_DIR = join(repoRoot, ".github", "workflows");
+
+/*
+ * Some required contexts are not workflow job display names. A
+ * `pull_request_target` gate's automatic check run attaches to the default
+ * branch commit rather than the pull request head, so it can never satisfy a
+ * required status check; those gates publish a check run against the head SHA
+ * through the Checks API instead.
+ *
+ * Such a context is only accepted when .github/branch-protection.meta.json
+ * declares it AND the declared workflow, publisher, and policy all exist AND the
+ * policy's own check-name field still equals the required context. That turns
+ * a rename or a deleted gate into a loud failure instead of a silently
+ * unenforced rule.
+ */
+export function resolveApiPublishedContexts({
+  metaFile = PROTECTION_META_FILE,
+  root = repoRoot,
+} = {}) {
+  const resolved = new Map();
+  const problems = [];
+  if (!existsSync(metaFile)) return { resolved, problems };
+
+  const meta = JSON.parse(readFileSync(metaFile, "utf8"));
+  for (const [context, declaration] of Object.entries(
+    meta.api_published_contexts ?? {},
+  )) {
+    const missing = ["workflow", "publisher", "policy"].filter(key => {
+      const value = declaration?.[key];
+      return typeof value !== "string" || !existsSync(join(root, value));
+    });
+    if (missing.length > 0) {
+      problems.push(`${context} — declared ${missing.join(", ")} not found on disk`);
+      continue;
+    }
+    const policy = JSON.parse(
+      readFileSync(join(root, declaration.policy), "utf8"),
+    );
+    const policyKey = declaration.policy_key ?? "checkName";
+    if (policy[policyKey] !== context) {
+      problems.push(
+        `${context} — ${declaration.policy}.${policyKey} is "${policy[policyKey]}"`,
+      );
+      continue;
+    }
+    resolved.set(context, `${declaration.workflow} -> ${declaration.publisher}`);
+  }
+  return { resolved, problems };
+}
 
 function normalizeLine(rawLine) {
   return rawLine.replace(/\t/g, "  ");
@@ -300,7 +353,9 @@ export function listWorkflowFiles(workflowsDir = WORKFLOWS_DIR) {
 
 export function verifyRequiredChecks({
   protectionFile = PROTECTION_FILE,
+  metaFile = PROTECTION_META_FILE,
   workflowsDir = WORKFLOWS_DIR,
+  root = repoRoot,
   log = console.log,
   error = console.error,
 } = {}) {
@@ -339,6 +394,15 @@ export function verifyRequiredChecks({
   }
 
   let failed = 0;
+  const { resolved: apiPublished, problems } = resolveApiPublishedContexts({
+    metaFile,
+    root,
+  });
+  for (const problem of problems) {
+    failed += 1;
+    error(`FAIL  ${problem}`);
+  }
+
   for (const context of required) {
     if (allJobNames.has(context)) {
       const where = allJobNames
@@ -346,9 +410,13 @@ export function verifyRequiredChecks({
         .map(file => relative(repoRoot, file).replace(/\\/g, "/"))
         .join(", ");
       log(`OK    ${context}  (${where})`);
+    } else if (apiPublished.has(context)) {
+      log(`OK    ${context}  (check-run API: ${apiPublished.get(context)})`);
     } else {
       failed += 1;
-      error(`FAIL  ${context}  — no workflow job has this display name`);
+      error(
+        `FAIL  ${context}  — no workflow job has this display name and no api_published_contexts declaration covers it`,
+      );
     }
   }
 

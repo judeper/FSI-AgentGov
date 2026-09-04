@@ -1,0 +1,206 @@
+{
+  "_readme": [
+    "Authoritative, base-controlled policy for the trusted-dependency-artifact gate.",
+    "This file is only ever read from the protected default branch. A pull request that",
+    "edits this file may not also change any guarded dependency path in the same pull",
+    "request; the gate fails closed on that combination. Changing these values requires a",
+    "separate CODEOWNERS-reviewed infrastructure pull request.",
+    "Digests are raw-byte SHA-256 of the Git blob content, not of a normalized rendering."
+  ],
+  "policyVersion": 1,
+  "checkName": "trusted-dependency-artifact",
+  "defaultBranch": "main",
+
+  "limits": {
+    "maxChangedFiles": 750,
+    "maxBlobBytes": 8388608,
+    "maxTotalBlobBytes": 33554432,
+    "maxTreeEntries": 20000,
+    "maxTarEntries": 512,
+    "maxTarEntryBytes": 4194304,
+    "maxUnpackedBytes": 8388608,
+    "maxDocumentBytes": 262144,
+    "maxJsonBytes": 4194304,
+    "maxMessages": 40,
+    "maxMessageLength": 200
+  },
+
+  "trustedPaths": [
+    ".github/trusted-policy/dependency-artifact-policy.json",
+    ".github/workflows/trusted-dependency-artifact.yml",
+    ".github/branch-protection.json",
+    ".github/branch-protection.meta.json",
+    ".github/CODEOWNERS",
+    "scripts/trusted/verify-dependency-artifact-gate.mjs",
+    "scripts/trusted/publish-gate-check.mjs"
+  ],
+
+  "guardedPaths": {
+    "exact": [
+      "package.json",
+      "package-lock.json",
+      "npm-shrinkwrap.json",
+      ".npmrc",
+      ".gitattributes",
+      "scripts/verify-fast-uri-artifact.mjs",
+      "scripts/verify-fast-uri-bootstrap.mjs"
+    ],
+    "prefixes": [
+      "vendor/"
+    ],
+    "suffixes": [
+      "/.npmrc"
+    ]
+  },
+
+  "digestPins": {
+    "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
+      "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+      "size": 43760
+    },
+    "vendor/npm/fast-uri/3.1.7/provenance.json": {
+      "sha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8",
+      "size": 12728
+    },
+    "scripts/verify-fast-uri-artifact.mjs": {
+      "sha256": "982e43bcab47210b1bbc279ebdf9bc1ddb7b0eb4d530f1ae0c7e968bab6cf123",
+      "size": 69126
+    },
+    "scripts/verify-fast-uri-bootstrap.mjs": {
+      "sha256": "ba5c8dcfcd364ff1f43b2c8e0ba964fbd1ea81182b5cbee4d3059882ca5b54ea",
+      "size": 14824
+    }
+  },
+
+  "vendor": {
+    "root": "vendor/npm/fast-uri/3.1.7/",
+    "allowedFiles": [
+      "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "vendor/npm/fast-uri/3.1.7/provenance.json",
+      "vendor/npm/fast-uri/3.1.7/README.md"
+    ]
+  },
+
+  "package": {
+    "name": "fast-uri",
+    "version": "3.1.7",
+    "license": "BSD-3-Clause",
+    "artifactPath": "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+    "provenancePath": "vendor/npm/fast-uri/3.1.7/provenance.json",
+    "spec": "file:vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+    "lockPath": "node_modules/fast-uri",
+    "overrideParent": "ajv",
+    "overrideSpec": "$fast-uri",
+    "dependentRange": "^3.0.1",
+    "integrity": "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
+    "tar": {
+      "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+      "sha512": "74ebd95738dd65dcfba6177dbfa8c26f0c6b056ddf2ba9fc45cd02b5d98ce1bba6ccc9f1cb005886ea61e89f35f51470fe4bbeacb6de9707ccba792dbb35551e",
+      "size": 43760,
+      "fileCount": 44,
+      "unpackedSize": 218619,
+      "mtime": 499162500,
+      "prefix": "package/"
+    }
+  },
+
+  "verifierPolicyLiterals": {
+    "path": "scripts/verify-fast-uri-artifact.mjs",
+    "objectName": "FAST_URI_POLICY",
+    "required": {
+      "packageName": "fast-uri",
+      "version": "3.1.7",
+      "license": "BSD-3-Clause",
+      "upstreamCommit": "412e40abd4eb8beabfb952d80abf949a2baf27a3",
+      "upstreamTree": "a1ec2b29b5d2493a9ba4d2de480a062b08f72558",
+      "artifactRelativePath": "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "provenanceRelativePath": "vendor/npm/fast-uri/3.1.7/provenance.json",
+      "packageSpec": "file:vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "overrideSpec": "$fast-uri",
+      "lockPackagePath": "node_modules/fast-uri",
+      "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+      "sha512": "74ebd95738dd65dcfba6177dbfa8c26f0c6b056ddf2ba9fc45cd02b5d98ce1bba6ccc9f1cb005886ea61e89f35f51470fe4bbeacb6de9707ccba792dbb35551e",
+      "integrity": "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
+      "provenanceSha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8"
+    },
+    "requiredNumbers": {
+      "upstreamTrackedFileCount": 46,
+      "artifactFileCount": 44,
+      "canonicalTarMtime": 499162500,
+      "artifactSize": 43760,
+      "artifactUnpackedSize": 218619
+    },
+    "requiredAdvisories": [
+      "GHSA-jqff-g426-hqxp",
+      "GHSA-fph4-wmhf-6fwf",
+      "GHSA-f65p-4m7j-42xc",
+      "GHSA-5jgf-p345-68v8",
+      "GHSA-qw65-cvwx-89v3",
+      "GHSA-58mr-gqgx-xq4g"
+    ]
+  },
+
+  "forbiddenTree": {
+    "basenames": [".npmrc"],
+    "exact": ["npm-shrinkwrap.json"],
+    "shadowableBins": ["node", "npm", "npx"]
+  },
+
+  "gitattributes": {
+    "requiredLines": [
+      "vendor/npm/**/*.tgz binary"
+    ],
+    "forbiddenAttributePrefixes": ["filter=", "merge=", "diff="],
+    "attributeGuardedPathPrefixes": ["vendor/"]
+  },
+
+  "documentScan": {
+    "paths": [
+      "vendor/npm/fast-uri/3.1.7/README.md",
+      "SECURITY.md"
+    ],
+    "forbiddenPrograms": ["npm", "npx", "yarn", "pnpm", "bun"],
+    "forbiddenFragments": ["node_modules/.bin/"],
+    "negationMarkers": [
+      "do not",
+      "does not",
+      "never",
+      "forbidden",
+      "must not",
+      "cannot",
+      "instead of",
+      "rejected",
+      "unsafe"
+    ]
+  },
+
+  "rootScripts": {
+    "forbiddenNames": [
+      "install",
+      "uninstall",
+      "preinstall",
+      "postinstall",
+      "prepare",
+      "prepublish",
+      "prepublishOnly",
+      "postpublish",
+      "publish",
+      "prepack",
+      "postpack",
+      "pack",
+      "preshrinkwrap",
+      "shrinkwrap",
+      "postshrinkwrap",
+      "dependencies",
+      "version",
+      "preversion",
+      "postversion",
+      "start",
+      "prestart",
+      "poststart",
+      "stop",
+      "restart"
+    ],
+    "forbiddenPrefixes": ["pre", "post"]
+  }
+}

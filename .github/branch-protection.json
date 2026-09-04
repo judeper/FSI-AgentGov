@@ -14,7 +14,8 @@
       "manifest / index / nav drift",
       "FSI language rules",
       "autodoc-redirect-verify",
-      "autodoc-verify"
+      "autodoc-verify",
+      "trusted-dependency-artifact"
     ]
   },
   "enforce_admins": true,
