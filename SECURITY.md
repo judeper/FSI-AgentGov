@@ -101,16 +101,33 @@ The framework is **not** designed to defend against:
 | SBOMs + signed release artifacts | `release-artifacts.yml` (CycloneDX + Sigstore) |
 | Link health on docs | `link-check.yml` |
 
-### Temporary fast-uri source pin
+### Exceptional fast-uri dependency artifact
 
-Ajv 8.20.0 depends on `fast-uri` `^3.0.1`. The npm registry did not publish
-the patched 3.x release, 3.1.7, as of September 4, 2026, while the available
-4.0.0 release remains affected by GHSA-qw65-cvwx-89v3. `package.json`
-therefore overrides only Ajv's `fast-uri` dependency to upstream's verified
-3.1.7 commit, `412e40abd4eb8beabfb952d80abf949a2baf27a3`. The lockfile records
-the immutable tarball URL and its SHA-512 integrity. Replace this exception
-with a registry release only after a patched version compatible with Ajv is
-published and validated.
+Ajv 8.20.0 depends on `fast-uri` `^3.0.1`. The npm registry did not contain the
+patched compatible release, 3.1.7, as of September 4, 2026. The published 4.0.0
+package is not a safe substitute: it is outside Ajv's declared major-version
+range and remains in multiple HIGH advisory ranges. The required 3.1.7 fixes
+cover GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf, GHSA-f65p-4m7j-42xc,
+GHSA-5jgf-p345-68v8, GHSA-qw65-cvwx-89v3, and GHSA-58mr-gqgx-xq4g.
+
+GitHub-generated source archives are not treated as immutable package
+artifacts because their compression bytes can be regenerated. As a narrow
+supply-chain exception, `package.json` declares the reviewed repo-relative
+tarball under `vendor/npm/fast-uri/3.1.7/` as a development-dependency anchor
+and binds only Ajv's transitive edge to that exact spec with npm's `$fast-uri`
+override reference. The lock and verification gate retain Ajv's declared
+dependency edge and reject any production dependency or duplicate package
+copy. The tarball was deterministically reconstructed from verified upstream
+commit `412e40abd4eb8beabfb952d80abf949a2baf27a3` (tree
+`a1ec2b29b5d2493a9ba4d2de480a062b08f72558`); its exact packlist, license,
+SHA-256, SHA-512, and regeneration procedure are committed beside it.
+`package-lock.json` retains the package identity `fast-uri@3.1.7`, a local
+`file:` source, and SHA-512 integrity.
+
+This does not establish a general vendoring channel. Remove the exception once
+an official byte-stable npm registry artifact supplies a patched version
+compatible with Ajv, after verifying registry integrity/provenance, Ajv
+compatibility, all six exploit regressions, and the full repository suite.
 
 ## Evidence and Data Handling
 

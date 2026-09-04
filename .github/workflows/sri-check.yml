@@ -9,7 +9,9 @@ on:
       - docs/javascripts/assessment-loader.js
       - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
+      - scripts/verify-fast-uri-artifact.mjs
       - scripts/verify-vendored-runtime.mjs
+      - vendor/npm/fast-uri/**
       - package.json
       - package-lock.json
       - .github/workflows/sri-check.yml
@@ -23,7 +25,9 @@ on:
       - docs/javascripts/assessment-loader.js
       - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
+      - scripts/verify-fast-uri-artifact.mjs
       - scripts/verify-vendored-runtime.mjs
+      - vendor/npm/fast-uri/**
       - package.json
       - package-lock.json
       - .github/workflows/sri-check.yml
@@ -41,8 +45,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+
       - name: Verify all vendored library SRI literals match on-disk files
         run: node scripts/verify-sheetjs-sri.mjs
 
-      - name: Verify shipped SheetJS runtime policy
+      - name: Verify reviewed vendored dependency policies
         run: node scripts/verify-vendored-runtime.mjs
