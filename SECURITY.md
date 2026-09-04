@@ -101,6 +101,17 @@ The framework is **not** designed to defend against:
 | SBOMs + signed release artifacts | `release-artifacts.yml` (CycloneDX + Sigstore) |
 | Link health on docs | `link-check.yml` |
 
+### Temporary fast-uri source pin
+
+Ajv 8.20.0 depends on `fast-uri` `^3.0.1`. The npm registry did not publish
+the patched 3.x release, 3.1.7, as of September 4, 2026, while the available
+4.0.0 release remains affected by GHSA-qw65-cvwx-89v3. `package.json`
+therefore overrides only Ajv's `fast-uri` dependency to upstream's verified
+3.1.7 commit, `412e40abd4eb8beabfb952d80abf949a2baf27a3`. The lockfile records
+the immutable tarball URL and its SHA-512 integrity. Replace this exception
+with a registry release only after a patched version compatible with Ajv is
+published and validated.
+
 ## Evidence and Data Handling
 
 The assessment engine writes outputs to `assessment/output/`, which is

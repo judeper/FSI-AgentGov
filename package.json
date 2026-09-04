@@ -13,6 +13,11 @@
     "verify:sri": "node scripts/verify-sheetjs-sri.mjs",
     "verify:vendor-runtime": "node scripts/verify-vendored-runtime.mjs"
   },
+  "overrides": {
+    "ajv": {
+      "fast-uri": "https://codeload.github.com/fastify/fast-uri/tar.gz/412e40abd4eb8beabfb952d80abf949a2baf27a3"
+    }
+  },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.62.1",
