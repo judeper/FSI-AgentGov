@@ -103,12 +103,20 @@ The framework is **not** designed to defend against:
 
 ### Exceptional fast-uri dependency artifact
 
-Ajv 8.20.0 depends on `fast-uri` `^3.0.1`. The npm registry did not contain the
-patched compatible release, 3.1.7, as of September 4, 2026. The published 4.0.0
-package is not a safe substitute: it is outside Ajv's declared major-version
-range and remains in multiple HIGH advisory ranges. The required 3.1.7 fixes
-cover GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf, GHSA-f65p-4m7j-42xc,
-GHSA-5jgf-p345-68v8, GHSA-qw65-cvwx-89v3, and GHSA-58mr-gqgx-xq4g.
+Ajv 8.20.0 depends on `fast-uri` `^3.0.1`. Four original advisories
+(GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf, GHSA-f65p-4m7j-42xc, and
+GHSA-5jgf-p345-68v8) are fixed in the npm-published 3.x release line by
+`fast-uri` 3.1.6. Only GHSA-qw65-cvwx-89v3 and GHSA-58mr-gqgx-xq4g require
+3.1.7 in the 3.x line.
+
+As of September 4, 2026, GHSA-qw65-cvwx-89v3 and GHSA-58mr-gqgx-xq4g are
+public repository-scoped upstream advisories but are not present in the GitHub
+global Advisory Database or OSV. `npm audit` and Dependabot may therefore
+falsely report vulnerable `fast-uri` 3.1.6 and the currently published
+`fast-uri` 4.1.3 as clean. The npm registry did not contain `fast-uri` 3.1.7
+or 4.1.4 on that date. There is no published safe 4.x release: npm `latest`
+was 4.1.3, which remains affected; upstream patched 4.1.4 was not published;
+and Ajv currently declares `fast-uri` `^3.0.1` anyway.
 
 GitHub-generated source archives are not treated as immutable package
 artifacts because their compression bytes can be regenerated. As a narrow
@@ -125,9 +133,13 @@ SHA-256, SHA-512, and regeneration procedure are committed beside it.
 `file:` source, and SHA-512 integrity.
 
 This does not establish a general vendoring channel. Remove the exception once
-an official byte-stable npm registry artifact supplies a patched version
-compatible with Ajv, after verifying registry integrity/provenance, Ajv
-compatibility, all six exploit regressions, and the full repository suite.
+one of these evidence-gated conditions is true: npm publishes `fast-uri`
+`>=3.1.7` within the compatible 3.x line, or Ajv supports 4.x and npm publishes
+`fast-uri` `>=4.1.4`. Before removal, verify artifact integrity/provenance,
+Ajv compatibility, all six behavioral regressions, advisory-source status, and
+the full repository suite. Do not rely solely on `npm audit` or Dependabot, do
+not manually dismiss the advisory, and do not claim alert closure from this
+exception.
 
 ## Evidence and Data Handling
 

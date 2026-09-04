@@ -37,5 +37,7 @@
 # The routing gate, canary, and (future) cross-vendor verifier ARE the controls
 # that decide what may be auto-handled, so changes to them are high-trust.
 /scripts/autodoc_*.py               @judeper
+/scripts/verify-*.mjs               @judeper
+/vendor/                            @judeper
 /.github/workflows/                 @judeper
 /.github/CODEOWNERS                 @judeper

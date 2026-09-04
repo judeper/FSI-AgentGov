@@ -2,10 +2,22 @@
 
 This directory is a narrowly reviewed supply-chain exception, **not** a general
 vendoring convention. `fast-uri` 3.1.7 contains security fixes needed by Ajv
-8.20.0, but the compatible 3.1.7 package was not available from the npm
-registry on September 4, 2026. GitHub-generated source archives were rejected
-because GitHub can regenerate their compression bytes, invalidating lockfile
-integrity even when the Git tree is unchanged.
+8.20.0 for GHSA-qw65-cvwx-89v3 and GHSA-58mr-gqgx-xq4g, but the compatible
+3.1.7 package was not available from the npm registry on September 4, 2026.
+Four earlier advisories (GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf,
+GHSA-f65p-4m7j-42xc, and GHSA-5jgf-p345-68v8) are fixed by npm-published
+`fast-uri` 3.1.6; they are not the reason this 3.1.7 exception exists.
+GitHub-generated source archives were rejected because GitHub can regenerate
+their compression bytes, invalidating lockfile integrity even when the Git tree
+is unchanged.
+
+As of September 4, 2026, GHSA-qw65-cvwx-89v3 and GHSA-58mr-gqgx-xq4g were
+public repository-scoped upstream advisories but absent from the GitHub global
+Advisory Database and OSV, so `npm audit` and Dependabot may falsely report
+vulnerable `fast-uri` 3.1.6 and the currently published 4.1.3 as clean. There
+was no published safe 4.x substitute: npm `latest` was 4.1.3 and remained
+affected, upstream patched 4.1.4 was not published, and Ajv 8.20.0 declared
+`fast-uri` `^3.0.1`.
 
 The 43,760-byte `fast-uri-3.1.7.tgz` is committed as an ordinary Git blob so a
 clean install does not depend on a mutable or regenerable external archive.
@@ -105,10 +117,13 @@ npm test
 
 ## Removal condition
 
-Remove this exception as one reviewed change when an official byte-stable npm
-registry artifact provides a patched version compatible with Ajv's supported
-dependency range. Before removal, verify registry integrity and provenance,
-Ajv compatibility, the six security regressions, the full repository suite,
-and the post-install dependency graph. Delete the local tarball, provenance,
-override, and policy gate together. Do not copy this pattern to another
-dependency merely for convenience.
+Remove this exception as one reviewed change only when npm publishes `fast-uri`
+`>=3.1.7` within Ajv's compatible 3.x range, or when Ajv supports 4.x and npm
+publishes `fast-uri` `>=4.1.4`. Before removal, revalidate advisory sources,
+registry artifact integrity and provenance, Ajv compatibility, all six
+behavioral regressions, the full repository suite, and the post-install
+dependency graph. Do not rely solely on `npm audit` or Dependabot, do not
+manually dismiss the advisory, and do not claim alert closure from this
+exception. Delete the local tarball, provenance, override, and policy gate
+together. Do not copy this pattern to another dependency merely for
+convenience.

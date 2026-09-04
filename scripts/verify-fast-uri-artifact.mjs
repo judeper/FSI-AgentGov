@@ -685,6 +685,7 @@ export function verifyFastUriArtifact({
   if (!installedRoot || !existsSync(installedRoot)) {
     errors.push("installed node_modules/fast-uri is missing; run npm ci before verification");
   } else {
+    const errorsBeforeInstalledPayload = errors.length;
     const installed = collectInstalledFiles(installedRoot);
     errors.push(...installed.errors);
     for (const [path, entry] of artifactFiles) {
@@ -700,7 +701,15 @@ export function verifyFastUriArtifact({
         errors.push(`installed fast-uri has extra file '${path}'`);
       }
     }
-    errors.push(...verifySecurityRegressions(installedRoot));
+    if (errorsBeforeInstalledPayload === 0 && errors.length === errorsBeforeInstalledPayload) {
+      errors.push(...verifySecurityRegressions(installedRoot));
+    } else {
+      errors.push(
+        errors.length === errorsBeforeInstalledPayload
+          ? "fast-uri security regressions skipped because artifact, lockfile, or provenance checks failed before package execution"
+          : "fast-uri security regressions skipped because installed payload differs from the reviewed artifact",
+      );
+    }
   }
 
   return { ok: errors.length === 0, errors };

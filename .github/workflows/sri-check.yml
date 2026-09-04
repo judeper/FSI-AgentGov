@@ -1,5 +1,8 @@
 name: sri-check
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths:
