@@ -233,6 +233,17 @@ SHA against it, and only then supplies `full_name` to the strict check validator
 Missing or conflicting fields are not inferred from requested coordinates.
 The PR is re-read after pagination and its final mergeability is used.
 
+Both received GitHub timestamps and generated decision clocks use the same
+strict UTC normalizer: invariant Gregorian dates, colon-separated time, and an
+uppercase `Z`. Probe observation times and the apply/rollback transaction
+boundaries never use the host's culture or calendar. Offset, local, ambiguous,
+malformed, stale, future, and non-causal evidence is still rejected; the
+five-minute probe window and rollback identity/chronology checks are unchanged.
+The executed operator regressions cover Invariant, `fi-FI`, `ar-SA`, and `fr-FR`
+cultures through real plan/apply, probe polling, serialized model evidence,
+lost-create reconciliation, rollback and token cleanup, with all network
+transports mocked.
+
 Apply is create-only: it refuses to update or replace an existing managed
 ruleset. If post-create verification fails, the documented automatic rollback
 reads the returned ruleset and history, confirms the returned ID/name,

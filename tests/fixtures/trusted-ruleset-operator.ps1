@@ -85,7 +85,9 @@ if ($inputData.operation -eq "transport") {
                 $expiry = if ($inputData.expiry -is [string] -or $inputData.expiry -is [DateTime]) {
                     $inputData.expiry
                 } else {
-                    [DateTimeOffset]::UtcNow.AddSeconds([int]$inputData.expiry).ToString("yyyy-MM-ddTHH:mm:ssZ")
+                    ConvertTo-GitHubUtcTimestamp `
+                        -InputObject ([DateTimeOffset]::UtcNow.AddSeconds([int]$inputData.expiry)) `
+                        -FieldName "fixture installation token expiry"
                 }
                 return [pscustomobject]@{
                     token = "TEST_FIXTURE_INSTALLATION"

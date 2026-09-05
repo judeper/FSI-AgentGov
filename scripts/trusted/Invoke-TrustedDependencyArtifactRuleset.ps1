@@ -134,6 +134,7 @@ function ConvertTo-CompactJson {
 
 # PowerShell 7.0 has no ConvertFrom-Json -DateKind String, while newer runtimes
 # materialize ISO strings as DateTime. Accept only representations that prove UTC.
+# Generated decision clocks use this same invariant Gregorian wire format.
 function ConvertTo-GitHubUtcTimestamp {
     param(
         [Parameter(Mandatory)][AllowNull()][object]$InputObject,
@@ -840,7 +841,9 @@ function Wait-AppCheckProbes {
         try {
             $positive = Get-ProbeEvidence -PullRequest $ProbePullRequest
             $negative = Get-ProbeEvidence -PullRequest $SpoofProbePullRequest
-            $observedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+            $observedAt = ConvertTo-GitHubUtcTimestamp `
+                -InputObject ([DateTimeOffset]::UtcNow) `
+                -FieldName "probe observation time"
             Assert-AppCheckProbes `
                 -Positive $positive `
                 -Negative $negative `
@@ -977,7 +980,9 @@ function Invoke-SafeRollback {
     [void](Set-GitHubJsonTimestampContract `
         -InputObject $history `
         -Context "rollback ruleset history")
-    $endedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+    $endedAt = ConvertTo-GitHubUtcTimestamp `
+        -InputObject ([DateTimeOffset]::UtcNow) `
+        -FieldName "rollback transaction end"
     [void](Invoke-TrustedModel `
         -Operation "assert-safe-rollback" `
         -InputObject ([ordered]@{
@@ -1090,7 +1095,9 @@ $preCreate = Get-LiveState
 if ((Get-Snapshot $preCreate).digest -ne $snapshot.digest) {
     throw "Live repository security state changed during App verification; refusing to create"
 }
-$startedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+$startedAt = ConvertTo-GitHubUtcTimestamp `
+    -InputObject ([DateTimeOffset]::UtcNow) `
+    -FieldName "apply transaction start"
 $created = $null
 try {
     $created = Invoke-GhJson -Endpoint "repos/$Repository/rulesets" -Method "POST" -Body $desired

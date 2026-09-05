@@ -23,6 +23,7 @@ const appId = 8675309;
 const pullNumber = 101;
 const now = "2026-09-05T05:00:00Z";
 const created = "2026-09-05T04:59:00Z";
+const cultures = ["Invariant", "fi-FI", "ar-SA", "fr-FR"];
 const encodeJsonPayload = value =>
   Buffer.from(JSON.stringify(value), "utf8").toString("base64");
 const encodeText = value => Buffer.from(value, "utf8").toString("base64");
@@ -245,7 +246,7 @@ function rollbackPayload() {
 }
 
 describe("PowerShell GitHub timestamp wire contract", () => {
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "normalizes real JSON UTC DateTime values invariantly under %s culture",
     culture => {
       const result = runOperator({
@@ -264,7 +265,7 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     },
   );
 
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "normalizes a mocked serialized Invoke-RestMethod response under %s culture",
     culture => {
       const result = runOperator({
@@ -325,7 +326,7 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     expect(nonUtcOffset.error).toMatch(/unambiguous UTC/);
   });
 
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "rejects offset, local, ambiguous, malformed, and over-precision wire values under %s culture",
     culture => {
       for (const value of [
@@ -345,7 +346,7 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     },
   );
 
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "normalizes ruleset created_at from serialized GitHub JSON under %s culture",
     culture => {
       const result = runOperator({
@@ -366,7 +367,7 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     expect(result.ok).toBe(false);
   });
 
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "normalizes serialized PR and check-run timestamps without weakening causal freshness under %s culture",
     culture => {
       const result = runOperator(probeOperatorInput(culture));
@@ -432,7 +433,7 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     })).toThrow(/stale|precedes/);
   });
 
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "normalizes rollback ruleset/history timestamps before the security model under %s culture",
     culture => {
       const result = runOperator({
@@ -521,7 +522,7 @@ describe("executed PowerShell API contracts (all network mocked)", () => {
     expect(result.calls).toHaveLength(2);
   });
 
-  it.each(["Invariant", "fr-FR"])(
+  it.each(cultures)(
     "proves serialized token expiry, separated credentials, and revocation under %s culture",
     culture => {
       const result = runOperator(installationInput({ culture }));
@@ -535,7 +536,17 @@ describe("executed PowerShell API contracts (all network mocked)", () => {
     },
   );
 
-  it.each([
+  it.each(cultures)("generates accepted fixture token expiry under %s culture", culture => {
+    const input = installationInput({ culture });
+    delete input.tokenPayloadBase64;
+    input.expiry = 1800;
+    input.permissions = { ...loadAppContract().allowedRepositoryPermissions };
+    const result = runOperator(input);
+    expect(result.ok, result.error).toBe(true);
+    expect(result.calls.at(-1)).toMatchObject({ endpoint: "installation/token", method: "DELETE" });
+  });
+
+  it.each(cultures.flatMap(culture => [
     "extra-repository",
     "wrong-repository",
     "extra-installation",
@@ -547,9 +558,9 @@ describe("executed PowerShell API contracts (all network mocked)", () => {
     "ambiguous-expiry",
     "pagination",
     "permissions",
-  ])(
-    "rejects %s and revokes the installation token on the failure path", scenario => {
-      const input = installationInput({ culture: "fr-FR" });
+  ].map(scenario => [culture, scenario])))(
+    "under %s rejects %s and revokes the installation token on the failure path", (culture, scenario) => {
+      const input = installationInput({ culture });
       if (scenario === "extra-repository") input.pages[0] = { total_count: 2, repositories: [repo, { ...repo, id: repo.id + 1, full_name: "attacker/other" }] };
       if (scenario === "wrong-repository") input.pages[0].repositories[0].full_name = "attacker/other";
       if (scenario === "extra-installation") input.installations.push({ ...installation(), id: 60_000_002 });
