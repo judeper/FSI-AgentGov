@@ -64,6 +64,43 @@ def test_ruleset_requires_strict_app_source_and_full_pr_safety_controls() -> Non
     assert "merge_queue" not in rules
 
 
+def test_plan_preserves_the_owner_read_back_strict_branch_protection() -> None:
+    plan = load_plan()
+    legacy = plan["legacyBranchProtection"]
+    assert legacy["preserveExactly"] is True
+    assert legacy["requirePresent"] is True
+    assert legacy["requireAdminEnforcementIfPresent"] is True
+    checks = legacy["expectedRequiredStatusChecks"]
+    assert len(checks) == 13
+    assert {check["app_id"] for check in checks} == {15368}
+    assert {check["context"] for check in checks} == {
+        "e2e-smoke",
+        "gitleaks",
+        "dependency-review",
+        "Analyze (python)",
+        "Analyze (javascript)",
+        "mkdocs-strict",
+        "verify_version_stamps",
+        "ruff",
+        "pytest (assessment + scripts)",
+        "manifest / index / nav drift",
+        "FSI language rules",
+        "autodoc-redirect-verify",
+        "autodoc-verify",
+    }
+
+
+def test_plan_requires_both_source_probes_before_apply() -> None:
+    plan = load_plan()
+    assert plan["preflight"] == {
+        "requirePositiveAppProbe": True,
+        "requireNegativeActionsProbe": True,
+        "requireProbePullRequests": True,
+        "positiveMergeability": "clean",
+        "negativeMergeability": "blocked",
+    }
+
+
 def test_security_setting_assets_are_in_trusted_paths() -> None:
     repo_root = Path(__file__).resolve().parent.parent
     policy = json.loads(

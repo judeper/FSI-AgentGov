@@ -1,121 +1,157 @@
 # Trusted dependency-artifact gate — **BLOCKED pending owner provisioning**
 
 This policy branch supplies a base-controlled evaluator, an exact remote
-ruleset plan, a GitHub App contract, and a read-only/apply/read-back operator
-script. It does **not** create an App, change repository settings, or make the
-artifact gate enforced.
+ruleset plan, a least-privilege GitHub App contract, and a read-only/apply/
+read-back operator script. It does **not** create an App, change repository
+settings, or make the artifact gate enforced.
 
-As observed through authenticated, read-only GitHub REST requests on
-**September 5, 2026**, `judeper/FSI-AgentGov` is a public repository owned by a
-`User`; `GET /repos/judeper/FSI-AgentGov/rulesets` returned `200 []`, and
-`GET /branches/main/protection` returned `404`. Therefore no ruleset or legacy
-branch-protection gate is currently active.
+## Remote state read-back — September 5, 2026
+
+An owner-authenticated read-only REST read-back on **September 5, 2026**
+(GitHub response `Date: Sat, 05 Sep 2026 02:08:29 GMT`)
+resolved `gh api user` to `judeper` and confirmed:
+
+- `judeper/FSI-AgentGov` is public, owned by a `User`, and defaults to `main`;
+- `GET /repos/judeper/FSI-AgentGov/rulesets?includes_parents=true` returned
+  `200 []`, so the managed ruleset is not active;
+- `GET /repos/judeper/FSI-AgentGov/branches/main/protection` returned an
+  active strict legacy branch-protection document with `enforce_admins=true`,
+  force-pushes blocked, deletions blocked, `required_signatures=false`,
+  `required_linear_history=false`, `required_conversation_resolution=false`,
+  and all three merge methods enabled. It contains these **13 App-bound
+  checks** (`app_id=15368`): `e2e-smoke`, `gitleaks`, `dependency-review`,
+  `Analyze (python)`, `Analyze (javascript)`, `mkdocs-strict`,
+  `verify_version_stamps`, `ruff`, `pytest (assessment + scripts)`,
+  `manifest / index / nav drift`, `FSI language rules`,
+  `autodoc-redirect-verify`, and `autodoc-verify`.
+
+An earlier non-admin read using `judep_microsoft` returned `404` for branch
+protection because GitHub masks that resource without permission; it was **not
+evidence that protection was absent**. The planned ruleset is additive and
+must preserve this complete legacy state. No enforcement-active claim is made
+until App provisioning and the full read-back succeed.
+
+The owner-token probe of `GET /repos/judeper/FSI-AgentGov/installation` returned
+HTTP `401` (`A JSON web token could not be decoded`) on the same date. The
+operator therefore does not treat that endpoint as user-token evidence: App
+identity and installation verification use the documented App JWT path.
 
 ## Chosen non-spoofable mechanism
 
-The planned mechanism is a **repository branch ruleset** requiring the check
-named `trusted-dependency-artifact` from one explicit **dedicated GitHub App
-integration ID**. The intended payload is
+The planned mechanism is a repository branch ruleset requiring the check named
+`trusted-dependency-artifact` from one explicit dedicated GitHub App
+`integration_id`. The intended payload is
 `.github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json`.
 
 The GitHub REST ruleset schema supports a required status check with an
-`integration_id`; unlike a name-only context, that binds the accepted result to
-the publisher App. GitHub documents that any writer can set a status/check name,
-so a familiar name alone is not evidence. A candidate workflow, including one
-that runs on a pull-request head or a test-merge commit, cannot satisfy the
-planned requirement unless it can publish as the dedicated App.
+`integration_id`; a familiar check name alone is not evidence of its
+publisher. A candidate workflow or same-name GitHub Actions run cannot satisfy
+the planned requirement unless it is published by the dedicated App.
 
-Required-workflow binding is not the selected mechanism. GitHub documents
-ruleset required workflows as organization/enterprise configuration, while this
-repository is personal-user owned. The REST schema alone is not proof that this
-account can activate the feature, so this branch does not claim that it can.
+Required-workflow binding is not selected. GitHub documents that required
+workflows are an organization/enterprise ruleset capability, while this
+repository is personal-user owned. This branch therefore does not claim that
+feature is available here.
 
-## What the local preflight does
+## Base-controlled evaluator
 
 `.github/workflows/trusted-dependency-artifact.yml` is a **non-enforcing
 preflight**, not the required check. It uses `pull_request_target`, checks out
 the immutable event base SHA only, grants `contents: read` only, and never
 checks out, installs, imports, executes, or interpolates candidate content.
-It does not hold `checks: write` and does not publish
-`trusted-dependency-artifact`.
+The dedicated App service is the only component permitted to publish the
+authoritative check.
 
-The evaluator reads complete pull-file records (`status`, `filename`, and
-`previous_filename`) and independently diffs immutable base and candidate
-trees. It:
+The evaluator uses one canonical repository-path identity:
 
-- classifies both sides of a rename; protected-path renames are forbidden;
-- rejects truncated base/candidate trees, malformed rename records, unsafe
-  separators/control characters/dot segments, protected Unicode-normalization
-  collisions, and protected ASCII-case collisions;
-- derives whether the artifact is required from the immutable base tree and
-  verifies its presence, paths, pins, package/lock/provenance relationships on
-  **every** verdict, including nominally not-applicable and policy-only PRs;
-- captures event base/head SHA, checks both before evaluation, and rechecks
-  both (plus base ref) before returning a verdict.
+1. reject non-strings, empty/overlong paths, NUL/control characters,
+   backslashes, absolute paths, empty segments, and `.`/`..` segments;
+2. normalize Unicode to NFC while retaining the canonical spelling;
+3. ASCII-case-fold the canonical spelling for Git/Windows collision safety.
 
-`/pulls/{n}/files` is evidence for rename intent, never the only classifier.
-If it is incomplete while the immutable tree diff contains protected changes,
-the evaluator fails closed.
+It precomputes folded identities for every trusted/guarded exact path,
+prefix/suffix, forbidden basename, vendor root, package/lock/provenance/
+artifact/documentation/config path, and activation pin. The collision map
+contains every base/head tree path plus base protected identities. It rejects
+duplicates, NFC/case collisions, directory/file prefix collisions, and any
+case/NFC alias of a protected or forbidden identity even when the canonical
+spelling is absent. The same identity is used for PR records,
+`previous_filename`, immutable tree diffs, vendor scans, forbidden names,
+artifact presence, and the final not-applicable decision.
 
-## Documentation boundary
+The evaluator retains exact rename and race checks, immutable base/head tree
+comparison, base-owned policy material, and command-free-document handling.
+Candidate README bytes are data and are never shell-scanned, executed, or
+trusted because they contain a familiar command.
 
-Candidate artifact documentation is not shell-parsed. Instead,
-`vendor/npm/fast-uri/3.1.7/README.md` is an exact SHA-256/size pin in the
-protected policy and must equal the no-command
-`vendor-readme-template.md`. Any byte change, including wrappers, aliases,
-backticks, subshells, or PowerShell call operators, fails the pin. All
-pre-trust and rotation procedures live in the protected
-`PRETRUST-REVIEW-RUNBOOK.md`; `SECURITY.md` and this document are trusted paths.
-A policy rotation must be a standalone PR and cannot be combined with a guarded
-artifact change.
+## Exact activation and rotation model
 
-## Remote provisioning and read-back
+The policy branch contains no package, lockfile, or vendored artifact bytes.
+Activation is an all-or-nothing exact-byte transaction for approved commit
+`8acd5d7907d9ef01e2875855fdd83b307a1e2edd` (parent
+`0326a993c09f7f370d38bdb51a3818570867872d`). The complete allowed activation
+set is enumerated in `dependency-artifact-policy.json` and includes the
+package/lock/gitattributes files, the vendor tarball/provenance/README,
+required verifier/runtime files, security workflows, `SECURITY.md`, and the
+four focused tests. Every allowed path has an exact Git blob ID, raw-byte
+SHA-256, and size. Any extra path or byte change fails closed.
 
-The exact owner procedure is in
-`.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. In brief:
+After activation, the effective exact pins continue to apply. Ordinary PRs
+cannot change the artifact, package manifests, lockfiles, `.gitattributes`,
+verifier/runtime bytes, or activation files. A rotation is policy-first:
+trusted policy owners land a standalone pin/policy PR, the new policy
+intentionally blocks the old artifact, and only then does a separate
+exact-match artifact PR land. There is no unguarded interval and no policy
+plus artifact PR.
 
-1. Independently review and merge this **policy-only** commit under the
-   controls that existed before it. This PR cannot protect itself.
-2. Provision a dedicated GitHub App according to
-   `trusted-dependency-artifact-app-contract.json`; install it only on this
-   repository and keep all credentials outside Git.
-3. From the merged default branch, run
-   `Invoke-TrustedDependencyArtifactRuleset.ps1 -Plan -AppId <id>`.
-4. Copy its `liveDigest`, `intendedRulesetDigest`, and `confirmationToken`;
-   rerun it with explicit `-Apply` and all three values.
-5. Run `-ReadBack -AppId <id> -ProbePullRequest <new-no-op-PR>`.
+## Owner/App credential and apply contract
 
-The script defaults to read-only planning. Apply creates a new, dedicated
-ruleset only; it never PUTs the old branch-protection document. It validates the
-repository/branch/App installation, aborts on live-state drift, and read-backs
-the exact expected source, strictness, reviews/CODEOWNERS, conversation
-resolution, force-push/deletion block, linear history, no bypass actors, and
-unchanged legacy restrictions/signature state. Any mismatch is failure, not a
-partial success.
+The operator keeps two credentials separate:
 
-This plan does not enable merge queue. If it is enabled later, the dedicated App
-must publish the same expected-source check on `merge_group.head_sha`; a passing
-PR-head check is not a passing test-merge check.
+- **Owner credential:** `GH_TOKEN` or `gh auth` authenticated as `judeper`;
+  it performs owner-only plan/create/read/delete ruleset operations.
+- **App credential:** a short-lived JWT generated at runtime from the App ID
+  and a private key supplied through `GITHUB_APP_PRIVATE_KEY_PATH` or
+  `GITHUB_APP_PRIVATE_KEY`. The helper reads the key only in memory, never
+  commits, persists, logs, echoes, or passes it to candidate code.
 
-## Registry and advisory facts
+The App must be installed only on `judeper/FSI-AgentGov` with exactly
+`metadata:read`, `contents:read`, `pull_requests:read`, and `checks:write`.
+The App contract includes the `pull_request`, `check_suite`, and `check_run`
+webhooks; if merge queue is enabled later, it additionally requires
+`merge_queues:read` and `merge_group`. Extra permissions/events fail closed.
+The webhook secret is runtime-only and must be rotated, timestamp/replay
+bounded, and HMAC-signature validated before processing a payload. The App
+must scope installations to this repository and must never execute candidate
+content.
 
-Registry publication and advisory search results are deliberately not
-enforcement inputs. Direct registry/API evidence must record its date, HTTP/TLS
-result, and any mirror condition. A search result, mirror result, or transport
-failure does not establish package publication or absence. This branch makes no
-volatile claim about availability of `fast-uri` `3.1.7` or `4.1.4`.
+Before create, Apply verifies owner identity/admin access/repository/branch,
+App JWT identity, exact installation, permissions/events, ruleset API
+capability, expected `integration_id`, and **two nominated probes**:
 
-On **September 5, 2026**, direct canonical-registry probes for both versions
-failed at TLS negotiation (Windows Schannel curl error 35; Node `fetch` also
-failed), so this review reached no publication/absence conclusion. GitHub's
-advisory API returned live records for four retained regression identifiers and
-`404` for two; those mixed results are not used to add, remove, or reinterpret
-the historical byte pins or regression identifiers.
+1. a positive no-op PR whose exact head has a successful dedicated-App check
+   and unambiguous `mergeable=true`, `mergeable_state=clean`;
+2. a separate negative PR with only a successful same-name
+   `github-actions` check whose exact head is `mergeable=false`,
+   `mergeable_state=blocked`.
 
-## Residual risk
+If either probe is absent, ambiguous, or unexpectedly passes, Apply refuses.
+Read-back reports `verified=true` only after the same positive and negative
+probes pass, the managed ruleset matches every security-relevant field, and
+the complete legacy branch-protection state is unchanged. If an API cannot
+directly report required-check satisfaction, these exact mergeability probes
+are the required fallback; ambiguous states fail closed.
 
-Until the owner provisions the App and the remote ruleset read-back succeeds,
-the gate remains **BLOCKED and non-enforced**. The preflight improves evidence
-but cannot prevent a merge. After activation, compromise of the repository owner
-or the dedicated App is still outside a repository-only control; the App must
-be independently operated and credentialed.
+Apply is create-only: it refuses to update or replace an existing managed
+ruleset. If post-create verification fails, the documented automatic rollback
+reads the returned ruleset and history, confirms the returned ID/name,
+intended security digest, creation time, and owner actor, then deletes **only
+that newly created ID**. If the POST response is lost, it first reconciles one
+unambiguous new managed ID against the pre-create snapshot. It never deletes a
+pre-existing ruleset. If identity or creator/time proof is unavailable, rollback
+is refused and owner attention is required; the operation is not reported as
+success.
+
+The exact commands and sequencing are in
+`.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. Until provisioning and
+read-back complete, the artifact gate remains **BLOCKED and non-enforced**.

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   assertPolicyShape,
+  canonicalRepositoryPathIdentity,
   checkGitattributes,
   classifyChangedFiles,
   classifyChangedPaths,
@@ -132,7 +133,7 @@ function buildProvenance() {
  * tampers with exactly one thing, which is what makes each failure attributable.
  */
 function baselineFiles(tarball) {
-  return {
+  const files = {
     "package.json": JSON.stringify(PACKAGE_JSON),
     "package-lock.json": JSON.stringify(PACKAGE_LOCK),
     ".gitattributes": GITATTRIBUTES,
@@ -142,10 +143,16 @@ function baselineFiles(tarball) {
     "vendor/npm/fast-uri/3.1.7/README.md": SAFE_README,
     "scripts/verify-fast-uri-artifact.mjs": VERIFIER_SOURCE,
     "scripts/verify-fast-uri-bootstrap.mjs": "// bootstrap\n",
-    // Candidate-controlled files the gate must never consult.
+    "scripts/verify-vendored-runtime.mjs": "// vendored runtime verifier\n",
+    // Candidate-controlled files remain inert; activation mode only hashes
+    // their exact approved bytes and never executes or trusts their results.
     ".github/workflows/sri-check.yml": "name: sri-check\n",
     "tests/spa/fast-uri-artifact-race.test.mjs": "// tests\n",
   };
+  for (const path of realPolicy.activation.allowedFiles) {
+    if (!(path in files)) files[path] = `activation fixture: ${path}\n`;
+  }
+  return files;
 }
 
 /*
@@ -164,6 +171,14 @@ function policyFor(tarball, pinOverrides = {}) {
   for (const path of Object.keys(policy.digestPins)) {
     const bytes = utf8(baseline[path]);
     policy.digestPins[path] = { sha256: sha256(bytes), size: bytes.length };
+  }
+  for (const path of Object.keys(policy.activation.pins)) {
+    const bytes = utf8(baseline[path] ?? `activation fixture: ${path}\n`);
+    policy.activation.pins[path] = {
+      blob: gitBlobId(bytes),
+      sha256: sha256(bytes),
+      size: bytes.length,
+    };
   }
   return policy;
 }
@@ -286,6 +301,26 @@ function withoutReviewedArtifact(tree) {
   };
 }
 
+function activationTree(tarball, policy) {
+  const files = {};
+  for (const path of policy.activation.allowedFiles) {
+    files[path] =
+      baselineFiles(tarball)[path] ?? `activation fixture: ${path}\n`;
+  }
+  return candidate({ tarball, files });
+}
+
+function activationBaseTree(tarball, policy) {
+  const tree = activationTree(tarball, policy);
+  const allowed = new Set(policy.activation.allowedFiles);
+  tree.treeEntries = tree.treeEntries.filter(
+    entry =>
+      !allowed.has(entry.path) &&
+      !entry.path.startsWith("vendor/npm/fast-uri/"),
+  );
+  return tree;
+}
+
 async function judge({
   policy,
   tree,
@@ -364,9 +399,10 @@ describe("authoritative gate — candidate self-attestation is worthless", () =>
 
     expect(verdict.failed).toBe(true);
     expect(verdict.messages.join("\n")).toMatch(/does not match base policy/);
-    // The gate never even read the candidate's workflow or tests.
-    expect(tree.reads).not.toContain(".github/workflows/sri-check.yml");
-    expect(tree.reads).not.toContain("tests/spa/fast-uri-artifact-race.test.mjs");
+    // The gate may read these files as inert, exact-byte data, but never
+    // executes or trusts their reported result.
+    expect(tree.reads).toContain(".github/workflows/sri-check.yml");
+    expect(tree.reads).toContain("tests/spa/fast-uri-artifact-race.test.mjs");
   });
 
   it("rejects a candidate that edits the expected pins inside its own verifier", async () => {
@@ -1028,6 +1064,183 @@ describe("authoritative gate — immutable path and rename evidence", () => {
     expect(verdict.failed).toBe(true);
     expect(verdict.messages.join("\n")).toMatch(/base moved during validation/);
   });
+
+  it("fails closed for every protected case alias, even when the canonical path is absent", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const aliases = [
+      ".NPMRC",
+      "NPM-SHRINKWRAP.JSON",
+      "Package.json",
+      "PACKAGE-LOCK.JSON",
+      ".GitHub/trusted-policy/dependency-artifact-policy.json",
+      "Vendor/npm/fast-uri/3.1.7/README.md",
+    ];
+    for (const path of aliases) {
+      const classified = classifyChangedPaths(realPolicy, [path]);
+      expect(classified.aliases, path).toContain(path);
+      const baseTree = candidate({ tarball });
+      const tree = candidate({ tarball });
+      tree.treeEntries = tree.treeEntries.filter(entry => entry.path !== path);
+      tree.treeEntries.push({
+        path,
+        mode: "100644",
+        type: "blob",
+        sha: gitBlobId(Buffer.from("alias\n", "utf8")),
+        size: 6,
+      });
+      const verdict = await judge({
+        policy: policyFor(tarball),
+        baseTree,
+        tree,
+        changedFiles: [{ status: "modified", filename: "docs/index.md" }],
+      });
+      expect(verdict.failed, path).toBe(true);
+      expect(verdict.toJSON().mode, path).toBe("path-alias");
+    }
+  });
+
+  it("rejects ordinary case-sensitive paths only when they collide with a protected identity", () => {
+    expect(classifyChangedPaths(realPolicy, ["docs/Readme.md"]).aliases).toHaveLength(0);
+    expect(
+      collectProtectedPathIdentityProblems(
+        realPolicy,
+        [{ path: "docs/Readme.md" }],
+        [{ path: "docs/readme.md" }],
+      ),
+    ).toEqual(expect.arrayContaining([expect.stringMatching(/ASCII-case collision/)]));
+  });
+
+  it("retains NFC canonical spelling while rejecting backslash and NFD aliases", () => {
+    const composed = canonicalRepositoryPathIdentity("vendor/npm/fast-uri/3.1.7/caf\u00e9.txt");
+    const decomposed = canonicalRepositoryPathIdentity("vendor/npm/fast-uri/3.1.7/cafe\u0301.txt");
+    expect(composed.canonical).toBe("vendor/npm/fast-uri/3.1.7/caf\u00e9.txt");
+    expect(decomposed.canonical).toBe(composed.canonical);
+    expect(decomposed.folded).toBe(composed.folded);
+    expect(canonicalRepositoryPathIdentity("vendor\\npm\\x").unsafe).toBe(true);
+  });
+
+  it("rejects directory/file prefix collisions and NFC aliases in the full tree map", () => {
+    const problems = collectProtectedPathIdentityProblems(
+      realPolicy,
+      [{ path: "package.json" }, { path: "vendor/npm/fast-uri/3.1.7/caf\u00e9.txt" }],
+      [
+        { path: "package.json/child" },
+        { path: "vendor/npm/fast-uri/3.1.7/cafe\u0301.txt" },
+      ],
+    );
+    expect(problems).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/directory\/file prefix collision/),
+        expect.stringMatching(/Unicode-normalization collision/),
+      ]),
+    );
+  });
+
+});
+
+describe("authoritative gate — exact activation and rotation", () => {
+  it("accepts the complete exact activation set and rejects extra or changed bytes", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const baseTree = activationBaseTree(tarball, policy);
+    const tree = activationTree(tarball, policy);
+    const activationPaths = [...policy.activation.allowedFiles];
+    const accepted = await judge({
+      policy,
+      baseTree,
+      tree,
+      changedPaths: activationPaths,
+      artifactRequired: false,
+    });
+    expect(accepted.toJSON()).toMatchObject({ conclusion: "success", mode: "activation" });
+
+    const extra = candidate({
+      tarball,
+      files: {
+        ...Object.fromEntries(
+          activationPaths.map(path => [
+            path,
+            baselineFiles(tarball)[path] ?? `activation fixture: ${path}\n`,
+          ]),
+        ),
+        "scripts/not-approved.mjs": "malicious\n",
+      },
+    });
+    const extraVerdict = await judge({
+      policy,
+      baseTree,
+      tree: extra,
+      changedPaths: [...activationPaths, "scripts/not-approved.mjs"],
+      artifactRequired: false,
+    });
+    expect(extraVerdict.failed).toBe(true);
+    expect(extraVerdict.messages.join("\n")).toMatch(/exact policy-approved activation file set/);
+
+    const changedPackage = JSON.stringify({
+      ...PACKAGE_JSON,
+      devDependencies: { ...PACKAGE_JSON.devDependencies, evil: "https://evil.example/x.tgz" },
+    });
+    const tampered = activationTree(tarball, policy);
+    tampered.treeEntries = tampered.treeEntries.map(entry =>
+      entry.path === "package.json"
+        ? {
+            ...entry,
+            sha: gitBlobId(Buffer.from(changedPackage, "utf8")),
+            size: Buffer.byteLength(changedPackage, "utf8"),
+          }
+        : entry,
+    );
+    const reads = new Map(tampered.treeEntries.map(entry => [entry.sha, entry.path]));
+    const originalRead = tampered.readBlob;
+    tampered.readBlob = async (sha, path) =>
+      path === "package.json"
+        ? Buffer.from(changedPackage, "utf8")
+        : originalRead(sha, path);
+    const changedVerdict = await judge({
+      policy,
+      baseTree,
+      tree: tampered,
+      changedPaths: activationPaths,
+      artifactRequired: false,
+    });
+    expect(changedVerdict.failed).toBe(true);
+    expect(changedVerdict.messages.join("\n")).toMatch(/activation file.*approved bytes|pinned file/);
+    expect(reads.size).toBeGreaterThan(0);
+  });
+
+  it("rejects ordinary post-activation manifest, lock, gitattributes, verifier and workflow mutations", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const baseTree = activationTree(tarball, policy);
+    for (const [path, value] of [
+      ["package.json", JSON.stringify({ ...PACKAGE_JSON, scripts: { verify: "evil" } })],
+      ["package-lock.json", JSON.stringify({ ...PACKAGE_LOCK, packages: { ...PACKAGE_LOCK.packages, "node_modules/extra": { version: "1.0.0" } } })],
+      [".gitattributes", `${GITATTRIBUTES}vendor/** filter=evil\n`],
+      ["scripts/verify-fast-uri-artifact.mjs", `${VERIFIER_SOURCE}\n// mutation\n`],
+      [".github/workflows/sri-check.yml", "name: spoof\n"],
+    ]) {
+      const changed = activationTree(tarball, policy);
+      const bytes = Buffer.from(value, "utf8");
+      const old = changed.treeEntries.find(entry => entry.path === path);
+      changed.treeEntries = changed.treeEntries.map(entry =>
+        entry.path === path
+          ? { ...entry, sha: gitBlobId(bytes), size: bytes.length }
+          : entry,
+      );
+      const originalRead = changed.readBlob;
+      changed.readBlob = async (sha, requestedPath) =>
+        requestedPath === path ? bytes : originalRead(sha, requestedPath);
+      const verdict = await judge({
+        policy,
+        baseTree,
+        tree: changed,
+        changedPaths: [path],
+      });
+      expect(verdict.failed, path).toBe(true);
+      expect(verdict.messages.join("\n"), path).toMatch(/pinned file|activation file|does not match/);
+      expect(old).toBeDefined();
+    }
+  });
 });
 
 /* ------------------------------------------------------------------ *
@@ -1255,7 +1468,42 @@ describe("trusted policy document", () => {
     expect(realPolicy.verifierPolicyLiterals.requiredAdvisories).toHaveLength(6);
   });
 
-  it("pins the command-free vendor README template as exact protected bytes", () => {
+  it("pins the complete approved activation package, lock, and attributes blobs", () => {
+    expect(realPolicy.activation.approvedCommit).toBe(
+      "8acd5d7907d9ef01e2875855fdd83b307a1e2edd",
+    );
+    for (const [path, expected] of [
+      [
+        "package.json",
+        {
+          blob: "3faa4f4fae4eeee55a35ddc1a99c58a9bcf5ad1c",
+          sha256: "2a3fad19f3341087ff12656bcd7ea2f09359fb9103911a8c54285aa6b5fa6ab9",
+          size: 1083,
+        },
+      ],
+      [
+        "package-lock.json",
+        {
+          blob: "0b764c5ed9b507d9d8f259f9be8ea4dd77a47661",
+          sha256: "19e6cfc9c195248e3ef6d2827048d786b0f629be0a680b5f88648694321d4a2c",
+          size: 76925,
+        },
+      ],
+      [
+        ".gitattributes",
+        {
+          blob: "91596cc419da4f86b6ed193802fc81b5b28a3ba1",
+          sha256: "df7f40c6ed0da07a2cac77823f83af844b07fb4f49c4e049aaf8d2159cf20468",
+          size: 936,
+        },
+      ],
+    ]) {
+      expect(realPolicy.activation.pins[path]).toEqual(expected);
+      expect(realPolicy.digestPins[path]).toEqual(expected);
+    }
+  });
+
+  it("keeps the command-free template separately from the exact approved artifact README pin", () => {
     const template = readText(
       ".github",
       "trusted-policy",
@@ -1263,9 +1511,14 @@ describe("trusted policy document", () => {
     );
     const readme = realPolicy.documentation.vendorReadme;
     expect(readme.path).toBe("vendor/npm/fast-uri/3.1.7/README.md");
-    expect(readme.sha256).toBe(sha256(Buffer.from(template, "utf8")));
-    expect(readme.size).toBe(Buffer.byteLength(template, "utf8"));
+    expect(readme.sha256).toBe(
+      "d868e4fe7640a21489ba2ece7018290e2cd01c05e463e99194b0c3ec5116efc7",
+    );
+    expect(readme.size).toBe(17916);
+    expect(readme.templateSha256).toBe(sha256(Buffer.from(template, "utf8")));
+    expect(readme.templateSize).toBe(Buffer.byteLength(template, "utf8"));
     expect(realPolicy.digestPins[readme.path]).toEqual({
+      blob: "5bb6e480b36df794921065ad59035349e45d147b",
       sha256: readme.sha256,
       size: readme.size,
     });

@@ -116,6 +116,15 @@ The planned enforcement is a repository ruleset that requires the same context
 from a dedicated GitHub App integration ID. That App and the remote ruleset do
 not exist as of this policy branch; no name-only status check is accepted.
 
+The owner-authenticated September 5, 2026 read-back confirmed that `main`
+already has active strict legacy branch protection with 13 App-bound required
+checks (`app_id=15368`), administrator enforcement, and force-push/deletion
+blocks; signatures, linear history, and conversation resolution are currently
+disabled and all three merge methods are enabled. The managed ruleset probe
+returned `200 []`. A non-admin read that
+returned `404` was permission masking, not evidence that branch protection was
+absent; the planned ruleset is additive and must preserve the existing checks.
+
 The policy, app contract, exact operator commands, read-back requirements, and
 bootstrap order are in `.github/TRUSTED-DEPENDENCY-GATE.md` and
 `.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. Changes to this file and

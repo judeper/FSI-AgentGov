@@ -16,9 +16,10 @@
  *   - Expected pins live in `.github/trusted-policy/dependency-artifact-policy.json`
  *     on the default branch. A candidate cannot move them: a pull request that
  *     edits a trusted path *and* a guarded dependency path fails closed.
- *   - The candidate's verifier, its hard-coded hashes, its workflows and its
- *     tests are never consulted for the pass/fail decision. Coherent malicious
- *     edits across all of them cannot influence this result.
+ *   - The candidate's verifier, hard-coded hashes, workflows and tests are
+ *     never executed or trusted. Where the approved activation set requires
+ *     them, their bytes are compared with immutable base-policy pins only.
+ *     Coherent malicious edits across all of them cannot influence this result.
  *   - No npm, package script, lifecycle hook, `.npmrc`, `node_modules/.bin`
  *     entry, or candidate JavaScript is executed. The job has no `node_modules`.
  *
@@ -79,6 +80,8 @@ export function assertPolicyShape(policy) {
     "verifierPolicyLiterals",
     "documentation",
     "renames",
+    "rotation",
+    "activation",
     "rootScripts",
     "forbiddenTree",
     "gitattributes",
@@ -86,7 +89,7 @@ export function assertPolicyShape(policy) {
     if (!(key in policy)) throw new Error(`trusted policy is missing '${key}'`);
   }
   for (const [path, pin] of Object.entries(policy.digestPins)) {
-    if (!/^[0-9a-f]{64}$/.test(pin.sha256)) {
+    if (!/^[0-9a-f]{64}$/.test(pin.sha256) || (pin.blob && !FULL_OBJECT_ID.test(pin.blob))) {
       throw new Error(`trusted policy digest for '${path}' is not a SHA-256`);
     }
     if (!Number.isSafeInteger(pin.size) || pin.size <= 0) {
@@ -101,12 +104,74 @@ export function assertPolicyShape(policy) {
     !vendorReadme ||
     !policy.vendor.allowedFiles.includes(vendorReadme.path) ||
     policy.digestPins[vendorReadme.path]?.sha256 !== vendorReadme.sha256 ||
-    policy.digestPins[vendorReadme.path]?.size !== vendorReadme.size
+    policy.digestPins[vendorReadme.path]?.size !== vendorReadme.size ||
+    !/^[0-9a-f]{64}$/.test(vendorReadme.templateSha256 ?? "") ||
+    !Number.isSafeInteger(vendorReadme.templateSize) ||
+    vendorReadme.templateSize <= 0
   ) {
     throw new Error("trusted policy vendor README must be an exact digest-pinned vendor file");
   }
   if (policy.renames.allowProtectedPathRenames !== false) {
     throw new Error("trusted policy must reject protected-path renames");
+  }
+  if (
+    policy.rotation?.policyFirst !== true ||
+    policy.rotation?.artifactAfterPolicy !== true ||
+    policy.rotation?.noUnguardedWindow !== true
+  ) {
+    throw new Error("trusted policy must require policy-first artifact rotation");
+  }
+  const activation = policy.activation;
+  if (
+    !/^[0-9a-f]{40}$/.test(activation?.approvedCommit ?? "") ||
+    !/^[0-9a-f]{40}$/.test(activation?.approvedParent ?? "") ||
+    activation?.requiresCompleteSet !== true ||
+    !Array.isArray(activation?.allowedFiles) ||
+    activation.allowedFiles.length === 0 ||
+    !activation?.pins ||
+    Object.keys(activation.pins).length !== activation.allowedFiles.length
+  ) {
+    throw new Error("trusted policy activation must enumerate an exact non-empty file set");
+  }
+  const activationPaths = new Set(activation.allowedFiles);
+  const activationFolded = new Map();
+  for (const path of activation.allowedFiles) {
+    const identity = canonicalRepositoryPathIdentity(path);
+    if (identity.unsafe) throw new Error("trusted policy activation contains an unsafe path");
+    if (
+      activationFolded.has(identity.folded) &&
+      activationFolded.get(identity.folded) !== identity.canonical
+    ) {
+      throw new Error("trusted policy activation contains a case or NFC collision");
+    }
+    activationFolded.set(identity.folded, identity.canonical);
+  }
+  for (const requiredPath of [
+    "package.json",
+    "package-lock.json",
+    ".gitattributes",
+    policy.package?.artifactPath,
+    policy.package?.provenancePath,
+    policy.documentation?.vendorReadme?.path,
+  ]) {
+    if (!policy.digestPins[requiredPath]) {
+      throw new Error(`trusted policy is missing the exact post-activation pin for '${requiredPath}'`);
+    }
+  }
+  for (const [path, pin] of Object.entries(activation.pins)) {
+    if (!activationPaths.has(path)) {
+      throw new Error(`activation pin '${path}' is outside the allowed activation file set`);
+    }
+    const identity = canonicalRepositoryPathIdentity(path);
+    if (identity.unsafe || activationFolded.get(identity.folded) !== identity.canonical) {
+      throw new Error(`activation pin '${path}' does not match its canonical allowed path`);
+    }
+    if (!/^[0-9a-f]{64}$/.test(pin.sha256) || !FULL_OBJECT_ID.test(pin.blob ?? "")) {
+      throw new Error(`activation pin for '${path}' is not an exact Git blob and SHA-256`);
+    }
+    if (!Number.isSafeInteger(pin.size) || pin.size <= 0) {
+      throw new Error(`activation pin for '${path}' has an invalid size`);
+    }
   }
   return policy;
 }
@@ -192,23 +257,242 @@ export function normalizeRepositoryPath(path) {
 }
 
 export function asciiCaseFold(path) {
-  return path.replace(/[A-Z]/g, character => character.toLowerCase());
+  return typeof path === "string"
+    ? path.replace(/[A-Z]/g, character => character.toLowerCase())
+    : path;
 }
 
-function classifyRepositoryPath(policy, path) {
-  const normalized = normalizeRepositoryPath(path);
-  if (normalized === null || isUnsafeRepositoryPath(path)) {
-    return { normalized, trusted: false, guarded: false, unsafe: true };
+/*
+ * GitHub stores repository paths with forward slashes, while Windows
+ * checkouts and case-insensitive filesystems can make several spellings refer
+ * to the same object.  This is the only path identity function used by the
+ * evaluator.  `canonical` preserves spelling after NFC normalization and
+ * `folded` is the collision-safe identity used for policy matching.
+ */
+export function canonicalRepositoryPathIdentity(path) {
+  if (typeof path !== "string" || isUnsafeRepositoryPath(path)) {
+    return {
+      original: path,
+      normalized: null,
+      canonical: null,
+      folded: null,
+      unsafe: true,
+    };
   }
-  const { exact, prefixes, suffixes } = policy.guardedPaths;
+  const canonical = path.normalize("NFC");
+  if (isUnsafeRepositoryPath(canonical)) {
+    return {
+      original: path,
+      canonical: null,
+      folded: null,
+      unsafe: true,
+    };
+  }
   return {
-    normalized,
+    original: path,
+    normalized: canonical,
+    canonical,
+    folded: asciiCaseFold(canonical),
     unsafe: false,
-    trusted: policy.trustedPaths.includes(normalized),
-    guarded:
-      exact.includes(normalized) ||
-      prefixes.some(prefix => normalized.startsWith(prefix)) ||
-      suffixes.some(suffix => normalized.endsWith(suffix)),
+  };
+}
+
+export const canonicalizeRepositoryPath = canonicalRepositoryPathIdentity;
+
+function patternIdentity(pattern, kind) {
+  if (typeof pattern !== "string" || /[\u0000-\u001f\u007f\\]/.test(pattern)) {
+    throw new Error(`trusted policy ${kind} contains an unsafe path pattern`);
+  }
+  const canonical = pattern.normalize("NFC");
+  if (!canonical) throw new Error(`trusted policy ${kind} contains an empty path pattern`);
+  return { canonical, folded: asciiCaseFold(canonical) };
+}
+
+function addIdentity(map, identity, value) {
+  if (!map.has(identity.folded)) map.set(identity.folded, new Set());
+  map.get(identity.folded).add(value);
+}
+
+function addProtectedPath(index, path, kind) {
+  const identity = canonicalRepositoryPathIdentity(path);
+  if (identity.unsafe) throw new Error(`trusted policy ${kind} contains an unsafe path`);
+  addIdentity(index.protectedExact, identity, identity.canonical);
+  if (kind === "trusted") addIdentity(index.trustedExact, identity, identity.canonical);
+  if (kind === "guarded") addIdentity(index.guardedExact, identity, identity.canonical);
+  if (kind === "forbidden") addIdentity(index.forbiddenExact, identity, identity.canonical);
+  index.protectedCanonical.add(identity.canonical);
+}
+
+function addProtectedPattern(index, pattern, kind) {
+  const identity = patternIdentity(pattern, kind);
+  const target = kind === "prefix" ? index.guardedPrefixes : index.guardedSuffixes;
+  target.push(identity);
+}
+
+function addPathLikePolicyValues(index, policy, values, kind) {
+  for (const value of values ?? []) {
+    if (typeof value === "string") addProtectedPath(index, value, kind);
+  }
+}
+
+/*
+ * Build all policy identities once for a classification pass.  In addition
+ * to the visible trusted/guarded declarations, package, artifact, provenance,
+ * documentation, verifier, activation, and forbidden identities are included
+ * so a candidate cannot hide a protected path by changing case or NFC form.
+ */
+function buildPathIdentityIndex(policy) {
+  const index = {
+    trustedExact: new Map(),
+    guardedExact: new Map(),
+    forbiddenExact: new Map(),
+    protectedExact: new Map(),
+    protectedCanonical: new Set(),
+    guardedPrefixes: [],
+    guardedSuffixes: [],
+    forbiddenBasenames: new Map(),
+    activationAllowed: new Map(),
+  };
+
+  addPathLikePolicyValues(index, policy, policy.trustedPaths, "trusted");
+  addPathLikePolicyValues(index, policy, policy.guardedPaths?.exact, "guarded");
+  for (const prefix of policy.guardedPaths?.prefixes ?? []) {
+    addProtectedPattern(index, prefix, "prefix");
+  }
+  for (const suffix of policy.guardedPaths?.suffixes ?? []) {
+    addProtectedPattern(index, suffix, "suffix");
+  }
+
+  addPathLikePolicyValues(index, policy, Object.keys(policy.digestPins ?? {}), "guarded");
+  addPathLikePolicyValues(index, policy, policy.vendor?.allowedFiles, "guarded");
+  if (typeof policy.vendor?.root === "string") {
+    const root = policy.vendor.root.endsWith("/")
+      ? policy.vendor.root.slice(0, -1)
+      : policy.vendor.root;
+    addProtectedPattern(index, `${root}/`, "prefix");
+  }
+  addPathLikePolicyValues(index, policy, [
+    policy.package?.artifactPath,
+    policy.package?.provenancePath,
+    policy.package?.lockPath,
+    policy.package?.workspacePath,
+    ...(Array.isArray(policy.package?.workspaces)
+      ? policy.package.workspaces
+      : typeof policy.package?.workspaces === "string"
+        ? [policy.package.workspaces]
+        : []),
+    policy.package?.configPath,
+    ...(policy.package?.configPaths ?? []),
+    policy.verifierPolicyLiterals?.path,
+    policy.documentation?.vendorReadme?.path,
+    policy.documentation?.vendorReadme?.templatePath,
+    ...(policy.documentation?.trustedPreTrustPaths ?? []),
+    ...(policy.workspacePaths ?? []),
+    ...(policy.configPaths ?? []),
+    ...(policy.forbiddenTree?.configPaths ?? []),
+  ], "protected");
+
+  addPathLikePolicyValues(index, policy, policy.forbiddenTree?.exact, "forbidden");
+  for (const basename of policy.forbiddenTree?.basenames ?? []) {
+    const identity = patternIdentity(basename, "forbidden basename");
+    addIdentity(index.forbiddenBasenames, identity, identity.canonical);
+    index.protectedCanonical.add(identity.canonical);
+  }
+
+  for (const path of policy.activation?.allowedFiles ?? []) {
+    const identity = canonicalRepositoryPathIdentity(path);
+    if (identity.unsafe) throw new Error("trusted policy activation contains an unsafe path");
+    index.activationAllowed.set(identity.canonical, identity);
+    addIdentity(index.protectedExact, identity, identity.canonical);
+    index.protectedCanonical.add(identity.canonical);
+  }
+  for (const [path, pin] of Object.entries(policy.activation?.pins ?? {})) {
+    const identity = canonicalRepositoryPathIdentity(path);
+    if (identity.unsafe) throw new Error("trusted policy activation pin contains an unsafe path");
+    index.activationAllowed.set(identity.canonical, identity);
+    addIdentity(index.protectedExact, identity, identity.canonical);
+    index.protectedCanonical.add(identity.canonical);
+  }
+  return index;
+}
+
+function matchingProtectedAliases(index, identity) {
+  const aliases = [];
+  for (const [folded, canonicals] of index.protectedExact) {
+    if (folded !== identity.folded) continue;
+    for (const canonical of canonicals) {
+      if (canonical !== identity.canonical || identity.original !== identity.canonical) {
+        aliases.push(canonical);
+      }
+    }
+  }
+  for (const prefix of index.guardedPrefixes) {
+    if (
+      identity.folded.startsWith(prefix.folded) &&
+      (!identity.canonical.startsWith(prefix.canonical) ||
+        identity.original !== identity.canonical)
+    ) {
+      aliases.push(prefix.canonical);
+    }
+  }
+  for (const suffix of index.guardedSuffixes) {
+    if (
+      identity.folded.endsWith(suffix.folded) &&
+      (!identity.canonical.endsWith(suffix.canonical) ||
+        identity.original !== identity.canonical)
+    ) {
+      aliases.push(suffix.canonical);
+    }
+  }
+  const basename = identity.canonical.slice(identity.canonical.lastIndexOf("/") + 1);
+  const foldedBasename = asciiCaseFold(basename);
+  for (const [folded, canonicals] of index.forbiddenBasenames) {
+    if (folded !== foldedBasename) continue;
+    for (const canonical of canonicals) {
+      if (canonical !== basename || basename !== identity.original.slice(identity.original.lastIndexOf("/") + 1)) {
+        aliases.push(canonical);
+      }
+    }
+  }
+  return [...new Set(aliases)].sort();
+}
+
+function classifyRepositoryPath(policy, path, index = buildPathIdentityIndex(policy)) {
+  const identity = canonicalRepositoryPathIdentity(path);
+  if (identity.unsafe) {
+    return {
+      original: path,
+      canonical: null,
+      folded: null,
+      trusted: false,
+      guarded: false,
+      forbidden: false,
+      alias: false,
+      aliases: [],
+      unsafe: true,
+    };
+  }
+  const { canonical, folded } = identity;
+  const trusted = index.trustedExact.has(folded);
+  const guarded =
+    index.guardedExact.has(folded) ||
+    index.guardedPrefixes.some(prefix => folded.startsWith(prefix.folded)) ||
+    index.guardedSuffixes.some(suffix => folded.endsWith(suffix.folded));
+  const basename = canonical.slice(canonical.lastIndexOf("/") + 1);
+  const forbidden =
+    index.forbiddenExact.has(folded) ||
+    index.forbiddenBasenames.has(asciiCaseFold(basename));
+  const aliases = matchingProtectedAliases(index, identity);
+  return {
+    original: path,
+    canonical,
+    folded,
+    unsafe: false,
+    trusted,
+    guarded,
+    forbidden,
+    alias: aliases.length > 0,
+    aliases,
   };
 }
 
@@ -216,17 +500,26 @@ export function classifyChangedPaths(policy, changedPaths) {
   const trusted = [];
   const guarded = [];
   const unsafe = [];
+  const aliases = [];
+  const forbidden = [];
+  const canonicalPaths = [];
+  const identities = [];
+  const index = buildPathIdentityIndex(policy);
 
-  for (const path of changedPaths) {
-    const classification = classifyRepositoryPath(policy, path);
+  for (const path of changedPaths ?? []) {
+    const classification = classifyRepositoryPath(policy, path, index);
     if (classification.unsafe) {
       unsafe.push(path);
       continue;
     }
+    canonicalPaths.push(classification.canonical);
+    identities.push(classification);
     if (classification.trusted) trusted.push(path);
     if (classification.guarded) guarded.push(path);
+    if (classification.alias) aliases.push(path);
+    if (classification.forbidden) forbidden.push(path);
   }
-  return { trusted, guarded, unsafe };
+  return { trusted, guarded, unsafe, aliases, forbidden, canonicalPaths, identities };
 }
 
 export function classifyChangedFiles(policy, files) {
@@ -248,57 +541,109 @@ function uniqueSorted(values) {
 
 export function collectProtectedPathIdentityProblems(policy, baseEntries, headEntries) {
   const problems = [];
+  const index = buildPathIdentityIndex(policy);
+  const byCanonical = new Map();
   const byNfc = new Map();
   const byCaseFold = new Map();
   const allEntries = [
     ...(baseEntries ?? []).map(entry => ({ ...entry, side: "base" })),
-    ...(headEntries ?? []).map(entry => ({ ...entry, side: "head" })),
+    ...(headEntries ?? []).map(entry => ({ ...entry, side: "candidate" })),
   ];
 
-  for (const entry of allEntries) {
-    const path = entry?.path;
-    const classification = classifyRepositoryPath(policy, path);
-    if (classification.unsafe) {
-      problems.push(`tree contains an unsafe path '${sanitizeToken(path, 100)}'`);
-      continue;
+  const addRecord = (path, side) => {
+    const identity = canonicalRepositoryPathIdentity(path);
+    if (identity.unsafe) {
+      problems.push(`${side} tree contains an unsafe path '${sanitizeToken(path, 100)}'`);
+      return;
     }
-    if (!classification.trusted && !classification.guarded) continue;
-    const nfc = classification.normalized;
-    const folded = asciiCaseFold(nfc);
-    if (!byNfc.has(nfc)) byNfc.set(nfc, new Set());
-    byNfc.get(nfc).add(path);
-    if (!byCaseFold.has(folded)) byCaseFold.set(folded, new Set());
-    byCaseFold.get(folded).add(path);
+    const record = { ...identity, side };
+    if (!byCanonical.has(identity.canonical)) byCanonical.set(identity.canonical, []);
+    byCanonical.get(identity.canonical).push(record);
+    if (!byNfc.has(identity.canonical)) byNfc.set(identity.canonical, new Set());
+    byNfc.get(identity.canonical).add(path);
+    if (!byCaseFold.has(identity.folded)) byCaseFold.set(identity.folded, new Set());
+    byCaseFold.get(identity.folded).add(path);
+    if (side === "candidate") {
+      const classification = classifyRepositoryPath(policy, path, index);
+      if (classification.alias) {
+        problems.push(
+          `candidate path '${sanitizeToken(path, 100)}' aliases protected identity '${sanitizeToken(classification.aliases[0], 100)}'`,
+        );
+      }
+    }
+  };
+
+  for (const entry of allEntries) addRecord(entry?.path, entry?.side ?? "tree");
+
+  for (const canonical of index.protectedCanonical) {
+    if (!byCanonical.has(canonical)) {
+      const identity = canonicalRepositoryPathIdentity(canonical);
+      if (!identity.unsafe) {
+        if (!byNfc.has(identity.canonical)) byNfc.set(identity.canonical, new Set());
+        byNfc.get(identity.canonical).add(identity.canonical);
+        if (!byCaseFold.has(identity.folded)) byCaseFold.set(identity.folded, new Set());
+        byCaseFold.get(identity.folded).add(identity.canonical);
+      }
+    }
   }
 
+  for (const [canonical, records] of byCanonical) {
+    const originals = new Set(records.map(record => record.original));
+    if (originals.size > 1) {
+      problems.push(`tree contains duplicate canonical path '${sanitizeToken(canonical, 100)}'`);
+    }
+  }
   for (const [normalized, originals] of byNfc) {
     if (originals.size > 1) {
       problems.push(
-        `protected path has a Unicode-normalization collision at '${sanitizeToken(normalized, 100)}'`,
+        `tree has a Unicode-normalization collision at '${sanitizeToken(normalized, 100)}'`,
       );
     }
   }
   for (const [folded, originals] of byCaseFold) {
     if (originals.size > 1) {
-      problems.push(
-        `protected path has an ASCII-case collision at '${sanitizeToken(folded, 100)}'`,
-      );
+      problems.push(`tree has an ASCII-case collision at '${sanitizeToken(folded, 100)}'`);
+    }
+  }
+
+  /*
+   * Include every real tree path plus base protected identities.  A file named
+   * `package.json/child` or `vendor/child` is a directory/file collision even
+   * when the policy's canonical file is absent from the candidate.
+   */
+  const prefixPaths = new Set([...byCaseFold.keys()]);
+  for (const path of [...prefixPaths].sort()) {
+    const segments = path.split("/");
+    for (let indexPart = 1; indexPart < segments.length; indexPart += 1) {
+      const ancestor = segments.slice(0, indexPart).join("/");
+      if (prefixPaths.has(ancestor)) {
+        problems.push(
+          `tree contains a directory/file prefix collision between '${sanitizeToken(ancestor, 100)}' and '${sanitizeToken(path, 100)}'`,
+        );
+      }
     }
   }
   return uniqueSorted(problems);
 }
 
-export function diffImmutableTrees(baseEntries, headEntries) {
+export function diffImmutableTrees(baseEntries, headEntries, policy = null) {
   const base = new Map();
   const head = new Map();
   const duplicates = [];
-  for (const entry of baseEntries ?? []) {
-    if (base.has(entry.path)) duplicates.push(`base:${entry.path}`);
-    base.set(entry.path, entry);
+  const keyFor = (entry, side, index) => {
+    const identity = canonicalRepositoryPathIdentity(entry?.path);
+    if (identity.unsafe) return `${side}:unsafe:${index}:${String(entry?.path ?? "")}`;
+    return identity.canonical;
+  };
+  for (const [index, entry] of (baseEntries ?? []).entries()) {
+    const key = keyFor(entry, "base", index);
+    if (base.has(key)) duplicates.push(`base:${entry?.path ?? ""}`);
+    base.set(key, entry);
   }
-  for (const entry of headEntries ?? []) {
-    if (head.has(entry.path)) duplicates.push(`head:${entry.path}`);
-    head.set(entry.path, entry);
+  for (const [index, entry] of (headEntries ?? []).entries()) {
+    const key = keyFor(entry, "head", index);
+    if (head.has(key)) duplicates.push(`head:${entry?.path ?? ""}`);
+    head.set(key, entry);
   }
 
   const changes = [];
@@ -318,6 +663,7 @@ export function diffImmutableTrees(baseEntries, headEntries) {
       status: before && after ? "modified" : before ? "removed" : "added",
       filename: after?.path ?? before?.path,
       previous_filename: before && !after ? before.path : undefined,
+      canonical_filename: path,
       before,
       after,
     });
@@ -351,6 +697,7 @@ export function diffImmutableTrees(baseEntries, headEntries) {
 
 export function validateChangedFileRecords(policy, files) {
   const problems = [];
+  const index = buildPathIdentityIndex(policy);
   for (const file of files ?? []) {
     if (!file || typeof file !== "object") {
       problems.push("pull-file record is malformed");
@@ -358,22 +705,32 @@ export function validateChangedFileRecords(policy, files) {
     }
     const status = String(file.status ?? "");
     const filename = file.filename;
-    const next = classifyRepositoryPath(policy, filename);
+    const next = classifyRepositoryPath(policy, filename, index);
     if (next.unsafe) {
       problems.push(`pull-file record has an unsafe path '${sanitizeToken(filename, 100)}'`);
       continue;
+    }
+    if (next.alias) {
+      problems.push(
+        `pull-file record path '${sanitizeToken(filename, 100)}' aliases protected identity '${sanitizeToken(next.aliases[0], 100)}'`,
+      );
     }
     if (status === "renamed") {
       if (typeof file.previous_filename !== "string") {
         problems.push("renamed pull-file record omits previous_filename");
         continue;
       }
-      const previous = classifyRepositoryPath(policy, file.previous_filename);
+      const previous = classifyRepositoryPath(policy, file.previous_filename, index);
       if (previous.unsafe) {
         problems.push(
           `renamed pull-file record has an unsafe previous path '${sanitizeToken(file.previous_filename, 100)}'`,
         );
         continue;
+      }
+      if (previous.alias) {
+        problems.push(
+          `pull-file previous path '${sanitizeToken(file.previous_filename, 100)}' aliases protected identity '${sanitizeToken(previous.aliases[0], 100)}'`,
+        );
       }
       if (
         !policy.renames.allowProtectedPathRenames &&
@@ -782,6 +1139,37 @@ export function checkGitattributes(verdict, policy, text) {
   }
 }
 
+function checkExactBytePin(verdict, path, bytes, pin, label = "pinned file") {
+  if (!pin || !bytes) {
+    verdict.fail(`${label} '${sanitizeToken(path, 100)}' is missing`);
+    return;
+  }
+  if (!Number.isSafeInteger(pin.size) || bytes.length !== pin.size) {
+    verdict.fail(
+      `${label} '${sanitizeToken(path, 100)}' is ${bytes.length} bytes, expected ${sanitizeToken(pin.size, 20)}`,
+    );
+    return;
+  }
+  const actualSha256 = sha256Hex(bytes);
+  if (actualSha256 !== pin.sha256) {
+    verdict.fail(
+      `${label} '${sanitizeToken(path, 100)}' SHA-256 does not match the approved bytes`,
+    );
+  }
+  if (pin.blob && gitBlobId(bytes) !== pin.blob) {
+    verdict.fail(
+      `${label} '${sanitizeToken(path, 100)}' Git blob does not match the approved bytes`,
+    );
+  }
+}
+
+function effectiveDigestPins(policy) {
+  return {
+    ...(policy.digestPins ?? {}),
+    ...(policy.activation?.pins ?? {}),
+  };
+}
+
 /* ------------------------------------------------------------------ *
  * Retired evaluator retained only for local source compatibility
  * ------------------------------------------------------------------ */
@@ -918,7 +1306,7 @@ async function legacyEvaluateCandidate({
     "package-lock.json",
     ".gitattributes",
     ...(validateArtifact
-      ? [...policy.vendor.allowedFiles, ...Object.keys(policy.digestPins)]
+      ? [...policy.vendor.allowedFiles, ...Object.keys(effectiveDigestPins(policy))]
       : []),
   ]);
   const contents = new Map();
@@ -998,22 +1386,18 @@ async function legacyEvaluateCandidate({
   }
 
   /* 5. Byte pins straight from base policy. The candidate cannot move these. */
-  for (const [path, pin] of Object.entries(policy.digestPins)) {
+  for (const [path, pin] of Object.entries(effectiveDigestPins(policy))) {
     const bytes = contents.get(path);
-    if (!bytes) {
-      verdict.fail(`pinned file '${sanitizeToken(path, 100)}' is missing`);
-      continue;
-    }
-    if (bytes.length !== pin.size) {
-      verdict.fail(
-        `pinned file '${sanitizeToken(path, 100)}' is ${bytes.length} bytes, expected ${pin.size}`,
-      );
-      continue;
-    }
-    const actual = sha256Hex(bytes);
-    if (actual !== pin.sha256) {
-      verdict.fail(
-        `pinned file '${sanitizeToken(path, 100)}' digest ${actual.slice(0, 16)} does not match base policy`,
+    checkExactBytePin(verdict, path, bytes, pin, "pinned file");
+  }
+  if (activationScope) {
+    for (const [path, pin] of Object.entries(policy.activation?.pins ?? {})) {
+      checkExactBytePin(
+        verdict,
+        path,
+        contents.get(canonicalRepositoryPathIdentity(path).canonical),
+        pin,
+        "activation file",
       );
     }
   }
@@ -1106,15 +1490,16 @@ function treeBlobMap(entries, side, verdict) {
       verdict.fail(`${side} tree contains a malformed entry`);
       continue;
     }
-    if (seen.has(entry.path)) {
-      verdict.fail(`${side} tree contains duplicate path '${sanitizeToken(entry.path, 100)}'`);
-      continue;
-    }
-    seen.add(entry.path);
-    if (isUnsafeRepositoryPath(entry.path)) {
+    const identity = canonicalRepositoryPathIdentity(entry.path);
+    if (identity.unsafe) {
       verdict.fail(`${side} tree contains an unsafe path '${sanitizeToken(entry.path, 100)}'`);
       continue;
     }
+    if (seen.has(identity.canonical)) {
+      verdict.fail(`${side} tree contains duplicate path '${sanitizeToken(entry.path, 100)}'`);
+      continue;
+    }
+    seen.add(identity.canonical);
     if (entry.type === "commit" || entry.mode === BLOB_MODE_GITLINK) {
       verdict.fail(`${side} tree contains a submodule at '${sanitizeToken(entry.path, 100)}'`);
       continue;
@@ -1124,18 +1509,23 @@ function treeBlobMap(entries, side, verdict) {
         verdict.fail(`${side} tree blob '${sanitizeToken(entry.path, 100)}' has an invalid object id`);
         continue;
       }
-      blobs.set(entry.path, entry);
+      blobs.set(identity.canonical, { ...entry, canonicalPath: identity.canonical });
     }
   }
   return blobs;
 }
 
+function hasTreePath(blobs, path) {
+  const identity = canonicalRepositoryPathIdentity(path);
+  return !identity.unsafe && blobs.has(identity.canonical);
+}
+
 function artifactState(policy, baseBlobs, headBlobs, verdict) {
   const required = policy.vendor.allowedFiles;
-  const basePresent = required.filter(path => baseBlobs.has(path));
-  const headPresent = required.filter(path => headBlobs.has(path));
-  const baseHasArtifact = baseBlobs.has(policy.package.artifactPath);
-  const headHasArtifact = headBlobs.has(policy.package.artifactPath);
+  const basePresent = required.filter(path => hasTreePath(baseBlobs, path));
+  const headPresent = required.filter(path => hasTreePath(headBlobs, path));
+  const baseHasArtifact = hasTreePath(baseBlobs, policy.package.artifactPath);
+  const headHasArtifact = hasTreePath(headBlobs, policy.package.artifactPath);
 
   if (basePresent.length !== 0 && basePresent.length !== required.length) {
     verdict.fail("base tree contains an incomplete reviewed artifact set");
@@ -1155,6 +1545,9 @@ function artifactState(policy, baseBlobs, headBlobs, verdict) {
   return {
     artifactRequired: baseHasArtifact,
     validateArtifact: baseHasArtifact || headHasArtifact,
+    baseHasArtifact,
+    headHasArtifact,
+    activationCandidate: !baseHasArtifact && headHasArtifact,
   };
 }
 
@@ -1184,9 +1577,10 @@ function failOnProtectedRename(policy, verdict, rename) {
 }
 
 function requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict) {
+  const index = buildPathIdentityIndex(policy);
   for (const path of baseBlobs.keys()) {
-    const classification = classifyRepositoryPath(policy, path);
-    if (classification.trusted && !headBlobs.has(path)) {
+    const classification = classifyRepositoryPath(policy, path, index);
+    if (classification.trusted && !headBlobs.has(classification.canonical)) {
       verdict.fail(
         `trusted path '${sanitizeToken(path, 100)}' was removed or moved; policy rotations must modify trusted paths in place`,
       );
@@ -1239,6 +1633,7 @@ export async function evaluateCandidate({
 }) {
   const verdict = new Verdict(policy.limits);
   const fileRecords = asChangedFileRecords(changedFiles, changedPaths);
+  const pathIndex = buildPathIdentityIndex(policy);
 
   if (!FULL_OBJECT_ID.test(String(eventHeadSha ?? ""))) {
     verdict.mode = "invalid-event";
@@ -1261,15 +1656,16 @@ export async function evaluateCandidate({
 
   const baseBlobs = treeBlobMap(baseTreeEntries, "base", verdict);
   const headBlobs = treeBlobMap(treeEntries, "candidate", verdict);
-  for (const problem of collectProtectedPathIdentityProblems(
+  const identityProblems = collectProtectedPathIdentityProblems(
     policy,
     baseTreeEntries,
     treeEntries,
-  )) {
+  );
+  for (const problem of identityProblems) {
     verdict.fail(problem);
   }
 
-  const immutableDiff = diffImmutableTrees(baseTreeEntries, treeEntries);
+  const immutableDiff = diffImmutableTrees(baseTreeEntries, treeEntries, policy);
   for (const duplicate of immutableDiff.duplicates) {
     verdict.fail(`immutable tree diff contains duplicate path '${sanitizeToken(duplicate, 100)}'`);
   }
@@ -1292,6 +1688,11 @@ export async function evaluateCandidate({
       `pull request contains an unsafe path '${sanitizeToken(classification.unsafe[0], 100)}'`,
     );
   }
+  if (classification.aliases.length > 0) {
+    verdict.fail(
+      `pull request contains a protected-path alias '${sanitizeToken(classification.aliases[0], 100)}'`,
+    );
+  }
   if (
     (changedFilesTruncated || changedPathsTruncated) &&
     (classification.trusted.length > 0 || classification.guarded.length > 0)
@@ -1309,11 +1710,50 @@ export async function evaluateCandidate({
   );
   requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict);
 
-  if (classification.trusted.length > 0 && classification.guarded.length > 0) {
+  const changedCanonicalPaths = new Set(classification.canonicalPaths);
+  for (const change of immutableDiff.changes) {
+    const identity = canonicalRepositoryPathIdentity(change.filename);
+    if (!identity.unsafe) changedCanonicalPaths.add(identity.canonical);
+    if (change.previous_filename !== undefined) {
+      const previous = canonicalRepositoryPathIdentity(change.previous_filename);
+      if (!previous.unsafe) changedCanonicalPaths.add(previous.canonical);
+    }
+  }
+  const activationAllowed = new Set(
+    [...pathIndex.activationAllowed.keys()],
+  );
+  const activationScope =
+    !artifactRequired &&
+    validateArtifact &&
+    changedCanonicalPaths.size > 0 &&
+    [...changedCanonicalPaths].every(path => activationAllowed.has(path));
+  if (!artifactRequired && validateArtifact) {
+    if (!activationScope) {
+      verdict.fail(
+        "artifact activation changes must be limited to the exact policy-approved activation file set",
+      );
+    } else {
+      for (const path of activationAllowed) {
+        if (!headBlobs.has(path)) {
+          verdict.fail(
+            `activation file '${sanitizeToken(path, 100)}' is missing from the candidate tree`,
+          );
+        }
+      }
+    }
+  }
+
+  if (
+    classification.trusted.length > 0 &&
+    classification.guarded.length > 0 &&
+    !activationScope
+  ) {
     verdict.mode = "mixed-trusted-and-guarded";
     verdict.fail(
       "trusted policy paths and guarded dependency paths must not change in the same pull request",
     );
+  } else if (activationScope) {
+    verdict.mode = "activation";
   } else if (validateArtifact) {
     verdict.mode = artifactRequired ? "artifact" : "guard-only";
   } else if (classification.trusted.length > 0) {
@@ -1325,26 +1765,41 @@ export async function evaluateCandidate({
   }
   if (classification.unsafe.length > 0) {
     verdict.mode = "unsafe-path";
+  } else if (classification.aliases.length > 0) {
+    verdict.mode = "path-alias";
+  } else if (identityProblems.length > 0) {
+    verdict.mode = "path-identity";
   } else if (changedFilesTruncated || changedPathsTruncated) {
     verdict.mode = "unbounded-change";
   }
 
   /* Nothing may re-enable npm configuration or a competing lockfile. */
-  for (const path of headBlobs.keys()) {
-    const basename = path.slice(path.lastIndexOf("/") + 1);
-    if (policy.forbiddenTree.basenames.includes(basename)) {
+  let forbiddenTreePath = false;
+  for (const entry of treeEntries ?? []) {
+    const path = entry?.path;
+    const classification = classifyRepositoryPath(policy, path, pathIndex);
+    if (classification.unsafe) continue;
+    const canonical = classification.canonical;
+    const basename = canonical.slice(canonical.lastIndexOf("/") + 1);
+    if (classification.forbidden && policy.forbiddenTree.basenames.some(
+      forbidden => asciiCaseFold(forbidden) === asciiCaseFold(basename),
+    )) {
+      forbiddenTreePath = true;
       verdict.fail(
         `candidate tree contains a forbidden '${sanitizeToken(basename, 40)}' at '${sanitizeToken(path, 100)}'`,
       );
     }
-    if (policy.forbiddenTree.exact.includes(path)) {
+    if (classification.forbidden && pathIndex.forbiddenExact.has(classification.folded)) {
+      forbiddenTreePath = true;
       verdict.fail(`candidate tree contains a forbidden '${sanitizeToken(path, 60)}'`);
     }
   }
+  if (forbiddenTreePath && verdict.mode === "not-applicable") verdict.mode = "forbidden-path";
 
   /* The vendor directory holds only reviewed regular blobs. */
-  for (const path of [...headBlobs.keys()].filter(entry => entry.startsWith("vendor/"))) {
-    const entry = headBlobs.get(path);
+  for (const [path, entry] of headBlobs) {
+    const identity = canonicalRepositoryPathIdentity(path);
+    if (identity.unsafe || !identity.folded.startsWith("vendor/")) continue;
     if (entry.mode === BLOB_MODE_SYMLINK) {
       verdict.fail(`vendor path '${sanitizeToken(path, 100)}' is a symlink`);
     } else if (entry.mode === BLOB_MODE_EXECUTABLE) {
@@ -1354,7 +1809,9 @@ export async function evaluateCandidate({
         `vendor path '${sanitizeToken(path, 100)}' has mode ${sanitizeToken(entry.mode, 10)}`,
       );
     }
-    if (!policy.vendor.allowedFiles.includes(path)) {
+    if (!policy.vendor.allowedFiles.some(
+      allowed => asciiCaseFold(allowed) === identity.folded,
+    )) {
       verdict.fail(
         `vendor path '${sanitizeToken(path, 100)}' is outside the reviewed allowlist`,
       );
@@ -1363,17 +1820,26 @@ export async function evaluateCandidate({
 
   const wanted = new Set(["package.json", "package-lock.json", ".gitattributes"]);
   if (validateArtifact) {
-    for (const path of [...policy.vendor.allowedFiles, ...Object.keys(policy.digestPins)]) {
+    for (const path of [...policy.vendor.allowedFiles, ...Object.keys(effectiveDigestPins(policy))]) {
       wanted.add(path);
     }
+  }
+  if (activationScope) {
+    for (const path of Object.keys(policy.activation?.pins ?? {})) wanted.add(path);
+    for (const path of policy.activation?.allowedFiles ?? []) wanted.add(path);
   }
 
   const contents = new Map();
   let totalBytes = 0;
   for (const path of wanted) {
-    const entry = headBlobs.get(path);
+    const pathIdentity = canonicalRepositoryPathIdentity(path);
+    const entry = pathIdentity.unsafe ? undefined : headBlobs.get(pathIdentity.canonical);
     if (!entry) {
-      if (validateArtifact && (policy.digestPins[path] || policy.vendor.allowedFiles.includes(path))) {
+      if (
+        (validateArtifact &&
+          (effectiveDigestPins(policy)[path] || policy.vendor.allowedFiles.includes(path))) ||
+        (activationScope && policy.activation?.pins?.[path])
+      ) {
         verdict.fail(`required file '${sanitizeToken(path, 100)}' is missing from the candidate tree`);
       }
       continue;
@@ -1406,7 +1872,7 @@ export async function evaluateCandidate({
       );
       continue;
     }
-    contents.set(path, bytes);
+    contents.set(pathIdentity.canonical, bytes);
   }
 
   let packageJson = null;
@@ -1459,21 +1925,19 @@ export async function evaluateCandidate({
     return verdict;
   }
 
-  for (const [path, pin] of Object.entries(policy.digestPins)) {
+  for (const [path, pin] of Object.entries(effectiveDigestPins(policy))) {
     const bytes = contents.get(path);
-    if (!bytes) {
-      verdict.fail(`pinned file '${sanitizeToken(path, 100)}' is missing`);
-      continue;
-    }
-    if (bytes.length !== pin.size) {
-      verdict.fail(
-        `pinned file '${sanitizeToken(path, 100)}' is ${bytes.length} bytes, expected ${pin.size}`,
-      );
-      continue;
-    }
-    if (sha256Hex(bytes) !== pin.sha256) {
-      verdict.fail(
-        `pinned file '${sanitizeToken(path, 100)}' does not match base policy`,
+    checkExactBytePin(verdict, path, bytes, pin, "pinned file");
+  }
+  if (activationScope) {
+    for (const [path, pin] of Object.entries(policy.activation?.pins ?? {})) {
+      const identity = canonicalRepositoryPathIdentity(path);
+      checkExactBytePin(
+        verdict,
+        path,
+        identity.unsafe ? undefined : contents.get(identity.canonical),
+        pin,
+        "activation file",
       );
     }
   }
