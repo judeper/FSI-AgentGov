@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { basename, delimiter, join } from "node:path";
 import {
   assertProbeResults,
   assertSafeRollbackTarget,
@@ -79,15 +80,15 @@ function payload() {
   };
 }
 
-function runTransaction(culture, scenario) {
+function runTransaction(culture, scenario, { nodePath = process.execPath, env = process.env } = {}) {
   const before = Date.now();
   const output = execFileSync("pwsh", [
     "-NoProfile", "-NonInteractive", "-File",
     join(repoRoot, "tests", "fixtures", "trusted-ruleset-clock.ps1"),
   ], {
-    cwd: repoRoot, encoding: "utf8", timeout: 30_000,
+    cwd: repoRoot, encoding: "utf8", timeout: 30_000, env,
     input: JSON.stringify({
-      culture, scenario,
+      culture, scenario, nodePath,
       payloadBase64: Buffer.from(JSON.stringify(payload())).toString("base64"),
     }),
   });
@@ -187,6 +188,39 @@ describe.each(cultures)("production generated-clock callers under %s", culture =
       expect(rollbacks[0].accepted).toBe(false);
       expect(() => assertSafeRollbackTarget(rollbacks[0].evidence)).toThrow(/outside the apply transaction/);
     }
+    expectCleanup(result);
+  }, 35_000);
+});
+
+describe("generated-clock Node executable boundary", () => {
+  let fixtureRoot;
+  let nodePath;
+  let env;
+  beforeAll(() => {
+    const parent = join(repoRoot, "maintainers-local");
+    mkdirSync(parent, { recursive: true });
+    fixtureRoot = mkdtempSync(join(parent, "clock-node-path-"));
+    const directories = ["first Node with spaces", "second Node with spaces"]
+      .map(name => join(fixtureRoot, name));
+    for (const directory of directories) {
+      mkdirSync(directory);
+      copyFileSync(process.execPath, join(directory, basename(process.execPath)));
+    }
+    nodePath = join(directories[0], basename(process.execPath));
+    const entries = Object.entries(process.env);
+    const inheritedPath = entries.find(([key]) => key.toLowerCase() === "path")?.[1] ?? "";
+    env = Object.fromEntries(entries.filter(([key]) => key.toLowerCase() !== "path"));
+    env.PATH = [...directories, inheritedPath].join(delimiter);
+  }, 20_000);
+  afterAll(() => {
+    if (fixtureRoot) rmSync(fixtureRoot, { recursive: true, force: true });
+  });
+
+  it.each(cultures)("preserves a spaced executable with multiple Node applications on PATH under %s", culture => {
+    const result = runTransaction(culture, "success", { nodePath, env });
+    expect(result.ok, result.error).toBe(true);
+    expect(result.value).toMatchObject({ mode: "apply", verified: true });
+    expect(modelCalls(result, "assert-probes")).toHaveLength(1);
     expectCleanup(result);
   }, 35_000);
 });

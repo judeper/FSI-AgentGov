@@ -37,12 +37,6 @@ const realPolicy = loadPolicy(repoRoot);
 const readText = (...segments) =>
   readFileSync(join(repoRoot, ...segments), "utf8").replace(/\r\n/g, "\n");
 
-const gateWorkflowPath = join(
-  repoRoot,
-  ".github",
-  "workflows",
-  "trusted-dependency-artifact.yml",
-);
 const gateWorkflow = readText(".github", "workflows", "trusted-dependency-artifact.yml");
 
 /* Comment lines document the boundary and therefore quote the very constructs

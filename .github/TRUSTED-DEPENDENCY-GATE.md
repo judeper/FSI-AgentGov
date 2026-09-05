@@ -62,6 +62,10 @@ checks out, installs, imports, executes, or interpolates candidate content.
 The dedicated App service is the only component permitted to publish the
 authoritative check.
 
+The preflight CLI emits one JSON verdict on stdout and exits with status 0
+(success) or 1 (failure). It exports no step outputs and does not write
+network-derived verdicts to `GITHUB_OUTPUT` or other runner files.
+
 The evaluator uses one canonical repository-path identity:
 
 1. reject non-strings, empty/overlong paths, C0/C1 controls, bidirectional

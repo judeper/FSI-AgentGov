@@ -4,7 +4,10 @@ $ErrorActionPreference = "Stop"
 $inputData = [Console]::In.ReadToEnd() | ConvertFrom-Json -Depth 100
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $operator = Join-Path $repoRoot "scripts\trusted\Invoke-TrustedDependencyArtifactRuleset.ps1"
-$nodePath = (Get-Command node -CommandType Application).Source
+$nodePath = [string]$inputData.nodePath
+if (![System.IO.Path]::IsPathFullyQualified($nodePath) -or ![System.IO.File]::Exists($nodePath)) {
+    throw "clock fixture requires one absolute Node executable path"
+}
 $payload = [System.Text.Encoding]::UTF8.GetString(
     [Convert]::FromBase64String($inputData.payloadBase64)
 ) | ConvertFrom-Json -Depth 100

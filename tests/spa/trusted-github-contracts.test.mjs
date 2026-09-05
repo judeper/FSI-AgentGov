@@ -24,6 +24,9 @@ const pullNumber = 101;
 const now = "2026-09-05T05:00:00Z";
 const created = "2026-09-05T04:59:00Z";
 const cultures = ["Invariant", "fi-FI", "ar-SA", "fr-FR"];
+const operatorTimeoutMs = 20_000;
+// Bound PowerShell startup separately from the model's unchanged freshness checks.
+const operatorTestOptions = { timeout: operatorTimeoutMs + 5_000 };
 const encodeJsonPayload = value =>
   Buffer.from(JSON.stringify(value), "utf8").toString("base64");
 const encodeText = value => Buffer.from(value, "utf8").toString("base64");
@@ -172,7 +175,7 @@ describe("GitHub-shaped checks and separately verified PR associations", () => {
 function runOperator(input) {
   const output = execFileSync("pwsh", [
     "-NoProfile", "-NonInteractive", "-File", join(repoRoot, "tests", "fixtures", "trusted-ruleset-operator.ps1"),
-  ], { cwd: repoRoot, input: JSON.stringify(input), encoding: "utf8", timeout: 20_000 });
+  ], { cwd: repoRoot, input: JSON.stringify(input), encoding: "utf8", timeout: operatorTimeoutMs });
   expect(output).not.toContain("TEST_FIXTURE_INSTALLATION");
   expect(output).not.toContain("TEST_FIXTURE_JWT");
   return JSON.parse(output);
@@ -245,7 +248,7 @@ function rollbackPayload() {
   };
 }
 
-describe("PowerShell GitHub timestamp wire contract", () => {
+describe("PowerShell GitHub timestamp wire contract", operatorTestOptions, () => {
   it.each(cultures)(
     "normalizes real JSON UTC DateTime values invariantly under %s culture",
     culture => {
@@ -326,23 +329,21 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     expect(nonUtcOffset.error).toMatch(/unambiguous UTC/);
   });
 
-  it.each(cultures)(
-    "rejects offset, local, ambiguous, malformed, and over-precision wire values under %s culture",
-    culture => {
-      for (const value of [
-        "2026-09-05T08:59:00+02:00",
-        "2026-09-05T06:59:00",
-        "09/05/2026 06:59:00",
-        "2026-02-30T06:59:00Z",
-        "2026-09-05T06:59:00.12345678Z",
-      ]) {
-        const result = runOperator({
-          operation: "timestamp-contract",
-          culture,
-          payloadBase64: encodeJsonPayload({ value }),
-        });
-        expect(result.ok, `${culture}: ${value}`).toBe(false);
-      }
+  it.each(cultures.flatMap(culture => [
+    "2026-09-05T08:59:00+02:00",
+    "2026-09-05T06:59:00",
+    "09/05/2026 06:59:00",
+    "2026-02-30T06:59:00Z",
+    "2026-09-05T06:59:00.12345678Z",
+  ].map(value => [culture, value])))(
+    "rejects offset, local, ambiguous, malformed, and over-precision wire values under %s culture: %s",
+    (culture, value) => {
+      const result = runOperator({
+        operation: "timestamp-contract",
+        culture,
+        payloadBase64: encodeJsonPayload({ value }),
+      });
+      expect(result.ok, `${culture}: ${value}`).toBe(false);
     },
   );
 
@@ -380,28 +381,29 @@ describe("PowerShell GitHub timestamp wire contract", () => {
     },
   );
 
-  it("rejects malformed PR/check timestamps at the wire boundary", () => {
-    for (const [label, mutate] of [
-      ["offset check timestamp", value => {
-        value.checkRunPages[0].check_runs[0].started_at = "2026-09-05T06:59:20+02:00";
-      }],
-      ["local check timestamp", value => {
-        value.checkRunPages[0].check_runs[0].completed_at = "2026-09-05T04:59:30";
-      }],
-      ["malformed check timestamp", value => {
-        value.checkRunPages[0].check_runs[0].started_at = "not-a-time";
-      }],
-      ["offset PR timestamp", value => {
-        value.pull.created_at = "2026-09-05T06:50:00+02:00";
-      }],
-      ["ambiguous PR timestamp", value => {
-        value.after.updated_at = "09/05/2026 04:58:50";
-      }],
-    ]) {
+  it.each([
+    ["offset check timestamp", value => {
+      value.checkRunPages[0].check_runs[0].started_at = "2026-09-05T06:59:20+02:00";
+    }],
+    ["local check timestamp", value => {
+      value.checkRunPages[0].check_runs[0].completed_at = "2026-09-05T04:59:30";
+    }],
+    ["malformed check timestamp", value => {
+      value.checkRunPages[0].check_runs[0].started_at = "not-a-time";
+    }],
+    ["offset PR timestamp", value => {
+      value.pull.created_at = "2026-09-05T06:50:00+02:00";
+    }],
+    ["ambiguous PR timestamp", value => {
+      value.after.updated_at = "09/05/2026 04:58:50";
+    }],
+  ])(
+    "rejects malformed PR/check timestamps at the wire boundary: %s",
+    (label, mutate) => {
       const result = runOperator(probeOperatorInput("fr-FR", mutate));
       expect(result.ok, label).toBe(false);
-    }
-  });
+    },
+  );
 
   it("keeps stale, future, and pre-ruleset causal checks fail-closed after normalization", () => {
     for (const [label, mutate] of [
@@ -474,7 +476,7 @@ describe("PowerShell GitHub timestamp wire contract", () => {
   });
 });
 
-describe("executed PowerShell API contracts (all network mocked)", () => {
+describe("executed PowerShell API contracts (all network mocked)", operatorTestOptions, () => {
   it("enumerates a non-enumerated REST installation array and every page into scalar records", () => {
     const values = Array.from({ length: 101 }, (_, i) => ({ ...installation(), id: 60_000_001 + i }));
     const result = runOperator({ operation: "installations", pages: [values.slice(0, 100), values.slice(100)] });
