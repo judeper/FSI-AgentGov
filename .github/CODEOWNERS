@@ -47,8 +47,10 @@
 # pin, an allowlist, or the gate itself is a deliberate, separately reviewed act.
 # See .github/TRUSTED-DEPENDENCY-GATE.md.
 /.github/trusted-policy/            @judeper
-/.github/branch-protection.json     @judeper
+/.github/TRUSTED-DEPENDENCY-GATE.md @judeper
+/SECURITY.md                        @judeper
 /scripts/trusted/                   @judeper
+/scripts/verify-required-checks.mjs @judeper
 
 # Reviewed dependency artifacts and the verifiers that bind them.
 /scripts/verify-*.mjs               @judeper

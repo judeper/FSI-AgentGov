@@ -1,20 +1,24 @@
-name: Trusted Dependency Artifact Gate
+name: Trusted Dependency Artifact Preflight
 
-# AUTHORITATIVE, BASE-CONTROLLED SECURITY GATE
+# BASE-CONTROLLED, NON-ENFORCING PREFLIGHT
 #
 # This workflow file, the policy it reads, and the verifier it runs all come
-# from the protected default branch. It publishes the stable check run named
-# `trusted-dependency-artifact`, which is the check a branch ruleset should
-# require. The pull-request-controlled `sri-check` workflow remains useful as
-# fast supplemental feedback, but it can only ever attest to itself and is NOT
-# authoritative.
+# from the protected default branch and provide local evidence only. The
+# pull-request-controlled `sri-check` workflow remains useful as fast
+# supplemental feedback, but it can only ever attest to itself.
+#
+# This workflow is deliberately NOT the authoritative enforcement signal. A
+# candidate can create a same-name GitHub Actions check on either a PR head or a
+# test merge. The planned remote ruleset instead requires the
+# `trusted-dependency-artifact` check from a dedicated GitHub App integration.
+# See .github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json.
 #
 # HARD RULES — every one of these is asserted by
 # tests/spa/trusted-dependency-gate.test.mjs:
 #
 #   1. The candidate head and the candidate merge commit are NEVER checked out,
-#      fetched into the workspace, merged, or executed. Only the default branch
-#      is checked out.
+#      fetched into the workspace, merged, or executed. Only the immutable
+#      pull-request base commit is checked out.
 #   2. No npm, npx, package script, lifecycle hook or candidate JavaScript runs.
 #      There is no `node_modules` directory in either job.
 #   3. No dependency cache is restored, so there is no cache to poison.
@@ -23,14 +27,12 @@ name: Trusted Dependency Artifact Gate
 #      against a regular expression before use.
 #   5. No `actions/github-script`, so there is no expression evaluator to abuse.
 #   6. No artifact upload, so no job output can smuggle a token.
-#   7. `validate` holds `contents: read` and nothing else. Only `publish`, which
-#      never reads candidate content, holds a write scope.
+#   7. This workflow has no write scope. It cannot publish an authoritative
+#      check and must never be configured as a name-only required check.
 #
-# `pull_request_target` runs from the default branch and its automatic check run
-# attaches to that branch's commit rather than to the pull request head, so it
-# cannot itself be a required status check. The `publish` job therefore creates
-# the check run explicitly against the pull request head SHA from the event
-# payload. See .github/TRUSTED-DEPENDENCY-GATE.md.
+# `pull_request_target` runs trusted workflow code from the default branch. The
+# checkout below is additionally fixed to the event's immutable base SHA so
+# policy cannot drift during a run. See .github/TRUSTED-DEPENDENCY-GATE.md.
 
 on:
   pull_request_target:
@@ -45,20 +47,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
-    name: validate (base policy)
+  preflight:
+    name: validate (immutable base policy)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
-    outputs:
-      verdict: ${{ steps.gate.outputs.verdict }}
     steps:
-      - name: Check out the protected default branch only
+      - name: Check out the immutable pull-request base only
         uses: actions/checkout@v7
         with:
-          # The default branch, never the pull request head or merge commit.
-          ref: ${{ github.event.repository.default_branch }}
+          # Never the PR head or merge commit.
+          ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
       - name: Set up Node without any dependency cache
@@ -66,53 +66,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Evaluate the candidate as data against base policy
-        id: gate
-        continue-on-error: true
+      - name: Evaluate the candidate as data against immutable base policy
         env:
           GATE_REPOSITORY: ${{ github.repository }}
           GATE_PR_NUMBER: ${{ github.event.pull_request.number }}
           GATE_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GATE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           GATE_BASE_REF: ${{ github.event.pull_request.base.ref }}
           GATE_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           GATE_TOKEN: ${{ github.token }}
         run: node scripts/trusted/verify-dependency-artifact-gate.mjs
-
-      - name: Fail the job when the gate did not pass
-        env:
-          GATE_OUTCOME: ${{ steps.gate.outcome }}
-        run: |
-          set -euo pipefail
-          test "$GATE_OUTCOME" = "success"
-
-  publish:
-    name: publish (authoritative check run)
-    needs: [validate]
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      checks: write
-    steps:
-      - name: Check out the protected default branch only
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.repository.default_branch }}
-          persist-credentials: false
-
-      - name: Set up Node without any dependency cache
-        uses: actions/setup-node@v7
-        with:
-          node-version: "20"
-
-      - name: Publish trusted-dependency-artifact on the pull request head
-        env:
-          GATE_REPOSITORY: ${{ github.repository }}
-          GATE_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          # Base64 of the validate job's verdict; never interpolated anywhere.
-          GATE_VERDICT: ${{ needs.validate.outputs.verdict }}
-          GATE_JOB_RESULT: ${{ needs.validate.result }}
-          GATE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          GATE_TOKEN: ${{ github.token }}
-        run: node scripts/trusted/publish-gate-check.mjs

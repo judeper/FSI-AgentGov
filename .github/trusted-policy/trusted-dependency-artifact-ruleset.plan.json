@@ -1,0 +1,84 @@
+{
+  "_readme": [
+    "Desired remote state only. This file does not configure GitHub.",
+    "Status remains planned-not-applied until an owner provisions the dedicated GitHub App,",
+    "runs the read-only plan, explicitly applies it, and obtains a complete read-back.",
+    "A GitHub Actions check with the same name is deliberately not an accepted source."
+  ],
+  "schemaVersion": 1,
+  "state": "planned-not-applied",
+  "repository": "judeper/FSI-AgentGov",
+  "ownerType": "User",
+  "defaultBranch": "main",
+  "managedRulesetName": "trusted-dependency-artifact-app-gate",
+  "requiredWorkflowBinding": {
+    "status": "unavailable-for-this-repository",
+    "reason": "GitHub documents required-workflow rulesets at organization or enterprise scope. This repository is owned by a personal user, so this plan intentionally uses an expected-source GitHub App check instead."
+  },
+  "expectedSource": {
+    "kind": "dedicated-github-app",
+    "appId": "${DEDICATED_GITHUB_APP_ID}",
+    "checkName": "trusted-dependency-artifact",
+    "rejectGitHubActions": true
+  },
+  "ruleset": {
+    "target": "branch",
+    "enforcement": "active",
+    "bypass_actors": [],
+    "conditions": {
+      "ref_name": {
+        "include": [
+          "refs/heads/main"
+        ],
+        "exclude": []
+      }
+    },
+    "rules": [
+      {
+        "type": "pull_request",
+        "parameters": {
+          "allowed_merge_methods": [
+            "squash"
+          ],
+          "dismiss_stale_reviews_on_push": true,
+          "require_code_owner_review": true,
+          "require_last_push_approval": true,
+          "required_approving_review_count": 1,
+          "required_review_thread_resolution": true
+        }
+      },
+      {
+        "type": "required_status_checks",
+        "parameters": {
+          "do_not_enforce_on_create": false,
+          "strict_required_status_checks_policy": true,
+          "required_status_checks": [
+            {
+              "context": "trusted-dependency-artifact",
+              "integration_id": "${DEDICATED_GITHUB_APP_ID}"
+            }
+          ]
+        }
+      },
+      {
+        "type": "non_fast_forward"
+      },
+      {
+        "type": "deletion"
+      },
+      {
+        "type": "required_linear_history"
+      }
+    ]
+  },
+  "legacyBranchProtection": {
+    "preserveExactly": true,
+    "requireAdminEnforcementIfPresent": true,
+    "preserveSignaturesIfPresent": true,
+    "preserveRestrictionsIfPresent": true
+  },
+  "mergeQueue": {
+    "enabledByThisPlan": false,
+    "requireDedicatedAppMergeGroupSupportBeforeEnabling": true
+  }
+}

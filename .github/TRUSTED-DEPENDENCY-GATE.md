@@ -1,183 +1,121 @@
-# Trusted dependency-artifact gate
+# Trusted dependency-artifact gate — **BLOCKED pending owner provisioning**
 
-The `trusted-dependency-artifact` check is the **authoritative** supply-chain
-gate for reviewed dependency artifacts. This document states exactly what it
-does, what it deliberately does not do, and what a repository administrator must
-configure for it to be enforced.
+This policy branch supplies a base-controlled evaluator, an exact remote
+ruleset plan, a GitHub App contract, and a read-only/apply/read-back operator
+script. It does **not** create an App, change repository settings, or make the
+artifact gate enforced.
 
-## The problem it exists to solve
+As observed through authenticated, read-only GitHub REST requests on
+**September 5, 2026**, `judeper/FSI-AgentGov` is a public repository owned by a
+`User`; `GET /repos/judeper/FSI-AgentGov/rulesets` returned `200 []`, and
+`GET /branches/main/protection` returned `404`. Therefore no ruleset or legacy
+branch-protection gate is currently active.
 
-`sri-check` and `security-scan` run on the `pull_request` event. Their workflow
-files, the verifier scripts they invoke, the hashes they compare against, and
-the tests they run are **all supplied by the pull request under review**. A
-sufficiently coherent malicious change can update every one of them together and
-still go green. Adding more hashes inside a pull-request-controlled workflow does
-not fix this; it only makes the self-attestation longer.
+## Chosen non-spoofable mechanism
 
-`sri-check` remains useful, fast, cross-platform feedback. It is **supplemental**
-and must never be described as authoritative.
+The planned mechanism is a **repository branch ruleset** requiring the check
+named `trusted-dependency-artifact` from one explicit **dedicated GitHub App
+integration ID**. The intended payload is
+`.github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json`.
 
-## The trust boundary
+The GitHub REST ruleset schema supports a required status check with an
+`integration_id`; unlike a name-only context, that binds the accepted result to
+the publisher App. GitHub documents that any writer can set a status/check name,
+so a familiar name alone is not evidence. A candidate workflow, including one
+that runs on a pull-request head or a test-merge commit, cannot satisfy the
+planned requirement unless it can publish as the dedicated App.
 
-| Element | Source | Candidate can influence it? |
-|---|---|---|
-| Workflow file | protected default branch | no |
-| Expected pins and allowlists | `.github/trusted-policy/dependency-artifact-policy.json` on the default branch | no |
-| Verifier code that decides pass/fail | `scripts/trusted/verify-dependency-artifact-gate.mjs` on the default branch | no |
-| Candidate tree (tarball, lock, manifest, provenance, verifier source, docs) | pull request head, read through the REST API | yes — it is **data**, never code |
+Required-workflow binding is not the selected mechanism. GitHub documents
+ruleset required workflows as organization/enterprise configuration, while this
+repository is personal-user owned. The REST schema alone is not proof that this
+account can activate the feature, so this branch does not claim that it can.
 
-The gate uses `pull_request_target`, which runs the workflow from the default
-branch. It **never** checks out, fetches into the workspace, merges, or executes
-the pull request head or its merge commit. There is no `npm`, no `npm ci`, no
-package script, no lifecycle hook, no `node_modules` directory, and no dependency
-cache in either job.
+## What the local preflight does
 
-Candidate content reaches the gate only as bytes:
+`.github/workflows/trusted-dependency-artifact.yml` is a **non-enforcing
+preflight**, not the required check. It uses `pull_request_target`, checks out
+the immutable event base SHA only, grants `contents: read` only, and never
+checks out, installs, imports, executes, or interpolates candidate content.
+It does not hold `checks: write` and does not publish
+`trusted-dependency-artifact`.
 
-1. `GET /pulls/{n}/files` — the changed-path list, bounded and rejected if truncated.
-2. `GET /git/trees/{head_sha}?recursive=1` — the head tree, with file modes.
-3. `GET /git/blobs/{blob_sha}` — only the specific blobs the policy names.
+The evaluator reads complete pull-file records (`status`, `filename`, and
+`previous_filename`) and independently diffs immutable base and candidate
+trees. It:
 
-Every blob is re-hashed to its own Git object id before it is believed, so the
-API cannot hand back different bytes than the tree advertised.
+- classifies both sides of a rename; protected-path renames are forbidden;
+- rejects truncated base/candidate trees, malformed rename records, unsafe
+  separators/control characters/dot segments, protected Unicode-normalization
+  collisions, and protected ASCII-case collisions;
+- derives whether the artifact is required from the immutable base tree and
+  verifies its presence, paths, pins, package/lock/provenance relationships on
+  **every** verdict, including nominally not-applicable and policy-only PRs;
+- captures event base/head SHA, checks both before evaluation, and rechecks
+  both (plus base ref) before returning a verdict.
 
-## How a change is classified
+`/pulls/{n}/files` is evidence for rename intent, never the only classifier.
+If it is incomplete while the immutable tree diff contains protected changes,
+the evaluator fails closed.
 
-| Changed paths | Mode | Result |
-|---|---|---|
-| none of the guarded paths | `not-applicable` | pass — the check still reports, so a required check is never missing |
-| trusted policy paths only | `policy-only` | pass, explicitly stating no artifact was validated; CODEOWNERS review governs it |
-| trusted policy paths **and** guarded paths | `mixed-trusted-and-guarded` | **fail closed** — you may not move the pins in the same pull request that supplies the bytes |
-| guarded paths, artifact present in base | `artifact` | full validation against base pins |
-| guarded paths, artifact not yet in base | `guard-only` | guard invariants only; referencing the artifact spec without shipping its bytes fails |
+## Documentation boundary
 
-Whether the artifact is *required* is derived from the **base checkout on disk**,
-not from policy text and never from the candidate. That keeps the gate honest in
-both directions: it cannot demand bytes that do not exist yet, and a candidate
-cannot escape validation by deleting the artifact.
+Candidate artifact documentation is not shell-parsed. Instead,
+`vendor/npm/fast-uri/3.1.7/README.md` is an exact SHA-256/size pin in the
+protected policy and must equal the no-command
+`vendor-readme-template.md`. Any byte change, including wrappers, aliases,
+backticks, subshells, or PowerShell call operators, fails the pin. All
+pre-trust and rotation procedures live in the protected
+`PRETRUST-REVIEW-RUNBOOK.md`; `SECURITY.md` and this document are trusted paths.
+A policy rotation must be a standalone PR and cannot be combined with a guarded
+artifact change.
 
-## What full validation asserts
+## Remote provisioning and read-back
 
-- Pinned raw-byte SHA-256 and size for the tarball, the provenance manifest, and
-  the two fast-uri verifier scripts.
-- Tarball structure parsed as data: canonical gzip header, header checksums,
-  regular files only (no symlink, hardlink, device or directory entries), no path
-  escaping `package/`, no absolute or `..` path, non-executable modes, canonical
-  ownership and mtime, entry-count / entry-size / unpacked-size bounds, and no
-  data after the zero-block terminator.
-- `provenance.json` file count, per-file digests against the packed bytes, no
-  unsafe paths, no executable entries.
-- Packed `package.json`: exact identity and license, no lifecycle scripts, no `bin`.
-- Root `package.json`: pinned local spec in `devDependencies`, never in
-  `dependencies`, the exact `ajv` → `$fast-uri` override, and no lifecycle or
-  hook (`pre*`/`post*`) script.
-- `package-lock.json`: exact version, `resolved`, SRI, `dev: true`, exactly one
-  copy of the package, Ajv's declared `^3.0.1` edge intact, and no dependency
-  declaring a `node`, `npm` or `npx` bin that could shadow the trusted toolchain.
-- Tree hygiene: no `.npmrc` anywhere, no `npm-shrinkwrap.json`, no submodule, and
-  nothing under `vendor/` outside the reviewed allowlist or with a symlink /
-  executable mode.
-- `.gitattributes`: required binary marking present, and no `filter=`, `merge=`
-  or `diff=` driver aimed at a guarded path.
-- The candidate verifier's own `FAST_URI_POLICY` constants and its six advisory
-  identifiers must equal the base-controlled values.
-- Reviewer-facing documents (`vendor/npm/fast-uri/3.1.7/README.md`,
-  `SECURITY.md`) must not instruct anyone to run `npm`, `npx`, `yarn`, `pnpm`,
-  `bun` or a `node_modules/.bin` shim before trust is established.
+The exact owner procedure is in
+`.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. In brief:
 
-## Why the check run is published explicitly
+1. Independently review and merge this **policy-only** commit under the
+   controls that existed before it. This PR cannot protect itself.
+2. Provision a dedicated GitHub App according to
+   `trusted-dependency-artifact-app-contract.json`; install it only on this
+   repository and keep all credentials outside Git.
+3. From the merged default branch, run
+   `Invoke-TrustedDependencyArtifactRuleset.ps1 -Plan -AppId <id>`.
+4. Copy its `liveDigest`, `intendedRulesetDigest`, and `confirmationToken`;
+   rerun it with explicit `-Apply` and all three values.
+5. Run `-ReadBack -AppId <id> -ProbePullRequest <new-no-op-PR>`.
 
-A `pull_request_target` workflow runs from the default branch, and its
-automatically created check run attaches to that branch's commit — not to the
-pull request head. Branch rulesets evaluate required status checks on the pull
-request **head SHA**, so a `pull_request_target` job's own check can never
-satisfy a required status check.
+The script defaults to read-only planning. Apply creates a new, dedicated
+ruleset only; it never PUTs the old branch-protection document. It validates the
+repository/branch/App installation, aborts on live-state drift, and read-backs
+the exact expected source, strictness, reviews/CODEOWNERS, conversation
+resolution, force-push/deletion block, linear history, no bypass actors, and
+unchanged legacy restrictions/signature state. Any mismatch is failure, not a
+partial success.
 
-The `publish` job therefore creates the check run itself, against
-`github.event.pull_request.head.sha`, with the stable name
-`trusted-dependency-artifact`. That is the name a ruleset must require.
+This plan does not enable merge queue. If it is enabled later, the dedicated App
+must publish the same expected-source check on `merge_group.head_sha`; a passing
+PR-head check is not a passing test-merge check.
 
-`publish` is the only job holding a write scope (`checks: write`). It never reads
-candidate content. The verdict travels from `validate` to `publish` base64-encoded
-and is re-parsed against a strict schema; a missing, malformed, cancelled or
-failed verdict publishes `failure`. There is no path that reports success on
-incomplete evidence.
+## Registry and advisory facts
 
-## Force-push and race behaviour
+Registry publication and advisory search results are deliberately not
+enforcement inputs. Direct registry/API evidence must record its date, HTTP/TLS
+result, and any mirror condition. A search result, mirror result, or transport
+failure does not establish package publication or absence. This branch makes no
+volatile claim about availability of `fast-uri` `3.1.7` or `4.1.4`.
 
-The tree is addressed by the event's head SHA and every blob is verified against
-its own Git object id, so a force-push cannot substitute content mid-run. The
-gate additionally reads the pull request back at the end and fails closed if the
-head moved. Because the published check run is bound to the SHA that was
-actually validated, a new head simply has no passing check.
+On **September 5, 2026**, direct canonical-registry probes for both versions
+failed at TLS negotiation (Windows Schannel curl error 35; Node `fetch` also
+failed), so this review reached no publication/absence conclusion. GitHub's
+advisory API returned live records for four retained regression identifiers and
+`404` for two; those mixed results are not used to add, remove, or reinterpret
+the historical byte pins or regression identifiers.
 
-## Required repository configuration — NOT YET APPLIED
+## Residual risk
 
-Enforcement is a **repository setting**, not a file in this repository. Nothing
-in this change set can enable it, and no one should describe the gate as enforced
-until the setting has been read back.
-
-`.github/branch-protection.json` already declares the desired state and
-`.github/branch-protection.meta.json` records that this context is published
-through the Checks API. To apply it, a maintainer with push access to
-`judeper/FSI-AgentGov` must run, from the repository root:
-
-```powershell
-pwsh -NoProfile -File scripts/apply-branch-protection.ps1 -Branch main
-```
-
-then read the live state back and confirm the context is present:
-
-```powershell
-gh api repos/judeper/FSI-AgentGov/branches/main/protection --jq '.required_status_checks.contexts'
-```
-
-The context must appear exactly as `trusted-dependency-artifact`. Until that
-read-back succeeds, the gate reports its verdict but does **not** block a merge.
-
-### CODEOWNERS review is not currently enforced
-
-`.github/branch-protection.json` sets `"required_pull_request_reviews": null`.
-CODEOWNERS therefore assigns reviewers but **nothing requires their approval**.
-That directly weakens one link in this design: a `policy-only` pull request
-passes the gate on the explicit understanding that human review governs it, and
-today that review is advisory.
-
-Until a maintainer sets `required_pull_request_reviews` with
-`require_code_owner_reviews: true` on `main` and reads the live protection back,
-describe the policy path as *reviewed by convention*, not *reviewed by
-enforcement*. The artifact path is unaffected — it is enforced by byte pins, not
-by review.
-
-Also confirm, in repository settings, that the default `GITHUB_TOKEN` permission
-is read-only and that Actions is not configured to grant write scopes by default;
-the workflow declares `permissions: {}` at file level, but a permissive default
-would still widen other workflows.
-
-## Changing the policy
-
-Changing an expected pin, an allowlist entry, or the gate itself requires a
-pull request that touches **only** trusted paths. The gate reports `policy-only`
-for such a change and does not validate an artifact, because there is none in
-scope; CODEOWNERS review is what governs it. A pull request that mixes a policy
-change with a guarded dependency change fails closed by design.
-
-Removing the fast-uri exception therefore has a required order: first a
-policy pull request that drops the pins, then the pull request that deletes the
-artifact, lock entry, override and gate wiring.
-
-## Known limits
-
-- Actions are referenced by major tag (`actions/checkout@v7`), matching existing
-  repository convention. Commit-SHA pinning would be stronger.
-- The gate validates structure, identity and policy conformance. It does not
-  execute the packaged code; behavioural regression evidence still comes from the
-  isolated child harness in `scripts/verify-fast-uri-artifact.mjs`, which the gate
-  binds by byte digest rather than by trusting its output.
-- A `policy-only` pass is exactly that: an assertion that no artifact was in
-  scope. It is not a statement that the new policy is correct. Only human review
-  can make that statement — and see the note above: code-owner review is not
-  currently required by branch protection.
-- The REST reader path runs for the first time only after this workflow reaches
-  the default branch, because `pull_request_target` executes the workflow from
-  there. Until then it is exercised by offline fixtures only.
+Until the owner provisions the App and the remote ruleset read-back succeeds,
+the gate remains **BLOCKED and non-enforced**. The preflight improves evidence
+but cannot prevent a merge. After activation, compromise of the repository owner
+or the dedicated App is still outside a repository-only control; the App must
+be independently operated and credentialed.

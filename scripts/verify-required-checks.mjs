@@ -1,17 +1,14 @@
 /**
  * verify-required-checks.mjs
  *
- * Asserts that every context listed in
- * .github/branch-protection.json -> required_status_checks.contexts
- * matches a workflow job's *display name* (the `jobs.<key>.name` field, or
- * the job key itself if no `name:` is set).
+ * Validates the committed plan for the one non-spoofable dependency-artifact
+ * requirement. Generic required-check names are intentionally not treated as
+ * authority: the planned ruleset binds its context to a dedicated GitHub App
+ * integration ID at apply time.
  *
- * GITHUB FOOTGUN:
- *   Required status checks are matched against the job's display name. A
- *   single typo in branch-protection.json (or renaming a job's `name:`
- *   without updating protection) silently means "no check is required" —
- *   the PR can be merged green without ever running CI for that context.
- *   This verifier turns that silent failure into a loud one.
+ * It retains the small workflow-name parser because existing tests use it for
+ * matrix expansion. It must never promote a matching Actions job name into an
+ * accepted source for `trusted-dependency-artifact`.
  *
  * LIMITATIONS:
  *   We do not depend on js-yaml. We parse only the simple YAML constructs we
@@ -23,70 +20,21 @@
  *   If we ever need full YAML support, swap in js-yaml.
  *
  * Exit codes:
- *   0 — all required contexts found (or branch-protection.json absent)
- *   1 — at least one required context not matched
+ *   0 — the planned expected-source binding is structurally sound
+ *   1 — the plan is absent, malformed, or encodes a spoofable source
  */
-import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { dirname, join, relative } from "node:path";
+import { dirname, join } from "node:path";
+import {
+  RULESET_PLAN_FILE,
+  assertRulesetPlan,
+  loadRulesetPlan,
+} from "./trusted/trusted-dependency-ruleset.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..");
-export const PROTECTION_FILE = join(repoRoot, ".github", "branch-protection.json");
-export const PROTECTION_META_FILE = join(
-  repoRoot,
-  ".github",
-  "branch-protection.meta.json",
-);
 export const WORKFLOWS_DIR = join(repoRoot, ".github", "workflows");
-
-/*
- * Some required contexts are not workflow job display names. A
- * `pull_request_target` gate's automatic check run attaches to the default
- * branch commit rather than the pull request head, so it can never satisfy a
- * required status check; those gates publish a check run against the head SHA
- * through the Checks API instead.
- *
- * Such a context is only accepted when .github/branch-protection.meta.json
- * declares it AND the declared workflow, publisher, and policy all exist AND the
- * policy's own check-name field still equals the required context. That turns
- * a rename or a deleted gate into a loud failure instead of a silently
- * unenforced rule.
- */
-export function resolveApiPublishedContexts({
-  metaFile = PROTECTION_META_FILE,
-  root = repoRoot,
-} = {}) {
-  const resolved = new Map();
-  const problems = [];
-  if (!existsSync(metaFile)) return { resolved, problems };
-
-  const meta = JSON.parse(readFileSync(metaFile, "utf8"));
-  for (const [context, declaration] of Object.entries(
-    meta.api_published_contexts ?? {},
-  )) {
-    const missing = ["workflow", "publisher", "policy"].filter(key => {
-      const value = declaration?.[key];
-      return typeof value !== "string" || !existsSync(join(root, value));
-    });
-    if (missing.length > 0) {
-      problems.push(`${context} — declared ${missing.join(", ")} not found on disk`);
-      continue;
-    }
-    const policy = JSON.parse(
-      readFileSync(join(root, declaration.policy), "utf8"),
-    );
-    const policyKey = declaration.policy_key ?? "checkName";
-    if (policy[policyKey] !== context) {
-      problems.push(
-        `${context} — ${declaration.policy}.${policyKey} is "${policy[policyKey]}"`,
-      );
-      continue;
-    }
-    resolved.set(context, `${declaration.workflow} -> ${declaration.publisher}`);
-  }
-  return { resolved, problems };
-}
 
 function normalizeLine(rawLine) {
   return rawLine.replace(/\t/g, "  ");
@@ -352,82 +300,25 @@ export function listWorkflowFiles(workflowsDir = WORKFLOWS_DIR) {
 }
 
 export function verifyRequiredChecks({
-  protectionFile = PROTECTION_FILE,
-  metaFile = PROTECTION_META_FILE,
-  workflowsDir = WORKFLOWS_DIR,
-  root = repoRoot,
+  planFile = RULESET_PLAN_FILE,
   log = console.log,
   error = console.error,
 } = {}) {
-  if (!existsSync(protectionFile)) {
-    log("branch-protection.json not yet created; nothing to verify.");
-    return { ok: true, failed: 0, requiredCount: 0 };
+  if (!existsSync(planFile)) {
+    error(`FAIL  expected-source ruleset plan is missing: ${planFile}`);
+    return { ok: false, failed: 1, requiredCount: 1 };
   }
-
-  const protection = JSON.parse(readFileSync(protectionFile, "utf8"));
-  const required =
-    (protection.required_status_checks && protection.required_status_checks.contexts) ||
-    protection.contexts ||
-    [];
-
-  if (!required.length) {
-    log("No required_status_checks.contexts listed; nothing to verify.");
-    return { ok: true, failed: 0, requiredCount: 0 };
+  try {
+    const plan = loadRulesetPlan(planFile);
+    assertRulesetPlan(plan);
+    log(
+      `OK    ${plan.expectedSource.checkName} is planned for dedicated GitHub App source binding; no name-only check is accepted.`,
+    );
+    return { ok: true, failed: 0, requiredCount: 1 };
+  } catch (cause) {
+    error(`FAIL  expected-source ruleset plan: ${cause.message}`);
+    return { ok: false, failed: 1, requiredCount: 1 };
   }
-
-  if (!existsSync(workflowsDir)) {
-    error(`FAIL: ${workflowsDir} does not exist but contexts are required:\n  - ${required.join("\n  - ")}`);
-    return { ok: false, failed: required.length, requiredCount: required.length };
-  }
-
-  const workflowFiles = listWorkflowFiles(workflowsDir);
-  const allJobNames = new Map(); // displayName -> [files...]
-  for (const wf of workflowFiles) {
-    const text = readFileSync(wf, "utf8");
-    const names = extractJobNames(text);
-    for (const name of names) {
-      if (!allJobNames.has(name)) {
-        allJobNames.set(name, []);
-      }
-      allJobNames.get(name).push(wf);
-    }
-  }
-
-  let failed = 0;
-  const { resolved: apiPublished, problems } = resolveApiPublishedContexts({
-    metaFile,
-    root,
-  });
-  for (const problem of problems) {
-    failed += 1;
-    error(`FAIL  ${problem}`);
-  }
-
-  for (const context of required) {
-    if (allJobNames.has(context)) {
-      const where = allJobNames
-        .get(context)
-        .map(file => relative(repoRoot, file).replace(/\\/g, "/"))
-        .join(", ");
-      log(`OK    ${context}  (${where})`);
-    } else if (apiPublished.has(context)) {
-      log(`OK    ${context}  (check-run API: ${apiPublished.get(context)})`);
-    } else {
-      failed += 1;
-      error(
-        `FAIL  ${context}  — no workflow job has this display name and no api_published_contexts declaration covers it`,
-      );
-    }
-  }
-
-  if (failed > 0) {
-    error(`\nverify-required-checks: ${failed} unmatched context(s).`);
-    error("Tip: required status checks match jobs.<key>.name (or the job key if name is omitted).");
-    return { ok: false, failed, requiredCount: required.length };
-  }
-
-  log(`\nverify-required-checks: all ${required.length} required context(s) matched.`);
-  return { ok: true, failed: 0, requiredCount: required.length };
 }
 
 export function runCli() {

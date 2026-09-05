@@ -27,12 +27,18 @@
 
   "trustedPaths": [
     ".github/trusted-policy/dependency-artifact-policy.json",
+    ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json",
+    ".github/trusted-policy/trusted-dependency-artifact-app-contract.json",
+    ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md",
+    ".github/trusted-policy/vendor-readme-template.md",
     ".github/workflows/trusted-dependency-artifact.yml",
-    ".github/branch-protection.json",
-    ".github/branch-protection.meta.json",
+    ".github/TRUSTED-DEPENDENCY-GATE.md",
     ".github/CODEOWNERS",
+    "SECURITY.md",
     "scripts/trusted/verify-dependency-artifact-gate.mjs",
-    "scripts/trusted/publish-gate-check.mjs"
+    "scripts/trusted/trusted-dependency-ruleset.mjs",
+    "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1",
+    "scripts/verify-required-checks.mjs"
   ],
 
   "guardedPaths": {
@@ -61,6 +67,10 @@
     "vendor/npm/fast-uri/3.1.7/provenance.json": {
       "sha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8",
       "size": 12728
+    },
+    "vendor/npm/fast-uri/3.1.7/README.md": {
+      "sha256": "22486e0306020e3490d84db528430b2b9ff4965cc7674ca25b1feb6eb4d60cac",
+      "size": 417
     },
     "scripts/verify-fast-uri-artifact.mjs": {
       "sha256": "982e43bcab47210b1bbc279ebdf9bc1ddb7b0eb4d530f1ae0c7e968bab6cf123",
@@ -154,24 +164,22 @@
     "attributeGuardedPathPrefixes": ["vendor/"]
   },
 
-  "documentScan": {
-    "paths": [
-      "vendor/npm/fast-uri/3.1.7/README.md",
-      "SECURITY.md"
-    ],
-    "forbiddenPrograms": ["npm", "npx", "yarn", "pnpm", "bun"],
-    "forbiddenFragments": ["node_modules/.bin/"],
-    "negationMarkers": [
-      "do not",
-      "does not",
-      "never",
-      "forbidden",
-      "must not",
-      "cannot",
-      "instead of",
-      "rejected",
-      "unsafe"
+  "documentation": {
+    "vendorReadme": {
+      "path": "vendor/npm/fast-uri/3.1.7/README.md",
+      "sha256": "22486e0306020e3490d84db528430b2b9ff4965cc7674ca25b1feb6eb4d60cac",
+      "size": 417,
+      "templatePath": ".github/trusted-policy/vendor-readme-template.md"
+    },
+    "trustedPreTrustPaths": [
+      "SECURITY.md",
+      ".github/TRUSTED-DEPENDENCY-GATE.md",
+      ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md"
     ]
+  },
+
+  "renames": {
+    "allowProtectedPathRenames": false
   },
 
   "rootScripts": {

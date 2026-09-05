@@ -25,16 +25,18 @@ on:
   schedule:
     - cron: "0 10 * * 1"  # weekly Monday 10:00 UTC
 
-permissions:
-  contents: read
-  security-events: write
+permissions: {}
 
 jobs:
   python-audit:
     name: pip-audit + bandit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v7
         with:
@@ -75,8 +77,12 @@ jobs:
   npm-audit:
     name: npm audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: "20"

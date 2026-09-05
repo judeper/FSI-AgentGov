@@ -100,30 +100,27 @@ The framework is **not** designed to defend against:
 | FSI language rules | `python-quality.yml` → `verify_language_rules.py` |
 | SBOMs + signed release artifacts | `release-artifacts.yml` (CycloneDX + Sigstore) |
 | Link health on docs | `link-check.yml` |
-| Reviewed dependency artifacts (authoritative) | `trusted-dependency-artifact.yml` (base-controlled) |
+| Reviewed dependency artifacts (BLOCKED pending remote App/ruleset) | `trusted-dependency-artifact.yml` preflight + trusted ruleset plan |
 
-### Base-controlled dependency-artifact gate
+### Base-controlled dependency-artifact policy — blocked until remote activation
 
-Workflows that run on the `pull_request` event execute workflow files, verifier
-scripts, hashes and tests **supplied by the pull request under review**. A
-coherent malicious change can update all of them together and still report
-green, so such a workflow can only ever attest to itself.
+`pull_request` workflows execute workflow files, verifier scripts, hashes and
+tests supplied by the pull request under review. A coherent malicious change can
+make those checks green, so neither `sri-check` nor `security-scan` is an
+authoritative dependency-artifact gate.
 
-`trusted-dependency-artifact` closes that gap. It runs from the protected
-default branch, never checks out or executes the pull request head, and reads
-the candidate tree through the REST API as data only. Its expected pins live in
-`.github/trusted-policy/dependency-artifact-policy.json` on the default branch,
-so a pull request cannot move them: changing a trusted path and a guarded
-dependency path in the same pull request fails closed.
+The base-controlled `trusted-dependency-artifact` preflight reads candidate
+trees as data only and uses immutable base/head SHAs, but its GitHub Actions
+identity and check name are not non-spoofable. It is **not currently enforced**.
+The planned enforcement is a repository ruleset that requires the same context
+from a dedicated GitHub App integration ID. That App and the remote ruleset do
+not exist as of this policy branch; no name-only status check is accepted.
 
-`sri-check` and `security-scan` remain useful, fast supplemental feedback. They
-are **not** authoritative and must not be described as such.
-
-Enforcement is a repository setting, not a file. The desired state is declared
-in `.github/branch-protection.json`, but the gate does not block a merge until a
-maintainer applies it and reads the live protection back. The exact procedure,
-the full trust boundary, and the known limits are documented in
-`.github/TRUSTED-DEPENDENCY-GATE.md`.
+The policy, app contract, exact operator commands, read-back requirements, and
+bootstrap order are in `.github/TRUSTED-DEPENDENCY-GATE.md` and
+`.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. Changes to this file and
+those policy paths are trusted-path changes and must never be combined with a
+guarded artifact change.
 
 ## Evidence and Data Handling
 

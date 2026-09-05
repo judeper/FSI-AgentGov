@@ -1,0 +1,44 @@
+{
+  "_readme": [
+    "This is a provisioning contract, not a GitHub App manifest and not a running service.",
+    "No private key, webhook secret, installation token, endpoint, or App ID belongs in this repository."
+  ],
+  "schemaVersion": 1,
+  "state": "blocked-pending-owner-provisioning",
+  "repository": "judeper/FSI-AgentGov",
+  "checkName": "trusted-dependency-artifact",
+  "publisherIdentity": {
+    "required": "A dedicated GitHub App installed only on judeper/FSI-AgentGov",
+    "forbidden": [
+      "GitHub Actions app identity",
+      "personal access token",
+      "workflow-created check run",
+      "candidate-controlled credential"
+    ]
+  },
+  "minimumPermissions": {
+    "contents": "read",
+    "checks": "write",
+    "metadata": "read"
+  },
+  "requiredWebhookEvents": [
+    "pull_request"
+  ],
+  "mergeQueueRequirement": {
+    "whenEnabled": "Subscribe to merge_group and publish the same check from the dedicated App on merge_group.head_sha. A passing PR-head check is not a passing merge-group check.",
+    "currentState": "merge queue is not enabled by this plan"
+  },
+  "evaluationContract": [
+    "Verify the signed webhook before processing it.",
+    "Capture event head SHA, base SHA, and base ref; reject if a live PR read differs before or after evaluation.",
+    "Read trusted policy and verifier material from the immutable event base SHA, never from the candidate head.",
+    "Read base and candidate trees by immutable SHA, classify both tree sides and complete pull-file records, and treat candidate bytes as data only.",
+    "Never check out, install, import, execute, or interpolate candidate content.",
+    "Publish success only after the complete verdict is successful and bind the check run to the exact evaluated SHA."
+  ],
+  "operatorVerification": [
+    "The owner must record the App ID returned by GitHub and pass it explicitly to the ruleset script.",
+    "The owner must prove installation on this repository, ruleset integration_id equality, and a successful check run whose app.id equals that App ID.",
+    "If any read-back field is unavailable or differs, the artifact gate remains blocked and non-enforced."
+  ]
+}

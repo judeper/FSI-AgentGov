@@ -1,4 +1,4 @@
-"""Regression checks for the committed main-branch protection target."""
+"""Regression checks for the planned source-bound dependency gate ruleset."""
 
 from __future__ import annotations
 
@@ -6,71 +6,82 @@ import json
 from pathlib import Path
 
 
-def test_branch_protection_preserves_live_checks_and_adds_autodoc_gates() -> None:
+def load_plan() -> dict:
     repo_root = Path(__file__).resolve().parent.parent
-    protection = json.loads(
-        (repo_root / ".github" / "branch-protection.json").read_text(encoding="utf-8")
+    return json.loads(
+        (
+            repo_root
+            / ".github"
+            / "trusted-policy"
+            / "trusted-dependency-artifact-ruleset.plan.json"
+        ).read_text(encoding="utf-8")
     )
-    required = protection["required_status_checks"]
-    assert required["strict"] is True
-    assert protection["enforce_admins"] is True
-    assert required["contexts"] == [
-        "e2e-smoke",
-        "gitleaks",
-        "dependency-review",
-        "Analyze (python)",
-        "Analyze (javascript)",
-        "mkdocs-strict",
-        "verify_version_stamps",
-        "ruff",
-        "pytest (assessment + scripts)",
-        "manifest / index / nav drift",
-        "FSI language rules",
-        "autodoc-redirect-verify",
-        "autodoc-verify",
-        "trusted-dependency-artifact",
-    ]
-    assert "markdown-link-check" not in required["contexts"]
 
 
-def test_branch_protection_body_carries_only_api_fields() -> None:
-    """The file is PUT verbatim to the branch-protection API.
-
-    Repository-only metadata must live in the sidecar file, or the API rejects
-    the request and protection silently stops being applied.
-    """
+def test_legacy_name_only_branch_protection_payload_is_removed() -> None:
     repo_root = Path(__file__).resolve().parent.parent
-    protection = json.loads(
-        (repo_root / ".github" / "branch-protection.json").read_text(encoding="utf-8")
-    )
-    assert set(protection["required_status_checks"]) == {"strict", "contexts"}
+    assert not (repo_root / ".github" / "branch-protection.json").exists()
+    assert not (repo_root / ".github" / "branch-protection.meta.json").exists()
 
 
-def test_trusted_dependency_artifact_context_is_declared_and_resolvable() -> None:
-    """`trusted-dependency-artifact` is published through the Checks API.
+def test_ruleset_plan_is_explicitly_non_applied_and_source_bound() -> None:
+    plan = load_plan()
+    assert plan["state"] == "planned-not-applied"
+    assert plan["repository"] == "judeper/FSI-AgentGov"
+    assert plan["ownerType"] == "User"
+    assert plan["defaultBranch"] == "main"
+    assert plan["requiredWorkflowBinding"]["status"] == "unavailable-for-this-repository"
+    assert plan["expectedSource"] == {
+        "kind": "dedicated-github-app",
+        "appId": "${DEDICATED_GITHUB_APP_ID}",
+        "checkName": "trusted-dependency-artifact",
+        "rejectGitHubActions": True,
+    }
 
-    A ``pull_request_target`` job's automatic check run attaches to the default
-    branch commit rather than the pull request head, so it can never satisfy a
-    required status check. The gate publishes its own check run instead, and the
-    sidecar declaration is what keeps that wiring honest.
-    """
+
+def test_ruleset_requires_strict_app_source_and_full_pr_safety_controls() -> None:
+    plan = load_plan()
+    rules = {rule["type"]: rule.get("parameters", {}) for rule in plan["ruleset"]["rules"]}
+    assert plan["ruleset"]["bypass_actors"] == []
+    assert plan["ruleset"]["conditions"]["ref_name"] == {
+        "include": ["refs/heads/main"],
+        "exclude": [],
+    }
+    assert rules["required_status_checks"] == {
+        "do_not_enforce_on_create": False,
+        "strict_required_status_checks_policy": True,
+        "required_status_checks": [
+            {
+                "context": "trusted-dependency-artifact",
+                "integration_id": "${DEDICATED_GITHUB_APP_ID}",
+            }
+        ],
+    }
+    assert rules["pull_request"]["require_code_owner_review"] is True
+    assert rules["pull_request"]["required_review_thread_resolution"] is True
+    assert {"non_fast_forward", "deletion", "required_linear_history"} <= rules.keys()
+    assert "workflows" not in rules
+    assert "merge_queue" not in rules
+
+
+def test_security_setting_assets_are_in_trusted_paths() -> None:
     repo_root = Path(__file__).resolve().parent.parent
-    meta = json.loads(
-        (repo_root / ".github" / "branch-protection.meta.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    declaration = meta["api_published_contexts"]["trusted-dependency-artifact"]
-    for key in ("workflow", "publisher", "policy"):
-        assert (repo_root / declaration[key]).is_file(), key
-
     policy = json.loads(
-        (repo_root / declaration["policy"]).read_text(encoding="utf-8")
+        (
+            repo_root
+            / ".github"
+            / "trusted-policy"
+            / "dependency-artifact-policy.json"
+        ).read_text(encoding="utf-8")
     )
-    assert policy[declaration["policy_key"]] == "trusted-dependency-artifact"
-
-    workflow = (repo_root / declaration["workflow"]).read_text(encoding="utf-8")
-    assert "pull_request_target" in workflow
-    # The gate must never materialise candidate code in its workspace.
-    assert "pull_request.head.ref" not in workflow
-    assert "refs/pull/" not in workflow
+    for path in (
+        ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json",
+        ".github/trusted-policy/trusted-dependency-artifact-app-contract.json",
+        ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md",
+        ".github/TRUSTED-DEPENDENCY-GATE.md",
+        "SECURITY.md",
+        "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1",
+        "scripts/trusted/trusted-dependency-ruleset.mjs",
+        "scripts/verify-required-checks.mjs",
+    ):
+        assert path in policy["trustedPaths"], path

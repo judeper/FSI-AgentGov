@@ -1,5 +1,5 @@
 /*
- * Authoritative, base-controlled dependency-artifact gate.
+ * Base-controlled dependency-artifact preflight evaluator.
  *
  * TRUST MODEL
  * -----------
@@ -33,7 +33,7 @@
  */
 
 import { createHash } from "node:crypto";
-import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { appendFileSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { gunzipSync } from "node:zlib";
@@ -77,7 +77,8 @@ export function assertPolicyShape(policy) {
     "vendor",
     "package",
     "verifierPolicyLiterals",
-    "documentScan",
+    "documentation",
+    "renames",
     "rootScripts",
     "forbiddenTree",
     "gitattributes",
@@ -95,15 +96,19 @@ export function assertPolicyShape(policy) {
   if (!policy.vendor.allowedFiles.includes(policy.package.artifactPath)) {
     throw new Error("trusted policy artifactPath is not in the vendor allowlist");
   }
+  const vendorReadme = policy.documentation?.vendorReadme;
+  if (
+    !vendorReadme ||
+    !policy.vendor.allowedFiles.includes(vendorReadme.path) ||
+    policy.digestPins[vendorReadme.path]?.sha256 !== vendorReadme.sha256 ||
+    policy.digestPins[vendorReadme.path]?.size !== vendorReadme.size
+  ) {
+    throw new Error("trusted policy vendor README must be an exact digest-pinned vendor file");
+  }
+  if (policy.renames.allowProtectedPathRenames !== false) {
+    throw new Error("trusted policy must reject protected-path renames");
+  }
   return policy;
-}
-
-/*
- * The base checkout decides whether the reviewed artifact must exist. Nothing
- * the candidate controls participates in this answer.
- */
-export function artifactRequiredByBase(policy, repoRoot = defaultRepoRoot) {
-  return existsSync(join(repoRoot, ...policy.package.artifactPath.split("/")));
 }
 
 /* ------------------------------------------------------------------ *
@@ -181,116 +186,206 @@ export function isUnsafeRepositoryPath(path) {
   return segments.some((segment) => segment === "" || segment === "." || segment === "..");
 }
 
+export function normalizeRepositoryPath(path) {
+  if (typeof path !== "string") return null;
+  return path.replaceAll("\\", "/").normalize("NFC");
+}
+
+export function asciiCaseFold(path) {
+  return path.replace(/[A-Z]/g, character => character.toLowerCase());
+}
+
+function classifyRepositoryPath(policy, path) {
+  const normalized = normalizeRepositoryPath(path);
+  if (normalized === null || isUnsafeRepositoryPath(path)) {
+    return { normalized, trusted: false, guarded: false, unsafe: true };
+  }
+  const { exact, prefixes, suffixes } = policy.guardedPaths;
+  return {
+    normalized,
+    unsafe: false,
+    trusted: policy.trustedPaths.includes(normalized),
+    guarded:
+      exact.includes(normalized) ||
+      prefixes.some(prefix => normalized.startsWith(prefix)) ||
+      suffixes.some(suffix => normalized.endsWith(suffix)),
+  };
+}
+
 export function classifyChangedPaths(policy, changedPaths) {
   const trusted = [];
   const guarded = [];
   const unsafe = [];
-  const { exact, prefixes, suffixes } = policy.guardedPaths;
-  const trustedSet = new Set(policy.trustedPaths);
 
   for (const path of changedPaths) {
-    if (isUnsafeRepositoryPath(path)) {
+    const classification = classifyRepositoryPath(policy, path);
+    if (classification.unsafe) {
       unsafe.push(path);
       continue;
     }
-    if (trustedSet.has(path)) trusted.push(path);
-    if (
-      exact.includes(path) ||
-      prefixes.some((prefix) => path.startsWith(prefix)) ||
-      suffixes.some((suffix) => path.endsWith(suffix))
-    ) {
-      guarded.push(path);
-    }
+    if (classification.trusted) trusted.push(path);
+    if (classification.guarded) guarded.push(path);
   }
   return { trusted, guarded, unsafe };
 }
 
-/* ------------------------------------------------------------------ *
- * Documentation scanner — the base-controlled half of HIGH findings 1 and 2.
- *
- * A reviewer instruction that runs `npm ci`, `npm run …`, `npm test`, or a
- * `node_modules/.bin` shim before trust is established re-opens candidate
- * controlled lifecycle hooks, `.npmrc` injection, and bin shadowing. The
- * candidate cannot suppress this scan, because it runs from base policy.
- * ------------------------------------------------------------------ */
-
-export function extractFencedCodeBlocks(markdown) {
-  const blocks = [];
-  const lines = markdown.split(/\r?\n/);
-  let fence = null;
-  let current = [];
-  for (let index = 0; index < lines.length; index += 1) {
-    const match = lines[index].match(/^\s{0,3}(`{3,}|~{3,})(.*)$/);
-    if (match) {
-      if (fence === null) {
-        fence = match[1];
-        current = [];
-        continue;
-      }
-      if (match[1][0] === fence[0] && match[1].length >= fence.length) {
-        blocks.push(current);
-        fence = null;
-        current = [];
-        continue;
-      }
-    }
-    if (fence !== null) current.push({ number: index + 1, text: lines[index] });
-  }
-  return blocks;
-}
-
-/* Resolve the program a shell would execute for one command segment. */
-export function commandProgram(commandLine) {
-  let text = String(commandLine).trim();
-  if (text === "" || text.startsWith("#")) return null;
-  text = text.replace(/^(?:PS[^>]*>|>>>|\$|>)\s+/, "");
-  let previous = null;
-  while (previous !== text) {
-    previous = text;
-    text = text.replace(/^[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|[^\s]*)\s+/, "");
-  }
-  const token = text.split(/\s+/)[0] ?? "";
-  return token === "" ? null : token.replace(/^['"]+|['"]+$/g, "");
-}
-
-export function scanDocumentForForbiddenCommands(policy, markdown, label) {
-  const errors = [];
-  const { forbiddenPrograms, forbiddenFragments, negationMarkers } = policy.documentScan;
-  const programs = new Set(forbiddenPrograms);
-  const isForbidden = (token) =>
-    token !== null &&
-    (programs.has(token) || forbiddenFragments.some((fragment) => token.includes(fragment)));
-
-  for (const block of extractFencedCodeBlocks(markdown)) {
-    for (const { number, text } of block) {
-      for (const segment of text.split(/&&|\|\||[;|]/)) {
-        const program = commandProgram(segment);
-        if (isForbidden(program)) {
-          errors.push(`${label}:${number} runs '${program}' before trust is established`);
-        }
-      }
-    }
-  }
-
-  /* Inline code spans are instructions too, unless the sentence disclaims them. */
-  const lines = markdown.split(/\r?\n/);
-  let insideFence = false;
-  for (let index = 0; index < lines.length; index += 1) {
-    if (/^\s{0,3}(`{3,}|~{3,})/.test(lines[index])) {
-      insideFence = !insideFence;
+export function classifyChangedFiles(policy, files) {
+  const paths = [];
+  for (const file of files ?? []) {
+    if (!file || typeof file !== "object") {
+      paths.push(null);
       continue;
     }
-    if (insideFence) continue;
-    const lower = lines[index].toLowerCase();
-    if (negationMarkers.some((marker) => lower.includes(marker))) continue;
-    for (const span of lines[index].match(/`[^`]+`/g) ?? []) {
-      const program = commandProgram(span.slice(1, -1));
-      if (isForbidden(program)) {
-        errors.push(`${label}:${index + 1} shows '${program}' without a do-not marker`);
+    paths.push(file.filename);
+    if (file.previous_filename !== undefined) paths.push(file.previous_filename);
+  }
+  return classifyChangedPaths(policy, paths);
+}
+
+function uniqueSorted(values) {
+  return [...new Set(values)].sort();
+}
+
+export function collectProtectedPathIdentityProblems(policy, baseEntries, headEntries) {
+  const problems = [];
+  const byNfc = new Map();
+  const byCaseFold = new Map();
+  const allEntries = [
+    ...(baseEntries ?? []).map(entry => ({ ...entry, side: "base" })),
+    ...(headEntries ?? []).map(entry => ({ ...entry, side: "head" })),
+  ];
+
+  for (const entry of allEntries) {
+    const path = entry?.path;
+    const classification = classifyRepositoryPath(policy, path);
+    if (classification.unsafe) {
+      problems.push(`tree contains an unsafe path '${sanitizeToken(path, 100)}'`);
+      continue;
+    }
+    if (!classification.trusted && !classification.guarded) continue;
+    const nfc = classification.normalized;
+    const folded = asciiCaseFold(nfc);
+    if (!byNfc.has(nfc)) byNfc.set(nfc, new Set());
+    byNfc.get(nfc).add(path);
+    if (!byCaseFold.has(folded)) byCaseFold.set(folded, new Set());
+    byCaseFold.get(folded).add(path);
+  }
+
+  for (const [normalized, originals] of byNfc) {
+    if (originals.size > 1) {
+      problems.push(
+        `protected path has a Unicode-normalization collision at '${sanitizeToken(normalized, 100)}'`,
+      );
+    }
+  }
+  for (const [folded, originals] of byCaseFold) {
+    if (originals.size > 1) {
+      problems.push(
+        `protected path has an ASCII-case collision at '${sanitizeToken(folded, 100)}'`,
+      );
+    }
+  }
+  return uniqueSorted(problems);
+}
+
+export function diffImmutableTrees(baseEntries, headEntries) {
+  const base = new Map();
+  const head = new Map();
+  const duplicates = [];
+  for (const entry of baseEntries ?? []) {
+    if (base.has(entry.path)) duplicates.push(`base:${entry.path}`);
+    base.set(entry.path, entry);
+  }
+  for (const entry of headEntries ?? []) {
+    if (head.has(entry.path)) duplicates.push(`head:${entry.path}`);
+    head.set(entry.path, entry);
+  }
+
+  const changes = [];
+  for (const path of uniqueSorted([...base.keys(), ...head.keys()])) {
+    const before = base.get(path);
+    const after = head.get(path);
+    if (
+      before &&
+      after &&
+      before.sha === after.sha &&
+      before.mode === after.mode &&
+      before.type === after.type
+    ) {
+      continue;
+    }
+    changes.push({
+      status: before && after ? "modified" : before ? "removed" : "added",
+      filename: after?.path ?? before?.path,
+      previous_filename: before && !after ? before.path : undefined,
+      before,
+      after,
+    });
+  }
+
+  const removedBySha = new Map();
+  const addedBySha = new Map();
+  for (const change of changes) {
+    if (change.status === "removed" && change.before?.sha) {
+      if (!removedBySha.has(change.before.sha)) removedBySha.set(change.before.sha, []);
+      removedBySha.get(change.before.sha).push(change);
+    }
+    if (change.status === "added" && change.after?.sha) {
+      if (!addedBySha.has(change.after.sha)) addedBySha.set(change.after.sha, []);
+      addedBySha.get(change.after.sha).push(change);
+    }
+  }
+  const inferredRenames = [];
+  for (const [sha, removed] of removedBySha) {
+    const added = addedBySha.get(sha) ?? [];
+    if (removed.length === 1 && added.length === 1) {
+      inferredRenames.push({
+        status: "renamed",
+        filename: added[0].filename,
+        previous_filename: removed[0].filename,
+      });
+    }
+  }
+  return { base, head, changes, inferredRenames, duplicates };
+}
+
+export function validateChangedFileRecords(policy, files) {
+  const problems = [];
+  for (const file of files ?? []) {
+    if (!file || typeof file !== "object") {
+      problems.push("pull-file record is malformed");
+      continue;
+    }
+    const status = String(file.status ?? "");
+    const filename = file.filename;
+    const next = classifyRepositoryPath(policy, filename);
+    if (next.unsafe) {
+      problems.push(`pull-file record has an unsafe path '${sanitizeToken(filename, 100)}'`);
+      continue;
+    }
+    if (status === "renamed") {
+      if (typeof file.previous_filename !== "string") {
+        problems.push("renamed pull-file record omits previous_filename");
+        continue;
+      }
+      const previous = classifyRepositoryPath(policy, file.previous_filename);
+      if (previous.unsafe) {
+        problems.push(
+          `renamed pull-file record has an unsafe previous path '${sanitizeToken(file.previous_filename, 100)}'`,
+        );
+        continue;
+      }
+      if (
+        !policy.renames.allowProtectedPathRenames &&
+        (next.trusted || next.guarded || previous.trusted || previous.guarded)
+      ) {
+        problems.push(
+          `protected-path rename '${sanitizeToken(file.previous_filename, 90)}' -> '${sanitizeToken(filename, 90)}' is forbidden`,
+        );
       }
     }
   }
-  return errors;
+  return uniqueSorted(problems);
 }
 
 /* ------------------------------------------------------------------ *
@@ -688,10 +783,10 @@ export function checkGitattributes(verdict, policy, text) {
 }
 
 /* ------------------------------------------------------------------ *
- * The authoritative evaluation
+ * Retired evaluator retained only for local source compatibility
  * ------------------------------------------------------------------ */
 
-export async function evaluateCandidate({
+async function legacyEvaluateCandidate({
   policy,
   baseRef,
   defaultBranch,
@@ -822,7 +917,6 @@ export async function evaluateCandidate({
     "package.json",
     "package-lock.json",
     ".gitattributes",
-    ...policy.documentScan.paths,
     ...(validateArtifact
       ? [...policy.vendor.allowedFiles, ...Object.keys(policy.digestPins)]
       : []),
@@ -882,23 +976,6 @@ export async function evaluateCandidate({
   }
   if (contents.has(".gitattributes") && validateArtifact) {
     checkGitattributes(verdict, policy, Buffer.from(contents.get(".gitattributes")).toString("utf8"));
-  }
-
-  /* Reviewer-facing documentation must not re-open pre-trust execution. */
-  for (const path of policy.documentScan.paths) {
-    const bytes = contents.get(path);
-    if (!bytes) continue;
-    if (bytes.length > policy.limits.maxDocumentBytes) {
-      verdict.fail(`document '${sanitizeToken(path, 80)}' exceeds the scan size limit`);
-      continue;
-    }
-    for (const error of scanDocumentForForbiddenCommands(
-      policy,
-      Buffer.from(bytes).toString("utf8"),
-      path,
-    )) {
-      verdict.fail(error);
-    }
   }
 
   if (!validateArtifact) {
@@ -1016,6 +1093,467 @@ export async function evaluateCandidate({
   return verdict;
 }
 
+function asChangedFileRecords(changedFiles, changedPaths) {
+  if (Array.isArray(changedFiles)) return changedFiles;
+  return (changedPaths ?? []).map(filename => ({ status: "modified", filename }));
+}
+
+function treeBlobMap(entries, side, verdict) {
+  const blobs = new Map();
+  const seen = new Set();
+  for (const entry of entries ?? []) {
+    if (!entry || typeof entry !== "object" || typeof entry.path !== "string") {
+      verdict.fail(`${side} tree contains a malformed entry`);
+      continue;
+    }
+    if (seen.has(entry.path)) {
+      verdict.fail(`${side} tree contains duplicate path '${sanitizeToken(entry.path, 100)}'`);
+      continue;
+    }
+    seen.add(entry.path);
+    if (isUnsafeRepositoryPath(entry.path)) {
+      verdict.fail(`${side} tree contains an unsafe path '${sanitizeToken(entry.path, 100)}'`);
+      continue;
+    }
+    if (entry.type === "commit" || entry.mode === BLOB_MODE_GITLINK) {
+      verdict.fail(`${side} tree contains a submodule at '${sanitizeToken(entry.path, 100)}'`);
+      continue;
+    }
+    if (entry.type === "blob") {
+      if (!FULL_OBJECT_ID.test(String(entry.sha ?? ""))) {
+        verdict.fail(`${side} tree blob '${sanitizeToken(entry.path, 100)}' has an invalid object id`);
+        continue;
+      }
+      blobs.set(entry.path, entry);
+    }
+  }
+  return blobs;
+}
+
+function artifactState(policy, baseBlobs, headBlobs, verdict) {
+  const required = policy.vendor.allowedFiles;
+  const basePresent = required.filter(path => baseBlobs.has(path));
+  const headPresent = required.filter(path => headBlobs.has(path));
+  const baseHasArtifact = baseBlobs.has(policy.package.artifactPath);
+  const headHasArtifact = headBlobs.has(policy.package.artifactPath);
+
+  if (basePresent.length !== 0 && basePresent.length !== required.length) {
+    verdict.fail("base tree contains an incomplete reviewed artifact set");
+  }
+  if (baseHasArtifact && basePresent.length !== required.length) {
+    verdict.fail("base tree artifact lacks required reviewed companion files");
+  }
+  if (baseHasArtifact && headPresent.length !== required.length) {
+    verdict.fail(
+      "candidate removes or moves a reviewed dependency artifact; removal requires a trusted policy rotation first",
+    );
+  }
+  if (!baseHasArtifact && headPresent.length !== 0 && headPresent.length !== required.length) {
+    verdict.fail("candidate adds an incomplete reviewed artifact set");
+  }
+
+  return {
+    artifactRequired: baseHasArtifact,
+    validateArtifact: baseHasArtifact || headHasArtifact,
+  };
+}
+
+function classifyAllChanges(policy, changedFiles, treeChanges) {
+  const paths = [];
+  for (const file of [...changedFiles, ...treeChanges]) {
+    if (!file || typeof file !== "object") {
+      paths.push(null);
+      continue;
+    }
+    paths.push(file.filename);
+    if (file.previous_filename !== undefined) paths.push(file.previous_filename);
+  }
+  return classifyChangedPaths(policy, paths);
+}
+
+function failOnProtectedRename(policy, verdict, rename) {
+  const classification = classifyChangedFiles(policy, [rename]);
+  if (
+    !policy.renames.allowProtectedPathRenames &&
+    (classification.trusted.length > 0 || classification.guarded.length > 0)
+  ) {
+    verdict.fail(
+      `protected-path rename '${sanitizeToken(rename.previous_filename, 90)}' -> '${sanitizeToken(rename.filename, 90)}' is forbidden`,
+    );
+  }
+}
+
+function requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict) {
+  for (const path of baseBlobs.keys()) {
+    const classification = classifyRepositoryPath(policy, path);
+    if (classification.trusted && !headBlobs.has(path)) {
+      verdict.fail(
+        `trusted path '${sanitizeToken(path, 100)}' was removed or moved; policy rotations must modify trusted paths in place`,
+      );
+    }
+  }
+}
+
+function checkRace(verdict, {
+  eventHeadSha,
+  eventBaseSha,
+  baseRef,
+  currentHeadSha,
+  currentBaseSha,
+  currentBaseRef,
+}) {
+  if (currentHeadSha !== undefined && currentHeadSha !== eventHeadSha) {
+    verdict.fail("pull request head moved during validation; re-run against the new head");
+  }
+  if (currentBaseSha !== undefined && currentBaseSha !== eventBaseSha) {
+    verdict.fail("pull request base moved during validation; re-run against the new base");
+  }
+  if (currentBaseRef !== undefined && currentBaseRef !== baseRef) {
+    verdict.fail("pull request base ref changed during validation; re-run against the new base");
+  }
+}
+
+/*
+ * The only active evaluator. It independently compares immutable base/head
+ * trees; `/pulls/{n}/files` is retained for rename evidence but is never the
+ * sole source of path classification.
+ */
+export async function evaluateCandidate({
+  policy,
+  baseRef,
+  defaultBranch,
+  eventHeadSha,
+  eventBaseSha,
+  currentHeadSha,
+  currentBaseSha,
+  currentBaseRef,
+  changedFiles,
+  changedPaths,
+  changedFilesTruncated = false,
+  changedPathsTruncated = false,
+  baseTreeEntries = [],
+  baseTreeTruncated = false,
+  treeEntries = [],
+  treeTruncated = false,
+  readBlob,
+}) {
+  const verdict = new Verdict(policy.limits);
+  const fileRecords = asChangedFileRecords(changedFiles, changedPaths);
+
+  if (!FULL_OBJECT_ID.test(String(eventHeadSha ?? ""))) {
+    verdict.mode = "invalid-event";
+    return verdict.fail("pull request head SHA is not a full object id");
+  }
+  if (!FULL_OBJECT_ID.test(String(eventBaseSha ?? ""))) {
+    verdict.mode = "invalid-event";
+    return verdict.fail("pull request base SHA is not a full object id");
+  }
+  if (baseRef !== defaultBranch) {
+    verdict.mode = "invalid-base";
+    return verdict.fail(
+      `pull request targets '${sanitizeToken(baseRef, 60)}', but the gate only authorizes '${sanitizeToken(defaultBranch, 60)}'`,
+    );
+  }
+  if (baseTreeTruncated || treeTruncated) {
+    verdict.mode = "unbounded-change";
+    return verdict.fail("base or candidate tree listing was truncated; refusing to judge a partial view");
+  }
+
+  const baseBlobs = treeBlobMap(baseTreeEntries, "base", verdict);
+  const headBlobs = treeBlobMap(treeEntries, "candidate", verdict);
+  for (const problem of collectProtectedPathIdentityProblems(
+    policy,
+    baseTreeEntries,
+    treeEntries,
+  )) {
+    verdict.fail(problem);
+  }
+
+  const immutableDiff = diffImmutableTrees(baseTreeEntries, treeEntries);
+  for (const duplicate of immutableDiff.duplicates) {
+    verdict.fail(`immutable tree diff contains duplicate path '${sanitizeToken(duplicate, 100)}'`);
+  }
+  if (immutableDiff.changes.length > policy.limits.maxChangedFiles) {
+    verdict.mode = "unbounded-change";
+    return verdict.fail(
+      `immutable base/head tree diff changes ${immutableDiff.changes.length} files, above the reviewable limit`,
+    );
+  }
+  for (const problem of validateChangedFileRecords(policy, fileRecords)) {
+    verdict.fail(problem);
+  }
+  for (const inferredRename of immutableDiff.inferredRenames) {
+    failOnProtectedRename(policy, verdict, inferredRename);
+  }
+
+  const classification = classifyAllChanges(policy, fileRecords, immutableDiff.changes);
+  if (classification.unsafe.length > 0) {
+    verdict.fail(
+      `pull request contains an unsafe path '${sanitizeToken(classification.unsafe[0], 100)}'`,
+    );
+  }
+  if (
+    (changedFilesTruncated || changedPathsTruncated) &&
+    (classification.trusted.length > 0 || classification.guarded.length > 0)
+  ) {
+    verdict.fail(
+      "pull-file listing was incomplete while immutable tree diff showed protected-path changes",
+    );
+  }
+
+  const { artifactRequired, validateArtifact } = artifactState(
+    policy,
+    baseBlobs,
+    headBlobs,
+    verdict,
+  );
+  requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict);
+
+  if (classification.trusted.length > 0 && classification.guarded.length > 0) {
+    verdict.mode = "mixed-trusted-and-guarded";
+    verdict.fail(
+      "trusted policy paths and guarded dependency paths must not change in the same pull request",
+    );
+  } else if (validateArtifact) {
+    verdict.mode = artifactRequired ? "artifact" : "guard-only";
+  } else if (classification.trusted.length > 0) {
+    verdict.mode = "policy-only";
+  } else if (classification.guarded.length > 0) {
+    verdict.mode = "guard-only";
+  } else {
+    verdict.mode = "not-applicable";
+  }
+  if (classification.unsafe.length > 0) {
+    verdict.mode = "unsafe-path";
+  } else if (changedFilesTruncated || changedPathsTruncated) {
+    verdict.mode = "unbounded-change";
+  }
+
+  /* Nothing may re-enable npm configuration or a competing lockfile. */
+  for (const path of headBlobs.keys()) {
+    const basename = path.slice(path.lastIndexOf("/") + 1);
+    if (policy.forbiddenTree.basenames.includes(basename)) {
+      verdict.fail(
+        `candidate tree contains a forbidden '${sanitizeToken(basename, 40)}' at '${sanitizeToken(path, 100)}'`,
+      );
+    }
+    if (policy.forbiddenTree.exact.includes(path)) {
+      verdict.fail(`candidate tree contains a forbidden '${sanitizeToken(path, 60)}'`);
+    }
+  }
+
+  /* The vendor directory holds only reviewed regular blobs. */
+  for (const path of [...headBlobs.keys()].filter(entry => entry.startsWith("vendor/"))) {
+    const entry = headBlobs.get(path);
+    if (entry.mode === BLOB_MODE_SYMLINK) {
+      verdict.fail(`vendor path '${sanitizeToken(path, 100)}' is a symlink`);
+    } else if (entry.mode === BLOB_MODE_EXECUTABLE) {
+      verdict.fail(`vendor path '${sanitizeToken(path, 100)}' is executable`);
+    } else if (entry.mode !== BLOB_MODE_REGULAR) {
+      verdict.fail(
+        `vendor path '${sanitizeToken(path, 100)}' has mode ${sanitizeToken(entry.mode, 10)}`,
+      );
+    }
+    if (!policy.vendor.allowedFiles.includes(path)) {
+      verdict.fail(
+        `vendor path '${sanitizeToken(path, 100)}' is outside the reviewed allowlist`,
+      );
+    }
+  }
+
+  const wanted = new Set(["package.json", "package-lock.json", ".gitattributes"]);
+  if (validateArtifact) {
+    for (const path of [...policy.vendor.allowedFiles, ...Object.keys(policy.digestPins)]) {
+      wanted.add(path);
+    }
+  }
+
+  const contents = new Map();
+  let totalBytes = 0;
+  for (const path of wanted) {
+    const entry = headBlobs.get(path);
+    if (!entry) {
+      if (validateArtifact && (policy.digestPins[path] || policy.vendor.allowedFiles.includes(path))) {
+        verdict.fail(`required file '${sanitizeToken(path, 100)}' is missing from the candidate tree`);
+      }
+      continue;
+    }
+    if (typeof entry.size === "number" && entry.size > policy.limits.maxBlobBytes) {
+      verdict.fail(`candidate file '${sanitizeToken(path, 100)}' exceeds the blob size limit`);
+      continue;
+    }
+    let bytes;
+    try {
+      bytes = await readBlob(entry.sha, path);
+    } catch (error) {
+      verdict.fail(
+        `could not read '${sanitizeToken(path, 80)}': ${sanitizeToken(error?.message, 60)}`,
+      );
+      continue;
+    }
+    if (bytes.length > policy.limits.maxBlobBytes) {
+      verdict.fail(`candidate file '${sanitizeToken(path, 100)}' exceeds the blob size limit`);
+      continue;
+    }
+    totalBytes += bytes.length;
+    if (totalBytes > policy.limits.maxTotalBlobBytes) {
+      verdict.fail("candidate inspection exceeded the total download limit");
+      continue;
+    }
+    if (gitBlobId(bytes) !== entry.sha) {
+      verdict.fail(
+        `candidate file '${sanitizeToken(path, 100)}' did not match its Git object id`,
+      );
+      continue;
+    }
+    contents.set(path, bytes);
+  }
+
+  let packageJson = null;
+  let packageLock = null;
+  try {
+    packageJson = parseCandidateJson(contents.get("package.json"), "package.json", policy);
+    checkRootScripts(verdict, policy, packageJson, "package.json");
+  } catch (error) {
+    verdict.fail(`package.json rejected: ${sanitizeToken(error?.message, 100)}`);
+  }
+  try {
+    packageLock = parseCandidateJson(contents.get("package-lock.json"), "package-lock.json", policy);
+    checkLockBinShadowing(verdict, policy, packageLock);
+  } catch (error) {
+    verdict.fail(`package-lock.json rejected: ${sanitizeToken(error?.message, 100)}`);
+  }
+  if (contents.has(".gitattributes") && validateArtifact) {
+    checkGitattributes(
+      verdict,
+      policy,
+      Buffer.from(contents.get(".gitattributes")).toString("utf8"),
+    );
+  }
+
+  if (!validateArtifact) {
+    const spec = policy.package.spec;
+    const referenced =
+      packageJson?.devDependencies?.[policy.package.name] === spec ||
+      packageLock?.packages?.[policy.package.lockPath]?.resolved === spec;
+    if (referenced) {
+      verdict.fail(
+        "package metadata references the reviewed artifact spec but the artifact bytes are absent",
+      );
+    }
+    checkRace(verdict, {
+      eventHeadSha,
+      eventBaseSha,
+      baseRef,
+      currentHeadSha,
+      currentBaseSha,
+      currentBaseRef,
+    });
+    if (!verdict.failed) {
+      verdict.note(
+        verdict.mode === "policy-only"
+          ? "policy-only change; no reviewed artifact exists in the immutable base tree"
+          : "no reviewed artifact exists in the immutable base tree",
+      );
+    }
+    return verdict;
+  }
+
+  for (const [path, pin] of Object.entries(policy.digestPins)) {
+    const bytes = contents.get(path);
+    if (!bytes) {
+      verdict.fail(`pinned file '${sanitizeToken(path, 100)}' is missing`);
+      continue;
+    }
+    if (bytes.length !== pin.size) {
+      verdict.fail(
+        `pinned file '${sanitizeToken(path, 100)}' is ${bytes.length} bytes, expected ${pin.size}`,
+      );
+      continue;
+    }
+    if (sha256Hex(bytes) !== pin.sha256) {
+      verdict.fail(
+        `pinned file '${sanitizeToken(path, 100)}' does not match base policy`,
+      );
+    }
+  }
+
+  const verifierSource = Buffer.from(
+    contents.get(policy.verifierPolicyLiterals.path) ?? Buffer.alloc(0),
+  ).toString("utf8");
+  try {
+    const literals = extractPolicyLiterals(
+      verifierSource,
+      policy.verifierPolicyLiterals.objectName,
+    );
+    const expectations = {
+      ...policy.verifierPolicyLiterals.required,
+      ...policy.verifierPolicyLiterals.requiredNumbers,
+    };
+    for (const [key, expected] of Object.entries(expectations)) {
+      if (literals.get(key) !== expected) {
+        verdict.fail(
+          `candidate ${policy.verifierPolicyLiterals.objectName}.${sanitizeToken(key, 40)} does not match base policy`,
+        );
+      }
+    }
+  } catch (error) {
+    verdict.fail(`candidate verifier literals unreadable: ${sanitizeToken(error?.message, 80)}`);
+  }
+  const advisories = extractAdvisoryIds(verifierSource);
+  for (const advisory of policy.verifierPolicyLiterals.requiredAdvisories) {
+    if (!advisories.includes(advisory)) {
+      verdict.fail(`candidate verifier no longer covers ${sanitizeToken(advisory, 40)}`);
+    }
+  }
+
+  let tarEntries;
+  try {
+    tarEntries = parseCandidateTarball(contents.get(policy.package.artifactPath), policy);
+  } catch (error) {
+    verdict.fail(`candidate artifact rejected: ${sanitizeToken(error?.message, 120)}`);
+  }
+  const artifactBytes = contents.get(policy.package.artifactPath);
+  if (artifactBytes && sha512Hex(artifactBytes) !== policy.package.tar.sha512) {
+    verdict.fail("candidate artifact SHA-512 does not match base policy");
+  }
+  if (tarEntries) {
+    if (tarEntries.length !== policy.package.tar.fileCount) {
+      verdict.fail(
+        `candidate artifact packs ${tarEntries.length} files, expected ${policy.package.tar.fileCount}`,
+      );
+    }
+    checkPackedManifest(verdict, policy, tarEntries);
+  }
+  if (packageJson) checkArtifactPackageJson(verdict, policy, packageJson);
+  if (packageLock) checkArtifactPackageLock(verdict, policy, packageLock);
+  try {
+    checkProvenance(
+      verdict,
+      policy,
+      parseCandidateJson(contents.get(policy.package.provenancePath), "provenance.json", policy),
+      tarEntries ?? [],
+    );
+  } catch (error) {
+    verdict.fail(`provenance.json rejected: ${sanitizeToken(error?.message, 100)}`);
+  }
+
+  checkRace(verdict, {
+    eventHeadSha,
+    eventBaseSha,
+    baseRef,
+    currentHeadSha,
+    currentBaseSha,
+    currentBaseRef,
+  });
+  if (!verdict.failed) {
+    verdict.note(
+      `validated ${sanitizeToken(eventHeadSha.slice(0, 12), 12)} against immutable base ${sanitizeToken(eventBaseSha.slice(0, 12), 12)}`,
+    );
+  }
+  return verdict;
+}
+
 /* ------------------------------------------------------------------ *
  * GitHub REST reader — read-only, no candidate code, no shell
  * ------------------------------------------------------------------ */
@@ -1050,15 +1588,23 @@ export function createGitHubReader({ apiUrl, owner, repo, token, fetchImpl = fet
 
   return {
     async listChangedFiles(pullNumber, maxFiles) {
-      const paths = [];
+      const files = [];
       for (let page = 1; page <= 10; page += 1) {
         const batch = await get(`/pulls/${pullNumber}/files`, { per_page: 100, page });
         if (!Array.isArray(batch)) throw new Error("unexpected pull files payload");
-        for (const file of batch) paths.push(String(file.filename));
-        if (batch.length < 100) return { paths, truncated: false };
-        if (paths.length > maxFiles) return { paths, truncated: true };
+        for (const file of batch) {
+          files.push({
+            status: String(file?.status ?? ""),
+            filename: typeof file?.filename === "string" ? file.filename : null,
+            ...(typeof file?.previous_filename === "string"
+              ? { previous_filename: file.previous_filename }
+              : {}),
+          });
+        }
+        if (batch.length < 100) return { files, truncated: false };
+        if (files.length > maxFiles) return { files, truncated: true };
       }
-      return { paths, truncated: true };
+      return { files, truncated: true };
     },
     async readTree(sha) {
       if (!FULL_OBJECT_ID.test(sha)) throw new Error("tree id failed validation");
@@ -1080,9 +1626,13 @@ export function createGitHubReader({ apiUrl, owner, repo, token, fetchImpl = fet
       if (blob.encoding !== "base64") throw new Error("unexpected blob encoding");
       return Buffer.from(String(blob.content), "base64");
     },
-    async currentHeadSha(pullNumber) {
+    async readPull(pullNumber) {
       const pull = await get(`/pulls/${pullNumber}`);
-      return String(pull?.head?.sha ?? "");
+      return {
+        headSha: String(pull?.head?.sha ?? ""),
+        baseSha: String(pull?.base?.sha ?? ""),
+        baseRef: String(pull?.base?.ref ?? ""),
+      };
     },
   };
 }
@@ -1092,12 +1642,17 @@ export async function main() {
   const policy = loadPolicy(repoRoot);
   let verdict;
   try {
-    const [owner, repo] = requireEnv("GATE_REPOSITORY").split("/");
+    const coordinates = requireEnv("GATE_REPOSITORY").split("/");
+    if (coordinates.length !== 2) {
+      throw new Error("repository coordinates failed validation");
+    }
+    const [owner, repo] = coordinates;
     const pullNumber = Number(requireEnv("GATE_PR_NUMBER"));
     if (!Number.isSafeInteger(pullNumber) || pullNumber <= 0) {
       throw new Error("pull request number failed validation");
     }
     const eventHeadSha = requireEnv("GATE_HEAD_SHA");
+    const eventBaseSha = requireEnv("GATE_BASE_SHA");
     const baseRef = requireEnv("GATE_BASE_REF");
     const defaultBranch = process.env.GATE_DEFAULT_BRANCH || policy.defaultBranch;
 
@@ -1108,30 +1663,34 @@ export async function main() {
       token: process.env.GATE_TOKEN,
     });
 
+    const before = await reader.readPull(pullNumber);
+    if (
+      before.headSha !== eventHeadSha ||
+      before.baseSha !== eventBaseSha ||
+      before.baseRef !== baseRef
+    ) {
+      throw new Error("pull request changed before immutable evaluation began");
+    }
     const changed = await reader.listChangedFiles(pullNumber, policy.limits.maxChangedFiles);
-    const preliminary = classifyChangedPaths(policy, changed.paths);
-    const inspect =
-      preliminary.guarded.length > 0 &&
-      preliminary.trusted.length === 0 &&
-      preliminary.unsafe.length === 0 &&
-      FULL_OBJECT_ID.test(eventHeadSha);
-
-    /* The tree is addressed by the event head SHA and every blob is verified
-     * against its own Git object id, so a force-push cannot substitute content
-     * mid-run; the read-back below turns a moved head into an explicit failure. */
-    const tree = inspect
-      ? await reader.readTree(eventHeadSha)
-      : { truncated: false, entries: [] };
+    const [baseTree, tree] = await Promise.all([
+      reader.readTree(eventBaseSha),
+      reader.readTree(eventHeadSha),
+    ]);
+    const after = await reader.readPull(pullNumber);
 
     verdict = await evaluateCandidate({
       policy,
       baseRef,
       defaultBranch,
       eventHeadSha,
-      currentHeadSha: inspect ? await reader.currentHeadSha(pullNumber) : undefined,
-      changedPaths: changed.paths,
-      changedPathsTruncated: changed.truncated,
-      artifactRequired: artifactRequiredByBase(policy, repoRoot),
+      eventBaseSha,
+      currentHeadSha: after.headSha,
+      currentBaseSha: after.baseSha,
+      currentBaseRef: after.baseRef,
+      changedFiles: changed.files,
+      changedFilesTruncated: changed.truncated,
+      baseTreeEntries: baseTree.entries,
+      baseTreeTruncated: baseTree.truncated,
       treeEntries: tree.entries,
       treeTruncated: tree.truncated,
       readBlob: (sha) => reader.readBlob(sha),

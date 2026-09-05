@@ -1,0 +1,429 @@
+/*
+ * Pure model for the planned, expected-source GitHub App ruleset.
+ *
+ * This module does not call GitHub. The PowerShell operator script owns remote
+ * reads and the one explicit create operation; keeping this model pure makes
+ * the plan, digest, read-back, and spoofing tests deterministic.
+ */
+
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(here, "..", "..");
+export const RULESET_PLAN_FILE = join(
+  repoRoot,
+  ".github",
+  "trusted-policy",
+  "trusted-dependency-artifact-ruleset.plan.json",
+);
+
+const FULL_OBJECT_ID = /^[0-9a-f]{40}$/;
+const APP_ID = /^[1-9][0-9]*$/;
+
+function clone(value) {
+  return structuredClone(value);
+}
+
+function sortObject(value) {
+  if (Array.isArray(value)) return value.map(sortObject);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.keys(value)
+      .sort()
+      .map(key => [key, sortObject(value[key])]),
+  );
+}
+
+export function canonicalJson(value) {
+  return JSON.stringify(sortObject(value));
+}
+
+export function sha256Hex(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+export function digestJson(value) {
+  return sha256Hex(canonicalJson(value));
+}
+
+export function loadRulesetPlan(file = RULESET_PLAN_FILE) {
+  const plan = JSON.parse(readFileSync(file, "utf8"));
+  assertRulesetPlan(plan);
+  return plan;
+}
+
+function findRule(plan, type) {
+  const matches = plan.ruleset.rules.filter(rule => rule?.type === type);
+  if (matches.length !== 1) {
+    throw new Error(`ruleset plan must contain exactly one '${type}' rule`);
+  }
+  return matches[0];
+}
+
+export function assertRulesetPlan(plan) {
+  if (!plan || typeof plan !== "object") throw new Error("ruleset plan is not an object");
+  for (const key of [
+    "schemaVersion",
+    "state",
+    "repository",
+    "ownerType",
+    "defaultBranch",
+    "managedRulesetName",
+    "requiredWorkflowBinding",
+    "expectedSource",
+    "ruleset",
+    "legacyBranchProtection",
+    "mergeQueue",
+  ]) {
+    if (!(key in plan)) throw new Error(`ruleset plan is missing '${key}'`);
+  }
+  if (plan.schemaVersion !== 1 || plan.state !== "planned-not-applied") {
+    throw new Error("ruleset plan must explicitly remain planned-not-applied");
+  }
+  if (plan.ownerType !== "User" || plan.repository !== "judeper/FSI-AgentGov") {
+    throw new Error("ruleset plan is bound to the wrong repository owner");
+  }
+  if (plan.defaultBranch !== "main") throw new Error("ruleset plan must target main");
+  if (
+    plan.requiredWorkflowBinding?.status !== "unavailable-for-this-repository" ||
+    plan.expectedSource?.kind !== "dedicated-github-app" ||
+    plan.expectedSource?.appId !== "${DEDICATED_GITHUB_APP_ID}" ||
+    plan.expectedSource?.rejectGitHubActions !== true
+  ) {
+    throw new Error("ruleset plan must require a dedicated GitHub App source");
+  }
+  if (
+    plan.ruleset?.target !== "branch" ||
+    plan.ruleset?.enforcement !== "active" ||
+    !Array.isArray(plan.ruleset?.bypass_actors) ||
+    plan.ruleset.bypass_actors.length !== 0
+  ) {
+    throw new Error("ruleset plan must enforce a no-bypass branch ruleset");
+  }
+  const refs = plan.ruleset?.conditions?.ref_name;
+  if (
+    !refs ||
+    canonicalJson(refs.include) !== canonicalJson(["refs/heads/main"]) ||
+    canonicalJson(refs.exclude) !== canonicalJson([])
+  ) {
+    throw new Error("ruleset plan must target only refs/heads/main");
+  }
+
+  const pullRequest = findRule(plan, "pull_request").parameters;
+  const expectedReview = {
+    allowed_merge_methods: ["squash"],
+    dismiss_stale_reviews_on_push: true,
+    require_code_owner_review: true,
+    require_last_push_approval: true,
+    required_approving_review_count: 1,
+    required_review_thread_resolution: true,
+  };
+  if (canonicalJson(pullRequest) !== canonicalJson(expectedReview)) {
+    throw new Error("ruleset plan pull-request protections drifted");
+  }
+
+  const statusChecks = findRule(plan, "required_status_checks").parameters;
+  const expectedChecks = [
+    {
+      context: plan.expectedSource.checkName,
+      integration_id: "${DEDICATED_GITHUB_APP_ID}",
+    },
+  ];
+  if (
+    statusChecks.do_not_enforce_on_create !== false ||
+    statusChecks.strict_required_status_checks_policy !== true ||
+    canonicalJson(statusChecks.required_status_checks) !== canonicalJson(expectedChecks)
+  ) {
+    throw new Error("ruleset plan required status check source drifted");
+  }
+  for (const type of ["non_fast_forward", "deletion", "required_linear_history"]) {
+    findRule(plan, type);
+  }
+  if (plan.ruleset.rules.some(rule => rule?.type === "workflows" || rule?.type === "merge_queue")) {
+    throw new Error("this personal-repository plan must not claim required-workflow or merge-queue enforcement");
+  }
+  return plan;
+}
+
+export function materializeRuleset(plan, appId) {
+  assertRulesetPlan(plan);
+  const normalizedAppId = String(appId ?? "");
+  if (!APP_ID.test(normalizedAppId)) {
+    throw new Error("a non-zero dedicated GitHub App ID is required");
+  }
+  const ruleset = clone(plan.ruleset);
+  const statusRule = findRule({ ...plan, ruleset }, "required_status_checks");
+  const materializedStatus = ruleset.rules.find(rule => rule.type === "required_status_checks");
+  materializedStatus.parameters.required_status_checks = statusRule.parameters.required_status_checks.map(
+    check => ({
+      ...check,
+      integration_id: Number(normalizedAppId),
+    }),
+  );
+  return {
+    name: plan.managedRulesetName,
+    target: ruleset.target,
+    enforcement: ruleset.enforcement,
+    bypass_actors: ruleset.bypass_actors,
+    conditions: ruleset.conditions,
+    rules: ruleset.rules,
+  };
+}
+
+function stripVolatile(value) {
+  if (Array.isArray(value)) return value.map(stripVolatile);
+  if (!value || typeof value !== "object") return value;
+  const omitted = new Set([
+    "url",
+    "html_url",
+    "node_id",
+    "_links",
+    "created_at",
+    "updated_at",
+    "contexts_url",
+    "users_url",
+    "teams_url",
+    "apps_url",
+  ]);
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !omitted.has(key))
+      .map(([key, nested]) => [key, stripVolatile(nested)]),
+  );
+}
+
+function normalizedRuleset(ruleset) {
+  return stripVolatile({
+    id: ruleset?.id,
+    name: ruleset?.name,
+    target: ruleset?.target,
+    source_type: ruleset?.source_type,
+    source: ruleset?.source,
+    enforcement: ruleset?.enforcement,
+    bypass_actors: ruleset?.bypass_actors,
+    conditions: ruleset?.conditions,
+    rules: ruleset?.rules,
+  });
+}
+
+export function securitySnapshot({ repository, branchProtection, rulesets }) {
+  if (!repository || typeof repository !== "object") {
+    throw new Error("live repository payload is missing");
+  }
+  const normalizedRulesets = (rulesets ?? [])
+    .map(normalizedRuleset)
+    .sort((left, right) =>
+      `${left.name ?? ""}:${left.id ?? ""}`.localeCompare(`${right.name ?? ""}:${right.id ?? ""}`),
+    );
+  return {
+    repository: {
+      id: repository.id,
+      full_name: repository.full_name,
+      owner_type: repository.owner?.type ?? repository.owner_type,
+      default_branch: repository.default_branch,
+    },
+    branchProtection: branchProtection === null ? null : stripVolatile(branchProtection),
+    rulesets: normalizedRulesets,
+  };
+}
+
+export function digestSecuritySnapshot(live) {
+  return digestJson(securitySnapshot(live));
+}
+
+export function findManagedRulesets(rulesets, plan) {
+  assertRulesetPlan(plan);
+  return (rulesets ?? []).filter(
+    ruleset =>
+      ruleset?.name === plan.managedRulesetName &&
+      (ruleset?.source_type === undefined || ruleset.source_type === "Repository"),
+  );
+}
+
+function assertLegacyProtectionCompatibility(plan, branchProtection) {
+  if (!branchProtection) return;
+  const enforceAdmins = branchProtection.enforce_admins;
+  const enabled =
+    typeof enforceAdmins === "object" ? enforceAdmins?.enabled : enforceAdmins;
+  if (
+    plan.legacyBranchProtection.requireAdminEnforcementIfPresent &&
+    enforceAdmins !== undefined &&
+    enabled !== true
+  ) {
+    throw new Error("legacy branch protection does not enforce administrators");
+  }
+}
+
+export function assertRulesetReadBack({
+  plan,
+  appId,
+  repository,
+  ruleset,
+  branchProtection = null,
+}) {
+  assertRulesetPlan(plan);
+  if (
+    repository?.full_name !== plan.repository ||
+    (repository?.owner?.type ?? repository?.owner_type) !== plan.ownerType ||
+    repository?.default_branch !== plan.defaultBranch
+  ) {
+    throw new Error("read-back is for the wrong repository, owner type, or default branch");
+  }
+  const expected = materializeRuleset(plan, appId);
+  if (ruleset?.source_type !== "Repository" || ruleset?.source !== plan.repository) {
+    throw new Error("managed ruleset source does not match the repository");
+  }
+  const actual = {
+    name: ruleset?.name,
+    target: ruleset?.target,
+    enforcement: ruleset?.enforcement,
+    bypass_actors: ruleset?.bypass_actors,
+    conditions: ruleset?.conditions,
+    rules: ruleset?.rules,
+  };
+  if (canonicalJson(actual) !== canonicalJson(expected)) {
+    throw new Error("managed ruleset read-back does not exactly match the reviewed intent");
+  }
+  assertLegacyProtectionCompatibility(plan, branchProtection);
+  return {
+    checkName: plan.expectedSource.checkName,
+    integrationId: Number(appId),
+    strict: true,
+    codeOwnerReview: true,
+    reviews: 1,
+    conversationResolution: true,
+    forcePushBlocked: true,
+    deletionBlocked: true,
+    linearHistory: true,
+    bypassActors: 0,
+  };
+}
+
+export function assertUnrelatedSecurityStatePreserved({
+  before,
+  after,
+  managedRulesetName,
+}) {
+  const withoutManaged = snapshot =>
+    securitySnapshot(snapshot).rulesets.filter(rule => rule.name !== managedRulesetName);
+  const beforeSnapshot = securitySnapshot(before);
+  const afterSnapshot = securitySnapshot(after);
+  if (
+    canonicalJson({
+      repository: beforeSnapshot.repository,
+      branchProtection: beforeSnapshot.branchProtection,
+      rulesets: withoutManaged(before),
+    }) !==
+    canonicalJson({
+      repository: afterSnapshot.repository,
+      branchProtection: afterSnapshot.branchProtection,
+      rulesets: withoutManaged(after),
+    })
+  ) {
+    throw new Error("unrelated branch protection, restrictions, signatures, or rulesets drifted");
+  }
+  return true;
+}
+
+export function assertExpectedSourceCheck({
+  checkRuns,
+  targetSha,
+  appId,
+  checkName,
+}) {
+  if (!FULL_OBJECT_ID.test(String(targetSha ?? ""))) {
+    throw new Error("target SHA must be a full Git object id");
+  }
+  if (!APP_ID.test(String(appId ?? ""))) {
+    throw new Error("expected source App ID is invalid");
+  }
+  const expectedAppId = Number(appId);
+  const matching = (checkRuns ?? []).filter(
+    run =>
+      run?.name === checkName &&
+      run?.head_sha === targetSha &&
+      Number(run?.app?.id) === expectedAppId,
+  );
+  const passing = matching.some(
+    run => run.status === "completed" && run.conclusion === "success",
+  );
+  if (!passing) {
+    throw new Error(
+      "no successful required check was produced by the expected GitHub App on the evaluated SHA",
+    );
+  }
+  return true;
+}
+
+function parseCliArguments(argv) {
+  const [operation, ...rest] = argv;
+  const values = {};
+  for (let index = 0; index < rest.length; index += 1) {
+    if (!rest[index].startsWith("--")) throw new Error(`unexpected argument '${rest[index]}'`);
+    const key = rest[index].slice(2);
+    const value = rest[index + 1];
+    if (value === undefined || value.startsWith("--")) throw new Error(`missing value for --${key}`);
+    values[key] = value;
+    index += 1;
+  }
+  return { operation, values };
+}
+
+async function readStdinJson() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  const text = Buffer.concat(chunks).toString("utf8").trim();
+  if (!text) throw new Error("expected JSON on stdin");
+  return JSON.parse(text);
+}
+
+async function runCli() {
+  const { operation, values } = parseCliArguments(process.argv.slice(2));
+  if (operation === "validate-plan") {
+    const plan = loadRulesetPlan(values.plan);
+    process.stdout.write(`${JSON.stringify({ ok: true, state: plan.state })}\n`);
+    return;
+  }
+  if (operation === "materialize") {
+    const plan = loadRulesetPlan(values.plan);
+    process.stdout.write(`${JSON.stringify(materializeRuleset(plan, values["app-id"]))}\n`);
+    return;
+  }
+  const input = await readStdinJson();
+  if (operation === "digest") {
+    process.stdout.write(`${JSON.stringify({ digest: digestJson(input) })}\n`);
+    return;
+  }
+  if (operation === "snapshot") {
+    process.stdout.write(`${JSON.stringify({ snapshot: securitySnapshot(input), digest: digestSecuritySnapshot(input) })}\n`);
+    return;
+  }
+  if (operation === "assert-readback") {
+    const plan = loadRulesetPlan(values.plan);
+    process.stdout.write(
+      `${JSON.stringify(assertRulesetReadBack({ ...input, plan, appId: values["app-id"] }))}\n`,
+    );
+    return;
+  }
+  if (operation === "assert-unrelated-preserved") {
+    assertUnrelatedSecurityStatePreserved(input);
+    process.stdout.write('{"ok":true}\n');
+    return;
+  }
+  if (operation === "assert-expected-source-check") {
+    assertExpectedSourceCheck(input);
+    process.stdout.write('{"ok":true}\n');
+    return;
+  }
+  throw new Error(`unsupported operation '${operation ?? ""}'`);
+}
+
+if (pathToFileURL(process.argv[1] ?? "").href === import.meta.url) {
+  runCli().catch(error => {
+    process.stderr.write(`trusted-dependency-ruleset: ${error.message}\n`);
+    process.exitCode = 1;
+  });
+}
