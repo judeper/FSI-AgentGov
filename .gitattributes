@@ -11,6 +11,12 @@ docs/javascripts/vendor/** eol=lf
 # would cause false-positive mismatches.
 docs/javascripts/lib/xlsx.full.min.js binary
 docs/javascripts/vendor/mermaid.min.js binary
+
+# Reviewed npm dependency artifacts are exact binary Git blobs.
+vendor/npm/**/*.tgz binary
+vendor/npm/**/*.json text eol=lf
+vendor/npm/**/README.md text eol=lf
+
 # Squad: union merge for append-only team state files
 .squad/decisions.md merge=union
 .squad/agents/*/history.md merge=union

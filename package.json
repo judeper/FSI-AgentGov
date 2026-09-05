@@ -11,13 +11,20 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:snapshots": "playwright test --update-snapshots",
     "verify:sri": "node scripts/verify-sheetjs-sri.mjs",
+    "verify:dependency-artifacts": "node scripts/verify-fast-uri-artifact.mjs",
     "verify:vendor-runtime": "node scripts/verify-vendored-runtime.mjs"
+  },
+  "overrides": {
+    "ajv": {
+      "fast-uri": "$fast-uri"
+    }
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.62.1",
     "@vitest/ui": "4.1.11",
     "ajv": "8.20.0",
+    "fast-uri": "file:vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
     "get-port": "7.2.0",
     "jsdom": "29.1.1",
     "markdown-it": "^15.0.1",

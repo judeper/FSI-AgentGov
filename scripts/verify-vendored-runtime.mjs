@@ -1,17 +1,23 @@
 /*
- * Fail-closed policy for shipped browser runtime dependencies.
+ * Fail-closed policy for reviewed vendored dependencies.
  *
  * npm audit only sees the Node toolchain in this repository. The assessment
  * SPA also ships a vendored SheetJS bundle, so this check binds that deployed
  * asset to the reviewed official package, version, hash, SRI literal, and
- * package-lock entry. A future SheetJS rotation must update this policy and
- * all evidence together; vulnerable or unreviewed versions do not pass.
+ * package-lock entry. The same command also verifies the exceptional local
+ * fast-uri npm tarball through verify-fast-uri-artifact.mjs. A future rotation
+ * must update policy and evidence together; vulnerable or unreviewed versions
+ * do not pass.
  */
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import {
+  FAST_URI_POLICY,
+  verifyFastUriArtifactFromRepo,
+} from "./verify-fast-uri-artifact.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -187,9 +193,21 @@ export function main() {
     return 1;
   }
 
+  const fastUriResult = verifyFastUriArtifactFromRepo(repoRoot);
+  if (!fastUriResult.ok) {
+    for (const error of fastUriResult.errors) console.error(`FAIL: ${error}`);
+    console.error(
+      `VENDOR-RUNTIME: blocked — ${fastUriResult.errors.length} fast-uri ` +
+        "artifact policy failure(s)",
+    );
+    return 1;
+  }
+
   console.log(
     `VENDOR-RUNTIME: OK — SheetJS ${SHEETJS_POLICY.version} ` +
-      `matches the locked official artifact and shipped SRI`,
+      `matches the locked official artifact and shipped SRI; ` +
+      `${FAST_URI_POLICY.packageName}@${FAST_URI_POLICY.version} matches the ` +
+      "reviewed local artifact, lockfile, and installed payload",
   );
   return 0;
 }

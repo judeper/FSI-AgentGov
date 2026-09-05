@@ -1,0 +1,359 @@
+{
+  "schemaVersion": 1,
+  "package": {
+    "name": "fast-uri",
+    "version": "3.1.7",
+    "license": "BSD-3-Clause"
+  },
+  "upstream": {
+    "repository": "https://github.com/fastify/fast-uri.git",
+    "commit": "412e40abd4eb8beabfb952d80abf949a2baf27a3",
+    "tree": "a1ec2b29b5d2493a9ba4d2de480a062b08f72558",
+    "trackedFileCount": 46,
+    "npmPackFileCount": 44,
+    "npmPackOmissions": [
+      {
+        "path": ".gitignore",
+        "sha256": "7cedb41c5205a7dbba889a6d5261bd754903dad4332d6b4a173e4d1969ee16d3",
+        "upstreamGitBlob": "a20c730ca4cc68e93f6eb2914f28dbaf1cecb5af",
+        "reason": "omitted by npm pack rules"
+      },
+      {
+        "path": ".npmrc",
+        "sha256": "038d02fceba83eda4088adab461ce79f317f618c5e1888f7ae2e91600ff95cb4",
+        "upstreamGitBlob": "3757b3046ec873a8b4a8e40e6a8682d1027fdd4e",
+        "reason": "omitted by npm pack rules"
+      }
+    ]
+  },
+  "artifact": {
+    "file": "fast-uri-3.1.7.tgz",
+    "size": 43760,
+    "unpackedSize": 218619,
+    "sha1": "743157d957f3cbb4c65310e033dc2ad4ad7dc60a",
+    "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+    "sha512": "74ebd95738dd65dcfba6177dbfa8c26f0c6b056ddf2ba9fc45cd02b5d98ce1bba6ccc9f1cb005886ea61e89f35f51470fe4bbeacb6de9707ccba792dbb35551e",
+    "integrity": "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
+    "fileCount": 44,
+    "canonicalTarMtime": 499162500
+  },
+  "reconstruction": {
+    "nodeVersion": "24.19.0",
+    "npmVersion": "11.17.0",
+    "additionalVerifiedNpmVersions": [
+      "10.8.2"
+    ],
+    "command": "npm pack <verified-upstream-checkout> --ignore-scripts --pack-destination <output> --json",
+    "independentRunsByteIdentical": true
+  },
+  "files": [
+    {
+      "path": ".gitattributes",
+      "size": 80,
+      "mode": "0644",
+      "sha256": "e173bffc6cde613d3e6d06e49f2b1d05385cb02aa68c4931656b5b051ab649dd",
+      "upstreamGitBlob": "a0e7df931f90e194cc6b80313f8f07744d9fc6d8"
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "size": 274,
+      "mode": "0644",
+      "sha256": "60ffc0c7159ff6af5e36ad3ecc56fe63782e4defaabafa94a13df7150d9a84c6",
+      "upstreamGitBlob": "35d66ca7ac75f125b9c9c5b3dee0987fdfca4a45"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "size": 2592,
+      "mode": "0644",
+      "sha256": "a5f799b1fd846548bd97adc494f1e0bc13919215b683235f5d3a30d2ad472736",
+      "upstreamGitBlob": "a7169f5880aa0c6d6f454c4bc796b3c582541afe"
+    },
+    {
+      "path": ".github/workflows/lock-threads.yml",
+      "size": 293,
+      "mode": "0644",
+      "sha256": "618dc46b9d589d991d97f4c9dd8b24c4f21edae32cdfd6c1ddc299dcab3d21d7",
+      "upstreamGitBlob": "bd263f2d60cf77f81ba53f16f97ca95ddee0ab27"
+    },
+    {
+      "path": ".github/workflows/package-manager-ci.yml",
+      "size": 370,
+      "mode": "0644",
+      "sha256": "7b086b40b64203092ce43638296c235ceba118d7b942fac7398ff476167876de",
+      "upstreamGitBlob": "7a33f682928186a4f63cd7611be82c0f5a97aaf6"
+    },
+    {
+      "path": "LICENSE",
+      "size": 1813,
+      "mode": "0644",
+      "sha256": "b010b0dfdfdb23d7396e03b82cd4621fc9bb8f95d6b0aea70b9c24e12074c786",
+      "upstreamGitBlob": "9c93c1c0e5c1861b77da95d4cfb96504768285bc"
+    },
+    {
+      "path": "README.md",
+      "size": 11726,
+      "mode": "0644",
+      "sha256": "55449f95eb4b7b69f7a97eca943de1e30d7ebcad2e323753e44cf44669133c5f",
+      "upstreamGitBlob": "87ae09545a6480ba223f07fd431c3ede0ffb2e73"
+    },
+    {
+      "path": "benchmark/benchmark.mjs",
+      "size": 4421,
+      "mode": "0644",
+      "sha256": "45ba9783c3258e448b05bd371161ef9fcbeed332ba1e9455ca9c98edb24e1f33",
+      "upstreamGitBlob": "2e49fc678343e81a563a4f31779a06dd585f8283"
+    },
+    {
+      "path": "benchmark/equal.mjs",
+      "size": 1305,
+      "mode": "0644",
+      "sha256": "36eb5b2acea9c4e969ab8fe028e88b781aa948e597368655a13528c3a93f1d39",
+      "upstreamGitBlob": "3dea7ec8762a87635475adbea09ee54751285e13"
+    },
+    {
+      "path": "benchmark/non-simple-domain.mjs",
+      "size": 838,
+      "mode": "0644",
+      "sha256": "303eb41faa6c2489b5086f3d2764bf6ecaf3b937b385647c6e8b14aaf2582524",
+      "upstreamGitBlob": "4c041da4cd3f3fd5182ccc9f11c6ec08f42003d6"
+    },
+    {
+      "path": "benchmark/package.json",
+      "size": 293,
+      "mode": "0644",
+      "sha256": "463a034d344b042e495841b770ca69a812693087ee2053d7c18cc8497e020b58",
+      "upstreamGitBlob": "7c0816a57919a8dcf1769563de87543218926d29"
+    },
+    {
+      "path": "benchmark/string-array-to-hex-stripped.mjs",
+      "size": 819,
+      "mode": "0644",
+      "sha256": "693d4a312b0e275e02ef5531d707ff7df6cddf14cd83bc09a79909ea2008bfd4",
+      "upstreamGitBlob": "94875dade99a069e0cbc60267b412a8d53dd2bf9"
+    },
+    {
+      "path": "benchmark/ws-is-secure.mjs",
+      "size": 1891,
+      "mode": "0644",
+      "sha256": "6f105dc633aadd4bd4b8362765f4a1d44fb31fe0c8754cb11d73f27ff7d6527b",
+      "upstreamGitBlob": "b579a7662170f8dfefb595f162620d5c5bf31f03"
+    },
+    {
+      "path": "eslint.config.js",
+      "size": 135,
+      "mode": "0644",
+      "sha256": "52e3a2601a98f23c954d664ab8de95fddb390789f8b067815e484b010d3da2d0",
+      "upstreamGitBlob": "89fd678fe2a82d7fe3be869fffd71b3631c61c6a"
+    },
+    {
+      "path": "index.js",
+      "size": 22061,
+      "mode": "0644",
+      "sha256": "e82d3e55d954483e4927f9740bc3113a24d19ef5a73c7962d8a93c499fc982ff",
+      "upstreamGitBlob": "af921d3fdd23a54a79e52d6bd430d4bf2bd135c6"
+    },
+    {
+      "path": "lib/schemes.js",
+      "size": 7367,
+      "mode": "0644",
+      "sha256": "c2c61d3fd0bc63a587100928a399e75be8c420d210c439d75f7346da4aa4f3c3",
+      "upstreamGitBlob": "94e574d3fc508c1654776169e4e73d1bfca02139"
+    },
+    {
+      "path": "lib/utils.js",
+      "size": 20835,
+      "mode": "0644",
+      "sha256": "610a6cfa7b1c9d5689443b3a3d14af4c24afed51ef5852495ae1489ae455a9f4",
+      "upstreamGitBlob": "6353b0b02529c0ddbc8a0bd700e27918fc7f04af"
+    },
+    {
+      "path": "package.json",
+      "size": 1983,
+      "mode": "0644",
+      "sha256": "e634f3848a2c6c7e1cdc28b119b16e072e10dada8a3ca3f175a2372d0dd83360",
+      "upstreamGitBlob": "0903806fce7429a5b433c4dd67d516fccacaf35d"
+    },
+    {
+      "path": "test/ajv.test.js",
+      "size": 752,
+      "mode": "0644",
+      "sha256": "75892faa0e01df30856f2a87eb50dcd4a4aa9a3ec1c7aa4e290ff936b0789f72",
+      "upstreamGitBlob": "e6a44fe8bba623bf841a7c5193a5f0e99f71f059"
+    },
+    {
+      "path": "test/component-safe-serialization.test.js",
+      "size": 4690,
+      "mode": "0644",
+      "sha256": "354eb0c7c00d0a827d2351ccaeea702ac2c04f794fe6831ab7b8c15f7a7b15e4",
+      "upstreamGitBlob": "3db95f459112953dc0ec8b6c42ef406860a9144c"
+    },
+    {
+      "path": "test/equal.test.js",
+      "size": 5117,
+      "mode": "0644",
+      "sha256": "9a2e83b204e7d9e14139dce7a13457a12b46f02189fb9138e1624bbd25d9b390",
+      "upstreamGitBlob": "3adea3eaf56156a25a617b62d79e824ab27ac1af"
+    },
+    {
+      "path": "test/fixtures/uri-js-parse.json",
+      "size": 9888,
+      "mode": "0644",
+      "sha256": "c954f79d2fa7f4d9779a6e7514cdf8df1eeb95d0097ea62cd3b785d20f2d0859",
+      "upstreamGitBlob": "2e12955e089bec910707301669f0778985d2713f"
+    },
+    {
+      "path": "test/fixtures/uri-js-serialize.json",
+      "size": 1688,
+      "mode": "0644",
+      "sha256": "c10203102fee328d6c8aedbd03319b8eeb364417c3b1137d714537fcd3102d69",
+      "upstreamGitBlob": "87d7146797c473847daeb54a4921944d192e9478"
+    },
+    {
+      "path": "test/ipv6-canonical.test.js",
+      "size": 1144,
+      "mode": "0644",
+      "sha256": "647cca74400388c5ea503c67433507a71fa371ba3377e5ddcec5204948b16968",
+      "upstreamGitBlob": "219150b609015ead2f213a06d34628b402ed3b5b"
+    },
+    {
+      "path": "test/ipv6-validation.test.js",
+      "size": 3897,
+      "mode": "0644",
+      "sha256": "b34eae8daa2cd6717d6ff72098204692a393a0f4fbc6d47497557c42f28be79d",
+      "upstreamGitBlob": "675b730cc830aa2dd9ab73df9edbaf6292698e25"
+    },
+    {
+      "path": "test/malformed-percent.test.js",
+      "size": 2795,
+      "mode": "0644",
+      "sha256": "151bf26b0c6096adb923677c42ea33dfa2dabb999cd4dc07ce34f94aa8281fce",
+      "upstreamGitBlob": "32d56b14cfd390f63ab1e07b2786fdad1293c72d"
+    },
+    {
+      "path": "test/malformed-urn.test.js",
+      "size": 2196,
+      "mode": "0644",
+      "sha256": "dfc01dbace807c71fab8e80acd154aeba25d1eca0aa2740681fa62d046bfe437",
+      "upstreamGitBlob": "dd0442dbd6b196752889480ae93cdb68a599ff90"
+    },
+    {
+      "path": "test/parse.test.js",
+      "size": 14516,
+      "mode": "0644",
+      "sha256": "53d2c5bf0c198a834cb131dfd71795a30df6e49a28cedb1c62eec2d497192702",
+      "upstreamGitBlob": "856cedc8627f52eab8992af24dbeb63c9e61ea40"
+    },
+    {
+      "path": "test/query-fragment-normalization.test.js",
+      "size": 1716,
+      "mode": "0644",
+      "sha256": "18051e881d06450b5e33009e92c7582cc020b4dc39d636103370e0e8dd3ea0a6",
+      "upstreamGitBlob": "5ab17d612b30912947b2feadf4806cc088a93c34"
+    },
+    {
+      "path": "test/reserved-path-normalization.test.js",
+      "size": 3661,
+      "mode": "0644",
+      "sha256": "984c6d447e4e0474b8b11c75cf2a5f54ffd855206dc588c8d5c47fd819fe7212",
+      "upstreamGitBlob": "e549fb80d255492fc4b773ed83747c3f06015fde"
+    },
+    {
+      "path": "test/resolve.test.js",
+      "size": 4480,
+      "mode": "0644",
+      "sha256": "5f44df0de389cfb13848595184fd73a309ef7a702f55ebf5fc3cf0490ff7709c",
+      "upstreamGitBlob": "b6c84679fa9795665f54563bcb816ef3c7a04358"
+    },
+    {
+      "path": "test/rfc-3986.test.js",
+      "size": 5279,
+      "mode": "0644",
+      "sha256": "b753dd115304e6cc567d2cb1169dd4d23641148274956fde0fabfdc612c65e27",
+      "upstreamGitBlob": "0a5adbeccaea3604a45e8ffdd30839bcf3935ea1"
+    },
+    {
+      "path": "test/scheme-validation.test.js",
+      "size": 3687,
+      "mode": "0644",
+      "sha256": "eeb22864d23236f723fe00f8fccace70911b95ef9a3f74f116921e5cb18cce32",
+      "upstreamGitBlob": "43ac96ff38147e00b6ee5a5f45534570b82ca775"
+    },
+    {
+      "path": "test/security-normalization.test.js",
+      "size": 4795,
+      "mode": "0644",
+      "sha256": "fa4751a8eb7761372a384df23055afb323a69454f3d821efcb040af34db0f0d1",
+      "upstreamGitBlob": "dc1adab79b441625162672df8ec167bca600f256"
+    },
+    {
+      "path": "test/security.test.js",
+      "size": 14258,
+      "mode": "0644",
+      "sha256": "ce2138c92e7c0f6cbad4cdc8e6d142b66ecf78af192b04771cd3b48c604dbb1d",
+      "upstreamGitBlob": "a041af7b27ab79c0f4ccc1be79e1ba06276b8896"
+    },
+    {
+      "path": "test/serialize.test.js",
+      "size": 6283,
+      "mode": "0644",
+      "sha256": "abb8f831a5ebcfe6d76d8d9abb2220bfe2d255892cab1f2b43d8ef3364f21ab4",
+      "upstreamGitBlob": "0eaa346aba23a2e3855a2330aa13c6c09317c743"
+    },
+    {
+      "path": "test/uri-js-compatibility.test.js",
+      "size": 1019,
+      "mode": "0644",
+      "sha256": "ca79aa1a3917c2bb237ab7e64235e4f1036a6ddacb66a5319845e8926cc89b28",
+      "upstreamGitBlob": "a75869b18c8af470de4999dfb533f2305d44b450"
+    },
+    {
+      "path": "test/uri-js.test.js",
+      "size": 42039,
+      "mode": "0644",
+      "sha256": "dc3a3b9d0a532f6483bc2c11d13b865273afb7c74224e401ce6005a7fa0a834a",
+      "upstreamGitBlob": "109df95ea847cb4fc5e439c0f385f978b8e1072a"
+    },
+    {
+      "path": "test/urn-full-input.test.js",
+      "size": 1320,
+      "mode": "0644",
+      "sha256": "2f36727aafe2524ef08b8c5f1d124dea6971784ec9e96cffbf1986fba6c95718",
+      "upstreamGitBlob": "b36711cb8d2fc4e8377a62abd75f4625d06254c3"
+    },
+    {
+      "path": "test/util.test.js",
+      "size": 1147,
+      "mode": "0644",
+      "sha256": "fa0595a97c1f948e641ea4696828a4d81c3389a986a45ac0a16feeffc73f8cad",
+      "upstreamGitBlob": "bbf7ebd8048b68531dce03eb828c3f6684e174c2"
+    },
+    {
+      "path": "test/websocket-query-preservation.test.js",
+      "size": 903,
+      "mode": "0644",
+      "sha256": "b3e7a45b622530f0c76910d7bdda2aa18b3b17a1d55b66e67dbb86d030fc0769",
+      "upstreamGitBlob": "44eb63a93e40c78d2556cd86f767f3c1d02a0079"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 166,
+      "mode": "0644",
+      "sha256": "6bbba68684f6d6f1613d9ae79de617c25d8d749f30942307faee46a6d2fd721f",
+      "upstreamGitBlob": "9ace90de4405342d8b51cb47d020533fadfe6ab5"
+    },
+    {
+      "path": "types/index.d.ts",
+      "size": 1608,
+      "mode": "0644",
+      "sha256": "84bcc7c6b06f4d643a55dc63b56be0c81d990f8d549b66ea615c553268774dc3",
+      "upstreamGitBlob": "c1481ba9c3b8c99c0c1ca1893acaecf2943e46e4"
+    },
+    {
+      "path": "types/index.test-d.ts",
+      "size": 479,
+      "mode": "0644",
+      "sha256": "ad36147194c3ecfaecf55d75dd22f0b2c6b4ca476d6450cd307dceaf39012b46",
+      "upstreamGitBlob": "02670ced86048f1dab20e69266f060ded8887396"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ name: Security Scan
 #   - pip-audit: scripts/requirements.txt + assessment/requirements.txt
 #   - bandit:    scripts/, assessment/engine/, assessment/manifest/ (tests excluded)
 #   - npm audit: package.json (production graph, when present)
-#   - vendored-runtime policy: shipped SPA SheetJS artifact and SRI
+#   - vendored-runtime policy: shipped SPA SheetJS plus local fast-uri artifact
 #
 # BLOCKING vs REPORT-ONLY (adoption PR 2026-06-07):
 #   BLOCKING:     pip-audit (both req files were clean on local run)
@@ -96,7 +96,8 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
       - name: Verify shipped vendored runtime (high severity gate)
         # Fail closed on vulnerable/unreviewed SheetJS versions, source drift,
-        # package-lock drift, on-disk hash drift, or stale SRI literals.
+        # local fast-uri artifact/packlist drift, package-lock drift, on-disk
+        # hash drift, unsafe tar entries, or stale SRI literals.
         run: npm run verify:vendor-runtime
       - name: Audit development toolchain (report only)
         # Development-only advisories stay visible without blocking documentation PRs

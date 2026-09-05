@@ -139,6 +139,46 @@ bootstrap order are in `.github/TRUSTED-DEPENDENCY-GATE.md` and
 those policy paths are trusted-path changes and must never be combined with a
 guarded artifact change.
 
+### Exceptional fast-uri dependency artifact
+
+Ajv 8.20.0 depends on `fast-uri` `^3.0.1`. Four original advisories
+(GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf, GHSA-f65p-4m7j-42xc, and
+GHSA-5jgf-p345-68v8) are fixed in the npm-published 3.x release line by
+`fast-uri` 3.1.6. Only GHSA-qw65-cvwx-89v3 and GHSA-58mr-gqgx-xq4g require
+3.1.7 in the 3.x line.
+
+As of September 4, 2026, GHSA-qw65-cvwx-89v3 and GHSA-58mr-gqgx-xq4g are
+public repository-scoped upstream advisories but are not present in the GitHub
+global Advisory Database or OSV. `npm audit` and Dependabot may therefore
+falsely report vulnerable `fast-uri` 3.1.6 and the currently published
+`fast-uri` 4.1.3 as clean. The npm registry did not contain `fast-uri` 3.1.7
+or 4.1.4 on that date. There is no published safe 4.x release: npm `latest`
+was 4.1.3, which remains affected; upstream patched 4.1.4 was not published;
+and Ajv currently declares `fast-uri` `^3.0.1` anyway.
+
+GitHub-generated source archives are not treated as immutable package
+artifacts because their compression bytes can be regenerated. As a narrow
+supply-chain exception, `package.json` declares the reviewed repo-relative
+tarball under `vendor/npm/fast-uri/3.1.7/` as a development-dependency anchor
+and binds only Ajv's transitive edge to that exact spec with npm's `$fast-uri`
+override reference. The lock and verification gate retain Ajv's declared
+dependency edge and reject any production dependency or duplicate package
+copy. The tarball was deterministically reconstructed from verified upstream
+commit `412e40abd4eb8beabfb952d80abf949a2baf27a3` (tree
+`a1ec2b29b5d2493a9ba4d2de480a062b08f72558`); its exact packlist, license,
+SHA-256, SHA-512, and regeneration procedure are committed beside it.
+`package-lock.json` retains the package identity `fast-uri@3.1.7`, a local
+`file:` source, and SHA-512 integrity.
+
+This does not establish a general vendoring channel. Remove the exception once
+one of these evidence-gated conditions is true: npm publishes `fast-uri`
+`>=3.1.7` within the compatible 3.x line, or Ajv supports 4.x and npm publishes
+`fast-uri` `>=4.1.4`. Before removal, verify artifact integrity/provenance,
+Ajv compatibility, all six behavioral regressions, advisory-source status, and
+the full repository suite. Do not rely solely on `npm audit` or Dependabot, do
+not manually dismiss the advisory, and do not claim alert closure from this
+exception.
+
 ## Evidence and Data Handling
 
 The assessment engine writes outputs to `assessment/output/`, which is
