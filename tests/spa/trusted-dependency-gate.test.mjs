@@ -155,6 +155,9 @@ function baselineFiles(tarball) {
   for (const path of realPolicy.activation.allowedFiles) {
     if (!(path in files)) files[path] = `activation fixture: ${path}\n`;
   }
+  for (const path of realPolicy.trustedPaths) {
+    if (!(path in files)) files[path] = `trusted fixture: ${path}\n`;
+  }
   return files;
 }
 
@@ -1108,6 +1111,8 @@ describe("authoritative gate — immutable path and rename evidence", () => {
       "PACKAGE-LOCK.JSON",
       ".GitHub/trusted-policy/dependency-artifact-policy.json",
       "Vendor/npm/fast-uri/3.1.7/README.md",
+      "\u017fcripts/trusted/github-app-jwt.mjs",
+      "scr\u0131pts/trusted/github-app-jwt.mjs",
     ];
     for (const path of aliases) {
       const classified = classifyChangedPaths(realPolicy, [path]);
@@ -1169,6 +1174,11 @@ describe("authoritative gate — immutable path and rename evidence", () => {
       "vendor/npm/README~1.MD",
       "vendor/npm/.GiT/config",
       "vendor/npm/.g\u200cit/config",
+      "vendor/npm/.g\u0131t/config",
+      "vendor/npm/invalid?.txt",
+      "vendor/npm/invalid*.txt",
+      "vendor/npm/invalid|.txt",
+      "vendor/npm/invalid<.txt",
     ]) {
       expect(canonicalRepositoryPathIdentity(path).unsafe, path).toBe(true);
       expect(isUnsafeRepositoryPath(path), path).toBe(true);
@@ -1189,6 +1199,9 @@ describe("authoritative gate — immutable path and rename evidence", () => {
       "docs/CON.txt",
       "docs/README~1.MD",
       "docs/.g\u200cit/config",
+      "docs/.g\u0131t/config",
+      "docs/invalid?.md",
+      "docs/invalid*.md",
     ]) {
       expect(
         validateChangedFileRecords(policy, [{ status: "added", filename: path }]),

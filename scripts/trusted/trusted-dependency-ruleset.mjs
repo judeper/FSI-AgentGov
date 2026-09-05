@@ -235,6 +235,7 @@ export function assertAppInstallationPayload({
     throw new Error("App JWT identity does not match the dedicated GitHub App");
   }
   if (
+    !Number.isSafeInteger(installation?.id) || installation.id <= 0 ||
     Number(installation?.app_id) !== Number(appId) ||
     installation?.target_type !== "User" ||
     installation?.account?.login !== "judeper" ||
@@ -250,6 +251,7 @@ export function assertAppInstallationPayload({
     Number(installations[0]?.app_id) !== Number(appId) ||
     installations[0]?.target_type !== "User" ||
     installations[0]?.account?.login !== "judeper" ||
+    installations[0]?.repository_selection !== "selected" ||
     installations[0]?.suspended_at != null
   ) {
     throw new Error("GitHub App has an unapproved installation");
@@ -276,7 +278,10 @@ export function assertAppInstallationPayload({
   if (
     !Array.isArray(repositories) ||
     repositories.length !== 1 ||
-    repositories[0]?.full_name !== repository
+    repositories[0]?.full_name !== repository ||
+    !Number.isSafeInteger(repositories[0]?.id) || repositories[0].id <= 0 ||
+    repositories[0]?.name !== repository.split("/")[1] ||
+    repositories[0]?.url !== `https://api.github.com/repos/${repository}`
   ) {
     throw new Error("GitHub App installation repository selection is not exact");
   }
@@ -433,7 +438,7 @@ export function assertRulesetPlan(plan) {
 export function materializeRuleset(plan, appId) {
   assertRulesetPlan(plan);
   const normalizedAppId = String(appId ?? "");
-  if (!APP_ID.test(normalizedAppId)) {
+  if (!APP_ID.test(normalizedAppId) || !Number.isSafeInteger(Number(normalizedAppId)) || Number(normalizedAppId) === 15368) {
     throw new Error("a non-zero dedicated GitHub App ID is required");
   }
   const ruleset = clone(plan.ruleset);
@@ -744,6 +749,146 @@ function parseTimestamp(value, label) {
   return milliseconds;
 }
 
+function assertProbePull(pull, repository, pullNumber) {
+  const repoUrl = `https://api.github.com/repos/${repository}`;
+  if (
+    repository !== CHECK_ASSOCIATION_REPOSITORY ||
+    !Number.isSafeInteger(pullNumber) || pullNumber <= 0 ||
+    pull?.number !== pullNumber || !Number.isSafeInteger(pull.id) || pull.id <= 0 ||
+    pull.url !== `${repoUrl}/pulls/${pullNumber}` ||
+    pull.state !== "open" || pull.draft !== false || pull.base?.ref !== "main" ||
+    typeof pull.head?.ref !== "string" || !pull.head.ref ||
+    !FULL_OBJECT_ID.test(pull.head?.sha ?? "") || !FULL_OBJECT_ID.test(pull.base?.sha ?? "")
+  ) {
+    throw new Error("probe pull request identity or open same-repository branch state is invalid");
+  }
+  for (const side of ["head", "base"]) {
+    const repo = pull[side].repo;
+    if (
+      repo?.full_name !== repository || repo?.url !== repoUrl ||
+      repo?.name !== repository.split("/")[1] ||
+      !Number.isSafeInteger(repo?.id) || repo.id <= 0 ||
+      repo.id !== pull.base.repo.id
+    ) {
+      throw new Error("probe pull request requires complete, matching repository full_name and identity");
+    }
+  }
+}
+
+export function collectCheckRunPages(pages) {
+  if (!Array.isArray(pages) || !pages.length || pages.length > 100) {
+    throw new Error("check-run pagination is missing or exceeds its safety bound");
+  }
+  const total = pages[0]?.total_count;
+  if (
+    !Number.isSafeInteger(total) || total < 0 || total > 10_000 ||
+    pages.length !== Math.max(1, Math.ceil(total / 100))
+  ) {
+    throw new Error("check-run pagination total_count or page count is incomplete");
+  }
+  const result = [];
+  const ids = new Set();
+  for (const [pageNumber, page] of pages.entries()) {
+    const expectedCount = Math.min(100, total - pageNumber * 100);
+    if (
+      page?.total_count !== total || !Array.isArray(page.check_runs) ||
+      page.check_runs.length !== expectedCount
+    ) {
+      throw new Error("check-run pagination changed or omitted entries");
+    }
+    for (const run of page.check_runs) {
+      if (!Number.isSafeInteger(run?.id) || run.id <= 0 || ids.has(run.id)) {
+        throw new Error("check-run pagination contains a malformed or duplicate run ID");
+      }
+      ids.add(run.id);
+      result.push(run);
+    }
+  }
+  return result;
+}
+
+export function buildProbeEvidence({
+  pull,
+  after,
+  checkRunPages,
+  pullNumber,
+  repository = CHECK_ASSOCIATION_REPOSITORY,
+}) {
+  assertProbePull(pull, repository, pullNumber);
+  assertProbePull(after, repository, pullNumber);
+  const coordinates = value => ({
+    id: value.id, number: value.number, url: value.url,
+    head: { sha: value.head.sha, ref: value.head.ref, repo: value.head.repo },
+    base: { sha: value.base.sha, ref: value.base.ref, repo: value.base.repo },
+  });
+  // Repository metadata can change independently; only its immutable identity is causal evidence.
+  const stableCoordinates = value => {
+    const result = coordinates(value);
+    for (const side of ["head", "base"]) {
+      const { id, full_name, name, url } = result[side].repo;
+      result[side].repo = { id, full_name, name, url };
+    }
+    return result;
+  };
+  if (canonicalJson(stableCoordinates(pull)) !== canonicalJson(stableCoordinates(after))) {
+    throw new Error("probe pull request changed while evidence was being collected");
+  }
+  if (typeof after.mergeable !== "boolean" || !["clean", "blocked"].includes(after.mergeable_state)) {
+    throw new Error("probe pull request mergeability is ambiguous");
+  }
+  const runs = collectCheckRunPages(checkRunPages);
+  const latestByApp = new Map();
+  for (const run of runs.filter(run => run.name === "trusted-dependency-artifact")) {
+    if (!Number.isSafeInteger(run.app?.id) || run.app.id <= 0) {
+      throw new Error("check run has an incomplete App identity");
+    }
+    latestByApp.set(run.app.id, Math.max(run.id, latestByApp.get(run.app.id) ?? 0));
+  }
+  const checkRuns = runs.map(run => {
+    if (
+      run.head_sha !== after.head.sha ||
+      run.url !== `https://api.github.com/repos/${repository}/check-runs/${run.id}`
+    ) {
+      throw new Error("check run belongs to a different repository or head");
+    }
+    if (run.name !== "trusted-dependency-artifact" || latestByApp.get(run.app.id) !== run.id) return run;
+    if (!Array.isArray(run.pull_requests) || run.pull_requests.length !== 1) {
+      throw new Error("check run is not associated with exactly one probe pull request");
+    }
+    const association = run.pull_requests[0];
+    if (association?.id !== after.id || association.number !== after.number || association.url !== after.url) {
+      throw new Error("check run pull-request association identity does not match the probe");
+    }
+    const normalized = clone(run);
+    for (const side of ["head", "base"]) {
+      const compact = association[side];
+      const full = after[side];
+      if (
+        compact?.sha !== full.sha || compact?.ref !== full.ref ||
+        compact?.repo?.id !== full.repo.id || compact?.repo?.url !== full.repo.url ||
+        compact?.repo?.name !== full.repo.name ||
+        (compact?.repo?.full_name !== undefined && compact.repo.full_name !== full.repo.full_name)
+      ) {
+        throw new Error("check run compact pull-request association is incomplete or stale");
+      }
+      // GitHub's compact Checks schema omits full_name. Supply it only from a separately
+      // read-back PR whose ID, URL, ref, SHA and repository identity all match.
+      normalized.pull_requests[0][side].repo.full_name = full.repo.full_name;
+    }
+    assertPullRequestAssociation(normalized, {
+      repository, pullNumber, headSha: after.head.sha, baseSha: after.base.sha,
+    });
+    return normalized;
+  });
+  return {
+    pull: {
+      number: after.number, repository, headSha: after.head.sha, baseSha: after.base.sha,
+      mergeable: after.mergeable, mergeable_state: after.mergeable_state,
+    },
+    checkRuns,
+  };
+}
+
 function assertPullRequestAssociation(run, {
   repository,
   pullNumber,
@@ -756,11 +901,21 @@ function assertPullRequestAssociation(run, {
   }
   const association = associations[0];
   if (
-    Number(association?.number) !== Number(pullNumber) ||
+    repository !== CHECK_ASSOCIATION_REPOSITORY ||
+    association?.number !== pullNumber ||
+    !Number.isSafeInteger(association?.id) || association.id <= 0 ||
+    association?.url !== `https://api.github.com/repos/${repository}/pulls/${pullNumber}` ||
     association?.head?.sha !== headSha ||
     association?.base?.sha !== baseSha ||
+    association?.base?.ref !== "main" ||
+    typeof association?.head?.ref !== "string" || !association.head.ref ||
     association?.head?.repo?.full_name !== repository ||
-    association?.base?.repo?.full_name !== repository
+    association?.base?.repo?.full_name !== repository ||
+    !Number.isSafeInteger(association?.head?.repo?.id) || association.head.repo.id <= 0 ||
+    association.head.repo.id !== association?.base?.repo?.id ||
+    ["head", "base"].some(side =>
+      association[side].repo.url !== `https://api.github.com/repos/${repository}` ||
+      association[side].repo.name !== repository.split("/")[1])
   ) {
     throw new Error("check run pull-request association does not match the probe");
   }
@@ -776,16 +931,33 @@ function assertFreshRunWindow(run, {
   const started = parseTimestamp(run?.started_at, "check started_at");
   const completed = parseTimestamp(run?.completed_at, "check completed_at");
   if (
+    observed < rulesetCreated ||
     started < rulesetCreated ||
     completed < rulesetCreated ||
     completed < started ||
-    started > observed + 30_000 ||
-    completed > observed + 30_000 ||
+    started > observed ||
+    completed > observed ||
     observed - started > maxAgeSeconds * 1000
   ) {
     throw new Error("check run timestamps are stale or precede ruleset creation");
   }
   return { rulesetCreated, observed, started, completed };
+}
+
+function latestSourceRun(checkRuns, targetSha, appId, checkName) {
+  if (!Array.isArray(checkRuns)) throw new Error("check runs must be a complete array");
+  const candidates = checkRuns.filter(run =>
+    run?.name === checkName && run.head_sha === targetSha && run.app?.id === Number(appId));
+  if (candidates.some(run => !Number.isSafeInteger(run.id) || run.id <= 0) ||
+      new Set(candidates.map(run => run.id)).size !== candidates.length) {
+    throw new Error("expected GitHub App checks have invalid or duplicate IDs");
+  }
+  const latest = candidates.sort((a, b) => b.id - a.id)[0];
+  if (latest && candidates.some(run =>
+    Date.parse(run.started_at) > Date.parse(latest.started_at))) {
+    throw new Error("expected GitHub App check chronology is ambiguous");
+  }
+  return latest;
 }
 
 export function assertFreshEvaluatorCheck({
@@ -812,13 +984,16 @@ export function assertFreshEvaluatorCheck({
     !SHA256.test(String(policyDigest ?? "")) ||
     !SHA256.test(String(expectedNonce ?? "")) ||
     !APP_ID.test(String(appId ?? "")) ||
+    !Number.isSafeInteger(Number(appId)) || Number(appId) === 15368 ||
     !Number.isSafeInteger(Number(policyVersion)) ||
     Number(policyVersion) <= 0 ||
     !Number.isSafeInteger(Number(pullNumber)) ||
     Number(pullNumber) <= 0 ||
     !/^[a-z][a-z0-9-]{0,63}$/.test(String(expectedMode ?? "")) ||
     !Number.isSafeInteger(Number(maxAgeSeconds)) ||
-    Number(maxAgeSeconds) <= 0
+    Number(maxAgeSeconds) <= 0 || Number(maxAgeSeconds) > 300 ||
+    repository !== CHECK_ASSOCIATION_REPOSITORY ||
+    checkName !== "trusted-dependency-artifact"
   ) {
     throw new Error("fresh evaluator probe coordinates are invalid");
   }
@@ -836,19 +1011,16 @@ export function assertFreshEvaluatorCheck({
     normalizedEvaluatorOrigin === "https://api.github.com" ||
     evaluatorUrl.hostname === "localhost" ||
     evaluatorUrl.hostname.endsWith(".localhost") ||
-    evaluatorUrl.hostname === "127.0.0.1" ||
-    evaluatorUrl.hostname === "::1"
+    /^127\./.test(evaluatorUrl.hostname) ||
+    evaluatorUrl.hostname === "[::1]"
   ) {
     throw new Error("evaluator origin must be an exact external HTTPS origin");
   }
-  const candidates = (checkRuns ?? []).filter(
-    run =>
-      run?.name === checkName &&
-      run?.head_sha === targetSha &&
-      Number(run?.app?.id) === Number(appId) &&
-      run?.status === "completed" &&
-      run?.conclusion === expectedConclusion,
-  );
+  const latest = latestSourceRun(checkRuns, targetSha, appId, checkName);
+  if (!latest || latest.status !== "completed" || latest.conclusion !== expectedConclusion) {
+    throw new Error("the latest expected GitHub App check does not have the required conclusion");
+  }
+  const candidates = [latest];
   const failures = [];
   for (const run of candidates) {
     try {
@@ -858,7 +1030,14 @@ export function assertFreshEvaluatorCheck({
         headSha: targetSha,
         baseSha,
       });
-      if (new URL(run.details_url).origin !== evaluatorOrigin) {
+      if (
+        run.url !== `https://api.github.com/repos/${repository}/check-runs/${run.id}` ||
+        run.app?.slug === "github-actions"
+      ) {
+        throw new Error("check run repository URL or expected App identity is invalid");
+      }
+      const detailsUrl = new URL(run.details_url);
+      if (detailsUrl.origin !== evaluatorOrigin || detailsUrl.username || detailsUrl.password) {
         throw new Error("check run details_url is not owned by the reviewed evaluator origin");
       }
       const times = assertFreshRunWindow(run, {
@@ -884,11 +1063,11 @@ export function assertFreshEvaluatorCheck({
       if (
         payload.nonce !== expectedNonce ||
         payload.repository !== repository ||
-        Number(payload.pull_request) !== Number(pullNumber) ||
+        payload.pull_request !== pullNumber ||
         payload.head_sha !== targetSha ||
         payload.base_sha !== baseSha ||
         payload.policy_digest !== policyDigest ||
-        Number(payload.policy_version) !== Number(policyVersion) ||
+        payload.policy_version !== policyVersion ||
         payload.mode !== expectedMode
       ) {
         throw new Error("evaluator check external_id is not bound to the exact probe");
@@ -896,10 +1075,10 @@ export function assertFreshEvaluatorCheck({
       const issued = parseTimestamp(payload.issued_at, "external_id issued_at");
       if (
         issued < times.rulesetCreated ||
-        issued > times.observed + 30_000 ||
+        issued > times.observed ||
         issued > times.completed ||
         times.observed - issued > maxAgeSeconds * 1000 ||
-        times.started < issued - 30_000
+        times.started < issued
       ) {
         throw new Error("evaluator check external_id timestamp is stale or non-causal");
       }
@@ -914,75 +1093,30 @@ export function assertFreshEvaluatorCheck({
   );
 }
 
-export function assertExpectedSourceCheck({
-  checkRuns,
-  targetSha,
-  appId,
-  checkName,
-}) {
-  if (!FULL_OBJECT_ID.test(String(targetSha ?? ""))) {
-    throw new Error("target SHA must be a full Git object id");
-  }
-  if (!APP_ID.test(String(appId ?? ""))) {
-    throw new Error("expected source App ID is invalid");
-  }
-  const expectedAppId = Number(appId);
-  const matching = (checkRuns ?? []).filter(
-    run =>
-      run?.name === checkName &&
-      run?.head_sha === targetSha &&
-      Number(run?.app?.id) === expectedAppId,
-  );
-  const passing = matching.some(
-    run => run.status === "completed" && run.conclusion === "success",
-  );
-  if (!passing) {
-    throw new Error(
-      "no successful required check was produced by the expected GitHub App on the evaluated SHA",
-    );
-  }
+export function assertExpectedSourceCheck(probe) {
+  assertFreshEvaluatorCheck({ ...probe, expectedConclusion: "success" });
   return true;
 }
 
 export function assertSpoofedSourceRejected({
-  checkRuns,
-  targetSha,
-  appId,
-  checkName,
   mergeable,
   mergeableState,
+  ...probe
 }) {
-  if (!FULL_OBJECT_ID.test(String(targetSha ?? ""))) {
-    throw new Error("spoof probe SHA must be a full Git object id");
-  }
-  if (!APP_ID.test(String(appId ?? ""))) {
-    throw new Error("spoof probe App ID is invalid");
-  }
-  const expectedAppId = Number(appId);
-  const expectedSuccess = (checkRuns ?? []).some(
-    run =>
-      run?.name === checkName &&
-      run?.head_sha === targetSha &&
-      Number(run?.app?.id) === expectedAppId &&
-      run?.status === "completed" &&
-      run?.conclusion === "success",
-  );
-  if (expectedSuccess) {
-    throw new Error("negative spoof probe also contains the expected App check");
-  }
-  const spoof = (checkRuns ?? []).filter(
-    run =>
-      run?.name === checkName &&
-      run?.head_sha === targetSha &&
-      Number(run?.app?.id) !== expectedAppId &&
-      run?.app?.slug === "github-actions" &&
-      run?.status === "completed" &&
-      run?.conclusion === "success",
-  );
-  if (spoof.length === 0) {
+  assertFreshEvaluatorCheck({ ...probe, expectedConclusion: "failure" });
+  const spoof = latestSourceRun(probe.checkRuns, probe.targetSha, 15368, probe.checkName);
+  if (spoof?.app?.slug !== "github-actions" || spoof.status !== "completed" || spoof.conclusion !== "success") {
     throw new Error("negative spoof probe did not contain a successful same-name GitHub Actions run");
   }
-  if (typeof mergeable !== "boolean" || mergeableState !== "blocked") {
+  assertPullRequestAssociation(spoof, {
+    repository: probe.repository ?? CHECK_ASSOCIATION_REPOSITORY,
+    pullNumber: probe.pullNumber, headSha: probe.targetSha, baseSha: probe.baseSha,
+  });
+  assertFreshRunWindow(spoof, {
+    rulesetCreatedAt: probe.rulesetCreatedAt, observedAt: probe.observedAt,
+    maxAgeSeconds: probe.maxAgeSeconds ?? 300,
+  });
+  if (mergeable !== true || mergeableState !== "blocked") {
     throw new Error(
       "negative spoof probe was not blocked by the source-bound required check; mergeability is ambiguous",
     );
@@ -1022,6 +1156,9 @@ export function assertProbeResults({
   }
   if (positiveSha === negativeSha) {
     throw new Error("positive and negative source probes must use different pull-request heads");
+  }
+  if (positive.pull.number === negative.pull.number || positiveBaseSha !== negativeBaseSha) {
+    throw new Error("source probes must use different pull requests against the same immutable base");
   }
   if (
     !SHA256.test(String(positiveNonce ?? "")) ||
@@ -1080,15 +1217,10 @@ export function assertProbeResults({
     observedAt,
     maxAgeSeconds,
   });
-  const actionsRuns = (negative.checkRuns ?? []).filter(
-    run =>
-      run?.name === checkName &&
-      run?.head_sha === negativeSha &&
-      Number(run?.app?.id) === 15368 &&
-      run?.app?.slug === "github-actions" &&
-      run?.status === "completed" &&
-      run?.conclusion === "success",
-  );
+  const latestActions = latestSourceRun(negative.checkRuns, negativeSha, 15368, checkName);
+  const actionsRuns = latestActions?.app?.slug === "github-actions" &&
+    latestActions.status === "completed" && latestActions.conclusion === "success"
+    ? [latestActions] : [];
   let actionsAccepted = false;
   for (const run of actionsRuns) {
     try {
@@ -1109,7 +1241,7 @@ export function assertProbeResults({
     throw new Error("negative spoof probe lacks a fresh associated GitHub Actions success");
   }
   if (
-    typeof negative.pull.mergeable !== "boolean" ||
+    negative.pull.mergeable !== true ||
     negative.pull.mergeable_state !== "blocked"
   ) {
     throw new Error(
@@ -1153,25 +1285,28 @@ export function assertSafeRollbackTarget({
   ) {
     throw new Error("rollback target repository source could not be confirmed");
   }
-  const createdAt = String(readBackRuleset?.created_at ?? createdRuleset?.created_at ?? "");
+  const createdAt = String(readBackRuleset?.created_at ?? "");
   if (!ISO_TIMESTAMP.test(createdAt)) {
     throw new Error("rollback target creation time is unavailable");
   }
   const createdMillis = Date.parse(createdAt);
-  const startMillis = Date.parse(String(startedAt ?? ""));
-  const endMillis = Date.parse(String(endedAt ?? ""));
+  const startMillis = parseTimestamp(startedAt, "rollback transaction start");
+  const endMillis = parseTimestamp(endedAt, "rollback transaction end");
   if (
     !Number.isFinite(createdMillis) ||
     !Number.isFinite(startMillis) ||
     !Number.isFinite(endMillis) ||
-    createdMillis < startMillis - 300_000 ||
-    createdMillis > endMillis + 300_000
+    endMillis < startMillis ||
+    createdMillis < Math.floor(startMillis / 1000) * 1000 ||
+    createdMillis > endMillis ||
+    (createdRuleset?.created_at !== undefined && createdRuleset.created_at !== createdAt)
   ) {
     throw new Error("rollback target creation time is outside the apply transaction");
   }
-  const latest = (history ?? [])
-    .filter(entry => ISO_TIMESTAMP.test(String(entry?.updated_at ?? "")))
-    .sort((left, right) => Date.parse(right.updated_at) - Date.parse(left.updated_at))[0];
+  if (!Array.isArray(history) || history.length !== 1) {
+    throw new Error("rollback target must have exactly one owner-created history entry");
+  }
+  const latest = history[0];
   if (
     !latest ||
     latest.actor?.type !== "User" ||
@@ -1179,11 +1314,11 @@ export function assertSafeRollbackTarget({
   ) {
     throw new Error("rollback target creator could not be confirmed as the owner");
   }
-  const historyMillis = Date.parse(latest.updated_at);
+  const historyMillis = parseTimestamp(latest.updated_at, "rollback history timestamp");
   if (
     !Number.isFinite(historyMillis) ||
-    historyMillis < startMillis - 300_000 ||
-    historyMillis > endMillis + 300_000
+    historyMillis < createdMillis ||
+    historyMillis > endMillis
   ) {
     throw new Error("rollback target history timestamp is outside the apply transaction");
   }
@@ -1248,6 +1383,10 @@ async function runCli() {
   if (operation === "assert-app-installation") {
     assertAppInstallationPayload(input);
     process.stdout.write('{"ok":true}\n');
+    return;
+  }
+  if (operation === "probe-evidence") {
+    process.stdout.write(`${JSON.stringify(buildProbeEvidence(input))}\n`);
     return;
   }
   if (operation === "assert-owner") {

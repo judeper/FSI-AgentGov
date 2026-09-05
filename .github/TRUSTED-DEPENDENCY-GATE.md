@@ -67,9 +67,11 @@ The evaluator uses one canonical repository-path identity:
 1. reject non-strings, empty/overlong paths, C0/C1 controls, bidirectional
    controls, backslashes, absolute paths, colon/ADS syntax, empty segments,
    `.`/`..` segments, trailing dots/spaces, Windows device names (including
-   extension variants), `.git`, and DOS short-name aliases;
+   extension variants), Windows-invalid filename characters, `.git`, and DOS
+   short-name aliases;
 2. normalize Unicode to NFC while retaining the canonical spelling;
-3. ASCII-case-fold the canonical spelling for Git/Windows collision safety.
+3. conservatively fold ASCII and Unicode case aliases (including long-s and
+   dotless-i) for case-insensitive checkout collision safety.
 
 It precomputes folded identities for every trusted/guarded exact path,
 prefix/suffix, forbidden basename, vendor root, package/lock/provenance/
@@ -79,7 +81,23 @@ duplicates, NFC/case collisions, directory/file prefix collisions, and any
 case/NFC alias of a protected or forbidden identity even when the canonical
 spelling is absent. The same identity is used for PR records,
 `previous_filename`, immutable tree diffs, vendor scans, forbidden names,
-artifact presence, and the final not-applicable decision.
+artifact presence, and the final not-applicable decision. GitHub recursive
+trees include `040000` directory entries; `git ls-tree -r -z` omits them unless
+`-t` is also supplied. Explicit and implied directories participate in alias
+detection but are not files or leaf changes. A directory's changed tree ID does
+not expand the exact activation delta. Malformed modes/types/object IDs, missing
+tree response fields, truncation, and oversized trees fail closed.
+
+Every `trustedPaths` entry must exist as a regular Git blob in **both** the
+immutable base and candidate, with its exact `trustedPathModes` mode (currently
+`100644`). This applies even to unrelated PRs: a poisoned base is not a bypass.
+Symlinks (`120000`), submodules (`160000`), directories, missing files, and
+unapproved executable-bit changes are rejected before any authorization.
+Guarded activation files likewise retain their explicitly approved regular
+blob modes on both sides. A helper cannot redirect trust to an unguarded
+destination by becoming a symlink. A relocation requires protecting and
+materializing the destination in a separate reviewed policy step **before**
+trusted code can load it; existing trusted paths are not silently retired.
 
 The evaluator retains exact rename and race checks, immutable base/head tree
 comparison, base-owned policy material, and command-free-document handling.
@@ -91,10 +109,10 @@ trusted because they contain a familiar command.
 The policy branch contains no vendored artifact bytes and does not activate the
 package change. Activation is an all-or-nothing, base-relative exact tree delta
 defined by policy version 2 and patch digest
-`eed626b08ae9b7a10b8644add9c7c21d1e6e92899f0ac69ee1c5bb37a48f1c94`.
+`a9cc1b76042703c570dcd4a95575fbf54880e58f4ae8a26d35e2d9ea0c482425`.
 The 16-path set includes package/lock/gitattributes files, the vendor
 tarball/provenance/README, verifier/runtime files, two security workflows, and
-four focused tests. `SECURITY.md` and every trusted policy, runbook, gate
+five focused tests. `SECURITY.md` and every trusted policy, runbook, gate
 workflow, and operator path are excluded; `activation.allowedFiles` has an
 empty intersection with `trustedPaths`.
 
@@ -113,6 +131,21 @@ retains the policy branch's `permissions: {}` hardening while adding the
 reviewed artifact steps; all other target blobs are identified individually by
 the new pin set. If any base pin has moved, policy owners must review and issue
 a new base-relative patch instead of reusing the old branch.
+
+The acceptance-test target is the exact blob tracked at
+`.github/trusted-policy/trusted-gate-artifact-acceptance.template.mjs`; copy its
+raw Git blob, not a CRLF-converted working-tree rendering. The template checks
+the current schema and both immutable trees instead of the removed
+`artifactRequiredByBase`/caller-supplied activation override contract.
+The already-approved security workflow target is also stored, unchanged, at
+`.github/trusted-policy/security-scan.activation.yml` so its exact Git blob
+survives independently of an unreferenced local reconstruction.
+Policy-stage tests verify the schema, templates, and synthetic exact-activation
+attack cases. With the reviewed artifact objects available locally, set
+`TRUSTED_GATE_VALIDATE_PLANNED_BLOBS=1` to additionally replay every real target
+pin without activating packages or executing candidate code; missing objects
+then fail, rather than skipping tests. The actual artifact branch always runs
+that acceptance suite. The older acceptance-test blob is no longer approved.
 
 After activation, the effective exact pins continue to apply. Ordinary PRs
 cannot change the artifact, package manifests, lockfiles, `.gitattributes`,
@@ -139,7 +172,12 @@ values that point elsewhere. The operator lists every App installation with the
 JWT, obtains the target installation, creates a short-lived installation
 token, paginates the documented `GET /installation/repositories` endpoint,
 requires exactly `judeper/FSI-AgentGov` and the approved permissions, and
-rejects an invalid or overlong expiry, and revokes the temporary token.
+rejects an invalid or overlong expiry (at most one hour), and revokes the
+temporary token on success and validation failure. Installation and repository
+pages are explicitly enumerated into scalar records; duplicate IDs, changing
+totals, incomplete pages, and nested/malformed repository payloads fail closed.
+REST redirects are disabled so an otherwise pinned request cannot forward an
+App credential to another origin.
 
 The App must be installed only on `judeper/FSI-AgentGov` with exactly
 `metadata:read`, `contents:read`, `pull_requests:read`, and `checks:write`.
@@ -185,6 +223,16 @@ cannot authorize creation. Read-back reports `verified=true` only after the
 same causal probes pass, the managed ruleset matches every security-relevant
 field, and the complete legacy branch-protection state is unchanged.
 
+Checks are fetched with `filter=all` and complete, count-checked pagination.
+The newest run from each required source must satisfy the proof; an older
+success cannot mask a newer failed, pending, malformed, or stale run. GitHub's
+compact check association omits repository `full_name`. The operator requires
+that field from a separately read-back full PR, verifies the compact
+association's exact PR ID/number/URL, repository ID/name/API URL, ref, and head/base
+SHA against it, and only then supplies `full_name` to the strict check validator.
+Missing or conflicting fields are not inferred from requested coordinates.
+The PR is re-read after pagination and its final mergeability is used.
+
 Apply is create-only: it refuses to update or replace an existing managed
 ruleset. If post-create verification fails, the documented automatic rollback
 reads the returned ruleset and history, confirms the returned ID/name,
@@ -194,6 +242,9 @@ unambiguous new managed ID against the pre-create snapshot. It never deletes a
 pre-existing ruleset. If identity or creator/time proof is unavailable, rollback
 is refused and owner attention is required; the operation is not reported as
 success.
+Before creation the complete live security snapshot is checked again. After
+rollback, the snapshot must equal the pre-create snapshot; concurrent drift
+requires owner attention rather than a success claim.
 
 The exact commands and sequencing are in
 `.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. Until provisioning and

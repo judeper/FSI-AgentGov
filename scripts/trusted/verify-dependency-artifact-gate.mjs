@@ -62,6 +62,7 @@ const BLOB_MODE_EXECUTABLE = "100755";
 const BLOB_MODE_SYMLINK = "120000";
 const BLOB_MODE_GITLINK = "160000";
 const PINNABLE_BLOB_MODES = new Set([BLOB_MODE_REGULAR, BLOB_MODE_EXECUTABLE]);
+const TREE_MODE = "040000";
 
 /* ------------------------------------------------------------------ *
  * Policy loading
@@ -82,6 +83,7 @@ export function assertPolicyShape(policy) {
     "defaultBranch",
     "limits",
     "trustedPaths",
+    "trustedPathModes",
     "guardedPaths",
     "digestPins",
     "vendor",
@@ -96,6 +98,16 @@ export function assertPolicyShape(policy) {
     "gitattributes",
   ]) {
     if (!(key in policy)) throw new Error(`trusted policy is missing '${key}'`);
+  }
+  if (
+    !Array.isArray(policy.trustedPaths) ||
+    !policy.trustedPaths.length ||
+    new Set(policy.trustedPaths).size !== policy.trustedPaths.length ||
+    !policy.trustedPathModes ||
+    Object.keys(policy.trustedPathModes).length !== policy.trustedPaths.length ||
+    policy.trustedPaths.some(path => !PINNABLE_BLOB_MODES.has(policy.trustedPathModes[path]))
+  ) {
+    throw new Error("every trusted path must declare exactly one permitted regular blob mode");
   }
   for (const [path, pin] of Object.entries(policy.digestPins)) {
     if (!/^[0-9a-f]{64}$/.test(pin.sha256) || (pin.blob && !FULL_OBJECT_ID.test(pin.blob))) {
@@ -153,10 +165,15 @@ export function assertPolicyShape(policy) {
   const trustedFolded = new Set(
     policy.trustedPaths.map(path => {
       const identity = canonicalRepositoryPathIdentity(path);
-      if (identity.unsafe) throw new Error("trusted policy contains an unsafe trusted path");
+      if (identity.unsafe || identity.canonical !== path) {
+        throw new Error("trusted policy contains an unsafe or noncanonical trusted path");
+      }
       return identity.folded;
     }),
   );
+  if (trustedFolded.size !== policy.trustedPaths.length) {
+    throw new Error("trusted policy contains colliding trusted path identities");
+  }
   for (const path of activation.allowedFiles) {
     const identity = canonicalRepositoryPathIdentity(path);
     if (identity.unsafe) throw new Error("trusted policy activation contains an unsafe path");
@@ -321,6 +338,10 @@ export function asciiCaseFold(path) {
     : path;
 }
 
+function checkoutCaseFold(path) {
+  return path.toUpperCase().toLowerCase();
+}
+
 function isCheckoutUnsafeSegment(segment) {
   const deviceStem = segment.split(".", 1)[0].replace(/[ .]+$/u, "");
   if (
@@ -328,13 +349,13 @@ function isCheckoutUnsafeSegment(segment) {
     segment === "." ||
     segment === ".." ||
     /[ .]$/u.test(segment) ||
-    segment.includes(":") ||
+    /[<>:"|?*]/u.test(segment) ||
     C0_C1_CONTROL.test(segment) ||
     BIDI_CONTROL.test(segment) ||
     CHECKOUT_IGNORABLE.test(segment) ||
-    WINDOWS_DEVICE_STEM.test(deviceStem) ||
-    DOS_SHORT_NAME_ALIAS.test(segment) ||
-    asciiCaseFold(segment) === ".git"
+    WINDOWS_DEVICE_STEM.test(checkoutCaseFold(deviceStem)) ||
+    DOS_SHORT_NAME_ALIAS.test(checkoutCaseFold(segment)) ||
+    checkoutCaseFold(segment) === ".git"
   ) {
     return true;
   }
@@ -382,7 +403,8 @@ export function normalizeRepositoryPath(path) {
  * checkouts and case-insensitive filesystems can make several spellings refer
  * to the same object.  This is the only path identity function used by the
  * evaluator.  `canonical` preserves spelling after NFC normalization and
- * `folded` is the collision-safe identity used for policy matching.
+ * `folded` also conservatively collapses Unicode case aliases used by
+ * case-insensitive checkouts (for example long-s and dotless-i).
  */
 export function canonicalRepositoryPathIdentity(path) {
   const canonical = canonicalRepositoryPathOrNull(path);
@@ -399,7 +421,7 @@ export function canonicalRepositoryPathIdentity(path) {
     original: path,
     normalized: canonical,
     canonical,
-    folded: asciiCaseFold(canonical),
+    folded: checkoutCaseFold(canonical),
     unsafe: false,
   };
 }
@@ -431,7 +453,7 @@ function patternIdentity(pattern, kind) {
   }
   const canonical =
     kind === "suffix" ? `${marker}${identity.canonical}` : `${identity.canonical}${marker}`;
-  return { canonical, folded: asciiCaseFold(canonical) };
+  return { canonical, folded: checkoutCaseFold(canonical) };
 }
 
 function addIdentity(map, identity, value) {
@@ -500,7 +522,6 @@ function buildPathIdentityIndex(policy) {
   addPathLikePolicyValues(index, policy, [
     policy.package?.artifactPath,
     policy.package?.provenancePath,
-    policy.package?.lockPath,
     policy.package?.workspacePath,
     ...(Array.isArray(policy.package?.workspaces)
       ? policy.package.workspaces
@@ -571,7 +592,7 @@ function matchingProtectedAliases(index, identity) {
     }
   }
   const basename = identity.canonical.slice(identity.canonical.lastIndexOf("/") + 1);
-  const foldedBasename = asciiCaseFold(basename);
+  const foldedBasename = checkoutCaseFold(basename);
   for (const [folded, canonicals] of index.forbiddenBasenames) {
     if (folded !== foldedBasename) continue;
     for (const canonical of canonicals) {
@@ -608,7 +629,7 @@ function classifyRepositoryPath(policy, path, index = buildPathIdentityIndex(pol
   const basename = canonical.slice(canonical.lastIndexOf("/") + 1);
   const forbidden =
     index.forbiddenExact.has(folded) ||
-    index.forbiddenBasenames.has(asciiCaseFold(basename));
+    index.forbiddenBasenames.has(checkoutCaseFold(basename));
   const activation = index.activationAllowed.has(canonical);
   const aliases = matchingProtectedAliases(index, identity);
   return {
@@ -682,27 +703,21 @@ function uniqueSorted(values) {
 export function collectProtectedPathIdentityProblems(policy, baseEntries, headEntries) {
   const problems = [];
   const index = buildPathIdentityIndex(policy);
-  const byCanonical = new Map();
-  const byNfc = new Map();
-  const byCaseFold = new Map();
-  const allEntries = [
-    ...(baseEntries ?? []).map(entry => ({ ...entry, side: "base" })),
-    ...(headEntries ?? []).map(entry => ({ ...entry, side: "candidate" })),
-  ];
+  const identities = new Map();
 
-  const addRecord = (path, side) => {
+  const addRecord = (path, side, kind) => {
     const identity = canonicalRepositoryPathIdentity(path);
     if (identity.unsafe) {
       problems.push(`${side} tree contains an unsafe path '${sanitizeToken(path, 100)}'`);
       return;
     }
-    const record = { ...identity, side };
-    if (!byCanonical.has(identity.canonical)) byCanonical.set(identity.canonical, []);
-    byCanonical.get(identity.canonical).push(record);
-    if (!byNfc.has(identity.canonical)) byNfc.set(identity.canonical, new Set());
-    byNfc.get(identity.canonical).add(path);
-    if (!byCaseFold.has(identity.folded)) byCaseFold.set(identity.folded, new Set());
-    byCaseFold.get(identity.folded).add(path);
+    if (!identities.has(identity.folded)) {
+      identities.set(identity.folded, { originals: new Set(), canonicals: new Set(), kinds: new Set() });
+    }
+    const record = identities.get(identity.folded);
+    record.originals.add(path);
+    record.canonicals.add(identity.canonical);
+    record.kinds.add(kind);
     if (side === "candidate") {
       const classification = classifyRepositoryPath(policy, path, index);
       if (classification.alias) {
@@ -713,54 +728,31 @@ export function collectProtectedPathIdentityProblems(policy, baseEntries, headEn
     }
   };
 
-  for (const entry of allEntries) addRecord(entry?.path, entry?.side ?? "tree");
-
-  for (const canonical of index.protectedCanonical) {
-    if (!byCanonical.has(canonical)) {
-      const identity = canonicalRepositoryPathIdentity(canonical);
-      if (!identity.unsafe) {
-        if (!byNfc.has(identity.canonical)) byNfc.set(identity.canonical, new Set());
-        byNfc.get(identity.canonical).add(identity.canonical);
-        if (!byCaseFold.has(identity.folded)) byCaseFold.set(identity.folded, new Set());
-        byCaseFold.get(identity.folded).add(identity.canonical);
+  const addPath = (path, side, kind) => {
+    addRecord(path, side, kind);
+    if (typeof path === "string" && !isUnsafeRepositoryPath(path)) {
+      const parts = path.split("/");
+      for (let count = 1; count < parts.length; count += 1) {
+        addRecord(parts.slice(0, count).join("/"), side, "directory");
       }
     }
+  };
+  for (const [side, entries] of [["base", baseEntries], ["candidate", headEntries]]) {
+    for (const entry of entries ?? []) {
+      addPath(entry?.path, side, entry?.type === "tree" ? "directory" : "file");
+    }
   }
+  for (const path of index.protectedCanonical) addPath(path, "policy", "file");
 
-  for (const [canonical, records] of byCanonical) {
-    const originals = new Set(records.map(record => record.original));
-    if (originals.size > 1) {
-      problems.push(`tree contains duplicate canonical path '${sanitizeToken(canonical, 100)}'`);
+  for (const [folded, { originals, canonicals, kinds }] of identities) {
+    if (originals.size > canonicals.size) {
+      problems.push(`tree has a Unicode-normalization collision at '${sanitizeToken(folded, 100)}'`);
     }
-  }
-  for (const [normalized, originals] of byNfc) {
-    if (originals.size > 1) {
-      problems.push(
-        `tree has a Unicode-normalization collision at '${sanitizeToken(normalized, 100)}'`,
-      );
+    if (canonicals.size > 1) {
+      problems.push(`tree has an ASCII-case collision or Unicode-case alias at '${sanitizeToken(folded, 100)}'`);
     }
-  }
-  for (const [folded, originals] of byCaseFold) {
-    if (originals.size > 1) {
-      problems.push(`tree has an ASCII-case collision at '${sanitizeToken(folded, 100)}'`);
-    }
-  }
-
-  /*
-   * Include every real tree path plus base protected identities.  A file named
-   * `package.json/child` or `vendor/child` is a directory/file collision even
-   * when the policy's canonical file is absent from the candidate.
-   */
-  const prefixPaths = new Set([...byCaseFold.keys()]);
-  for (const path of [...prefixPaths].sort()) {
-    const segments = path.split("/");
-    for (let indexPart = 1; indexPart < segments.length; indexPart += 1) {
-      const ancestor = segments.slice(0, indexPart).join("/");
-      if (prefixPaths.has(ancestor)) {
-        problems.push(
-          `tree contains a directory/file prefix collision between '${sanitizeToken(ancestor, 100)}' and '${sanitizeToken(path, 100)}'`,
-        );
-      }
+    if (kinds.has("file") && kinds.has("directory")) {
+      problems.push(`tree contains a directory/file prefix collision at '${sanitizeToken(folded, 100)}'`);
     }
   }
   return uniqueSorted(problems);
@@ -776,11 +768,13 @@ export function diffImmutableTrees(baseEntries, headEntries, policy = null) {
     return identity.canonical;
   };
   for (const [index, entry] of (baseEntries ?? []).entries()) {
+    if (entry?.type === "tree" && entry.mode === TREE_MODE) continue;
     const key = keyFor(entry, "base", index);
     if (base.has(key)) duplicates.push(`base:${entry?.path ?? ""}`);
     base.set(key, entry);
   }
   for (const [index, entry] of (headEntries ?? []).entries()) {
+    if (entry?.type === "tree" && entry.mode === TREE_MODE) continue;
     const key = keyFor(entry, "head", index);
     if (head.has(key)) duplicates.push(`head:${entry?.path ?? ""}`);
     head.set(key, entry);
@@ -1678,15 +1672,22 @@ function treeBlobMap(entries, side, verdict) {
       continue;
     }
     seen.add(identity.canonical);
+    if (!FULL_OBJECT_ID.test(entry.sha ?? "")) {
+      verdict.fail(`${side} tree entry '${sanitizeToken(entry.path, 100)}' has an invalid object id`);
+      continue;
+    }
     if (entry.type === "commit" || entry.mode === BLOB_MODE_GITLINK) {
       verdict.fail(`${side} tree contains a submodule at '${sanitizeToken(entry.path, 100)}'`);
       continue;
     }
+    const validMode =
+      (entry.type === "tree" && entry.mode === TREE_MODE) ||
+      (entry.type === "blob" && (PINNABLE_BLOB_MODES.has(entry.mode) || entry.mode === BLOB_MODE_SYMLINK));
+    if (!validMode || (entry.size !== undefined && (!Number.isSafeInteger(entry.size) || entry.size < 0))) {
+      verdict.fail(`${side} tree entry '${sanitizeToken(entry.path, 100)}' has an invalid type, mode, or size`);
+      continue;
+    }
     if (entry.type === "blob") {
-      if (!FULL_OBJECT_ID.test(String(entry.sha ?? ""))) {
-        verdict.fail(`${side} tree blob '${sanitizeToken(entry.path, 100)}' has an invalid object id`);
-        continue;
-      }
       blobs.set(identity.canonical, { ...entry, canonicalPath: identity.canonical });
     }
   }
@@ -1756,12 +1757,25 @@ function failOnProtectedRename(policy, verdict, rename) {
 
 function requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict) {
   const index = buildPathIdentityIndex(policy);
-  for (const path of baseBlobs.keys()) {
-    const classification = classifyRepositoryPath(policy, path, index);
-    if (classification.trusted && !headBlobs.has(classification.canonical)) {
-      verdict.fail(
-        `trusted path '${sanitizeToken(path, 100)}' was removed or moved; policy rotations must modify trusted paths in place`,
-      );
+  for (const [side, blobs] of [["base", baseBlobs], ["candidate", headBlobs]]) {
+    for (const path of policy.trustedPaths) {
+      const entry = blobs.get(path);
+      const mode = policy.trustedPathModes?.[path];
+      if (!entry) {
+        verdict.fail(`${side} trusted path '${sanitizeToken(path, 100)}' is missing or was removed or moved; protect relocation destinations first`);
+      } else if (!PINNABLE_BLOB_MODES.has(mode) || entry.mode !== mode) {
+        verdict.fail(`${side} trusted path '${sanitizeToken(path, 100)}' must be a regular blob with approved mode ${sanitizeToken(mode, 10)}`);
+      }
+    }
+    const activated = hasTreePath(blobs, policy.package.artifactPath);
+    for (const [path, entry] of blobs) {
+      const classification = classifyRepositoryPath(policy, path, index);
+      if (!classification.guarded && !classification.activation) continue;
+      const pin = activated ? policy.activation.pins[path] : policy.activation.basePins[path];
+      const approvedMode = pin?.mode ?? BLOB_MODE_REGULAR;
+      if (!PINNABLE_BLOB_MODES.has(entry.mode) || entry.mode !== approvedMode) {
+        verdict.fail(`${side} guarded path '${sanitizeToken(path, 100)}' must be a regular blob with approved mode ${approvedMode}`);
+      }
     }
   }
 }
@@ -1830,6 +1844,14 @@ export async function evaluateCandidate({
   if (baseTreeTruncated || treeTruncated) {
     verdict.mode = "unbounded-change";
     return verdict.fail("base or candidate tree listing was truncated; refusing to judge a partial view");
+  }
+  if (
+    !Array.isArray(baseTreeEntries) || !Array.isArray(treeEntries) ||
+    baseTreeEntries.length > policy.limits.maxTreeEntries ||
+    treeEntries.length > policy.limits.maxTreeEntries
+  ) {
+    verdict.mode = "unbounded-change";
+    return verdict.fail("base or candidate tree is malformed or exceeds the reviewable entry limit");
   }
 
   const baseBlobs = treeBlobMap(baseTreeEntries, "base", verdict);
@@ -1971,7 +1993,7 @@ export async function evaluateCandidate({
     const canonical = classification.canonical;
     const basename = canonical.slice(canonical.lastIndexOf("/") + 1);
     if (classification.forbidden && policy.forbiddenTree.basenames.some(
-      forbidden => asciiCaseFold(forbidden) === asciiCaseFold(basename),
+      forbidden => checkoutCaseFold(forbidden) === checkoutCaseFold(basename),
     )) {
       forbiddenTreePath = true;
       verdict.fail(
@@ -1999,7 +2021,7 @@ export async function evaluateCandidate({
       );
     }
     if (!policy.vendor.allowedFiles.some(
-      allowed => asciiCaseFold(allowed) === identity.folded,
+      allowed => checkoutCaseFold(allowed) === identity.folded,
     )) {
       verdict.fail(
         `vendor path '${sanitizeToken(path, 100)}' is outside the reviewed allowlist`,
@@ -2238,7 +2260,7 @@ export function createGitHubReader({ apiUrl, owner, repo, token, fetchImpl = fet
     for (const [key, value] of Object.entries(searchParams)) {
       url.searchParams.set(key, String(value));
     }
-    const response = await fetchImpl(url, { headers });
+    const response = await fetchImpl(url, { headers, redirect: "error" });
     if (!response.ok) throw new Error(`GitHub API ${response.status} for ${path}`);
     return response.json();
   }
@@ -2258,23 +2280,24 @@ export function createGitHubReader({ apiUrl, owner, repo, token, fetchImpl = fet
               : {}),
           });
         }
-        if (batch.length < 100) return { files, truncated: false };
         if (files.length > maxFiles) return { files, truncated: true };
+        if (batch.length < 100) return { files, truncated: false };
       }
       return { files, truncated: true };
     },
     async readTree(sha) {
       if (!FULL_OBJECT_ID.test(sha)) throw new Error("tree id failed validation");
       const tree = await get(`/git/trees/${sha}`, { recursive: 1 });
+      if (
+        !tree || typeof tree !== "object" || Array.isArray(tree) ||
+        !FULL_OBJECT_ID.test(tree.sha ?? "") ||
+        typeof tree.truncated !== "boolean" || !Array.isArray(tree.tree)
+      ) {
+        throw new Error("unexpected or incomplete GitHub tree payload");
+      }
       return {
-        truncated: Boolean(tree.truncated),
-        entries: (tree.tree ?? []).map((entry) => ({
-          path: String(entry.path),
-          mode: String(entry.mode),
-          type: String(entry.type),
-          sha: String(entry.sha),
-          size: typeof entry.size === "number" ? entry.size : undefined,
-        })),
+        truncated: tree.truncated,
+        entries: tree.tree,
       };
     },
     async readBlob(sha) {
@@ -2363,6 +2386,11 @@ export async function main() {
       treeEntries: tree.entries,
       treeTruncated: tree.truncated,
       readBlob: (sha) => reader.readBlob(sha),
+    });
+    const final = await reader.readPull(pullNumber);
+    checkRace(verdict, {
+      eventHeadSha, eventBaseSha, baseRef,
+      currentHeadSha: final.headSha, currentBaseSha: final.baseSha, currentBaseRef: final.baseRef,
     });
   } catch (error) {
     verdict = new Verdict(policy.limits);

@@ -129,7 +129,7 @@ function Get-ValidatedEvaluatorOrigin {
 
 function ConvertTo-CompactJson {
     param([Parameter(Mandatory)]$Value)
-    return ($Value | ConvertTo-Json -Depth 100 -Compress)
+    return (ConvertTo-Json -InputObject $Value -Depth 100 -Compress)
 }
 
 function ConvertFrom-ToolJson {
@@ -231,6 +231,7 @@ function Invoke-AppJson {
             Method = $Method
             Headers = $headers
             ErrorAction = "Stop"
+            MaximumRedirection = 0
         }
         if ($Method -eq "POST") {
             $parameters.ContentType = "application/json"
@@ -419,40 +420,77 @@ function Get-ManagedRulesets {
 
 function Get-AllAppInstallations {
     param([Parameter(Mandatory)][string]$Jwt)
-    $installations = @()
+    $installations = [System.Collections.Generic.List[object]]::new()
+    $ids = [System.Collections.Generic.HashSet[long]]::new()
     for ($page = 1; $page -le 100; $page++) {
-        $batch = @(
-            Invoke-AppJson `
-                -Endpoint "app/installations?per_page=100&page=$page" `
-                -BearerToken $Jwt
-        )
-        $installations += $batch
-        if ($batch.Count -lt 100) { return $installations }
+        $response = Invoke-AppJson `
+            -Endpoint "app/installations?per_page=100&page=$page" `
+            -BearerToken $Jwt
+        $count = 0
+        foreach ($installation in $response) {
+            if (
+                $null -eq $installation -or $installation -is [array] -or
+                $null -eq $installation.PSObject.Properties["id"] -or
+                $installation.id -isnot [long] -and $installation.id -isnot [int] -or
+                $installation.id -le 0 -or !$ids.Add([long]$installation.id)
+            ) {
+                throw "GitHub App installation pagination contains a malformed or duplicate ID"
+            }
+            $installations.Add($installation)
+            $count++
+        }
+        if ($count -gt 100) { throw "GitHub App installation page exceeded its page size" }
+        if ($count -lt 100) { return $installations.ToArray() }
     }
     throw "GitHub App installation pagination exceeded the safety bound"
 }
 
 function Get-AllInstallationRepositories {
     param([Parameter(Mandatory)][string]$InstallationToken)
-    $repositories = @()
+    $repositories = [System.Collections.Generic.List[object]]::new()
+    $ids = [System.Collections.Generic.HashSet[long]]::new()
     $reportedTotal = $null
     for ($page = 1; $page -le 100; $page++) {
         $response = Invoke-AppJson `
             -Endpoint "installation/repositories?per_page=100&page=$page" `
             -BearerToken $InstallationToken
-        if ($null -eq $reportedTotal) {
-            if ($null -eq $response.total_count -or [int]$response.total_count -lt 0) {
-                throw "GitHub App repository enumeration omitted total_count"
-            }
-            $reportedTotal = [int]$response.total_count
+        if (
+            $null -eq $response -or $response -is [array] -or
+            $null -eq $response.PSObject.Properties["total_count"] -or
+            $null -eq $response.PSObject.Properties["repositories"] -or
+            $response.total_count -isnot [long] -and $response.total_count -isnot [int] -or
+            $response.total_count -lt 0 -or $response.total_count -gt 10000 -or
+            $response.repositories -isnot [array]
+        ) {
+            throw "GitHub App repository enumeration omitted a valid total_count or repositories array"
         }
-        $batch = @($response.repositories)
-        $repositories += $batch
-        if ($batch.Count -lt 100) {
+        if ($null -eq $reportedTotal) { $reportedTotal = [int]$response.total_count }
+        if ($response.total_count -ne $reportedTotal) {
+            throw "GitHub App repository enumeration total_count changed between pages"
+        }
+        $count = 0
+        foreach ($repositoryRecord in $response.repositories) {
+            if (
+                $null -eq $repositoryRecord -or $repositoryRecord -is [array] -or
+                $null -eq $repositoryRecord.PSObject.Properties["id"] -or
+                $null -eq $repositoryRecord.PSObject.Properties["full_name"] -or
+                $repositoryRecord.id -isnot [long] -and $repositoryRecord.id -isnot [int] -or
+                $repositoryRecord.id -le 0 -or !$ids.Add([long]$repositoryRecord.id) -or
+                [string]::IsNullOrWhiteSpace([string]$repositoryRecord.full_name)
+            ) {
+                throw "GitHub App repository pagination contains a malformed or duplicate repository"
+            }
+            $repositories.Add($repositoryRecord)
+            $count++
+        }
+        if ($count -gt 100 -or $repositories.Count -gt $reportedTotal) {
+            throw "GitHub App repository enumeration exceeded its reported count"
+        }
+        if ($count -lt 100) {
             if ($repositories.Count -ne $reportedTotal) {
                 throw "GitHub App repository enumeration count did not match total_count"
             }
-            return $repositories
+            return $repositories.ToArray()
         }
     }
     throw "GitHub App repository pagination exceeded the safety bound"
@@ -491,10 +529,18 @@ function Assert-AppInstallation {
     $repositories = $null
     $validationFailure = $null
     try {
-        $expiresAt = [DateTimeOffset]::Parse([string]$tokenResponse.expires_at)
+        $expiresAt = [DateTimeOffset]::MinValue
+        $expiryText = [string]$tokenResponse.expires_at
+        if (
+            $expiryText -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$' -or
+            ![DateTimeOffset]::TryParse($expiryText, [System.Globalization.CultureInfo]::InvariantCulture,
+                [System.Globalization.DateTimeStyles]::None, [ref]$expiresAt)
+        ) {
+            throw "GitHub App installation token expiry is invalid"
+        }
         $now = [DateTimeOffset]::UtcNow
         $maxLifetime = [int]$contract.installationVerification.maxTokenLifetimeSeconds
-        if ($expiresAt -le $now -or $expiresAt -gt $now.AddSeconds($maxLifetime + 300)) {
+        if ($expiresAt -le $now -or $expiresAt -gt $now.AddSeconds($maxLifetime)) {
             throw "GitHub App installation token expiry is invalid"
         }
         $repositories = @(Get-AllInstallationRepositories -InstallationToken $installationToken)
@@ -526,6 +572,7 @@ function Assert-AppInstallation {
         throw "temporary GitHub App installation token revocation failed"
     } finally {
         $installationToken = $null
+        $tokenResponse.token = $null
     }
     if ($null -ne $validationFailure) { throw $validationFailure }
     return $installation
@@ -568,32 +615,18 @@ function Get-ProbeEvidence {
         throw "Probe pull request mergeability is not yet available; refusing an ambiguous result"
     }
     $pages = Invoke-GhJson `
-        -Endpoint "repos/$Repository/commits/$headSha/check-runs?per_page=100" `
+        -Endpoint "repos/$Repository/commits/$headSha/check-runs?filter=all&per_page=100" `
         -Paginate
-    $checkRuns = @()
-    foreach ($page in @($pages)) {
-        $checkRuns += @($page.check_runs)
-    }
     $after = Invoke-GhJson -Endpoint "repos/$Repository/pulls/$PullRequest"
-    if (
-        [string]$after.state -ne "open" -or
-        [string]$after.head.sha -ne $headSha -or
-        [string]$after.base.sha -ne $baseSha -or
-        [string]$after.base.ref -ne $Branch
-    ) {
-        throw "Probe pull request changed while evidence was being collected"
-    }
-    return [ordered]@{
-        pull = [ordered]@{
-            number = $PullRequest
+    return Invoke-TrustedModel `
+        -Operation "probe-evidence" `
+        -InputObject ([ordered]@{
+            pull = $pull
+            after = $after
+            checkRunPages = @($pages)
+            pullNumber = $PullRequest
             repository = $Repository
-            headSha = $headSha
-            baseSha = $baseSha
-            mergeable = [bool]$pull.mergeable
-            mergeable_state = [string]$pull.mergeable_state
-        }
-        checkRuns = $checkRuns
-    }
+        })
 }
 
 function Assert-AppCheckProbes {
@@ -640,10 +673,12 @@ function Wait-AppCheckProbes {
     $lastFailure = "fresh post-ruleset probe evidence was not observed"
     do {
         try {
+            $positive = Get-ProbeEvidence -PullRequest $ProbePullRequest
+            $negative = Get-ProbeEvidence -PullRequest $SpoofProbePullRequest
             $observedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
             Assert-AppCheckProbes `
-                -Positive (Get-ProbeEvidence -PullRequest $ProbePullRequest) `
-                -Negative (Get-ProbeEvidence -PullRequest $SpoofProbePullRequest) `
+                -Positive $positive `
+                -Negative $negative `
                 -RulesetCreatedAt $RulesetCreatedAt `
                 -ObservedAt $observedAt `
                 -PolicyEvidence $PolicyEvidence `
@@ -774,7 +809,7 @@ function Invoke-SafeRollback {
         -Operation "assert-safe-rollback" `
         -InputObject ([ordered]@{
             beforeRulesetIds = @(
-                @(Get-ManagedRulesets $Before) | ForEach-Object { [Int64]$_.id }
+                $Before.rulesets | ForEach-Object { [Int64]$_.id }
             )
             createdRuleset = $CreatedRuleset
             readBackRuleset = $readBack
@@ -791,6 +826,9 @@ function Invoke-SafeRollback {
     $after = Get-LiveState
     if (@(Get-ManagedRulesets $after | Where-Object { [Int64]$_.id -eq $createdId }).Count -ne 0) {
         throw "automatic rollback did not remove the just-created ruleset"
+    }
+    if ((Get-Snapshot $after).digest -ne (Get-Snapshot $Before).digest) {
+        throw "automatic rollback observed unrelated security drift; owner attention is required"
     }
     return $true
 }
@@ -875,6 +913,10 @@ if (!$PSCmdlet.ShouldProcess("$Repository/$Branch", "create the planned expected
 }
 
 [void](Assert-AppInstallation -Jwt $appJwt)
+$preCreate = Get-LiveState
+if ((Get-Snapshot $preCreate).digest -ne $snapshot.digest) {
+    throw "Live repository security state changed during App verification; refusing to create"
+}
 $startedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
 $created = $null
 try {

@@ -127,15 +127,23 @@ function legacyProtection() {
 }
 
 function pullAssociation(number, headSha, baseSha = BASE_SHA) {
+  const repo = {
+    id: 1117160053, name: "FSI-AgentGov", full_name: "judeper/FSI-AgentGov",
+    url: "https://api.github.com/repos/judeper/FSI-AgentGov",
+  };
   return {
+    id: 1_000_000 + number,
     number,
+    url: `https://api.github.com/repos/judeper/FSI-AgentGov/pulls/${number}`,
     head: {
       sha: headSha,
-      repo: { full_name: "judeper/FSI-AgentGov" },
+      ref: `probe-${number}`,
+      repo: { ...repo },
     },
     base: {
       sha: baseSha,
-      repo: { full_name: "judeper/FSI-AgentGov" },
+      ref: "main",
+      repo: { ...repo },
     },
   };
 }
@@ -177,6 +185,7 @@ function evaluatorRun({
 }) {
   return {
     id,
+    url: `https://api.github.com/repos/judeper/FSI-AgentGov/check-runs/${id}`,
     name: "trusted-dependency-artifact",
     head_sha: headSha,
     app: { id: APP_ID, slug: "trusted-artifact-app" },
@@ -207,6 +216,7 @@ function actionsRun({
 }) {
   return {
     id,
+    url: `https://api.github.com/repos/judeper/FSI-AgentGov/check-runs/${id}`,
     name: "trusted-dependency-artifact",
     head_sha: headSha,
     app: { id: 15368, slug: "github-actions" },
@@ -215,6 +225,16 @@ function actionsRun({
     started_at: startedAt,
     completed_at: completedAt,
     pull_requests: [pullAssociation(pullNumber, headSha, baseSha)],
+  };
+}
+
+function probeArguments(checkRuns, overrides = {}) {
+  return {
+    checkRuns, targetSha: HEAD_SHA, baseSha: BASE_SHA, pullNumber: 101, appId: APP_ID,
+    checkName: "trusted-dependency-artifact", policyDigest: POLICY_DIGEST, policyVersion: 2,
+    expectedNonce: "1".repeat(64), evaluatorOrigin: EVALUATOR_ORIGIN,
+    expectedMode: "not-applicable", rulesetCreatedAt: RULESET_CREATED_AT, observedAt: OBSERVED_AT,
+    ...overrides,
   };
 }
 
@@ -284,7 +304,10 @@ describe("planned expected-source GitHub App ruleset", () => {
       events: ["pull_request", "check_suite", "check_run"],
     };
     const installations = [installation];
-    const repositories = [{ full_name: "judeper/FSI-AgentGov" }];
+    const repositories = [{
+      id: 1117160053, name: "FSI-AgentGov", full_name: "judeper/FSI-AgentGov",
+      url: "https://api.github.com/repos/judeper/FSI-AgentGov",
+    }];
     const tokenPermissions = { ...installation.permissions };
     expect(() =>
       assertOwnerIdentity({
@@ -425,6 +448,7 @@ describe("planned expected-source GitHub App ruleset", () => {
       { context: "trusted-dependency-artifact", integration_id: APP_ID },
     ]);
     expect(() => materializeRuleset(plan, 0)).toThrow(/App ID/);
+    expect(() => materializeRuleset(plan, 15368)).toThrow(/App ID/);
   });
 
   it("does not allow a same-name GitHub Actions check on a PR head or test merge", () => {
@@ -445,79 +469,60 @@ describe("planned expected-source GitHub App ruleset", () => {
       },
     ];
     expect(() =>
-      assertExpectedSourceCheck({
-        checkRuns: spoofed,
-        targetSha: HEAD_SHA,
-        appId: APP_ID,
-        checkName: "trusted-dependency-artifact",
-      }),
+      assertExpectedSourceCheck(probeArguments(spoofed)),
     ).toThrow(/expected GitHub App/);
     expect(() =>
-      assertExpectedSourceCheck({
-        checkRuns: spoofed,
-        targetSha: MERGE_SHA,
-        appId: APP_ID,
-        checkName: "trusted-dependency-artifact",
-      }),
+      assertExpectedSourceCheck(probeArguments(spoofed, { targetSha: MERGE_SHA })),
     ).toThrow(/expected GitHub App/);
   });
 
   it("requires the expected App on the exact SHA GitHub is evaluating", () => {
-    const runs = [
-      {
-        name: "trusted-dependency-artifact",
-        head_sha: HEAD_SHA,
-        app: { id: APP_ID },
-        status: "completed",
-        conclusion: "success",
-      },
-    ];
+    const runs = [evaluatorRun({
+      id: 9001, pullNumber: 101, headSha: HEAD_SHA, mode: "not-applicable",
+      conclusion: "success", nonce: "1".repeat(64),
+    })];
     expect(() =>
-      assertExpectedSourceCheck({
-        checkRuns: runs,
-        targetSha: HEAD_SHA,
-        appId: APP_ID,
-        checkName: "trusted-dependency-artifact",
-      }),
+      assertExpectedSourceCheck(probeArguments(runs)),
     ).not.toThrow();
     expect(() =>
-      assertExpectedSourceCheck({
-        checkRuns: runs,
-        targetSha: MERGE_SHA,
-        appId: APP_ID,
-        checkName: "trusted-dependency-artifact",
-      }),
+      assertExpectedSourceCheck(probeArguments(runs, { targetSha: MERGE_SHA })),
     ).toThrow(/expected GitHub App/);
   });
 
   it("requires a negative spoof probe to be blocked, not merely renamed", () => {
-    const spoof = {
-      name: "trusted-dependency-artifact",
-      head_sha: HEAD_SHA,
-      app: { id: 15368, slug: "github-actions" },
-      status: "completed",
-      conclusion: "success",
-    };
+    const spoof = actionsRun({ id: 9002, pullNumber: 101, headSha: HEAD_SHA });
+    const rejected = evaluatorRun({
+      id: 9003, pullNumber: 101, headSha: HEAD_SHA, mode: "activation-rejected",
+      conclusion: "failure", nonce: "1".repeat(64),
+    });
+    const probe = probeArguments([spoof, rejected], { expectedMode: "activation-rejected" });
     expect(() =>
       assertSpoofedSourceRejected({
-        checkRuns: [spoof],
-        targetSha: HEAD_SHA,
-        appId: APP_ID,
-        checkName: "trusted-dependency-artifact",
+        ...probe,
         mergeable: true,
         mergeableState: "blocked",
       }),
     ).not.toThrow();
     expect(() =>
       assertSpoofedSourceRejected({
-        checkRuns: [spoof],
-        targetSha: HEAD_SHA,
-        appId: APP_ID,
-        checkName: "trusted-dependency-artifact",
+        ...probe,
         mergeable: true,
         mergeableState: "clean",
       }),
     ).toThrow(/blocked/);
+  });
+
+  it("rejects incomplete payloads through both exported proof helpers", () => {
+    expect(() => assertExpectedSourceCheck({
+      checkRuns: [{ name: "trusted-dependency-artifact", head_sha: HEAD_SHA,
+        app: { id: APP_ID }, status: "completed", conclusion: "success" }],
+      targetSha: HEAD_SHA, appId: APP_ID, checkName: "trusted-dependency-artifact",
+    })).toThrow(/coordinates/);
+    expect(() => assertSpoofedSourceRejected({
+      checkRuns: [actionsRun({ id: 9004, pullNumber: 101, headSha: HEAD_SHA })],
+      targetSha: HEAD_SHA, appId: APP_ID, checkName: "trusted-dependency-artifact",
+      mergeable: true, mergeableState: "blocked",
+    })).toThrow(/coordinates/);
   });
 
   it("requires fresh post-creation positive App and negative Actions probes", () => {
@@ -851,6 +856,13 @@ describe("ruleset planner and read-back", () => {
     });
   });
 
+  it.each(LEGACY_CHECKS.map(([context]) => context))("cannot drop the existing required check %s", context => {
+    const protection = legacyProtection();
+    protection.required_status_checks.contexts = protection.required_status_checks.contexts.filter(value => value !== context);
+    protection.required_status_checks.checks = protection.required_status_checks.checks.filter(value => value.context !== context);
+    expect(() => assertLegacyBaseline({ plan, repository: repository(), branchProtection: protection })).toThrow();
+  });
+
   it("accepts only a complete matching read-back", () => {
     expect(() =>
       assertRulesetReadBack({
@@ -1138,6 +1150,36 @@ describe("ruleset planner and read-back", () => {
       }),
     ).toThrow(/newly created/);
   });
+
+  it("rejects rollback with missing, stale, changed, or multiply-authored identity evidence", () => {
+    const created = { ...managedRuleset(), created_at: "2026-09-05T01:00:00Z" };
+    const valid = {
+      beforeRulesetIds: [8], createdRuleset: created, readBackRuleset: structuredClone(created),
+      history: [{ actor: { id: 99, type: "User" }, updated_at: "2026-09-05T01:00:01Z" }],
+      ownerId: 99, expectedRuleset: materializeRuleset(plan, APP_ID),
+      startedAt: "2026-09-05T00:59:00Z", endedAt: "2026-09-05T01:01:00Z",
+    };
+    for (const mutate of [
+      value => { value.beforeRulesetIds.push(42); },
+      value => { value.readBackRuleset.id++; },
+      value => { value.readBackRuleset.name = "foreign"; },
+      value => { value.readBackRuleset.source = "attacker/other"; },
+      value => { delete value.readBackRuleset.created_at; },
+      value => { value.readBackRuleset.created_at = "2026-09-05T00:58:00Z"; },
+      value => { value.history = []; },
+      value => { value.history.push({ actor: { id: 98, type: "User" }, updated_at: "2026-09-05T01:00:00Z" }); },
+      value => { value.history[0].actor.id = 98; },
+      value => { value.history[0].updated_at = "2026-09-05T00:58:00Z"; },
+      value => { value.history[0].updated_at = "2026-09-05T01:02:00Z"; },
+      value => { value.history[0].updated_at = "2026-09-05 01:00:01Z"; },
+      value => { value.startedAt = "2026-09-05 00:59:00Z"; },
+      value => { value.readBackRuleset.bypass_actors.push({ actor_id: 99, actor_type: "User", bypass_mode: "always" }); },
+    ]) {
+      const candidate = structuredClone(valid);
+      mutate(candidate);
+      expect(() => assertSafeRollbackTarget(candidate)).toThrow(/rollback/);
+    }
+  });
 });
 
 describe("trusted-path ownership", () => {
@@ -1154,6 +1196,7 @@ describe("trusted-path ownership", () => {
       "/SECURITY.md",
       "/scripts/trusted/",
       "/scripts/verify-required-checks.mjs",
+      "/tests/spa/_gitTreeFixtures.mjs",
     ]) {
       expect(
         lines.some(line => line.trimStart().startsWith(path) && line.trimEnd().endsWith("@judeper")),

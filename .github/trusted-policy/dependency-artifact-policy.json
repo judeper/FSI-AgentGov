@@ -33,6 +33,8 @@
     ".github/trusted-policy/trusted-dependency-artifact-app-contract.json",
     ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md",
     ".github/trusted-policy/vendor-readme-template.md",
+    ".github/trusted-policy/trusted-gate-artifact-acceptance.template.mjs",
+    ".github/trusted-policy/security-scan.activation.yml",
     ".github/workflows/trusted-dependency-artifact.yml",
     ".github/TRUSTED-DEPENDENCY-GATE.md",
     ".github/CODEOWNERS",
@@ -41,8 +43,29 @@
     "scripts/trusted/trusted-dependency-ruleset.mjs",
     "scripts/trusted/github-app-jwt.mjs",
     "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1",
-    "scripts/verify-required-checks.mjs"
+    "scripts/verify-required-checks.mjs",
+    "tests/spa/_gitTreeFixtures.mjs"
   ],
+
+  "trustedPathModes": {
+    ".github/trusted-policy/dependency-artifact-policy.json": "100644",
+    ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json": "100644",
+    ".github/trusted-policy/trusted-dependency-artifact-app-contract.json": "100644",
+    ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md": "100644",
+    ".github/trusted-policy/vendor-readme-template.md": "100644",
+    ".github/trusted-policy/trusted-gate-artifact-acceptance.template.mjs": "100644",
+    ".github/trusted-policy/security-scan.activation.yml": "100644",
+    ".github/workflows/trusted-dependency-artifact.yml": "100644",
+    ".github/TRUSTED-DEPENDENCY-GATE.md": "100644",
+    ".github/CODEOWNERS": "100644",
+    "SECURITY.md": "100644",
+    "scripts/trusted/verify-dependency-artifact-gate.mjs": "100644",
+    "scripts/trusted/trusted-dependency-ruleset.mjs": "100644",
+    "scripts/trusted/github-app-jwt.mjs": "100644",
+    "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1": "100644",
+    "scripts/verify-required-checks.mjs": "100644",
+    "tests/spa/_gitTreeFixtures.mjs": "100644"
+  },
 
   "guardedPaths": {
     "exact": [
@@ -224,7 +247,7 @@
     "strategy": "base-relative-exact-tree-delta",
     "requiredBasePolicyVersion": 2,
     "requiresCompleteSet": true,
-    "patchSha256": "eed626b08ae9b7a10b8644add9c7c21d1e6e92899f0ac69ee1c5bb37a48f1c94",
+    "patchSha256": "a9cc1b76042703c570dcd4a95575fbf54880e58f4ae8a26d35e2d9ea0c482425",
     "allowedFiles": [
       ".gitattributes",
       ".github/workflows/security-scan.yml",
@@ -369,9 +392,9 @@
       },
       "tests/spa/trusted-gate-artifact-acceptance.test.mjs": {
         "mode": "100644",
-        "blob": "70e2aa545763d2ee791dfaba4cea0fe4c7dfe71f",
-        "sha256": "ec9a2a816f162801a76921d4dc404ede004d3e44fd04604c4556e4ec3702ebd3",
-        "size": 8999
+        "blob": "2110fb948572f2288fa5899f15e7f5294a4a1752",
+        "sha256": "ab45dffd734a6bb50af55178c927a282f9f5e946b5eb15c5b845a970b8fdadab",
+        "size": 5616
       },
       "tests/spa/vendor-runtime-policy.test.mjs": {
         "mode": "100644",

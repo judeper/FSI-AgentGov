@@ -33,12 +33,21 @@ Protected-path renames, case/NFC aliases, duplicates, and directory/file prefix
 collisions are rejected. A rotation changes policy in place and does not move a
 trusted or guarded path.
 
+Each trusted path must remain present with its explicitly approved regular
+blob mode in both trees, including on unrelated PRs. Symlinks, submodules, and
+directory replacements are never relocation mechanisms. To relocate trusted
+code, first retain the existing regular file and materialize a reviewed regular
+destination with a `trustedPaths`/`trustedPathModes` declaration in a separate
+policy-only PR. Merge that protection before changing imports/loaders. Retiring
+the old path requires another reviewed policy change only after it is no longer
+loaded; do not delete it while it is still a trusted path.
+
 ## Exact approved activation
 
 When the artifact is absent from the immutable base tree, the only accepted
 activation is policy version 2's base-relative exact tree delta, identified by
 patch digest
-`eed626b08ae9b7a10b8644add9c7c21d1e6e92899f0ac69ee1c5bb37a48f1c94`.
+`a9cc1b76042703c570dcd4a95575fbf54880e58f4ae8a26d35e2d9ea0c482425`.
 The policy pins the current base state (blob+mode or required absence) and the
 target state (mode+blob+raw-byte SHA-256+size) for all 16 activation paths.
 `SECURITY.md` and every trusted policy/runbook/workflow/operator path are
@@ -58,6 +67,27 @@ it combines the reviewed artifact steps with the policy head's top-level
 `permissions: {}` hardening. If any base pin differs, stop and rotate the
 policy; do not edit the artifact branch to make the old pins fit. The policy
 branch itself remains artifact-free.
+
+The acceptance-test target is byte-identical to the tracked
+`trusted-gate-artifact-acceptance.template.mjs` in this policy directory. Use its
+Git blob at the pinned activation destination. It validates the current policy
+shape and the exact pre/post-activation trees, not removed evaluator exports.
+Do not reuse the old artifact branch's acceptance test or old patch digest.
+The unchanged security workflow target is likewise available as the Git blob
+of `security-scan.activation.yml` in this directory. On a local checkout with
+all reviewed artifact Git objects present, run the full policy/real-activation
+replay without installing or activating the artifact:
+
+```powershell
+$env:TRUSTED_GATE_VALIDATE_PLANNED_BLOBS = "1"
+npm test
+Remove-Item Env:TRUSTED_GATE_VALIDATE_PLANNED_BLOBS
+```
+
+A fresh policy-only clone intentionally lacks the artifact objects; its normal
+suite still checks current policy shape, persisted templates, real recursive
+Git trees, and synthetic exact-activation attacks. An activated artifact
+checkout always runs the pinned acceptance suite without an environment flag.
 
 ## One-time enforcement bootstrap
 
@@ -81,7 +111,9 @@ not yet exist on the default branch. Perform these steps in order:
    creates a temporary installation token, paginates
    `GET /installation/repositories`, requires exactly
    `judeper/FSI-AgentGov`, verifies exact permissions/events, and revokes the
-   token. The owner credential is used only for repository/ruleset reads and
+   token even on validation failure. Counts must agree on every page, duplicate
+   IDs are rejected, expiry must be within one hour, and REST redirects are
+   disabled. The owner credential is used only for repository/ruleset reads and
    writes.
 6. Prepare two same-repository probe PRs against `main`, but do not rely on
    existing check runs:
@@ -138,6 +170,14 @@ probe PR/head/base. Until every App, ruleset, legacy-protection, and probe
 read-back passes, the artifact remediation is **BLOCKED**. A same-name check
 from GitHub Actions is never an acceptable substitute.
 
+The complete `filter=all` check-run pagination must have stable totals and
+unique run IDs. Compact GitHub check associations are not complete repository
+identities: a separate full PR read-back must supply `full_name`, and its
+PR/repository IDs, canonical API URLs, names, refs, and SHAs must match the
+association exactly. The final PR read-back supplies mergeability. Missing,
+stale, or conflicting association data fails closed. Never bypass this by
+dropping the `full_name` requirement or selecting an older passing check.
+
 ## Webhook handling
 
 The App service must validate the webhook HMAC signature with the runtime-only
@@ -179,4 +219,6 @@ If the POST response is lost, it first reconciles the live ruleset list against
 the pre-create IDs and rolls back only one unambiguous new matching ruleset.
 If that proof is unavailable, rollback is refused and owner attention is
 required; the script does not report success. The owner must verify the final
-ruleset list after either outcome.
+ruleset list after either outcome. The operator also compares the complete
+post-rollback security snapshot to its pre-create snapshot; unrelated drift
+is not silently accepted or repaired.
