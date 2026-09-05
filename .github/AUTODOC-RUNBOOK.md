@@ -114,8 +114,11 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
    > it to "run whether the user is logged on or not," the keyring/credential store is unreachable and
    > the task **fails closed** (it throws before the runner starts rather than writing as the wrong
    > account). For a fully headless host, supply a stored fine-grained PAT via `GH_TOKEN` instead.
-5. **Required deterministic gates:** the committed `.github/branch-protection.json` preserves the
-   live strict 11-check baseline and adds `autodoc-verify` plus `autodoc-redirect-verify`.
+5. **Required deterministic gates:** verify the live GitHub rules before relying on any required
+   check. The former committed `.github/branch-protection.json` was removed because a stale,
+   whole-document, name-only plan is not a safe source of remote truth. The dedicated dependency
+   artifact gate is separately **BLOCKED** until its expected-source App ruleset is applied and
+   read back; see `.github/TRUSTED-DEPENDENCY-GATE.md`.
    `autodoc-verify` recognizes both `autodoc/*` and `copilot/*`; both checks self-shim on unrelated
    PRs. `mkdocs-strict` already validates internal links and anchors through MkDocs 1.6 validation,
    so no duplicate internal-link check is required. The network-dependent external-link workflow

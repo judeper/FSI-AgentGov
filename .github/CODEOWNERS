@@ -10,8 +10,9 @@
 # act as an enforced merge gate, branch protection on `main` must be configured
 # (by a repo admin) to **"Require review from Code Owners"**. Without that
 # setting, CODEOWNERS only requests review; it does not block merge. As of this
-# commit, `main` branch protection requires 11 status checks but NOT a code-owner
-# review — enabling that is a tracked Stage 1 prerequisite.
+# recorded September 5, 2026 read-back, `main` requires 13 strict App-bound
+# status checks but NOT a code-owner review. The planned additive ruleset
+# remains blocked until separately provisioned and verified.
 #
 # Syntax: <path-pattern>  <owner ...>   (last matching pattern wins)
 #
@@ -39,3 +40,20 @@
 /scripts/autodoc_*.py               @judeper
 /.github/workflows/                 @judeper
 /.github/CODEOWNERS                 @judeper
+
+# --- Trusted dependency-artifact gate (base-controlled; highest trust) ---
+# These paths are the authoritative supply-chain policy. They are read only from
+# the protected default branch, and the gate fails closed when a pull request
+# changes any of them alongside a guarded dependency path. Changing an expected
+# pin, an allowlist, or the gate itself is a deliberate, separately reviewed act.
+# See .github/TRUSTED-DEPENDENCY-GATE.md.
+/.github/trusted-policy/            @judeper
+/.github/TRUSTED-DEPENDENCY-GATE.md @judeper
+/SECURITY.md                        @judeper
+/scripts/trusted/                   @judeper
+/scripts/verify-required-checks.mjs @judeper
+/tests/spa/_gitTreeFixtures.mjs      @judeper
+
+# Reviewed dependency artifacts and the verifiers that bind them.
+/scripts/verify-*.mjs               @judeper
+/vendor/                            @judeper

@@ -1,0 +1,127 @@
+{
+  "_readme": [
+    "Desired remote state only. This file does not configure GitHub.",
+    "Status remains planned-not-applied until an owner provisions the dedicated GitHub App,",
+    "runs the read-only plan, explicitly applies it, and obtains a complete read-back.",
+    "A GitHub Actions check with the same name is deliberately not an accepted source.",
+    "The additive ruleset must preserve the owner's September 5, 2026 strict legacy",
+    "branch protection and its 13 App-bound required checks."
+  ],
+  "schemaVersion": 2,
+  "state": "planned-not-applied",
+  "repository": "judeper/FSI-AgentGov",
+  "ownerType": "User",
+  "defaultBranch": "main",
+  "managedRulesetName": "trusted-dependency-artifact-app-gate",
+  "applicationMode": "create-only-additive",
+  "requiredWorkflowBinding": {
+    "status": "unavailable-for-this-repository",
+    "reason": "GitHub documents required-workflow rulesets at organization or enterprise scope. This repository is owned by a personal user, so this plan intentionally uses an expected-source GitHub App check instead."
+  },
+  "expectedSource": {
+    "kind": "dedicated-github-app",
+    "appId": "${DEDICATED_GITHUB_APP_ID}",
+    "checkName": "trusted-dependency-artifact",
+    "rejectGitHubActions": true
+  },
+  "ruleset": {
+    "target": "branch",
+    "enforcement": "active",
+    "bypass_actors": [],
+    "conditions": {
+      "ref_name": {
+        "include": [
+          "refs/heads/main"
+        ],
+        "exclude": []
+      }
+    },
+    "rules": [
+      {
+        "type": "pull_request",
+        "parameters": {
+          "allowed_merge_methods": [
+            "squash"
+          ],
+          "dismiss_stale_reviews_on_push": true,
+          "require_code_owner_review": true,
+          "require_last_push_approval": true,
+          "required_approving_review_count": 1,
+          "required_review_thread_resolution": true
+        }
+      },
+      {
+        "type": "required_status_checks",
+        "parameters": {
+          "do_not_enforce_on_create": false,
+          "strict_required_status_checks_policy": true,
+          "required_status_checks": [
+            {
+              "context": "trusted-dependency-artifact",
+              "integration_id": "${DEDICATED_GITHUB_APP_ID}"
+            }
+          ]
+        }
+      },
+      {
+        "type": "non_fast_forward"
+      },
+      {
+        "type": "deletion"
+      },
+      {
+        "type": "required_linear_history"
+      }
+    ]
+  },
+  "legacyBranchProtection": {
+    "preserveExactly": true,
+    "requirePresent": true,
+    "requireAdminEnforcementIfPresent": true,
+    "observedAt": "2026-09-05T03:47:06Z",
+    "expectedState": {
+      "enforceAdmins": true,
+      "requiredStatusChecksStrict": true,
+      "requiredPullRequestReviews": null,
+      "restrictions": null,
+      "requiredLinearHistory": false,
+      "requiredSignatures": false,
+      "allowForcePushes": false,
+      "allowDeletions": false,
+      "requiredConversationResolution": false
+    },
+    "expectedRequiredStatusChecks": [
+      { "context": "e2e-smoke", "app_id": 15368 },
+      { "context": "gitleaks", "app_id": 15368 },
+      { "context": "dependency-review", "app_id": 15368 },
+      { "context": "Analyze (python)", "app_id": 15368 },
+      { "context": "Analyze (javascript)", "app_id": 15368 },
+      { "context": "mkdocs-strict", "app_id": 15368 },
+      { "context": "verify_version_stamps", "app_id": 15368 },
+      { "context": "ruff", "app_id": 15368 },
+      { "context": "pytest (assessment + scripts)", "app_id": 15368 },
+      { "context": "manifest / index / nav drift", "app_id": 15368 },
+      { "context": "FSI language rules", "app_id": 15368 },
+      { "context": "autodoc-redirect-verify", "app_id": 15368 },
+      { "context": "autodoc-verify", "app_id": 15368 }
+    ]
+  },
+  "mergeQueue": {
+    "enabledByThisPlan": false,
+    "requireDedicatedAppMergeGroupSupportBeforeEnabling": true
+  },
+  "preflight": {
+    "requirePositiveAppProbe": true,
+    "requireNegativeActionsProbe": true,
+    "requireProbePullRequests": true,
+    "requirePostCreationCausalProbes": true,
+    "requireOperatorNonceChallenge": true,
+    "requireExternalEvaluatorOrigin": true,
+    "requireNegativeAppFailure": true,
+    "maxEvidenceAgeSeconds": 300,
+    "positiveEvaluatorMode": "not-applicable",
+    "negativeEvaluatorMode": "activation-rejected",
+    "positiveMergeability": "clean",
+    "negativeMergeability": "blocked"
+  }
+}

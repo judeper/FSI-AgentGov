@@ -1,0 +1,245 @@
+name: Security Scan
+
+# Runs supply-chain (pip-audit, npm audit) and SAST (bandit) checks across
+# AgentGov's Python tooling and SPA test bundle.
+#
+# PSScriptAnalyzer is already handled by powershell-quality.yml — not duplicated here.
+#
+# Ported from FSI-CopilotGov security-scan.yml; adapted to AgentGov's paths:
+#   - pip-audit: scripts/requirements.txt + assessment/requirements.txt
+#   - bandit:    scripts/, assessment/engine/, assessment/manifest/ (tests excluded)
+#   - npm audit: package.json (production graph, when present)
+#   - vendored-runtime policy: shipped SPA SheetJS plus local fast-uri artifact
+#
+# BLOCKING vs REPORT-ONLY (adoption PR 2026-06-07):
+#   BLOCKING:     pip-audit (both req files were clean on local run)
+#   REPORT-ONLY:  bandit — pre-existing findings need triage (see TODO comments below)
+#   BLOCKING:     npm audit for production dependencies
+#   REPORT-ONLY:  npm audit for the development toolchain
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 10 * * 1"  # weekly Monday 10:00 UTC
+
+permissions: {}
+
+jobs:
+  python-audit:
+    name: pip-audit + bandit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install scanning tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit bandit
+
+      - name: pip-audit — scripts/requirements.txt
+        # BLOCKING: clean on local run 2026-06-07 (0 known vulnerabilities).
+        # --strict falls back to non-strict when pip-audit cannot resolve all packages
+        # (e.g. private indexes); non-strict still fails on found CVEs.
+        run: |
+          pip-audit -r scripts/requirements.txt --strict --progress-spinner=off \
+            || pip-audit -r scripts/requirements.txt --progress-spinner=off
+
+      - name: pip-audit — assessment/requirements.txt
+        # BLOCKING: clean on local run 2026-06-07 (0 known vulnerabilities).
+        run: |
+          pip-audit -r assessment/requirements.txt --strict --progress-spinner=off \
+            || pip-audit -r assessment/requirements.txt --progress-spinner=off
+
+      - name: Bandit (Python SAST)
+        # BLOCKING: all pre-existing findings triaged + fixed 2026-06-07:
+        #   B324 scripts/check_temp.py — md5 marked usedforsecurity=False (file-equality, not crypto).
+        #   B310 scripts/refresh_solutions_lock.py — https scheme enforced + nosec B310.
+        #   B701 assessment/engine/report.py (x2) — explicit select_autoescape (Markdown output, not HTML).
+        run: |
+          bandit -r scripts assessment/engine assessment/manifest \
+            --severity-level medium \
+            --confidence-level medium \
+            -x scripts/test_,assessment/tests \
+            -f txt
+
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    # pip-audit/bandit above and this job both run pull-request code paths, so
+    # neither may hold a write scope. No step here uploads SARIF; CodeQL owns
+    # `security-events: write` in codeql.yml, scoped to that workflow alone.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # No step in this job pushes, comments, or calls the API. Leaving the
+          # checkout credential in .git/config would make it reachable from any
+          # later step that runs pull-request-controlled content.
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+      - name: Establish and pin trusted Node toolchain
+        id: trusted-node
+        shell: bash
+        env:
+          NODE_OPTIONS: ""
+          NODE_PATH: ""
+          npm_config_node_options: ""
+          npm_config_prefix: ""
+          npm_config_script_shell: ""
+          npm_config_ignore_scripts: ""
+          NPM_CONFIG_NODE_OPTIONS: ""
+          NPM_CONFIG_PREFIX: ""
+          NPM_CONFIG_SCRIPT_SHELL: ""
+          NPM_CONFIG_IGNORE_SCRIPTS: ""
+        run: |
+          set -euo pipefail
+          # These digests are review anchors for the checked-in verifier bytes.
+          # They cannot be authoritative here: this workflow is supplied by the
+          # pull request, so a candidate can rewrite the digests and the files
+          # together. `trusted-dependency-artifact` pins the same bytes from the
+          # protected default branch, which is what makes them binding.
+          unset NODE_OPTIONS NODE_PATH npm_config_node_options npm_config_prefix \
+            npm_config_script_shell npm_config_ignore_scripts \
+            NPM_CONFIG_NODE_OPTIONS NPM_CONFIG_PREFIX NPM_CONFIG_SCRIPT_SHELL \
+            NPM_CONFIG_IGNORE_SCRIPTS
+          node_candidate="$(command -v node)"
+          test -n "$node_candidate"
+          trusted_node="$("$node_candidate" -e 'const fs=require("node:fs");process.stdout.write(fs.realpathSync(process.execPath))')"
+          trusted_node_hash="$("$trusted_node" -e 'const fs=require("node:fs"),c=require("node:crypto");process.stdout.write(c.createHash("sha256").update(fs.readFileSync(process.execPath)).digest("hex"))')"
+          trusted_node_dir="$("$trusted_node" -e 'const p=require("node:path");process.stdout.write(p.dirname(process.execPath))')"
+          npm_cli="$("$trusted_node" -e '
+            const fs=require("node:fs"),p=require("node:path");
+            const d=p.dirname(process.execPath);
+            const candidates=[
+              p.join(d,"node_modules","npm","bin","npm-cli.js"),
+              p.resolve(d,"..","lib","node_modules","npm","bin","npm-cli.js"),
+              p.resolve(d,"..","node_modules","npm","bin","npm-cli.js")
+            ];
+            for (const candidate of candidates) {
+              try { process.stdout.write(fs.realpathSync(candidate)); process.exit(0); } catch {}
+            }
+            process.exit(1);
+          ')"
+          test -n "$npm_cli"
+          # Windows initialises its CSPRNG through SystemRoot, and Git Bash
+          # exports these variables with different casing than the Windows
+          # process environment. Resolve them once, before the environment is
+          # stripped: an empty SystemRoot is worse than an absent one.
+          system_root="${SystemRoot:-${SYSTEMROOT:-}}"
+          win_dir="${WINDIR:-${windir:-}}"
+          com_spec="${ComSpec:-${COMSPEC:-}}"
+          hash_file() {
+            "$trusted_node" -e 'const fs=require("node:fs"),c=require("node:crypto");process.stdout.write(c.createHash("sha256").update(fs.readFileSync(process.argv[1]).toString("utf8").replace(/\r\n/g,"\n")).digest("hex"))' "$1"
+          }
+          check_hash() {
+            actual="$(hash_file "$1")"
+            test "$actual" = "$2" || { echo "hash mismatch: $1 ($actual)" >&2; exit 1; }
+          }
+          check_hash "$GITHUB_WORKSPACE/scripts/verify-fast-uri-bootstrap.mjs" "ba5c8dcfcd364ff1f43b2c8e0ba964fbd1ea81182b5cbee4d3059882ca5b54ea"
+          check_hash "$GITHUB_WORKSPACE/scripts/verify-fast-uri-artifact.mjs" "982e43bcab47210b1bbc279ebdf9bc1ddb7b0eb4d530f1ae0c7e968bab6cf123"
+          check_hash "$GITHUB_WORKSPACE/scripts/verify-vendored-runtime.mjs" "47cff6ca8e5b882bca410cc948821a2abfd533390d10af1e5f531d5ff4be7e2a"
+          clean_root="$RUNNER_TEMP/ocean-security-clean-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$clean_root"
+          : > "$clean_root/user.npmrc"
+          : > "$clean_root/global.npmrc"
+          {
+            printf 'OCEAN_TRUSTED_NODE=%s\n' "$trusted_node"
+            printf 'OCEAN_TRUSTED_NODE_DIR=%s\n' "$trusted_node_dir"
+            printf 'OCEAN_TRUSTED_NODE_SHA256=%s\n' "$trusted_node_hash"
+            printf 'OCEAN_TRUSTED_NPM_CLI=%s\n' "$npm_cli"
+            printf 'OCEAN_CLEAN_ROOT=%s\n' "$clean_root"
+            printf 'OCEAN_USER_NPMRC=%s\n' "$clean_root/user.npmrc"
+            printf 'OCEAN_GLOBAL_NPMRC=%s\n' "$clean_root/global.npmrc"
+            printf 'OCEAN_SYSTEM_ROOT=%s\n' "$system_root"
+            printf 'OCEAN_WINDIR=%s\n' "$win_dir"
+            printf 'OCEAN_COMSPEC=%s\n' "$com_spec"
+          } >> "$GITHUB_ENV"
+          echo "trusted Node: $trusted_node"
+          echo "trusted Node version: $("$trusted_node" --version)"
+          echo "trusted Node SHA-256: $trusted_node_hash"
+          echo "trusted npm CLI: $npm_cli"
+
+      - name: Run non-executing install bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i CI=true HOME="$OCEAN_CLEAN_ROOT" TMPDIR="$OCEAN_CLEAN_ROOT" \
+            TEMP="$OCEAN_CLEAN_ROOT" TMP="$OCEAN_CLEAN_ROOT" LANG=C LC_ALL=C \
+            PATH="$PATH" \
+            SystemRoot="$OCEAN_SYSTEM_ROOT" WINDIR="$OCEAN_WINDIR" ComSpec="$OCEAN_COMSPEC" \
+            "$OCEAN_TRUSTED_NODE" "$GITHUB_WORKSPACE/scripts/verify-fast-uri-bootstrap.mjs"
+
+      - name: Install locked dependencies without lifecycle scripts or bin links
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i CI=true HOME="$OCEAN_CLEAN_ROOT" TMPDIR="$OCEAN_CLEAN_ROOT" \
+            TEMP="$OCEAN_CLEAN_ROOT" TMP="$OCEAN_CLEAN_ROOT" LANG=C LC_ALL=C \
+            PATH="$PATH" \
+            SystemRoot="$OCEAN_SYSTEM_ROOT" WINDIR="$OCEAN_WINDIR" ComSpec="$OCEAN_COMSPEC" \
+            "$OCEAN_TRUSTED_NODE" "$OCEAN_TRUSTED_NPM_CLI" ci \
+            --ignore-scripts --no-bin-links --no-audit --no-fund \
+            --userconfig "$OCEAN_USER_NPMRC" --globalconfig "$OCEAN_GLOBAL_NPMRC"
+          test ! -e node_modules/.bin/node
+
+      - name: Verify fast-uri artifact before npm audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i CI=true HOME="$OCEAN_CLEAN_ROOT" TMPDIR="$OCEAN_CLEAN_ROOT" \
+            TEMP="$OCEAN_CLEAN_ROOT" TMP="$OCEAN_CLEAN_ROOT" LANG=C LC_ALL=C \
+            PATH="$PATH" \
+            SystemRoot="$OCEAN_SYSTEM_ROOT" WINDIR="$OCEAN_WINDIR" ComSpec="$OCEAN_COMSPEC" \
+            "$OCEAN_TRUSTED_NODE" "$GITHUB_WORKSPACE/scripts/verify-fast-uri-artifact.mjs"
+
+      - name: Verify shipped vendored runtime (high severity gate)
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i CI=true HOME="$OCEAN_CLEAN_ROOT" TMPDIR="$OCEAN_CLEAN_ROOT" \
+            TEMP="$OCEAN_CLEAN_ROOT" TMP="$OCEAN_CLEAN_ROOT" LANG=C LC_ALL=C \
+            PATH="$PATH" \
+            SystemRoot="$OCEAN_SYSTEM_ROOT" WINDIR="$OCEAN_WINDIR" ComSpec="$OCEAN_COMSPEC" \
+            "$OCEAN_TRUSTED_NODE" "$GITHUB_WORKSPACE/scripts/verify-vendored-runtime.mjs"
+
+      - name: Audit production dependencies (high severity gate)
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i CI=true HOME="$OCEAN_CLEAN_ROOT" TMPDIR="$OCEAN_CLEAN_ROOT" \
+            TEMP="$OCEAN_CLEAN_ROOT" TMP="$OCEAN_CLEAN_ROOT" LANG=C LC_ALL=C \
+            PATH="$PATH" \
+            SystemRoot="$OCEAN_SYSTEM_ROOT" WINDIR="$OCEAN_WINDIR" ComSpec="$OCEAN_COMSPEC" \
+            "$OCEAN_TRUSTED_NODE" "$OCEAN_TRUSTED_NPM_CLI" audit \
+            --omit=dev --audit-level=high \
+            --userconfig "$OCEAN_USER_NPMRC" --globalconfig "$OCEAN_GLOBAL_NPMRC"
+
+      - name: Audit development toolchain (report only)
+        # Development-only advisories stay visible without blocking documentation PRs
+        # when no compatible upstream patch exists.
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i CI=true HOME="$OCEAN_CLEAN_ROOT" TMPDIR="$OCEAN_CLEAN_ROOT" \
+            TEMP="$OCEAN_CLEAN_ROOT" TMP="$OCEAN_CLEAN_ROOT" LANG=C LC_ALL=C \
+            PATH="$PATH" \
+            SystemRoot="$OCEAN_SYSTEM_ROOT" WINDIR="$OCEAN_WINDIR" ComSpec="$OCEAN_COMSPEC" \
+            "$OCEAN_TRUSTED_NODE" "$OCEAN_TRUSTED_NPM_CLI" audit \
+            --audit-level=high \
+            --userconfig "$OCEAN_USER_NPMRC" --globalconfig "$OCEAN_GLOBAL_NPMRC"

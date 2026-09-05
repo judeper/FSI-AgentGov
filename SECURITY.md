@@ -100,6 +100,44 @@ The framework is **not** designed to defend against:
 | FSI language rules | `python-quality.yml` → `verify_language_rules.py` |
 | SBOMs + signed release artifacts | `release-artifacts.yml` (CycloneDX + Sigstore) |
 | Link health on docs | `link-check.yml` |
+| Reviewed dependency artifacts (BLOCKED pending remote App/ruleset) | `trusted-dependency-artifact.yml` preflight + trusted ruleset plan |
+
+### Base-controlled dependency-artifact policy — blocked until remote activation
+
+`pull_request` workflows execute workflow files, verifier scripts, hashes and
+tests supplied by the pull request under review. A coherent malicious change can
+make those checks green, so neither `sri-check` nor `security-scan` is an
+authoritative dependency-artifact gate.
+
+The base-controlled `trusted-dependency-artifact` preflight reads candidate
+trees as data only and uses immutable base/head SHAs, but its GitHub Actions
+identity and check name are not non-spoofable. It is **not currently enforced**.
+The planned enforcement is a repository ruleset that requires the same context
+from a dedicated GitHub App integration ID. The remote ruleset is absent, and
+no independently reviewed App/evaluator provisioning evidence has been
+accepted; no name-only status check is accepted.
+
+The owner-authenticated September 5, 2026 read-back confirmed that `main`
+already has active strict legacy branch protection with 13 App-bound required
+checks (`app_id=15368`), administrator enforcement, and force-push/deletion
+blocks; legacy pull-request reviews and actor restrictions are absent,
+signatures, linear history, and conversation resolution are disabled, and all
+three merge methods are enabled. The managed ruleset probe returned `200 []`.
+A non-admin read that
+returned `404` was permission masking, not evidence that branch protection was
+absent; the planned ruleset is additive and must preserve the existing checks.
+
+The activation contract is a policy-version-2 base-relative exact tree delta.
+It excludes `SECURITY.md` and every trusted policy/runbook/workflow/operator
+path, pins every approved base and target blob/mode, and rejects any partial
+pre-activation manifest, lockfile, attributes, verifier, workflow, test, or
+artifact-documentation change.
+
+The policy, app contract, exact operator commands, read-back requirements, and
+bootstrap order are in `.github/TRUSTED-DEPENDENCY-GATE.md` and
+`.github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md`. Changes to this file and
+those policy paths are trusted-path changes and must never be combined with a
+guarded artifact change.
 
 ## Evidence and Data Handling
 

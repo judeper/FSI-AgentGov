@@ -1,0 +1,455 @@
+{
+  "_readme": [
+    "Authoritative, base-controlled policy for the trusted-dependency-artifact gate.",
+    "This file is only ever read from the protected default branch. A pull request that",
+    "edits this file may not also change any guarded dependency path in the same pull",
+    "request; the gate fails closed on that combination. Changing these values requires a",
+    "separate CODEOWNERS-reviewed infrastructure pull request.",
+    "Digests are raw-byte SHA-256 of the Git blob content, not of a normalized rendering.",
+    "Activation is a base-relative exact tree delta: every approved base blob/absence, target mode,",
+    "Git blob ID, raw-byte SHA-256, size, and the canonical patch digest are pinned."
+  ],
+  "policyVersion": 2,
+  "checkName": "trusted-dependency-artifact",
+  "defaultBranch": "main",
+
+  "limits": {
+    "maxChangedFiles": 750,
+    "maxBlobBytes": 8388608,
+    "maxTotalBlobBytes": 33554432,
+    "maxTreeEntries": 20000,
+    "maxTarEntries": 512,
+    "maxTarEntryBytes": 4194304,
+    "maxUnpackedBytes": 8388608,
+    "maxDocumentBytes": 262144,
+    "maxJsonBytes": 4194304,
+    "maxMessages": 40,
+    "maxMessageLength": 200
+  },
+
+  "trustedPaths": [
+    ".github/trusted-policy/dependency-artifact-policy.json",
+    ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json",
+    ".github/trusted-policy/trusted-dependency-artifact-app-contract.json",
+    ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md",
+    ".github/trusted-policy/vendor-readme-template.md",
+    ".github/trusted-policy/trusted-gate-artifact-acceptance.template.mjs",
+    ".github/trusted-policy/security-scan.activation.yml",
+    ".github/workflows/trusted-dependency-artifact.yml",
+    ".github/TRUSTED-DEPENDENCY-GATE.md",
+    ".github/CODEOWNERS",
+    "SECURITY.md",
+    "scripts/trusted/verify-dependency-artifact-gate.mjs",
+    "scripts/trusted/trusted-dependency-ruleset.mjs",
+    "scripts/trusted/github-app-jwt.mjs",
+    "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1",
+    "scripts/verify-required-checks.mjs",
+    "tests/spa/_gitTreeFixtures.mjs"
+  ],
+
+  "trustedPathModes": {
+    ".github/trusted-policy/dependency-artifact-policy.json": "100644",
+    ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json": "100644",
+    ".github/trusted-policy/trusted-dependency-artifact-app-contract.json": "100644",
+    ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md": "100644",
+    ".github/trusted-policy/vendor-readme-template.md": "100644",
+    ".github/trusted-policy/trusted-gate-artifact-acceptance.template.mjs": "100644",
+    ".github/trusted-policy/security-scan.activation.yml": "100644",
+    ".github/workflows/trusted-dependency-artifact.yml": "100644",
+    ".github/TRUSTED-DEPENDENCY-GATE.md": "100644",
+    ".github/CODEOWNERS": "100644",
+    "SECURITY.md": "100644",
+    "scripts/trusted/verify-dependency-artifact-gate.mjs": "100644",
+    "scripts/trusted/trusted-dependency-ruleset.mjs": "100644",
+    "scripts/trusted/github-app-jwt.mjs": "100644",
+    "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1": "100644",
+    "scripts/verify-required-checks.mjs": "100644",
+    "tests/spa/_gitTreeFixtures.mjs": "100644"
+  },
+
+  "guardedPaths": {
+    "exact": [
+      "package.json",
+      "package-lock.json",
+      "npm-shrinkwrap.json",
+      ".npmrc",
+      ".gitattributes",
+      "scripts/verify-fast-uri-artifact.mjs",
+      "scripts/verify-fast-uri-bootstrap.mjs",
+      "scripts/verify-vendored-runtime.mjs"
+    ],
+    "prefixes": [
+      "vendor/"
+    ],
+    "suffixes": [
+      "/.npmrc"
+    ]
+  },
+
+  "digestPins": {
+    ".gitattributes": {
+      "blob": "91596cc419da4f86b6ed193802fc81b5b28a3ba1",
+      "sha256": "df7f40c6ed0da07a2cac77823f83af844b07fb4f49c4e049aaf8d2159cf20468",
+      "size": 936
+    },
+    "package.json": {
+      "blob": "3faa4f4fae4eeee55a35ddc1a99c58a9bcf5ad1c",
+      "sha256": "2a3fad19f3341087ff12656bcd7ea2f09359fb9103911a8c54285aa6b5fa6ab9",
+      "size": 1083
+    },
+    "package-lock.json": {
+      "blob": "0b764c5ed9b507d9d8f259f9be8ea4dd77a47661",
+      "sha256": "19e6cfc9c195248e3ef6d2827048d786b0f629be0a680b5f88648694321d4a2c",
+      "size": 76925
+    },
+    "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
+      "blob": "792e315ea09e9b09e157544ab038c349f6cfc1d6",
+      "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+      "size": 43760
+    },
+    "vendor/npm/fast-uri/3.1.7/provenance.json": {
+      "blob": "714ca1f1ea4a1df4b50b4df447b7c047e1c01682",
+      "sha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8",
+      "size": 12728
+    },
+    "vendor/npm/fast-uri/3.1.7/README.md": {
+      "blob": "5bb6e480b36df794921065ad59035349e45d147b",
+      "sha256": "d868e4fe7640a21489ba2ece7018290e2cd01c05e463e99194b0c3ec5116efc7",
+      "size": 17916
+    },
+    "scripts/verify-fast-uri-artifact.mjs": {
+      "blob": "a261ab3204e879bcf6db3e76c1f5fc06eec017ea",
+      "sha256": "982e43bcab47210b1bbc279ebdf9bc1ddb7b0eb4d530f1ae0c7e968bab6cf123",
+      "size": 69126
+    },
+    "scripts/verify-fast-uri-bootstrap.mjs": {
+      "blob": "490ba2885ccdfbaa41159e048ea9a3007186fbf0",
+      "sha256": "ba5c8dcfcd364ff1f43b2c8e0ba964fbd1ea81182b5cbee4d3059882ca5b54ea",
+      "size": 14824
+    },
+    "scripts/verify-vendored-runtime.mjs": {
+      "blob": "e6750f0a9efb34d16f01e772a2203fd9ef43ba2e",
+      "sha256": "47cff6ca8e5b882bca410cc948821a2abfd533390d10af1e5f531d5ff4be7e2a",
+      "size": 7742
+    }
+  },
+
+  "vendor": {
+    "root": "vendor/npm/fast-uri/3.1.7/",
+    "allowedFiles": [
+      "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "vendor/npm/fast-uri/3.1.7/provenance.json",
+      "vendor/npm/fast-uri/3.1.7/README.md"
+    ]
+  },
+
+  "package": {
+    "name": "fast-uri",
+    "version": "3.1.7",
+    "license": "BSD-3-Clause",
+    "artifactPath": "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+    "provenancePath": "vendor/npm/fast-uri/3.1.7/provenance.json",
+    "spec": "file:vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+    "lockPath": "node_modules/fast-uri",
+    "overrideParent": "ajv",
+    "overrideSpec": "$fast-uri",
+    "dependentRange": "^3.0.1",
+    "integrity": "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
+    "tar": {
+      "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+      "sha512": "74ebd95738dd65dcfba6177dbfa8c26f0c6b056ddf2ba9fc45cd02b5d98ce1bba6ccc9f1cb005886ea61e89f35f51470fe4bbeacb6de9707ccba792dbb35551e",
+      "size": 43760,
+      "fileCount": 44,
+      "unpackedSize": 218619,
+      "mtime": 499162500,
+      "prefix": "package/"
+    }
+  },
+
+  "verifierPolicyLiterals": {
+    "path": "scripts/verify-fast-uri-artifact.mjs",
+    "objectName": "FAST_URI_POLICY",
+    "required": {
+      "packageName": "fast-uri",
+      "version": "3.1.7",
+      "license": "BSD-3-Clause",
+      "upstreamCommit": "412e40abd4eb8beabfb952d80abf949a2baf27a3",
+      "upstreamTree": "a1ec2b29b5d2493a9ba4d2de480a062b08f72558",
+      "artifactRelativePath": "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "provenanceRelativePath": "vendor/npm/fast-uri/3.1.7/provenance.json",
+      "packageSpec": "file:vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "overrideSpec": "$fast-uri",
+      "lockPackagePath": "node_modules/fast-uri",
+      "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+      "sha512": "74ebd95738dd65dcfba6177dbfa8c26f0c6b056ddf2ba9fc45cd02b5d98ce1bba6ccc9f1cb005886ea61e89f35f51470fe4bbeacb6de9707ccba792dbb35551e",
+      "integrity": "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
+      "provenanceSha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8"
+    },
+    "requiredNumbers": {
+      "upstreamTrackedFileCount": 46,
+      "artifactFileCount": 44,
+      "canonicalTarMtime": 499162500,
+      "artifactSize": 43760,
+      "artifactUnpackedSize": 218619
+    },
+    "requiredAdvisories": [
+      "GHSA-jqff-g426-hqxp",
+      "GHSA-fph4-wmhf-6fwf",
+      "GHSA-f65p-4m7j-42xc",
+      "GHSA-5jgf-p345-68v8",
+      "GHSA-qw65-cvwx-89v3",
+      "GHSA-58mr-gqgx-xq4g"
+    ]
+  },
+
+  "forbiddenTree": {
+    "basenames": [".npmrc"],
+    "exact": ["npm-shrinkwrap.json"],
+    "shadowableBins": ["node", "npm", "npx"]
+  },
+
+  "gitattributes": {
+    "requiredLines": [
+      "vendor/npm/**/*.tgz binary"
+    ],
+    "forbiddenAttributePrefixes": ["filter=", "merge=", "diff="],
+    "attributeGuardedPathPrefixes": ["vendor/"]
+  },
+
+  "documentation": {
+    "vendorReadme": {
+      "path": "vendor/npm/fast-uri/3.1.7/README.md",
+      "sha256": "d868e4fe7640a21489ba2ece7018290e2cd01c05e463e99194b0c3ec5116efc7",
+      "size": 17916,
+      "templatePath": ".github/trusted-policy/vendor-readme-template.md",
+      "templateSha256": "22486e0306020e3490d84db528430b2b9ff4965cc7674ca25b1feb6eb4d60cac",
+      "templateSize": 417
+    },
+    "trustedPreTrustPaths": [
+      "SECURITY.md",
+      ".github/TRUSTED-DEPENDENCY-GATE.md",
+      ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md"
+    ]
+  },
+
+  "renames": {
+    "allowProtectedPathRenames": false
+  },
+
+  "rotation": {
+    "ordinaryPullRequest": "cannot change artifact, package manifests, lockfiles, gitattributes, or verifier pins",
+    "policyFirst": true,
+    "artifactAfterPolicy": true,
+    "noUnguardedWindow": true
+  },
+
+  "activation": {
+    "strategy": "base-relative-exact-tree-delta",
+    "requiredBasePolicyVersion": 2,
+    "requiresCompleteSet": true,
+    "patchSha256": "a9cc1b76042703c570dcd4a95575fbf54880e58f4ae8a26d35e2d9ea0c482425",
+    "allowedFiles": [
+      ".gitattributes",
+      ".github/workflows/security-scan.yml",
+      ".github/workflows/sri-check.yml",
+      "package-lock.json",
+      "package.json",
+      "scripts/verify-fast-uri-artifact.mjs",
+      "scripts/verify-fast-uri-bootstrap.mjs",
+      "scripts/verify-vendored-runtime.mjs",
+      "tests/spa/docs-safe-procedure.test.mjs",
+      "tests/spa/fast-uri-artifact-race.test.mjs",
+      "tests/spa/fast-uri-security-workflow.test.mjs",
+      "tests/spa/trusted-gate-artifact-acceptance.test.mjs",
+      "tests/spa/vendor-runtime-policy.test.mjs",
+      "vendor/npm/fast-uri/3.1.7/README.md",
+      "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+      "vendor/npm/fast-uri/3.1.7/provenance.json"
+    ],
+    "basePins": {
+      ".gitattributes": {
+        "mode": "100644",
+        "blob": "6127ed1796d6057f9573d3ff5a1c07b74c527d1d"
+      },
+      ".github/workflows/security-scan.yml": {
+        "mode": "100644",
+        "blob": "bc8317607919b4ca5643cf6095699df735894092"
+      },
+      ".github/workflows/sri-check.yml": {
+        "mode": "100644",
+        "blob": "f6bce79229a086c24e89001400290e62b9a0bcc5"
+      },
+      "package-lock.json": {
+        "mode": "100644",
+        "blob": "08aafb595607f78f0a0998b022a2cebe920bb257"
+      },
+      "package.json": {
+        "mode": "100644",
+        "blob": "e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d"
+      },
+      "scripts/verify-fast-uri-artifact.mjs": {
+        "absent": true
+      },
+      "scripts/verify-fast-uri-bootstrap.mjs": {
+        "absent": true
+      },
+      "scripts/verify-vendored-runtime.mjs": {
+        "mode": "100644",
+        "blob": "3323a509af6d3ef954f28fa2a14dd1da6684cb01"
+      },
+      "tests/spa/docs-safe-procedure.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/fast-uri-artifact-race.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/fast-uri-security-workflow.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/trusted-gate-artifact-acceptance.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/vendor-runtime-policy.test.mjs": {
+        "mode": "100644",
+        "blob": "8d63f4dac0dfb7f7aa158b3014324a208dbbdd11"
+      },
+      "vendor/npm/fast-uri/3.1.7/README.md": {
+        "absent": true
+      },
+      "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
+        "absent": true
+      },
+      "vendor/npm/fast-uri/3.1.7/provenance.json": {
+        "absent": true
+      }
+    },
+    "pins": {
+      ".gitattributes": {
+        "mode": "100644",
+        "blob": "91596cc419da4f86b6ed193802fc81b5b28a3ba1",
+        "sha256": "df7f40c6ed0da07a2cac77823f83af844b07fb4f49c4e049aaf8d2159cf20468",
+        "size": 936
+      },
+      ".github/workflows/security-scan.yml": {
+        "mode": "100644",
+        "blob": "6e7ab1ffeb5fc9e779d1ee4ee5695ea534c72674",
+        "sha256": "b2db741bd09205c7ba396835f3c451b2a247b29e16390ebedeba3b2b84b3937b",
+        "size": 11976
+      },
+      ".github/workflows/sri-check.yml": {
+        "mode": "100644",
+        "blob": "5c73d8423cfd017024a5e2fcfefbcda7d09c89dc",
+        "sha256": "b8c1847450dfc9f66467485e1e5fc8a0d1f5d147cadc908e0d436b93a6c5cb2c",
+        "size": 19409
+      },
+      "package-lock.json": {
+        "mode": "100644",
+        "blob": "0b764c5ed9b507d9d8f259f9be8ea4dd77a47661",
+        "sha256": "19e6cfc9c195248e3ef6d2827048d786b0f629be0a680b5f88648694321d4a2c",
+        "size": 76925
+      },
+      "package.json": {
+        "mode": "100644",
+        "blob": "3faa4f4fae4eeee55a35ddc1a99c58a9bcf5ad1c",
+        "sha256": "2a3fad19f3341087ff12656bcd7ea2f09359fb9103911a8c54285aa6b5fa6ab9",
+        "size": 1083
+      },
+      "scripts/verify-fast-uri-artifact.mjs": {
+        "mode": "100644",
+        "blob": "a261ab3204e879bcf6db3e76c1f5fc06eec017ea",
+        "sha256": "982e43bcab47210b1bbc279ebdf9bc1ddb7b0eb4d530f1ae0c7e968bab6cf123",
+        "size": 69126
+      },
+      "scripts/verify-fast-uri-bootstrap.mjs": {
+        "mode": "100644",
+        "blob": "490ba2885ccdfbaa41159e048ea9a3007186fbf0",
+        "sha256": "ba5c8dcfcd364ff1f43b2c8e0ba964fbd1ea81182b5cbee4d3059882ca5b54ea",
+        "size": 14824
+      },
+      "scripts/verify-vendored-runtime.mjs": {
+        "mode": "100644",
+        "blob": "e6750f0a9efb34d16f01e772a2203fd9ef43ba2e",
+        "sha256": "47cff6ca8e5b882bca410cc948821a2abfd533390d10af1e5f531d5ff4be7e2a",
+        "size": 7742
+      },
+      "tests/spa/docs-safe-procedure.test.mjs": {
+        "mode": "100644",
+        "blob": "650f25133317aa863b050237391d0cd924a2798b",
+        "sha256": "380ba294c03d50de24ab05ca9847fb21d6093fded39884df2602f554f89dc4f1",
+        "size": 10553
+      },
+      "tests/spa/fast-uri-artifact-race.test.mjs": {
+        "mode": "100644",
+        "blob": "84e6ca0e821d9a0a4f0d0ce2c41ccc34ff46e994",
+        "sha256": "dc9f13e776763f13980849f5777472e4bccb8d1d2ca92871c58c28e7771c2ee1",
+        "size": 27293
+      },
+      "tests/spa/fast-uri-security-workflow.test.mjs": {
+        "mode": "100644",
+        "blob": "49ec59ae4feab63d785c91d3ecda62f3d666578d",
+        "sha256": "f3e3a095b0485d8b0730f4c72fdd86860ed2d837609f62f15c2bf5d8c6f81d4a",
+        "size": 10041
+      },
+      "tests/spa/trusted-gate-artifact-acceptance.test.mjs": {
+        "mode": "100644",
+        "blob": "2110fb948572f2288fa5899f15e7f5294a4a1752",
+        "sha256": "ab45dffd734a6bb50af55178c927a282f9f5e946b5eb15c5b845a970b8fdadab",
+        "size": 5616
+      },
+      "tests/spa/vendor-runtime-policy.test.mjs": {
+        "mode": "100644",
+        "blob": "ccd6d619f8fcd86d4c215c0900bc018b3aa13dbb",
+        "sha256": "47bfe4d71a60f1f2d86e074407da938cf04768921fd8f0708c0cce0966d89683",
+        "size": 4818
+      },
+      "vendor/npm/fast-uri/3.1.7/README.md": {
+        "mode": "100644",
+        "blob": "5bb6e480b36df794921065ad59035349e45d147b",
+        "sha256": "d868e4fe7640a21489ba2ece7018290e2cd01c05e463e99194b0c3ec5116efc7",
+        "size": 17916
+      },
+      "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
+        "mode": "100644",
+        "blob": "792e315ea09e9b09e157544ab038c349f6cfc1d6",
+        "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
+        "size": 43760
+      },
+      "vendor/npm/fast-uri/3.1.7/provenance.json": {
+        "mode": "100644",
+        "blob": "714ca1f1ea4a1df4b50b4df447b7c047e1c01682",
+        "sha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8",
+        "size": 12728
+      }
+    }
+  },
+
+  "rootScripts": {
+    "forbiddenNames": [
+      "install",
+      "uninstall",
+      "preinstall",
+      "postinstall",
+      "prepare",
+      "prepublish",
+      "prepublishOnly",
+      "postpublish",
+      "publish",
+      "prepack",
+      "postpack",
+      "pack",
+      "preshrinkwrap",
+      "shrinkwrap",
+      "postshrinkwrap",
+      "dependencies",
+      "version",
+      "preversion",
+      "postversion",
+      "start",
+      "prestart",
+      "poststart",
+      "stop",
+      "restart"
+    ],
+    "forbiddenPrefixes": ["pre", "post"]
+  }
+}

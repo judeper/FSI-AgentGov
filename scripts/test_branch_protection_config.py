@@ -1,4 +1,4 @@
-"""Regression checks for the committed main-branch protection target."""
+"""Regression checks for the planned source-bound dependency gate ruleset."""
 
 from __future__ import annotations
 
@@ -6,15 +6,88 @@ import json
 from pathlib import Path
 
 
-def test_branch_protection_preserves_live_checks_and_adds_autodoc_gates() -> None:
+def load_plan() -> dict:
     repo_root = Path(__file__).resolve().parent.parent
-    protection = json.loads(
-        (repo_root / ".github" / "branch-protection.json").read_text(encoding="utf-8")
+    return json.loads(
+        (
+            repo_root
+            / ".github"
+            / "trusted-policy"
+            / "trusted-dependency-artifact-ruleset.plan.json"
+        ).read_text(encoding="utf-8")
     )
-    required = protection["required_status_checks"]
-    assert required["strict"] is True
-    assert protection["enforce_admins"] is True
-    assert required["contexts"] == [
+
+
+def test_legacy_name_only_branch_protection_payload_is_removed() -> None:
+    repo_root = Path(__file__).resolve().parent.parent
+    assert not (repo_root / ".github" / "branch-protection.json").exists()
+    assert not (repo_root / ".github" / "branch-protection.meta.json").exists()
+
+
+def test_ruleset_plan_is_explicitly_non_applied_and_source_bound() -> None:
+    plan = load_plan()
+    assert plan["schemaVersion"] == 2
+    assert plan["state"] == "planned-not-applied"
+    assert plan["applicationMode"] == "create-only-additive"
+    assert plan["repository"] == "judeper/FSI-AgentGov"
+    assert plan["ownerType"] == "User"
+    assert plan["defaultBranch"] == "main"
+    assert plan["requiredWorkflowBinding"]["status"] == "unavailable-for-this-repository"
+    assert plan["expectedSource"] == {
+        "kind": "dedicated-github-app",
+        "appId": "${DEDICATED_GITHUB_APP_ID}",
+        "checkName": "trusted-dependency-artifact",
+        "rejectGitHubActions": True,
+    }
+
+
+def test_ruleset_requires_strict_app_source_and_full_pr_safety_controls() -> None:
+    plan = load_plan()
+    rules = {rule["type"]: rule.get("parameters", {}) for rule in plan["ruleset"]["rules"]}
+    assert plan["ruleset"]["bypass_actors"] == []
+    assert plan["ruleset"]["conditions"]["ref_name"] == {
+        "include": ["refs/heads/main"],
+        "exclude": [],
+    }
+    assert rules["required_status_checks"] == {
+        "do_not_enforce_on_create": False,
+        "strict_required_status_checks_policy": True,
+        "required_status_checks": [
+            {
+                "context": "trusted-dependency-artifact",
+                "integration_id": "${DEDICATED_GITHUB_APP_ID}",
+            }
+        ],
+    }
+    assert rules["pull_request"]["require_code_owner_review"] is True
+    assert rules["pull_request"]["required_review_thread_resolution"] is True
+    assert {"non_fast_forward", "deletion", "required_linear_history"} <= rules.keys()
+    assert "workflows" not in rules
+    assert "merge_queue" not in rules
+
+
+def test_plan_preserves_the_owner_read_back_strict_branch_protection() -> None:
+    plan = load_plan()
+    legacy = plan["legacyBranchProtection"]
+    assert legacy["preserveExactly"] is True
+    assert legacy["requirePresent"] is True
+    assert legacy["requireAdminEnforcementIfPresent"] is True
+    assert legacy["observedAt"] == "2026-09-05T03:47:06Z"
+    assert legacy["expectedState"] == {
+        "enforceAdmins": True,
+        "requiredStatusChecksStrict": True,
+        "requiredPullRequestReviews": None,
+        "restrictions": None,
+        "requiredLinearHistory": False,
+        "requiredSignatures": False,
+        "allowForcePushes": False,
+        "allowDeletions": False,
+        "requiredConversationResolution": False,
+    }
+    checks = legacy["expectedRequiredStatusChecks"]
+    assert len(checks) == 13
+    assert {check["app_id"] for check in checks} == {15368}
+    assert {check["context"] for check in checks} == {
         "e2e-smoke",
         "gitleaks",
         "dependency-review",
@@ -28,5 +101,45 @@ def test_branch_protection_preserves_live_checks_and_adds_autodoc_gates() -> Non
         "FSI language rules",
         "autodoc-redirect-verify",
         "autodoc-verify",
-    ]
-    assert "markdown-link-check" not in required["contexts"]
+    }
+
+
+def test_plan_requires_fresh_causal_source_probes_after_create() -> None:
+    plan = load_plan()
+    assert plan["preflight"] == {
+        "requirePositiveAppProbe": True,
+        "requireNegativeActionsProbe": True,
+        "requireProbePullRequests": True,
+        "requirePostCreationCausalProbes": True,
+        "requireOperatorNonceChallenge": True,
+        "requireExternalEvaluatorOrigin": True,
+        "requireNegativeAppFailure": True,
+        "maxEvidenceAgeSeconds": 300,
+        "positiveEvaluatorMode": "not-applicable",
+        "negativeEvaluatorMode": "activation-rejected",
+        "positiveMergeability": "clean",
+        "negativeMergeability": "blocked",
+    }
+
+
+def test_security_setting_assets_are_in_trusted_paths() -> None:
+    repo_root = Path(__file__).resolve().parent.parent
+    policy = json.loads(
+        (
+            repo_root
+            / ".github"
+            / "trusted-policy"
+            / "dependency-artifact-policy.json"
+        ).read_text(encoding="utf-8")
+    )
+    for path in (
+        ".github/trusted-policy/trusted-dependency-artifact-ruleset.plan.json",
+        ".github/trusted-policy/trusted-dependency-artifact-app-contract.json",
+        ".github/trusted-policy/PRETRUST-REVIEW-RUNBOOK.md",
+        ".github/TRUSTED-DEPENDENCY-GATE.md",
+        "SECURITY.md",
+        "scripts/trusted/Invoke-TrustedDependencyArtifactRuleset.ps1",
+        "scripts/trusted/trusted-dependency-ruleset.mjs",
+        "scripts/verify-required-checks.mjs",
+    ):
+        assert path in policy["trustedPaths"], path

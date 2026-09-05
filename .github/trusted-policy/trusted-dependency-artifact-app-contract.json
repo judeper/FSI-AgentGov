@@ -1,0 +1,137 @@
+{
+  "_readme": [
+    "This is a provisioning contract, not a GitHub App manifest and not a running service.",
+    "No private key, webhook secret, installation token, evaluator endpoint, or App ID belongs in this repository.",
+    "Apply remains blocked until an independently reviewed external evaluator is deployed."
+  ],
+  "schemaVersion": 3,
+  "state": "blocked-pending-owner-provisioning",
+  "repository": "judeper/FSI-AgentGov",
+  "checkName": "trusted-dependency-artifact",
+  "apiOrigins": {
+    "rest": "https://api.github.com",
+    "web": "https://github.com",
+    "rejectAmbientOverrides": true
+  },
+  "installation": {
+    "account": "judeper",
+    "repository": "judeper/FSI-AgentGov",
+    "selection": "selected",
+    "onlyRepository": true
+  },
+  "publisherIdentity": {
+    "required": "A dedicated GitHub App installed only on judeper/FSI-AgentGov",
+    "forbidden": [
+      "GitHub Actions app identity",
+      "personal access token",
+      "workflow-created check run",
+      "candidate-controlled credential"
+    ]
+  },
+  "minimumPermissions": {
+    "metadata": "read",
+    "contents": "read",
+    "pull_requests": "read",
+    "checks": "write"
+  },
+  "allowedRepositoryPermissions": {
+    "metadata": "read",
+    "contents": "read",
+    "pull_requests": "read",
+    "checks": "write"
+  },
+  "rejectUnapprovedPermissions": true,
+  "requiredWebhookEvents": [
+    "pull_request",
+    "check_suite",
+    "check_run"
+  ],
+  "rejectUnapprovedWebhookEvents": true,
+  "installationVerification": {
+    "requireOnlyAppInstallation": true,
+    "createTokenEndpoint": "POST /app/installations/{installation_id}/access_tokens",
+    "enumerateRepositoriesEndpoint": "GET /installation/repositories",
+    "revokeTokenEndpoint": "DELETE /installation/token",
+    "requirePagination": true,
+    "requireRevocation": true,
+    "maxTokenLifetimeSeconds": 3600
+  },
+  "mergeQueue": {
+    "enabledByThisPlan": false,
+    "permission": "merge_queues",
+    "events": [
+      "merge_group"
+    ],
+    "requirePermissionAndEventWhenEnabled": true
+  },
+  "credentialContract": {
+    "owner": "owner GH_TOKEN or gh auth as judeper; used for repository/ruleset/probe reads and ruleset create/delete operations",
+    "app": "runtime GitHub App JWT from App ID plus private key path or environment secret; used only for App identity/installation discovery and temporary installation-token creation",
+    "privateKey": "never committed, persisted, logged, echoed, or sent to candidate code",
+    "webhookSecret": "runtime secret only; validate timestamp, replay window, HMAC signature, event repository, installation, and delivery identity before evaluation"
+  },
+  "webhookSecurity": {
+    "signatureHeader": "X-Hub-Signature-256",
+    "algorithm": "HMAC-SHA256",
+    "deliveryHeader": "X-GitHub-Delivery",
+    "timestampSource": "trusted receiver clock at receipt; GitHub supplies no signed timestamp header",
+    "maxReplaySeconds": 300,
+    "requireDeliveryDeduplication": true,
+    "requireRepositoryAndInstallationMatch": true,
+    "requireSignatureBeforeEvaluation": true
+  },
+  "evaluator": {
+    "deployment": "independently-reviewed-external-service",
+    "mustBeDeployedBeforeApply": true,
+    "candidateCodeExecutionForbidden": true,
+    "signedWebhookRequired": true,
+    "endpointSuppliedAtRuntime": true,
+    "requireExternalDetailsUrlOrigin": true,
+    "externalId": {
+      "prefix": "tdag.v1.",
+      "encoding": "base64url(canonical-json)",
+      "noncePattern": "^[0-9a-f]{64}$",
+      "policyDigestAlgorithm": "sha256(canonical-json)",
+      "probeNonceSource": "operator-generated-256-bit-challenge-after-ruleset-read-back",
+      "requireExactOperatorChallenge": true,
+      "requiredFields": [
+        "nonce",
+        "repository",
+        "pull_request",
+        "head_sha",
+        "base_sha",
+        "policy_digest",
+        "policy_version",
+        "mode",
+        "issued_at"
+      ],
+      "maxAgeSeconds": 300,
+      "requirePullRequestAssociation": true,
+      "requireStartedAfterRulesetCreation": true,
+      "requireCompletedAfterRulesetCreation": true
+    },
+    "probeControlPlane": "authenticated-out-of-band-owner-trigger"
+  },
+  "mergeQueueRequirement": {
+    "whenEnabled": "Subscribe to merge_group and publish the same check from the dedicated App on merge_group.head_sha. A passing PR-head check is not a passing merge-group check.",
+    "currentState": "merge queue is not enabled by this plan"
+  },
+  "evaluationContract": [
+    "Verify the signed webhook before processing it.",
+    "After signature validation, accept the fresh 256-bit operator challenge only through the authenticated evaluator control plane and capture the trusted receiver timestamp.",
+    "Capture event head SHA, base SHA, and base ref; reject if a live PR read differs before or after evaluation.",
+    "Read trusted policy and verifier material from the immutable event base SHA, never from the candidate head.",
+    "Read base and candidate trees by immutable SHA, classify both tree sides and complete pull-file records, and treat candidate bytes as data only.",
+    "Never check out, install, import, execute, or interpolate candidate content.",
+    "Publish success only after the complete verdict is successful and bind the check run to the exact evaluated SHA.",
+    "Encode nonce, repository, PR, head/base SHAs, immutable-base policy digest/version, verdict mode, and receiver timestamp in canonical external_id."
+  ],
+  "operatorVerification": [
+    "The owner must record the App ID returned by GitHub and pass it explicitly to the ruleset script.",
+    "The owner credential and App credential are separate: owner auth performs ruleset plan/create/read/delete, while an App JWT proves the App identity and exact installation.",
+    "The owner must prove this is the App's only installation, enumerate installation repositories with a temporary installation token, require exactly judeper/FSI-AgentGov, verify exact permissions/events, and revoke the token.",
+    "The owner must prove ruleset integration_id equality and fresh evaluator check runs whose app.id equals that App ID.",
+    "Apply must create the ruleset before accepting one positive no-op PR and one negative same-name GitHub Actions spoof PR; both probes must be freshly evaluated and causally bound through external_id.",
+    "If any read-back field is unavailable or differs, the artifact gate remains blocked and non-enforced."
+  ]
+}
