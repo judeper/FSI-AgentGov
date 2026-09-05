@@ -7,12 +7,13 @@
     "The additive ruleset must preserve the owner's September 5, 2026 strict legacy",
     "branch protection and its 13 App-bound required checks."
   ],
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "state": "planned-not-applied",
   "repository": "judeper/FSI-AgentGov",
   "ownerType": "User",
   "defaultBranch": "main",
   "managedRulesetName": "trusted-dependency-artifact-app-gate",
+  "applicationMode": "create-only-additive",
   "requiredWorkflowBinding": {
     "status": "unavailable-for-this-repository",
     "reason": "GitHub documents required-workflow rulesets at organization or enterprise scope. This repository is owned by a personal user, so this plan intentionally uses an expected-source GitHub App check instead."
@@ -77,8 +78,18 @@
     "preserveExactly": true,
     "requirePresent": true,
     "requireAdminEnforcementIfPresent": true,
-    "preserveSignaturesIfPresent": true,
-    "preserveRestrictionsIfPresent": true,
+    "observedAt": "2026-09-05T03:47:06Z",
+    "expectedState": {
+      "enforceAdmins": true,
+      "requiredStatusChecksStrict": true,
+      "requiredPullRequestReviews": null,
+      "restrictions": null,
+      "requiredLinearHistory": false,
+      "requiredSignatures": false,
+      "allowForcePushes": false,
+      "allowDeletions": false,
+      "requiredConversationResolution": false
+    },
     "expectedRequiredStatusChecks": [
       { "context": "e2e-smoke", "app_id": 15368 },
       { "context": "gitleaks", "app_id": 15368 },
@@ -103,6 +114,13 @@
     "requirePositiveAppProbe": true,
     "requireNegativeActionsProbe": true,
     "requireProbePullRequests": true,
+    "requirePostCreationCausalProbes": true,
+    "requireOperatorNonceChallenge": true,
+    "requireExternalEvaluatorOrigin": true,
+    "requireNegativeAppFailure": true,
+    "maxEvidenceAgeSeconds": 300,
+    "positiveEvaluatorMode": "not-applicable",
+    "negativeEvaluatorMode": "activation-rejected",
     "positiveMergeability": "clean",
     "negativeMergeability": "blocked"
   }

@@ -6,9 +6,10 @@
     "request; the gate fails closed on that combination. Changing these values requires a",
     "separate CODEOWNERS-reviewed infrastructure pull request.",
     "Digests are raw-byte SHA-256 of the Git blob content, not of a normalized rendering.",
-    "Activation pins also carry the exact Git blob ID and enumerate the complete approved file set."
+    "Activation is a base-relative exact tree delta: every approved base blob/absence, target mode,",
+    "Git blob ID, raw-byte SHA-256, size, and the canonical patch digest are pinned."
   ],
-  "policyVersion": 1,
+  "policyVersion": 2,
   "checkName": "trusted-dependency-artifact",
   "defaultBranch": "main",
 
@@ -220,14 +221,14 @@
   },
 
   "activation": {
-    "approvedCommit": "8acd5d7907d9ef01e2875855fdd83b307a1e2edd",
-    "approvedParent": "0326a993c09f7f370d38bdb51a3818570867872d",
+    "strategy": "base-relative-exact-tree-delta",
+    "requiredBasePolicyVersion": 2,
     "requiresCompleteSet": true,
+    "patchSha256": "eed626b08ae9b7a10b8644add9c7c21d1e6e92899f0ac69ee1c5bb37a48f1c94",
     "allowedFiles": [
       ".gitattributes",
       ".github/workflows/security-scan.yml",
       ".github/workflows/sri-check.yml",
-      "SECURITY.md",
       "package-lock.json",
       "package.json",
       "scripts/verify-fast-uri-artifact.mjs",
@@ -242,88 +243,156 @@
       "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
       "vendor/npm/fast-uri/3.1.7/provenance.json"
     ],
+    "basePins": {
+      ".gitattributes": {
+        "mode": "100644",
+        "blob": "6127ed1796d6057f9573d3ff5a1c07b74c527d1d"
+      },
+      ".github/workflows/security-scan.yml": {
+        "mode": "100644",
+        "blob": "bc8317607919b4ca5643cf6095699df735894092"
+      },
+      ".github/workflows/sri-check.yml": {
+        "mode": "100644",
+        "blob": "f6bce79229a086c24e89001400290e62b9a0bcc5"
+      },
+      "package-lock.json": {
+        "mode": "100644",
+        "blob": "08aafb595607f78f0a0998b022a2cebe920bb257"
+      },
+      "package.json": {
+        "mode": "100644",
+        "blob": "e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d"
+      },
+      "scripts/verify-fast-uri-artifact.mjs": {
+        "absent": true
+      },
+      "scripts/verify-fast-uri-bootstrap.mjs": {
+        "absent": true
+      },
+      "scripts/verify-vendored-runtime.mjs": {
+        "mode": "100644",
+        "blob": "3323a509af6d3ef954f28fa2a14dd1da6684cb01"
+      },
+      "tests/spa/docs-safe-procedure.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/fast-uri-artifact-race.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/fast-uri-security-workflow.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/trusted-gate-artifact-acceptance.test.mjs": {
+        "absent": true
+      },
+      "tests/spa/vendor-runtime-policy.test.mjs": {
+        "mode": "100644",
+        "blob": "8d63f4dac0dfb7f7aa158b3014324a208dbbdd11"
+      },
+      "vendor/npm/fast-uri/3.1.7/README.md": {
+        "absent": true
+      },
+      "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
+        "absent": true
+      },
+      "vendor/npm/fast-uri/3.1.7/provenance.json": {
+        "absent": true
+      }
+    },
     "pins": {
       ".gitattributes": {
+        "mode": "100644",
         "blob": "91596cc419da4f86b6ed193802fc81b5b28a3ba1",
         "sha256": "df7f40c6ed0da07a2cac77823f83af844b07fb4f49c4e049aaf8d2159cf20468",
         "size": 936
       },
       ".github/workflows/security-scan.yml": {
-        "blob": "d3006d57edac80001bc5ea98fbcb2751b808a487",
-        "sha256": "5fbb448e695d847970b9539ddece2a83ec8e73c06689c4fb98dc408637435797",
-        "size": 11990
+        "mode": "100644",
+        "blob": "6e7ab1ffeb5fc9e779d1ee4ee5695ea534c72674",
+        "sha256": "b2db741bd09205c7ba396835f3c451b2a247b29e16390ebedeba3b2b84b3937b",
+        "size": 11976
       },
       ".github/workflows/sri-check.yml": {
+        "mode": "100644",
         "blob": "5c73d8423cfd017024a5e2fcfefbcda7d09c89dc",
         "sha256": "b8c1847450dfc9f66467485e1e5fc8a0d1f5d147cadc908e0d436b93a6c5cb2c",
         "size": 19409
       },
-      "SECURITY.md": {
-        "blob": "8a7a5020354932dfab677a4c5d2bb5e08fa69a02",
-        "sha256": "ee043658d57772cb0ac8ebfc9ff7f44405dd5d0e971066d3c63a76be9e092c7f",
-        "size": 11094
-      },
       "package-lock.json": {
+        "mode": "100644",
         "blob": "0b764c5ed9b507d9d8f259f9be8ea4dd77a47661",
         "sha256": "19e6cfc9c195248e3ef6d2827048d786b0f629be0a680b5f88648694321d4a2c",
         "size": 76925
       },
       "package.json": {
+        "mode": "100644",
         "blob": "3faa4f4fae4eeee55a35ddc1a99c58a9bcf5ad1c",
         "sha256": "2a3fad19f3341087ff12656bcd7ea2f09359fb9103911a8c54285aa6b5fa6ab9",
         "size": 1083
       },
       "scripts/verify-fast-uri-artifact.mjs": {
+        "mode": "100644",
         "blob": "a261ab3204e879bcf6db3e76c1f5fc06eec017ea",
         "sha256": "982e43bcab47210b1bbc279ebdf9bc1ddb7b0eb4d530f1ae0c7e968bab6cf123",
         "size": 69126
       },
       "scripts/verify-fast-uri-bootstrap.mjs": {
+        "mode": "100644",
         "blob": "490ba2885ccdfbaa41159e048ea9a3007186fbf0",
         "sha256": "ba5c8dcfcd364ff1f43b2c8e0ba964fbd1ea81182b5cbee4d3059882ca5b54ea",
         "size": 14824
       },
       "scripts/verify-vendored-runtime.mjs": {
+        "mode": "100644",
         "blob": "e6750f0a9efb34d16f01e772a2203fd9ef43ba2e",
         "sha256": "47cff6ca8e5b882bca410cc948821a2abfd533390d10af1e5f531d5ff4be7e2a",
         "size": 7742
       },
       "tests/spa/docs-safe-procedure.test.mjs": {
+        "mode": "100644",
         "blob": "650f25133317aa863b050237391d0cd924a2798b",
         "sha256": "380ba294c03d50de24ab05ca9847fb21d6093fded39884df2602f554f89dc4f1",
         "size": 10553
       },
       "tests/spa/fast-uri-artifact-race.test.mjs": {
+        "mode": "100644",
         "blob": "84e6ca0e821d9a0a4f0d0ce2c41ccc34ff46e994",
         "sha256": "dc9f13e776763f13980849f5777472e4bccb8d1d2ca92871c58c28e7771c2ee1",
         "size": 27293
       },
       "tests/spa/fast-uri-security-workflow.test.mjs": {
+        "mode": "100644",
         "blob": "49ec59ae4feab63d785c91d3ecda62f3d666578d",
         "sha256": "f3e3a095b0485d8b0730f4c72fdd86860ed2d837609f62f15c2bf5d8c6f81d4a",
         "size": 10041
       },
       "tests/spa/trusted-gate-artifact-acceptance.test.mjs": {
+        "mode": "100644",
         "blob": "70e2aa545763d2ee791dfaba4cea0fe4c7dfe71f",
         "sha256": "ec9a2a816f162801a76921d4dc404ede004d3e44fd04604c4556e4ec3702ebd3",
         "size": 8999
       },
       "tests/spa/vendor-runtime-policy.test.mjs": {
+        "mode": "100644",
         "blob": "ccd6d619f8fcd86d4c215c0900bc018b3aa13dbb",
         "sha256": "47bfe4d71a60f1f2d86e074407da938cf04768921fd8f0708c0cce0966d89683",
         "size": 4818
       },
       "vendor/npm/fast-uri/3.1.7/README.md": {
+        "mode": "100644",
         "blob": "5bb6e480b36df794921065ad59035349e45d147b",
         "sha256": "d868e4fe7640a21489ba2ece7018290e2cd01c05e463e99194b0c3ec5116efc7",
         "size": 17916
       },
       "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
+        "mode": "100644",
         "blob": "792e315ea09e9b09e157544ab038c349f6cfc1d6",
         "sha256": "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
         "size": 43760
       },
       "vendor/npm/fast-uri/3.1.7/provenance.json": {
+        "mode": "100644",
         "blob": "714ca1f1ea4a1df4b50b4df447b7c047e1c01682",
         "sha256": "bfaada6d35b9b09bdbd28b0dd0575ded1515c2f3a232ceccc17389548123eba8",
         "size": 12728

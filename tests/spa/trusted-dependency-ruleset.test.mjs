@@ -10,12 +10,16 @@ import {
   assertRulesetReadBack,
   assertAppContract,
   assertAppInstallationPayload,
+  assertFreshEvaluatorCheck,
+  assertLegacyBaseline,
   assertOwnerIdentity,
   assertProbeResults,
   assertSafeRollbackTarget,
   assertSpoofedSourceRejected,
   assertUnrelatedSecurityStatePreserved,
   digestSecuritySnapshot,
+  encodeEvaluatorExternalId,
+  getPolicyEvidence,
   loadAppContract,
   loadRulesetPlan,
   materializeRuleset,
@@ -29,6 +33,11 @@ const plan = loadRulesetPlan();
 const APP_ID = 8675309;
 const HEAD_SHA = "a".repeat(40);
 const MERGE_SHA = "b".repeat(40);
+const BASE_SHA = "c".repeat(40);
+const POLICY_DIGEST = "d".repeat(64);
+const RULESET_CREATED_AT = "2026-09-05T03:47:10Z";
+const OBSERVED_AT = "2026-09-05T03:48:00Z";
+const EVALUATOR_ORIGIN = "https://trusted-evaluator.example";
 const LEGACY_CHECKS = [
   ["e2e-smoke", 15368],
   ["gitleaks", 15368],
@@ -51,6 +60,9 @@ function repository() {
     full_name: "judeper/FSI-AgentGov",
     owner: { type: "User" },
     default_branch: "main",
+    allow_merge_commit: true,
+    allow_squash_merge: true,
+    allow_rebase_merge: true,
   };
 }
 
@@ -104,22 +116,105 @@ function legacyProtection() {
       checks: LEGACY_CHECKS.map(([context, app_id]) => ({ context, app_id })),
     },
     enforce_admins: { enabled: true },
-    required_pull_request_reviews: {
-      dismiss_stale_reviews: true,
-      require_code_owner_reviews: true,
-      required_approving_review_count: 2,
-      require_last_push_approval: true,
-    },
-    restrictions: {
-      users: [{ login: "maintainer", id: 11 }],
-      teams: [],
-      apps: [],
-    },
-    required_linear_history: { enabled: true },
-    required_signatures: { enabled: true },
+    required_pull_request_reviews: null,
+    restrictions: null,
+    required_linear_history: { enabled: false },
+    required_signatures: { enabled: false },
     allow_force_pushes: { enabled: false },
     allow_deletions: { enabled: false },
-    required_conversation_resolution: { enabled: true },
+    required_conversation_resolution: { enabled: false },
+  };
+}
+
+function pullAssociation(number, headSha, baseSha = BASE_SHA) {
+  return {
+    number,
+    head: {
+      sha: headSha,
+      repo: { full_name: "judeper/FSI-AgentGov" },
+    },
+    base: {
+      sha: baseSha,
+      repo: { full_name: "judeper/FSI-AgentGov" },
+    },
+  };
+}
+
+function evaluatorExternalId({
+  nonce,
+  pullNumber,
+  headSha,
+  baseSha = BASE_SHA,
+  mode,
+  issuedAt = "2026-09-05T03:47:20Z",
+  overrides = {},
+}) {
+  return encodeEvaluatorExternalId({
+    nonce,
+    repository: "judeper/FSI-AgentGov",
+    pull_request: pullNumber,
+    head_sha: headSha,
+    base_sha: baseSha,
+    policy_digest: POLICY_DIGEST,
+    policy_version: 2,
+    mode,
+    issued_at: issuedAt,
+    ...overrides,
+  });
+}
+
+function evaluatorRun({
+  id,
+  pullNumber,
+  headSha,
+  mode,
+  conclusion,
+  nonce,
+  baseSha = BASE_SHA,
+  issuedAt = "2026-09-05T03:47:20Z",
+  startedAt = "2026-09-05T03:47:21Z",
+  completedAt = "2026-09-05T03:47:30Z",
+}) {
+  return {
+    id,
+    name: "trusted-dependency-artifact",
+    head_sha: headSha,
+    app: { id: APP_ID, slug: "trusted-artifact-app" },
+    status: "completed",
+    conclusion,
+    details_url: `${EVALUATOR_ORIGIN}/runs/${id}`,
+    external_id: evaluatorExternalId({
+      nonce,
+      pullNumber,
+      headSha,
+      baseSha,
+      mode,
+      issuedAt,
+    }),
+    started_at: startedAt,
+    completed_at: completedAt,
+    pull_requests: [pullAssociation(pullNumber, headSha, baseSha)],
+  };
+}
+
+function actionsRun({
+  id,
+  pullNumber,
+  headSha,
+  baseSha = BASE_SHA,
+  startedAt = "2026-09-05T03:47:22Z",
+  completedAt = "2026-09-05T03:47:31Z",
+}) {
+  return {
+    id,
+    name: "trusted-dependency-artifact",
+    head_sha: headSha,
+    app: { id: 15368, slug: "github-actions" },
+    status: "completed",
+    conclusion: "success",
+    started_at: startedAt,
+    completed_at: completedAt,
+    pull_requests: [pullAssociation(pullNumber, headSha, baseSha)],
   };
 }
 
@@ -142,21 +237,55 @@ describe("planned expected-source GitHub App ruleset", () => {
   });
 
   it("validates the exact least-privilege App contract", () => {
-    expect(() => assertAppContract(loadAppContract())).not.toThrow();
+    const contract = loadAppContract();
+    expect(() => assertAppContract(contract)).not.toThrow();
+    expect(contract.apiOrigins).toEqual({
+      rest: "https://api.github.com",
+      web: "https://github.com",
+      rejectAmbientOverrides: true,
+    });
+
+    expect(contract.evaluator).toMatchObject({
+      deployment: "independently-reviewed-external-service",
+      mustBeDeployedBeforeApply: true,
+      signedWebhookRequired: true,
+      probeControlPlane: "authenticated-out-of-band-owner-trigger",
+      externalId: {
+        prefix: "tdag.v1.",
+        policyDigestAlgorithm: "sha256(canonical-json)",
+        requireExactOperatorChallenge: true,
+      },
+    });
+    expect(contract.installationVerification).toMatchObject({
+      enumerateRepositoriesEndpoint: "GET /installation/repositories",
+      requirePagination: true,
+      requireRevocation: true,
+    });
+  });
+
+  it("binds evaluator evidence to a canonical policy digest independent of line endings", () => {
+    const evidence = getPolicyEvidence(
+      join(repoRoot, ".github", "trusted-policy", "dependency-artifact-policy.json"),
+    );
+    expect(evidence).toMatchObject({ version: 2 });
+    expect(evidence.digest).toMatch(/^[0-9a-f]{64}$/);
   });
 
   it("keeps owner and App credentials distinct and rejects permission drift", () => {
     const contract = loadAppContract();
     const app = { id: APP_ID, slug: "trusted-artifact-app" };
     const installation = {
+      id: 777,
       app_id: APP_ID,
       account: { login: "judeper" },
       target_type: "User",
       repository_selection: "selected",
       permissions: { metadata: "read", contents: "read", pull_requests: "read", checks: "write" },
       events: ["pull_request", "check_suite", "check_run"],
-      repositories: [{ full_name: "judeper/FSI-AgentGov" }],
     };
+    const installations = [installation];
+    const repositories = [{ full_name: "judeper/FSI-AgentGov" }];
+    const tokenPermissions = { ...installation.permissions };
     expect(() =>
       assertOwnerIdentity({
         login: "judeper",
@@ -164,15 +293,26 @@ describe("planned expected-source GitHub App ruleset", () => {
       }),
     ).not.toThrow();
     expect(() =>
-      assertAppInstallationPayload({ app, installation, contract, appId: APP_ID }),
+      assertAppInstallationPayload({
+        app,
+        installations,
+        installation,
+        repositories,
+        tokenPermissions,
+        contract,
+        appId: APP_ID,
+      }),
     ).not.toThrow();
     expect(() =>
       assertAppInstallationPayload({
         app,
+        installations,
         installation: {
           ...installation,
           permissions: { ...installation.permissions, pull_requests: undefined },
         },
+        repositories,
+        tokenPermissions,
         contract,
         appId: APP_ID,
       }),
@@ -180,7 +320,10 @@ describe("planned expected-source GitHub App ruleset", () => {
     expect(() =>
       assertAppInstallationPayload({
         app: { id: APP_ID + 1, slug: "trusted-artifact-app" },
+        installations,
         installation,
+        repositories,
+        tokenPermissions,
         contract,
         appId: APP_ID,
       }),
@@ -188,10 +331,13 @@ describe("planned expected-source GitHub App ruleset", () => {
     expect(() =>
       assertAppInstallationPayload({
         app,
+        installations,
         installation: {
           ...installation,
           permissions: { ...installation.permissions, administration: "write" },
         },
+        repositories,
+        tokenPermissions,
         contract,
         appId: APP_ID,
       }),
@@ -202,6 +348,43 @@ describe("planned expected-source GitHub App ruleset", () => {
         repository: { permissions: { admin: true } },
       }),
     ).toThrow(/owner credential/);
+
+    expect(() =>
+      assertAppInstallationPayload({
+        app,
+        installations: [
+          installation,
+          { ...installation, id: 778, account: { login: "other-owner" } },
+        ],
+        installation,
+        repositories,
+        tokenPermissions,
+        contract,
+        appId: APP_ID,
+      }),
+    ).toThrow(/unapproved installation/);
+    expect(() =>
+      assertAppInstallationPayload({
+        app,
+        installations,
+        installation,
+        repositories: [...repositories, { full_name: "judeper/other" }],
+        tokenPermissions,
+        contract,
+        appId: APP_ID,
+      }),
+    ).toThrow(/repository selection/);
+    expect(() =>
+      assertAppInstallationPayload({
+        app,
+        installations,
+        installation,
+        repositories,
+        tokenPermissions: { ...tokenPermissions, administration: "write" },
+        contract,
+        appId: APP_ID,
+      }),
+    ).toThrow(/token permissions/);
   });
 
   it("treats a JWT endpoint 401 fixture as a hard provisioning failure", () => {
@@ -209,7 +392,10 @@ describe("planned expected-source GitHub App ruleset", () => {
     expect(() =>
       assertAppInstallationPayload({
         app: null,
+        installations: [],
         installation: null,
+        repositories: [],
+        tokenPermissions: {},
         contract,
         appId: APP_ID,
       }),
@@ -318,7 +504,7 @@ describe("planned expected-source GitHub App ruleset", () => {
         targetSha: HEAD_SHA,
         appId: APP_ID,
         checkName: "trusted-dependency-artifact",
-        mergeable: false,
+        mergeable: true,
         mergeableState: "blocked",
       }),
     ).not.toThrow();
@@ -334,29 +520,46 @@ describe("planned expected-source GitHub App ruleset", () => {
     ).toThrow(/blocked/);
   });
 
-  it("requires both positive App and negative spoof probes", () => {
+  it("requires fresh post-creation positive App and negative Actions probes", () => {
     const positive = {
-      pull: { headSha: HEAD_SHA, mergeable: true, mergeable_state: "clean" },
+      pull: {
+        number: 101,
+        repository: "judeper/FSI-AgentGov",
+        headSha: HEAD_SHA,
+        baseSha: BASE_SHA,
+        mergeable: true,
+        mergeable_state: "clean",
+      },
       checkRuns: [
-        {
-          name: "trusted-dependency-artifact",
-          head_sha: HEAD_SHA,
-          app: { id: APP_ID, slug: "trusted-artifact-app" },
-          status: "completed",
+        evaluatorRun({
+          id: 1001,
+          pullNumber: 101,
+          headSha: HEAD_SHA,
+          mode: "not-applicable",
           conclusion: "success",
-        },
+          nonce: "1".repeat(64),
+        }),
       ],
     };
     const negative = {
-      pull: { headSha: MERGE_SHA, mergeable: false, mergeable_state: "blocked" },
+      pull: {
+        number: 102,
+        repository: "judeper/FSI-AgentGov",
+        headSha: MERGE_SHA,
+        baseSha: BASE_SHA,
+        mergeable: true,
+        mergeable_state: "blocked",
+      },
       checkRuns: [
-        {
-          name: "trusted-dependency-artifact",
-          head_sha: MERGE_SHA,
-          app: { id: 15368, slug: "github-actions" },
-          status: "completed",
-          conclusion: "success",
-        },
+        evaluatorRun({
+          id: 1002,
+          pullNumber: 102,
+          headSha: MERGE_SHA,
+          mode: "activation-rejected",
+          conclusion: "failure",
+          nonce: "2".repeat(64),
+        }),
+        actionsRun({ id: 1003, pullNumber: 102, headSha: MERGE_SHA }),
       ],
     };
     expect(() =>
@@ -365,6 +568,13 @@ describe("planned expected-source GitHub App ruleset", () => {
         negative,
         appId: APP_ID,
         checkName: "trusted-dependency-artifact",
+        policyDigest: POLICY_DIGEST,
+        policyVersion: 2,
+        positiveNonce: "1".repeat(64),
+        negativeNonce: "2".repeat(64),
+        evaluatorOrigin: EVALUATOR_ORIGIN,
+        rulesetCreatedAt: RULESET_CREATED_AT,
+        observedAt: OBSERVED_AT,
       }),
     ).not.toThrow();
     expect(() =>
@@ -373,12 +583,274 @@ describe("planned expected-source GitHub App ruleset", () => {
         negative: {},
         appId: APP_ID,
         checkName: "trusted-dependency-artifact",
+        policyDigest: POLICY_DIGEST,
+        policyVersion: 2,
+        positiveNonce: "1".repeat(64),
+        negativeNonce: "2".repeat(64),
+        evaluatorOrigin: EVALUATOR_ORIGIN,
+        rulesetCreatedAt: RULESET_CREATED_AT,
+        observedAt: OBSERVED_AT,
       }),
     ).toThrow(/both positive App and negative spoof/);
+  });
+
+  it("rejects stale, pre-ruleset, unassociated, or incorrectly bound evaluator checks", () => {
+    const baseline = evaluatorRun({
+      id: 2001,
+      pullNumber: 101,
+      headSha: HEAD_SHA,
+      mode: "not-applicable",
+      conclusion: "success",
+      nonce: "3".repeat(64),
+    });
+    const argumentsFor = checkRuns => ({
+      checkRuns,
+      targetSha: HEAD_SHA,
+      baseSha: BASE_SHA,
+      pullNumber: 101,
+      appId: APP_ID,
+      checkName: "trusted-dependency-artifact",
+      policyDigest: POLICY_DIGEST,
+      policyVersion: 2,
+      expectedNonce: "3".repeat(64),
+      evaluatorOrigin: EVALUATOR_ORIGIN,
+      expectedMode: "not-applicable",
+      expectedConclusion: "success",
+      rulesetCreatedAt: RULESET_CREATED_AT,
+      observedAt: OBSERVED_AT,
+      maxAgeSeconds: 300,
+    });
+    expect(() => assertFreshEvaluatorCheck(argumentsFor([baseline]))).not.toThrow();
+
+    const stale = {
+      ...baseline,
+      started_at: "2026-09-05T03:40:00Z",
+      completed_at: "2026-09-05T03:40:10Z",
+    };
+    expect(() => assertFreshEvaluatorCheck(argumentsFor([stale]))).toThrow(/stale|precedes/);
+
+    const unassociated = {
+      ...baseline,
+      pull_requests: [pullAssociation(999, HEAD_SHA)],
+    };
+    expect(() => assertFreshEvaluatorCheck(argumentsFor([unassociated]))).toThrow(/association/);
+
+    const wrongBinding = {
+      ...baseline,
+      external_id: evaluatorExternalId({
+        nonce: "4".repeat(64),
+        pullNumber: 101,
+        headSha: HEAD_SHA,
+        mode: "artifact",
+      }),
+    };
+    expect(() => assertFreshEvaluatorCheck(argumentsFor([wrongBinding]))).toThrow(/exact probe/);
+  });
+
+  it("rejects every mutated external_id binding field", () => {
+    const mutations = [
+      { nonce: "4".repeat(64) },
+      { repository: "judeper/other" },
+      { pull_request: 999 },
+      { head_sha: "e".repeat(40) },
+      { base_sha: "f".repeat(40) },
+      { policy_digest: "0".repeat(64) },
+      { policy_version: 3 },
+      { mode: "artifact" },
+      { issued_at: "2026-09-05T03:30:00Z" },
+      { extra: "unreviewed" },
+    ];
+    for (const overrides of mutations) {
+      const run = evaluatorRun({
+        id: 2100,
+        pullNumber: 101,
+        headSha: HEAD_SHA,
+        mode: "not-applicable",
+        conclusion: "success",
+        nonce: "3".repeat(64),
+      });
+      run.external_id = evaluatorExternalId({
+        nonce: "3".repeat(64),
+        pullNumber: 101,
+        headSha: HEAD_SHA,
+        mode: "not-applicable",
+        overrides,
+      });
+      expect(() =>
+        assertFreshEvaluatorCheck({
+          checkRuns: [run],
+          targetSha: HEAD_SHA,
+          baseSha: BASE_SHA,
+          pullNumber: 101,
+          appId: APP_ID,
+          checkName: "trusted-dependency-artifact",
+          policyDigest: POLICY_DIGEST,
+          policyVersion: 2,
+          expectedNonce: "3".repeat(64),
+          evaluatorOrigin: EVALUATOR_ORIGIN,
+          expectedMode: "not-applicable",
+          expectedConclusion: "success",
+          rulesetCreatedAt: RULESET_CREATED_AT,
+          observedAt: OBSERVED_AT,
+          maxAgeSeconds: 300,
+        }),
+      ).toThrow(/exact probe|fields are not exact|stale|non-causal/);
+    }
+
+    const wrongOrigin = evaluatorRun({
+      id: 2101,
+      pullNumber: 101,
+      headSha: HEAD_SHA,
+      mode: "not-applicable",
+      conclusion: "success",
+      nonce: "3".repeat(64),
+    });
+    wrongOrigin.details_url = "https://github.com/judeper/FSI-AgentGov/actions/runs/1";
+    expect(() =>
+      assertFreshEvaluatorCheck({
+        checkRuns: [wrongOrigin],
+        targetSha: HEAD_SHA,
+        baseSha: BASE_SHA,
+        pullNumber: 101,
+        appId: APP_ID,
+        checkName: "trusted-dependency-artifact",
+        policyDigest: POLICY_DIGEST,
+        policyVersion: 2,
+        expectedNonce: "3".repeat(64),
+        evaluatorOrigin: EVALUATOR_ORIGIN,
+        expectedMode: "not-applicable",
+        expectedConclusion: "success",
+        rulesetCreatedAt: RULESET_CREATED_AT,
+        observedAt: OBSERVED_AT,
+      }),
+    ).toThrow(/reviewed evaluator origin/);
+    expect(() =>
+      assertFreshEvaluatorCheck({
+        checkRuns: [
+          evaluatorRun({
+            id: 2102,
+            pullNumber: 101,
+            headSha: HEAD_SHA,
+            mode: "not-applicable",
+            conclusion: "success",
+            nonce: "3".repeat(64),
+          }),
+        ],
+        targetSha: HEAD_SHA,
+        baseSha: BASE_SHA,
+        pullNumber: 101,
+        appId: APP_ID,
+        checkName: "trusted-dependency-artifact",
+        policyDigest: POLICY_DIGEST,
+        policyVersion: 2,
+        expectedNonce: "3".repeat(64),
+        evaluatorOrigin: "https://github.com",
+        expectedMode: "not-applicable",
+        expectedConclusion: "success",
+        rulesetCreatedAt: RULESET_CREATED_AT,
+        observedAt: OBSERVED_AT,
+      }),
+    ).toThrow(/external HTTPS origin/);
+  });
+
+  it("rejects nonce reuse and stale or unassociated same-name Actions evidence", () => {
+    const positive = {
+      pull: {
+        number: 101,
+        repository: "judeper/FSI-AgentGov",
+        headSha: HEAD_SHA,
+        baseSha: BASE_SHA,
+        mergeable: true,
+        mergeable_state: "clean",
+      },
+      checkRuns: [
+        evaluatorRun({
+          id: 3001,
+          pullNumber: 101,
+          headSha: HEAD_SHA,
+          mode: "not-applicable",
+          conclusion: "success",
+          nonce: "5".repeat(64),
+        }),
+      ],
+    };
+    const negativeEvaluator = evaluatorRun({
+      id: 3002,
+      pullNumber: 102,
+      headSha: MERGE_SHA,
+      mode: "activation-rejected",
+      conclusion: "failure",
+      nonce: "5".repeat(64),
+    });
+    const negative = {
+      pull: {
+        number: 102,
+        repository: "judeper/FSI-AgentGov",
+        headSha: MERGE_SHA,
+        baseSha: BASE_SHA,
+        mergeable: true,
+        mergeable_state: "blocked",
+      },
+      checkRuns: [
+        negativeEvaluator,
+        actionsRun({ id: 3003, pullNumber: 102, headSha: MERGE_SHA }),
+      ],
+    };
+    const args = {
+      positive,
+      negative,
+      appId: APP_ID,
+      checkName: "trusted-dependency-artifact",
+      policyDigest: POLICY_DIGEST,
+      policyVersion: 2,
+      positiveNonce: "5".repeat(64),
+      negativeNonce: "5".repeat(64),
+      evaluatorOrigin: EVALUATOR_ORIGIN,
+      rulesetCreatedAt: RULESET_CREATED_AT,
+      observedAt: OBSERVED_AT,
+    };
+    expect(() => assertProbeResults(args)).toThrow(/distinct fresh operator nonces/);
+
+    negative.checkRuns[0] = {
+      ...negativeEvaluator,
+      external_id: evaluatorExternalId({
+        nonce: "6".repeat(64),
+        pullNumber: 102,
+        headSha: MERGE_SHA,
+        mode: "activation-rejected",
+      }),
+    };
+    args.negativeNonce = "6".repeat(64);
+    negative.checkRuns[1] = {
+      ...negative.checkRuns[1],
+      started_at: "2026-09-05T03:40:00Z",
+      completed_at: "2026-09-05T03:40:10Z",
+    };
+    expect(() => assertProbeResults(args)).toThrow(/fresh associated GitHub Actions/);
+
+    negative.checkRuns[1] = {
+      ...actionsRun({ id: 3004, pullNumber: 102, headSha: MERGE_SHA }),
+      pull_requests: [pullAssociation(999, MERGE_SHA)],
+    };
+    expect(() => assertProbeResults(args)).toThrow(/fresh associated GitHub Actions/);
   });
 });
 
 describe("ruleset planner and read-back", () => {
+  it("validates the owner-authenticated legacy baseline before any create", () => {
+    expect(
+      assertLegacyBaseline({
+        plan,
+        repository: repository(),
+        branchProtection: legacyProtection(),
+      }),
+    ).toEqual({
+      observedAt: "2026-09-05T03:47:06Z",
+      requiredChecks: 13,
+      additiveOnly: true,
+    });
+  });
+
   it("accepts only a complete matching read-back", () => {
     expect(() =>
       assertRulesetReadBack({
@@ -451,6 +923,43 @@ describe("ruleset planner and read-back", () => {
     ).toThrow(/does not enforce administrators/);
   });
 
+  it("fails invented legacy review, signature, restriction, or merge-method state", () => {
+    for (const mutate of [
+      protection => {
+        protection.required_pull_request_reviews = {
+          required_approving_review_count: 1,
+        };
+      },
+      protection => {
+        protection.required_signatures.enabled = true;
+      },
+      protection => {
+        protection.restrictions = { users: [], teams: [], apps: [] };
+      },
+    ]) {
+      const protection = legacyProtection();
+      mutate(protection);
+      expect(() =>
+        assertRulesetReadBack({
+          plan,
+          appId: APP_ID,
+          repository: repository(),
+          ruleset: managedRuleset(),
+          branchProtection: protection,
+        }),
+      ).toThrow(/owner-authenticated snapshot/);
+    }
+    expect(() =>
+      assertRulesetReadBack({
+        plan,
+        appId: APP_ID,
+        repository: { ...repository(), allow_rebase_merge: false },
+        ruleset: managedRuleset(),
+        branchProtection: legacyProtection(),
+      }),
+    ).toThrow(/merge-method state/);
+  });
+
   it("fails read-back when active legacy protection is missing instead of treating 404 as absence", () => {
     expect(() =>
       assertRulesetReadBack({
@@ -493,7 +1002,7 @@ describe("ruleset planner and read-back", () => {
     ).not.toThrow();
   });
 
-  it("preserves pre-existing reviews, restrictions, signatures, and sibling rulesets", () => {
+  it("preserves the observed legacy protection and sibling rulesets", () => {
     const sibling = {
       id: 8,
       name: "existing-governance",
@@ -522,8 +1031,12 @@ describe("ruleset planner and read-back", () => {
         managedRulesetName: plan.managedRulesetName,
       }),
     ).not.toThrow();
-    expect(digestSecuritySnapshot(before)).toBe(digestSecuritySnapshot(before));
-    expect(securitySnapshot(before).branchProtection.required_signatures.enabled).toBe(true);
+    const changedRepository = structuredClone(before);
+    changedRepository.repository.allow_rebase_merge = false;
+    expect(digestSecuritySnapshot(changedRepository)).not.toBe(
+      digestSecuritySnapshot(before),
+    );
+    expect(securitySnapshot(before).branchProtection.required_signatures.enabled).toBe(false);
   });
 
   it("aborts if concurrent drift changes a restriction or review", () => {
@@ -533,7 +1046,7 @@ describe("ruleset planner and read-back", () => {
       rulesets: [],
     };
     const changed = structuredClone(before);
-    changed.branchProtection.restrictions.users = [];
+    changed.branchProtection.allow_force_pushes.enabled = true;
     changed.rulesets = [managedRuleset()];
     expect(() =>
       assertUnrelatedSecurityStatePreserved({
@@ -554,23 +1067,40 @@ describe("ruleset planner and read-back", () => {
     expect(script).toContain("ExpectedLiveDigest");
     expect(script).toContain("ExpectedIntendedRulesetDigest");
     expect(script).toContain("ConfirmationToken");
+    expect(script).toContain("EvaluatorOrigin");
+    expect(script).toContain("$validatedEvaluatorOrigin|$LiveDigest");
+    expect(script.indexOf('"assert-legacy-baseline"')).toBeLessThan(
+      script.indexOf('Method "POST" -Body $desired'),
+    );
     expect(script).toContain("Invoke-SafeRollback");
     expect(script).toContain('Method "DELETE"');
     expect(script).toContain("SpoofProbePullRequest");
     expect(script).toContain("GITHUB_APP_PRIVATE_KEY_PATH");
+    expect(script).toMatch(/"api",\r?\n\s+"--hostname", "github\.com"/);
+    expect(script).toContain("ambient GITHUB_API_URL overrides are not permitted");
     expect(script).not.toMatch(/branches\/main\/protection.*Method\s+"PUT"/s);
+    expect(script.indexOf('Method "POST" -Body $desired')).toBeLessThan(
+      script.lastIndexOf("[void](Assert-PostReadBack"),
+    );
   });
 
-  it("uses a JWT-only App identity probe and fails closed on App auth errors", () => {
+  it("uses JWT/App-installation credentials, paginates repositories, and revokes the token", () => {
     const script = readFileSync(
       join(repoRoot, "scripts", "trusted", "Invoke-TrustedDependencyArtifactRuleset.ps1"),
       "utf8",
     );
-    expect(script).toContain('Invoke-AppJson -Endpoint "app" -Jwt $Jwt');
-    expect(script).toContain('Invoke-AppJson -Endpoint "repos/$Repository/installation" -Jwt $Jwt');
+    expect(script).toContain('Invoke-AppJson -Endpoint "app" -BearerToken $Jwt');
+    expect(script).toContain('-Endpoint "repos/$Repository/installation"');
+    expect(script).toContain('app/installations/$([Int64]$installation.id)/access_tokens');
+    expect(script).toContain('installation/repositories?per_page=100&page=$page');
+    expect(script).toContain('-Endpoint "installation/token"');
+    expect(script).toContain('-Method "DELETE"');
     expect(script).toContain('GITHUB_APP_PRIVATE_KEY_PATH');
-    expect(script).toContain('throw "GitHub App GET $Endpoint failed"');
-    expect(script).not.toContain('repos/$Repository/installation" -AllowNotFound');
+    expect(script).toContain('throw "GitHub App $Method $Endpoint failed"');
+    expect(script).toContain('$githubApiOrigin = "https://api.github.com"');
+    expect(script).toContain('$githubWebOrigin = "https://github.com"');
+    expect(script).toContain("Get-ValidatedEvaluatorOrigin");
+    expect(script).not.toMatch(/\$apiUrl\s*=\s*\[string\]\(\$env:GITHUB_API_URL\)/);
   });
 
   it("proves safe rollback is limited to the just-created ruleset", () => {

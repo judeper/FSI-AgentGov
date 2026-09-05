@@ -2,8 +2,8 @@
 
 This runbook is a **trusted policy path**. A dependency-artifact pull request
 must never modify it, `SECURITY.md`, the gate workflow, the App contract, the
-ruleset plan, or another trusted path in the same pull request unless it is the
-separately approved exact activation transaction.
+ruleset plan, or another trusted path. Trusted paths are never part of the
+artifact activation transaction.
 
 ## Boundary
 
@@ -36,14 +36,28 @@ trusted or guarded path.
 ## Exact approved activation
 
 When the artifact is absent from the immutable base tree, the only accepted
-activation is the complete file set and exact bytes recorded in
-`dependency-artifact-policy.json` for approved commit
-`8acd5d7907d9ef01e2875855fdd83b307a1e2edd`. That set includes package metadata,
-`.gitattributes`, the artifact/provenance/README, verifier/runtime files,
-security workflows, `SECURITY.md`, and the focused tests. Any extra file,
-dependency, lock node, script, URL, registry, workflow, test, or documentation
-byte fails closed. The policy branch itself contains none of those package,
-lockfile, or artifact bytes.
+activation is policy version 2's base-relative exact tree delta, identified by
+patch digest
+`eed626b08ae9b7a10b8644add9c7c21d1e6e92899f0ac69ee1c5bb37a48f1c94`.
+The policy pins the current base state (blob+mode or required absence) and the
+target state (mode+blob+raw-byte SHA-256+size) for all 16 activation paths.
+`SECURITY.md` and every trusted policy/runbook/workflow/operator path are
+excluded.
+
+Before activation, a change to **any** guarded path or activation path fails
+unless the immutable base/head delta equals all 16 paths exactly. This includes
+partial edits to a manifest, lockfile, `.gitattributes`, verifier, workflow,
+test, or artifact README. No pull-file claim and no `guard-only` result can
+substitute for the exact immutable delta.
+
+The old artifact commit is not approved for merge or cherry-pick. After this
+policy is merged, recreate the dependent artifact branch from that merged
+policy head, materialize only the target blobs listed in the activation pins,
+and verify the patch digest. The `security-scan.yml` target is newly rebased:
+it combines the reviewed artifact steps with the policy head's top-level
+`permissions: {}` hardening. If any base pin differs, stop and rotate the
+policy; do not edit the artifact branch to make the old pins fit. The policy
+branch itself remains artifact-free.
 
 ## One-time enforcement bootstrap
 
@@ -52,41 +66,53 @@ not yet exist on the default branch. Perform these steps in order:
 
 1. Independently review and merge the exact policy-only commit under the
    controls that existed before this bootstrap.
-2. As the repository owner, provision a private/dedicated GitHub App according
+2. Independently review and deploy the signed-webhook evaluator outside this
+   repository. It must implement the immutable evaluator contract and never
+   execute candidate content.
+3. As the repository owner, provision a private/dedicated GitHub App according
    to `trusted-dependency-artifact-app-contract.json`. Install it only on
    `judeper/FSI-AgentGov` with selected-repository scope.
-3. Keep the App private key and webhook secret outside Git. At runtime provide
+4. Keep the App private key and webhook secret outside Git. At runtime provide
    either `GITHUB_APP_PRIVATE_KEY_PATH` or `GITHUB_APP_PRIVATE_KEY`; never put
    either value in command output, logs, a file in the repository, or a
    candidate-controlled environment.
-4. Verify the App's exact identity, installation, permissions, and webhook
-   events with the App JWT. The owner credential and App credential are
-   separate: owner `GH_TOKEN`/`gh auth` performs ruleset operations; the App
-   JWT proves the publisher identity. An owner-token probe of the documented
-   App-installation endpoint returned HTTP 401 on September 5, 2026, so there
-   is no user-token fallback in this operator.
-5. Create two disposable or nominated no-op probes:
-   - **positive probe:** the dedicated App publishes a successful
-     `trusted-dependency-artifact` check on the exact PR head and the PR is
-     `mergeable=true`, `mergeable_state=clean`;
-   - **negative probe:** a different PR has only a successful same-name
-     `github-actions` check on its exact head and is
-     `mergeable=false`, `mergeable_state=blocked`.
-6. From the merged default-branch checkout, run the read-only plan with the
-   App private key supplied only at runtime:
+5. The operator pins `https://api.github.com` and `github.com`, rejects
+   conflicting ambient origins, lists all App installations with the JWT,
+   creates a temporary installation token, paginates
+   `GET /installation/repositories`, requires exactly
+   `judeper/FSI-AgentGov`, verifies exact permissions/events, and revokes the
+   token. The owner credential is used only for repository/ruleset reads and
+   writes.
+6. Prepare two same-repository probe PRs against `main`, but do not rely on
+   existing check runs:
+   - **positive probe:** a no-op/unrelated change expected to produce a
+     successful App check in `not-applicable` mode;
+   - **negative probe:** a partial activation-path change expected to produce a
+     failed App check in `activation-rejected` mode, plus a successful
+     same-name GitHub Actions check; it should remain conflict-free while
+     reporting `mergeable_state=blocked`.
+7. From the merged default-branch checkout, run the read-only plan with the
+   owner credential. Plan mode does not use an App private key or create an
+   installation token:
 
    ```powershell
    pwsh -NoProfile -File scripts\trusted\Invoke-TrustedDependencyArtifactRuleset.ps1 `
-     -Plan -AppId <GitHub-App-ID>
+     -Plan -AppId <GitHub-App-ID> `
+     -EvaluatorOrigin https://<independently-reviewed-evaluator-host>
    ```
 
-7. Copy the reported `liveDigest`, `intendedRulesetDigest`, and
+8. Copy the reported `liveDigest`, `intendedRulesetDigest`, and
    `confirmationToken`; apply exactly that reviewed plan and pass **both**
-   probe PR numbers:
+   probe PR numbers. Supply the App private key only at runtime. Apply creates
+   the ruleset first and then polls for fresh probe evidence. It prints two
+   fresh, non-secret 256-bit challenge nonces. Send them only through the
+   evaluator's authenticated operator control plane, then synchronize both
+   probe heads or invoke the independently controlled replay mechanism:
 
    ```powershell
    pwsh -NoProfile -File scripts\trusted\Invoke-TrustedDependencyArtifactRuleset.ps1 `
      -Apply -AppId <GitHub-App-ID> `
+     -EvaluatorOrigin https://<independently-reviewed-evaluator-host> `
      -ProbePullRequest <positive-PR-number> `
      -SpoofProbePullRequest <negative-PR-number> `
      -ExpectedLiveDigest <liveDigest> `
@@ -94,34 +120,54 @@ not yet exist on the default branch. Perform these steps in order:
      -ConfirmationToken <confirmationToken>
    ```
 
-8. Read back the remote configuration with the same two probes:
+9. Read back the remote configuration with the App private key supplied only
+   at runtime and newly retriggered probes:
 
    ```powershell
    pwsh -NoProfile -File scripts\trusted\Invoke-TrustedDependencyArtifactRuleset.ps1 `
      -ReadBack -AppId <GitHub-App-ID> `
+     -EvaluatorOrigin https://<independently-reviewed-evaluator-host> `
      -ProbePullRequest <positive-PR-number> `
      -SpoofProbePullRequest <negative-PR-number>
    ```
 
-Apply refuses to run without both probes. Until every App, ruleset, legacy
-protection, and probe read-back passes, the artifact remediation is **BLOCKED**.
-A same-name check from GitHub Actions is never an acceptable substitute.
+Apply refuses to run without both probes. The positive and negative App checks,
+and the negative same-name Actions check, must start after ruleset creation,
+remain within the five-minute evidence window, and be associated with the exact
+probe PR/head/base. Until every App, ruleset, legacy-protection, and probe
+read-back passes, the artifact remediation is **BLOCKED**. A same-name check
+from GitHub Actions is never an acceptable substitute.
 
 ## Webhook handling
 
 The App service must validate the webhook HMAC signature with the runtime-only
-secret, reject missing/invalid timestamps outside the replay window, de-duplicate
-delivery IDs, verify the event repository and installation ID, and capture the
-event head SHA/base SHA/base ref before any GitHub read. It must re-read the PR
-before and after evaluation, use immutable base policy/tree data, and never
-checkout, install, import, execute, or interpolate candidate content.
+secret **before** processing, de-duplicate delivery IDs, verify the event
+repository and installation ID, and capture the event head SHA/base SHA/base
+ref plus a trusted receiver timestamp before any GitHub read. GitHub supplies
+no signed timestamp header, so the receiver timestamp and delivery-id
+deduplication establish the replay window. It must re-read the PR before and
+after evaluation, use immutable base policy/tree data, and never checkout,
+install, import, execute, or interpolate candidate content.
+
+For each probe, the evaluator receives the operator-generated challenge only
+through its authenticated control plane after the ruleset exists, validates the
+signed webhook, and writes canonical base64url JSON to check-run `external_id`
+with exactly: `nonce`, `repository`, `pull_request`, `head_sha`, `base_sha`,
+`policy_digest` (SHA-256 of canonical policy JSON), `policy_version`, `mode`,
+and `issued_at`. Canonical JSON recursively sorts object keys, preserves array
+order, emits no insignificant whitespace, and is UTF-8 before hashing or
+base64url encoding. The check's `details_url` must use the exact external HTTPS
+origin supplied to the operator; GitHub and loopback origins are rejected. The
+operator requires the check's GitHub PR association to match those fields, requires
+start/completion after ruleset creation, rejects evidence older than 300
+seconds, and rejects nonce reuse across probes.
 
 Rotate the private key and webhook secret independently, revoke old material
 after overlap is complete, and scope installation access only to the target
 repository. If merge queue is enabled later, add `merge_queues:read` and
 `merge_group`; publish and verify the same App check on
 `merge_group.head_sha`. A passing PR-head check is not a passing merge-group
-check.
+check. The current operator fails closed if any active merge queue is present.
 
 ## Automatic rollback
 

@@ -48,11 +48,20 @@ export const POLICY_RELATIVE_PATH =
 const FULL_OBJECT_ID = /^[0-9a-f]{40}$/;
 const UNSAFE_MESSAGE_CHARACTER = /[^A-Za-z0-9 ._/@:+()',=-]/g;
 const OWNER_NAME = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,98}[A-Za-z0-9_-])?$/;
+const C0_C1_CONTROL = /[\u0000-\u001f\u007f-\u009f]/u;
+const BIDI_CONTROL = /[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
+const CHECKOUT_IGNORABLE =
+  /[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff\ufe00-\ufe0f]|[\u{e0100}-\u{e01ef}]/u;
+const WINDOWS_DEVICE_STEM =
+  /^(?:con|prn|aux|nul|clock\$|conin\$|conout\$|com[1-9]|lpt[1-9]|com[¹²³]|lpt[¹²³])$/iu;
+const DOS_SHORT_NAME_ALIAS =
+  /^(?:[^.\/]{1,6}|\.git)~[1-9][0-9]*(?:\.[^.\/]*)?$/iu;
 
 const BLOB_MODE_REGULAR = "100644";
 const BLOB_MODE_EXECUTABLE = "100755";
 const BLOB_MODE_SYMLINK = "120000";
 const BLOB_MODE_GITLINK = "160000";
+const PINNABLE_BLOB_MODES = new Set([BLOB_MODE_REGULAR, BLOB_MODE_EXECUTABLE]);
 
 /* ------------------------------------------------------------------ *
  * Policy loading
@@ -123,18 +132,31 @@ export function assertPolicyShape(policy) {
   }
   const activation = policy.activation;
   if (
-    !/^[0-9a-f]{40}$/.test(activation?.approvedCommit ?? "") ||
-    !/^[0-9a-f]{40}$/.test(activation?.approvedParent ?? "") ||
+    activation?.strategy !== "base-relative-exact-tree-delta" ||
+    activation?.requiredBasePolicyVersion !== policy.policyVersion ||
     activation?.requiresCompleteSet !== true ||
     !Array.isArray(activation?.allowedFiles) ||
     activation.allowedFiles.length === 0 ||
+    !activation?.basePins ||
     !activation?.pins ||
-    Object.keys(activation.pins).length !== activation.allowedFiles.length
+    Object.keys(activation.basePins).length !== activation.allowedFiles.length ||
+    Object.keys(activation.pins).length !== activation.allowedFiles.length ||
+    !/^[0-9a-f]{64}$/.test(activation?.patchSha256 ?? "")
   ) {
     throw new Error("trusted policy activation must enumerate an exact non-empty file set");
   }
   const activationPaths = new Set(activation.allowedFiles);
+  if (activationPaths.size !== activation.allowedFiles.length) {
+    throw new Error("trusted policy activation contains a duplicate path");
+  }
   const activationFolded = new Map();
+  const trustedFolded = new Set(
+    policy.trustedPaths.map(path => {
+      const identity = canonicalRepositoryPathIdentity(path);
+      if (identity.unsafe) throw new Error("trusted policy contains an unsafe trusted path");
+      return identity.folded;
+    }),
+  );
   for (const path of activation.allowedFiles) {
     const identity = canonicalRepositoryPathIdentity(path);
     if (identity.unsafe) throw new Error("trusted policy activation contains an unsafe path");
@@ -143,6 +165,9 @@ export function assertPolicyShape(policy) {
       activationFolded.get(identity.folded) !== identity.canonical
     ) {
       throw new Error("trusted policy activation contains a case or NFC collision");
+    }
+    if (trustedFolded.has(identity.folded)) {
+      throw new Error(`activation path '${path}' overlaps a trusted path`);
     }
     activationFolded.set(identity.folded, identity.canonical);
   }
@@ -166,13 +191,41 @@ export function assertPolicyShape(policy) {
     if (identity.unsafe || activationFolded.get(identity.folded) !== identity.canonical) {
       throw new Error(`activation pin '${path}' does not match its canonical allowed path`);
     }
-    if (!/^[0-9a-f]{64}$/.test(pin.sha256) || !FULL_OBJECT_ID.test(pin.blob ?? "")) {
+    if (
+      !/^[0-9a-f]{64}$/.test(pin.sha256) ||
+      !FULL_OBJECT_ID.test(pin.blob ?? "") ||
+      !PINNABLE_BLOB_MODES.has(pin.mode) ||
+      JSON.stringify(Object.keys(pin).sort()) !==
+        JSON.stringify(["blob", "mode", "sha256", "size"])
+    ) {
       throw new Error(`activation pin for '${path}' is not an exact Git blob and SHA-256`);
     }
     if (!Number.isSafeInteger(pin.size) || pin.size <= 0) {
       throw new Error(`activation pin for '${path}' has an invalid size`);
     }
   }
+  for (const [path, pin] of Object.entries(activation.basePins)) {
+    if (!activationPaths.has(path)) {
+      throw new Error(`activation base pin '${path}' is outside the allowed activation file set`);
+    }
+    if (pin?.absent === true) {
+      if (Object.keys(pin).length !== 1) {
+        throw new Error(`activation base pin for '${path}' mixes absent and present state`);
+      }
+      continue;
+    }
+    if (
+      !FULL_OBJECT_ID.test(pin?.blob ?? "") ||
+      !PINNABLE_BLOB_MODES.has(pin?.mode) ||
+      JSON.stringify(Object.keys(pin ?? {}).sort()) !== JSON.stringify(["blob", "mode"])
+    ) {
+      throw new Error(`activation base pin for '${path}' is not an exact Git blob and mode`);
+    }
+  }
+  if (activationPatchDigest(activation) !== activation.patchSha256) {
+    throw new Error("trusted policy activation patch digest does not match its exact pins");
+  }
+  buildPathIdentityIndex(policy);
   return policy;
 }
 
@@ -193,6 +246,27 @@ export function gitBlobId(bytes) {
   return createHash("sha1")
     .update(Buffer.concat([Buffer.from(`blob ${buffer.length}\u0000`, "utf8"), buffer]))
     .digest("hex");
+}
+
+export function activationPatchDigest(activation) {
+  const records = [...(activation?.allowedFiles ?? [])]
+    .sort()
+    .map(path => ({
+      path,
+      base: activation?.basePins?.[path]?.absent === true
+        ? { absent: true }
+        : {
+            mode: activation?.basePins?.[path]?.mode,
+            blob: activation?.basePins?.[path]?.blob,
+          },
+      target: {
+        mode: activation?.pins?.[path]?.mode,
+        blob: activation?.pins?.[path]?.blob,
+        sha256: activation?.pins?.[path]?.sha256,
+        size: activation?.pins?.[path]?.size,
+      },
+    }));
+  return sha256Hex(Buffer.from(JSON.stringify(records), "utf8"));
 }
 
 /*
@@ -241,25 +315,66 @@ export class Verdict {
  * Path classification
  * ------------------------------------------------------------------ */
 
-export function isUnsafeRepositoryPath(path) {
-  if (typeof path !== "string" || path.length === 0 || path.length > 400) return true;
-  if (path.startsWith("/") || /^[A-Za-z]:/.test(path)) return true;
-  if (path.includes("\\")) return true;
-  if (/[\u0000-\u001f\u007f]/.test(path)) return true;
-  const segments = path.split("/");
-  if (segments.length > 32) return true;
-  return segments.some((segment) => segment === "" || segment === "." || segment === "..");
-}
-
-export function normalizeRepositoryPath(path) {
-  if (typeof path !== "string") return null;
-  return path.replaceAll("\\", "/").normalize("NFC");
-}
-
 export function asciiCaseFold(path) {
   return typeof path === "string"
     ? path.replace(/[A-Z]/g, character => character.toLowerCase())
     : path;
+}
+
+function isCheckoutUnsafeSegment(segment) {
+  const deviceStem = segment.split(".", 1)[0].replace(/[ .]+$/u, "");
+  if (
+    segment === "" ||
+    segment === "." ||
+    segment === ".." ||
+    /[ .]$/u.test(segment) ||
+    segment.includes(":") ||
+    C0_C1_CONTROL.test(segment) ||
+    BIDI_CONTROL.test(segment) ||
+    CHECKOUT_IGNORABLE.test(segment) ||
+    WINDOWS_DEVICE_STEM.test(deviceStem) ||
+    DOS_SHORT_NAME_ALIAS.test(segment) ||
+    asciiCaseFold(segment) === ".git"
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function canonicalRepositoryPathOrNull(path) {
+  if (
+    typeof path !== "string" ||
+    path.length === 0 ||
+    path.length > 400 ||
+    path.startsWith("/") ||
+    path.includes("\\") ||
+    C0_C1_CONTROL.test(path) ||
+    BIDI_CONTROL.test(path)
+  ) {
+    return null;
+  }
+  const canonical = path.normalize("NFC");
+  if (
+    canonical.length === 0 ||
+    canonical.length > 400 ||
+    canonical.startsWith("/") ||
+    canonical.includes("\\") ||
+    C0_C1_CONTROL.test(canonical) ||
+    BIDI_CONTROL.test(canonical)
+  ) {
+    return null;
+  }
+  const segments = canonical.split("/");
+  if (segments.length > 32 || segments.some(isCheckoutUnsafeSegment)) return null;
+  return canonical;
+}
+
+export function isUnsafeRepositoryPath(path) {
+  return canonicalRepositoryPathOrNull(path) === null;
+}
+
+export function normalizeRepositoryPath(path) {
+  return canonicalRepositoryPathOrNull(path);
 }
 
 /*
@@ -270,19 +385,11 @@ export function asciiCaseFold(path) {
  * `folded` is the collision-safe identity used for policy matching.
  */
 export function canonicalRepositoryPathIdentity(path) {
-  if (typeof path !== "string" || isUnsafeRepositoryPath(path)) {
+  const canonical = canonicalRepositoryPathOrNull(path);
+  if (canonical === null) {
     return {
       original: path,
       normalized: null,
-      canonical: null,
-      folded: null,
-      unsafe: true,
-    };
-  }
-  const canonical = path.normalize("NFC");
-  if (isUnsafeRepositoryPath(canonical)) {
-    return {
-      original: path,
       canonical: null,
       folded: null,
       unsafe: true,
@@ -300,11 +407,30 @@ export function canonicalRepositoryPathIdentity(path) {
 export const canonicalizeRepositoryPath = canonicalRepositoryPathIdentity;
 
 function patternIdentity(pattern, kind) {
-  if (typeof pattern !== "string" || /[\u0000-\u001f\u007f\\]/.test(pattern)) {
+  if (typeof pattern !== "string") {
     throw new Error(`trusted policy ${kind} contains an unsafe path pattern`);
   }
-  const canonical = pattern.normalize("NFC");
-  if (!canonical) throw new Error(`trusted policy ${kind} contains an empty path pattern`);
+  let marker = "";
+  let body = pattern;
+  if (kind === "prefix") {
+    if (!pattern.endsWith("/")) {
+      throw new Error("trusted policy prefix must end with '/'");
+    }
+    body = pattern.slice(0, -1);
+    marker = "/";
+  } else if (kind === "suffix") {
+    if (!pattern.startsWith("/")) {
+      throw new Error("trusted policy suffix must start with '/'");
+    }
+    body = pattern.slice(1);
+    marker = "/";
+  }
+  const identity = canonicalRepositoryPathIdentity(body);
+  if (identity.unsafe || (kind === "forbidden basename" && identity.canonical.includes("/"))) {
+    throw new Error(`trusted policy ${kind} contains an unsafe path pattern`);
+  }
+  const canonical =
+    kind === "suffix" ? `${marker}${identity.canonical}` : `${identity.canonical}${marker}`;
   return { canonical, folded: asciiCaseFold(canonical) };
 }
 
@@ -466,6 +592,7 @@ function classifyRepositoryPath(policy, path, index = buildPathIdentityIndex(pol
       folded: null,
       trusted: false,
       guarded: false,
+      activation: false,
       forbidden: false,
       alias: false,
       aliases: [],
@@ -482,6 +609,7 @@ function classifyRepositoryPath(policy, path, index = buildPathIdentityIndex(pol
   const forbidden =
     index.forbiddenExact.has(folded) ||
     index.forbiddenBasenames.has(asciiCaseFold(basename));
+  const activation = index.activationAllowed.has(canonical);
   const aliases = matchingProtectedAliases(index, identity);
   return {
     original: path,
@@ -490,6 +618,7 @@ function classifyRepositoryPath(policy, path, index = buildPathIdentityIndex(pol
     unsafe: false,
     trusted,
     guarded,
+    activation,
     forbidden,
     alias: aliases.length > 0,
     aliases,
@@ -499,6 +628,7 @@ function classifyRepositoryPath(policy, path, index = buildPathIdentityIndex(pol
 export function classifyChangedPaths(policy, changedPaths) {
   const trusted = [];
   const guarded = [];
+  const activation = [];
   const unsafe = [];
   const aliases = [];
   const forbidden = [];
@@ -516,10 +646,20 @@ export function classifyChangedPaths(policy, changedPaths) {
     identities.push(classification);
     if (classification.trusted) trusted.push(path);
     if (classification.guarded) guarded.push(path);
+    if (classification.activation) activation.push(path);
     if (classification.alias) aliases.push(path);
     if (classification.forbidden) forbidden.push(path);
   }
-  return { trusted, guarded, unsafe, aliases, forbidden, canonicalPaths, identities };
+  return {
+    trusted,
+    guarded,
+    activation,
+    unsafe,
+    aliases,
+    forbidden,
+    canonicalPaths,
+    identities,
+  };
 }
 
 export function classifyChangedFiles(policy, files) {
@@ -1139,10 +1279,22 @@ export function checkGitattributes(verdict, policy, text) {
   }
 }
 
-function checkExactBytePin(verdict, path, bytes, pin, label = "pinned file") {
-  if (!pin || !bytes) {
+function checkExactBytePin(
+  verdict,
+  path,
+  bytes,
+  pin,
+  label = "pinned file",
+  entry = undefined,
+) {
+  if (!pin || !bytes || (pin.mode && !entry)) {
     verdict.fail(`${label} '${sanitizeToken(path, 100)}' is missing`);
     return;
+  }
+  if (pin.mode && entry.mode !== pin.mode) {
+    verdict.fail(
+      `${label} '${sanitizeToken(path, 100)}' mode ${sanitizeToken(entry.mode, 10)} does not match approved mode ${pin.mode}`,
+    );
   }
   if (!Number.isSafeInteger(pin.size) || bytes.length !== pin.size) {
     verdict.fail(
@@ -1168,6 +1320,37 @@ function effectiveDigestPins(policy) {
     ...(policy.digestPins ?? {}),
     ...(policy.activation?.pins ?? {}),
   };
+}
+
+function sameSet(left, right) {
+  if (left.size !== right.size) return false;
+  return [...left].every(value => right.has(value));
+}
+
+function checkActivationBasePins(policy, baseBlobs, verdict) {
+  for (const path of policy.activation.allowedFiles) {
+    const expected = policy.activation.basePins[path];
+    const actual = baseBlobs.get(path);
+    if (expected.absent === true) {
+      if (actual) {
+        verdict.fail(
+          `activation base path '${sanitizeToken(path, 100)}' must be absent for this approved patch`,
+        );
+      }
+      continue;
+    }
+    if (!actual || actual.type !== "blob") {
+      verdict.fail(
+        `activation base path '${sanitizeToken(path, 100)}' is missing from the immutable base`,
+      );
+      continue;
+    }
+    if (actual.sha !== expected.blob || actual.mode !== expected.mode) {
+      verdict.fail(
+        `activation base path '${sanitizeToken(path, 100)}' does not match the approved base blob and mode`,
+      );
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -1210,12 +1393,12 @@ async function legacyEvaluateCandidate({
     );
   }
 
-  const { trusted, guarded, unsafe } = classifyChangedPaths(policy, changedPaths);
+  const { trusted, guarded, activation, unsafe } = classifyChangedPaths(policy, changedPaths);
   if (unsafe.length > 0) {
     verdict.mode = "unsafe-path";
     return verdict.fail(`pull request contains an unsafe path '${sanitizeToken(unsafe[0], 100)}'`);
   }
-  if (trusted.length > 0 && guarded.length > 0) {
+  if (trusted.length > 0 && (guarded.length > 0 || activation.length > 0)) {
     verdict.mode = "mixed-trusted-and-guarded";
     return verdict.fail(
       "trusted policy paths and guarded dependency paths must not change in the same pull request",
@@ -1227,12 +1410,18 @@ async function legacyEvaluateCandidate({
       "policy-only change; CODEOWNERS review governs it and no artifact was validated",
     );
   }
-  if (guarded.length === 0) {
+  if (guarded.length === 0 && activation.length === 0) {
     verdict.mode = "not-applicable";
     return verdict.note("no guarded dependency-artifact path changed");
   }
 
-  verdict.mode = artifactRequired ? "artifact" : "guard-only";
+  if (!artifactRequired) {
+    verdict.mode = "activation-rejected";
+    return verdict.fail(
+      "the retired evaluator cannot authorize pre-activation protected-path changes",
+    );
+  }
+  verdict.mode = "artifact";
 
   if (treeTruncated) {
     return verdict.fail("candidate tree listing was truncated; refusing to judge a partial view");
@@ -1388,18 +1577,7 @@ async function legacyEvaluateCandidate({
   /* 5. Byte pins straight from base policy. The candidate cannot move these. */
   for (const [path, pin] of Object.entries(effectiveDigestPins(policy))) {
     const bytes = contents.get(path);
-    checkExactBytePin(verdict, path, bytes, pin, "pinned file");
-  }
-  if (activationScope) {
-    for (const [path, pin] of Object.entries(policy.activation?.pins ?? {})) {
-      checkExactBytePin(
-        verdict,
-        path,
-        contents.get(canonicalRepositoryPathIdentity(path).canonical),
-        pin,
-        "activation file",
-      );
-    }
+    checkExactBytePin(verdict, path, bytes, pin, "pinned file", byPath.get(path));
   }
   if (verdict.failed) return verdict;
 
@@ -1695,7 +1873,11 @@ export async function evaluateCandidate({
   }
   if (
     (changedFilesTruncated || changedPathsTruncated) &&
-    (classification.trusted.length > 0 || classification.guarded.length > 0)
+    (
+      classification.trusted.length > 0 ||
+      classification.guarded.length > 0 ||
+      classification.activation.length > 0
+    )
   ) {
     verdict.fail(
       "pull-file listing was incomplete while immutable tree diff showed protected-path changes",
@@ -1710,33 +1892,37 @@ export async function evaluateCandidate({
   );
   requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict);
 
-  const changedCanonicalPaths = new Set(classification.canonicalPaths);
-  for (const change of immutableDiff.changes) {
-    const identity = canonicalRepositoryPathIdentity(change.filename);
-    if (!identity.unsafe) changedCanonicalPaths.add(identity.canonical);
-    if (change.previous_filename !== undefined) {
-      const previous = canonicalRepositoryPathIdentity(change.previous_filename);
-      if (!previous.unsafe) changedCanonicalPaths.add(previous.canonical);
-    }
-  }
-  const activationAllowed = new Set(
-    [...pathIndex.activationAllowed.keys()],
+  const immutableChangedCanonicalPaths = new Set(
+    immutableDiff.changes
+      .map(change => canonicalRepositoryPathIdentity(change.filename))
+      .filter(identity => !identity.unsafe)
+      .map(identity => identity.canonical),
   );
+  const activationAllowed = new Set([...pathIndex.activationAllowed.keys()]);
+  const preActivationProtectedChange =
+    !artifactRequired &&
+    (classification.guarded.length > 0 || classification.activation.length > 0);
   const activationScope =
     !artifactRequired &&
     validateArtifact &&
-    changedCanonicalPaths.size > 0 &&
-    [...changedCanonicalPaths].every(path => activationAllowed.has(path));
-  if (!artifactRequired && validateArtifact) {
+    sameSet(immutableChangedCanonicalPaths, activationAllowed);
+  if (preActivationProtectedChange) {
     if (!activationScope) {
       verdict.fail(
-        "artifact activation changes must be limited to the exact policy-approved activation file set",
+        "before artifact activation, every guarded or activation path change must equal the exact policy-approved activation file set",
       );
     } else {
+      checkActivationBasePins(policy, baseBlobs, verdict);
       for (const path of activationAllowed) {
-        if (!headBlobs.has(path)) {
+        const entry = headBlobs.get(path);
+        const pin = policy.activation.pins[path];
+        if (!entry) {
           verdict.fail(
             `activation file '${sanitizeToken(path, 100)}' is missing from the candidate tree`,
+          );
+        } else if (entry.sha !== pin.blob || entry.mode !== pin.mode) {
+          verdict.fail(
+            `activation file '${sanitizeToken(path, 100)}' does not match the approved Git blob and mode`,
           );
         }
       }
@@ -1754,12 +1940,15 @@ export async function evaluateCandidate({
     );
   } else if (activationScope) {
     verdict.mode = "activation";
+  } else if (preActivationProtectedChange) {
+    verdict.mode = "activation-rejected";
   } else if (validateArtifact) {
-    verdict.mode = artifactRequired ? "artifact" : "guard-only";
+    verdict.mode = "artifact";
   } else if (classification.trusted.length > 0) {
     verdict.mode = "policy-only";
-  } else if (classification.guarded.length > 0) {
-    verdict.mode = "guard-only";
+  } else if (classification.guarded.length > 0 || classification.activation.length > 0) {
+    verdict.mode = "activation-rejected";
+    verdict.fail("pre-activation protected-path changes require the exact activation delta");
   } else {
     verdict.mode = "not-applicable";
   }
@@ -1927,7 +2116,7 @@ export async function evaluateCandidate({
 
   for (const [path, pin] of Object.entries(effectiveDigestPins(policy))) {
     const bytes = contents.get(path);
-    checkExactBytePin(verdict, path, bytes, pin, "pinned file");
+    checkExactBytePin(verdict, path, bytes, pin, "pinned file", headBlobs.get(path));
   }
   if (activationScope) {
     for (const [path, pin] of Object.entries(policy.activation?.pins ?? {})) {
@@ -1938,6 +2127,7 @@ export async function evaluateCandidate({
         identity.unsafe ? undefined : contents.get(identity.canonical),
         pin,
         "activation file",
+        identity.unsafe ? undefined : headBlobs.get(identity.canonical),
       );
     }
   }
@@ -2032,7 +2222,10 @@ export function createGitHubReader({ apiUrl, owner, repo, token, fetchImpl = fet
   if (!OWNER_NAME.test(owner ?? "") || !OWNER_NAME.test(repo ?? "")) {
     throw new Error("repository coordinates failed validation");
   }
-  const base = `${String(apiUrl).replace(/\/+$/, "")}/repos/${owner}/${repo}`;
+  if (apiUrl !== "https://api.github.com") {
+    throw new Error("GitHub API origin must be exactly https://api.github.com");
+  }
+  const base = `https://api.github.com/repos/${owner}/${repo}`;
   const headers = {
     accept: "application/vnd.github+json",
     "x-github-api-version": "2022-11-28",
@@ -2120,8 +2313,20 @@ export async function main() {
     const baseRef = requireEnv("GATE_BASE_REF");
     const defaultBranch = process.env.GATE_DEFAULT_BRANCH || policy.defaultBranch;
 
+    if (
+      process.env.GITHUB_API_URL &&
+      process.env.GITHUB_API_URL.replace(/\/+$/, "") !== "https://api.github.com"
+    ) {
+      throw new Error("ambient GITHUB_API_URL override is not permitted");
+    }
+    if (
+      process.env.GITHUB_SERVER_URL &&
+      process.env.GITHUB_SERVER_URL.replace(/\/+$/, "") !== "https://github.com"
+    ) {
+      throw new Error("ambient GITHUB_SERVER_URL override is not permitted");
+    }
     const reader = createGitHubReader({
-      apiUrl: process.env.GITHUB_API_URL || "https://api.github.com",
+      apiUrl: "https://api.github.com",
       owner,
       repo,
       token: process.env.GATE_TOKEN,

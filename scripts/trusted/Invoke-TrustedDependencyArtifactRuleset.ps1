@@ -14,6 +14,10 @@ param(
     [ValidatePattern("^[1-9][0-9]*$")]
     [Int64]$AppId,
 
+    [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
+    [string]$EvaluatorOrigin,
+
     [Parameter(ParameterSetName = "Apply", Mandatory)]
     [ValidatePattern("^[0-9a-f]{64}$")]
     [string]$ExpectedLiveDigest,
@@ -38,8 +42,13 @@ param(
 
     [Parameter(ParameterSetName = "Apply")]
     [Parameter(ParameterSetName = "ReadBack")]
-    [ValidatePattern("^[0-9a-f]{40}$")]
-    [string]$ProbeMergeGroupSha,
+    [ValidateRange(30, 900)]
+    [Int32]$ProbeTimeoutSeconds = 300,
+
+    [Parameter(ParameterSetName = "Apply")]
+    [Parameter(ParameterSetName = "ReadBack")]
+    [ValidateRange(5, 60)]
+    [Int32]$ProbePollSeconds = 10,
 
     [Parameter()]
     [ValidateNotNullOrEmpty()]
@@ -60,13 +69,62 @@ $planPath = Join-Path $repoRoot ".github\trusted-policy\trusted-dependency-artif
 $contractPath = Join-Path $repoRoot ".github\trusted-policy\trusted-dependency-artifact-app-contract.json"
 $modelPath = Join-Path $PSScriptRoot "trusted-dependency-ruleset.mjs"
 $jwtModelPath = Join-Path $PSScriptRoot "github-app-jwt.mjs"
+$policyPath = Join-Path $repoRoot ".github\trusted-policy\dependency-artifact-policy.json"
+$githubApiOrigin = "https://api.github.com"
+$githubWebOrigin = "https://github.com"
 
 if (!(Test-Path -LiteralPath $planPath)) { throw "Trusted ruleset plan not found: $planPath" }
 if (!(Test-Path -LiteralPath $contractPath)) { throw "GitHub App contract not found: $contractPath" }
 if (!(Test-Path -LiteralPath $modelPath)) { throw "Trusted ruleset model not found: $modelPath" }
 if (!(Test-Path -LiteralPath $jwtModelPath)) { throw "GitHub App JWT helper not found: $jwtModelPath" }
+if (!(Test-Path -LiteralPath $policyPath)) { throw "Trusted artifact policy not found: $policyPath" }
 if ($Repository -ne "judeper/FSI-AgentGov" -or $Branch -ne "main") {
     throw "This operator is permanently bound to judeper/FSI-AgentGov main"
+}
+
+function Assert-PinnedGitHubOrigins {
+    $apiOverride = [string]$env:GITHUB_API_URL
+    if (
+        ![string]::IsNullOrWhiteSpace($apiOverride) -and
+        $apiOverride.TrimEnd("/") -ne $githubApiOrigin
+    ) {
+        throw "ambient GITHUB_API_URL overrides are not permitted"
+    }
+    $serverOverride = [string]$env:GITHUB_SERVER_URL
+    if (
+        ![string]::IsNullOrWhiteSpace($serverOverride) -and
+        $serverOverride.TrimEnd("/") -ne $githubWebOrigin
+    ) {
+        throw "ambient GITHUB_SERVER_URL overrides are not permitted"
+    }
+    $hostOverride = [string]$env:GH_HOST
+    if (
+        ![string]::IsNullOrWhiteSpace($hostOverride) -and
+        $hostOverride.Trim().ToLowerInvariant() -ne "github.com"
+    ) {
+        throw "ambient GH_HOST overrides are not permitted"
+    }
+}
+
+function Get-ValidatedEvaluatorOrigin {
+    try {
+        $uri = [Uri]$EvaluatorOrigin
+    } catch {
+        throw "EvaluatorOrigin must be an absolute HTTPS origin"
+    }
+    if (
+        !$uri.IsAbsoluteUri -or
+        $uri.Scheme -ne "https" -or
+        $uri.AbsolutePath -ne "/" -or
+        ![string]::IsNullOrEmpty($uri.Query) -or
+        ![string]::IsNullOrEmpty($uri.Fragment) -or
+        ![string]::IsNullOrEmpty($uri.UserInfo) -or
+        $uri.IsLoopback -or
+        $uri.Host -in @("github.com", "api.github.com")
+    ) {
+        throw "EvaluatorOrigin must be an exact external HTTPS origin"
+    }
+    return $uri.GetLeftPart([System.UriPartial]::Authority)
 }
 
 function ConvertTo-CompactJson {
@@ -91,7 +149,7 @@ function ConvertFrom-ToolJson {
 }
 
 function Get-OwnerIdentity {
-    $output = & gh api user --jq "{login:.login,id:.id}" 2>&1
+    $output = & gh api --hostname github.com user --jq "{login:.login,id:.id}" 2>&1
     $exitCode = $LASTEXITCODE
     if ($exitCode -ne 0) {
         throw "owner GitHub authentication failed"
@@ -157,21 +215,30 @@ function Get-AppJwt {
 function Invoke-AppJson {
     param(
         [Parameter(Mandatory)][string]$Endpoint,
-        [Parameter(Mandatory)][string]$Jwt
+        [Parameter(Mandatory)][string]$BearerToken,
+        [ValidateSet("GET", "POST", "DELETE")][string]$Method = "GET"
     )
-    $apiUrl = [string]($env:GITHUB_API_URL)
-    if ([string]::IsNullOrWhiteSpace($apiUrl)) { $apiUrl = "https://api.github.com" }
-    $uri = "$($apiUrl.TrimEnd('/'))/$Endpoint"
+    $uri = "$githubApiOrigin/$Endpoint"
     $headers = @{
         Accept = "application/vnd.github+json"
         "X-GitHub-Api-Version" = "2026-03-10"
-        Authorization = "Bearer $Jwt"
+        Authorization = "Bearer $BearerToken"
         "User-Agent" = "trusted-dependency-artifact-ruleset"
     }
     try {
-        return Invoke-RestMethod -Uri $uri -Method Get -Headers $headers -ErrorAction Stop
+        $parameters = @{
+            Uri = $uri
+            Method = $Method
+            Headers = $headers
+            ErrorAction = "Stop"
+        }
+        if ($Method -eq "POST") {
+            $parameters.ContentType = "application/json"
+            $parameters.Body = "{}"
+        }
+        return Invoke-RestMethod @parameters
     } catch {
-        throw "GitHub App GET $Endpoint failed"
+        throw "GitHub App $Method $Endpoint failed"
     }
 }
 
@@ -181,10 +248,22 @@ function Get-AppContract {
     } catch {
         throw "GitHub App contract is unreadable"
     }
-    if ([int]$contract.schemaVersion -ne 2) {
+    if ([int]$contract.schemaVersion -ne 3) {
         throw "GitHub App contract schema version is unsupported"
     }
     return $contract
+}
+
+function Get-PolicyEvidence {
+    return Invoke-TrustedModel `
+        -Operation "policy-evidence" `
+        -Arguments @("--policy", $policyPath)
+}
+
+function New-ProbeNonce {
+    $bytes = [byte[]]::new(32)
+    [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+    return (($bytes | ForEach-Object { $_.ToString("x2") }) -join "")
 }
 
 function Invoke-TrustedModel {
@@ -217,6 +296,7 @@ function Invoke-GhJson {
 
     $arguments = @(
         "api",
+        "--hostname", "github.com",
         "-H", "Accept: application/vnd.github+json",
         "-H", "X-GitHub-Api-Version: 2026-03-10",
         "-X", $Method
@@ -314,7 +394,7 @@ function Get-ConfirmationToken {
         [Parameter(Mandatory)][string]$LiveDigest,
         [Parameter(Mandatory)][string]$IntendedRulesetDigest
     )
-    $material = "$Repository|$Branch|$AppId|$LiveDigest|$IntendedRulesetDigest"
+    $material = "$Repository|$Branch|$AppId|$validatedEvaluatorOrigin|$LiveDigest|$IntendedRulesetDigest"
     $sha = [System.Security.Cryptography.SHA256]::Create()
     try {
         return (($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($material)) |
@@ -337,78 +417,117 @@ function Get-ManagedRulesets {
     )
 }
 
+function Get-AllAppInstallations {
+    param([Parameter(Mandatory)][string]$Jwt)
+    $installations = @()
+    for ($page = 1; $page -le 100; $page++) {
+        $batch = @(
+            Invoke-AppJson `
+                -Endpoint "app/installations?per_page=100&page=$page" `
+                -BearerToken $Jwt
+        )
+        $installations += $batch
+        if ($batch.Count -lt 100) { return $installations }
+    }
+    throw "GitHub App installation pagination exceeded the safety bound"
+}
+
+function Get-AllInstallationRepositories {
+    param([Parameter(Mandatory)][string]$InstallationToken)
+    $repositories = @()
+    $reportedTotal = $null
+    for ($page = 1; $page -le 100; $page++) {
+        $response = Invoke-AppJson `
+            -Endpoint "installation/repositories?per_page=100&page=$page" `
+            -BearerToken $InstallationToken
+        if ($null -eq $reportedTotal) {
+            if ($null -eq $response.total_count -or [int]$response.total_count -lt 0) {
+                throw "GitHub App repository enumeration omitted total_count"
+            }
+            $reportedTotal = [int]$response.total_count
+        }
+        $batch = @($response.repositories)
+        $repositories += $batch
+        if ($batch.Count -lt 100) {
+            if ($repositories.Count -ne $reportedTotal) {
+                throw "GitHub App repository enumeration count did not match total_count"
+            }
+            return $repositories
+        }
+    }
+    throw "GitHub App repository pagination exceeded the safety bound"
+}
+
 function Assert-AppInstallation {
     param([Parameter(Mandatory)][string]$Jwt)
 
     $contract = Get-AppContract
-    $app = Invoke-AppJson -Endpoint "app" -Jwt $Jwt
+    $app = Invoke-AppJson -Endpoint "app" -BearerToken $Jwt
     if ([Int64]$app.id -ne $AppId -or [string]$app.slug -eq "github-actions") {
         throw "App JWT identity does not match the requested dedicated GitHub App"
     }
 
-    $installation = Invoke-AppJson -Endpoint "repos/$Repository/installation" -Jwt $Jwt
-    if ($null -eq $installation -or [Int64]$installation.app_id -ne $AppId) {
+    $installations = @(Get-AllAppInstallations -Jwt $Jwt)
+    $installation = Invoke-AppJson `
+        -Endpoint "repos/$Repository/installation" `
+        -BearerToken $Jwt
+    if (
+        $null -eq $installation -or
+        [Int64]$installation.id -le 0 -or
+        [Int64]$installation.app_id -ne $AppId
+    ) {
         throw "The dedicated GitHub App is not installed on $Repository"
     }
-    [void](Invoke-TrustedModel `
-        -Operation "assert-app-installation" `
-        -InputObject ([ordered]@{
-            app = $app
-            installation = $installation
-            contract = $contract
-            appId = $AppId
-            repository = $Repository
-        }))
-    if (
-        [string]$installation.target_type -ne "User" -or
-        [string]$installation.account.login -ne "judeper" -or
-        [string]$installation.repository_selection -ne "selected"
-    ) {
-        throw "The dedicated GitHub App installation is not scoped to the repository owner"
+
+    $tokenResponse = Invoke-AppJson `
+        -Endpoint "app/installations/$([Int64]$installation.id)/access_tokens" `
+        -BearerToken $Jwt `
+        -Method "POST"
+    $installationToken = [string]$tokenResponse.token
+    if ([string]::IsNullOrWhiteSpace($installationToken)) {
+        throw "GitHub App installation token creation returned no token"
     }
 
-    $expectedPermissions = @{}
-    foreach ($property in @($contract.allowedRepositoryPermissions.PSObject.Properties)) {
-        $expectedPermissions[$property.Name] = [string]$property.Value
-    }
-    if ([bool]$contract.mergeQueue.enabledByThisPlan) {
-        $expectedPermissions[[string]$contract.mergeQueue.permission] = "read"
-    }
-    $actualPermissions = @{}
-    foreach ($property in @($installation.permissions.PSObject.Properties)) {
-        if ($null -ne $property.Value) {
-            $actualPermissions[$property.Name] = [string]$property.Value
+    $repositories = $null
+    $validationFailure = $null
+    try {
+        $expiresAt = [DateTimeOffset]::Parse([string]$tokenResponse.expires_at)
+        $now = [DateTimeOffset]::UtcNow
+        $maxLifetime = [int]$contract.installationVerification.maxTokenLifetimeSeconds
+        if ($expiresAt -le $now -or $expiresAt -gt $now.AddSeconds($maxLifetime + 300)) {
+            throw "GitHub App installation token expiry is invalid"
         }
-    }
-    foreach ($name in $expectedPermissions.Keys) {
-        if ($actualPermissions[$name] -ne $expectedPermissions[$name]) {
-            throw "The dedicated GitHub App permission '$name' is not '$($expectedPermissions[$name])'"
-        }
-    }
-    foreach ($name in $actualPermissions.Keys) {
-        if (!$expectedPermissions.ContainsKey($name)) {
-            throw "The dedicated GitHub App has an unapproved repository permission '$name'"
-        }
+        $repositories = @(Get-AllInstallationRepositories -InstallationToken $installationToken)
+        [void](Invoke-TrustedModel `
+            -Operation "assert-app-installation" `
+            -InputObject ([ordered]@{
+                app = $app
+                installations = $installations
+                installation = $installation
+                repositories = $repositories
+                tokenPermissions = $tokenResponse.permissions
+                contract = $contract
+                appId = $AppId
+                repository = $Repository
+            }))
+    } catch {
+        $validationFailure = $_.Exception.Message
     }
 
-    $expectedEvents = @($contract.requiredWebhookEvents | ForEach-Object { [string]$_ })
-    if ([bool]$contract.mergeQueue.enabledByThisPlan) {
-        $expectedEvents += @($contract.mergeQueue.events | ForEach-Object { [string]$_ })
-    }
-    $actualEvents = @($installation.events | ForEach-Object { [string]$_ })
-    $eventDifferences = @(Compare-Object ($expectedEvents | Sort-Object) ($actualEvents | Sort-Object) -SyncWindow 0)
-    if ($eventDifferences.Count -gt 0) {
-        throw "The dedicated GitHub App webhook event contract does not match"
-    }
-    if ($installation.PSObject.Properties.Name -contains "repositories") {
-        $repositories = @($installation.repositories)
-        if (
-            $repositories.Count -ne 1 -or
-            [string]$repositories[0].full_name -ne $Repository
-        ) {
-            throw "The dedicated GitHub App installation is not limited to the target repository"
+    try {
+        [void](Invoke-AppJson `
+            -Endpoint "installation/token" `
+            -BearerToken $installationToken `
+            -Method "DELETE")
+    } catch {
+        if ($null -ne $validationFailure) {
+            throw "$validationFailure; temporary installation token revocation also failed"
         }
+        throw "temporary GitHub App installation token revocation failed"
+    } finally {
+        $installationToken = $null
     }
+    if ($null -ne $validationFailure) { throw $validationFailure }
     return $installation
 }
 
@@ -432,32 +551,60 @@ function Assert-ApplyCapability {
 function Get-ProbeEvidence {
     param([Parameter(Mandatory)][Int32]$PullRequest)
     $pull = Invoke-GhJson -Endpoint "repos/$Repository/pulls/$PullRequest"
-    if ([string]$pull.base.ref -ne $Branch) {
-        throw "Probe pull request targets the wrong base branch"
+    if (
+        [string]$pull.state -ne "open" -or
+        [string]$pull.base.ref -ne $Branch -or
+        [string]$pull.base.repo.full_name -ne $Repository -or
+        [string]$pull.head.repo.full_name -ne $Repository
+    ) {
+        throw "Probe pull request must be open and use same-repository branches against the pinned base"
     }
     $headSha = [string]$pull.head.sha
-    if ($headSha -notmatch "^[0-9a-f]{40}$") {
-        throw "Probe pull request has an invalid head SHA"
+    $baseSha = [string]$pull.base.sha
+    if ($headSha -notmatch "^[0-9a-f]{40}$" -or $baseSha -notmatch "^[0-9a-f]{40}$") {
+        throw "Probe pull request has an invalid head or base SHA"
     }
     if ($null -eq $pull.mergeable -or [string]::IsNullOrWhiteSpace([string]$pull.mergeable_state)) {
         throw "Probe pull request mergeability is not yet available; refusing an ambiguous result"
     }
-    $runs = Invoke-GhJson -Endpoint "repos/$Repository/commits/$headSha/check-runs?per_page=100"
+    $pages = Invoke-GhJson `
+        -Endpoint "repos/$Repository/commits/$headSha/check-runs?per_page=100" `
+        -Paginate
+    $checkRuns = @()
+    foreach ($page in @($pages)) {
+        $checkRuns += @($page.check_runs)
+    }
+    $after = Invoke-GhJson -Endpoint "repos/$Repository/pulls/$PullRequest"
+    if (
+        [string]$after.state -ne "open" -or
+        [string]$after.head.sha -ne $headSha -or
+        [string]$after.base.sha -ne $baseSha -or
+        [string]$after.base.ref -ne $Branch
+    ) {
+        throw "Probe pull request changed while evidence was being collected"
+    }
     return [ordered]@{
         pull = [ordered]@{
             number = $PullRequest
+            repository = $Repository
             headSha = $headSha
+            baseSha = $baseSha
             mergeable = [bool]$pull.mergeable
             mergeable_state = [string]$pull.mergeable_state
         }
-        checkRuns = @($runs.check_runs)
+        checkRuns = $checkRuns
     }
 }
 
 function Assert-AppCheckProbes {
     param(
         [Parameter(Mandatory)]$Positive,
-        [Parameter(Mandatory)]$Negative
+        [Parameter(Mandatory)]$Negative,
+        [Parameter(Mandatory)][string]$RulesetCreatedAt,
+        [Parameter(Mandatory)][string]$ObservedAt,
+        [Parameter(Mandatory)]$PolicyEvidence,
+        [Parameter(Mandatory)][string]$PositiveNonce,
+        [Parameter(Mandatory)][string]$NegativeNonce
     )
     if ($ProbePullRequest -eq $SpoofProbePullRequest) {
         throw "positive and negative source probes must be different pull requests"
@@ -469,7 +616,48 @@ function Assert-AppCheckProbes {
             negative = $Negative
             appId = $AppId
             checkName = "trusted-dependency-artifact"
+            policyDigest = $PolicyEvidence.digest
+            policyVersion = $PolicyEvidence.version
+            positiveNonce = $PositiveNonce
+            negativeNonce = $NegativeNonce
+            evaluatorOrigin = $validatedEvaluatorOrigin
+            rulesetCreatedAt = $RulesetCreatedAt
+            observedAt = $ObservedAt
+            positiveMode = "not-applicable"
+            negativeMode = "activation-rejected"
+            maxAgeSeconds = 300
         }))
+}
+
+function Wait-AppCheckProbes {
+    param(
+        [Parameter(Mandatory)][string]$RulesetCreatedAt,
+        [Parameter(Mandatory)]$PolicyEvidence,
+        [Parameter(Mandatory)][string]$PositiveNonce,
+        [Parameter(Mandatory)][string]$NegativeNonce
+    )
+    $deadline = [DateTimeOffset]::UtcNow.AddSeconds($ProbeTimeoutSeconds)
+    $lastFailure = "fresh post-ruleset probe evidence was not observed"
+    do {
+        try {
+            $observedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+            Assert-AppCheckProbes `
+                -Positive (Get-ProbeEvidence -PullRequest $ProbePullRequest) `
+                -Negative (Get-ProbeEvidence -PullRequest $SpoofProbePullRequest) `
+                -RulesetCreatedAt $RulesetCreatedAt `
+                -ObservedAt $observedAt `
+                -PolicyEvidence $PolicyEvidence `
+                -PositiveNonce $PositiveNonce `
+                -NegativeNonce $NegativeNonce
+            return
+        } catch {
+            $lastFailure = $_.Exception.Message
+        }
+        if ([DateTimeOffset]::UtcNow -lt $deadline) {
+            Start-Sleep -Seconds $ProbePollSeconds
+        }
+    } while ([DateTimeOffset]::UtcNow -lt $deadline)
+    throw "fresh post-ruleset probes were not verified within $ProbeTimeoutSeconds seconds: $lastFailure"
 }
 
 function Assert-PostReadBack {
@@ -482,6 +670,10 @@ function Assert-PostReadBack {
     $managed = @(Get-ManagedRulesets $after)
     if ($managed.Count -ne 1) {
         throw "Read-back found $($managed.Count) managed rulesets; expected exactly one"
+    }
+    $rulesetCreatedAt = [string]$managed[0].created_at
+    if ([string]::IsNullOrWhiteSpace($rulesetCreatedAt)) {
+        throw "Managed ruleset read-back omitted created_at"
     }
     [void](Assert-AppInstallation -Jwt $AppJwt)
     [void](Invoke-TrustedModel `
@@ -500,9 +692,56 @@ function Assert-PostReadBack {
             managedRulesetName = $Desired.name
         }))
 
-    Assert-AppCheckProbes `
-        -Positive (Get-ProbeEvidence -PullRequest $ProbePullRequest) `
-        -Negative (Get-ProbeEvidence -PullRequest $SpoofProbePullRequest)
+    $policyEvidence = Get-PolicyEvidence
+    $positiveNonce = New-ProbeNonce
+    $negativeNonce = New-ProbeNonce
+    while ($negativeNonce -eq $positiveNonce) {
+        $negativeNonce = New-ProbeNonce
+    }
+    Write-Host (
+        [ordered]@{
+            message = "Trigger the independently deployed evaluator for both probe PRs using these fresh, non-secret challenges."
+            repository = $Repository
+            rulesetCreatedAt = $rulesetCreatedAt
+            policyDigest = $policyEvidence.digest
+            policyVersion = $policyEvidence.version
+            positivePullRequest = $ProbePullRequest
+            positiveNonce = $positiveNonce
+            negativePullRequest = $SpoofProbePullRequest
+            negativeNonce = $negativeNonce
+        } | ConvertTo-Json -Depth 5 -Compress
+    )
+    Wait-AppCheckProbes `
+        -RulesetCreatedAt $rulesetCreatedAt `
+        -PolicyEvidence $policyEvidence `
+        -PositiveNonce $positiveNonce `
+        -NegativeNonce $negativeNonce
+
+    $final = Get-LiveState
+    $finalManaged = @(Get-ManagedRulesets $final)
+    if (
+        $finalManaged.Count -ne 1 -or
+        [Int64]$finalManaged[0].id -ne [Int64]$managed[0].id
+    ) {
+        throw "Managed ruleset identity changed while probe evidence was collected"
+    }
+    [void](Assert-AppInstallation -Jwt $AppJwt)
+    [void](Invoke-TrustedModel `
+        -Operation "assert-readback" `
+        -InputObject ([ordered]@{
+            repository = $final.repository
+            ruleset = $finalManaged[0]
+            branchProtection = $final.branchProtection
+        }) `
+        -Arguments @("--plan", $planPath, "--app-id", $AppId.ToString()))
+    [void](Invoke-TrustedModel `
+        -Operation "assert-unrelated-preserved" `
+        -InputObject ([ordered]@{
+            before = $Before
+            after = $final
+            managedRulesetName = $Desired.name
+        }))
+    $after = $final
 
     $mergeQueueRules = @(
         $after.rulesets | Where-Object {
@@ -510,19 +749,8 @@ function Assert-PostReadBack {
             @($_.rules | Where-Object { $_.type -eq "merge_queue" }).Count -gt 0
         }
     )
-    if ($mergeQueueRules.Count -gt 0 -and [string]::IsNullOrWhiteSpace($ProbeMergeGroupSha)) {
-        throw "An active merge queue needs an exact merge-group SHA probe before this gate can be declared verified"
-    }
-    if (![string]::IsNullOrWhiteSpace($ProbeMergeGroupSha)) {
-        $mergeRuns = Invoke-GhJson -Endpoint "repos/$Repository/commits/$ProbeMergeGroupSha/check-runs?per_page=100"
-        [void](Invoke-TrustedModel `
-            -Operation "assert-expected-source-check" `
-            -InputObject ([ordered]@{
-                checkRuns = $mergeRuns.check_runs
-                targetSha = $ProbeMergeGroupSha
-                appId = $AppId
-                checkName = "trusted-dependency-artifact"
-            }))
+    if ($mergeQueueRules.Count -gt 0) {
+        throw "An active merge queue is outside this reviewed plan; add signed merge-group evidence in a later policy revision"
     }
     return $after
 }
@@ -567,10 +795,19 @@ function Invoke-SafeRollback {
     return $true
 }
 
+[void](Assert-PinnedGitHubOrigins)
+$validatedEvaluatorOrigin = Get-ValidatedEvaluatorOrigin
 [void](Invoke-TrustedModel -Operation "validate-plan" -Arguments @("--plan", $planPath))
 [void](Invoke-TrustedModel -Operation "validate-contract" -Arguments @("--contract", $contractPath))
 $owner = Assert-OwnerAuthentication
 $live = Get-LiveState
+[void](Invoke-TrustedModel `
+    -Operation "assert-legacy-baseline" `
+    -InputObject ([ordered]@{
+        repository = $live.repository
+        branchProtection = $live.branchProtection
+    }) `
+    -Arguments @("--plan", $planPath))
 $snapshot = Get-Snapshot $live
 $desired = Get-DesiredRuleset
 [void](Assert-DesiredAppBinding -Desired $desired)
@@ -587,10 +824,12 @@ if (!$Apply -and !$ReadBack) {
         repository = $Repository
         branch = $Branch
         appId = $AppId
+        evaluatorOrigin = $validatedEvaluatorOrigin
         liveDigest = $snapshot.digest
         intendedRulesetDigest = $intendedRulesetDigest
         confirmationToken = $confirmation
         existingManagedRulesets = @(Get-ManagedRulesets $live).Count
+        probeContract = "Fresh positive App success and negative App failure plus same-name Actions success must be produced after ruleset creation."
         warning = "No remote setting was changed. The gate remains BLOCKED and non-enforced."
     } | ConvertTo-Json -Depth 10
     return
@@ -605,6 +844,7 @@ if ($ReadBack) {
         repository = $Repository
         branch = $Branch
         appId = $AppId
+        evaluatorOrigin = $validatedEvaluatorOrigin
         proof = "Expected-source App binding and every planned ruleset field matched. Unrelated protection state was not changed by this operation."
     } | ConvertTo-Json -Depth 10
     return
@@ -612,10 +852,6 @@ if ($ReadBack) {
 
 Assert-ApplyCapability $live
 $appJwt = Get-AppJwt
-[void](Assert-AppInstallation -Jwt $appJwt)
-[void](Assert-AppCheckProbes `
-    -Positive (Get-ProbeEvidence -PullRequest $ProbePullRequest) `
-    -Negative (Get-ProbeEvidence -PullRequest $SpoofProbePullRequest))
 if ($ExpectedLiveDigest -ne $snapshot.digest) {
     throw "Live repository security state drifted; generate a new plan before applying"
 }
@@ -638,6 +874,7 @@ if (!$PSCmdlet.ShouldProcess("$Repository/$Branch", "create the planned expected
     return
 }
 
+[void](Assert-AppInstallation -Jwt $appJwt)
 $startedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
 $created = $null
 try {
@@ -684,5 +921,6 @@ try {
     repository = $Repository
     branch = $Branch
     appId = $AppId
+    evaluatorOrigin = $validatedEvaluatorOrigin
     proof = "Read-back matched the dedicated App source, strict required check, reviews, CODEOWNERS, conversation resolution, force-push/deletion block, linear history, and no bypass actors."
 } | ConvertTo-Json -Depth 10

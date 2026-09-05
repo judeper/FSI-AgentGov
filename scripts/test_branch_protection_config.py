@@ -26,7 +26,9 @@ def test_legacy_name_only_branch_protection_payload_is_removed() -> None:
 
 def test_ruleset_plan_is_explicitly_non_applied_and_source_bound() -> None:
     plan = load_plan()
+    assert plan["schemaVersion"] == 2
     assert plan["state"] == "planned-not-applied"
+    assert plan["applicationMode"] == "create-only-additive"
     assert plan["repository"] == "judeper/FSI-AgentGov"
     assert plan["ownerType"] == "User"
     assert plan["defaultBranch"] == "main"
@@ -70,6 +72,18 @@ def test_plan_preserves_the_owner_read_back_strict_branch_protection() -> None:
     assert legacy["preserveExactly"] is True
     assert legacy["requirePresent"] is True
     assert legacy["requireAdminEnforcementIfPresent"] is True
+    assert legacy["observedAt"] == "2026-09-05T03:47:06Z"
+    assert legacy["expectedState"] == {
+        "enforceAdmins": True,
+        "requiredStatusChecksStrict": True,
+        "requiredPullRequestReviews": None,
+        "restrictions": None,
+        "requiredLinearHistory": False,
+        "requiredSignatures": False,
+        "allowForcePushes": False,
+        "allowDeletions": False,
+        "requiredConversationResolution": False,
+    }
     checks = legacy["expectedRequiredStatusChecks"]
     assert len(checks) == 13
     assert {check["app_id"] for check in checks} == {15368}
@@ -90,12 +104,19 @@ def test_plan_preserves_the_owner_read_back_strict_branch_protection() -> None:
     }
 
 
-def test_plan_requires_both_source_probes_before_apply() -> None:
+def test_plan_requires_fresh_causal_source_probes_after_create() -> None:
     plan = load_plan()
     assert plan["preflight"] == {
         "requirePositiveAppProbe": True,
         "requireNegativeActionsProbe": True,
         "requireProbePullRequests": True,
+        "requirePostCreationCausalProbes": True,
+        "requireOperatorNonceChallenge": True,
+        "requireExternalEvaluatorOrigin": True,
+        "requireNegativeAppFailure": True,
+        "maxEvidenceAgeSeconds": 300,
+        "positiveEvaluatorMode": "not-applicable",
+        "negativeEvaluatorMode": "activation-rejected",
         "positiveMergeability": "clean",
         "negativeMergeability": "blocked",
     }

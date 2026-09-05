@@ -11,6 +11,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { assertPolicyShape } from "./verify-dependency-artifact-gate.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..", "..");
@@ -30,6 +31,9 @@ export const APP_CONTRACT_FILE = join(
 const FULL_OBJECT_ID = /^[0-9a-f]{40}$/;
 const APP_ID = /^[1-9][0-9]*$/;
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+const SHA256 = /^[0-9a-f]{64}$/;
+const EXTERNAL_ID_PREFIX = "tdag.v1.";
+const CHECK_ASSOCIATION_REPOSITORY = "judeper/FSI-AgentGov";
 
 function clone(value) {
   return structuredClone(value);
@@ -69,11 +73,20 @@ export function loadAppContract(file = APP_CONTRACT_FILE) {
   return contract;
 }
 
+export function getPolicyEvidence(file) {
+  const policy = JSON.parse(readFileSync(file, "utf8"));
+  assertPolicyShape(policy);
+  return {
+    digest: digestJson(policy),
+    version: policy.policyVersion,
+  };
+}
+
 export function assertAppContract(contract) {
   if (!contract || typeof contract !== "object") {
     throw new Error("GitHub App contract is not an object");
   }
-  if (contract.schemaVersion !== 2) {
+  if (contract.schemaVersion !== 3) {
     throw new Error("GitHub App contract schema version is unsupported");
   }
   if (
@@ -81,6 +94,13 @@ export function assertAppContract(contract) {
     contract.checkName !== "trusted-dependency-artifact"
   ) {
     throw new Error("GitHub App contract is bound to the wrong repository or check");
+  }
+  if (
+    contract.apiOrigins?.rest !== "https://api.github.com" ||
+    contract.apiOrigins?.web !== "https://github.com" ||
+    contract.apiOrigins?.rejectAmbientOverrides !== true
+  ) {
+    throw new Error("GitHub App contract API origins are not pinned");
   }
   const expectedPermissions = {
     metadata: "read",
@@ -106,6 +126,20 @@ export function assertAppContract(contract) {
     throw new Error("GitHub App contract webhook or least-privilege policy drifted");
   }
   if (
+    contract.installationVerification?.requireOnlyAppInstallation !== true ||
+    contract.installationVerification?.createTokenEndpoint !==
+      "POST /app/installations/{installation_id}/access_tokens" ||
+    contract.installationVerification?.enumerateRepositoriesEndpoint !==
+      "GET /installation/repositories" ||
+    contract.installationVerification?.revokeTokenEndpoint !==
+      "DELETE /installation/token" ||
+    contract.installationVerification?.requirePagination !== true ||
+    contract.installationVerification?.requireRevocation !== true ||
+    contract.installationVerification?.maxTokenLifetimeSeconds !== 3600
+  ) {
+    throw new Error("GitHub App installation-token verification contract drifted");
+  }
+  if (
     contract.mergeQueue?.enabledByThisPlan !== false ||
     contract.mergeQueue?.permission !== "merge_queues" ||
     canonicalJson(contract.mergeQueue?.events) !== canonicalJson(["merge_group"])
@@ -120,9 +154,46 @@ export function assertAppContract(contract) {
       "trusted receiver clock at receipt; GitHub supplies no signed timestamp header" ||
     contract.webhookSecurity?.maxReplaySeconds !== 300 ||
     contract.webhookSecurity?.requireDeliveryDeduplication !== true ||
-    contract.webhookSecurity?.requireRepositoryAndInstallationMatch !== true
+    contract.webhookSecurity?.requireRepositoryAndInstallationMatch !== true ||
+    contract.webhookSecurity?.requireSignatureBeforeEvaluation !== true
   ) {
     throw new Error("GitHub App webhook replay and signature contract drifted");
+  }
+  const externalId = contract.evaluator?.externalId;
+  if (
+    contract.evaluator?.deployment !== "independently-reviewed-external-service" ||
+    contract.evaluator?.mustBeDeployedBeforeApply !== true ||
+    contract.evaluator?.candidateCodeExecutionForbidden !== true ||
+    contract.evaluator?.signedWebhookRequired !== true ||
+    contract.evaluator?.endpointSuppliedAtRuntime !== true ||
+    contract.evaluator?.requireExternalDetailsUrlOrigin !== true ||
+    externalId?.prefix !== EXTERNAL_ID_PREFIX ||
+    externalId?.encoding !== "base64url(canonical-json)" ||
+    externalId?.noncePattern !== "^[0-9a-f]{64}$" ||
+    externalId?.policyDigestAlgorithm !== "sha256(canonical-json)" ||
+    externalId?.probeNonceSource !==
+      "operator-generated-256-bit-challenge-after-ruleset-read-back" ||
+    externalId?.requireExactOperatorChallenge !== true ||
+    canonicalJson(externalId?.requiredFields) !==
+      canonicalJson([
+        "nonce",
+        "repository",
+        "pull_request",
+        "head_sha",
+        "base_sha",
+        "policy_digest",
+        "policy_version",
+        "mode",
+        "issued_at",
+      ]) ||
+    externalId?.maxAgeSeconds !== 300 ||
+    externalId?.requirePullRequestAssociation !== true ||
+    externalId?.requireStartedAfterRulesetCreation !== true ||
+    externalId?.requireCompletedAfterRulesetCreation !== true ||
+    contract.evaluator?.probeControlPlane !==
+      "authenticated-out-of-band-owner-trigger"
+  ) {
+    throw new Error("GitHub App evaluator deployment or external_id contract drifted");
   }
   return contract;
 }
@@ -143,7 +214,10 @@ export function assertOwnerIdentity({
 
 export function assertAppInstallationPayload({
   app,
+  installations,
   installation,
+  repositories,
+  tokenPermissions,
   contract,
   appId,
   repository = "judeper/FSI-AgentGov",
@@ -164,9 +238,21 @@ export function assertAppInstallationPayload({
     Number(installation?.app_id) !== Number(appId) ||
     installation?.target_type !== "User" ||
     installation?.account?.login !== "judeper" ||
-    installation?.repository_selection !== "selected"
+    installation?.repository_selection !== "selected" ||
+    installation?.suspended_at != null
   ) {
     throw new Error("GitHub App installation is not scoped to the target repository");
+  }
+  if (
+    !Array.isArray(installations) ||
+    installations.length !== 1 ||
+    Number(installations[0]?.id) !== Number(installation?.id) ||
+    Number(installations[0]?.app_id) !== Number(appId) ||
+    installations[0]?.target_type !== "User" ||
+    installations[0]?.account?.login !== "judeper" ||
+    installations[0]?.suspended_at != null
+  ) {
+    throw new Error("GitHub App has an unapproved installation");
   }
   const expected = { ...contract.allowedRepositoryPermissions };
   const expectedEvents = [...contract.requiredWebhookEvents];
@@ -178,20 +264,21 @@ export function assertAppInstallationPayload({
   if (canonicalJson(actual) !== canonicalJson(expected)) {
     throw new Error("GitHub App installation permissions are missing or over-privileged");
   }
+  if (canonicalJson(tokenPermissions ?? {}) !== canonicalJson(expected)) {
+    throw new Error("GitHub App installation token permissions are missing or over-privileged");
+  }
   if (
     canonicalJson([...(installation.events ?? [])].sort()) !==
     canonicalJson(expectedEvents.sort())
   ) {
     throw new Error("GitHub App installation webhook events are not exact");
   }
-  if (installation.repositories !== undefined) {
-    const repositories = installation.repositories ?? [];
-    if (
-      repositories.length !== 1 ||
-      repositories[0]?.full_name !== repository
-    ) {
-      throw new Error("GitHub App installation repository selection is not exact");
-    }
+  if (
+    !Array.isArray(repositories) ||
+    repositories.length !== 1 ||
+    repositories[0]?.full_name !== repository
+  ) {
+    throw new Error("GitHub App installation repository selection is not exact");
   }
   return true;
 }
@@ -213,6 +300,7 @@ export function assertRulesetPlan(plan) {
     "ownerType",
     "defaultBranch",
     "managedRulesetName",
+    "applicationMode",
     "requiredWorkflowBinding",
     "expectedSource",
     "ruleset",
@@ -222,7 +310,11 @@ export function assertRulesetPlan(plan) {
   ]) {
     if (!(key in plan)) throw new Error(`ruleset plan is missing '${key}'`);
   }
-  if (plan.schemaVersion !== 1 || plan.state !== "planned-not-applied") {
+  if (
+    plan.schemaVersion !== 2 ||
+    plan.state !== "planned-not-applied" ||
+    plan.applicationMode !== "create-only-additive"
+  ) {
     throw new Error("ruleset plan must explicitly remain planned-not-applied");
   }
   if (plan.ownerType !== "User" || plan.repository !== "judeper/FSI-AgentGov") {
@@ -292,6 +384,19 @@ export function assertRulesetPlan(plan) {
     legacy?.preserveExactly !== true ||
     legacy?.requirePresent !== true ||
     legacy?.requireAdminEnforcementIfPresent !== true ||
+    legacy?.observedAt !== "2026-09-05T03:47:06Z" ||
+    canonicalJson(legacy?.expectedState) !==
+      canonicalJson({
+        enforceAdmins: true,
+        requiredStatusChecksStrict: true,
+        requiredPullRequestReviews: null,
+        restrictions: null,
+        requiredLinearHistory: false,
+        requiredSignatures: false,
+        allowForcePushes: false,
+        allowDeletions: false,
+        requiredConversationResolution: false,
+      }) ||
     !Array.isArray(legacy.expectedRequiredStatusChecks) ||
     legacy.expectedRequiredStatusChecks.length !== 13
   ) {
@@ -309,7 +414,16 @@ export function assertRulesetPlan(plan) {
   if (
     plan.preflight?.requirePositiveAppProbe !== true ||
     plan.preflight?.requireNegativeActionsProbe !== true ||
-    plan.preflight?.requireProbePullRequests !== true
+    plan.preflight?.requireProbePullRequests !== true ||
+    plan.preflight?.requirePostCreationCausalProbes !== true ||
+    plan.preflight?.requireOperatorNonceChallenge !== true ||
+    plan.preflight?.requireExternalEvaluatorOrigin !== true ||
+    plan.preflight?.requireNegativeAppFailure !== true ||
+    plan.preflight?.maxEvidenceAgeSeconds !== 300 ||
+    plan.preflight?.positiveEvaluatorMode !== "not-applicable" ||
+    plan.preflight?.negativeEvaluatorMode !== "activation-rejected" ||
+    plan.preflight?.positiveMergeability !== "clean" ||
+    plan.preflight?.negativeMergeability !== "blocked"
   ) {
     throw new Error("ruleset plan must require positive and negative App probes");
   }
@@ -414,6 +528,9 @@ export function securitySnapshot({ repository, branchProtection, rulesets }) {
       full_name: repository.full_name,
       owner_type: repository.owner?.type ?? repository.owner_type,
       default_branch: repository.default_branch,
+      allow_merge_commit: repository.allow_merge_commit,
+      allow_squash_merge: repository.allow_squash_merge,
+      allow_rebase_merge: repository.allow_rebase_merge,
     },
     branchProtection: branchProtection === null ? null : stripVolatile(branchProtection),
     rulesets: normalizedRulesets,
@@ -440,9 +557,10 @@ function assertLegacyProtectionCompatibility(plan, branchProtection) {
     }
     return;
   }
+  const enabledFlag = value =>
+    typeof value === "object" && value !== null ? value.enabled : value;
   const enforceAdmins = branchProtection.enforce_admins;
-  const enabled =
-    typeof enforceAdmins === "object" ? enforceAdmins?.enabled : enforceAdmins;
+  const enabled = enabledFlag(enforceAdmins);
   if (
     plan.legacyBranchProtection.requireAdminEnforcementIfPresent &&
     enabled !== true
@@ -473,6 +591,53 @@ function assertLegacyProtectionCompatibility(plan, branchProtection) {
   if (canonicalJson(actualContexts) !== canonicalJson(expectedContexts)) {
     throw new Error("legacy branch protection required check contexts drifted");
   }
+  const expectedState = plan.legacyBranchProtection.expectedState;
+  const actualState = {
+    enforceAdmins: enabled,
+    requiredStatusChecksStrict: required.strict,
+    requiredPullRequestReviews: branchProtection.required_pull_request_reviews ?? null,
+    restrictions: branchProtection.restrictions ?? null,
+    requiredLinearHistory: enabledFlag(branchProtection.required_linear_history),
+    requiredSignatures: enabledFlag(branchProtection.required_signatures),
+    allowForcePushes: enabledFlag(branchProtection.allow_force_pushes),
+    allowDeletions: enabledFlag(branchProtection.allow_deletions),
+    requiredConversationResolution: enabledFlag(
+      branchProtection.required_conversation_resolution,
+    ),
+  };
+  if (canonicalJson(actualState) !== canonicalJson(expectedState)) {
+    throw new Error("legacy branch protection differs from the owner-authenticated snapshot");
+  }
+}
+
+function assertRepositoryBaseline(plan, repository) {
+  if (
+    repository?.full_name !== plan.repository ||
+    (repository?.owner?.type ?? repository?.owner_type) !== plan.ownerType ||
+    repository?.default_branch !== plan.defaultBranch ||
+    repository?.allow_merge_commit !== true ||
+    repository?.allow_squash_merge !== true ||
+    repository?.allow_rebase_merge !== true
+  ) {
+    throw new Error(
+      "read-back is for the wrong repository, owner type, default branch, or merge-method state",
+    );
+  }
+}
+
+export function assertLegacyBaseline({
+  plan,
+  repository,
+  branchProtection,
+}) {
+  assertRulesetPlan(plan);
+  assertRepositoryBaseline(plan, repository);
+  assertLegacyProtectionCompatibility(plan, branchProtection);
+  return {
+    observedAt: plan.legacyBranchProtection.observedAt,
+    requiredChecks: plan.legacyBranchProtection.expectedRequiredStatusChecks.length,
+    additiveOnly: plan.applicationMode === "create-only-additive",
+  };
 }
 
 export function assertRulesetReadBack({
@@ -483,13 +648,7 @@ export function assertRulesetReadBack({
   branchProtection = null,
 }) {
   assertRulesetPlan(plan);
-  if (
-    repository?.full_name !== plan.repository ||
-    (repository?.owner?.type ?? repository?.owner_type) !== plan.ownerType ||
-    repository?.default_branch !== plan.defaultBranch
-  ) {
-    throw new Error("read-back is for the wrong repository, owner type, or default branch");
-  }
+  assertRepositoryBaseline(plan, repository);
   const expected = materializeRuleset(plan, appId);
   if (ruleset?.source_type !== "Repository" || ruleset?.source !== plan.repository) {
     throw new Error("managed ruleset source does not match the repository");
@@ -545,6 +704,214 @@ export function assertUnrelatedSecurityStatePreserved({
     throw new Error("unrelated branch protection, restrictions, signatures, or rulesets drifted");
   }
   return true;
+}
+
+export function encodeEvaluatorExternalId(payload) {
+  return `${EXTERNAL_ID_PREFIX}${Buffer.from(canonicalJson(payload), "utf8").toString("base64url")}`;
+}
+
+export function parseEvaluatorExternalId(value) {
+  if (typeof value !== "string" || !value.startsWith(EXTERNAL_ID_PREFIX)) {
+    throw new Error("evaluator check external_id has the wrong prefix");
+  }
+  const encoded = value.slice(EXTERNAL_ID_PREFIX.length);
+  let payload;
+  try {
+    payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
+  } catch {
+    throw new Error("evaluator check external_id is not valid base64url canonical JSON");
+  }
+  if (
+    !payload ||
+    typeof payload !== "object" ||
+    Array.isArray(payload) ||
+    encodeEvaluatorExternalId(payload) !== value
+  ) {
+    throw new Error("evaluator check external_id is not canonical");
+  }
+  return payload;
+}
+
+function parseTimestamp(value, label) {
+  const text = String(value ?? "");
+  if (!ISO_TIMESTAMP.test(text)) {
+    throw new Error(`${label} is not an ISO timestamp`);
+  }
+  const milliseconds = Date.parse(text);
+  if (!Number.isFinite(milliseconds)) {
+    throw new Error(`${label} is invalid`);
+  }
+  return milliseconds;
+}
+
+function assertPullRequestAssociation(run, {
+  repository,
+  pullNumber,
+  headSha,
+  baseSha,
+}) {
+  const associations = run?.pull_requests;
+  if (!Array.isArray(associations) || associations.length !== 1) {
+    throw new Error("check run is not associated with exactly one probe pull request");
+  }
+  const association = associations[0];
+  if (
+    Number(association?.number) !== Number(pullNumber) ||
+    association?.head?.sha !== headSha ||
+    association?.base?.sha !== baseSha ||
+    association?.head?.repo?.full_name !== repository ||
+    association?.base?.repo?.full_name !== repository
+  ) {
+    throw new Error("check run pull-request association does not match the probe");
+  }
+}
+
+function assertFreshRunWindow(run, {
+  rulesetCreatedAt,
+  observedAt,
+  maxAgeSeconds,
+}) {
+  const rulesetCreated = parseTimestamp(rulesetCreatedAt, "ruleset creation time");
+  const observed = parseTimestamp(observedAt, "probe observation time");
+  const started = parseTimestamp(run?.started_at, "check started_at");
+  const completed = parseTimestamp(run?.completed_at, "check completed_at");
+  if (
+    started < rulesetCreated ||
+    completed < rulesetCreated ||
+    completed < started ||
+    started > observed + 30_000 ||
+    completed > observed + 30_000 ||
+    observed - started > maxAgeSeconds * 1000
+  ) {
+    throw new Error("check run timestamps are stale or precede ruleset creation");
+  }
+  return { rulesetCreated, observed, started, completed };
+}
+
+export function assertFreshEvaluatorCheck({
+  checkRuns,
+  targetSha,
+  baseSha,
+  pullNumber,
+  repository = CHECK_ASSOCIATION_REPOSITORY,
+  appId,
+  checkName,
+  policyDigest,
+  policyVersion,
+  expectedNonce,
+  evaluatorOrigin,
+  expectedMode,
+  expectedConclusion,
+  rulesetCreatedAt,
+  observedAt,
+  maxAgeSeconds = 300,
+}) {
+  if (
+    !FULL_OBJECT_ID.test(String(targetSha ?? "")) ||
+    !FULL_OBJECT_ID.test(String(baseSha ?? "")) ||
+    !SHA256.test(String(policyDigest ?? "")) ||
+    !SHA256.test(String(expectedNonce ?? "")) ||
+    !APP_ID.test(String(appId ?? "")) ||
+    !Number.isSafeInteger(Number(policyVersion)) ||
+    Number(policyVersion) <= 0 ||
+    !Number.isSafeInteger(Number(pullNumber)) ||
+    Number(pullNumber) <= 0 ||
+    !/^[a-z][a-z0-9-]{0,63}$/.test(String(expectedMode ?? "")) ||
+    !Number.isSafeInteger(Number(maxAgeSeconds)) ||
+    Number(maxAgeSeconds) <= 0
+  ) {
+    throw new Error("fresh evaluator probe coordinates are invalid");
+  }
+  let evaluatorUrl;
+  try {
+    evaluatorUrl = new URL(evaluatorOrigin);
+  } catch {
+    throw new Error("evaluator origin is invalid");
+  }
+  const normalizedEvaluatorOrigin = evaluatorUrl.origin;
+  if (
+    normalizedEvaluatorOrigin !== evaluatorOrigin ||
+    !normalizedEvaluatorOrigin.startsWith("https://") ||
+    normalizedEvaluatorOrigin === "https://github.com" ||
+    normalizedEvaluatorOrigin === "https://api.github.com" ||
+    evaluatorUrl.hostname === "localhost" ||
+    evaluatorUrl.hostname.endsWith(".localhost") ||
+    evaluatorUrl.hostname === "127.0.0.1" ||
+    evaluatorUrl.hostname === "::1"
+  ) {
+    throw new Error("evaluator origin must be an exact external HTTPS origin");
+  }
+  const candidates = (checkRuns ?? []).filter(
+    run =>
+      run?.name === checkName &&
+      run?.head_sha === targetSha &&
+      Number(run?.app?.id) === Number(appId) &&
+      run?.status === "completed" &&
+      run?.conclusion === expectedConclusion,
+  );
+  const failures = [];
+  for (const run of candidates) {
+    try {
+      assertPullRequestAssociation(run, {
+        repository,
+        pullNumber,
+        headSha: targetSha,
+        baseSha,
+      });
+      if (new URL(run.details_url).origin !== evaluatorOrigin) {
+        throw new Error("check run details_url is not owned by the reviewed evaluator origin");
+      }
+      const times = assertFreshRunWindow(run, {
+        rulesetCreatedAt,
+        observedAt,
+        maxAgeSeconds,
+      });
+      const payload = parseEvaluatorExternalId(run.external_id);
+      const expectedFields = [
+        "nonce",
+        "repository",
+        "pull_request",
+        "head_sha",
+        "base_sha",
+        "policy_digest",
+        "policy_version",
+        "mode",
+        "issued_at",
+      ].sort();
+      if (canonicalJson(Object.keys(payload).sort()) !== canonicalJson(expectedFields)) {
+        throw new Error("evaluator check external_id fields are not exact");
+      }
+      if (
+        payload.nonce !== expectedNonce ||
+        payload.repository !== repository ||
+        Number(payload.pull_request) !== Number(pullNumber) ||
+        payload.head_sha !== targetSha ||
+        payload.base_sha !== baseSha ||
+        payload.policy_digest !== policyDigest ||
+        Number(payload.policy_version) !== Number(policyVersion) ||
+        payload.mode !== expectedMode
+      ) {
+        throw new Error("evaluator check external_id is not bound to the exact probe");
+      }
+      const issued = parseTimestamp(payload.issued_at, "external_id issued_at");
+      if (
+        issued < times.rulesetCreated ||
+        issued > times.observed + 30_000 ||
+        issued > times.completed ||
+        times.observed - issued > maxAgeSeconds * 1000 ||
+        times.started < issued - 30_000
+      ) {
+        throw new Error("evaluator check external_id timestamp is stale or non-causal");
+      }
+      return { nonce: payload.nonce, runId: Number(run.id), payload };
+    } catch (error) {
+      failures.push(error.message);
+    }
+  }
+  throw new Error(
+    failures[0] ??
+      "no fresh required check was produced by the expected GitHub App for the probe",
+  );
 }
 
 export function assertExpectedSourceCheck({
@@ -615,7 +982,7 @@ export function assertSpoofedSourceRejected({
   if (spoof.length === 0) {
     throw new Error("negative spoof probe did not contain a successful same-name GitHub Actions run");
   }
-  if (mergeable !== false || mergeableState !== "blocked") {
+  if (typeof mergeable !== "boolean" || mergeableState !== "blocked") {
     throw new Error(
       "negative spoof probe was not blocked by the source-bound required check; mergeability is ambiguous",
     );
@@ -628,23 +995,66 @@ export function assertProbeResults({
   negative,
   appId,
   checkName,
+  policyDigest,
+  policyVersion,
+  rulesetCreatedAt,
+  observedAt,
+  positiveMode = "not-applicable",
+  negativeMode = "activation-rejected",
+  maxAgeSeconds = 300,
+  positiveNonce,
+  negativeNonce,
+  evaluatorOrigin,
 }) {
   if (!positive?.pull || !negative?.pull) {
     throw new Error("both positive App and negative spoof pull-request probes are required");
   }
   const positiveSha = positive.pull.headSha ?? positive.pull.head_sha;
   const negativeSha = negative.pull.headSha ?? negative.pull.head_sha;
+  const positiveBaseSha = positive.pull.baseSha ?? positive.pull.base_sha;
+  const negativeBaseSha = negative.pull.baseSha ?? negative.pull.base_sha;
+  const positiveRepository =
+    positive.pull.repository ?? positive.pull.base?.repo?.full_name;
+  const negativeRepository =
+    negative.pull.repository ?? negative.pull.base?.repo?.full_name;
   if (!FULL_OBJECT_ID.test(String(positiveSha ?? "")) || !FULL_OBJECT_ID.test(String(negativeSha ?? ""))) {
     throw new Error("both source probes must identify exact pull-request heads");
   }
   if (positiveSha === negativeSha) {
     throw new Error("positive and negative source probes must use different pull-request heads");
   }
-  assertExpectedSourceCheck({
+  if (
+    !SHA256.test(String(positiveNonce ?? "")) ||
+    !SHA256.test(String(negativeNonce ?? "")) ||
+    positiveNonce === negativeNonce
+  ) {
+    throw new Error("positive and negative probes require distinct fresh operator nonces");
+  }
+  if (
+    positiveRepository !== CHECK_ASSOCIATION_REPOSITORY ||
+    negativeRepository !== CHECK_ASSOCIATION_REPOSITORY ||
+    !FULL_OBJECT_ID.test(String(positiveBaseSha ?? "")) ||
+    !FULL_OBJECT_ID.test(String(negativeBaseSha ?? ""))
+  ) {
+    throw new Error("probe pull requests are not bound to the expected repository and base SHA");
+  }
+  const positiveProof = assertFreshEvaluatorCheck({
     checkRuns: positive.checkRuns,
     targetSha: positiveSha,
+    baseSha: positiveBaseSha,
+    pullNumber: positive.pull.number,
+    repository: positiveRepository,
     appId,
     checkName,
+    policyDigest,
+    policyVersion,
+    expectedNonce: positiveNonce,
+    evaluatorOrigin,
+    expectedMode: positiveMode,
+    expectedConclusion: "success",
+    rulesetCreatedAt,
+    observedAt,
+    maxAgeSeconds,
   });
   const positiveMergeable =
     positive.pull.mergeable === true &&
@@ -652,15 +1062,66 @@ export function assertProbeResults({
   if (!positiveMergeable) {
     throw new Error("positive App probe did not report an unambiguous mergeable state");
   }
-  assertSpoofedSourceRejected({
+  const negativeProof = assertFreshEvaluatorCheck({
     checkRuns: negative.checkRuns,
     targetSha: negativeSha,
+    baseSha: negativeBaseSha,
+    pullNumber: negative.pull.number,
+    repository: negativeRepository,
     appId,
     checkName,
-    mergeable: negative.pull.mergeable,
-    mergeableState: negative.pull.mergeable_state,
+    policyDigest,
+    policyVersion,
+    expectedNonce: negativeNonce,
+    evaluatorOrigin,
+    expectedMode: negativeMode,
+    expectedConclusion: "failure",
+    rulesetCreatedAt,
+    observedAt,
+    maxAgeSeconds,
   });
-  return { positive: true, negative: true };
+  const actionsRuns = (negative.checkRuns ?? []).filter(
+    run =>
+      run?.name === checkName &&
+      run?.head_sha === negativeSha &&
+      Number(run?.app?.id) === 15368 &&
+      run?.app?.slug === "github-actions" &&
+      run?.status === "completed" &&
+      run?.conclusion === "success",
+  );
+  let actionsAccepted = false;
+  for (const run of actionsRuns) {
+    try {
+      assertPullRequestAssociation(run, {
+        repository: negativeRepository,
+        pullNumber: negative.pull.number,
+        headSha: negativeSha,
+        baseSha: negativeBaseSha,
+      });
+      assertFreshRunWindow(run, { rulesetCreatedAt, observedAt, maxAgeSeconds });
+      actionsAccepted = true;
+      break;
+    } catch {
+      // Try another same-name Actions run; stale or unassociated runs are not evidence.
+    }
+  }
+  if (!actionsAccepted) {
+    throw new Error("negative spoof probe lacks a fresh associated GitHub Actions success");
+  }
+  if (
+    typeof negative.pull.mergeable !== "boolean" ||
+    negative.pull.mergeable_state !== "blocked"
+  ) {
+    throw new Error(
+      "negative spoof probe was not blocked by the source-bound required check; mergeability is ambiguous",
+    );
+  }
+  return {
+    positive: true,
+    negative: true,
+    positiveNonce: positiveProof.nonce,
+    negativeNonce: negativeProof.nonce,
+  };
 }
 
 export function assertSafeRollbackTarget({
@@ -779,6 +1240,10 @@ async function runCli() {
     process.stdout.write(`${JSON.stringify(materializeRuleset(plan, values["app-id"]))}\n`);
     return;
   }
+  if (operation === "policy-evidence") {
+    process.stdout.write(`${JSON.stringify(getPolicyEvidence(values.policy))}\n`);
+    return;
+  }
   const input = await readStdinJson();
   if (operation === "assert-app-installation") {
     assertAppInstallationPayload(input);
@@ -788,6 +1253,11 @@ async function runCli() {
   if (operation === "assert-owner") {
     assertOwnerIdentity(input);
     process.stdout.write('{"ok":true}\n');
+    return;
+  }
+  if (operation === "assert-legacy-baseline") {
+    const plan = loadRulesetPlan(values.plan);
+    process.stdout.write(`${JSON.stringify(assertLegacyBaseline({ ...input, plan }))}\n`);
     return;
   }
   if (operation === "digest") {
@@ -807,16 +1277,6 @@ async function runCli() {
   }
   if (operation === "assert-unrelated-preserved") {
     assertUnrelatedSecurityStatePreserved(input);
-    process.stdout.write('{"ok":true}\n');
-    return;
-  }
-  if (operation === "assert-expected-source-check") {
-    assertExpectedSourceCheck(input);
-    process.stdout.write('{"ok":true}\n');
-    return;
-  }
-  if (operation === "assert-spoofed-source-rejected") {
-    assertSpoofedSourceRejected(input);
     process.stdout.write('{"ok":true}\n');
     return;
   }

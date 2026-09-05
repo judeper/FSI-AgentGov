@@ -1,17 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  activationPatchDigest,
   assertPolicyShape,
   canonicalRepositoryPathIdentity,
   checkGitattributes,
   classifyChangedFiles,
   classifyChangedPaths,
   collectProtectedPathIdentityProblems,
+  createGitHubReader,
   diffImmutableTrees,
   evaluateCandidate,
   extractAdvisoryIds,
@@ -175,11 +178,13 @@ function policyFor(tarball, pinOverrides = {}) {
   for (const path of Object.keys(policy.activation.pins)) {
     const bytes = utf8(baseline[path] ?? `activation fixture: ${path}\n`);
     policy.activation.pins[path] = {
+      mode: policy.activation.pins[path].mode,
       blob: gitBlobId(bytes),
       sha256: sha256(bytes),
       size: bytes.length,
     };
   }
+  policy.activation.patchSha256 = activationPatchDigest(policy.activation);
   return policy;
 }
 
@@ -313,12 +318,20 @@ function activationTree(tarball, policy) {
 function activationBaseTree(tarball, policy) {
   const tree = activationTree(tarball, policy);
   const allowed = new Set(policy.activation.allowedFiles);
-  tree.treeEntries = tree.treeEntries.filter(
-    entry =>
-      !allowed.has(entry.path) &&
-      !entry.path.startsWith("vendor/npm/fast-uri/"),
-  );
+  tree.treeEntries = tree.treeEntries.flatMap(entry => {
+    if (!allowed.has(entry.path)) return [entry];
+    const basePin = policy.activation.basePins[entry.path];
+    if (basePin.absent === true) return [];
+    return [{ ...entry, mode: basePin.mode, sha: basePin.blob }];
+  });
   return tree;
+}
+
+function activationChangedFiles(policy) {
+  return policy.activation.allowedFiles.map(filename => ({
+    status: policy.activation.basePins[filename].absent === true ? "added" : "modified",
+    filename,
+  }));
 }
 
 async function judge({
@@ -772,6 +785,24 @@ describe("authoritative gate — archive and manifest structures fail closed", (
  * ------------------------------------------------------------------ */
 
 describe("authoritative gate — event, race and bound semantics", () => {
+  it("pins production API traffic to api.github.com", () => {
+    expect(() =>
+      createGitHubReader({
+        apiUrl: "https://attacker.example",
+        owner: "judeper",
+        repo: "FSI-AgentGov",
+      }),
+    ).toThrow(/exactly https:\/\/api\.github\.com/);
+    expect(() =>
+      createGitHubReader({
+        apiUrl: "https://api.github.com",
+        owner: "judeper",
+        repo: "FSI-AgentGov",
+        fetchImpl: async () => ({ ok: true, json: async () => ({}) }),
+      }),
+    ).not.toThrow();
+  });
+
   it("fails closed when the pull request head moves during validation", async () => {
     const tarball = buildTarball(goodTarEntries());
     const verdict = await judge({
@@ -851,8 +882,11 @@ describe("authoritative gate — event, race and bound semantics", () => {
       changedPaths: ["package.json"],
       artifactRequired: false,
     });
-    expect(verdict.toJSON()).toMatchObject({ conclusion: "failure", mode: "guard-only" });
-    expect(verdict.messages.join("\n")).toMatch(/artifact bytes are absent/);
+    expect(verdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "activation-rejected",
+    });
+    expect(verdict.messages.join("\n")).toMatch(/exact policy-approved activation file set/);
   });
 
   it("still enforces guard invariants before the artifact lands in base", async () => {
@@ -970,7 +1004,7 @@ describe("authoritative gate — immutable path and rename evidence", () => {
       tree,
       changedFiles: [{ status: "modified", filename: "docs/index.md" }],
     });
-    expect(normalizeRepositoryPath("vendor\\npm\\fast-uri")).toBe("vendor/npm/fast-uri");
+    expect(normalizeRepositoryPath("vendor\\npm\\fast-uri")).toBeNull();
     expect(verdict.failed).toBe(true);
     expect(verdict.messages.join("\n")).toMatch(/Unicode-normalization collision/);
   });
@@ -1119,6 +1153,72 @@ describe("authoritative gate — immutable path and rename evidence", () => {
     expect(canonicalRepositoryPathIdentity("vendor\\npm\\x").unsafe).toBe(true);
   });
 
+  it("rejects checkout-unsafe path segments through the shared canonicalizer", () => {
+    for (const path of [
+      "vendor/npm/\u0085control.txt",
+      "vendor/npm/\u202ereversed.txt",
+      "vendor/npm/file.txt:payload",
+      "vendor/npm/trailing.",
+      "vendor/npm/trailing ",
+      "vendor/npm/CON",
+      "vendor/npm/con.txt",
+      "vendor/npm/NUL .txt",
+      "vendor/npm/LPT1.json",
+      "vendor/npm/COM¹.log",
+      "vendor/npm/GIT~1/config",
+      "vendor/npm/README~1.MD",
+      "vendor/npm/.GiT/config",
+      "vendor/npm/.g\u200cit/config",
+    ]) {
+      expect(canonicalRepositoryPathIdentity(path).unsafe, path).toBe(true);
+      expect(isUnsafeRepositoryPath(path), path).toBe(true);
+      expect(normalizeRepositoryPath(path), path).toBeNull();
+    }
+  });
+
+  it("rejects every checkout-unsafe alias in post-activation trees and pull-file records", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const baseTree = candidate({ tarball });
+    for (const path of [
+      "docs/\u0085control.md",
+      "docs/\u202ereversed.md",
+      "docs/readme.md:payload",
+      "docs/trailing.",
+      "docs/trailing ",
+      "docs/CON.txt",
+      "docs/README~1.MD",
+      "docs/.g\u200cit/config",
+    ]) {
+      expect(
+        validateChangedFileRecords(policy, [{ status: "added", filename: path }]),
+        path,
+      ).toEqual(expect.arrayContaining([expect.stringMatching(/unsafe path/)]));
+      const tree = candidate({ tarball, extraPaths: [path] });
+      const verdict = await judge({
+        policy,
+        baseTree,
+        tree,
+        changedFiles: [{ status: "added", filename: path }],
+      });
+      expect(verdict.failed, path).toBe(true);
+      expect(verdict.messages.join("\n"), path).toMatch(/unsafe path/);
+    }
+  });
+
+  it("applies the same segment safety rules to exact, prefix, suffix, and basename policy entries", () => {
+    for (const mutate of [
+      policy => policy.guardedPaths.exact.push("vendor/CON.txt"),
+      policy => policy.guardedPaths.prefixes.push("vendor./"),
+      policy => policy.guardedPaths.suffixes.push("/file.txt:stream"),
+      policy => policy.forbiddenTree.basenames.push("LPT1.json"),
+    ]) {
+      const policy = structuredClone(realPolicy);
+      mutate(policy);
+      expect(() => assertPolicyShape(policy)).toThrow(/unsafe path/);
+    }
+  });
+
   it("rejects directory/file prefix collisions and NFC aliases in the full tree map", () => {
     const problems = collectProtectedPathIdentityProblems(
       realPolicy,
@@ -1149,7 +1249,7 @@ describe("authoritative gate — exact activation and rotation", () => {
       policy,
       baseTree,
       tree,
-      changedPaths: activationPaths,
+      changedFiles: activationChangedFiles(policy),
       artifactRequired: false,
     });
     expect(accepted.toJSON()).toMatchObject({ conclusion: "success", mode: "activation" });
@@ -1170,7 +1270,10 @@ describe("authoritative gate — exact activation and rotation", () => {
       policy,
       baseTree,
       tree: extra,
-      changedPaths: [...activationPaths, "scripts/not-approved.mjs"],
+      changedFiles: [
+        ...activationChangedFiles(policy),
+        { status: "added", filename: "scripts/not-approved.mjs" },
+      ],
       artifactRequired: false,
     });
     expect(extraVerdict.failed).toBe(true);
@@ -1190,7 +1293,6 @@ describe("authoritative gate — exact activation and rotation", () => {
           }
         : entry,
     );
-    const reads = new Map(tampered.treeEntries.map(entry => [entry.sha, entry.path]));
     const originalRead = tampered.readBlob;
     tampered.readBlob = async (sha, path) =>
       path === "package.json"
@@ -1200,15 +1302,87 @@ describe("authoritative gate — exact activation and rotation", () => {
       policy,
       baseTree,
       tree: tampered,
-      changedPaths: activationPaths,
+      changedFiles: activationChangedFiles(policy),
       artifactRequired: false,
     });
     expect(changedVerdict.failed).toBe(true);
     expect(changedVerdict.messages.join("\n")).toMatch(/activation file.*approved bytes|pinned file/);
-    expect(reads.size).toBeGreaterThan(0);
   });
 
-  it("rejects ordinary post-activation manifest, lock, gitattributes, verifier and workflow mutations", async () => {
+  it("rejects every partial pre-activation manifest, lock, attribute, verifier, workflow, test, or documentation change", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const baseTree = activationBaseTree(tarball, policy);
+    for (const path of [
+      "package.json",
+      "package-lock.json",
+      ".gitattributes",
+      "scripts/verify-fast-uri-artifact.mjs",
+      ".github/workflows/security-scan.yml",
+      "tests/spa/fast-uri-artifact-race.test.mjs",
+      "vendor/npm/fast-uri/3.1.7/README.md",
+    ]) {
+      const complete = activationTree(tarball, policy);
+      const allowed = new Set([path]);
+      const partial = {
+        ...complete,
+        treeEntries: [
+          ...baseTree.treeEntries.filter(entry => !allowed.has(entry.path)),
+          ...complete.treeEntries.filter(entry => allowed.has(entry.path)),
+        ],
+      };
+      const verdict = await judge({
+        policy,
+        baseTree,
+        tree: partial,
+        changedFiles: [{
+          status: policy.activation.basePins[path].absent === true ? "added" : "modified",
+          filename: path,
+        }],
+        artifactRequired: false,
+      });
+      expect(verdict.toJSON(), path).toMatchObject({
+        conclusion: "failure",
+        mode: "activation-rejected",
+      });
+      expect(verdict.messages.join("\n"), path).toMatch(/exact policy-approved activation file set/);
+    }
+  });
+
+  it("rejects activation when a target mode or immutable base pin differs", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const baseTree = activationBaseTree(tarball, policy);
+    const wrongMode = activationTree(tarball, policy);
+    wrongMode.treeEntries = wrongMode.treeEntries.map(entry =>
+      entry.path === "package.json" ? { ...entry, mode: "100755" } : entry,
+    );
+    const modeVerdict = await judge({
+      policy,
+      baseTree,
+      tree: wrongMode,
+      changedFiles: activationChangedFiles(policy),
+      artifactRequired: false,
+    });
+    expect(modeVerdict.failed).toBe(true);
+    expect(modeVerdict.messages.join("\n")).toMatch(/approved Git blob and mode|approved mode/);
+
+    const wrongBase = activationBaseTree(tarball, policy);
+    wrongBase.treeEntries = wrongBase.treeEntries.map(entry =>
+      entry.path === "package.json" ? { ...entry, sha: "f".repeat(40) } : entry,
+    );
+    const baseVerdict = await judge({
+      policy,
+      baseTree: wrongBase,
+      tree: activationTree(tarball, policy),
+      changedFiles: activationChangedFiles(policy),
+      artifactRequired: false,
+    });
+    expect(baseVerdict.failed).toBe(true);
+    expect(baseVerdict.messages.join("\n")).toMatch(/approved base blob and mode/);
+  });
+
+  it("rejects ordinary post-activation manifest, lock, attribute, verifier, workflow, test, and documentation mutations", async () => {
     const tarball = buildTarball(goodTarEntries());
     const policy = policyFor(tarball);
     const baseTree = activationTree(tarball, policy);
@@ -1218,6 +1392,8 @@ describe("authoritative gate — exact activation and rotation", () => {
       [".gitattributes", `${GITATTRIBUTES}vendor/** filter=evil\n`],
       ["scripts/verify-fast-uri-artifact.mjs", `${VERIFIER_SOURCE}\n// mutation\n`],
       [".github/workflows/sri-check.yml", "name: spoof\n"],
+      ["tests/spa/fast-uri-artifact-race.test.mjs", "// assertions removed\n"],
+      ["vendor/npm/fast-uri/3.1.7/README.md", "# substituted documentation\n"],
     ]) {
       const changed = activationTree(tarball, policy);
       const bytes = Buffer.from(value, "utf8");
@@ -1240,6 +1416,29 @@ describe("authoritative gate — exact activation and rotation", () => {
       expect(verdict.messages.join("\n"), path).toMatch(/pinned file|activation file|does not match/);
       expect(old).toBeDefined();
     }
+  });
+
+  it("rejects a post-activation executable-bit change even when bytes are unchanged", async () => {
+    const tarball = buildTarball(goodTarEntries());
+    const policy = policyFor(tarball);
+    const baseTree = activationTree(tarball, policy);
+    const changed = activationTree(tarball, policy);
+    changed.treeEntries = changed.treeEntries.map(entry =>
+      entry.path === "scripts/verify-fast-uri-artifact.mjs"
+        ? { ...entry, mode: "100755" }
+        : entry,
+    );
+    const verdict = await judge({
+      policy,
+      baseTree,
+      tree: changed,
+      changedFiles: [{
+        status: "modified",
+        filename: "scripts/verify-fast-uri-artifact.mjs",
+      }],
+    });
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(/approved mode/);
   });
 });
 
@@ -1468,14 +1667,21 @@ describe("trusted policy document", () => {
     expect(realPolicy.verifierPolicyLiterals.requiredAdvisories).toHaveLength(6);
   });
 
-  it("pins the complete approved activation package, lock, and attributes blobs", () => {
-    expect(realPolicy.activation.approvedCommit).toBe(
-      "8acd5d7907d9ef01e2875855fdd83b307a1e2edd",
-    );
+  it("pins a base-relative activation patch with no trusted-path overlap", () => {
+    expect(realPolicy.activation.strategy).toBe("base-relative-exact-tree-delta");
+    expect(realPolicy.activation.requiredBasePolicyVersion).toBe(realPolicy.policyVersion);
+    expect(realPolicy.activation.patchSha256).toBe(activationPatchDigest(realPolicy.activation));
+    expect(
+      realPolicy.activation.allowedFiles.filter(path => realPolicy.trustedPaths.includes(path)),
+    ).toEqual([]);
+    expect(realPolicy.activation.allowedFiles).not.toContain("SECURITY.md");
+    expect(realPolicy.activation.approvedCommit).toBeUndefined();
+    expect(realPolicy.activation.approvedParent).toBeUndefined();
     for (const [path, expected] of [
       [
         "package.json",
         {
+          mode: "100644",
           blob: "3faa4f4fae4eeee55a35ddc1a99c58a9bcf5ad1c",
           sha256: "2a3fad19f3341087ff12656bcd7ea2f09359fb9103911a8c54285aa6b5fa6ab9",
           size: 1083,
@@ -1484,6 +1690,7 @@ describe("trusted policy document", () => {
       [
         "package-lock.json",
         {
+          mode: "100644",
           blob: "0b764c5ed9b507d9d8f259f9be8ea4dd77a47661",
           sha256: "19e6cfc9c195248e3ef6d2827048d786b0f629be0a680b5f88648694321d4a2c",
           size: 76925,
@@ -1492,6 +1699,7 @@ describe("trusted policy document", () => {
       [
         ".gitattributes",
         {
+          mode: "100644",
           blob: "91596cc419da4f86b6ed193802fc81b5b28a3ba1",
           sha256: "df7f40c6ed0da07a2cac77823f83af844b07fb4f49c4e049aaf8d2159cf20468",
           size: 936,
@@ -1499,7 +1707,60 @@ describe("trusted policy document", () => {
       ],
     ]) {
       expect(realPolicy.activation.pins[path]).toEqual(expected);
-      expect(realPolicy.digestPins[path]).toEqual(expected);
+      expect(realPolicy.digestPins[path]).toEqual({
+        blob: expected.blob,
+        sha256: expected.sha256,
+        size: expected.size,
+      });
+    }
+    expect(realPolicy.activation.basePins["package.json"]).toEqual({
+      mode: "100644",
+      blob: "e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d",
+    });
+    expect(realPolicy.activation.basePins["scripts/verify-fast-uri-artifact.mjs"]).toEqual({
+      absent: true,
+    });
+    expect(Object.values(realPolicy.activation.pins).every(pin => pin.mode === "100644")).toBe(true);
+    expect(realPolicy.activation.pins[".github/workflows/security-scan.yml"]).toEqual({
+      mode: "100644",
+      blob: "6e7ab1ffeb5fc9e779d1ee4ee5695ea534c72674",
+      sha256: "b2db741bd09205c7ba396835f3c451b2a247b29e16390ebedeba3b2b84b3937b",
+      size: 11976,
+    });
+  });
+
+  it("rejects any trusted path added to the artifact activation transaction", () => {
+    const policy = structuredClone(realPolicy);
+    const path = "SECURITY.md";
+    policy.activation.allowedFiles.push(path);
+    policy.activation.basePins[path] = {
+      mode: "100644",
+      blob: "1".repeat(40),
+    };
+    policy.activation.pins[path] = {
+      mode: "100644",
+      blob: "2".repeat(40),
+      sha256: "3".repeat(64),
+      size: 1,
+    };
+    policy.activation.patchSha256 = activationPatchDigest(policy.activation);
+    expect(() => assertPolicyShape(policy)).toThrow(/overlaps a trusted path/);
+  });
+
+  it("pins the exact current policy-tree base state for every future activation path", () => {
+    for (const path of realPolicy.activation.allowedFiles) {
+      const output = execFileSync("git", ["ls-files", "--stage", "--", path], {
+        cwd: repoRoot,
+        encoding: "utf8",
+      }).trim();
+      const expected = realPolicy.activation.basePins[path];
+      if (expected.absent === true) {
+        expect(output, path).toBe("");
+        continue;
+      }
+      const match = /^(\d+)\s+([0-9a-f]{40})\s+\d+\t/.exec(output);
+      expect(match, path).not.toBeNull();
+      expect({ mode: match[1], blob: match[2] }, path).toEqual(expected);
     }
   });
 
