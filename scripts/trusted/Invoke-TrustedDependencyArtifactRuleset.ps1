@@ -132,6 +132,127 @@ function ConvertTo-CompactJson {
     return (ConvertTo-Json -InputObject $Value -Depth 100 -Compress)
 }
 
+# PowerShell 7.0 has no ConvertFrom-Json -DateKind String, while newer runtimes
+# materialize ISO strings as DateTime. Accept only representations that prove UTC.
+function ConvertTo-GitHubUtcTimestamp {
+    param(
+        [Parameter(Mandatory)][AllowNull()][object]$InputObject,
+        [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$FieldName
+    )
+
+    $invariantCulture = [System.Globalization.CultureInfo]::InvariantCulture
+    $timestamp = [DateTimeOffset]::MinValue
+    if ($InputObject -is [string]) {
+        $text = [string]$InputObject
+        $formats = [string[]]@(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss.FFFFFFF'Z'"
+        )
+        $styles = (
+            [System.Globalization.DateTimeStyles]::AssumeUniversal -bor
+            [System.Globalization.DateTimeStyles]::AdjustToUniversal
+        )
+        if (
+            $text -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,7})?Z$' -or
+            ![DateTimeOffset]::TryParseExact(
+                $text,
+                $formats,
+                $invariantCulture,
+                $styles,
+                [ref]$timestamp
+            )
+        ) {
+            throw "$FieldName is not an exact ISO-8601 UTC timestamp"
+        }
+    } elseif ($InputObject -is [DateTime]) {
+        if ($InputObject.Kind -ne [DateTimeKind]::Utc) {
+            throw "$FieldName is not an unambiguous UTC timestamp"
+        }
+        $timestamp = [DateTimeOffset]::new([DateTime]$InputObject)
+    } elseif ($InputObject -is [DateTimeOffset]) {
+        if ($InputObject.Offset -ne [TimeSpan]::Zero) {
+            throw "$FieldName is not an unambiguous UTC timestamp"
+        }
+        $timestamp = $InputObject.ToUniversalTime()
+    } else {
+        throw "$FieldName is not a supported timestamp value"
+    }
+
+    $utc = $timestamp.UtcDateTime
+    $base = $utc.ToString("yyyy-MM-dd'T'HH:mm:ss", $invariantCulture)
+    $fraction = $utc.ToString("fffffff", $invariantCulture).TrimEnd([char]"0")
+    if ($fraction.Length -gt 0) {
+        return "${base}.${fraction}Z"
+    }
+    return "${base}Z"
+}
+
+function Set-GitHubJsonTimestampContract {
+    param(
+        [Parameter(Mandatory)][AllowNull()][object]$InputObject,
+        [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$Context
+    )
+
+    if ($null -eq $InputObject) {
+        return
+    }
+    if ($InputObject -is [string] -or $InputObject -is [ValueType]) {
+        return
+    }
+
+    $timestampProperties = @(
+        "completed_at",
+        "created_at",
+        "expires_at",
+        "issued_at",
+        "started_at",
+        "suspended_at",
+        "updated_at"
+    )
+    if ($InputObject -is [System.Collections.IDictionary]) {
+        foreach ($key in @($InputObject.Keys)) {
+            $propertyContext = "$Context.$key"
+            if ($timestampProperties -ccontains [string]$key) {
+                if ($null -ne $InputObject[$key]) {
+                    $InputObject[$key] = ConvertTo-GitHubUtcTimestamp `
+                        -InputObject $InputObject[$key] `
+                        -FieldName $propertyContext
+                }
+            } else {
+                [void](Set-GitHubJsonTimestampContract `
+                    -InputObject $InputObject[$key] `
+                    -Context $propertyContext)
+            }
+        }
+        return
+    }
+    if ($InputObject -is [System.Collections.IEnumerable]) {
+        $index = 0
+        foreach ($item in $InputObject) {
+            [void](Set-GitHubJsonTimestampContract `
+                -InputObject $item `
+                -Context "$Context[$index]")
+            $index++
+        }
+        return
+    }
+
+    foreach ($property in @($InputObject.PSObject.Properties)) {
+        $propertyContext = "$Context.$($property.Name)"
+        if ($timestampProperties -ccontains $property.Name) {
+            if ($null -ne $property.Value) {
+                $property.Value = ConvertTo-GitHubUtcTimestamp `
+                    -InputObject $property.Value `
+                    -FieldName $propertyContext
+            }
+        } else {
+            [void](Set-GitHubJsonTimestampContract `
+                -InputObject $property.Value `
+                -Context $propertyContext)
+        }
+    }
+}
+
 function ConvertFrom-ToolJson {
     param(
         [Parameter(Mandatory)][object[]]$Output,
@@ -142,10 +263,14 @@ function ConvertFrom-ToolJson {
         throw "$Operation returned no JSON"
     }
     try {
-        return $text | ConvertFrom-Json -Depth 100
+        $value = $text | ConvertFrom-Json -Depth 100
     } catch {
         throw "$Operation returned invalid JSON"
     }
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $value `
+        -Context $Operation)
+    return $value
 }
 
 function Get-OwnerIdentity {
@@ -237,10 +362,14 @@ function Invoke-AppJson {
             $parameters.ContentType = "application/json"
             $parameters.Body = "{}"
         }
-        return Invoke-RestMethod @parameters
+        $response = Invoke-RestMethod @parameters
     } catch {
         throw "GitHub App $Method $Endpoint failed"
     }
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $response `
+        -Context "GitHub App $Method $Endpoint")
+    return $response
 }
 
 function Get-AppContract {
@@ -326,10 +455,14 @@ function Invoke-GhJson {
         throw "gh api $Method $Endpoint returned no JSON"
     }
     try {
-        return $text | ConvertFrom-Json -Depth 100
+        $value = $text | ConvertFrom-Json -Depth 100
     } catch {
         throw "gh api $Method $Endpoint returned invalid JSON"
     }
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $value `
+        -Context "gh api $Method $Endpoint")
+    return $value
 }
 
 function Get-LiveState {
@@ -529,12 +662,29 @@ function Assert-AppInstallation {
     $repositories = $null
     $validationFailure = $null
     try {
+        [void](Set-GitHubJsonTimestampContract `
+            -InputObject $tokenResponse `
+            -Context "GitHub App installation token response")
+        $expiryText = ConvertTo-GitHubUtcTimestamp `
+            -InputObject $tokenResponse.expires_at `
+            -FieldName "GitHub App installation token expires_at"
         $expiresAt = [DateTimeOffset]::MinValue
-        $expiryText = [string]$tokenResponse.expires_at
+        $expiryFormats = [string[]]@(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss.FFFFFFF'Z'"
+        )
+        $expiryStyles = (
+            [System.Globalization.DateTimeStyles]::AssumeUniversal -bor
+            [System.Globalization.DateTimeStyles]::AdjustToUniversal
+        )
         if (
-            $expiryText -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$' -or
-            ![DateTimeOffset]::TryParse($expiryText, [System.Globalization.CultureInfo]::InvariantCulture,
-                [System.Globalization.DateTimeStyles]::None, [ref]$expiresAt)
+            ![DateTimeOffset]::TryParseExact(
+                $expiryText,
+                $expiryFormats,
+                [System.Globalization.CultureInfo]::InvariantCulture,
+                $expiryStyles,
+                [ref]$expiresAt
+            )
         ) {
             throw "GitHub App installation token expiry is invalid"
         }
@@ -598,6 +748,9 @@ function Assert-ApplyCapability {
 function Get-ProbeEvidence {
     param([Parameter(Mandatory)][Int32]$PullRequest)
     $pull = Invoke-GhJson -Endpoint "repos/$Repository/pulls/$PullRequest"
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $pull `
+        -Context "probe pull request")
     if (
         [string]$pull.state -ne "open" -or
         [string]$pull.base.ref -ne $Branch -or
@@ -617,7 +770,13 @@ function Get-ProbeEvidence {
     $pages = Invoke-GhJson `
         -Endpoint "repos/$Repository/commits/$headSha/check-runs?filter=all&per_page=100" `
         -Paginate
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $pages `
+        -Context "probe check runs")
     $after = Invoke-GhJson -Endpoint "repos/$Repository/pulls/$PullRequest"
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $after `
+        -Context "probe pull request read-back")
     return Invoke-TrustedModel `
         -Operation "probe-evidence" `
         -InputObject ([ordered]@{
@@ -642,6 +801,12 @@ function Assert-AppCheckProbes {
     if ($ProbePullRequest -eq $SpoofProbePullRequest) {
         throw "positive and negative source probes must be different pull requests"
     }
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $Positive `
+        -Context "positive probe evidence")
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $Negative `
+        -Context "negative probe evidence")
     [void](Invoke-TrustedModel `
         -Operation "assert-probes" `
         -InputObject ([ordered]@{
@@ -706,10 +871,9 @@ function Assert-PostReadBack {
     if ($managed.Count -ne 1) {
         throw "Read-back found $($managed.Count) managed rulesets; expected exactly one"
     }
-    $rulesetCreatedAt = [string]$managed[0].created_at
-    if ([string]::IsNullOrWhiteSpace($rulesetCreatedAt)) {
-        throw "Managed ruleset read-back omitted created_at"
-    }
+    $rulesetCreatedAt = ConvertTo-GitHubUtcTimestamp `
+        -InputObject $managed[0].created_at `
+        -FieldName "Managed ruleset read-back created_at"
     [void](Assert-AppInstallation -Jwt $AppJwt)
     [void](Invoke-TrustedModel `
         -Operation "assert-readback" `
@@ -798,12 +962,21 @@ function Invoke-SafeRollback {
         [Parameter(Mandatory)][string]$StartedAt,
         [Parameter(Mandatory)][Int64]$OwnerId
     )
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $CreatedRuleset `
+        -Context "ruleset create response")
     $createdId = [Int64]$CreatedRuleset.id
     if ($createdId -le 0) {
         throw "automatic rollback refused: create response had no valid ruleset ID"
     }
     $readBack = Invoke-GhJson -Endpoint "repos/$Repository/rulesets/$createdId"
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $readBack `
+        -Context "rollback ruleset read-back")
     $history = Invoke-GhJson -Endpoint "repos/$Repository/rulesets/$createdId/history"
+    [void](Set-GitHubJsonTimestampContract `
+        -InputObject $history `
+        -Context "rollback ruleset history")
     $endedAt = [DateTimeOffset]::UtcNow.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
     [void](Invoke-TrustedModel `
         -Operation "assert-safe-rollback" `

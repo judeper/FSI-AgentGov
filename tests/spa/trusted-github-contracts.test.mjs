@@ -7,6 +7,8 @@ import {
   collectCheckRunPages,
   encodeEvaluatorExternalId,
   loadAppContract,
+  loadRulesetPlan,
+  materializeRuleset,
 } from "../../scripts/trusted/trusted-dependency-ruleset.mjs";
 import { repoRoot } from "./_gitTreeFixtures.mjs";
 
@@ -21,9 +23,19 @@ const appId = 8675309;
 const pullNumber = 101;
 const now = "2026-09-05T05:00:00Z";
 const created = "2026-09-05T04:59:00Z";
+const encodeJsonPayload = value =>
+  Buffer.from(JSON.stringify(value), "utf8").toString("base64");
+const encodeText = value => Buffer.from(value, "utf8").toString("base64");
+const futureIso = seconds =>
+  new Date(Date.now() + seconds * 1000).toISOString();
+const futureIsoWithOffset = (seconds, offsetHours = 2) =>
+  new Date(Date.now() + (seconds + offsetHours * 3600) * 1000)
+    .toISOString()
+    .replace(/Z$/, `+${String(offsetHours).padStart(2, "0")}:00`);
 const fullPull = () => ({
   id: 2_000_101, number: pullNumber, url: `${repoUrl}/pulls/${pullNumber}`,
   state: "open", draft: false, mergeable: true, mergeable_state: "clean",
+  created_at: "2026-09-05T04:50:00Z", updated_at: "2026-09-05T04:58:50Z",
   head: { ref: "probe-positive", sha: headSha, repo: { ...repo } },
   base: { ref: "main", sha: baseSha, repo: { ...repo } },
 });
@@ -170,12 +182,295 @@ const installation = () => ({
   permissions: { ...loadAppContract().allowedRepositoryPermissions },
   events: [...loadAppContract().requiredWebhookEvents],
 });
-const installationInput = () => ({
-  operation: "assert-installation", app: { id: appId, slug: "trusted-dependency-artifact-app" },
-  installations: [installation()], installation: installation(),
-  permissions: { ...loadAppContract().allowedRepositoryPermissions },
-  expiry: 3500, revokeFails: false,
-  pages: [{ total_count: 1, repositories: [{ ...repo }] }],
+function installationInput({
+  culture = "Invariant",
+  expiresAt = futureIso(1800),
+} = {}) {
+  return {
+    operation: "assert-installation",
+    culture,
+    app: { id: appId, slug: "trusted-dependency-artifact-app" },
+    installations: [installation()],
+    installation: installation(),
+    tokenPayloadBase64: encodeJsonPayload({
+      token: "TEST_FIXTURE_INSTALLATION",
+      expires_at: expiresAt,
+      permissions: { ...loadAppContract().allowedRepositoryPermissions },
+    }),
+    revokeFails: false,
+    pages: [{ total_count: 1, repositories: [{ ...repo }] }],
+  };
+}
+function updateTokenPayload(input, mutate) {
+  const payload = JSON.parse(Buffer.from(input.tokenPayloadBase64, "base64").toString("utf8"));
+  mutate(payload);
+  input.tokenPayloadBase64 = encodeJsonPayload(payload);
+}
+
+function probeOperatorInput(culture = "Invariant", mutate = () => {}) {
+  const payload = evidenceInput();
+  mutate(payload);
+  return {
+    operation: "probe-evidence",
+    culture,
+    pullNumber,
+    payloadBase64: encodeJsonPayload(payload),
+  };
+}
+
+function rollbackPayload() {
+  const expectedRuleset = materializeRuleset(loadRulesetPlan(), appId);
+  const readBackRuleset = {
+    ...structuredClone(expectedRuleset),
+    id: 42,
+    source_type: "Repository",
+    source: repository,
+    created_at: "2026-09-05T04:59:00Z",
+    updated_at: "2026-09-05T04:59:01Z",
+  };
+  return {
+    beforeRulesetIds: [8],
+    createdRuleset: structuredClone(readBackRuleset),
+    readBackRuleset,
+    history: [{
+      actor: { id: 99, type: "User" },
+      updated_at: "2026-09-05T04:59:01Z",
+    }],
+    ownerId: 99,
+    expectedRuleset,
+    expectedRepository: repository,
+    startedAt: "2026-09-05T04:59:00Z",
+    endedAt: "2026-09-05T05:00:00Z",
+  };
+}
+
+describe("PowerShell GitHub timestamp wire contract", () => {
+  it.each(["Invariant", "fr-FR"])(
+    "normalizes real JSON UTC DateTime values invariantly under %s culture",
+    culture => {
+      const result = runOperator({
+        operation: "timestamp-contract",
+        culture,
+        payloadBase64: encodeJsonPayload({ value: "2026-09-05T06:59:00.1234000Z" }),
+      });
+      expect(result).toMatchObject({
+        ok: true,
+        value: {
+          sourceType: "System.DateTime",
+          sourceKind: "Utc",
+          normalized: "2026-09-05T06:59:00.1234Z",
+        },
+      });
+    },
+  );
+
+  it.each(["Invariant", "fr-FR"])(
+    "normalizes a mocked serialized Invoke-RestMethod response under %s culture",
+    culture => {
+      const result = runOperator({
+        operation: "transport",
+        culture,
+        fail: false,
+        payloadBase64: encodeJsonPayload({ expires_at: "2026-09-05T06:59:00.120Z" }),
+      });
+      expect(result).toMatchObject({
+        ok: true,
+        value: { expires_at: "2026-09-05T06:59:00.12Z" },
+      });
+    },
+  );
+
+  it("rejects a non-UTC timestamp from the mocked Invoke-RestMethod boundary", () => {
+    const result = runOperator({
+      operation: "transport",
+      culture: "fr-FR",
+      fail: false,
+      payloadBase64: encodeJsonPayload({ expires_at: "2026-09-05T08:59:00+02:00" }),
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/unambiguous UTC/);
+  });
+
+  it("accepts exact UTC strings and zero-offset DateTimeOffset objects only", () => {
+    const literal = runOperator({
+      operation: "timestamp-contract",
+      culture: "fr-FR",
+      literalBase64: encodeText("2026-09-05T06:59:00Z"),
+    });
+    expect(literal).toMatchObject({
+      ok: true,
+      value: { sourceType: "System.String", normalized: "2026-09-05T06:59:00Z" },
+    });
+
+    const utcOffset = runOperator({
+      operation: "timestamp-contract",
+      culture: "fr-FR",
+      dateTimeOffsetBase64: encodeText("2026-09-05T06:59:00+00:00"),
+    });
+    expect(utcOffset).toMatchObject({
+      ok: true,
+      value: {
+        sourceType: "System.DateTimeOffset",
+        sourceKind: "00:00:00",
+        normalized: "2026-09-05T06:59:00Z",
+      },
+    });
+
+    const nonUtcOffset = runOperator({
+      operation: "timestamp-contract",
+      culture: "fr-FR",
+      dateTimeOffsetBase64: encodeText("2026-09-05T08:59:00+02:00"),
+    });
+    expect(nonUtcOffset.ok).toBe(false);
+    expect(nonUtcOffset.error).toMatch(/unambiguous UTC/);
+  });
+
+  it.each(["Invariant", "fr-FR"])(
+    "rejects offset, local, ambiguous, malformed, and over-precision wire values under %s culture",
+    culture => {
+      for (const value of [
+        "2026-09-05T08:59:00+02:00",
+        "2026-09-05T06:59:00",
+        "09/05/2026 06:59:00",
+        "2026-02-30T06:59:00Z",
+        "2026-09-05T06:59:00.12345678Z",
+      ]) {
+        const result = runOperator({
+          operation: "timestamp-contract",
+          culture,
+          payloadBase64: encodeJsonPayload({ value }),
+        });
+        expect(result.ok, `${culture}: ${value}`).toBe(false);
+      }
+    },
+  );
+
+  it.each(["Invariant", "fr-FR"])(
+    "normalizes ruleset created_at from serialized GitHub JSON under %s culture",
+    culture => {
+      const result = runOperator({
+        operation: "ruleset-created-at",
+        culture,
+        payloadBase64: encodeJsonPayload({ created_at: "2026-09-05T04:59:00Z" }),
+      });
+      expect(result).toMatchObject({ ok: true, value: "2026-09-05T04:59:00Z" });
+    },
+  );
+
+  it("fails closed on a non-UTC ruleset created_at", () => {
+    const result = runOperator({
+      operation: "ruleset-created-at",
+      culture: "fr-FR",
+      payloadBase64: encodeJsonPayload({ created_at: "2026-09-05T06:59:00+02:00" }),
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it.each(["Invariant", "fr-FR"])(
+    "normalizes serialized PR and check-run timestamps without weakening causal freshness under %s culture",
+    culture => {
+      const result = runOperator(probeOperatorInput(culture));
+      expect(result.ok).toBe(true);
+      expect(result.value.checkRuns[0]).toMatchObject({
+        started_at: "2026-09-05T04:59:20Z",
+        completed_at: "2026-09-05T04:59:30Z",
+      });
+      expect(() => assertFreshEvaluatorCheck(freshArgs(result.value.checkRuns))).not.toThrow();
+    },
+  );
+
+  it("rejects malformed PR/check timestamps at the wire boundary", () => {
+    for (const [label, mutate] of [
+      ["offset check timestamp", value => {
+        value.checkRunPages[0].check_runs[0].started_at = "2026-09-05T06:59:20+02:00";
+      }],
+      ["local check timestamp", value => {
+        value.checkRunPages[0].check_runs[0].completed_at = "2026-09-05T04:59:30";
+      }],
+      ["malformed check timestamp", value => {
+        value.checkRunPages[0].check_runs[0].started_at = "not-a-time";
+      }],
+      ["offset PR timestamp", value => {
+        value.pull.created_at = "2026-09-05T06:50:00+02:00";
+      }],
+      ["ambiguous PR timestamp", value => {
+        value.after.updated_at = "09/05/2026 04:58:50";
+      }],
+    ]) {
+      const result = runOperator(probeOperatorInput("fr-FR", mutate));
+      expect(result.ok, label).toBe(false);
+    }
+  });
+
+  it("keeps stale, future, and pre-ruleset causal checks fail-closed after normalization", () => {
+    for (const [label, mutate] of [
+      ["stale", value => {
+        value.checkRunPages[0].check_runs[0].started_at = "2026-09-05T04:50:00Z";
+        value.checkRunPages[0].check_runs[0].completed_at = "2026-09-05T04:50:10Z";
+      }],
+      ["future", value => {
+        value.checkRunPages[0].check_runs[0].started_at = "2026-09-05T05:00:01Z";
+        value.checkRunPages[0].check_runs[0].completed_at = "2026-09-05T05:00:02Z";
+      }],
+      ["pre-ruleset", value => {
+        value.checkRunPages[0].check_runs[0].started_at = "2026-09-05T04:58:58Z";
+        value.checkRunPages[0].check_runs[0].completed_at = "2026-09-05T04:58:59Z";
+      }],
+    ]) {
+      const result = runOperator(probeOperatorInput("fr-FR", mutate));
+      expect(result.ok, label).toBe(true);
+      expect(
+        () => assertFreshEvaluatorCheck(freshArgs(result.value.checkRuns)),
+        label,
+      ).toThrow(/stale|precedes/);
+    }
+    const result = runOperator(probeOperatorInput("fr-FR"));
+    expect(result.ok).toBe(true);
+    expect(() => assertFreshEvaluatorCheck({
+      ...freshArgs(result.value.checkRuns),
+      rulesetCreatedAt: "2026-09-05T05:00:01Z",
+    })).toThrow(/stale|precedes/);
+  });
+
+  it.each(["Invariant", "fr-FR"])(
+    "normalizes rollback ruleset/history timestamps before the security model under %s culture",
+    culture => {
+      const result = runOperator({
+        operation: "rollback-contract",
+        culture,
+        payloadBase64: encodeJsonPayload(rollbackPayload()),
+      });
+      expect(result.ok).toBe(true);
+    },
+  );
+
+  it("rejects malformed, offset, stale, and future rollback timestamps", () => {
+    for (const [label, mutate] of [
+      ["offset creation", value => {
+        value.createdRuleset.created_at = "2026-09-05T06:59:00+02:00";
+        value.readBackRuleset.created_at = "2026-09-05T06:59:00+02:00";
+      }],
+      ["local history", value => {
+        value.history[0].updated_at = "2026-09-05T04:59:01";
+      }],
+      ["stale creation", value => {
+        value.createdRuleset.created_at = "2026-09-05T04:58:59Z";
+        value.readBackRuleset.created_at = "2026-09-05T04:58:59Z";
+      }],
+      ["future history", value => {
+        value.history[0].updated_at = "2026-09-05T05:00:01Z";
+      }],
+    ]) {
+      const payload = rollbackPayload();
+      mutate(payload);
+      const result = runOperator({
+        operation: "rollback-contract",
+        culture: "fr-FR",
+        payloadBase64: encodeJsonPayload(payload),
+      });
+      expect(result.ok, label).toBe(false);
+    }
+  });
 });
 
 describe("executed PowerShell API contracts (all network mocked)", () => {
@@ -226,27 +521,54 @@ describe("executed PowerShell API contracts (all network mocked)", () => {
     expect(result.calls).toHaveLength(2);
   });
 
-  it("proves exactly one authorized repository with separated credentials and revocation", () => {
-    const result = runOperator(installationInput());
-    expect(result.ok).toBe(true);
-    expect(result.calls.filter(call => call.endpoint.startsWith("app/") || call.endpoint === "app" ||
-      call.endpoint.endsWith("/installation")).every(call => call.appCredential && !call.installationCredential)).toBe(true);
-    expect(result.calls.filter(call => call.endpoint.startsWith("installation/")).every(call =>
-      call.installationCredential && !call.appCredential)).toBe(true);
-    expect(result.calls.at(-1)).toMatchObject({ endpoint: "installation/token", method: "DELETE" });
-  });
+  it.each(["Invariant", "fr-FR"])(
+    "proves serialized token expiry, separated credentials, and revocation under %s culture",
+    culture => {
+      const result = runOperator(installationInput({ culture }));
+      expect(result.ok).toBe(true);
+      expect(result.calls.filter(call => call.endpoint.startsWith("app/") || call.endpoint === "app" ||
+        call.endpoint.endsWith("/installation")).every(call =>
+        call.appCredential && !call.installationCredential)).toBe(true);
+      expect(result.calls.filter(call => call.endpoint.startsWith("installation/")).every(call =>
+        call.installationCredential && !call.appCredential)).toBe(true);
+      expect(result.calls.at(-1)).toMatchObject({ endpoint: "installation/token", method: "DELETE" });
+    },
+  );
 
-  it.each(["extra-repository", "wrong-repository", "extra-installation", "expired", "overlong", "bad-expiry", "pagination", "permissions"])(
+  it.each([
+    "extra-repository",
+    "wrong-repository",
+    "extra-installation",
+    "expired",
+    "overlong",
+    "bad-expiry",
+    "offset-expiry",
+    "local-expiry",
+    "ambiguous-expiry",
+    "pagination",
+    "permissions",
+  ])(
     "rejects %s and revokes the installation token on the failure path", scenario => {
-      const input = installationInput();
+      const input = installationInput({ culture: "fr-FR" });
       if (scenario === "extra-repository") input.pages[0] = { total_count: 2, repositories: [repo, { ...repo, id: repo.id + 1, full_name: "attacker/other" }] };
       if (scenario === "wrong-repository") input.pages[0].repositories[0].full_name = "attacker/other";
       if (scenario === "extra-installation") input.installations.push({ ...installation(), id: 60_000_002 });
-      if (scenario === "expired") input.expiry = -1;
-      if (scenario === "overlong") input.expiry = 3900;
-      if (scenario === "bad-expiry") input.expiry = "not-a-time";
+      if (scenario === "expired") updateTokenPayload(input, value => { value.expires_at = futureIso(-60); });
+      if (scenario === "overlong") updateTokenPayload(input, value => { value.expires_at = futureIso(7200); });
+      if (scenario === "bad-expiry") updateTokenPayload(input, value => { value.expires_at = "not-a-time"; });
+      if (scenario === "offset-expiry") updateTokenPayload(input, value => {
+        value.expires_at = futureIsoWithOffset(1800);
+      });
+      if (scenario === "local-expiry") updateTokenPayload(input, value => {
+        value.expires_at = futureIso(1800).replace(/Z$/, "");
+      });
+      if (scenario === "ambiguous-expiry") updateTokenPayload(input, value => {
+        value.expires_at = "09/05/2026 06:59:00";
+      });
       if (scenario === "pagination") input.pages[0].total_count = 2;
-      if (scenario === "permissions") input.permissions.contents = "write";
+      if (scenario === "permissions") updateTokenPayload(input, value => {
+        value.permissions.contents = "write";
+      });
       const result = runOperator(input);
       expect(result.ok, scenario).toBe(false);
       expect(result.calls.at(-1), scenario).toMatchObject({ endpoint: "installation/token", method: "DELETE" });
