@@ -322,6 +322,7 @@ Before taking any remediation action recorded in this playbook:
     - **Final monitoring snapshot.** Retrieve from Foundry evaluator history (within retention window), Copilot Studio analytics export (where retained), and any Sentinel events captured around the retirement window.
 2. **File a reconstruction memo.** Document the reconstruction methodology, the sources used, the gaps that could not be reconstructed (with rationale), and Committee disposition. The reconstruction memo itself becomes evidence and is routed to retention.
 3. **Update the model-retirement workflow going forward.** Add explicit steps to the workflow:
+    - Follow the **Discover → Inventory → Evaluate → Approve → Deploy → Monitor → Repeat** lifecycle in [Microsoft's Copilot Studio model lifecycle guidance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-agent-model-lifecycle); do not rely on a copied model list.
     - Capture the retirement decision (Committee minute reference, owner, effective date).
     - Snapshot the current Agent Card, validation memo, Foundry evaluator dataset and results, and final monitoring report.
     - Route all artifacts to 17a-4(f) retention before any underlying surface is torn down.
@@ -451,4 +452,4 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI last verified May 2026)*

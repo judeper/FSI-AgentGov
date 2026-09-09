@@ -287,7 +287,7 @@ For each Microsoft / vendor surface that can change the underlying model behind 
 
 | Vendor event | Surface to monitor | Disposition owner | Required lead time |
 |---|---|---|---|
-| Copilot Studio default-model migration (e.g., GPT-5 → next default) | Microsoft 365 Message Center; Power Platform release plan | AI Governance Lead + Model Risk Manager | ≥ 30 days before effective date for Tier 1; per policy for lower tiers |
+| Copilot Studio default-model migration | Microsoft 365 Message Center; Power Platform release plan; current model-selection documentation | AI Governance Lead + Model Risk Manager | Per the vendor notice and firm policy |
 | Foundry model deprecation | Azure AI Foundry "Models" page; Azure Service Health | AI Administrator + Model Risk Manager | Per Microsoft published deprecation window |
 | Foundry evaluator changes (judge-model updates, evaluator GA / deprecation) | Foundry release notes | Model Risk Manager | Before next outcomes-analysis run |
 | Anthropic Claude availability changes in Copilot Studio | Copilot Studio release notes | AI Governance Lead | Before publication / activation in production |
@@ -310,6 +310,7 @@ For each vendor event affecting an in-scope agent, the firm produces a **vendor-
 | Agent Card and validation memo updates | Confirm both updated to reference the new underlying model and version |
 | MRM Committee acceptance | Pointer to minutes accepting the disposition |
 | Signatures | Disposition owner + Model Risk Manager + (for Tier 1) MRM Committee Chair |
+| Lifecycle evidence | Discover and inventory sources, baseline evaluation, approval, ALM deployment record, and post-deployment monitoring reference per [Microsoft's model lifecycle guidance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-agent-model-lifecycle) |
 
 `Anomaly` if a vendor event has taken effect in production without a dated disposition record, or if the disposition decision date is after the effective date (i.e., disposed retrospectively).
 
@@ -437,6 +438,7 @@ For each retirement (real or tabletop), the verifier confirms a retirement recor
 | Knowledge-source / RAG corpus disposition | Retained for retention period or transferred to replacement agent (cross-reference [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md)) |
 | Communications to users | Notification text retained |
 | Evidence preservation | Development, validation, monitoring, outcomes-analysis, and retirement evidence bundled and bound to retention label per §7 |
+| Model-lifecycle status | Retiring model, replacement candidate, compatibility-window decision (if applicable), migration evaluation, and post-deployment monitoring references recorded without relying on a static model list |
 | Retirement signatures | AI Governance Lead + Model Risk Manager + (for Tier 1) MRM Committee Chair |
 
 ### 8.3 Post-retirement orphan check
@@ -557,4 +559,4 @@ The cycle attestation rolls up every assertion into a single MRM cycle status:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI last verified April 2026)*
