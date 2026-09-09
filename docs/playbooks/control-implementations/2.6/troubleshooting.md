@@ -452,4 +452,4 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 
 ---
 
-*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI last verified May 2026)*
+*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI procedures not reverified in September 2026)*
