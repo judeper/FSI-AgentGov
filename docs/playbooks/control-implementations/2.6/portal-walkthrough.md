@@ -316,7 +316,21 @@ SR 26-2 (formerly SR 11-7) applies to vendor and externally developed models wit
     - **Approval evidence** from the firm's vendor-risk function (see Control 2.7) and the MRM Committee
 5. Reference: [Copilot Studio — Choose a generative AI model](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions). Verify availability and GA status of any third-party model in **your** tenant.
 
-### 4.2 Detect Microsoft default-model migrations as model changes
+### 4.2 Operate the Copilot Studio model lifecycle
+
+Use Microsoft's [model lifecycle guidance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-agent-model-lifecycle) as the procedural source for model-change operations. For each production agent:
+
+1. **Discover** new, updated, default, and retiring models through the current model-selection documentation, the model list visible for the specific agent, tenant-targeted notifications, and release guidance.
+2. **Inventory** affected agents, environments, owners, business processes, configured model, release classification, regional constraints, and whether the agent follows the default model.
+3. **Evaluate** the candidate model against the agent's established regression baseline, including quality, safety, tool selection, latency, and capacity consumption.
+4. **Approve** the migration through the firm's existing change, validation, and MRM disposition process.
+5. **Deploy** through the organization's ALM process; do not treat an in-place model selection as exempt from change control.
+6. **Monitor** production results and add newly observed failure scenarios to the regression suite.
+7. **Repeat** as model availability, defaults, retirements, administrator settings, and agent requirements change.
+
+Do not maintain a static model list in this playbook or the firm's policy. Capture the model and version actually configured for each agent at decision time, with the source and verification date.
+
+### 4.3 Detect Microsoft default-model migrations as model changes
 
 A Microsoft-driven default-model migration (for example, a tenant's default Copilot Studio model moving from one foundation model to a successor) is a **model change** for SR 26-2 (formerly SR 11-7) purposes and triggers re-validation.
 
@@ -384,7 +398,7 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 |---|---|---|
 | **Treating Copilot Studio Analytics as the validation.** Pointing examiners at a dashboard and saying "monitoring is in place." | Analytics is operational telemetry — it is **the evidence**, not the validation. The validation is the MRM Committee's review and effective challenge using that evidence. | Produce the validation memo that **references** the Analytics export, authored by the independent validation function. |
 | **Calling third-party engagement "independent validation" without substantiating independence.** Engaging an external firm and inferring SR 26-2 (formerly SR 11-7) independence from the engagement alone. | SR 26-2 (formerly SR 11-7) independence is a **functional and organizational** test, not a contractual one. An internal second-line MRM team that is functionally separate from the model owner / developer satisfies independence. A third party that is not appropriately scoped or qualified does not. | Document the validator's reporting line, scope of work, qualifications, and absence of conflicts. Independence is the test; third-party is one way to demonstrate it, not the test itself. |
-| **Not capturing vendor-model changes as model changes.** Treating a Microsoft default-model migration as a routine platform update. | A foundation-model change alters the model under SR 26-2 (formerly SR 11-7) and triggers re-validation. Missing this is a recordkeeping and validation gap. | Subscribe to Microsoft 365 Message Center and the Power Platform release plan; activate the §4.2 runbook on every announced default-model migration. |
+| **Not capturing vendor-model changes as model changes.** Treating a Microsoft default-model migration as a routine platform update. | A foundation-model change alters the model under SR 26-2 (formerly SR 11-7) and triggers re-validation. Missing this is a recordkeeping and validation gap. | Operate the §4.2 lifecycle and activate the §4.3 migration runbook on every announced default-model migration. |
 | **Relying on M365 Audit Premium retention as 17a-4(f) WORM.** Storing validation memos in audit logs and assuming they meet broker-dealer recordkeeping. | M365 Audit Premium is **operational telemetry**, not WORM. It does not meet 17a-4(f) attestation requirements. | Retain validation memos under Purview retention with a locked Regulatory Record label, or in an approved 17a-4(f) vendor (Smarsh, Global Relay, Proofpoint, Mimecast). See [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). |
 | **Treating DSPM for AI inventory as the model inventory.** Using DSPM for AI as the firm's authoritative Agent Card record. | DSPM for AI captures activity; it does not capture tier, owner-of-record, validation memo URI, or registered-principal designee. | Maintain the Agent Card SharePoint list as the authoritative inventory and reconcile against DSPM for AI monthly. |
 | **Confusing FINRA RN 25-07 with binding AI rules.** Citing Notice 25-07 as a regulatory requirement. | Notice 25-07 is RFC / contextual material, not binding AI guidance. | Cite the binding regulations (OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2 (formerly SR 11-7), FINRA 3110, FINRA 4511, SEC 17a-3 / 17a-4, SOX, GLBA, NYDFS 23 NYCRR 500) and reference Notice 25-07 only as contextual background. |
@@ -413,4 +427,4 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; portal UI not reverified in September 2026)*

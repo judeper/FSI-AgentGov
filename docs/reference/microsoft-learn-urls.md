@@ -8,7 +8,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 - **Organization:** by topic area (admin teams typically search by product)
 - **Automated Monitoring:** `scripts/learn_monitor.py` checks these URLs daily for content changes
 - **Last Verified:** last time this specific URL was checked for accuracy
-- **Total URLs Tracked:** ~229 (Learn URLs only, excludes admin portals and regulatory references)
+- **Total URLs Tracked:** ~231 (Learn URLs only, excludes admin portals and regulatory references)
 
 ---
 
@@ -108,7 +108,11 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/manage-copilot-security-enhanced-admin-controls | Mar 2026 |
 | Agentic Center of Enablement [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/automate-governance-agentic-center-enablement | Mar 2026 |
 | Agent Suggestions from M365 Copilot [Preview] | https://www.microsoft.com/en-us/microsoft-365/roadmap?filters=%5B%22Microsoft+Copilot+Studio%22%5D#Roadmap | Mar 2026 |
-| Copilot Studio Kit — Compliance Hub | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Mar 2026 |
+| Copilot Studio guidance hub — What's new | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Sep 2026 |
+| Copilot Agent Kit overview (formerly Copilot Studio Kit) | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/kit-overview | Sep 2026 |
+| Copilot Agent Kit — Agent Review Tool | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/kit-agent-review-tool | Sep 2026 |
+| Copilot Agent Kit — Agent Review Pipeline | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/kit-agent-review-pipeline | Sep 2026 |
+| Manage the AI model lifecycle for Copilot Studio agents | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-agent-model-lifecycle | Sep 2026 |
 
 ---
 
@@ -473,6 +477,6 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 
 ---
 
-*Last Updated: May 2026*
-*Total URLs Tracked: ~229*
+*Last Updated: September 2026 | Version: v1.6.2*
+*Total URLs Tracked: ~231*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*

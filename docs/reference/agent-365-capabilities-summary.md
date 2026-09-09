@@ -3,7 +3,7 @@ description: "This reference consolidates all Microsoft Agent 365 capabilities d
 ---
 # Agent 365 Capabilities Summary
 
-**Last Updated:** May 2026
+**Last Updated:** September 2026
 **Version:** v1.6.2
 
 ---
@@ -202,7 +202,8 @@ Agent 365 capabilities support FSI regulatory requirements:
 - [Microsoft Learn: Agents Deployment Blueprint for Microsoft 365](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint)
 - [Microsoft Learn: Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/)
 - [Microsoft Learn: Agent 365 Observability (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability)
-- [Microsoft Learn: Copilot Studio Kit — Compliance Hub](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new) — additional compliance resource for Microsoft Copilot Studio governance guidance and release tracking
+- [Microsoft Learn: Copilot Agent Kit overview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/kit-overview) — separate Power CAT-maintained toolkit for Copilot Studio that can complement governance processes; it is not an Agent 365 component, control plane, or documented runtime feed
+- [Microsoft Learn: Agent Review Pipeline](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/kit-agent-review-pipeline) — optional deployment-time quality gate for Copilot Studio agents promoted through Power Platform Pipelines; it is not a runtime Agent 365 interception or telemetry feed
 
 ### FSI-AgentGov Resources
 
@@ -212,4 +213,4 @@ Agent 365 capabilities support FSI regulatory requirements:
 
 ---
 
-*FSI Agent Governance Framework v1.6.2 - May 2026*
+*FSI Agent Governance Framework v1.6.2 - September 2026*
