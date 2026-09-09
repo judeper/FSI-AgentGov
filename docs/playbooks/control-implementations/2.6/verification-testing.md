@@ -287,7 +287,7 @@ For each Microsoft / vendor surface that can change the underlying model behind 
 
 | Vendor event | Surface to monitor | Disposition owner | Required lead time |
 |---|---|---|---|
-| Copilot Studio default-model migration | Microsoft 365 Message Center; Power Platform release plan; current model-selection documentation | AI Governance Lead + Model Risk Manager | Per the vendor notice and firm policy |
+| Copilot Studio default-model migration | Microsoft 365 Message Center; Power Platform release plan; current model-selection documentation | AI Governance Lead + Model Risk Manager | ≥ 30 days before effective date for Tier 1; per policy for lower tiers |
 | Foundry model deprecation | Azure AI Foundry "Models" page; Azure Service Health | AI Administrator + Model Risk Manager | Per Microsoft published deprecation window |
 | Foundry evaluator changes (judge-model updates, evaluator GA / deprecation) | Foundry release notes | Model Risk Manager | Before next outcomes-analysis run |
 | Anthropic Claude availability changes in Copilot Studio | Copilot Studio release notes | AI Governance Lead | Before publication / activation in production |
