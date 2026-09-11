@@ -1559,6 +1559,63 @@ describe("authoritative gate — exact-pins activation", () => {
     });
   });
 
+  it("retains mixed trusted-and-guarded mode on an invalid exact-pins base", async () => {
+    const policy = exactPolicyFor();
+    const poisonedBase = exactPinsTree(policy, "pre", {
+      modes: { "package-lock.json": "100755" },
+    });
+    const verdict = await judge({
+      policy,
+      baseTree: poisonedBase,
+      tree: poisonedBase,
+      changedFiles: [
+        {
+          status: "modified",
+          filename: ".github/trusted-policy/dependency-artifact-policy.json",
+        },
+        {
+          status: "modified",
+          filename: "package-lock.json",
+        },
+      ],
+    });
+
+    expect(verdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "mixed-trusted-and-guarded",
+    });
+    expect(verdict.messages.join("\n")).toMatch(
+      /trusted policy paths and guarded dependency paths/,
+    );
+  });
+
+  it("rejects legacy artifact metadata references without artifact bytes in exact-pins mode", async () => {
+    const policy = exactPolicyFor();
+    const baseTree = exactPinsTree(policy, "pre");
+    const tree = exactPinsTree(policy, "pre", {
+      files: {
+        "package.json": JSON.stringify({
+          ...PACKAGE_JSON,
+          devDependencies: {
+            ...PACKAGE_JSON.devDependencies,
+            [policy.package.name]: policy.package.spec,
+          },
+        }),
+      },
+    });
+    const verdict = await judge({
+      policy,
+      baseTree,
+      tree,
+      changedPaths: ["package.json"],
+    });
+
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(
+      /package metadata references the reviewed artifact spec but the artifact bytes are absent/,
+    );
+  });
+
   it("rejects reversion and revalidates target bytes in every post-state pull request", async () => {
     const policy = exactPolicyFor();
     const post = exactPinsTree(policy, "post");

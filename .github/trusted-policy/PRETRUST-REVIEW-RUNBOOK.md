@@ -14,6 +14,11 @@ name. The older `vendored-artifact` validation mode and command-free vendor
 README template remain protected policy capabilities, but they are not the
 active transaction.
 
+The trusted `security-scan.activation.yml` file remains the canonical workflow
+target for a future policy-reviewed use of the legacy vendored mode. It is
+inert policy material, not an active workflow, and the current two-file
+registry activation does not consume it.
+
 The `trusted-dependency-artifact-preflight` Actions workflow is useful
 base-controlled evidence, but it is **not an enforced or non-spoofable signal**.
 Only the dedicated GitHub App source bound by the remote ruleset may satisfy the

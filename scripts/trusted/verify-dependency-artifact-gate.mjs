@@ -1807,11 +1807,6 @@ export async function evaluateCandidate({
   }
 
   if (
-    exactPinsMode &&
-    baseState === "invalid"
-  ) {
-    verdict.mode = "activation-invalid-base";
-  } else if (
     classification.trusted.length > 0 &&
     classification.guarded.length > 0 &&
     !activationScope
@@ -1820,6 +1815,11 @@ export async function evaluateCandidate({
     verdict.fail(
       "trusted policy paths and guarded dependency paths must not change in the same pull request",
     );
+  } else if (
+    exactPinsMode &&
+    baseState === "invalid"
+  ) {
+    verdict.mode = "activation-invalid-base";
   } else if (activationScope) {
     verdict.mode = "activation";
   } else if (
@@ -1986,6 +1986,19 @@ export async function evaluateCandidate({
     );
   }
 
+  const reviewedArtifactSpec = policy.package.spec;
+  const reviewedArtifactReferenced =
+    packageJson?.devDependencies?.[policy.package.name] === reviewedArtifactSpec ||
+    packageLock?.packages?.[policy.package.lockPath]?.resolved === reviewedArtifactSpec;
+  if (
+    reviewedArtifactReferenced &&
+    !headBlobs.has(policy.package.artifactPath)
+  ) {
+    verdict.fail(
+      "package metadata references the reviewed artifact spec but the artifact bytes are absent",
+    );
+  }
+
   if (exactPinsMode) {
     if (validateExactPins) {
       for (const [path, pin] of Object.entries(policy.activation.pins)) {
@@ -2021,15 +2034,6 @@ export async function evaluateCandidate({
   }
 
   if (!validateArtifact) {
-    const spec = policy.package.spec;
-    const referenced =
-      packageJson?.devDependencies?.[policy.package.name] === spec ||
-      packageLock?.packages?.[policy.package.lockPath]?.resolved === spec;
-    if (referenced) {
-      verdict.fail(
-        "package metadata references the reviewed artifact spec but the artifact bytes are absent",
-      );
-    }
     checkRace(verdict, {
       eventHeadSha,
       eventBaseSha,

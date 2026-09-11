@@ -8,8 +8,11 @@
     "Digests are raw-byte SHA-256 of the Git blob content, not of a normalized rendering.",
     "Activation is a base-relative exact tree delta: every approved base blob/absence, target mode,",
     "Git blob ID, raw-byte SHA-256, size, and the canonical patch digest are pinned.",
-    "digestPins retains the reviewed legacy vendored-artifact capability bytes; policy v3's active",
-    "exact-pins state is defined only by activation.basePins, activation.pins, and patchSha256."
+    "digestPins retains post-activation byte pins for the legacy vendored-artifact capability;",
+    "its package-lock entry intentionally matches policy v3's registry target, while the active",
+    "exact-pins state is defined only by activation.basePins, activation.pins, and patchSha256.",
+    "security-scan.activation.yml remains trusted as the canonical legacy vendored-mode workflow",
+    "target; exact-pins mode does not consume or activate it."
   ],
   "policyVersion": 3,
   "checkName": "trusted-dependency-artifact",

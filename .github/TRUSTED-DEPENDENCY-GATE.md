@@ -153,6 +153,12 @@ checks and exact pin validation. The `vendored-artifact` mode and its synthetic
 regressions remain available as a backward-compatible evaluator capability,
 but it is not selected by policy version 3.
 
+The trusted
+`.github/trusted-policy/security-scan.activation.yml` file is retained only as
+the canonical workflow target for that legacy vendored mode. It is inert
+policy material, not an active workflow, and the policy v3 `exact-pins`
+transaction does not consume it.
+
 The future activation branch must be recreated or rebased from the merged
 policy-v3 head. Its only permitted delta is the two pinned files above. If
 either base pin has moved, policy owners must stop and issue another standalone
