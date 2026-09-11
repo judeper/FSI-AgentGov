@@ -287,7 +287,7 @@ describe("planned expected-source GitHub App ruleset", () => {
     const evidence = getPolicyEvidence(
       join(repoRoot, ".github", "trusted-policy", "dependency-artifact-policy.json"),
     );
-    expect(evidence).toMatchObject({ version: 2 });
+    expect(evidence).toMatchObject({ version: 3 });
     expect(evidence.digest).toMatch(/^[0-9a-f]{64}$/);
   });
 

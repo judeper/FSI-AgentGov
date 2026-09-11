@@ -1,16 +1,18 @@
 # Pre-trust review and policy rotation runbook
 
-This runbook is a **trusted policy path**. A dependency-artifact pull request
+This runbook is a **trusted policy path**. A dependency-change pull request
 must never modify it, `SECURITY.md`, the gate workflow, the App contract, the
 ruleset plan, or another trusted path. Trusted paths are never part of the
-artifact activation transaction.
+dependency activation transaction.
 
 ## Boundary
 
-The vendored README is an exact byte-pinned artifact file. It is data only:
-never infer permission to run a command from a candidate artifact, README, test,
-workflow, or familiar check name. The command-free template remains protected
-policy material for future documentation rotations.
+Policy version 3 selects `exact-pins` for the planned registry activation.
+Candidate lockfile and test bytes are data only: never infer permission to run
+a command from a candidate package, README, test, workflow, or familiar check
+name. The older `vendored-artifact` validation mode and command-free vendor
+README template remain protected policy capabilities, but they are not the
+active transaction.
 
 The `trusted-dependency-artifact-preflight` Actions workflow is useful
 base-controlled evidence, but it is **not an enforced or non-spoofable signal**.
@@ -20,13 +22,14 @@ authoritative `trusted-dependency-artifact` requirement.
 ## Policy rotation
 
 1. Open a **trusted policy-only** pull request. It may alter policy in place,
-   but must not add, delete, rename, or modify guarded artifact paths.
+   but must not add, delete, rename, or modify guarded dependency paths.
 2. Obtain an independent exact-head review. CODEOWNERS review is part of the
    planned remote ruleset; before activation, this is a manual bootstrap control.
-3. Merge the policy-only pull request first. The old artifact remains governed
-   by the old base policy during review; the new policy then blocks old bytes.
-4. Open or rebase the separate exact-match artifact rotation only after the
-   policy commit is merged. Never combine a policy pin change and artifact
+3. Merge the policy-only pull request first. The old dependency state remains
+   governed by the old base policy during review; the new policy then pins the
+   approved transition.
+4. Open or rebase the separate exact-match dependency rotation only after the
+   policy commit is merged. Never combine a policy pin change and dependency
    bytes in one pull request.
 
 Protected-path renames, case/NFC aliases, duplicates, and directory/file prefix
@@ -44,39 +47,50 @@ loaded; do not delete it while it is still a trusted path.
 
 ## Exact approved activation
 
-When the artifact is absent from the immutable base tree, the only accepted
-activation is policy version 2's base-relative exact tree delta, identified by
-patch digest
-`a9cc1b76042703c570dcd4a95575fbf54880e58f4ae8a26d35e2d9ea0c482425`.
-The policy pins the current base state (blob+mode or required absence) and the
-target state (mode+blob+raw-byte SHA-256+size) for all 16 activation paths.
-`SECURITY.md` and every trusted policy/runbook/workflow/operator path are
-excluded.
+The only accepted activation is policy version 3's `exact-pins`,
+base-relative tree delta, identified by patch digest
+`ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43`.
+It contains exactly:
 
-Before activation, a change to **any** guarded path or activation path fails
-unless the immutable base/head delta equals all 16 paths exactly. This includes
-partial edits to a manifest, lockfile, `.gitattributes`, verifier, workflow,
-test, or artifact README. No pull-file claim and no `guard-only` result can
-substitute for the exact immutable delta.
+1. `package-lock.json`: base mode/blob
+   `100644`/`08aafb595607f78f0a0998b022a2cebe920bb257`; target
+   mode/blob/SHA-256/size
+   `100644`/`11b6591aa1b39b50d451005dae574fb465f66871`/
+   `4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1`/
+   `76919`.
+2. `tests/spa/fast-uri-security.test.mjs`: absent in the base; target
+   mode/blob/SHA-256/size
+   `100644`/`a43678648562f3b13a40ca672ce81953b89c1b2a`/
+   `0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd`/
+   `2573`.
 
-The old artifact commit is not approved for merge or cherry-pick. After this
-policy is merged, recreate the dependent artifact branch from that merged
-policy head, materialize only the target blobs listed in the activation pins,
-and verify the patch digest. The `security-scan.yml` target is newly rebased:
-it combines the reviewed artifact steps with the policy head's top-level
-`permissions: {}` hardening. If any base pin differs, stop and rotate the
-policy; do not edit the artifact branch to make the old pins fit. The policy
-branch itself remains artifact-free.
+No `package.json` override, vendored artifact, provenance file, workflow,
+`.gitattributes`, verifier/runtime file, or `SECURITY.md` belongs in this
+transaction. Those former activation-sensitive surfaces remain guarded,
+including both security workflows, all verifier/runtime paths, package
+manifests and lockfiles, the vendor root, the former focused tests, and the new
+fast-uri security test.
 
-The acceptance-test target is byte-identical to the tracked
-`trusted-gate-artifact-acceptance.template.mjs` in this policy directory. Use its
-Git blob at the pinned activation destination. It validates the current policy
-shape and the exact pre/post-activation trees, not removed evaluator exports.
-Do not reuse the old artifact branch's acceptance test or old patch digest.
-The unchanged security workflow target is likewise available as the Git blob
-of `security-scan.activation.yml` in this directory. On a local checkout with
-all reviewed artifact Git objects present, run the full policy/real-activation
-replay without installing or activating the artifact:
+The evaluator derives each immutable tree's state from **all** base or target
+pins. A mixed or poisoned base fails every pull request. Only the exact
+pre-state to exact post-state two-file delta may activate. Partial or extra
+changes, reversion, rename/alias tricks, mode changes, and altered bytes fail.
+In the post-state, both target files are revalidated by mode, Git blob,
+raw-byte SHA-256, and size on every pull request.
+
+`exact-pins` mode never performs tar, provenance, packed-manifest, or artifact
+checks and never fetches, installs, imports, or executes candidate package
+code. The legacy `vendored-artifact` mode remains covered by synthetic
+regressions for future reviewed policies.
+
+After this policy is merged, recreate or rebase the dependent branch from that
+merged policy head and materialize only the two target blobs. If either base
+pin differs, stop and rotate policy; do not alter the dependent branch to make
+the pins fit. The policy branch itself must not contain either activation
+change.
+
+On a local checkout with both target Git objects available, run the full
+pre/post replay without installing or executing candidate package code:
 
 ```powershell
 $env:TRUSTED_GATE_VALIDATE_PLANNED_BLOBS = "1"
@@ -84,10 +98,11 @@ npm test
 Remove-Item Env:TRUSTED_GATE_VALIDATE_PLANNED_BLOBS
 ```
 
-A fresh policy-only clone intentionally lacks the artifact objects; its normal
-suite still checks current policy shape, persisted templates, real recursive
-Git trees, and synthetic exact-activation attacks. An activated artifact
-checkout always runs the pinned acceptance suite without an environment flag.
+A fresh policy-only clone may not contain the future target objects; its normal
+suite still checks current policy shape, the exact base state, guarded-path
+coverage, and synthetic exact-pins and vendored-artifact attacks. The later
+activation checkout contains the target objects and runs the replay without an
+environment flag.
 
 ## One-time enforcement bootstrap
 
@@ -167,7 +182,7 @@ Apply refuses to run without both probes. The positive and negative App checks,
 and the negative same-name Actions check, must start after ruleset creation,
 remain within the five-minute evidence window, and be associated with the exact
 probe PR/head/base. Until every App, ruleset, legacy-protection, and probe
-read-back passes, the artifact remediation is **BLOCKED**. A same-name check
+read-back passes, the dependency remediation is **BLOCKED**. A same-name check
 from GitHub Actions is never an acceptable substitute.
 
 The complete `filter=all` check-run pagination must have stable totals and

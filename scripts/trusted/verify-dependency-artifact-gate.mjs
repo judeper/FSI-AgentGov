@@ -23,10 +23,10 @@
  *   - No npm, package script, lifecycle hook, `.npmrc`, `node_modules/.bin`
  *     entry, or candidate JavaScript is executed. The job has no `node_modules`.
  *
- * Whether the reviewed artifact is *required* is derived from the base checkout,
- * not from policy text and never from the candidate. That keeps the gate honest
- * before the artifact lands (it cannot demand bytes that do not exist yet) and
- * after it lands (a candidate cannot escape validation by deleting it).
+ * Activation state is selected by a closed mode in the base policy. Exact-pins
+ * mode derives pre/post/invalid from every base and target pin; legacy
+ * vendored-artifact mode derives state from the complete reviewed artifact set.
+ * A candidate cannot select its own state model or escape post-state validation.
  *
  * Node built-ins only. Pure functions are exported so the attack fixtures in
  * `tests/spa/trusted-dependency-gate.test.mjs` can drive the whole decision
@@ -63,6 +63,7 @@ const BLOB_MODE_SYMLINK = "120000";
 const BLOB_MODE_GITLINK = "160000";
 const PINNABLE_BLOB_MODES = new Set([BLOB_MODE_REGULAR, BLOB_MODE_EXECUTABLE]);
 const TREE_MODE = "040000";
+const ACTIVATION_VALIDATION_MODES = new Set(["vendored-artifact", "exact-pins"]);
 
 /* ------------------------------------------------------------------ *
  * Policy loading
@@ -145,6 +146,7 @@ export function assertPolicyShape(policy) {
   const activation = policy.activation;
   if (
     activation?.strategy !== "base-relative-exact-tree-delta" ||
+    !ACTIVATION_VALIDATION_MODES.has(activation?.validationMode) ||
     activation?.requiredBasePolicyVersion !== policy.policyVersion ||
     activation?.requiresCompleteSet !== true ||
     !Array.isArray(activation?.allowedFiles) ||
@@ -155,7 +157,9 @@ export function assertPolicyShape(policy) {
     Object.keys(activation.pins).length !== activation.allowedFiles.length ||
     !/^[0-9a-f]{64}$/.test(activation?.patchSha256 ?? "")
   ) {
-    throw new Error("trusted policy activation must enumerate an exact non-empty file set");
+    throw new Error(
+      "trusted policy activation must use a closed validation mode and enumerate an exact non-empty file set",
+    );
   }
   const activationPaths = new Set(activation.allowedFiles);
   if (activationPaths.size !== activation.allowedFiles.length) {
@@ -238,6 +242,23 @@ export function assertPolicyShape(policy) {
     ) {
       throw new Error(`activation base pin for '${path}' is not an exact Git blob and mode`);
     }
+  }
+  for (const path of activation.allowedFiles) {
+    const basePin = activation.basePins[path];
+    const targetPin = activation.pins[path];
+    if (
+      basePin?.absent !== true &&
+      basePin?.mode === targetPin?.mode &&
+      basePin?.blob === targetPin?.blob
+    ) {
+      throw new Error(`activation path '${path}' does not change between its base and target pins`);
+    }
+  }
+  if (
+    activation.validationMode === "vendored-artifact" &&
+    policy.vendor.allowedFiles.some(path => !activationPaths.has(path))
+  ) {
+    throw new Error("vendored-artifact activation must include every reviewed vendor file");
   }
   if (activationPatchDigest(activation) !== activation.patchSha256) {
     throw new Error("trusted policy activation patch digest does not match its exact pins");
@@ -1397,12 +1418,24 @@ function hasTreePath(blobs, path) {
   return !identity.unsafe && blobs.has(identity.canonical);
 }
 
-function artifactState(policy, baseBlobs, headBlobs, verdict) {
+function vendoredArtifactState(policy, baseBlobs, headBlobs, verdict) {
   const required = policy.vendor.allowedFiles;
   const basePresent = required.filter(path => hasTreePath(baseBlobs, path));
   const headPresent = required.filter(path => hasTreePath(headBlobs, path));
   const baseHasArtifact = hasTreePath(baseBlobs, policy.package.artifactPath);
   const headHasArtifact = hasTreePath(headBlobs, policy.package.artifactPath);
+  const baseState =
+    basePresent.length === 0
+      ? "pre"
+      : baseHasArtifact && basePresent.length === required.length
+        ? "post"
+        : "invalid";
+  const headState =
+    headPresent.length === 0
+      ? "pre"
+      : headHasArtifact && headPresent.length === required.length
+        ? "post"
+        : "invalid";
 
   if (basePresent.length !== 0 && basePresent.length !== required.length) {
     verdict.fail("base tree contains an incomplete reviewed artifact set");
@@ -1420,12 +1453,90 @@ function artifactState(policy, baseBlobs, headBlobs, verdict) {
   }
 
   return {
-    artifactRequired: baseHasArtifact,
+    validationMode: "vendored-artifact",
+    baseState,
+    headState,
     validateArtifact: baseHasArtifact || headHasArtifact,
-    baseHasArtifact,
-    headHasArtifact,
-    activationCandidate: !baseHasArtifact && headHasArtifact,
+    validateExactPins: false,
+    activationCandidate: baseState === "pre" && headState === "post",
   };
+}
+
+function treeMatchesActivationPins(blobs, allowedFiles, pins) {
+  return allowedFiles.every(path => {
+    const pin = pins[path];
+    const entry = blobs.get(path);
+    if (pin?.absent === true) return entry === undefined;
+    return (
+      entry?.type === "blob" &&
+      entry.mode === pin?.mode &&
+      entry.sha === pin?.blob
+    );
+  });
+}
+
+function exactPinsTreeState(policy, blobs) {
+  const matchesBase = treeMatchesActivationPins(
+    blobs,
+    policy.activation.allowedFiles,
+    policy.activation.basePins,
+  );
+  const matchesTarget = treeMatchesActivationPins(
+    blobs,
+    policy.activation.allowedFiles,
+    policy.activation.pins,
+  );
+  if (matchesBase === matchesTarget) return "invalid";
+  return matchesBase ? "pre" : "post";
+}
+
+function exactPinsActivationState(policy, baseBlobs, headBlobs, verdict) {
+  const baseState = exactPinsTreeState(policy, baseBlobs);
+  const headState = exactPinsTreeState(policy, headBlobs);
+
+  if (baseState === "invalid") {
+    verdict.fail(
+      "immutable base does not match the complete exact-pins pre-state or post-state",
+    );
+  }
+  if (headState === "invalid") {
+    verdict.fail(
+      "candidate tree does not match the complete exact-pins pre-state or post-state",
+    );
+  }
+  if (baseState === "post" && headState === "pre") {
+    verdict.fail(
+      "candidate reverts the exact-pins activation; rotate trusted policy before changing pinned paths",
+    );
+  }
+
+  return {
+    validationMode: "exact-pins",
+    baseState,
+    headState,
+    validateArtifact: false,
+    validateExactPins: headState === "post",
+    activationCandidate: baseState === "pre" && headState === "post",
+  };
+}
+
+function activationState(policy, baseBlobs, headBlobs, verdict) {
+  switch (policy.activation.validationMode) {
+    case "vendored-artifact":
+      return vendoredArtifactState(policy, baseBlobs, headBlobs, verdict);
+    case "exact-pins":
+      return exactPinsActivationState(policy, baseBlobs, headBlobs, verdict);
+    default:
+      verdict.fail("trusted policy selected an unsupported activation validation mode");
+      return {
+        validationMode: "invalid",
+        baseState: "invalid",
+        headState: "invalid",
+        validateArtifact: false,
+        validateExactPins: false,
+        activationCandidate: false,
+      };
+  }
 }
 
 function classifyAllChanges(policy, changedFiles, treeChanges) {
@@ -1453,9 +1564,18 @@ function failOnProtectedRename(policy, verdict, rename) {
   }
 }
 
-function requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict) {
+function requireTrustedPathContinuity(
+  policy,
+  baseBlobs,
+  headBlobs,
+  activationStatus,
+  verdict,
+) {
   const index = buildPathIdentityIndex(policy);
-  for (const [side, blobs] of [["base", baseBlobs], ["candidate", headBlobs]]) {
+  for (const [side, blobs, state] of [
+    ["base", baseBlobs, activationStatus.baseState],
+    ["candidate", headBlobs, activationStatus.headState],
+  ]) {
     for (const path of policy.trustedPaths) {
       const entry = blobs.get(path);
       const mode = policy.trustedPathModes?.[path];
@@ -1465,11 +1585,13 @@ function requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict) {
         verdict.fail(`${side} trusted path '${sanitizeToken(path, 100)}' must be a regular blob with approved mode ${sanitizeToken(mode, 10)}`);
       }
     }
-    const activated = hasTreePath(blobs, policy.package.artifactPath);
     for (const [path, entry] of blobs) {
       const classification = classifyRepositoryPath(policy, path, index);
       if (!classification.guarded && !classification.activation) continue;
-      const pin = activated ? policy.activation.pins[path] : policy.activation.basePins[path];
+      const pin =
+        state === "post"
+          ? policy.activation.pins[path]
+          : policy.activation.basePins[path];
       const approvedMode = pin?.mode ?? BLOB_MODE_REGULAR;
       if (!PINNABLE_BLOB_MODES.has(entry.mode) || entry.mode !== approvedMode) {
         verdict.fail(`${side} guarded path '${sanitizeToken(path, 100)}' must be a regular blob with approved mode ${approvedMode}`);
@@ -1604,13 +1726,28 @@ export async function evaluateCandidate({
     );
   }
 
-  const { artifactRequired, validateArtifact } = artifactState(
+  const activationStatus = activationState(
     policy,
     baseBlobs,
     headBlobs,
     verdict,
   );
-  requireTrustedPathContinuity(policy, baseBlobs, headBlobs, verdict);
+  const {
+    validationMode,
+    baseState,
+    headState,
+    validateArtifact,
+    validateExactPins,
+    activationCandidate,
+  } = activationStatus;
+  const exactPinsMode = validationMode === "exact-pins";
+  requireTrustedPathContinuity(
+    policy,
+    baseBlobs,
+    headBlobs,
+    activationStatus,
+    verdict,
+  );
 
   const immutableChangedCanonicalPaths = new Set(
     immutableDiff.changes
@@ -1619,17 +1756,17 @@ export async function evaluateCandidate({
       .map(identity => identity.canonical),
   );
   const activationAllowed = new Set([...pathIndex.activationAllowed.keys()]);
+  const protectedPathChange =
+    classification.guarded.length > 0 || classification.activation.length > 0;
   const preActivationProtectedChange =
-    !artifactRequired &&
-    (classification.guarded.length > 0 || classification.activation.length > 0);
+    baseState === "pre" && protectedPathChange;
   const activationScope =
-    !artifactRequired &&
-    validateArtifact &&
+    activationCandidate &&
     sameSet(immutableChangedCanonicalPaths, activationAllowed);
   if (preActivationProtectedChange) {
     if (!activationScope) {
       verdict.fail(
-        "before artifact activation, every guarded or activation path change must equal the exact policy-approved activation file set",
+        "before activation, every guarded or activation path change must equal the exact policy-approved activation file set",
       );
     } else {
       checkActivationBasePins(policy, baseBlobs, verdict);
@@ -1648,8 +1785,20 @@ export async function evaluateCandidate({
       }
     }
   }
+  const postActivationProtectedChange =
+    exactPinsMode && baseState === "post" && protectedPathChange;
+  if (postActivationProtectedChange) {
+    verdict.fail(
+      "after exact-pins activation, guarded dependency paths are immutable until a policy-first rotation",
+    );
+  }
 
   if (
+    exactPinsMode &&
+    baseState === "invalid"
+  ) {
+    verdict.mode = "activation-invalid-base";
+  } else if (
     classification.trusted.length > 0 &&
     classification.guarded.length > 0 &&
     !activationScope
@@ -1660,10 +1809,17 @@ export async function evaluateCandidate({
     );
   } else if (activationScope) {
     verdict.mode = "activation";
-  } else if (preActivationProtectedChange) {
+  } else if (
+    preActivationProtectedChange ||
+    postActivationProtectedChange ||
+    (exactPinsMode && headState === "invalid") ||
+    (exactPinsMode && baseState === "post" && headState === "pre")
+  ) {
     verdict.mode = "activation-rejected";
-  } else if (validateArtifact) {
+  } else if (validationMode === "vendored-artifact" && validateArtifact) {
     verdict.mode = "artifact";
+  } else if (exactPinsMode && baseState === "post" && headState === "post") {
+    verdict.mode = "exact-pins";
   } else if (classification.trusted.length > 0) {
     verdict.mode = "policy-only";
   } else if (classification.guarded.length > 0 || classification.activation.length > 0) {
@@ -1727,13 +1883,17 @@ export async function evaluateCandidate({
     }
   }
 
-  const wanted = new Set(["package.json", "package-lock.json", ".gitattributes"]);
-  if (validateArtifact) {
+  const wanted = new Set(["package.json", "package-lock.json"]);
+  if (validationMode === "vendored-artifact" && validateArtifact) {
+    wanted.add(".gitattributes");
     for (const path of [...policy.vendor.allowedFiles, ...Object.keys(effectiveDigestPins(policy))]) {
       wanted.add(path);
     }
   }
-  if (activationScope) {
+  if (
+    (validationMode === "vendored-artifact" && activationScope) ||
+    (exactPinsMode && validateExactPins)
+  ) {
     for (const path of Object.keys(policy.activation?.pins ?? {})) wanted.add(path);
     for (const path of policy.activation?.allowedFiles ?? []) wanted.add(path);
   }
@@ -1745,9 +1905,12 @@ export async function evaluateCandidate({
     const entry = pathIdentity.unsafe ? undefined : headBlobs.get(pathIdentity.canonical);
     if (!entry) {
       if (
-        (validateArtifact &&
+        (validationMode === "vendored-artifact" &&
+          validateArtifact &&
           (effectiveDigestPins(policy)[path] || policy.vendor.allowedFiles.includes(path))) ||
-        (activationScope && policy.activation?.pins?.[path])
+        (((validationMode === "vendored-artifact" && activationScope) ||
+          (exactPinsMode && validateExactPins)) &&
+          policy.activation?.pins?.[path])
       ) {
         verdict.fail(`required file '${sanitizeToken(path, 100)}' is missing from the candidate tree`);
       }
@@ -1798,12 +1961,50 @@ export async function evaluateCandidate({
   } catch (error) {
     verdict.fail(`package-lock.json rejected: ${sanitizeToken(error?.message, 100)}`);
   }
-  if (contents.has(".gitattributes") && validateArtifact) {
+  if (
+    validationMode === "vendored-artifact" &&
+    contents.has(".gitattributes") &&
+    validateArtifact
+  ) {
     checkGitattributes(
       verdict,
       policy,
       Buffer.from(contents.get(".gitattributes")).toString("utf8"),
     );
+  }
+
+  if (exactPinsMode) {
+    if (validateExactPins) {
+      for (const [path, pin] of Object.entries(policy.activation.pins)) {
+        const identity = canonicalRepositoryPathIdentity(path);
+        checkExactBytePin(
+          verdict,
+          path,
+          identity.unsafe ? undefined : contents.get(identity.canonical),
+          pin,
+          "exact-pins file",
+          identity.unsafe ? undefined : headBlobs.get(identity.canonical),
+        );
+      }
+    }
+    checkRace(verdict, {
+      eventHeadSha,
+      eventBaseSha,
+      baseRef,
+      currentHeadSha,
+      currentBaseSha,
+      currentBaseRef,
+    });
+    if (!verdict.failed) {
+      verdict.note(
+        headState === "post"
+          ? `revalidated exact-pins post-state ${sanitizeToken(eventHeadSha.slice(0, 12), 12)} against immutable base ${sanitizeToken(eventBaseSha.slice(0, 12), 12)}`
+          : verdict.mode === "policy-only"
+            ? "policy-only change; exact-pins activation remains in its immutable pre-state"
+            : "exact-pins activation remains in its immutable pre-state",
+      );
+    }
+    return verdict;
   }
 
   if (!validateArtifact) {
