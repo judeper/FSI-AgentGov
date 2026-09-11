@@ -22,7 +22,7 @@
     "jsdom": "29.1.1",
     "markdown-it": "^15.0.1",
     "pdf-parse": "2.4.5",
-    "vitest": "4.1.11",
+    "vitest": "5.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }
