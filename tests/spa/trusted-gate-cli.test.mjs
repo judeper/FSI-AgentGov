@@ -2,12 +2,24 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { main } from "../../scripts/trusted/verify-dependency-artifact-gate.mjs";
+import {
+  loadPolicy,
+  main,
+} from "../../scripts/trusted/verify-dependency-artifact-gate.mjs";
 import { git, githubTreeResponse, readGitIndex, repoRoot } from "./_gitTreeFixtures.mjs";
 
 const headSha = "b".repeat(40);
 const baseSha = "a".repeat(40);
 const originalOutput = "runner-owned output must remain unchanged\n";
+const policy = loadPolicy(repoRoot);
+const currentIndex = new Map(readGitIndex().map(entry => [entry.path, entry]));
+const unchangedSuccessMode = policy.activation.allowedFiles.every(path => {
+  const entry = currentIndex.get(path);
+  const pin = policy.activation.pins[path];
+  return entry?.type === "blob" && entry.mode === pin.mode && entry.sha === pin.blob;
+})
+  ? "exact-pins"
+  : "not-applicable";
 let fixtureRoot;
 let outputPath;
 
@@ -62,7 +74,7 @@ describe("preflight stdout and exit-status contract", () => {
     expect(status).toBe(hostile ? 1 : 0);
     expect(JSON.parse(emitted)).toMatchObject({
       conclusion: hostile ? "failure" : "success",
-      mode: hostile ? "unsafe-path" : "not-applicable",
+      mode: hostile ? "unsafe-path" : unchangedSuccessMode,
     });
     expect(emitted.trim().split("\n")).toHaveLength(1);
     expect(emitted).not.toContain(hostilePath);
