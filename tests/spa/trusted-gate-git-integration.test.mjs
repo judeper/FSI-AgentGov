@@ -10,6 +10,13 @@ import { fixtureBlob, git, githubTreeResponse, readGitIndex, readGitTree, repoRo
 
 const policy = loadPolicy(repoRoot);
 const base = readGitIndex();
+const unchangedSuccessMode = policy.activation.allowedFiles.every(path => {
+  const entry = base.find(candidate => candidate.path === path);
+  const pin = policy.activation.pins[path];
+  return entry?.type === "blob" && entry.mode === pin.mode && entry.sha === pin.blob;
+})
+  ? "exact-pins"
+  : "not-applicable";
 const localBlobs = new Map();
 function blob(path, content, mode) {
   const entry = fixtureBlob(path, content, mode);
@@ -34,7 +41,10 @@ describe("real Git trees and trusted-mode continuity", () => {
     const helper = "scripts/trusted/github-app-jwt.mjs";
     const destination = "scripts/shared-jwt-helper.mjs";
     expect(base.find(entry => entry.path === helper)).toMatchObject({ type: "blob", mode: "100644" });
-    expect((await judge(base, base)).toJSON()).toMatchObject({ conclusion: "success", mode: "not-applicable" });
+    expect((await judge(base, base)).toJSON()).toMatchObject({
+      conclusion: "success",
+      mode: unchangedSuccessMode,
+    });
 
     const linked = [
       ...base.filter(entry => entry.path !== helper),
