@@ -64,6 +64,16 @@ const BLOB_MODE_GITLINK = "160000";
 const PINNABLE_BLOB_MODES = new Set([BLOB_MODE_REGULAR, BLOB_MODE_EXECUTABLE]);
 const TREE_MODE = "040000";
 const ACTIVATION_VALIDATION_MODES = new Set(["vendored-artifact", "exact-pins"]);
+const ACTIVATION_KEYS = new Set([
+  "strategy",
+  "validationMode",
+  "requiredBasePolicyVersion",
+  "requiresCompleteSet",
+  "patchSha256",
+  "allowedFiles",
+  "basePins",
+  "pins",
+]);
 
 /* ------------------------------------------------------------------ *
  * Policy loading
@@ -144,7 +154,11 @@ export function assertPolicyShape(policy) {
     throw new Error("trusted policy must require policy-first artifact rotation");
   }
   const activation = policy.activation;
+  const unknownActivationKeys = Object.keys(activation ?? {}).filter(
+    key => !ACTIVATION_KEYS.has(key),
+  );
   if (
+    unknownActivationKeys.length > 0 ||
     activation?.strategy !== "base-relative-exact-tree-delta" ||
     !ACTIVATION_VALIDATION_MODES.has(activation?.validationMode) ||
     activation?.requiredBasePolicyVersion !== policy.policyVersion ||
@@ -180,11 +194,10 @@ export function assertPolicyShape(policy) {
   }
   for (const path of activation.allowedFiles) {
     const identity = canonicalRepositoryPathIdentity(path);
-    if (identity.unsafe) throw new Error("trusted policy activation contains an unsafe path");
-    if (
-      activationFolded.has(identity.folded) &&
-      activationFolded.get(identity.folded) !== identity.canonical
-    ) {
+    if (identity.unsafe || identity.canonical !== path) {
+      throw new Error("trusted policy activation contains an unsafe or noncanonical path");
+    }
+    if (activationFolded.has(identity.folded)) {
       throw new Error("trusted policy activation contains a case or NFC collision");
     }
     if (trustedFolded.has(identity.folded)) {

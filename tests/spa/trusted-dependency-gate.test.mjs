@@ -2166,6 +2166,51 @@ describe("trusted policy document", () => {
     expect(() => assertPolicyShape(policy)).toThrow(/overlaps a trusted path/);
   });
 
+  it("rejects unrecognized activation fields outside the signed schema", () => {
+    const policy = structuredClone(realPolicy);
+    policy.activation.unrecognizedSecurityControl = true;
+
+    expect(() => assertPolicyShape(policy)).toThrow(
+      /closed validation mode|enumerate an exact non-empty file set/,
+    );
+  });
+
+  it("rejects a noncanonical activation path even with recomputed pins", () => {
+    const policy = structuredClone(realPolicy);
+    const original = "tests/spa/fast-uri-security.test.mjs";
+    const noncanonical = "tests/spa/fast-uri-securite\u0301.test.mjs";
+    policy.activation.allowedFiles = policy.activation.allowedFiles.map(path =>
+      path === original ? noncanonical : path,
+    );
+    policy.activation.basePins[noncanonical] = policy.activation.basePins[original];
+    policy.activation.pins[noncanonical] = policy.activation.pins[original];
+    delete policy.activation.basePins[original];
+    delete policy.activation.pins[original];
+    policy.activation.patchSha256 = activationPatchDigest(policy.activation);
+
+    expect(() => assertPolicyShape(policy)).toThrow(/unsafe or noncanonical/);
+  });
+
+  it("rejects NFC-equivalent duplicate activation paths as noncanonical", () => {
+    const policy = structuredClone(realPolicy);
+    for (const path of [
+      "tests/spa/caf\u00e9.test.mjs",
+      "tests/spa/cafe\u0301.test.mjs",
+    ]) {
+      policy.activation.allowedFiles.push(path);
+      policy.activation.basePins[path] = { absent: true };
+      policy.activation.pins[path] = {
+        mode: "100644",
+        blob: "1".repeat(40),
+        sha256: "2".repeat(64),
+        size: 1,
+      };
+    }
+    policy.activation.patchSha256 = activationPatchDigest(policy.activation);
+
+    expect(() => assertPolicyShape(policy)).toThrow(/unsafe or noncanonical/);
+  });
+
   it("pins the exact current policy-tree base state for every future activation path", () => {
     for (const path of realPolicy.activation.allowedFiles) {
       const output = execFileSync("git", ["ls-files", "--stage", "--", path], {
