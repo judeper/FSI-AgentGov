@@ -47,6 +47,57 @@ const gateWorkflowCode = gateWorkflow
   .join("\n");
 
 const HEAD_SHA = "a".repeat(40);
+const VENDORED_ACTIVATION_PATHS = [
+  ".gitattributes",
+  ".github/workflows/security-scan.yml",
+  ".github/workflows/sri-check.yml",
+  "package-lock.json",
+  "package.json",
+  "scripts/verify-fast-uri-artifact.mjs",
+  "scripts/verify-fast-uri-bootstrap.mjs",
+  "scripts/verify-vendored-runtime.mjs",
+  "tests/spa/docs-safe-procedure.test.mjs",
+  "tests/spa/fast-uri-artifact-race.test.mjs",
+  "tests/spa/fast-uri-security-workflow.test.mjs",
+  "tests/spa/trusted-gate-artifact-acceptance.test.mjs",
+  "tests/spa/vendor-runtime-policy.test.mjs",
+  "vendor/npm/fast-uri/3.1.7/README.md",
+  "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+  "vendor/npm/fast-uri/3.1.7/provenance.json",
+];
+const VENDORED_BASE_ABSENT = new Set([
+  "scripts/verify-fast-uri-artifact.mjs",
+  "scripts/verify-fast-uri-bootstrap.mjs",
+  "tests/spa/docs-safe-procedure.test.mjs",
+  "tests/spa/fast-uri-artifact-race.test.mjs",
+  "tests/spa/fast-uri-security-workflow.test.mjs",
+  "tests/spa/trusted-gate-artifact-acceptance.test.mjs",
+  "vendor/npm/fast-uri/3.1.7/README.md",
+  "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+  "vendor/npm/fast-uri/3.1.7/provenance.json",
+]);
+const EXACT_PIN_PATHS = [
+  "package-lock.json",
+  "tests/spa/fast-uri-security.test.mjs",
+];
+const FORMER_ACTIVATION_GUARDED_PATHS = [
+  ".gitattributes",
+  ".github/workflows/security-scan.yml",
+  ".github/workflows/sri-check.yml",
+  "package.json",
+  "package-lock.json",
+  "scripts/verify-fast-uri-artifact.mjs",
+  "scripts/verify-fast-uri-bootstrap.mjs",
+  "scripts/verify-vendored-runtime.mjs",
+  "tests/spa/docs-safe-procedure.test.mjs",
+  "tests/spa/fast-uri-artifact-race.test.mjs",
+  "tests/spa/fast-uri-security-workflow.test.mjs",
+  "tests/spa/trusted-gate-artifact-acceptance.test.mjs",
+  "tests/spa/vendor-runtime-policy.test.mjs",
+  "vendor/npm/fast-uri/3.1.7/README.md",
+  "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz",
+  "vendor/npm/fast-uri/3.1.7/provenance.json",
+];
 
 /* ------------------------------------------------------------------ *
  * Fixture builders — a candidate pull request expressed purely as data
@@ -146,7 +197,10 @@ function baselineFiles(tarball) {
     ".github/workflows/sri-check.yml": "name: sri-check\n",
     "tests/spa/fast-uri-artifact-race.test.mjs": "// tests\n",
   };
-  for (const path of realPolicy.activation.allowedFiles) {
+  for (const path of new Set([
+    ...VENDORED_ACTIVATION_PATHS,
+    ...realPolicy.activation.allowedFiles,
+  ])) {
     if (!(path in files)) files[path] = `activation fixture: ${path}\n`;
   }
   for (const path of realPolicy.trustedPaths) {
@@ -164,6 +218,16 @@ function baselineFiles(tarball) {
 function policyFor(tarball, pinOverrides = {}) {
   const policy = structuredClone(realPolicy);
   const baseline = { ...baselineFiles(tarball), ...pinOverrides };
+  policy.activation = {
+    strategy: "base-relative-exact-tree-delta",
+    validationMode: "vendored-artifact",
+    requiredBasePolicyVersion: policy.policyVersion,
+    requiresCompleteSet: true,
+    patchSha256: "",
+    allowedFiles: [...VENDORED_ACTIVATION_PATHS],
+    basePins: {},
+    pins: {},
+  };
   policy.package.tar.size = tarball.length;
   policy.package.tar.sha256 = sha256(tarball);
   policy.package.tar.sha512 = createHash("sha512").update(tarball).digest("hex");
@@ -172,14 +236,26 @@ function policyFor(tarball, pinOverrides = {}) {
     const bytes = utf8(baseline[path]);
     policy.digestPins[path] = { sha256: sha256(bytes), size: bytes.length };
   }
-  for (const path of Object.keys(policy.activation.pins)) {
+  const vendorReadmePin = policy.digestPins[policy.documentation.vendorReadme.path];
+  policy.documentation.vendorReadme.sha256 = vendorReadmePin.sha256;
+  policy.documentation.vendorReadme.size = vendorReadmePin.size;
+  for (const path of policy.activation.allowedFiles) {
     const bytes = utf8(baseline[path] ?? `activation fixture: ${path}\n`);
     policy.activation.pins[path] = {
-      mode: policy.activation.pins[path].mode,
+      mode: "100644",
       blob: gitBlobId(bytes),
       sha256: sha256(bytes),
       size: bytes.length,
     };
+    if (VENDORED_BASE_ABSENT.has(path)) {
+      policy.activation.basePins[path] = { absent: true };
+    } else {
+      const baseBytes = utf8(`vendored base fixture: ${path}\n`);
+      policy.activation.basePins[path] = {
+        mode: "100644",
+        blob: gitBlobId(baseBytes),
+      };
+    }
   }
   policy.activation.patchSha256 = activationPatchDigest(policy.activation);
   return policy;
@@ -242,6 +318,59 @@ const PACKAGE_LOCK = {
   },
 };
 
+const EXACT_PACKAGE_JSON = {
+  name: "fsi-agentgov-spa-tests",
+  private: true,
+  scripts: { test: "vitest run" },
+  devDependencies: {
+    ajv: "8.20.0",
+    vitest: "4.1.11",
+  },
+};
+
+const exactLock = ({ version, resolved, integrity }) => JSON.stringify({
+  name: "fsi-agentgov-spa-tests",
+  lockfileVersion: 3,
+  requires: true,
+  packages: {
+    "": { devDependencies: { ajv: "8.20.0", vitest: "4.1.11" } },
+    "node_modules/ajv": {
+      version: "8.20.0",
+      dev: true,
+      dependencies: { "fast-uri": "^3.0.1" },
+    },
+    "node_modules/fast-uri": {
+      version,
+      resolved,
+      integrity,
+      dev: true,
+    },
+  },
+});
+
+const EXACT_BASE_LOCK = exactLock({
+  version: "3.1.5",
+  resolved: "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.5.tgz",
+  integrity: "sha512-base-fixture",
+});
+const EXACT_TARGET_LOCK = exactLock({
+  version: "3.1.7",
+  resolved:
+    "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/fast-uri/-/fast-uri-3.1.7.tgz",
+  integrity:
+    "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
+});
+const EXACT_SECURITY_TEST = [
+  'import { describe, expect, it } from "vitest";',
+  "",
+  'describe("fast-uri registry security regression", () => {',
+  '  it("keeps the reviewed behavior covered", () => {',
+  "    expect(true).toBe(true);",
+  "  });",
+  "});",
+  "",
+].join("\n");
+
 const GITATTRIBUTES = "vendor/npm/**/*.tgz binary\nvendor/npm/**/*.json text eol=lf\n";
 const SAFE_README = [
   "# Reviewed dependency artifact",
@@ -258,12 +387,9 @@ const SAFE_README = [
  * fetched, which is how the tests prove candidate workflows and tests are
  * never consulted.
  */
-function candidate({ tarball, files = {}, modes = {}, extraPaths = [] } = {}) {
+function treeFixture(files, { modes = {}, extraPaths = [] } = {}) {
   const blobs = new Map(
-    Object.entries({ ...baselineFiles(tarball), ...files }).map(([path, value]) => [
-      path,
-      utf8(value),
-    ]),
+    Object.entries(files).map(([path, value]) => [path, utf8(value)]),
   );
   for (const path of extraPaths) {
     if (!blobs.has(path)) blobs.set(path, Buffer.from("x", "utf8"));
@@ -292,6 +418,92 @@ function candidate({ tarball, files = {}, modes = {}, extraPaths = [] } = {}) {
       return bySha.get(sha);
     },
   };
+}
+
+function candidate({ tarball, files = {}, modes = {}, extraPaths = [] } = {}) {
+  return treeFixture(
+    { ...baselineFiles(tarball), ...files },
+    { modes, extraPaths },
+  );
+}
+
+function exactPolicyFor() {
+  const policy = structuredClone(realPolicy);
+  const baseLock = utf8(EXACT_BASE_LOCK);
+  const targetLock = utf8(EXACT_TARGET_LOCK);
+  const targetTest = utf8(EXACT_SECURITY_TEST);
+  policy.activation = {
+    strategy: "base-relative-exact-tree-delta",
+    validationMode: "exact-pins",
+    requiredBasePolicyVersion: policy.policyVersion,
+    requiresCompleteSet: true,
+    patchSha256: "",
+    allowedFiles: [...EXACT_PIN_PATHS],
+    basePins: {
+      "package-lock.json": {
+        mode: "100644",
+        blob: gitBlobId(baseLock),
+      },
+      "tests/spa/fast-uri-security.test.mjs": {
+        absent: true,
+      },
+    },
+    pins: {
+      "package-lock.json": {
+        mode: "100644",
+        blob: gitBlobId(targetLock),
+        sha256: sha256(targetLock),
+        size: targetLock.length,
+      },
+      "tests/spa/fast-uri-security.test.mjs": {
+        mode: "100644",
+        blob: gitBlobId(targetTest),
+        sha256: sha256(targetTest),
+        size: targetTest.length,
+      },
+    },
+  };
+  policy.digestPins["package-lock.json"] = {
+    blob: policy.activation.pins["package-lock.json"].blob,
+    sha256: policy.activation.pins["package-lock.json"].sha256,
+    size: policy.activation.pins["package-lock.json"].size,
+  };
+  policy.activation.patchSha256 = activationPatchDigest(policy.activation);
+  return policy;
+}
+
+function exactPinsTree(
+  policy,
+  state,
+  { files = {}, modes = {}, extraPaths = [], includeInvalidArtifact = false } = {},
+) {
+  const fixture = {
+    "package.json": JSON.stringify(EXACT_PACKAGE_JSON),
+    "package-lock.json": state === "post" ? EXACT_TARGET_LOCK : EXACT_BASE_LOCK,
+    ".gitattributes": GITATTRIBUTES,
+    ".github/workflows/security-scan.yml": "name: security-scan\n",
+    ".github/workflows/sri-check.yml": "name: sri-check\n",
+    "scripts/verify-fast-uri-artifact.mjs": VERIFIER_SOURCE,
+    "scripts/verify-fast-uri-bootstrap.mjs": "// bootstrap\n",
+    "scripts/verify-vendored-runtime.mjs": "// vendored runtime verifier\n",
+    "tests/spa/docs-safe-procedure.test.mjs": "// docs safety\n",
+    "tests/spa/fast-uri-artifact-race.test.mjs": "// artifact race\n",
+    "tests/spa/fast-uri-security-workflow.test.mjs": "// workflow security\n",
+    "tests/spa/trusted-gate-artifact-acceptance.test.mjs": "// acceptance\n",
+    "tests/spa/vendor-runtime-policy.test.mjs": "// runtime policy\n",
+  };
+  if (state === "post") {
+    fixture["tests/spa/fast-uri-security.test.mjs"] = EXACT_SECURITY_TEST;
+  }
+  if (includeInvalidArtifact) {
+    fixture[policy.package.artifactPath] = "not a tarball and never fetched";
+    fixture[policy.package.provenancePath] = "{ not provenance";
+    fixture[policy.documentation.vendorReadme.path] = "# inert\n";
+  }
+  for (const path of policy.trustedPaths) {
+    if (!(path in fixture)) fixture[path] = `trusted fixture: ${path}\n`;
+  }
+  return treeFixture({ ...fixture, ...files }, { modes, extraPaths });
 }
 
 function withoutReviewedArtifact(tree) {
@@ -1245,10 +1457,283 @@ describe("authoritative gate — immutable path and rename evidence", () => {
 
 });
 
-describe("authoritative gate — exact activation and rotation", () => {
+describe("authoritative gate — exact-pins activation", () => {
+  it("accepts only the exact two-file transition and never reads vendored package data", async () => {
+    const policy = exactPolicyFor();
+    const baseTree = exactPinsTree(policy, "pre", { includeInvalidArtifact: true });
+    const tree = exactPinsTree(policy, "post", { includeInvalidArtifact: true });
+    const verdict = await judge({
+      policy,
+      baseTree,
+      tree,
+      changedFiles: activationChangedFiles(policy),
+    });
+
+    expect(verdict.toJSON(), verdict.messages.join("\n")).toMatchObject({
+      conclusion: "success",
+      mode: "activation",
+    });
+    expect(tree.reads).toEqual(expect.arrayContaining(EXACT_PIN_PATHS));
+    expect(tree.reads.some(path => path.startsWith("vendor/"))).toBe(false);
+    expect(tree.reads).not.toContain(policy.verifierPolicyLiterals.path);
+  });
+
+  it("rejects partial, extra, and altered-byte activation candidates", async () => {
+    const policy = exactPolicyFor();
+    const baseTree = exactPinsTree(policy, "pre");
+
+    const partial = exactPinsTree(policy, "pre", {
+      files: { "package-lock.json": EXACT_TARGET_LOCK },
+    });
+    const partialVerdict = await judge({
+      policy,
+      baseTree,
+      tree: partial,
+      changedFiles: [{ status: "modified", filename: "package-lock.json" }],
+    });
+    expect(partialVerdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "activation-rejected",
+    });
+    expect(partialVerdict.messages.join("\n")).toMatch(/complete exact-pins|exact policy-approved/);
+
+    const extra = exactPinsTree(policy, "post", {
+      extraPaths: ["docs/not-approved.md"],
+    });
+    const extraVerdict = await judge({
+      policy,
+      baseTree,
+      tree: extra,
+      changedFiles: [
+        ...activationChangedFiles(policy),
+        { status: "added", filename: "docs/not-approved.md" },
+      ],
+    });
+    expect(extraVerdict.failed).toBe(true);
+    expect(extraVerdict.messages.join("\n")).toMatch(/exact policy-approved activation file set/);
+
+    const altered = exactPinsTree(policy, "post", {
+      files: {
+        "tests/spa/fast-uri-security.test.mjs": `${EXACT_SECURITY_TEST}// altered\n`,
+      },
+    });
+    const alteredVerdict = await judge({
+      policy,
+      baseTree,
+      tree: altered,
+      changedFiles: activationChangedFiles(policy),
+    });
+    expect(alteredVerdict.failed).toBe(true);
+    expect(alteredVerdict.messages.join("\n")).toMatch(/complete exact-pins/);
+  });
+
+  it("fails every pull request when the immutable base is a mixed or poisoned pin state", async () => {
+    const policy = exactPolicyFor();
+    const mixedBase = exactPinsTree(policy, "pre", {
+      files: { "package-lock.json": EXACT_TARGET_LOCK },
+    });
+    const mixedVerdict = await judge({
+      policy,
+      baseTree: mixedBase,
+      tree: mixedBase,
+      changedPaths: ["docs/index.md"],
+    });
+    expect(mixedVerdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "activation-invalid-base",
+    });
+    expect(mixedVerdict.messages.join("\n")).toMatch(/immutable base.*exact-pins/);
+
+    const poisonedBase = exactPinsTree(policy, "pre", {
+      modes: { "package-lock.json": "100755" },
+    });
+    const poisonedVerdict = await judge({
+      policy,
+      baseTree: poisonedBase,
+      tree: poisonedBase,
+      changedPaths: ["docs/index.md"],
+    });
+    expect(poisonedVerdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "activation-invalid-base",
+    });
+  });
+
+  it("retains mixed trusted-and-guarded mode on an invalid exact-pins base", async () => {
+    const policy = exactPolicyFor();
+    const poisonedBase = exactPinsTree(policy, "pre", {
+      modes: { "package-lock.json": "100755" },
+    });
+    const verdict = await judge({
+      policy,
+      baseTree: poisonedBase,
+      tree: poisonedBase,
+      changedFiles: [
+        {
+          status: "modified",
+          filename: ".github/trusted-policy/dependency-artifact-policy.json",
+        },
+        {
+          status: "modified",
+          filename: "package-lock.json",
+        },
+      ],
+    });
+
+    expect(verdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "mixed-trusted-and-guarded",
+    });
+    expect(verdict.messages.join("\n")).toMatch(
+      /trusted policy paths and guarded dependency paths/,
+    );
+  });
+
+  it("rejects legacy artifact metadata references without artifact bytes in exact-pins mode", async () => {
+    const policy = exactPolicyFor();
+    const baseTree = exactPinsTree(policy, "pre");
+    const tree = exactPinsTree(policy, "pre", {
+      files: {
+        "package.json": JSON.stringify({
+          ...PACKAGE_JSON,
+          devDependencies: {
+            ...PACKAGE_JSON.devDependencies,
+            [policy.package.name]: policy.package.spec,
+          },
+        }),
+      },
+    });
+    const verdict = await judge({
+      policy,
+      baseTree,
+      tree,
+      changedPaths: ["package.json"],
+    });
+
+    expect(verdict.failed).toBe(true);
+    expect(verdict.messages.join("\n")).toMatch(
+      /package metadata references the reviewed artifact spec but the artifact bytes are absent/,
+    );
+  });
+
+  it("rejects reversion and revalidates target bytes in every post-state pull request", async () => {
+    const policy = exactPolicyFor();
+    const post = exactPinsTree(policy, "post");
+    const reverted = await judge({
+      policy,
+      baseTree: post,
+      tree: exactPinsTree(policy, "pre"),
+      changedFiles: activationChangedFiles(policy),
+    });
+    expect(reverted.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "activation-rejected",
+    });
+    expect(reverted.messages.join("\n")).toMatch(/reverts the exact-pins activation/);
+
+    const unchangedPost = exactPinsTree(policy, "post");
+    const originalRead = unchangedPost.readBlob;
+    unchangedPost.readBlob = async (sha, path) => {
+      if (path === "tests/spa/fast-uri-security.test.mjs") {
+        unchangedPost.reads.push(path);
+        return Buffer.from(`${EXACT_SECURITY_TEST}// poisoned read\n`, "utf8");
+      }
+      return originalRead(sha, path);
+    };
+    const revalidated = await judge({
+      policy,
+      baseTree: post,
+      tree: unchangedPost,
+      changedPaths: ["docs/index.md"],
+    });
+    expect(revalidated.failed).toBe(true);
+    expect(revalidated.messages.join("\n")).toMatch(/did not match its Git object id/);
+    expect(unchangedPost.reads).toEqual(expect.arrayContaining(EXACT_PIN_PATHS));
+  });
+
+  it("rejects post-state guarded mutations outside the two-file transaction", async () => {
+    const policy = exactPolicyFor();
+    const baseTree = exactPinsTree(policy, "post");
+    const tree = exactPinsTree(policy, "post", {
+      files: { ".github/workflows/security-scan.yml": "name: weakened\n" },
+    });
+    const verdict = await judge({
+      policy,
+      baseTree,
+      tree,
+      changedFiles: [{
+        status: "modified",
+        filename: ".github/workflows/security-scan.yml",
+      }],
+    });
+    expect(verdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "activation-rejected",
+    });
+    expect(verdict.messages.join("\n")).toMatch(/immutable until a policy-first rotation/);
+  });
+
+  it("rejects target rename, alias, and mode substitutions", async () => {
+    const policy = exactPolicyFor();
+    const baseTree = exactPinsTree(policy, "pre");
+    const targetPath = "tests/spa/fast-uri-security.test.mjs";
+
+    const renamed = exactPinsTree(policy, "post");
+    renamed.treeEntries = renamed.treeEntries.map(entry =>
+      entry.path === targetPath
+        ? { ...entry, path: "tests/spa/fast-uri-security-renamed.test.mjs" }
+        : entry,
+    );
+    const renameVerdict = await judge({
+      policy,
+      baseTree,
+      tree: renamed,
+      changedFiles: [{
+        status: "renamed",
+        previous_filename: targetPath,
+        filename: "tests/spa/fast-uri-security-renamed.test.mjs",
+      }],
+    });
+    expect(renameVerdict.failed).toBe(true);
+    expect(renameVerdict.messages.join("\n")).toMatch(/protected-path rename/);
+
+    const aliased = exactPinsTree(policy, "post");
+    aliased.treeEntries = aliased.treeEntries.map(entry =>
+      entry.path === targetPath
+        ? { ...entry, path: "Tests/spa/fast-uri-security.test.mjs" }
+        : entry,
+    );
+    const aliasVerdict = await judge({
+      policy,
+      baseTree,
+      tree: aliased,
+      changedFiles: [{ status: "added", filename: "Tests/spa/fast-uri-security.test.mjs" }],
+    });
+    expect(aliasVerdict.toJSON()).toMatchObject({
+      conclusion: "failure",
+      mode: "path-alias",
+    });
+
+    const wrongMode = exactPinsTree(policy, "post", {
+      modes: { [targetPath]: "100755" },
+    });
+    const modeVerdict = await judge({
+      policy,
+      baseTree,
+      tree: wrongMode,
+      changedFiles: activationChangedFiles(policy),
+    });
+    expect(modeVerdict.failed).toBe(true);
+    expect(modeVerdict.messages.join("\n")).toMatch(/approved mode|complete exact-pins/);
+  });
+});
+
+describe("authoritative gate — vendored-artifact activation compatibility", () => {
   it("accepts the complete exact activation set and rejects extra or changed bytes", async () => {
     const tarball = buildTarball(goodTarEntries());
     const policy = policyFor(tarball);
+    expect(policy.activation.validationMode).toBe("vendored-artifact");
+    expect(() => assertPolicyShape(policy)).not.toThrow();
     const baseTree = activationBaseTree(tarball, policy);
     const tree = activationTree(tarball, policy);
     const activationPaths = [...policy.activation.allowedFiles];
@@ -1660,7 +2145,7 @@ describe("authoritative gate — verdict messaging", () => {
  * ------------------------------------------------------------------ */
 
 describe("trusted policy document", () => {
-  it("parses, validates, and pins the reviewed fast-uri artifact", () => {
+  it("parses and retains the reviewed vendored-artifact capability metadata", () => {
     expect(() => assertPolicyShape(realPolicy)).not.toThrow();
     expect(realPolicy.package.tar.sha256).toBe(
       "3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92",
@@ -1674,69 +2159,53 @@ describe("trusted policy document", () => {
     expect(realPolicy.verifierPolicyLiterals.requiredAdvisories).toHaveLength(6);
   });
 
-  it("pins a base-relative activation patch with no trusted-path overlap", () => {
+  it("pins the exact two-file registry activation with no trusted-path overlap", () => {
+    expect(realPolicy.policyVersion).toBe(3);
     expect(realPolicy.activation.strategy).toBe("base-relative-exact-tree-delta");
+    expect(realPolicy.activation.validationMode).toBe("exact-pins");
     expect(realPolicy.activation.requiredBasePolicyVersion).toBe(realPolicy.policyVersion);
     expect(realPolicy.activation.patchSha256).toBe(activationPatchDigest(realPolicy.activation));
+    expect(realPolicy.activation.patchSha256).toBe(
+      "ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43",
+    );
+    expect(realPolicy.activation.allowedFiles).toEqual(EXACT_PIN_PATHS);
     expect(
       realPolicy.activation.allowedFiles.filter(path => realPolicy.trustedPaths.includes(path)),
     ).toEqual([]);
     expect(realPolicy.activation.allowedFiles).not.toContain("SECURITY.md");
+    expect(realPolicy.activation.allowedFiles).not.toContain("package.json");
+    expect(realPolicy.activation.allowedFiles).not.toContain(realPolicy.package.artifactPath);
+    expect(realPolicy.activation.allowedFiles).not.toContain(
+      ".github/workflows/security-scan.yml",
+    );
     expect(realPolicy.activation.approvedCommit).toBeUndefined();
     expect(realPolicy.activation.approvedParent).toBeUndefined();
-    for (const [path, expected] of [
-      [
-        "package.json",
-        {
-          mode: "100644",
-          blob: "3faa4f4fae4eeee55a35ddc1a99c58a9bcf5ad1c",
-          sha256: "2a3fad19f3341087ff12656bcd7ea2f09359fb9103911a8c54285aa6b5fa6ab9",
-          size: 1083,
-        },
-      ],
-      [
-        "package-lock.json",
-        {
-          mode: "100644",
-          blob: "0b764c5ed9b507d9d8f259f9be8ea4dd77a47661",
-          sha256: "19e6cfc9c195248e3ef6d2827048d786b0f629be0a680b5f88648694321d4a2c",
-          size: 76925,
-        },
-      ],
-      [
-        ".gitattributes",
-        {
-          mode: "100644",
-          blob: "91596cc419da4f86b6ed193802fc81b5b28a3ba1",
-          sha256: "df7f40c6ed0da07a2cac77823f83af844b07fb4f49c4e049aaf8d2159cf20468",
-          size: 936,
-        },
-      ],
-    ]) {
-      expect(realPolicy.activation.pins[path]).toEqual(expected);
-      expect(realPolicy.digestPins[path]).toEqual({
-        blob: expected.blob,
-        sha256: expected.sha256,
-        size: expected.size,
-      });
-    }
-    expect(realPolicy.activation.basePins["package.json"]).toEqual({
+    expect(realPolicy.activation.basePins["package-lock.json"]).toEqual({
       mode: "100644",
-      blob: "e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d",
+      blob: "08aafb595607f78f0a0998b022a2cebe920bb257",
     });
-    expect(realPolicy.activation.basePins["scripts/verify-fast-uri-artifact.mjs"]).toEqual({
+    expect(realPolicy.activation.basePins["tests/spa/fast-uri-security.test.mjs"]).toEqual({
       absent: true,
     });
-    expect(Object.values(realPolicy.activation.pins).every(pin => pin.mode === "100644")).toBe(true);
-    expect(realPolicy.activation.pins[".github/workflows/security-scan.yml"]).toEqual({
+    expect(realPolicy.activation.pins["package-lock.json"]).toEqual({
       mode: "100644",
-      blob: "6e7ab1ffeb5fc9e779d1ee4ee5695ea534c72674",
-      sha256: "b2db741bd09205c7ba396835f3c451b2a247b29e16390ebedeba3b2b84b3937b",
-      size: 11976,
+      blob: "11b6591aa1b39b50d451005dae574fb465f66871",
+      sha256: "4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1",
+      size: 76919,
+    });
+    expect(realPolicy.activation.pins["tests/spa/fast-uri-security.test.mjs"]).toEqual({
+      mode: "100644",
+      blob: "a43678648562f3b13a40ca672ce81953b89c1b2a",
+      sha256: "0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd",
+      size: 2573,
     });
   });
 
-  it("rejects any trusted path added to the artifact activation transaction", () => {
+  it("rejects unknown activation validation modes and trusted-path overlap", () => {
+    const unknownMode = structuredClone(realPolicy);
+    unknownMode.activation.validationMode = "candidate-selects";
+    expect(() => assertPolicyShape(unknownMode)).toThrow(/closed validation mode/);
+
     const policy = structuredClone(realPolicy);
     const path = "SECURITY.md";
     policy.activation.allowedFiles.push(path);
@@ -1752,6 +2221,51 @@ describe("trusted policy document", () => {
     };
     policy.activation.patchSha256 = activationPatchDigest(policy.activation);
     expect(() => assertPolicyShape(policy)).toThrow(/overlaps a trusted path/);
+  });
+
+  it("rejects unrecognized activation fields outside the signed schema", () => {
+    const policy = structuredClone(realPolicy);
+    policy.activation.unrecognizedSecurityControl = true;
+
+    expect(() => assertPolicyShape(policy)).toThrow(
+      /closed validation mode|enumerate an exact non-empty file set/,
+    );
+  });
+
+  it("rejects a noncanonical activation path even with recomputed pins", () => {
+    const policy = structuredClone(realPolicy);
+    const original = "tests/spa/fast-uri-security.test.mjs";
+    const noncanonical = "tests/spa/fast-uri-securite\u0301.test.mjs";
+    policy.activation.allowedFiles = policy.activation.allowedFiles.map(path =>
+      path === original ? noncanonical : path,
+    );
+    policy.activation.basePins[noncanonical] = policy.activation.basePins[original];
+    policy.activation.pins[noncanonical] = policy.activation.pins[original];
+    delete policy.activation.basePins[original];
+    delete policy.activation.pins[original];
+    policy.activation.patchSha256 = activationPatchDigest(policy.activation);
+
+    expect(() => assertPolicyShape(policy)).toThrow(/unsafe or noncanonical/);
+  });
+
+  it("rejects NFC-equivalent duplicate activation paths as noncanonical", () => {
+    const policy = structuredClone(realPolicy);
+    for (const path of [
+      "tests/spa/caf\u00e9.test.mjs",
+      "tests/spa/cafe\u0301.test.mjs",
+    ]) {
+      policy.activation.allowedFiles.push(path);
+      policy.activation.basePins[path] = { absent: true };
+      policy.activation.pins[path] = {
+        mode: "100644",
+        blob: "1".repeat(40),
+        sha256: "2".repeat(64),
+        size: 1,
+      };
+    }
+    policy.activation.patchSha256 = activationPatchDigest(policy.activation);
+
+    expect(() => assertPolicyShape(policy)).toThrow(/unsafe or noncanonical/);
   });
 
   it("pins the exact current policy-tree base state for every future activation path", () => {
@@ -1794,17 +2308,14 @@ describe("trusted policy document", () => {
   });
 
   it("guards every path a dependency-artifact change can travel through", () => {
-    for (const path of [
-      "package.json",
-      "package-lock.json",
-      "npm-shrinkwrap.json",
-      ".npmrc",
-      ".gitattributes",
-      "scripts/verify-fast-uri-artifact.mjs",
-      "scripts/verify-fast-uri-bootstrap.mjs",
-    ]) {
+    for (const path of FORMER_ACTIVATION_GUARDED_PATHS) {
       expect(classifyChangedPaths(realPolicy, [path]).guarded, path).toContain(path);
     }
+    expect(
+      classifyChangedPaths(realPolicy, ["tests/spa/fast-uri-security.test.mjs"]).guarded,
+    ).toContain("tests/spa/fast-uri-security.test.mjs");
+    expect(classifyChangedPaths(realPolicy, ["npm-shrinkwrap.json"]).guarded).toHaveLength(1);
+    expect(classifyChangedPaths(realPolicy, [".npmrc"]).guarded).toHaveLength(1);
     expect(classifyChangedPaths(realPolicy, ["vendor/npm/other/x.tgz"]).guarded).toHaveLength(1);
     expect(classifyChangedPaths(realPolicy, ["tools/.npmrc"]).guarded).toHaveLength(1);
   });

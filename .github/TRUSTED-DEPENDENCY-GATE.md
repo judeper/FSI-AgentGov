@@ -97,11 +97,21 @@ immutable base and candidate, with its exact `trustedPathModes` mode (currently
 `100644`). This applies even to unrelated PRs: a poisoned base is not a bypass.
 Symlinks (`120000`), submodules (`160000`), directories, missing files, and
 unapproved executable-bit changes are rejected before any authorization.
+Activation behavior is selected only by the immutable-base policy through a
+closed validation mode. Policy version 3 uses `exact-pins`: the evaluator
+classifies both immutable trees from every `activation.basePins` and
+`activation.pins` entry. The older `vendored-artifact` mode remains supported
+for reviewed policies that intentionally use tarball presence and its complete
+companion-file set as activation state. A candidate cannot select or alter the
+mode used to judge itself.
+
 Guarded activation files likewise retain their explicitly approved regular
-blob modes on both sides. A helper cannot redirect trust to an unguarded
-destination by becoming a symlink. A relocation requires protecting and
-materializing the destination in a separate reviewed policy step **before**
-trusted code can load it; existing trusted paths are not silently retired.
+blob modes on both sides. In `exact-pins` mode, the selected pre-state or
+post-state determines which mode pin applies. A helper cannot redirect trust
+to an unguarded destination by becoming a symlink. A relocation requires
+protecting and materializing the destination in a separate reviewed policy
+step **before** trusted code can load it; existing trusted paths are not
+silently retired.
 
 The evaluator retains exact rename and race checks, immutable base/head tree
 comparison, base-owned policy material, and command-free-document handling.
@@ -110,54 +120,58 @@ trusted because they contain a familiar command.
 
 ## Exact activation and rotation model
 
-The policy branch contains no vendored artifact bytes and does not activate the
-package change. Activation is an all-or-nothing, base-relative exact tree delta
-defined by policy version 2 and patch digest
-`a9cc1b76042703c570dcd4a95575fbf54880e58f4ae8a26d35e2d9ea0c482425`.
-The 16-path set includes package/lock/gitattributes files, the vendor
-tarball/provenance/README, verifier/runtime files, two security workflows, and
-five focused tests. `SECURITY.md` and every trusted policy, runbook, gate
-workflow, and operator path are excluded; `activation.allowedFiles` has an
-empty intersection with `trustedPaths`.
+This policy-only branch does not activate the package change. Policy version 3
+selects the closed `exact-pins` mode and authorizes one all-or-nothing,
+base-relative two-file registry transaction with patch digest
+`ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43`:
 
-Each activation path has an exact immutable-base state (blob+mode or required
-absence) and an exact target mode, Git blob ID, raw-byte SHA-256, and size.
-Before the artifact exists, **any** guarded or activation-path change is
-rejected unless the immutable base/head delta equals all 16 paths exactly and
-every base and target pin matches. There is no `guard-only` success for a
-manifest, lockfile, attributes file, verifier, workflow, test, or artifact
-documentation change.
+| Path | Immutable base | Exact target |
+|---|---|---|
+| `package-lock.json` | mode `100644`, blob `08aafb595607f78f0a0998b022a2cebe920bb257` | mode `100644`, blob `11b6591aa1b39b50d451005dae574fb465f66871`, SHA-256 `4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1`, 76,919 bytes |
+| `tests/spa/fast-uri-security.test.mjs` | absent | mode `100644`, blob `a43678648562f3b13a40ca672ce81953b89c1b2a`, SHA-256 `0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd`, 2,573 bytes |
 
-The former artifact commit/parent pair is not an approved lineage. The future
-artifact branch must be recreated from the merged policy head. Its only
-permitted delta is the pinned 16-path patch. The new `security-scan.yml` target
-retains the policy branch's `permissions: {}` hardening while adding the
-reviewed artifact steps; all other target blobs are identified individually by
-the new pin set. If any base pin has moved, policy owners must review and issue
-a new base-relative patch instead of reusing the old branch.
+No `package.json` override, vendored tarball/provenance/README, workflow,
+`.gitattributes`, verifier/runtime file, or `SECURITY.md` is an activation
+target. The security workflows, verifier/runtime paths, `.gitattributes`,
+package manifests and lockfile, vendor root, former focused tests, and the new
+fast-uri security test remain guarded after removal from the old activation
+set.
 
-The acceptance-test target is the exact blob tracked at
-`.github/trusted-policy/trusted-gate-artifact-acceptance.template.mjs`; copy its
-raw Git blob, not a CRLF-converted working-tree rendering. The template checks
-the current schema and both immutable trees instead of the removed
-`artifactRequiredByBase`/caller-supplied activation override contract.
-The already-approved security workflow target is also stored, unchanged, at
-`.github/trusted-policy/security-scan.activation.yml` so its exact Git blob
-survives independently of an unreferenced local reconstruction.
-Policy-stage tests verify the schema, templates, and synthetic exact-activation
-attack cases. With the reviewed artifact objects available locally, set
-`TRUSTED_GATE_VALIDATE_PLANNED_BLOBS=1` to additionally replay every real target
-pin without activating packages or executing candidate code; missing objects
-then fail, rather than skipping tests. The actual artifact branch always runs
-that acceptance suite. The older acceptance-test blob is no longer approved.
+For each immutable tree, all base pins must match (pre-state) or all target
+pins must match (post-state); every mixed or poisoned state is invalid. An
+invalid base fails every pull request. The only accepted transition is the
+exact pre-state to the exact post-state with no extra changed path. Partial
+updates, extra files, reversion, rename or alias tricks, changed modes, and
+altered bytes fail closed. Once activated, every pull request revalidates both
+target files by mode, Git blob ID, raw-byte SHA-256, and size, even when the
+reported pull-file list is unrelated.
 
-After activation, the effective exact pins continue to apply. Ordinary PRs
-cannot change the artifact, package manifests, lockfiles, `.gitattributes`,
-verifier/runtime bytes, or activation files. A rotation is policy-first:
-trusted policy owners land a standalone pin/policy PR, the new policy
-intentionally blocks the old artifact, and only then does a separate
-exact-match artifact PR land. There is no unguarded interval and no policy
-plus artifact PR.
+`exact-pins` mode does not run tar, provenance, packed-manifest, or vendored
+artifact checks and never fetches, installs, imports, or executes candidate
+package code. The evaluator reads only repository blobs needed for structural
+checks and exact pin validation. The `vendored-artifact` mode and its synthetic
+regressions remain available as a backward-compatible evaluator capability,
+but it is not selected by policy version 3.
+
+The trusted
+`.github/trusted-policy/security-scan.activation.yml` file is retained only as
+the canonical workflow target for that legacy vendored mode. It is inert
+policy material, not an active workflow, and the policy v3 `exact-pins`
+transaction does not consume it.
+
+The future activation branch must be recreated or rebased from the merged
+policy-v3 head. Its only permitted delta is the two pinned files above. If
+either base pin has moved, policy owners must stop and issue another standalone
+policy review instead of adapting the activation branch. The tracked
+`trusted-gate-artifact-acceptance.template.mjs` can replay the exact pre/post
+trees when the target Git objects are locally available; setting
+`TRUSTED_GATE_VALIDATE_PLANNED_BLOBS=1` makes missing target objects fail rather
+than skip that replay.
+
+Further changes remain policy-first: trusted policy owners merge a standalone
+pin/policy pull request, then a separate exact-match dependency pull request.
+There is no unguarded interval and no combined policy-plus-dependency pull
+request.
 
 ## Owner/App credential and apply contract
 
