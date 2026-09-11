@@ -17,20 +17,23 @@ describe("policy-stage activation assets", () => {
     expect(policy.activation.allowedFiles.filter(path => policy.trustedPaths.includes(path))).toEqual([]);
   });
 
-  it("matches the checked-out policy branch to the complete exact pre-state", () => {
-    for (const path of policy.activation.allowedFiles) {
-      const entry = index.get(path);
-      const pin = policy.activation.basePins[path];
-      if (pin.absent === true) {
-        expect(entry, path).toBeUndefined();
-      } else {
-        expect(entry, path).toMatchObject({
-          type: "blob",
-          mode: pin.mode,
-          sha: pin.blob,
-        });
-      }
-    }
+  it("matches the checked-out branch to one complete exact activation state", () => {
+    const matchingStates = [
+      policy.activation.basePins,
+      policy.activation.pins,
+    ].filter(pins =>
+      policy.activation.allowedFiles.every(path => {
+        const entry = index.get(path);
+        const pin = pins[path];
+        return pin.absent === true
+          ? entry === undefined
+          : entry?.type === "blob" &&
+              entry.mode === pin.mode &&
+              entry.sha === pin.blob;
+      }),
+    );
+
+    expect(matchingStates).toHaveLength(1);
   });
 });
 

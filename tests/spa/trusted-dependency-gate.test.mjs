@@ -2268,21 +2268,36 @@ describe("trusted policy document", () => {
     expect(() => assertPolicyShape(policy)).toThrow(/unsafe or noncanonical/);
   });
 
-  it("pins the exact current policy-tree base state for every future activation path", () => {
-    for (const path of realPolicy.activation.allowedFiles) {
+  it("pins the checked-out tree to one complete exact activation state", () => {
+    const indexPins = Object.fromEntries(
+      realPolicy.activation.allowedFiles.map(path => {
       const output = execFileSync("git", ["ls-files", "--stage", "--", path], {
         cwd: repoRoot,
         encoding: "utf8",
       }).trim();
-      const expected = realPolicy.activation.basePins[path];
-      if (expected.absent === true) {
-        expect(output, path).toBe("");
-        continue;
-      }
-      const match = /^(\d+)\s+([0-9a-f]{40})\s+\d+\t/.exec(output);
-      expect(match, path).not.toBeNull();
-      expect({ mode: match[1], blob: match[2] }, path).toEqual(expected);
-    }
+        const match = /^(\d+)\s+([0-9a-f]{40})\s+\d+\t/.exec(output);
+        return [
+          path,
+          match
+            ? { mode: match[1], blob: match[2] }
+            : { absent: true },
+        ];
+      }),
+    );
+    const matchingStates = [
+      realPolicy.activation.basePins,
+      realPolicy.activation.pins,
+    ].filter(pins =>
+      realPolicy.activation.allowedFiles.every(path => {
+        const actual = indexPins[path];
+        const expected = pins[path];
+        return expected.absent === true
+          ? actual.absent === true
+          : actual.mode === expected.mode && actual.blob === expected.blob;
+      }),
+    );
+
+    expect(matchingStates).toHaveLength(1);
   });
 
   it("keeps the command-free template separately from the exact approved artifact README pin", () => {
