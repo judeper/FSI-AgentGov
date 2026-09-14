@@ -1,0 +1,17 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:be44631a0283fc6ce0875981987af03aaa273291a2df3aac675a58a203385c29",
+  "detected_at": "2026-09-14T13:28:03Z",
+  "ga_date": null,
+  "id": 498219,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=498219",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Surveys Agent helps you build, run, and analyze surveys"
+}

@@ -1,0 +1,25 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:9353df7762c6a7943df2cda52a1802dfaf480434eb2d1490a2fe92e27cc81cc3",
+  "detected_at": "2026-09-14T13:28:03Z",
+  "ga_date": "October CY2026",
+  "id": 506749,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "February CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Viva"
+  ],
+  "raw_description": "<p>Viva Insights is creating an Agent Dashboard, designed to be a central place for leaders, delegates and analysts to understand how your organization is adopting agents. #copilotcontrolsystem</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=506749",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.26",
+      "source": "keyword:entra"
+    }
+  ],
+  "title": "Microsoft Viva: Copilot Analytics - Agent Dashboard."
+}

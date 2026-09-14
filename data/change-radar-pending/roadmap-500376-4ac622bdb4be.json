@@ -1,0 +1,26 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:4ac622bdb4be6ea9786d9477ed9306697d8f0f632f91b8a26d2262f53ea18b61",
+  "detected_at": "2026-09-14T13:28:03Z",
+  "ga_date": null,
+  "id": 500376,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=500376",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:sharing"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:sharing"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Admin control for org-wide agent sharing"
+}
