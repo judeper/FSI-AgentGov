@@ -2,8 +2,38 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-08-31T14:33:17Z",
+      "last_run": "2026-09-14T13:28:03Z",
       "items": {
+        "570847": {
+          "hash": "sha256:afbb8d659f0149759626a46d44ca6542b3219a559ba7aee4319621084591482b",
+          "status": "In development",
+          "title": "Microsoft Viva: Copilot Analytics - Agent value insights in Agent 365 Dashboard",
+          "detected_at": "2026-09-14T13:28:03Z"
+        },
+        "570433": {
+          "hash": "sha256:0900b1e011d058ae839ee66a5e82d3b88522640b80692327c546f6e9ae0c4c4c",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Deliver rich interactive app experiences in Copilot Studio agents",
+          "detected_at": "2026-09-14T13:28:03Z"
+        },
+        "569474": {
+          "hash": "sha256:f038e1e0cc145cdf762e7b0164cca3a32a66abcf3a4bbca4e3855a8a9ebf298f",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Introducing an App- and Intent-First Agent Creation Experience",
+          "detected_at": "2026-09-14T13:28:03Z"
+        },
+        "570435": {
+          "hash": "sha256:6c6e6861ea5e64b605cf4267b05af6ac8df66e19108b06b794ab8b755ed98743",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Streamlining experiences from Copilot Studio Agents in Microsoft 365 Copilot",
+          "detected_at": "2026-09-14T13:28:03Z"
+        },
+        "570434": {
+          "hash": "sha256:39a85586c9c244f644fc76ce371f18e10f2338a38abb6e6a7b8802df477bd426",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Enabling makers to require human approval for tool calls",
+          "detected_at": "2026-09-14T13:28:03Z"
+        },
         "569608": {
           "hash": "sha256:95fcffc4514bb2e1958392b3a26cdf73e6bc2ce312456da4052c887581abd9ae",
           "status": "In development",
@@ -89,8 +119,8 @@
           "detected_at": "2026-07-20T09:49:11Z"
         },
         "567671": {
-          "hash": "sha256:be610a27488e0be86ccd0f34a4180ac537733bdb53323b32e795967cf62ce945",
-          "status": "In development",
+          "hash": "sha256:aacd7a0321f7ad9fe7c3ae26dd20fdda1ea492f103bf7c05f3a3f4b301230b75",
+          "status": "Rolling out",
           "title": "Planner: Planner Agent chat in Basic Plans",
           "detected_at": "2026-07-20T09:49:11Z"
         },
@@ -755,7 +785,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "506749": {
-          "hash": "sha256:b7d573db3a39c7e90b2d78a6cb52fec276c1911107303c8ecf53a0c384aea677",
+          "hash": "sha256:9353df7762c6a7943df2cda52a1802dfaf480434eb2d1490a2fe92e27cc81cc3",
           "status": "In development",
           "title": "Microsoft Viva: Copilot Analytics - Agent Dashboard.",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -802,18 +832,6 @@
           "title": "Microsoft Copilot (Microsoft 365): Generate icons for your agents using AI in Microsoft 365 Copilot",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "498227": {
-          "hash": "sha256:f7800ea4d9171682cf7b5388ed5d0619919be12e6b16bbdb3b31efbe309f3d8b",
-          "status": "Launched",
-          "title": "Microsoft Purview compliance portal: Audit logs for agent management in Microsoft 365 admin center",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "503145": {
-          "hash": "sha256:3c752bc494b4ef5df171c8f6b689177a497c4b09dfd7d81c6bea4d175ecf750f",
-          "status": "Launched",
-          "title": "Microsoft 365 admin center: Capacity Pack Support for SharePoint Agent and Copilot Tuning in MAC ",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "503105": {
           "hash": "sha256:5866296bfe10f3d78e4368703c828ca180f6b9cf86fa999200756af990c9a684",
           "status": "Rolling out",
@@ -850,34 +868,10 @@
           "title": "Microsoft 365 admin center: Agent Ownership Reassignment",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "502842": {
-          "hash": "sha256:e03b9a58c05bcdb2cc20ac3e1c1aff7a7c7764d9e7f3a56c935470d708252296",
-          "status": "Launched",
-          "title": "Microsoft Teams: Permission and Privilege level of Apps and Agents",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "498219": {
-          "hash": "sha256:be44631a0283fc6ce0875981987af03aaa273291a2df3aac675a58a203385c29",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): Surveys Agent helps you build, run, and analyze surveys",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "499891": {
-          "hash": "sha256:0a14fa8867698af86c38f86131939fcdd49cec789661f0631181dcbb30f340e1",
-          "status": "Launched",
-          "title": "Microsoft Teams: Facilitator agent for scheduled meetings in Teams Rooms  ",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "500375": {
           "hash": "sha256:2a7279b62872b1d131dd6a81971d2de34abda01f85bd48561bb9fd3b679398b3",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Larger file upload support in Copilot Studio agent builder",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "500376": {
-          "hash": "sha256:4ac622bdb4be6ea9786d9477ed9306697d8f0f632f91b8a26d2262f53ea18b61",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): Admin control for org-wide agent sharing",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "499422": {
@@ -929,8 +923,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "487836": {
-          "hash": "sha256:c1a7637fac19ca29e43ed10a6ab93165135fa9d7761fc3aaf703589a87b552e0",
-          "status": "Rolling out",
+          "hash": "sha256:144db620a6534d419b4560be373287f6b2feb497cde5e0abd86689d5c168a62d",
+          "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Employee Self-Service Agent in M365 Copilot",
           "detected_at": "2026-07-09T15:16:01Z"
         },

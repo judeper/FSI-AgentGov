@@ -1,0 +1,17 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:e03b9a58c05bcdb2cc20ac3e1c1aff7a7c7764d9e7f3a56c935470d708252296",
+  "detected_at": "2026-09-14T13:28:03Z",
+  "ga_date": null,
+  "id": 502842,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502842",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [],
+  "title": "Microsoft Teams: Permission and Privilege level of Apps and Agents"
+}

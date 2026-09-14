@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:0900b1e011d058ae839ee66a5e82d3b88522640b80692327c546f6e9ae0c4c4c",
+  "detected_at": "2026-09-14T13:28:03Z",
+  "ga_date": "November CY2026",
+  "id": 570433,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "Copilot Studio agents can now render rich, interactive UI inline using MCP Apps, an extension of the Model Context Protocol. When an agent calls a UI-enabled tool from a compatible MCP server, interactive experiences like sortable tables and drilldowns render directly in the conversation. Users can now explore and act on data without leaving the chat or switching tools. A plain-text fallback keeps the agent working on surfaces that can't render the UI, and makers get this simply by connecting a compliant MCP server.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570433",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Deliver rich interactive app experiences in Copilot Studio agents"
+}
