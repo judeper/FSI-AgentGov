@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.63.0",
     "@vitest/ui": "4.1.11",
     "ajv": "8.20.0",
     "get-port": "7.2.0",
