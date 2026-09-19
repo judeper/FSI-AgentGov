@@ -1,0 +1,97 @@
+/*
+ * Styles for the per-page "Was this page helpful?" feedback block
+ * (docs/javascripts/feedback.js).
+ *
+ * Uses Material for MkDocs CSS custom properties so colors track both the
+ * default and slate (dark) palettes automatically, keeping WCAG 2.1 AA
+ * contrast in both. A prefers-reduced-motion guard disables transitions.
+ */
+
+.fsi-feedback {
+  margin: 2.5rem 0 1rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.3rem;
+  background-color: var(--md-code-bg-color);
+  color: var(--md-default-fg-color);
+}
+
+.fsi-feedback__heading {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+
+.fsi-feedback__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.fsi-feedback__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  /* High-contrast text on the primary fill works in both palettes. */
+  color: var(--md-primary-bg-color);
+  background-color: var(--md-primary-fg-color);
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: 0.2rem;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fsi-feedback__btn:hover {
+  background-color: var(--md-primary-fg-color--dark);
+  border-color: var(--md-primary-fg-color--dark);
+}
+
+/*
+ * Slate (dark) palette: Material sets --md-primary-fg-color to the lighter
+ * #429CE3, so white text on it is only ~2.96:1 (fails WCAG AA 4.5:1). Use the
+ * deeper brand blue #005A9E (white text = 7.10:1), matching extra.css's
+ * documented slate contrast strategy.
+ */
+[data-md-color-scheme="slate"] .fsi-feedback__btn {
+  color: #ffffff;
+  background-color: #005A9E;
+  border-color: #005A9E;
+}
+[data-md-color-scheme="slate"] .fsi-feedback__btn:hover {
+  background-color: #00497f;
+  border-color: #00497f;
+}
+
+/* Visible, AA-contrast focus indicator (keyboard users). */
+.fsi-feedback__btn:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+/* Fallback for browsers without :focus-visible. */
+.fsi-feedback__btn:focus {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+.fsi-feedback__status {
+  margin: 0.7rem 0 0;
+  min-height: 1.2em;
+  font-size: 0.72rem;
+  color: var(--md-default-fg-color);
+}
+
+.fsi-feedback__status:empty {
+  margin-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fsi-feedback__btn {
+    transition: none;
+  }
+}
