@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:e72504486eec670684dba591853c12ce21496c625feb9a07ed10fd0f2ac24974",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": "October CY2026",
+  "id": 570437,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "PowerPoint"
+  ],
+  "raw_description": "<p>Enable users to leave PowerPoint, switch devices, go offline, or end their workday while remaining confident that Copilot will notify them when work is complete or requires attention.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570437",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "PowerPoint: Async Notifications for PowerPoint Agent (Windows Desktop)"
+}

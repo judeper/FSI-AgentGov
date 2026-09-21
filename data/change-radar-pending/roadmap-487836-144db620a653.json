@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:144db620a6534d419b4560be373287f6b2feb497cde5e0abd86689d5c168a62d",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": "November CY2025",
+  "id": 487836,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "August CY2025",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "The Employee Self-Service Agent in M365 Copilot expedites answers for the most common workplace policy-related questions and takes action on key HR and IT related tasks, connecting employees to authorized knowledge bases and HR/IT systems of record for faster resolution time and a streamlined employee experience.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=487836",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Employee Self-Service Agent in M365 Copilot"
+}

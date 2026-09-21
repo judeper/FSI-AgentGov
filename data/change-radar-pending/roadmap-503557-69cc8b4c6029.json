@@ -1,0 +1,22 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:69cc8b4c60293260e597636919cf776e991287d26228e0ccc4d2a6b7f329f866",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": null,
+  "id": 503557,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503557",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "2.26",
+      "source": "keyword:entra"
+    }
+  ],
+  "title": "Microsoft Teams: Agent & bot support for Entra authentication in group chats"
+}
