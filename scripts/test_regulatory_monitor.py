@@ -4675,7 +4675,7 @@ def test_finra_rate_limit_retry_resumes_same_url(monkeypatch):
 
     assert result["status_code"] == 200
     assert responses == []
-    assert 1 in sleeps
+    assert regulatory_monitor.FINRA_REQUEST_INTERVAL_SECONDS in sleeps
     assert 60 in sleeps
     assert calls[0] == "https://example.test/finra"
     assert calls[1]["max_retries"] == 1
@@ -5040,7 +5040,7 @@ def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
         "https://example.test/second", session
     )["status_code"] == 200
     assert 10 in sleeps
-    assert sleeps.count(10) == 2
+    assert sleeps.count(regulatory_monitor.FINRA_REQUEST_INTERVAL_SECONDS) == 2
 
 
 def test_finra_rate_limit_recovery_keeps_adaptive_pacing(monkeypatch):
@@ -5103,6 +5103,55 @@ def test_finra_rate_limit_recovery_keeps_adaptive_pacing(monkeypatch):
         assert result["status_code"] == 200
 
     assert rate_limited_urls == ["https://example.test/finra?page=1"]
+
+
+def test_finra_default_pacing_avoids_six_request_burst(monkeypatch):
+    """Production pacing stays below a five-request rolling-minute threshold."""
+    clock = [0.0]
+    request_times = []
+    rate_limited_urls = []
+
+    def fake_sleep(seconds):
+        clock[0] += seconds
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        request_times[:] = [
+            timestamp
+            for timestamp in request_times
+            if timestamp > clock[0] - 60
+        ]
+        if len(request_times) >= 5:
+            rate_limited_urls.append(url)
+            return {
+                "status_code": 429,
+                "content": "",
+                "final_url": url,
+                "was_redirected": False,
+                "error": "rate limited",
+                "retry_after": 60,
+            }
+        request_times.append(clock[0])
+        return {
+            "status_code": 200,
+            "content": "ok",
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", fake_sleep)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: clock[0])
+    session = _FakeSession([])
+
+    for page in range(6):
+        result = regulatory_monitor._fetch_finra_page(
+            f"https://example.test/finra?page={page}",
+            session,
+        )
+        assert result["status_code"] == 200
+
+    assert rate_limited_urls == []
 
 
 def test_main_does_not_advance_finra_on_detail_failure(monkeypatch):
