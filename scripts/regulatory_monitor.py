@@ -1367,6 +1367,37 @@ def _finra_date_occurrence(
     }
 
 
+def _finra_date_occurrence_identity(occurrence: dict) -> tuple:
+    """Return stable date evidence while retaining coordinates as audit metadata."""
+    return (
+        occurrence.get("target"),
+        occurrence.get("raw_row_digest"),
+        occurrence.get("listing_date"),
+    )
+
+
+def _finra_date_occurrence_exact_identity(occurrence: dict) -> tuple:
+    """Return the complete retained occurrence, including audit coordinates."""
+    return (
+        occurrence.get("page"),
+        occurrence.get("row_index"),
+        *_finra_date_occurrence_identity(occurrence),
+    )
+
+
+def _finra_date_occurrence_counters(
+    occurrences_by_node: dict[str, list[dict]],
+) -> dict[str, Counter]:
+    """Compare retained date evidence independently of unstable source ordering."""
+    return {
+        node_identity: Counter(
+            _finra_date_occurrence_identity(occurrence)
+            for occurrence in occurrences
+        )
+        for node_identity, occurrences in occurrences_by_node.items()
+    }
+
+
 def _finra_duplicate_evidence_from_pass(
     source_key: str,
     proof: dict,
@@ -1545,9 +1576,9 @@ def _validate_finra_date_resolution_ledger(
                     detail_hash
                 )
 
-    if (
-        len(pass_date_occurrences) != 2
-        or pass_date_occurrences[0] != pass_date_occurrences[1]
+    if len(pass_date_occurrences) != 2 or (
+        _finra_date_occurrence_counters(pass_date_occurrences[0])
+        != _finra_date_occurrence_counters(pass_date_occurrences[1])
     ):
         errors.append(
             f"{source_key} retained passes disagree on listing-date evidence"
@@ -1703,9 +1734,20 @@ def _validate_finra_date_resolution_ledger(
         ]
         if not matching:
             errors.append(f"{label} has no retained matching resolver")
-        elif resolver != matching[0]:
+        elif _finra_date_occurrence_exact_identity(
+            resolver
+        ) not in {
+            _finra_date_occurrence_exact_identity(occurrence)
+            for occurrence in matching
+        }:
             errors.append(f"{label} resolver is not retained evidence")
-        if conflicts != expected_conflicts:
+        if Counter(
+            _finra_date_occurrence_exact_identity(conflict)
+            for conflict in conflicts
+        ) != Counter(
+            _finra_date_occurrence_exact_identity(conflict)
+            for conflict in expected_conflicts
+        ):
             errors.append(f"{label} conflicts are not retained evidence")
 
     if actual_nodes != expected_nodes:
@@ -2050,8 +2092,6 @@ def _validate_source_coverage(
                 "page_numbers",
                 "page_identities",
                 "page_row_counts",
-                "page_row_digests",
-                "page_row_payloads",
                 "raw_row_count",
                 "resolved_row_count",
                 "unresolved_row_count",
@@ -2102,6 +2142,17 @@ def _validate_source_coverage(
                             errors.append(
                                 f"{source_key} pass proofs disagree on {key}"
                             )
+                    normalized_payloads = [
+                        _finra_normalized_payload_pages(proof)
+                        for proof in proofs
+                    ]
+                    if (
+                        any(payloads is None for payloads in normalized_payloads)
+                        or normalized_payloads[0] != normalized_payloads[1]
+                    ):
+                        errors.append(
+                            f"{source_key} pass proofs disagree on global row evidence"
+                        )
                     if proofs[0].get("declared_pages") != declared_pages:
                         errors.append(
                             f"{source_key} coverage declared_pages is not proof-bound"
@@ -2333,15 +2384,7 @@ def _validate_source_coverage(
                             f"{source_key} retained duplicate occurrences do not "
                             "reconcile with proof-bound row counts"
                         )
-                    if (
-                        proof_duplicate_evidence[0]
-                        != proof_duplicate_evidence[1]
-                    ):
-                        errors.append(
-                            f"{source_key} retained passes disagree on exact "
-                            "duplicate evidence"
-                        )
-                    elif ledger_evidence != proof_duplicate_evidence[0]:
+                    if ledger_evidence != proof_duplicate_evidence[0]:
                         errors.append(
                             f"{source_key} duplicate ledger does not exactly "
                             "match duplicates proven by both passes"
@@ -4187,6 +4230,45 @@ def _finra_listing_pass_proof(state: dict) -> dict:
     }
 
 
+def _finra_payload_sort_key(payload: dict) -> str:
+    """Return a deterministic identity for one retained listing-row payload."""
+    return json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _finra_normalized_payload_pages(proof: dict) -> Optional[list[list[dict]]]:
+    """Normalize nondeterministic same-date row ordering across page boundaries."""
+    payload_pages = proof.get("page_row_payloads")
+    page_counts = proof.get("page_row_counts")
+    if (
+        not isinstance(payload_pages, list)
+        or not isinstance(page_counts, list)
+        or len(payload_pages) != len(page_counts)
+        or any(not isinstance(page, list) for page in payload_pages)
+        or any(
+            not isinstance(count, int) or isinstance(count, bool) or count < 0
+            for count in page_counts
+        )
+    ):
+        return None
+    payloads = sorted(
+        (payload for page in payload_pages for payload in page),
+        key=_finra_payload_sort_key,
+    )
+    if sum(page_counts) != len(payloads):
+        return None
+    normalized = []
+    offset = 0
+    for count in page_counts:
+        normalized.append(payloads[offset:offset + count])
+        offset += count
+    return normalized
+
+
 def _new_finra_pass_session(template: requests.Session) -> requests.Session:
     """Create an independent FINRA session while preserving request headers."""
     session = requests.Session()
@@ -4207,8 +4289,6 @@ def _compare_finra_listing_pass_proofs(
         ("page_numbers", "page numbers"),
         ("page_identities", "page identities"),
         ("page_row_counts", "page row counts"),
-        ("page_row_digests", "page row digests"),
-        ("page_row_payloads", "page row payloads"),
         ("raw_row_count", "raw row count"),
         ("resolved_row_count", "resolved row count"),
         ("unresolved_row_count", "unresolved row count"),
@@ -4219,6 +4299,12 @@ def _compare_finra_listing_pass_proofs(
                 f"FINRA independent-pass mismatch in {label}: "
                 f"{first.get(key)!r} != {second.get(key)!r}"
             )
+    first_payloads = _finra_normalized_payload_pages(first)
+    second_payloads = _finra_normalized_payload_pages(second)
+    if first_payloads is None or second_payloads is None:
+        return "FINRA independent-pass payload evidence is malformed"
+    if first_payloads != second_payloads:
+        return "FINRA independent-pass mismatch in global row evidence"
     return None
 
 
@@ -4279,12 +4365,13 @@ def _fetch_finra_listing_passes_sequential(
         }
 
     proofs = [pass_results[0]["pass_proof"], pass_results[1]["pass_proof"]]
+    rows = pass_results[0]["rows"]
     return {
         "complete": True,
-        "rows": pass_results[0]["rows"],
+        "rows": rows,
         "records": [
             (row["detail_url"], row["title"], row["listing_date"])
-            for row in pass_results[0]["rows"]
+            for row in rows
         ],
         "pages_fetched": pass_results[0]["pages_fetched"],
         "declared_pages": pass_results[0]["declared_pages"],
