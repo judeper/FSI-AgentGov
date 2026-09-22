@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:39a85586c9c244f644fc76ce371f18e10f2338a38abb6e6a7b8802df477bd426",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": "September CY2026",
+  "id": 570434,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "Copilot Studio now let’s makers require human approval before an agent runs specific tools. With a per-tool, per-agent toggle, any gated tool call pauses and shows an approval request describing what the agent intends to do, so a person can approve, approve for the session, or deny before the action runs. This gives organizations a deterministic guardrail for high-stakes or sensitive operations like sending emails, closing tickets, or processing payments, independent of the agent's instructions. Approval requests appear inline in the channel where the agent is deployed, including Microsoft Teams and Microsoft 365 Copilot.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570434",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Enabling makers to require human approval for tool calls"
+}

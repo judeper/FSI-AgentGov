@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-02T00:06:26Z",
+  "generatedAt": "2026-09-22T10:13:22Z",
   "count": 31,
   "items": [
     {
@@ -9,14 +9,14 @@
       "products": [
         "Microsoft Copilot (Microsoft 365)"
       ],
-      "status": "Available",
-      "timing": "GA Oct 2025",
+      "status": "Withdrawn",
+      "timing": "Withdrawn Sep 2026",
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=500376",
-      "lifecycle": "active",
-      "whatToReview": "Confirm your agent publishing and sharing authorization limits who can share agents organization-wide.",
+      "lifecycle": "withdrawn",
+      "whatToReview": "Do not rely on this withdrawn roadmap item when planning agent-sharing controls; verify current Microsoft guidance.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26",
+      "lastReviewed": "2026-09-22",
       "controls": [
         {
           "id": "1.1",
@@ -56,11 +56,11 @@
         "Microsoft 365 admin center",
         "Microsoft Copilot (Microsoft 365)"
       ],
-      "status": "Available",
-      "timing": "GA Oct 2025",
+      "status": "Withdrawn",
+      "timing": "Withdrawn Sep 2026",
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502867",
-      "lifecycle": "active",
+      "lifecycle": "withdrawn",
       "whatToReview": "Add ownership reassignment to your orphaned-agent detection and remediation runbook.",
       "addedOn": "2026-06-26",
       "lastReviewed": "2026-06-26",
@@ -112,9 +112,9 @@
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=498227",
       "lifecycle": "active",
-      "whatToReview": "Confirm agent admin actions are captured and retained per your recordkeeping obligations.",
+      "whatToReview": "Do not rely on this withdrawn roadmap item when planning audit coverage; verify current Microsoft guidance.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26",
+      "lastReviewed": "2026-09-22",
       "controls": [
         {
           "id": "1.7",
@@ -204,11 +204,11 @@
         "Microsoft 365 admin center",
         "Microsoft Copilot (Microsoft 365)"
       ],
-      "status": "Available",
-      "timing": "GA Oct 2025",
+      "status": "Withdrawn",
+      "timing": "Withdrawn Sep 2026",
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502878",
-      "lifecycle": "active",
+      "lifecycle": "withdrawn",
       "whatToReview": "Fold the expanded export fields into your inventory and evidence collection.",
       "addedOn": "2026-06-26",
       "lastReviewed": "2026-06-26",
@@ -368,9 +368,9 @@
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503102",
       "lifecycle": "active",
-      "whatToReview": "Use the certification and attestation signals in agent vetting and third-party risk review.",
+      "whatToReview": "Do not rely on this withdrawn roadmap item when planning agent-vetting signals; verify current Microsoft guidance.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26",
+      "lastReviewed": "2026-09-22",
       "controls": [
         {
           "id": "2.7",

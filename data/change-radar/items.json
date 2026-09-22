@@ -9,11 +9,11 @@
       "products": [
         "Microsoft Copilot (Microsoft 365)"
       ],
-      "status": "Available",
-      "timing": "GA Oct 2025",
+      "status": "Withdrawn",
+      "timing": "Withdrawn Sep 2026",
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=500376",
-      "lifecycle": "active",
+      "lifecycle": "withdrawn",
       "controls": [
         {
           "id": "1.1",
@@ -24,9 +24,9 @@
           "rationale": "Policy-based publishing restrictions apply to sharing scope."
         }
       ],
-      "whatToReview": "Confirm your agent publishing and sharing authorization limits who can share agents organization-wide.",
+      "whatToReview": "Do not rely on this withdrawn roadmap item when planning agent-sharing controls; verify current Microsoft guidance.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26"
+      "lastReviewed": "2026-09-22"
     },
     {
       "id": 502867,
@@ -36,11 +36,11 @@
         "Microsoft 365 admin center",
         "Microsoft Copilot (Microsoft 365)"
       ],
-      "status": "Available",
-      "timing": "GA Oct 2025",
+      "status": "Withdrawn",
+      "timing": "Withdrawn Sep 2026",
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502867",
-      "lifecycle": "active",
+      "lifecycle": "withdrawn",
       "controls": [
         {
           "id": "1.2",
@@ -79,9 +79,9 @@
           "rationale": "Captured actions support compliance and regulatory reporting (for example, SEC 17a-4, FINRA 4511)."
         }
       ],
-      "whatToReview": "Confirm agent admin actions are captured and retained per your recordkeeping obligations.",
+      "whatToReview": "Do not rely on this withdrawn roadmap item when planning audit coverage; verify current Microsoft guidance.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26"
+      "lastReviewed": "2026-09-22"
     },
     {
       "id": 489492,
@@ -118,11 +118,11 @@
         "Microsoft 365 admin center",
         "Microsoft Copilot (Microsoft 365)"
       ],
-      "status": "Available",
-      "timing": "GA Oct 2025",
+      "status": "Withdrawn",
+      "timing": "Withdrawn Sep 2026",
       "gaDate": "2025-10",
       "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502878",
-      "lifecycle": "active",
+      "lifecycle": "withdrawn",
       "controls": [
         {
           "id": "3.1",
@@ -221,9 +221,9 @@
           "rationale": "Feeds vetting data into the agent registry."
         }
       ],
-      "whatToReview": "Use the certification and attestation signals in agent vetting and third-party risk review.",
+      "whatToReview": "Do not rely on this withdrawn roadmap item when planning agent-vetting signals; verify current Microsoft guidance.",
       "addedOn": "2026-06-26",
-      "lastReviewed": "2026-06-26"
+      "lastReviewed": "2026-09-22"
     },
     {
       "id": 500375,

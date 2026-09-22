@@ -1,0 +1,17 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:32e70243369c22d5188bfcaa1f2c56543553740d5841b3260a1ca351ad1a9df4",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": null,
+  "id": 503102,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503102",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [],
+  "title": "Microsoft Teams: Security and Compliance information for more Apps and Agents"
+}

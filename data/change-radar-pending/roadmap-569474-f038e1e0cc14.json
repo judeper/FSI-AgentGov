@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:f038e1e0cc145cdf762e7b0164cca3a32a66abcf3a4bbca4e3855a8a9ebf298f",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": "October CY2026",
+  "id": 569474,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "Copilot Studio is evolving to an app-first agent creation experience. Makers start with the application their agent will work with and configure the capabilities it needs. This update brings tools and knowledge into a more unified experience, simplifying how agents are created and configured.",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569474",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot Studio: Introducing an App- and Intent-First Agent Creation Experience"
+}

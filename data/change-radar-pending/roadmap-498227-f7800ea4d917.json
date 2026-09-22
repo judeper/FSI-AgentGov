@@ -1,0 +1,26 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:f7800ea4d9171682cf7b5388ed5d0619919be12e6b16bbdb3b31efbe309f3d8b",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": null,
+  "id": 498227,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=498227",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "1.7",
+      "source": "keyword:audit"
+    },
+    {
+      "id": "3.3",
+      "source": "keyword:audit"
+    }
+  ],
+  "title": "Microsoft Purview compliance portal: Audit logs for agent management in Microsoft 365 admin center"
+}

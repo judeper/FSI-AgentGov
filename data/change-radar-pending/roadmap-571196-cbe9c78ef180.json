@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:cbe9c78ef18018b109e9fc7b490a55cd0d8cb1e4bf1f25b70a1df0fadc5a4f33",
+  "detected_at": "2026-09-21T13:27:15Z",
+  "ga_date": "September CY2026",
+  "id": 571196,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Now makers will have clear visibility into their consumption costs directly within Monitor tab at both a per-agent level and an estimated breakdown of those costs across the agents lifecylce. This will allow makers to see costs distributed across activities such as authoring, testing, evaluations, and production usage, helping connect overall consumption to specific actions and experiences.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=571196",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot Studio: Cost visibility in Monitor tab"
+}
