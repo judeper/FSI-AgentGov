@@ -100,10 +100,11 @@ FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
 FINRA_MAX_PAGES = 100
 FINRA_REFRESH_BATCH_SIZE = 25
+FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 # FINRA's public listing begins throttling GitHub-hosted runners at roughly
-# six requests per minute. Stay below that burst threshold before backoff is
-# needed; a recovered 429 can raise this interval further for the current pass.
-FINRA_REQUEST_INTERVAL_SECONDS = 12.00
+# six requests per minute. Detail pages use the faster general interval above;
+# only the 92-page listing crawl requires this human-scale baseline.
+FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 12.00
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
@@ -3388,11 +3389,22 @@ def _finra_retry_url(url: str, attempt: int) -> str:
     return url
 
 
+def _finra_listing_request_interval() -> float:
+    """Return production-safe listing pacing while preserving zero-delay tests."""
+    if FINRA_REQUEST_INTERVAL_SECONDS <= 0:
+        return 0.0
+    return max(
+        FINRA_REQUEST_INTERVAL_SECONDS,
+        FINRA_LISTING_REQUEST_INTERVAL_SECONDS,
+    )
+
+
 def _fetch_finra_page(
     url: str,
     session: requests.Session,
     *,
     max_attempts: Optional[int] = None,
+    min_interval_seconds: Optional[float] = None,
 ) -> dict:
     """Use one request per attempt with a coordinated session-wide cooldown."""
     attempts = (
@@ -3408,12 +3420,17 @@ def _fetch_finra_page(
             time.sleep(cooldown_until - now)
             now = time.monotonic()
         elapsed = now - last_request
+        base_interval = (
+            FINRA_REQUEST_INTERVAL_SECONDS
+            if min_interval_seconds is None
+            else max(0.0, min_interval_seconds)
+        )
         request_interval = max(
-            FINRA_REQUEST_INTERVAL_SECONDS,
+            base_interval,
             getattr(
                 session,
                 '_finra_request_interval_seconds',
-                FINRA_REQUEST_INTERVAL_SECONDS,
+                base_interval,
             ),
         )
         if elapsed < request_interval:
@@ -3462,7 +3479,7 @@ def _fetch_finra_page(
                 getattr(
                     session,
                     '_finra_request_interval_seconds',
-                    FINRA_REQUEST_INTERVAL_SECONDS,
+                    base_interval,
                 ),
                 min(FINRA_MAX_RETRY_WAIT_SECONDS, wait_time),
             )
@@ -3959,7 +3976,11 @@ def _fetch_finra_listing_pass(
 
     for page in range(FINRA_MAX_PAGES):
         expected_url = _finra_cache_busted_url(_finra_page_url(page), token)
-        result = _fetch_finra_page(expected_url, session)
+        result = _fetch_finra_page(
+            expected_url,
+            session,
+            min_interval_seconds=_finra_listing_request_interval(),
+        )
         if result["status_code"] != 200:
             return {
                 "complete": False,
@@ -4157,7 +4178,11 @@ def _fetch_finra_listing_page(
 ) -> dict:
     """Fetch and validate one tokenized FINRA listing page."""
     expected_url = _finra_cache_busted_url(_finra_page_url(page), token)
-    result = _fetch_finra_page(expected_url, session)
+    result = _fetch_finra_page(
+        expected_url,
+        session,
+        min_interval_seconds=_finra_listing_request_interval(),
+    )
     if result["status_code"] != 200:
         return {
             "complete": False,

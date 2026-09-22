@@ -5087,7 +5087,7 @@ def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
         "https://example.test/second", session
     )["status_code"] == 200
     assert 10 in sleeps
-    assert sleeps.count(regulatory_monitor.FINRA_REQUEST_INTERVAL_SECONDS) == 2
+    assert sleeps.count(10) == 2
 
 
 def test_finra_rate_limit_recovery_keeps_adaptive_pacing(monkeypatch):
@@ -5152,7 +5152,7 @@ def test_finra_rate_limit_recovery_keeps_adaptive_pacing(monkeypatch):
     assert rate_limited_urls == ["https://example.test/finra?page=1"]
 
 
-def test_finra_default_pacing_avoids_six_request_burst(monkeypatch):
+def test_finra_listing_pacing_avoids_six_request_burst(monkeypatch):
     """Production pacing stays below a five-request rolling-minute threshold."""
     clock = [0.0]
     request_times = []
@@ -5195,10 +5195,57 @@ def test_finra_default_pacing_avoids_six_request_burst(monkeypatch):
         result = regulatory_monitor._fetch_finra_page(
             f"https://example.test/finra?page={page}",
             session,
+            min_interval_seconds=(
+                regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS
+            ),
         )
         assert result["status_code"] == 200
 
     assert rate_limited_urls == []
+
+
+def test_finra_listing_pacing_does_not_slow_detail_requests(monkeypatch):
+    """Listing pages use the safe baseline without imposing it on detail fetches."""
+    clock = [0.0]
+    sleeps = []
+
+    def fake_sleep(seconds):
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "fetch_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": "ok",
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", fake_sleep)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: clock[0])
+
+    listing_session = _FakeSession([])
+    detail_session = _FakeSession([])
+    regulatory_monitor._fetch_finra_page(
+        "https://example.test/finra?page=0",
+        listing_session,
+        min_interval_seconds=(
+            regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS
+        ),
+    )
+    clock[0] = 0.0
+    regulatory_monitor._fetch_finra_page(
+        "https://example.test/finra/detail",
+        detail_session,
+    )
+
+    assert sleeps == [
+        regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS,
+        regulatory_monitor.FINRA_REQUEST_INTERVAL_SECONDS,
+    ]
 
 
 def test_main_does_not_advance_finra_on_detail_failure(monkeypatch):
