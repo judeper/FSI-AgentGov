@@ -275,7 +275,7 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
 
 3. **Validate Adaptive Card JSON:**
    - Copy adaptive card JSON from script
-   - Test in Adaptive Cards Designer: https://adaptivecards.io/designer/
+   - Test in Adaptive Cards Designer: https://adaptivecards.microsoft.com/designer
    - Verify JSON is valid and renders correctly
    - Common issues: Missing commas, unclosed brackets, invalid schema version
 
