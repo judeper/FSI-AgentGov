@@ -2668,6 +2668,60 @@ def _synthetic_finra_listing(rows):
     }
 
 
+def _synthetic_finra_pass_result(pages, token):
+    rows = []
+    page_digests = []
+    page_payloads = []
+    for page, page_urls in enumerate(pages):
+        page_rows = []
+        for row_index, slug in enumerate(page_urls):
+            row = _synthetic_finra_row(
+                f"https://www.finra.org/rules-guidance/notices/{slug}",
+                f"url:/rules-guidance/notices/{slug}",
+                title=slug,
+            )
+            row["page"] = page
+            row["row_index"] = row_index
+            page_rows.append(row)
+        rows.extend(page_rows)
+        payloads = [row["raw_payload"] for row in page_rows]
+        page_payloads.append(payloads)
+        page_digests.append(compute_hash(json.dumps(
+            payloads,
+            sort_keys=True,
+            separators=(",", ":"),
+        )))
+    proof = {
+        "token": token,
+        "declared_pages": len(pages),
+        "pages_fetched": len(pages),
+        "page_numbers": list(range(len(pages))),
+        "page_identities": [
+            {"requested": page, "final": page, "active": page}
+            for page in range(len(pages))
+        ],
+        "page_row_counts": [len(page) for page in pages],
+        "page_row_digests": page_digests,
+        "page_row_payloads": page_payloads,
+        "raw_row_count": len(rows),
+        "resolved_row_count": len(rows),
+        "unresolved_row_count": 0,
+        "unique_node_count": len({row["node_identity"] for row in rows}),
+    }
+    return {
+        "complete": True,
+        "rows": rows,
+        "records": [
+            (row["detail_url"], row["title"], row["listing_date"])
+            for row in rows
+        ],
+        "pages_fetched": len(pages),
+        "declared_pages": len(pages),
+        "cutoff_page": None,
+        "pass_proof": proof,
+    }
+
+
 def _synthetic_finra_row(url, node_identity, title="Notice 26-14"):
     listing_date = "2026-07-09"
     payload = {
@@ -3005,62 +3059,9 @@ def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
 
 def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
     """A [A,B]/[C] -> [X,A]/[B,C] shift fails after both passes complete."""
-    def pass_result(pages, token):
-        rows = []
-        page_digests = []
-        page_payloads = []
-        for page, page_urls in enumerate(pages):
-            page_rows = []
-            for row_index, slug in enumerate(page_urls):
-                row = _synthetic_finra_row(
-                    f"https://www.finra.org/rules-guidance/notices/{slug}",
-                    f"url:/rules-guidance/notices/{slug}",
-                    title=slug,
-                )
-                row["page"] = page
-                row["row_index"] = row_index
-                page_rows.append(row)
-            rows.extend(page_rows)
-            payloads = [row["raw_payload"] for row in page_rows]
-            page_payloads.append(payloads)
-            page_digests.append(compute_hash(json.dumps(
-                payloads,
-                sort_keys=True,
-                separators=(",", ":"),
-            )))
-        proof = {
-            "token": token,
-            "declared_pages": len(pages),
-            "pages_fetched": len(pages),
-            "page_numbers": list(range(len(pages))),
-            "page_identities": [
-                {"requested": page, "final": page, "active": page}
-                for page in range(len(pages))
-            ],
-            "page_row_counts": [len(page) for page in pages],
-            "page_row_digests": page_digests,
-            "page_row_payloads": page_payloads,
-            "raw_row_count": len(rows),
-            "resolved_row_count": len(rows),
-            "unresolved_row_count": 0,
-            "unique_node_count": len({row["node_identity"] for row in rows}),
-        }
-        return {
-            "complete": True,
-            "rows": rows,
-            "records": [
-                (row["detail_url"], row["title"], row["listing_date"])
-                for row in rows
-            ],
-            "pages_fetched": len(pages),
-            "declared_pages": len(pages),
-            "cutoff_page": None,
-            "pass_proof": proof,
-        }
-
     results = iter([
-        pass_result([["A", "B"], ["C"]], "pass-1"),
-        pass_result([["X", "A"], ["B", "C"]], "pass-2"),
+        _synthetic_finra_pass_result([["A", "B"], ["C"]], "pass-1"),
+        _synthetic_finra_pass_result([["X", "A"], ["B", "C"]], "pass-2"),
     ])
     monkeypatch.setattr(
         regulatory_monitor,
@@ -3072,6 +3073,26 @@ def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
     )
     assert result["complete"] is False
     assert "independent-pass mismatch" in result["error"]
+
+
+def test_finra_two_pass_same_rows_reordered_are_equivalent(monkeypatch):
+    """Same-date rows may move across page boundaries without changing coverage."""
+    results = iter([
+        _synthetic_finra_pass_result([["A", "B"], ["C", "D"]], "pass-1"),
+        _synthetic_finra_pass_result([["B", "C"], ["D", "A"]], "pass-2"),
+    ])
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_pass",
+        lambda *_args: next(results),
+    )
+
+    result = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([]), None
+    )
+
+    assert result["complete"] is True
+    assert [row["title"] for row in result["rows"]] == ["A", "B", "C", "D"]
 
 
 def test_finra_passes_create_independent_sessions_sequentially(monkeypatch):
