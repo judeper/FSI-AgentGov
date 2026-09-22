@@ -5040,7 +5040,69 @@ def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
         "https://example.test/second", session
     )["status_code"] == 200
     assert 10 in sleeps
-    assert sleeps.count(10) == 1
+    assert sleeps.count(10) == 2
+
+
+def test_finra_rate_limit_recovery_keeps_adaptive_pacing(monkeypatch):
+    """A recovered 429 slows later page requests instead of immediately re-throttling."""
+    clock = [0.0]
+    last_success_at = [None]
+    rate_limited_urls = []
+    page_one_attempts = [0]
+
+    def fake_sleep(seconds):
+        clock[0] += seconds
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        if url.endswith("page=1"):
+            page_one_attempts[0] += 1
+            if page_one_attempts[0] == 1:
+                rate_limited_urls.append(url)
+                return {
+                    "status_code": 429,
+                    "content": "",
+                    "final_url": url,
+                    "was_redirected": False,
+                    "error": "rate limited",
+                    "retry_after": 5,
+                }
+        if (
+            url.endswith("page=2")
+            and last_success_at[0] is not None
+            and clock[0] - last_success_at[0] < 5
+        ):
+            rate_limited_urls.append(url)
+            return {
+                "status_code": 429,
+                "content": "",
+                "final_url": url,
+                "was_redirected": False,
+                "error": "rate limited",
+                "retry_after": 5,
+            }
+        last_success_at[0] = clock[0]
+        return {
+            "status_code": 200,
+            "content": "ok",
+            "final_url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", fake_sleep)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 1)
+    session = _FakeSession([])
+
+    for page in range(3):
+        result = regulatory_monitor._fetch_finra_page(
+            f"https://example.test/finra?page={page}",
+            session,
+        )
+        assert result["status_code"] == 200
+
+    assert rate_limited_urls == ["https://example.test/finra?page=1"]
 
 
 def test_main_does_not_advance_finra_on_detail_failure(monkeypatch):

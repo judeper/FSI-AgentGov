@@ -3362,8 +3362,16 @@ def _fetch_finra_page(
             time.sleep(cooldown_until - now)
             now = time.monotonic()
         elapsed = now - last_request
-        if elapsed < FINRA_REQUEST_INTERVAL_SECONDS:
-            time.sleep(FINRA_REQUEST_INTERVAL_SECONDS - elapsed)
+        request_interval = max(
+            FINRA_REQUEST_INTERVAL_SECONDS,
+            getattr(
+                session,
+                '_finra_request_interval_seconds',
+                FINRA_REQUEST_INTERVAL_SECONDS,
+            ),
+        )
+        if elapsed < request_interval:
+            time.sleep(request_interval - elapsed)
         # The shared helper normally retries 429s itself. FINRA uses one
         # attempt here so the session cooldown remains the only retry loop.
         request_url = _finra_retry_url(url, attempt)
@@ -3403,6 +3411,14 @@ def _fetch_finra_page(
         try:
             session._finra_cooldown_until = (
                 time.monotonic() + wait_time
+            )
+            session._finra_request_interval_seconds = max(
+                getattr(
+                    session,
+                    '_finra_request_interval_seconds',
+                    FINRA_REQUEST_INTERVAL_SECONDS,
+                ),
+                min(FINRA_MAX_RETRY_WAIT_SECONDS, wait_time),
             )
             session._finra_backoff_seconds = min(
                 FINRA_MAX_RETRY_WAIT_SECONDS,
