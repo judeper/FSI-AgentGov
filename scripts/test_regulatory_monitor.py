@@ -3062,6 +3062,7 @@ def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
     results = iter([
         _synthetic_finra_pass_result([["A", "B"], ["C"]], "pass-1"),
         _synthetic_finra_pass_result([["X", "A"], ["B", "C"]], "pass-2"),
+        _synthetic_finra_pass_result([["A", "B"], ["Y", "C"]], "pass-3"),
     ])
     monkeypatch.setattr(
         regulatory_monitor,
@@ -3073,6 +3074,31 @@ def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
     )
     assert result["complete"] is False
     assert "independent-pass mismatch" in result["error"]
+
+
+def test_finra_uses_later_consensus_when_source_changes(monkeypatch):
+    """A bounded third pass accepts the newer snapshot when passes two and three agree."""
+    results = iter([
+        _synthetic_finra_pass_result([["A", "B"], ["C"]], "pass-1"),
+        _synthetic_finra_pass_result([["X", "A"], ["B", "C"]], "pass-2"),
+        _synthetic_finra_pass_result([["X", "A"], ["B", "C"]], "pass-3"),
+    ])
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_pass",
+        lambda *_args: next(results),
+    )
+
+    result = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([]), None
+    )
+
+    assert result["complete"] is True
+    assert [row["title"] for row in result["rows"]] == ["X", "A", "B", "C"]
+    assert [proof["token"] for proof in result["pass_proofs"]] == [
+        "pass-2",
+        "pass-3",
+    ]
 
 
 def test_finra_two_pass_same_rows_reordered_are_equivalent(monkeypatch):
