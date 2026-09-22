@@ -149,6 +149,20 @@ def test_pending_blob_shape_and_no_published_mapping(tmp_path: Path):
     assert "UNCONFIRMED" in blob["note"]
 
 
+def test_suggest_controls_requires_keyword_start_boundary():
+    central_only = {
+        "title": "Copilot Analytics agent dashboard",
+        "description": "A central place for leaders to review adoption.",
+    }
+    entra_item = {
+        "title": "Copilot Analytics agent dashboard",
+        "description": "Uses Entra identity data for access analysis.",
+    }
+
+    assert not any(c["id"] == "2.26" for c in cr.suggest_controls(central_only))
+    assert any(c["id"] == "2.26" for c in cr.suggest_controls(entra_item))
+
+
 # --- fail-closed ---
 
 def test_fail_closed_on_non_list_shape(tmp_path: Path):

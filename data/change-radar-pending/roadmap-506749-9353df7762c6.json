@@ -15,11 +15,6 @@
   "schema_version": 1,
   "source": "roadmap",
   "status": "In development",
-  "suggested_controls": [
-    {
-      "id": "2.26",
-      "source": "keyword:entra"
-    }
-  ],
+  "suggested_controls": [],
   "title": "Microsoft Viva: Copilot Analytics - Agent Dashboard."
 }

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -148,7 +149,7 @@ def suggest_controls(item: dict) -> list[dict]:
     haystack = f"{item.get('title') or ''} {item.get('description') or ''}".lower()
     suggestions: dict[str, str] = {}
     for keyword, control_ids in CANDIDATE_KEYWORD_MAP.items():
-        if keyword in haystack:
+        if re.search(rf"\b{re.escape(keyword)}", haystack):
             for cid in control_ids:
                 suggestions.setdefault(cid, f"keyword:{keyword}")
     # Deterministic URL match against a real external link, when present. Roadmap
