@@ -100,7 +100,10 @@ FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
 FINRA_MAX_PAGES = 100
 FINRA_REFRESH_BATCH_SIZE = 25
-FINRA_REQUEST_INTERVAL_SECONDS = 1.00
+# FINRA's public listing begins throttling GitHub-hosted runners at roughly
+# six requests per minute. Stay below that burst threshold before backoff is
+# needed; a recovered 429 can raise this interval further for the current pass.
+FINRA_REQUEST_INTERVAL_SECONDS = 12.00
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
