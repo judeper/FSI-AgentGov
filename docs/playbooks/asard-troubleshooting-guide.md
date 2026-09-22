@@ -750,7 +750,7 @@ WHERE gov_expirationdate < GETDATE() AND gov_status = 'active'
 **For adaptive card errors:**
 1. **Validate card payload:**
    - Copy adaptive card JSON from flow action
-   - Test in [Adaptive Cards Designer](https://adaptivecards.io/designer/)
+   - Test in [Adaptive Cards Designer](https://adaptivecards.microsoft.com/designer)
    - Fix any schema errors
 
 2. **Check dynamic content:**
