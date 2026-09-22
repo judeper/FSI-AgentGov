@@ -125,9 +125,9 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Manage Copilot | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-enable-users | Feb 2026 |
 | **Manage Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide | Mar 2026 |
 | Copilot Usage Reports | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage?view=o365-worldwide | Jan 2026 |
-| **Copilot Control System Overview** | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/overview | Mar 2026 |
-| Copilot Control System - Security and Governance | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/security-governance | Mar 2026 |
-| Copilot Control System - Management Controls | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/management-controls | Mar 2026 |
+| **Copilot Control System Overview** | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-controls/overview | Mar 2026 |
+| Copilot Control System - Security and Governance | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-controls/security-governance | Mar 2026 |
+| Copilot Control System - Management Controls | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-controls/management-controls | Mar 2026 |
 
 ---
 
