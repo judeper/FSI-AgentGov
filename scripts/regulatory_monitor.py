@@ -4312,9 +4312,11 @@ def _fetch_finra_listing_passes_sequential(
     session: requests.Session,
     since_date: Optional[str],
 ) -> dict:
-    """Fetch two complete passes sequentially using independent sessions."""
+    """Require two matching complete passes, with one bounded consensus retry."""
     pass_results = []
-    for index in (1, 2):
+    selected_results = None
+    mismatches = []
+    for index in (1, 2, 3):
         pass_session = _new_finra_pass_session(session)
         try:
             result = _fetch_finra_listing_pass(
@@ -4343,29 +4345,39 @@ def _fetch_finra_listing_passes_sequential(
                     result.get("pass_proof", {}),
                 ],
             }
+        for prior in pass_results[:-1]:
+            mismatch = _compare_finra_listing_pass_proofs(
+                prior["pass_proof"],
+                result["pass_proof"],
+            )
+            if mismatch is None:
+                selected_results = (prior, result)
+                break
+            mismatches.append(mismatch)
+        if selected_results is not None:
+            break
 
-    first, second = pass_results
-    mismatch = _compare_finra_listing_pass_proofs(
-        first["pass_proof"],
-        second["pass_proof"],
-    )
-    if mismatch:
+    if selected_results is None:
+        first = pass_results[0]
         return {
             "complete": False,
-            "error": mismatch,
+            "error": mismatches[-1] if mismatches else (
+                "FINRA independent passes did not reach consensus"
+            ),
             "pages_fetched": min(
-                first["pages_fetched"],
-                second["pages_fetched"],
+                result["pages_fetched"]
+                for result in pass_results
             ),
             "declared_pages": first.get("declared_pages"),
             "pass_proofs": [
-                first["pass_proof"],
-                second["pass_proof"],
+                result["pass_proof"]
+                for result in pass_results
             ],
         }
 
-    proofs = [pass_results[0]["pass_proof"], pass_results[1]["pass_proof"]]
-    rows = pass_results[0]["rows"]
+    first, second = selected_results
+    proofs = [first["pass_proof"], second["pass_proof"]]
+    rows = first["rows"]
     return {
         "complete": True,
         "rows": rows,
@@ -4373,9 +4385,9 @@ def _fetch_finra_listing_passes_sequential(
             (row["detail_url"], row["title"], row["listing_date"])
             for row in rows
         ],
-        "pages_fetched": pass_results[0]["pages_fetched"],
-        "declared_pages": pass_results[0]["declared_pages"],
-        "cutoff_page": pass_results[0]["cutoff_page"],
+        "pages_fetched": first["pages_fetched"],
+        "declared_pages": first["declared_pages"],
+        "cutoff_page": first["cutoff_page"],
         "pass_proofs": proofs,
         "coverage": {
             "complete": True,
@@ -4402,7 +4414,7 @@ def _fetch_finra_listing_records(
     session: requests.Session,
     since_date: Optional[str],
 ) -> dict:
-    """Require two stable, independently cache-busted listing passes."""
+    """Require two stable independent passes, with one bounded consensus retry."""
     return _fetch_finra_listing_passes_sequential(session, since_date)
 
 
