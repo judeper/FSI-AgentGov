@@ -3352,6 +3352,55 @@ def test_finra_partitioned_pass_proof_binds_unclassified_year_page_zero_row(
     )
     pages = {
         (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [present], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [present, omitted]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [present]),
+        ("1", "7", 0): (
+            "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+            "</body></html>"
+        ),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    evidence = result["pass_proof"]["unclassified_evidence"]
+    assert evidence["raw_row_count"] == 1
+    assert len(evidence["observations"]) == 1
+    assert evidence["observations"][0]["source"] == "year-page-zero"
+    assert evidence["observations"][0]["year"] == {
+        "label": "2026",
+        "value": "1",
+    }
+    assert evidence["observations"][0]["page_numbers"] == [0]
+    assert evidence["observations"][0]["page_identities"][0][
+        "pager_mode"
+    ] == "explicit"
+    assert {
+        row["title"] for row in result["rows"]
+    } == {"Regulatory Notice 26-15", "New Notice 26-1"}
+
+
+def test_finra_identical_global_and_year_unclassified_overlap_is_counted_once(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    present = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted = (
+        "/rules-guidance/notices/new-notice-26-1",
+        "New Notice 26-1",
+        "2026-07-01",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
             0, 1, [present, omitted], filters=filters
         ),
         ("1", None, 0): _finra_listing_page(0, 2, [present, omitted]),
@@ -3365,10 +3414,13 @@ def test_finra_partitioned_pass_proof_binds_unclassified_year_page_zero_row(
     result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
 
     assert result["complete"] is True
-    assert result["pass_proof"]["unclassified_evidence"]["raw_row_count"] == 1
-    assert {
-        row["title"] for row in result["rows"]
-    } == {"Regulatory Notice 26-15", "New Notice 26-1"}
+    evidence = result["pass_proof"]["unclassified_evidence"]
+    assert {item["source"] for item in evidence["observations"]} == {
+        "global-unfiltered",
+        "year-page-zero",
+    }
+    assert evidence["raw_row_count"] == 1
+    assert len(evidence["row_payloads"]) == 1
 
 
 def test_finra_partition_proof_rejects_missing_type_shard_with_equal_row_union(
@@ -3395,10 +3447,37 @@ def test_finra_partition_proof_rejects_missing_type_shard_with_equal_row_union(
     proof = deepcopy(result["pass_proof"])
     proof["partition_manifest"].pop()
 
-    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    coverage["schema_version"] = (
+        regulatory_monitor.FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+    )
+    coverage["listing_mode"] = "deterministic-year-type-partitions"
+    second_proof = deepcopy(proof)
+    second_proof["token"] = "pass-2"
+    coverage["pass_proofs"] = [proof, second_proof]
+    for key in (
+        "declared_pages",
+        "pages_fetched",
+        "page_numbers",
+        "page_identities",
+        "raw_row_count",
+        "resolved_row_count",
+        "unresolved_row_count",
+        "unique_node_count",
+    ):
+        coverage[key] = deepcopy(proof[key])
+    coverage["listing_record_count"] = proof["resolved_row_count"]
+    for key in regulatory_monitor.FINRA_DETERMINISTIC_PROOF_FIELDS:
+        coverage[key] = deepcopy(proof[key])
+
+    errors = regulatory_monitor._validate_source_coverage(
         regulatory_monitor.SOURCE_KEY_FINRA,
-        proof,
-        0,
+        source_state,
     )
 
     assert any("topology" in error for error in errors)
@@ -3901,6 +3980,109 @@ def test_finra_unclassified_evidence_must_be_stable_across_passes(monkeypatch):
     assert "unclassified evidence" in (
         regulatory_monitor._compare_finra_listing_pass_proofs(first, second)
         or ""
+    )
+
+
+def test_finra_year_unclassified_evidence_must_be_stable_across_passes(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    classified = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omissions = [
+        (
+            "/rules-guidance/notices/26-14",
+            "Regulatory Notice 26-14",
+            "2026-07-09",
+        ),
+        (
+            "/rules-guidance/notices/26-13",
+            "Regulatory Notice 26-13",
+            "2026-06-30",
+        ),
+    ]
+    proofs = []
+    for omitted in omissions:
+        pages = {
+            (None, None, 0): _finra_filtered_listing_page(
+                0, 1, [classified], filters=filters
+            ),
+            ("1", None, 0): _finra_listing_page(
+                0, 2, [classified, omitted]
+            ),
+            ("1", "3", 0): _finra_listing_page(0, 1, [classified]),
+            ("1", "7", 0): (
+                "<html><body><div class=\"view-empty\">"
+                "No regulatory notices</div></body></html>"
+            ),
+        }
+        result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+        proofs.append(result["pass_proof"])
+
+    mismatch = regulatory_monitor._compare_finra_listing_pass_proofs(
+        proofs[0],
+        proofs[1],
+    )
+
+    assert "unclassified evidence" in (mismatch or "")
+    assert "year" in (mismatch or "")
+
+
+@pytest.mark.parametrize("tamper", ["year", "source", "digest"])
+def test_finra_year_unclassified_provenance_tampering_fails_validation(
+    monkeypatch,
+    tamper,
+):
+    filters = _finra_filter_form(
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    present = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted = (
+        "/rules-guidance/notices/26-14",
+        "Regulatory Notice 26-14",
+        "2026-07-09",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [present], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [present, omitted]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [present]),
+        ("1", "7", 0): (
+            "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+            "</body></html>"
+        ),
+    }
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    proof = deepcopy(result["pass_proof"])
+    observation = proof["unclassified_evidence"]["observations"][0]
+    if tamper == "year":
+        observation["year"]["value"] = "forged"
+    elif tamper == "source":
+        observation["source"] = "forged"
+    else:
+        observation["row_evidence_digest"] = "sha256:forged"
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any(
+        "unclassified" in error and (
+            "year=2026" in error or "provenance" in error
+        )
+        for error in errors
     )
 
 

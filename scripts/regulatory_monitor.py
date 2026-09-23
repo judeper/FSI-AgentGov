@@ -1714,7 +1714,9 @@ def _finra_partition_proof_errors(
 
     unclassified = proof.get("unclassified_evidence")
     expected_unclassified_keys = {
+        "evidence_version",
         "reason",
+        "observations",
         "row_payloads",
         "row_evidence_digest",
         "raw_row_count",
@@ -1723,11 +1725,116 @@ def _finra_partition_proof_errors(
         "unique_node_count",
     }
     unclassified_payloads = []
+    classified_counter = Counter()
+    for counter in canonical_by_identity.values():
+        classified_counter.update(counter)
+
+    def payloads_for_counter(
+        available_payloads: list[dict],
+        counter: Counter,
+    ) -> list[dict]:
+        payload_by_key = {
+            _finra_payload_sort_key(payload): payload
+            for payload in available_payloads
+        }
+        return [
+            deepcopy(payload_by_key[payload_key])
+            for payload_key in sorted(counter)
+            for _ in range(counter[payload_key])
+            if payload_key in payload_by_key
+        ]
+
+    expected_unclassified_observations = []
+    reconciliation = proof.get("unfiltered_reconciliation")
+    if isinstance(reconciliation, dict):
+        reconciliation_pages = reconciliation.get(
+            "page_row_payloads",
+            [],
+        )
+        if (
+            isinstance(reconciliation_pages, list)
+            and all(
+                isinstance(page, list)
+                for page in reconciliation_pages
+            )
+        ):
+            global_payloads = [
+                payload
+                for page in reconciliation_pages
+                for payload in page
+                if _is_finra_listing_row_payload(payload)
+            ]
+            global_missing = Counter(
+                _finra_payload_sort_key(payload)
+                for payload in global_payloads
+            ) - classified_counter
+            if global_missing:
+                expected_unclassified_observations.append(
+                    _finra_unclassified_observation(
+                        source="global-unfiltered",
+                        year=None,
+                        declared_pages=reconciliation.get(
+                            "declared_pages"
+                        ),
+                        page_numbers=reconciliation.get(
+                            "page_numbers",
+                            [],
+                        ),
+                        page_identities=reconciliation.get(
+                            "page_identities",
+                            [],
+                        ),
+                        payloads=payloads_for_counter(
+                            global_payloads,
+                            global_missing,
+                        ),
+                    )
+                )
+    for year_identity, observation in observations_by_year.items():
+        if observation["partition_mode"] != "year-type":
+            continue
+        shards = shards_by_year.get(year_identity, [])
+        type_union = Counter(
+            _finra_payload_sort_key(payload)
+            for shard in shards
+            for payload in shard.get("row_payloads", [])
+        )
+        year_payloads = observation["row_payloads"]
+        year_missing = Counter(
+            _finra_payload_sort_key(payload)
+            for payload in year_payloads
+        ) - type_union
+        if not year_missing:
+            continue
+        expected_unclassified_observations.append(
+            _finra_unclassified_observation(
+                source="year-page-zero",
+                year=observation["year"],
+                declared_pages=observation["declared_pages"],
+                page_numbers=[0],
+                page_identities=[observation["page_identity"]],
+                payloads=payloads_for_counter(
+                    year_payloads,
+                    year_missing,
+                ),
+            )
+        )
+    expected_unclassified_observations = (
+        _finra_deduplicate_unclassified_observations(
+            expected_unclassified_observations
+        )
+    )
+    expected_merged_payloads = _finra_merged_unclassified_payloads(
+        expected_unclassified_observations
+    )
     if (
         not isinstance(unclassified, dict)
         or set(unclassified) != expected_unclassified_keys
+        or unclassified.get("evidence_version") != 1
         or unclassified.get("reason")
         != "absent-from-discovered-year-type-partitions"
+        or unclassified.get("observations")
+        != expected_unclassified_observations
         or not isinstance(unclassified.get("row_payloads"), list)
         or any(
             not _is_finra_listing_row_payload(payload)
@@ -1738,7 +1845,29 @@ def _finra_partition_proof_errors(
             key=_finra_payload_sort_key,
         )
     ):
-        errors.append(f"{label} unclassified evidence is malformed")
+        actual_observations = (
+            unclassified.get("observations", [])
+            if isinstance(unclassified, dict)
+            else []
+        )
+        year_summaries = [
+            (
+                item.get("year", {}).get("label", "global")
+                if isinstance(item, dict)
+                and isinstance(item.get("year"), dict)
+                else "global"
+            )
+            for item in (
+                actual_observations
+                if isinstance(actual_observations, list)
+                else []
+            )
+        ]
+        errors.append(
+            f"{label} unclassified provenance is malformed "
+            f"years={year_summaries} "
+            f"missing_count={len(expected_merged_payloads)}"
+        )
     else:
         unclassified_payloads = unclassified["row_payloads"]
         unclassified_strings = [
@@ -1772,16 +1901,27 @@ def _finra_partition_proof_errors(
             != len(unclassified_payloads)
             or unclassified.get("unique_node_count")
             != len(unclassified_identities)
+            or unclassified_payloads != expected_merged_payloads
         ):
-            errors.append(f"{label} unclassified evidence is inconsistent")
+            evidence_years = [
+                (
+                    observation.get("year", {}).get("label", "global")
+                    if isinstance(observation.get("year"), dict)
+                    else "global"
+                )
+                for observation in unclassified["observations"]
+            ]
+            errors.append(
+                f"{label} unclassified evidence is inconsistent "
+                f"years={evidence_years} "
+                f"missing_count={len(unclassified_payloads)}"
+            )
         if unclassified_identities & set(canonical_by_identity):
             errors.append(
                 f"{label} unclassified evidence reuses a classified identity"
             )
 
-    recomputed_partition_counter = Counter()
-    for counter in canonical_by_identity.values():
-        recomputed_partition_counter.update(counter)
+    recomputed_partition_counter = Counter(classified_counter)
     recomputed_partition_counter.update(
         _finra_payload_sort_key(payload)
         for payload in unclassified_payloads
@@ -5302,14 +5442,97 @@ def _fetch_finra_unfiltered_reconciliation(
     }
 
 
-def _finra_unclassified_evidence(rows: list[dict]) -> dict:
-    """Build a stable proof block for rows outside discovered taxonomy."""
-    payloads = sorted(
-        (deepcopy(row["raw_payload"]) for row in rows),
+def _finra_unclassified_observation(
+    *,
+    source: str,
+    year: Optional[dict[str, str]],
+    declared_pages: int,
+    page_numbers: list[int],
+    page_identities: list[dict],
+    payloads: list[dict],
+) -> dict:
+    """Bind one omission multiset to its exact observation provenance."""
+    normalized_payloads = sorted(
+        (deepcopy(payload) for payload in payloads),
         key=_finra_payload_sort_key,
     )
     return {
+        "source": source,
+        "year": deepcopy(year),
+        "declared_pages": declared_pages,
+        "page_numbers": deepcopy(page_numbers),
+        "page_identities": deepcopy(page_identities),
+        "row_payloads": normalized_payloads,
+        "row_evidence_digest": compute_hash(json.dumps(
+            [
+                _finra_payload_sort_key(payload)
+                for payload in normalized_payloads
+            ],
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )),
+    }
+
+
+def _finra_deduplicate_unclassified_observations(
+    observations: list[dict],
+) -> list[dict]:
+    """Deduplicate only byte-identical normalized observation evidence."""
+    unique = {
+        json.dumps(
+            observation,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ): observation
+        for observation in observations
+    }
+    return [
+        deepcopy(unique[key])
+        for key in sorted(unique)
+    ]
+
+
+def _finra_merged_unclassified_payloads(
+    observations: list[dict],
+) -> list[dict]:
+    """Merge observation multisets using maximum proven multiplicity."""
+    payload_by_key = {}
+    merged_counter = Counter()
+    for observation in observations:
+        observation_counter = Counter(
+            _finra_payload_sort_key(payload)
+            for payload in observation["row_payloads"]
+        )
+        for payload in observation["row_payloads"]:
+            payload_by_key[_finra_payload_sort_key(payload)] = payload
+        for payload_key, count in observation_counter.items():
+            merged_counter[payload_key] = max(
+                merged_counter[payload_key],
+                count,
+            )
+    return [
+        deepcopy(payload_by_key[payload_key])
+        for payload_key in sorted(merged_counter)
+        for _ in range(merged_counter[payload_key])
+    ]
+
+
+def _finra_unclassified_evidence(
+    observations: list[dict],
+    rows: list[dict],
+) -> dict:
+    """Build the stable merged proof block for taxonomy omissions."""
+    normalized_observations = _finra_deduplicate_unclassified_observations(
+        observations
+    )
+    payloads = _finra_merged_unclassified_payloads(
+        normalized_observations
+    )
+    return {
+        "evidence_version": 1,
         "reason": "absent-from-discovered-year-type-partitions",
+        "observations": normalized_observations,
         "row_payloads": payloads,
         "row_evidence_digest": compute_hash(json.dumps(
             [_finra_payload_sort_key(payload) for payload in payloads],
@@ -5389,6 +5612,7 @@ def _finra_canonical_partition_result(
     filter_manifest: dict,
     shard_results: list[tuple[dict, dict, dict, Optional[dict]]],
     year_observations: list[dict],
+    year_observation_rows: dict[str, list[dict]],
     unfiltered_reconciliation: dict,
     since_date: Optional[str],
 ) -> dict:
@@ -5440,32 +5664,160 @@ def _finra_canonical_partition_result(
         _finra_payload_sort_key(row["raw_payload"])
         for row in classified_rows
     )
+    unclassified_observations = []
+    unclassified_candidate_rows = []
+
+    def rows_for_missing_counter(
+        observed_rows: list[dict],
+        missing: Counter,
+    ) -> list[dict]:
+        remaining = Counter(missing)
+        selected = []
+        for row in observed_rows:
+            payload_key = _finra_payload_sort_key(row["raw_payload"])
+            if remaining[payload_key] <= 0:
+                continue
+            remaining[payload_key] -= 1
+            selected.append(deepcopy(row))
+        return selected
+
     observed_rows = unfiltered_reconciliation["rows"]
     observed_counter = Counter(
         _finra_payload_sort_key(row["raw_payload"])
         for row in observed_rows
     )
-    missing_counter = observed_counter - classified_counter
-    unclassified_rows = []
-    for row in observed_rows:
-        payload_key = _finra_payload_sort_key(row["raw_payload"])
-        if missing_counter[payload_key] <= 0:
+    global_missing = observed_counter - classified_counter
+    global_missing_rows = rows_for_missing_counter(
+        observed_rows,
+        global_missing,
+    )
+    if global_missing_rows:
+        reconciliation_evidence = unfiltered_reconciliation["evidence"]
+        unclassified_observations.append(
+            _finra_unclassified_observation(
+                source="global-unfiltered",
+                year=None,
+                declared_pages=reconciliation_evidence["declared_pages"],
+                page_numbers=reconciliation_evidence["page_numbers"],
+                page_identities=reconciliation_evidence["page_identities"],
+                payloads=[
+                    row["raw_payload"] for row in global_missing_rows
+                ],
+            )
+        )
+        unclassified_candidate_rows.extend(global_missing_rows)
+
+    shards_by_year: dict[tuple[str, str], list[dict]] = {}
+    for shard, _query, year, _notice_type in shard_results:
+        shards_by_year.setdefault(
+            (year["label"], year["value"]),
+            [],
+        ).append(shard)
+    for year_observation in year_observations:
+        if year_observation["declared_pages"] <= 1:
             continue
-        missing_counter[payload_key] -= 1
-        identity = row["node_identity"]
-        if identity in canonical_by_identity:
+        year_identity = (
+            year_observation["year"]["label"],
+            year_observation["year"]["value"],
+        )
+        type_union = Counter(
+            _finra_payload_sort_key(row["raw_payload"])
+            for shard in shards_by_year.get(year_identity, [])
+            for row in shard["rows"]
+        )
+        year_page_zero = Counter(
+            _finra_payload_sort_key(payload)
+            for payload in year_observation["row_payloads"]
+        )
+        year_missing = year_page_zero - type_union
+        if not year_missing:
+            continue
+        year_value = year_observation["year"]["value"]
+        missing_rows = rows_for_missing_counter(
+            year_observation_rows.get(year_value, []),
+            year_missing,
+        )
+        if len(missing_rows) != sum(year_missing.values()):
             return {
                 "complete": False,
                 "error": (
-                    "FINRA unclassified reconciliation conflicts on "
-                    f"normalized identity {identity}"
+                    "FINRA year-page-zero unclassified evidence is malformed "
+                    f"for year={year_observation['year']['label']} "
+                    f"missing_count={sum(year_missing.values())}"
                 ),
                 "pass_proof": {},
             }
-        unclassified_rows.append(deepcopy(row))
+        logger.warning(
+            "FINRA year-page-zero taxonomy omission year=%s value=%s "
+            "missing_count=%s",
+            year_observation["year"]["label"],
+            year_value,
+            len(missing_rows),
+        )
+        unclassified_observations.append(
+            _finra_unclassified_observation(
+                source="year-page-zero",
+                year=year_observation["year"],
+                declared_pages=year_observation["declared_pages"],
+                page_numbers=[0],
+                page_identities=[year_observation["page_identity"]],
+                payloads=[row["raw_payload"] for row in missing_rows],
+            )
+        )
+        unclassified_candidate_rows.extend(missing_rows)
+
+    unclassified_observations = (
+        _finra_deduplicate_unclassified_observations(
+            unclassified_observations
+        )
+    )
+    merged_unclassified_payloads = _finra_merged_unclassified_payloads(
+        unclassified_observations
+    )
+    candidate_rows_by_payload: dict[str, list[dict]] = {}
+    for row in unclassified_candidate_rows:
+        candidate_rows_by_payload.setdefault(
+            _finra_payload_sort_key(row["raw_payload"]),
+            [],
+        ).append(row)
+    unclassified_rows = []
+    for payload in merged_unclassified_payloads:
+        payload_key = _finra_payload_sort_key(payload)
+        candidates = candidate_rows_by_payload.get(payload_key, [])
+        if not candidates:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA unclassified evidence is malformed "
+                    f"missing_count={len(merged_unclassified_payloads)}"
+                ),
+                "pass_proof": {},
+            }
+        unclassified_rows.append(deepcopy(candidates[0]))
+
+    unclassified_by_identity: dict[str, list[dict]] = {}
+    for row in unclassified_rows:
+        unclassified_by_identity.setdefault(
+            row["node_identity"],
+            [],
+        ).append(row)
+    for identity, identity_rows in unclassified_by_identity.items():
+        identity_counter = Counter(
+            _finra_payload_sort_key(row["raw_payload"])
+            for row in identity_rows
+        )
+        if identity in canonical_by_identity or len(identity_counter) != 1:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA unclassified evidence conflicts on normalized "
+                    f"identity {identity} missing_count={len(identity_rows)}"
+                ),
+                "pass_proof": {},
+            }
         canonical_by_identity[identity] = (
-            Counter({payload_key: 1}),
-            [deepcopy(row)],
+            identity_counter,
+            identity_rows,
         )
 
     rows = [
@@ -5489,14 +5841,9 @@ def _finra_canonical_partition_result(
         _finra_payload_sort_key(row["raw_payload"])
         for row in unclassified_rows
     )
-    shards_by_year: dict[tuple[str, str], list[dict]] = {}
-    for shard, _query, year, _notice_type in shard_results:
-        shards_by_year.setdefault(
-            (year["label"], year["value"]),
-            [],
-        ).append(shard)
+
     for year_observation in year_observations:
-        if year_observation["declared_pages"] <= 1:
+        if year_observation["partition_mode"] != "year-type":
             continue
         year_identity = (
             year_observation["year"]["label"],
@@ -5515,8 +5862,10 @@ def _finra_canonical_partition_result(
             return {
                 "complete": False,
                 "error": (
-                    "FINRA year page-zero reconciliation found rows absent "
-                    "from the notice-type shard union"
+                    "FINRA classified plus unclassified evidence does not "
+                    "cover year page zero "
+                    f"year={year_observation['year']['label']} "
+                    f"missing_count={sum((year_page_zero - (type_union + unclassified_counter)).values())}"
                 ),
                 "pass_proof": {},
             }
@@ -5572,6 +5921,7 @@ def _finra_canonical_partition_result(
             unfiltered_reconciliation["evidence"]
         ),
         "unclassified_evidence": _finra_unclassified_evidence(
+            unclassified_observations,
             unclassified_rows
         ),
     }
@@ -5692,6 +6042,7 @@ def _fetch_finra_listing_pass(
 
     shard_results = []
     year_observations = []
+    year_observation_rows: dict[str, list[dict]] = {}
     year_field = filter_manifest["year_field"]
     notice_type_field = filter_manifest["notice_type_field"]
     for year in filter_manifest["years"]:
@@ -5755,6 +6106,9 @@ def _fetch_finra_listing_pass(
                 key=_finra_payload_sort_key,
             ),
         })
+        year_observation_rows[year["value"]] = deepcopy(
+            year_page["page_rows"]
+        )
         budget["last_completed"] = (
             f"{pass_label}/year={year['label']}/type=all/page=0"
         )
@@ -5810,6 +6164,7 @@ def _fetch_finra_listing_pass(
         filter_manifest,
         shard_results,
         year_observations,
+        year_observation_rows,
         unfiltered_reconciliation,
         since_date,
     )
@@ -5995,7 +6350,36 @@ def _compare_finra_listing_pass_proofs(
     if first_partitioned != second_partitioned:
         return "FINRA independent-pass mismatch in partition proof mode"
     if first_partitioned:
+        if first.get("unclassified_evidence") != second.get(
+            "unclassified_evidence"
+        ):
+            def summary(proof: dict) -> list[str]:
+                evidence = proof.get("unclassified_evidence")
+                observations = (
+                    evidence.get("observations", [])
+                    if isinstance(evidence, dict)
+                    else []
+                )
+                return [
+                    (
+                        f"year={item['year']['label']}:"
+                        f"missing_count={len(item.get('row_payloads', []))}"
+                        if isinstance(item, dict)
+                        and isinstance(item.get("year"), dict)
+                        else "year=global:"
+                        f"missing_count={len(item.get('row_payloads', []))}"
+                    )
+                    for item in observations
+                    if isinstance(item, dict)
+                ]
+            return (
+                "FINRA independent-pass mismatch in unclassified "
+                f"evidence first={summary(first)} "
+                f"second={summary(second)}"
+            )
         for key in FINRA_DETERMINISTIC_PROOF_FIELDS:
+            if key == "unclassified_evidence":
+                continue
             if first.get(key) != second.get(key):
                 return (
                     "FINRA independent-pass mismatch in "
