@@ -99,16 +99,31 @@ FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
 # FINRA notices page
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
 FINRA_MAX_PAGES = 100
+FINRA_UNFILTERED_RECONCILIATION_PAGE_LIMIT = 3
 FINRA_REFRESH_BATCH_SIZE = 25
 FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 # FINRA's public listing begins throttling GitHub-hosted runners at roughly
 # six requests per minute. Detail pages use the faster general interval above;
 # only the 92-page listing crawl requires this human-scale baseline.
 FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 12.00
+# One maximum-size shard plus bounded discovery/reconciliation overhead.
+FINRA_LISTING_REQUEST_BUDGET = FINRA_MAX_PAGES + 20
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
 FINRA_CACHE_BUST_PARAM = "_finra_pass"
+FINRA_LEGACY_COVERAGE_SCHEMA_VERSION = 1
+FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION = 2
+FINRA_DETERMINISTIC_PROOF_VERSION = 2
+FINRA_DETERMINISTIC_PROOF_FIELDS = (
+    "proof_version",
+    "filter_manifest",
+    "partition_manifest",
+    "year_observations",
+    "unclassified_evidence",
+    "unfiltered_reconciliation",
+)
+_FINRA_LEGACY_FIXTURE_CAPABILITY = object()
 # State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
 # alias migration requires a separate code review that adds a new anchor.
 FINRA_DETAIL_IDENTITY_ANCHORS = {
@@ -1213,6 +1228,591 @@ def _finra_pass_proof_recomputation_errors(
         )
     if proof.get("unique_node_count") != len(node_identities):
         errors.append(f"{label} unique node count is not recomputable from payloads")
+    page_numbers = proof.get("page_numbers")
+    if not _finra_page_identities_are_valid(
+        proof.get("page_identities"),
+        page_numbers,
+    ):
+        errors.append(f"{label} page identities are invalid")
+    errors.extend(_finra_partition_proof_errors(proof, label, payloads))
+    return errors
+
+
+def _finra_page_identities_are_valid(
+    identities: object,
+    page_numbers: object,
+) -> bool:
+    """Require requested, final, and active identities to be equal integers."""
+    if (
+        not isinstance(identities, list)
+        or not isinstance(page_numbers, list)
+        or len(identities) != len(page_numbers)
+    ):
+        return False
+    for expected, identity in zip(page_numbers, identities, strict=True):
+        if (
+            not isinstance(expected, int)
+            or isinstance(expected, bool)
+            or not isinstance(identity, dict)
+            or set(identity) != {"requested", "final", "active"}
+            or any(
+                not isinstance(identity.get(key), int)
+                or isinstance(identity.get(key), bool)
+                for key in ("requested", "final", "active")
+            )
+            or identity["requested"] != expected
+            or identity["final"] != expected
+            or identity["active"] != expected
+        ):
+            return False
+    return True
+
+
+def _finra_partition_proof_errors(
+    proof: dict,
+    label: str,
+    canonical_payload_pages: list[list[dict]],
+) -> list[str]:
+    """Recompute optional deterministic partition evidence from raw payloads."""
+    if not any(key in proof for key in FINRA_DETERMINISTIC_PROOF_FIELDS):
+        return []
+    errors: list[str] = []
+    if any(key not in proof for key in FINRA_DETERMINISTIC_PROOF_FIELDS):
+        return [f"{label} deterministic partition evidence is incomplete"]
+    if proof.get("proof_version") != FINRA_DETERMINISTIC_PROOF_VERSION:
+        errors.append(f"{label} deterministic proof version is unsupported")
+
+    filter_manifest = proof.get("filter_manifest")
+    if not isinstance(filter_manifest, dict) or set(filter_manifest) != {
+        "year_field",
+        "years",
+        "notice_type_field",
+        "notice_types",
+    }:
+        return [f"{label} filter manifest is malformed"]
+    year_field = filter_manifest.get("year_field")
+    notice_type_field = filter_manifest.get("notice_type_field")
+    if (
+        year_field != "combine_1"
+        or notice_type_field
+        != "field_core_content_type_tax_target_id"
+    ):
+        errors.append(f"{label} filter field identities are invalid")
+
+    def validate_options(
+        value: object,
+        *,
+        years: bool,
+    ) -> list[dict[str, str]]:
+        if (
+            not isinstance(value, list)
+            or not value
+            or any(
+                not isinstance(option, dict)
+                or set(option) != {"label", "value"}
+                or not isinstance(option.get("label"), str)
+                or not option["label"]
+                or not isinstance(option.get("value"), str)
+                or not option["value"]
+                for option in value
+            )
+        ):
+            return []
+        options = value
+        if (
+            len({item["label"].casefold() for item in options}) != len(options)
+            or len({item["value"] for item in options}) != len(options)
+            or (
+                years
+                and any(
+                    not re.fullmatch(r"\d{4}", item["label"])
+                    for item in options
+                )
+            )
+            or options != sorted(
+                options,
+                key=lambda item: (
+                    item["label"].casefold(),
+                    item["value"],
+                ),
+            )
+        ):
+            return []
+        return options
+
+    years = validate_options(filter_manifest.get("years"), years=True)
+    notice_types = validate_options(
+        filter_manifest.get("notice_types"),
+        years=False,
+    )
+    if not years:
+        errors.append(f"{label} filter year options are invalid")
+    if not notice_types:
+        errors.append(f"{label} filter notice-type options are invalid")
+
+    partition_manifest = proof.get("partition_manifest")
+    if not isinstance(partition_manifest, list) or not partition_manifest:
+        errors.append(f"{label} partition manifest is missing or invalid")
+        partition_manifest = []
+    year_identities = {
+        (item["label"], item["value"]) for item in years
+    }
+    type_identities = {
+        (item["label"], item["value"]) for item in notice_types
+    }
+    query_identities = set()
+    canonical_by_identity: dict[str, Counter] = {}
+    shards_by_year: dict[tuple[str, str], list[dict]] = {}
+    expected_shard_keys = {
+        "year",
+        "notice_type",
+        "query",
+        "declared_pages",
+        "pages_fetched",
+        "page_numbers",
+        "page_identities",
+        "page_row_counts",
+        "raw_row_count",
+        "resolved_row_count",
+        "unresolved_row_count",
+        "unique_node_count",
+        "row_payloads",
+        "row_evidence_digest",
+    }
+    for shard_index, shard in enumerate(partition_manifest):
+        shard_label = f"{label} partition shard {shard_index}"
+        if not isinstance(shard, dict) or set(shard) != expected_shard_keys:
+            errors.append(f"{shard_label} is malformed")
+            continue
+        year = shard.get("year")
+        notice_type = shard.get("notice_type")
+        if (
+            not isinstance(year, dict)
+            or set(year) != {"label", "value"}
+            or (year.get("label"), year.get("value")) not in year_identities
+        ):
+            errors.append(f"{shard_label} year identity is invalid")
+            continue
+        expected_query = {year_field: year["value"]}
+        if notice_type is not None:
+            if (
+                not isinstance(notice_type, dict)
+                or set(notice_type) != {"label", "value"}
+                or (
+                    notice_type.get("label"),
+                    notice_type.get("value"),
+                )
+                not in type_identities
+            ):
+                errors.append(f"{shard_label} notice-type identity is invalid")
+                continue
+            expected_query[notice_type_field] = notice_type["value"]
+        query = shard.get("query")
+        if query != dict(sorted(expected_query.items())):
+            errors.append(f"{shard_label} query is not filter-bound")
+        query_identity = tuple(sorted(expected_query.items()))
+        if query_identity in query_identities:
+            errors.append(f"{shard_label} query is duplicated")
+        query_identities.add(query_identity)
+        shards_by_year.setdefault(
+            (year["label"], year["value"]),
+            [],
+        ).append(shard)
+
+        pages_fetched = shard.get("pages_fetched")
+        declared_pages = shard.get("declared_pages")
+        page_numbers = shard.get("page_numbers")
+        page_identities = shard.get("page_identities")
+        page_row_counts = shard.get("page_row_counts")
+        if (
+            not isinstance(pages_fetched, int)
+            or isinstance(pages_fetched, bool)
+            or pages_fetched < 1
+            or not isinstance(declared_pages, int)
+            or isinstance(declared_pages, bool)
+            or declared_pages < 0
+            or declared_pages > FINRA_MAX_PAGES
+            or (
+                declared_pages != 0
+                and pages_fetched != declared_pages
+            )
+            or (declared_pages == 0 and pages_fetched != 1)
+            or page_numbers != list(range(pages_fetched))
+            or not isinstance(page_identities, list)
+            or len(page_identities) != pages_fetched
+            or not _finra_page_identities_are_valid(
+                page_identities,
+                page_numbers,
+            )
+            or not isinstance(page_row_counts, list)
+            or len(page_row_counts) != pages_fetched
+        ):
+            errors.append(f"{shard_label} pager evidence is invalid")
+
+        row_payloads = shard.get("row_payloads")
+        if (
+            not isinstance(row_payloads, list)
+            or any(
+                not _is_finra_listing_row_payload(payload)
+                for payload in row_payloads
+            )
+            or row_payloads != sorted(
+                row_payloads,
+                key=_finra_payload_sort_key,
+            )
+        ):
+            errors.append(f"{shard_label} row payloads are invalid")
+            row_payloads = []
+        row_payload_strings = [
+            _finra_payload_sort_key(payload) for payload in row_payloads
+        ]
+        if shard.get("row_evidence_digest") != compute_hash(json.dumps(
+            row_payload_strings,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )):
+            errors.append(f"{shard_label} row evidence digest is invalid")
+        raw_row_count = shard.get("raw_row_count")
+        if (
+            raw_row_count != len(row_payloads)
+            or shard.get("resolved_row_count") != raw_row_count
+            or shard.get("unresolved_row_count") != 0
+            or not isinstance(page_row_counts, list)
+            or any(
+                not isinstance(count, int)
+                or isinstance(count, bool)
+                or count < 0
+                for count in page_row_counts
+            )
+            or sum(page_row_counts) != len(row_payloads)
+        ):
+            errors.append(f"{shard_label} row counts are invalid")
+
+        shard_by_identity: dict[str, Counter] = {}
+        for payload in row_payloads:
+            detail_url = _finra_row_detail_target(payload)
+            if detail_url is None:
+                continue
+            _, identity = _finra_normalize_detail_link(detail_url)
+            if identity is None:
+                continue
+            shard_by_identity.setdefault(identity, Counter())[
+                _finra_payload_sort_key(payload)
+            ] += 1
+        if shard.get("unique_node_count") != len(shard_by_identity):
+            errors.append(f"{shard_label} unique node count is invalid")
+        for identity, counter in shard_by_identity.items():
+            prior = canonical_by_identity.get(identity)
+            if prior is not None and prior != counter:
+                errors.append(
+                    f"{shard_label} conflicts on normalized identity {identity}"
+                )
+            elif prior is None:
+                canonical_by_identity[identity] = counter
+
+    year_observations = proof.get("year_observations")
+    expected_observation_keys = {
+        "year",
+        "declared_pages",
+        "partition_mode",
+        "subdivision_reason",
+        "page_identity",
+        "row_payloads",
+    }
+    observations_by_year: dict[tuple[str, str], dict] = {}
+    if not isinstance(year_observations, list) or not year_observations:
+        errors.append(f"{label} year observations are missing or invalid")
+        year_observations = []
+    for observation_index, observation in enumerate(year_observations):
+        observation_label = f"{label} year observation {observation_index}"
+        if (
+            not isinstance(observation, dict)
+            or set(observation) != expected_observation_keys
+        ):
+            errors.append(f"{observation_label} is malformed")
+            continue
+        year = observation.get("year")
+        if (
+            not isinstance(year, dict)
+            or set(year) != {"label", "value"}
+            or (year.get("label"), year.get("value")) not in year_identities
+        ):
+            errors.append(f"{observation_label} year identity is invalid")
+            continue
+        year_identity = (year["label"], year["value"])
+        if year_identity in observations_by_year:
+            errors.append(f"{observation_label} year identity is duplicated")
+            continue
+        declared_pages = observation.get("declared_pages")
+        partition_mode = observation.get("partition_mode")
+        subdivision_reason = observation.get("subdivision_reason")
+        page_identity = observation.get("page_identity")
+        row_payloads = observation.get("row_payloads")
+        if (
+            not isinstance(declared_pages, int)
+            or isinstance(declared_pages, bool)
+            or declared_pages < 0
+            or declared_pages > FINRA_MAX_PAGES
+            or partition_mode not in {"year", "year-type"}
+            or (
+                partition_mode == "year"
+                and subdivision_reason is not None
+            )
+            or (
+                partition_mode == "year-type"
+                and subdivision_reason not in {
+                    "multi-page",
+                    "cross-pass-instability",
+                }
+            )
+            or (
+                subdivision_reason == "multi-page"
+                and declared_pages <= 1
+            )
+            or (
+                subdivision_reason == "cross-pass-instability"
+                and declared_pages > 1
+            )
+            or not _finra_page_identities_are_valid([page_identity], [0])
+            or not isinstance(row_payloads, list)
+            or any(
+                not _is_finra_listing_row_payload(payload)
+                for payload in row_payloads
+            )
+            or row_payloads != sorted(
+                row_payloads,
+                key=_finra_payload_sort_key,
+            )
+        ):
+            errors.append(f"{observation_label} evidence is invalid")
+            continue
+        observations_by_year[year_identity] = observation
+
+    expected_years = set(year_identities)
+    if set(shards_by_year) != expected_years:
+        errors.append(f"{label} partition topology omits a discovered year")
+    if set(observations_by_year) != expected_years:
+        errors.append(f"{label} year observation topology is incomplete")
+    expected_type_values = {
+        item["value"] for item in notice_types
+    }
+    unclassified_counter_for_reconciliation = Counter(
+        _finra_payload_sort_key(payload)
+        for payload in (
+            proof.get("unclassified_evidence", {}).get("row_payloads", [])
+            if isinstance(proof.get("unclassified_evidence"), dict)
+            else []
+        )
+        if _is_finra_listing_row_payload(payload)
+    )
+    for year_identity in sorted(expected_years):
+        observation = observations_by_year.get(year_identity)
+        shards = shards_by_year.get(year_identity, [])
+        if observation is None:
+            continue
+        actual_type_values = {
+            shard["notice_type"]["value"]
+            for shard in shards
+            if isinstance(shard.get("notice_type"), dict)
+        }
+        if observation["partition_mode"] == "year-type":
+            if (
+                len(shards) != len(expected_type_values)
+                or actual_type_values != expected_type_values
+                or any(shard.get("notice_type") is None for shard in shards)
+            ):
+                errors.append(
+                    f"{label} partition topology omits a discovered notice type"
+                )
+            type_union = Counter(
+                _finra_payload_sort_key(payload)
+                for shard in shards
+                for payload in shard.get("row_payloads", [])
+            )
+            year_page_zero = Counter(
+                _finra_payload_sort_key(payload)
+                for payload in observation["row_payloads"]
+            )
+            if year_page_zero - (
+                type_union + unclassified_counter_for_reconciliation
+            ):
+                errors.append(
+                    f"{label} year page-zero rows are absent from type shards"
+                )
+        elif (
+            len(shards) != 1
+            or shards[0].get("notice_type") is not None
+        ):
+            errors.append(
+                f"{label} partition topology for a single-page year is invalid"
+            )
+
+    unclassified = proof.get("unclassified_evidence")
+    expected_unclassified_keys = {
+        "reason",
+        "row_payloads",
+        "row_evidence_digest",
+        "raw_row_count",
+        "resolved_row_count",
+        "unresolved_row_count",
+        "unique_node_count",
+    }
+    unclassified_payloads = []
+    if (
+        not isinstance(unclassified, dict)
+        or set(unclassified) != expected_unclassified_keys
+        or unclassified.get("reason")
+        != "absent-from-discovered-year-type-partitions"
+        or not isinstance(unclassified.get("row_payloads"), list)
+        or any(
+            not _is_finra_listing_row_payload(payload)
+            for payload in unclassified.get("row_payloads", [])
+        )
+        or unclassified.get("row_payloads") != sorted(
+            unclassified.get("row_payloads", []),
+            key=_finra_payload_sort_key,
+        )
+    ):
+        errors.append(f"{label} unclassified evidence is malformed")
+    else:
+        unclassified_payloads = unclassified["row_payloads"]
+        unclassified_strings = [
+            _finra_payload_sort_key(payload)
+            for payload in unclassified_payloads
+        ]
+        unclassified_identity_list = []
+        for payload in unclassified_payloads:
+            detail_url = _finra_row_detail_target(payload)
+            identity = (
+                _finra_normalize_detail_link(detail_url)[1]
+                if detail_url is not None
+                else None
+            )
+            if identity is not None:
+                unclassified_identity_list.append(identity)
+        unclassified_identities = set(unclassified_identity_list)
+        if (
+            unclassified.get("row_evidence_digest")
+            != compute_hash(json.dumps(
+                unclassified_strings,
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ))
+            or unclassified.get("raw_row_count")
+            != len(unclassified_payloads)
+            or unclassified.get("resolved_row_count")
+            != len(unclassified_payloads)
+            or unclassified.get("unresolved_row_count") != 0
+            or len(unclassified_identity_list)
+            != len(unclassified_payloads)
+            or unclassified.get("unique_node_count")
+            != len(unclassified_identities)
+        ):
+            errors.append(f"{label} unclassified evidence is inconsistent")
+        if unclassified_identities & set(canonical_by_identity):
+            errors.append(
+                f"{label} unclassified evidence reuses a classified identity"
+            )
+
+    recomputed_partition_counter = Counter()
+    for counter in canonical_by_identity.values():
+        recomputed_partition_counter.update(counter)
+    recomputed_partition_counter.update(
+        _finra_payload_sort_key(payload)
+        for payload in unclassified_payloads
+    )
+    canonical_counter = Counter(
+        _finra_payload_sort_key(payload)
+        for page in canonical_payload_pages
+        for payload in page
+    )
+    if recomputed_partition_counter != canonical_counter:
+        errors.append(
+            f"{label} canonical global rows do not match partition evidence"
+        )
+
+    observation = proof.get("unfiltered_reconciliation")
+    expected_reconciliation_keys = {
+        "declared_pages",
+        "observation_page_limit",
+        "pages_observed",
+        "page_numbers",
+        "page_identities",
+        "page_row_counts",
+        "page_row_digests",
+        "page_row_payloads",
+    }
+    if (
+        not isinstance(observation, dict)
+        or set(observation) != expected_reconciliation_keys
+        or not isinstance(observation.get("declared_pages"), int)
+        or isinstance(observation.get("declared_pages"), bool)
+        or observation["declared_pages"] < 0
+        or observation.get("observation_page_limit")
+        != FINRA_UNFILTERED_RECONCILIATION_PAGE_LIMIT
+        or not isinstance(observation.get("pages_observed"), int)
+        or isinstance(observation.get("pages_observed"), bool)
+        or observation["pages_observed"] < 1
+        or observation["pages_observed"] != (
+            1
+            if observation["declared_pages"] == 0
+            else min(
+                observation["declared_pages"],
+                FINRA_UNFILTERED_RECONCILIATION_PAGE_LIMIT,
+            )
+        )
+        or observation.get("page_numbers")
+        != list(range(observation["pages_observed"]))
+        or not _finra_page_identities_are_valid(
+            observation.get("page_identities"),
+            observation.get("page_numbers"),
+        )
+        or not isinstance(observation.get("page_row_payloads"), list)
+        or len(observation["page_row_payloads"])
+        != observation["pages_observed"]
+        or any(
+            not isinstance(page, list)
+            for page in observation.get("page_row_payloads", [])
+        )
+        or any(
+            not _is_finra_listing_row_payload(payload)
+            for page in observation.get("page_row_payloads", [])
+            if isinstance(page, list)
+            for payload in page
+        )
+    ):
+        errors.append(f"{label} bounded unfiltered reconciliation is invalid")
+    else:
+        reconciliation_pages = observation["page_row_payloads"]
+        recomputed_counts = [
+            len(page) for page in reconciliation_pages
+        ]
+        recomputed_digests = [
+            compute_hash(json.dumps(
+                page,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
+            for page in reconciliation_pages
+        ]
+        if (
+            observation.get("page_row_counts") != recomputed_counts
+            or observation.get("page_row_digests") != recomputed_digests
+        ):
+            errors.append(
+                f"{label} bounded unfiltered page evidence is inconsistent"
+            )
+        observation_counter = Counter(
+            _finra_payload_sort_key(payload)
+            for page in reconciliation_pages
+            for payload in page
+        )
+        if observation_counter - canonical_counter:
+            errors.append(
+                f"{label} bounded unfiltered rows are absent from "
+                "classified and unclassified evidence"
+            )
     return errors
 
 
@@ -1804,7 +2404,16 @@ def _validate_source_coverage(
     coverage = source_state.get("coverage")
     if not isinstance(coverage, dict):
         return [f"{source_key} state coverage proof is missing or not an object"]
-    if coverage.get("schema_version") != 1:
+    coverage_schema_version = coverage.get("schema_version")
+    supported_schema_versions = (
+        {
+            FINRA_LEGACY_COVERAGE_SCHEMA_VERSION,
+            FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION,
+        }
+        if source_key == SOURCE_KEY_FINRA
+        else {1}
+    )
+    if coverage_schema_version not in supported_schema_versions:
         errors.append(f"{source_key} state coverage proof schema is unsupported")
     if coverage.get("source") != source_key:
         errors.append(f"{source_key} state coverage proof source identity is invalid")
@@ -1919,9 +2528,33 @@ def _validate_source_coverage(
         for key in required:
             if key not in coverage:
                 errors.append(f"{source_key} coverage is missing {key}")
-        if coverage.get("listing_mode") != "complete-unfiltered":
+        listing_mode = coverage.get("listing_mode")
+        if listing_mode not in (
+            "complete-unfiltered",
+            "deterministic-year-type-partitions",
+        ):
             errors.append(
-                f"{source_key} coverage is not a complete unfiltered listing"
+                f"{source_key} coverage listing mode is unsupported"
+            )
+        deterministic_schema = (
+            coverage_schema_version
+            == FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+        )
+        if deterministic_schema and (
+            listing_mode != "deterministic-year-type-partitions"
+        ):
+            errors.append(
+                f"{source_key} deterministic coverage schema requires "
+                "partition listing mode"
+            )
+        if (
+            coverage_schema_version
+            == FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+            and listing_mode != "complete-unfiltered"
+        ):
+            errors.append(
+                f"{source_key} legacy coverage schema cannot claim "
+                "deterministic partitions"
             )
         if coverage.get("listing_url") != FINRA_NOTICES_URL:
             errors.append(f"{source_key} coverage listing_url is not authoritative")
@@ -2171,6 +2804,30 @@ def _validate_source_coverage(
                     ):
                         errors.append(
                             f"{source_key} coverage page identity proof is not bound"
+                        )
+                    if deterministic_schema:
+                        for key in FINRA_DETERMINISTIC_PROOF_FIELDS:
+                            if not coverage.get(key) or any(
+                                not proof.get(key) for proof in proofs
+                            ):
+                                errors.append(
+                                    f"{source_key} deterministic coverage "
+                                    f"{key} is missing or empty"
+                                )
+                            if (
+                                proofs[0].get(key) != proofs[1].get(key)
+                                or coverage.get(key) != proofs[0].get(key)
+                            ):
+                                errors.append(
+                                    f"{source_key} coverage {key} is not "
+                                    "bound to both pass proofs"
+                                )
+                    elif any(
+                        key in coverage or any(key in proof for proof in proofs)
+                        for key in FINRA_DETERMINISTIC_PROOF_FIELDS
+                    ):
+                        errors.append(
+                            f"{source_key} legacy coverage contains partition evidence"
                         )
         # Blockers 5 & 6: bind the retained listing rows to the canonical
         # fetched entries. Every resolvable row must map, through the validated
@@ -3300,6 +3957,132 @@ def _finra_query_page_url(page: int, query: Optional[dict[str, str]] = None) -> 
     return f"{FINRA_NOTICES_URL}?{urlencode(params)}"
 
 
+def _extract_finra_filter_manifest(soup: BeautifulSoup) -> Optional[dict]:
+    """Discover FINRA's dynamic year/type option values or fail closed."""
+    year_field = "combine_1"
+    notice_type_field = "field_core_content_type_tax_target_id"
+    year_select = soup.select_one(f'select[name="{year_field}"]')
+    notice_type_select = soup.select_one(
+        f'select[name="{notice_type_field}"]'
+    )
+    if year_select is None and notice_type_select is None:
+        return None
+    if year_select is None or notice_type_select is None:
+        raise ValueError("FINRA filter controls are incomplete")
+
+    def parse_options(select, *, years: bool) -> list[dict[str, str]]:
+        options: list[dict[str, str]] = []
+        labels: set[str] = set()
+        values: set[str] = set()
+        all_count = 0
+        for option in select.select("option"):
+            label = " ".join(option.get_text(" ", strip=True).split())
+            value = " ".join(str(option.get("value", "")).split())
+            folded_label = label.casefold()
+            if value in values:
+                raise ValueError("FINRA filter option values are duplicated")
+            values.add(value)
+            if folded_label == "all":
+                all_count += 1
+                continue
+            if not label or not value:
+                raise ValueError("FINRA filter option is missing a label or value")
+            if years and not re.fullmatch(r"\d{4}", label):
+                raise ValueError("FINRA filter year label is not four digits")
+            if folded_label in labels:
+                raise ValueError("FINRA filter option labels are duplicated")
+            labels.add(folded_label)
+            options.append({"label": label, "value": value})
+        if all_count != 1 or not options:
+            raise ValueError("FINRA filter option map is incomplete")
+        return sorted(
+            options,
+            key=lambda item: (
+                item["label"].casefold(),
+                item["value"],
+            ),
+        )
+
+    return {
+        "year_field": year_field,
+        "years": parse_options(year_select, years=True),
+        "notice_type_field": notice_type_field,
+        "notice_types": parse_options(notice_type_select, years=False),
+    }
+
+
+def _finra_prior_filter_manifest_error(
+    current: dict,
+    prior: object,
+) -> Optional[str]:
+    """Reject unexplained option shrinkage when a valid prior proof exists."""
+    if not isinstance(prior, dict):
+        return None
+    if (
+        prior.get("year_field") != current.get("year_field")
+        or prior.get("notice_type_field") != current.get("notice_type_field")
+    ):
+        return "FINRA persisted partition filter field identities changed"
+
+    def identities(manifest: dict, key: str) -> Optional[set[tuple[str, str]]]:
+        options = manifest.get(key)
+        if (
+            not isinstance(options, list)
+            or not options
+            or any(
+                not isinstance(option, dict)
+                or set(option) != {"label", "value"}
+                or not isinstance(option.get("label"), str)
+                or not option["label"]
+                or not isinstance(option.get("value"), str)
+                or not option["value"]
+                for option in options
+            )
+        ):
+            return None
+        return {
+            (option["label"], option["value"])
+            for option in options
+        }
+
+    prior_years = identities(prior, "years")
+    prior_types = identities(prior, "notice_types")
+    current_years = identities(current, "years")
+    current_types = identities(current, "notice_types")
+    if None in (prior_years, prior_types, current_years, current_types):
+        return None
+    missing_years = prior_years - current_years
+    if missing_years:
+        current_year = datetime.now(timezone.utc).strftime("%Y")
+        if any(label == current_year for label, _value in missing_years):
+            return (
+                "FINRA current year is absent from the discovered partition "
+                "filter manifest"
+            )
+        return "FINRA discovered partition years shrank from persisted state"
+    if prior_types - current_types:
+        return "FINRA discovered notice types shrank from persisted state"
+    return None
+
+
+def _finra_listing_url_identity(url: str) -> Optional[tuple]:
+    """Return the authoritative listing identity, excluding the cache token."""
+    parsed = urlparse(urljoin(FINRA_NOTICES_URL, url))
+    base = urlparse(FINRA_NOTICES_URL)
+    if (
+        parsed.scheme != base.scheme
+        or parsed.netloc.lower() != base.netloc.lower()
+        or parsed.path.rstrip("/") != base.path.rstrip("/")
+        or parsed.fragment
+    ):
+        return None
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    query.pop(FINRA_CACHE_BUST_PARAM, None)
+    if any(len(values) != 1 for values in query.values()):
+        return None
+    return tuple(sorted((key, values[0]) for key, values in query.items()))
+
+
 def _extract_finra_declared_pages(soup: BeautifulSoup) -> Optional[int]:
     """Read authoritative FINRA pager metadata without guessing a page count."""
     pager = soup.select_one('nav[aria-labelledby="pagination-heading"] .pagination')
@@ -3399,6 +4182,55 @@ def _finra_listing_request_interval() -> float:
     )
 
 
+def _fetch_finra_listing_page_with_budget(
+    url: str,
+    session: requests.Session,
+    budget: dict[str, object],
+    *,
+    progress: str,
+) -> dict:
+    """Consume one bounded per-pass listing request or fail before fetching."""
+    used = int(budget["used"])
+    limit = int(budget["limit"])
+    if used >= limit:
+        last_completed = str(budget.get("last_completed", "none"))
+        logger.error(
+            "FINRA listing budget exceeded progress=%s budget=%s/%s "
+            "last_completed=%s",
+            progress,
+            used,
+            limit,
+            last_completed,
+        )
+        return {
+            "status_code": 0,
+            "content": "",
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": (
+                "FINRA listing request budget exceeded "
+                f"({used}/{limit}); last completed {last_completed}"
+            ),
+        }
+    budget["used"] = used + 1
+    logger.info(
+        "FINRA listing progress=%s budget=%s/%s last_completed=%s",
+        progress,
+        budget["used"],
+        limit,
+        budget.get("last_completed", "none"),
+    )
+    return _fetch_finra_page(
+        url,
+        session,
+        min_interval_seconds=_finra_listing_request_interval(),
+        retain_adaptive_interval=True,
+        request_budget=budget,
+        first_attempt_reserved=True,
+    )
+
+
 def _fetch_finra_page(
     url: str,
     session: requests.Session,
@@ -3406,6 +4238,8 @@ def _fetch_finra_page(
     max_attempts: Optional[int] = None,
     min_interval_seconds: Optional[float] = None,
     retain_adaptive_interval: bool = False,
+    request_budget: Optional[dict[str, object]] = None,
+    first_attempt_reserved: bool = False,
 ) -> dict:
     """Use one request per attempt with a coordinated session-wide cooldown."""
     attempts = (
@@ -3414,6 +4248,27 @@ def _fetch_finra_page(
         else max(1, min(FINRA_MAX_RETRY_ATTEMPTS, max_attempts))
     )
     for attempt in range(attempts):
+        if request_budget is not None and not (
+            attempt == 0 and first_attempt_reserved
+        ):
+            used = int(request_budget["used"])
+            limit = int(request_budget["limit"])
+            if used >= limit:
+                last_completed = str(
+                    request_budget.get("last_completed", "none")
+                )
+                return {
+                    "status_code": 0,
+                    "content": "",
+                    "final_url": url,
+                    "url": url,
+                    "was_redirected": False,
+                    "error": (
+                        "FINRA listing request budget exceeded "
+                        f"({used}/{limit}); last completed {last_completed}"
+                    ),
+                }
+            request_budget["used"] = used + 1
         last_request = getattr(session, '_finra_last_request_at', 0.0)
         now = time.monotonic()
         cooldown_until = getattr(session, '_finra_cooldown_until', 0.0)
@@ -3961,12 +4816,23 @@ def _finra_pass_token(pass_number: int) -> str:
     return f"{pass_number}-{uuid.uuid4().hex}"
 
 
-def _fetch_finra_listing_pass(
+def _fetch_finra_listing_shard(
     session: requests.Session,
     since_date: Optional[str],
     token: str,
+    *,
+    query: Optional[dict[str, str]] = None,
+    first_result: Optional[dict] = None,
+    budget: Optional[dict[str, object]] = None,
+    partition_label: str = "legacy-unfiltered",
 ) -> dict:
-    """Fetch one complete, tokenized FINRA listing pass without coalescing rows."""
+    """Fetch one complete, tokenized FINRA listing shard."""
+    if budget is None:
+        budget = {
+            "used": 0,
+            "limit": FINRA_LISTING_REQUEST_BUDGET,
+            "last_completed": "none",
+        }
     rows: list[dict] = []
     page_numbers: list[int] = []
     page_identities: list[dict[str, Optional[int]]] = []
@@ -3978,59 +4844,30 @@ def _fetch_finra_listing_pass(
     cutoff_page = None
 
     for page in range(FINRA_MAX_PAGES):
-        expected_url = _finra_cache_busted_url(_finra_page_url(page), token)
-        result = _fetch_finra_page(
+        expected_url = _finra_cache_busted_url(
+            _finra_query_page_url(page, query),
+            token,
+        )
+        result = first_result if page == 0 and first_result is not None else (
+            _fetch_finra_listing_page_with_budget(
+                expected_url,
+                session,
+                budget,
+                progress=f"{partition_label}/page={page}",
+            )
+        )
+        page_result = _finra_validate_listing_page_result(
+            result,
             expected_url,
-            session,
-            min_interval_seconds=_finra_listing_request_interval(),
-            retain_adaptive_interval=True,
+            page,
         )
-        if result["status_code"] != 200:
+        if not page_result.get("complete"):
             return {
-                "complete": False,
-                "error": (
-                    f"FINRA notices page {page} returned status "
-                    f"{result['status_code']}: "
-                    f"{result.get('error') or 'unavailable'}"
-                ),
+                **page_result,
                 "pages_fetched": pages_fetched,
                 "declared_pages": declared_pages,
             }
-        returned_url = result.get("url") or expected_url
-        if returned_url != expected_url:
-            return {
-                "complete": False,
-                "error": (
-                    f"FINRA listing request URL changed for page {page}: "
-                    f"expected {expected_url}, got {returned_url}"
-                ),
-                "pages_fetched": pages_fetched,
-                "declared_pages": declared_pages,
-            }
-        soup = BeautifulSoup(result["content"], "html.parser")
-        final_page = _finra_listing_page_number(
-            result.get("final_url") or expected_url
-        )
-        active_page = _extract_finra_active_page(soup)
-        zero_shape = page == 0 and _finra_is_explicit_zero_result(soup)
-        page_declared = _extract_finra_declared_pages(soup)
-        if page_declared is None:
-            return {
-                "complete": False,
-                "error": "FINRA pagination metadata was missing or unparseable",
-                "pages_fetched": pages_fetched,
-                "declared_pages": declared_pages,
-            }
-        if final_page != page or (active_page != page and not zero_shape):
-            return {
-                "complete": False,
-                "error": (
-                    f"FINRA listing page identity mismatch for page {page}: "
-                    f"final={final_page}, active={active_page}"
-                ),
-                "pages_fetched": pages_fetched,
-                "declared_pages": declared_pages,
-            }
+        page_declared = page_result["page_declared"]
         if declared_pages is None:
             declared_pages = page_declared
             if declared_pages > FINRA_MAX_PAGES:
@@ -4054,13 +4891,13 @@ def _fetch_finra_listing_pass(
                 "declared_pages": declared_pages,
             }
 
-        page_rows, unresolved = _extract_finra_listing_rows(soup)
+        page_rows = page_result["page_rows"]
         pages_fetched += 1
         page_numbers.append(page)
         page_identities.append({
             "requested": page,
-            "final": final_page,
-            "active": active_page,
+            "final": page_result["final_page"],
+            "active": page_result["active_page"],
         })
         page_row_counts.append(len(page_rows))
         page_row_digests.append(compute_hash(json.dumps(
@@ -4075,38 +4912,9 @@ def _fetch_finra_listing_pass(
             row["unresolved"] = not row["detail_url"]
         rows.extend(page_rows)
 
-        if unresolved:
-            return {
-                "complete": False,
-                "error": (
-                    f"FINRA page {page} contained {unresolved} "
-                    "unresolved listing row(s)"
-                ),
-                "pages_fetched": pages_fetched,
-                "declared_pages": declared_pages,
-                "rows": rows,
-            }
-        if not page_rows:
-            if page == 0 and declared_pages == 0 and zero_shape:
-                break
-            return {
-                "complete": False,
-                "error": f"FINRA page {page} contained no scoped listing rows",
-                "pages_fetched": pages_fetched,
-                "declared_pages": declared_pages,
-                "rows": rows,
-            }
-        if declared_pages == 0:
-            return {
-                "complete": False,
-                "error": (
-                    "FINRA pagination declared zero pages but returned "
-                    "listing rows"
-                ),
-                "pages_fetched": pages_fetched,
-                "declared_pages": declared_pages,
-                "rows": rows,
-            }
+        budget["last_completed"] = f"{partition_label}/page={page}"
+        if page_result["zero_shape"]:
+            break
         if (
             cutoff_page is None
             and since_date
@@ -4173,6 +4981,705 @@ def _fetch_finra_listing_pass(
         "cutoff_page": cutoff_page,
         "pass_proof": pass_proof,
     }
+
+
+def _finra_validate_listing_page_result(
+    result: dict,
+    expected_url: str,
+    page: int,
+) -> dict:
+    """Validate one fetched listing page without traversing its pager."""
+    if result["status_code"] != 200:
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA notices page {page} returned status "
+                f"{result['status_code']}: "
+                f"{result.get('error') or 'unavailable'}"
+            ),
+        }
+    returned_url = result.get("url") or expected_url
+    if returned_url != expected_url:
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA listing request URL changed for page {page}: "
+                f"expected {expected_url}, got {returned_url}"
+            ),
+        }
+    final_url = result.get("final_url") or expected_url
+    if (
+        _finra_listing_url_identity(final_url)
+        != _finra_listing_url_identity(expected_url)
+    ):
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA listing URL identity changed for page {page}: "
+                f"expected {expected_url}, got {final_url}"
+            ),
+        }
+    soup = BeautifulSoup(result["content"], "html.parser")
+    final_page = _finra_listing_page_number(final_url)
+    active_page = _extract_finra_active_page(soup)
+    zero_shape = page == 0 and _finra_is_explicit_zero_result(soup)
+    if zero_shape and active_page is None:
+        active_page = page
+    page_declared = _extract_finra_declared_pages(soup)
+    if page_declared is None:
+        return {
+            "complete": False,
+            "error": "FINRA pagination metadata was missing or unparseable",
+        }
+    if final_page != page or (active_page != page and not zero_shape):
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA listing page identity mismatch for page {page}: "
+                f"final={final_page}, active={active_page}"
+            ),
+        }
+    page_rows, unresolved = _extract_finra_listing_rows(soup)
+    if unresolved:
+        return {
+            "complete": False,
+            "error": (
+                f"FINRA page {page} contained {unresolved} "
+                "unresolved listing row(s)"
+            ),
+        }
+    if not page_rows and not (page == 0 and page_declared == 0 and zero_shape):
+        return {
+            "complete": False,
+            "error": f"FINRA page {page} contained no scoped listing rows",
+        }
+    if page_rows and page_declared == 0:
+        return {
+            "complete": False,
+            "error": (
+                "FINRA pagination declared zero pages but returned listing rows"
+            ),
+        }
+    for row in page_rows:
+        row["page"] = page
+        row["unresolved"] = False
+    return {
+        "complete": True,
+        "soup": soup,
+        "page_declared": page_declared,
+        "final_page": final_page,
+        "active_page": active_page,
+        "zero_shape": zero_shape,
+        "page_rows": page_rows,
+    }
+
+
+def _fetch_finra_unfiltered_reconciliation(
+    session: requests.Session,
+    token: str,
+    first_page: dict,
+    budget: dict[str, object],
+) -> dict:
+    """Retain a bounded, page-complete unfiltered observation window."""
+    declared_pages = first_page["page_declared"]
+    pages_to_observe = (
+        1
+        if declared_pages == 0
+        else min(
+            declared_pages,
+            FINRA_UNFILTERED_RECONCILIATION_PAGE_LIMIT,
+        )
+    )
+    pages = [first_page]
+    for page in range(1, pages_to_observe):
+        expected_url = _finra_cache_busted_url(
+            _finra_query_page_url(page),
+            token,
+        )
+        result = _fetch_finra_listing_page_with_budget(
+            expected_url,
+            session,
+            budget,
+            progress=f"unfiltered-reconciliation/page={page}",
+        )
+        page_result = _finra_validate_listing_page_result(
+            result,
+            expected_url,
+            page,
+        )
+        if not page_result.get("complete"):
+            return page_result
+        if page_result["page_declared"] != declared_pages:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA unfiltered pagination metadata changed during "
+                    "bounded reconciliation"
+                ),
+            }
+        pages.append(page_result)
+        budget["last_completed"] = (
+            f"unfiltered-reconciliation/page={page}"
+        )
+
+    page_payloads = [
+        [deepcopy(row["raw_payload"]) for row in page["page_rows"]]
+        for page in pages
+    ]
+    return {
+        "complete": True,
+        "rows": [
+            deepcopy(row)
+            for page in pages
+            for row in page["page_rows"]
+        ],
+        "evidence": {
+            "declared_pages": declared_pages,
+            "observation_page_limit": (
+                FINRA_UNFILTERED_RECONCILIATION_PAGE_LIMIT
+            ),
+            "pages_observed": len(pages),
+            "page_numbers": list(range(len(pages))),
+            "page_identities": [
+                {
+                    "requested": page_number,
+                    "final": page["final_page"],
+                    "active": page["active_page"],
+                }
+                for page_number, page in enumerate(pages)
+            ],
+            "page_row_counts": [
+                len(payloads) for payloads in page_payloads
+            ],
+            "page_row_digests": [
+                compute_hash(json.dumps(
+                    payloads,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+                for payloads in page_payloads
+            ],
+            "page_row_payloads": page_payloads,
+        },
+    }
+
+
+def _finra_unclassified_evidence(rows: list[dict]) -> dict:
+    """Build a stable proof block for rows outside discovered taxonomy."""
+    payloads = sorted(
+        (deepcopy(row["raw_payload"]) for row in rows),
+        key=_finra_payload_sort_key,
+    )
+    return {
+        "reason": "absent-from-discovered-year-type-partitions",
+        "row_payloads": payloads,
+        "row_evidence_digest": compute_hash(json.dumps(
+            [_finra_payload_sort_key(payload) for payload in payloads],
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )),
+        "raw_row_count": len(payloads),
+        "resolved_row_count": len(rows),
+        "unresolved_row_count": 0,
+        "unique_node_count": len({
+            row["node_identity"] for row in rows
+        }),
+    }
+
+
+def _finra_partition_shard_manifest(
+    query: dict[str, str],
+    proof: dict,
+    *,
+    year: dict[str, str],
+    notice_type: Optional[dict[str, str]],
+) -> dict:
+    """Retain deterministic fetch-topology evidence for one final shard."""
+    manifest = {
+        "year": dict(year),
+        "notice_type": dict(notice_type) if notice_type else None,
+        "query": dict(sorted(query.items())),
+    }
+    for key in (
+        "declared_pages",
+        "pages_fetched",
+        "page_numbers",
+        "page_identities",
+        "page_row_counts",
+        "raw_row_count",
+        "resolved_row_count",
+        "unresolved_row_count",
+        "unique_node_count",
+    ):
+        manifest[key] = deepcopy(proof[key])
+    normalized_payloads = sorted(
+        (
+            deepcopy(payload)
+            for page in proof["page_row_payloads"]
+            for payload in page
+        ),
+        key=_finra_payload_sort_key,
+    )
+    manifest["row_payloads"] = normalized_payloads
+    normalized_payload_strings = [
+        _finra_payload_sort_key(payload)
+        for payload in normalized_payloads
+    ]
+    manifest["row_evidence_digest"] = compute_hash(json.dumps(
+        normalized_payload_strings,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ))
+    return manifest
+
+
+def _finra_partition_row_counters(
+    rows: list[dict],
+) -> dict[str, Counter]:
+    """Group exact payload multiplicity by normalized listing identity."""
+    counters: dict[str, Counter] = {}
+    for row in rows:
+        identity = row["node_identity"]
+        counters.setdefault(identity, Counter())[
+            _finra_payload_sort_key(row["raw_payload"])
+        ] += 1
+    return counters
+
+
+def _finra_canonical_partition_result(
+    token: str,
+    filter_manifest: dict,
+    shard_results: list[tuple[dict, dict, dict, Optional[dict]]],
+    year_observations: list[dict],
+    unfiltered_reconciliation: dict,
+    since_date: Optional[str],
+) -> dict:
+    """Merge final shards without erasing multiplicity or accepting conflicts."""
+    canonical_by_identity: dict[str, tuple[Counter, list[dict]]] = {}
+    partition_manifest = []
+    cutoff_page = None
+    for shard, query, year, notice_type in shard_results:
+        proof = shard["pass_proof"]
+        partition_manifest.append(
+            _finra_partition_shard_manifest(
+                query,
+                proof,
+                year=year,
+                notice_type=notice_type,
+            )
+        )
+        shard_rows_by_identity: dict[str, list[dict]] = {}
+        for row in shard["rows"]:
+            shard_rows_by_identity.setdefault(
+                row["node_identity"], []
+            ).append(row)
+        for identity, counter in _finra_partition_row_counters(
+            shard["rows"]
+        ).items():
+            rows = shard_rows_by_identity[identity]
+            prior = canonical_by_identity.get(identity)
+            if prior is not None and prior[0] != counter:
+                return {
+                    "complete": False,
+                    "error": (
+                        "FINRA conflicting partition evidence for normalized "
+                        f"identity {identity}"
+                    ),
+                    "pass_proof": {},
+                }
+            if prior is None:
+                canonical_by_identity[identity] = (counter, rows)
+
+    classified_rows = [
+        deepcopy(row)
+        for identity in sorted(canonical_by_identity)
+        for row in sorted(
+            canonical_by_identity[identity][1],
+            key=lambda item: _finra_payload_sort_key(item["raw_payload"]),
+        )
+    ]
+    classified_counter = Counter(
+        _finra_payload_sort_key(row["raw_payload"])
+        for row in classified_rows
+    )
+    observed_rows = unfiltered_reconciliation["rows"]
+    observed_counter = Counter(
+        _finra_payload_sort_key(row["raw_payload"])
+        for row in observed_rows
+    )
+    missing_counter = observed_counter - classified_counter
+    unclassified_rows = []
+    for row in observed_rows:
+        payload_key = _finra_payload_sort_key(row["raw_payload"])
+        if missing_counter[payload_key] <= 0:
+            continue
+        missing_counter[payload_key] -= 1
+        identity = row["node_identity"]
+        if identity in canonical_by_identity:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA unclassified reconciliation conflicts on "
+                    f"normalized identity {identity}"
+                ),
+                "pass_proof": {},
+            }
+        unclassified_rows.append(deepcopy(row))
+        canonical_by_identity[identity] = (
+            Counter({payload_key: 1}),
+            [deepcopy(row)],
+        )
+
+    rows = [
+        *classified_rows,
+        *unclassified_rows,
+    ]
+    rows.sort(
+        key=lambda item: (
+            item["node_identity"],
+            _finra_payload_sort_key(item["raw_payload"]),
+        )
+    )
+    for row_index, row in enumerate(rows):
+        row["page"] = 0
+        row["row_index"] = row_index
+
+    canonical_counter = Counter(
+        _finra_payload_sort_key(row["raw_payload"]) for row in rows
+    )
+    unclassified_counter = Counter(
+        _finra_payload_sort_key(row["raw_payload"])
+        for row in unclassified_rows
+    )
+    shards_by_year: dict[tuple[str, str], list[dict]] = {}
+    for shard, _query, year, _notice_type in shard_results:
+        shards_by_year.setdefault(
+            (year["label"], year["value"]),
+            [],
+        ).append(shard)
+    for year_observation in year_observations:
+        if year_observation["declared_pages"] <= 1:
+            continue
+        year_identity = (
+            year_observation["year"]["label"],
+            year_observation["year"]["value"],
+        )
+        type_union = Counter(
+            _finra_payload_sort_key(row["raw_payload"])
+            for shard in shards_by_year.get(year_identity, [])
+            for row in shard["rows"]
+        )
+        year_page_zero = Counter(
+            _finra_payload_sort_key(payload)
+            for payload in year_observation["row_payloads"]
+        )
+        if year_page_zero - (type_union + unclassified_counter):
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA year page-zero reconciliation found rows absent "
+                    "from the notice-type shard union"
+                ),
+                "pass_proof": {},
+            }
+
+    if observed_counter - canonical_counter:
+        return {
+            "complete": False,
+            "error": (
+                "FINRA bounded unfiltered reconciliation found rows absent "
+                "from classified and unclassified deterministic evidence"
+            ),
+            "pass_proof": {},
+        }
+
+    payloads = [row["raw_payload"] for row in rows]
+    if (
+        since_date
+        and rows
+        and all(
+            row["listing_date"] and row["listing_date"] < since_date
+            for row in rows
+        )
+    ):
+        cutoff_page = 0
+    proof = {
+        "token": f"pass-{token.split('-', 1)[0]}",
+        "declared_pages": 1,
+        "pages_fetched": 1,
+        "page_numbers": [0],
+        "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+        "page_row_counts": [len(rows)],
+        "page_row_digests": [compute_hash(json.dumps(
+            payloads,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ))],
+        "page_row_payloads": [payloads],
+        "raw_row_count": len(rows),
+        "resolved_row_count": len(rows),
+        "unresolved_row_count": 0,
+        "unique_node_count": len(canonical_by_identity),
+        "proof_version": FINRA_DETERMINISTIC_PROOF_VERSION,
+        "filter_manifest": deepcopy(filter_manifest),
+        "partition_manifest": partition_manifest,
+        "year_observations": deepcopy(year_observations),
+        "unfiltered_reconciliation": deepcopy(
+            unfiltered_reconciliation["evidence"]
+        ),
+        "unclassified_evidence": _finra_unclassified_evidence(
+            unclassified_rows
+        ),
+    }
+    return {
+        "complete": True,
+        "rows": rows,
+        "records": [
+            (row["detail_url"], row["title"], row["listing_date"])
+            for row in rows
+        ],
+        "pages_fetched": 1,
+        "declared_pages": 1,
+        "cutoff_page": cutoff_page,
+        "pass_proof": proof,
+    }
+
+
+def _fetch_finra_listing_pass(
+    session: requests.Session,
+    since_date: Optional[str],
+    token: str,
+    *,
+    prior_filter_manifest: Optional[dict] = None,
+    subdivide_year_values: Optional[frozenset[str]] = None,
+) -> dict:
+    """Use deterministic filters, with explicit legacy fixture fallback only."""
+    legacy_fixture_capability = (
+        getattr(session, "_finra_legacy_fixture_capability", None)
+        is _FINRA_LEGACY_FIXTURE_CAPABILITY
+    )
+    forced_subdivisions = subdivide_year_values or frozenset()
+    budget: dict[str, object] = {
+        "used": 0,
+        "limit": FINRA_LISTING_REQUEST_BUDGET,
+        "last_completed": "none",
+    }
+    pass_label = f"pass-{token.split('-', 1)[0]}"
+    logger.info(
+        "FINRA listing pass start pass=%s forced_subdivisions=%s "
+        "budget=0/%s",
+        pass_label,
+        sorted(forced_subdivisions),
+        FINRA_LISTING_REQUEST_BUDGET,
+    )
+    observation_url = _finra_cache_busted_url(
+        _finra_query_page_url(0),
+        token,
+    )
+    observation_result = _fetch_finra_listing_page_with_budget(
+        observation_url,
+        session,
+        budget,
+        progress=f"{pass_label}/unfiltered-reconciliation/page=0",
+    )
+    try:
+        filter_manifest = _extract_finra_filter_manifest(
+            BeautifulSoup(
+                observation_result.get("content", ""),
+                "html.parser",
+            )
+        )
+    except ValueError as exc:
+        return {
+            "complete": False,
+            "error": str(exc),
+            "pages_fetched": 0,
+            "declared_pages": None,
+        }
+    if filter_manifest is None:
+        if not legacy_fixture_capability:
+            return {
+                "complete": False,
+                "error": (
+                    "FINRA filter controls are missing; refusing silent "
+                    "production downgrade"
+                ),
+                "pages_fetched": 0,
+                "declared_pages": None,
+            }
+        return _fetch_finra_listing_shard(
+            session,
+            since_date,
+            token,
+            first_result=observation_result,
+            budget=budget,
+            partition_label=f"{pass_label}/legacy-unfiltered",
+        )
+    prior_error = _finra_prior_filter_manifest_error(
+        filter_manifest,
+        prior_filter_manifest,
+    )
+    if prior_error:
+        return {
+            "complete": False,
+            "error": prior_error,
+            "pages_fetched": 0,
+            "declared_pages": None,
+        }
+
+    observation = _finra_validate_listing_page_result(
+        observation_result,
+        observation_url,
+        0,
+    )
+    if not observation.get("complete"):
+        return observation
+    budget["last_completed"] = (
+        f"{pass_label}/unfiltered-reconciliation/page=0"
+    )
+    unfiltered_reconciliation = _fetch_finra_unfiltered_reconciliation(
+        session,
+        token,
+        observation,
+        budget,
+    )
+    if not unfiltered_reconciliation.get("complete"):
+        return unfiltered_reconciliation
+
+    shard_results = []
+    year_observations = []
+    year_field = filter_manifest["year_field"]
+    notice_type_field = filter_manifest["notice_type_field"]
+    for year in filter_manifest["years"]:
+        logger.info(
+            "FINRA listing partition start pass=%s year=%s type=all "
+            "budget=%s/%s last_completed=%s",
+            pass_label,
+            year["label"],
+            budget["used"],
+            budget["limit"],
+            budget["last_completed"],
+        )
+        year_query = {year_field: year["value"]}
+        year_url = _finra_cache_busted_url(
+            _finra_query_page_url(0, year_query),
+            token,
+        )
+        year_result = _fetch_finra_listing_page_with_budget(
+            year_url,
+            session,
+            budget,
+            progress=(
+                f"{pass_label}/year={year['label']}/type=all/page=0"
+            ),
+        )
+        year_page = _finra_validate_listing_page_result(
+            year_result,
+            year_url,
+            0,
+        )
+        if not year_page.get("complete"):
+            return year_page
+        forced_subdivision = year["value"] in forced_subdivisions
+        partition_mode = (
+            "year-type"
+            if year_page["page_declared"] > 1 or forced_subdivision
+            else "year"
+        )
+        year_observations.append({
+            "year": dict(year),
+            "declared_pages": year_page["page_declared"],
+            "partition_mode": partition_mode,
+            "subdivision_reason": (
+                "multi-page"
+                if year_page["page_declared"] > 1
+                else "cross-pass-instability"
+                if forced_subdivision
+                else None
+            ),
+            "page_identity": {
+                "requested": 0,
+                "final": year_page["final_page"],
+                "active": year_page["active_page"],
+            },
+            "row_payloads": sorted(
+                (
+                    deepcopy(row["raw_payload"])
+                    for row in year_page["page_rows"]
+                ),
+                key=_finra_payload_sort_key,
+            ),
+        })
+        budget["last_completed"] = (
+            f"{pass_label}/year={year['label']}/type=all/page=0"
+        )
+        if partition_mode == "year":
+            shard = _fetch_finra_listing_shard(
+                session,
+                since_date,
+                token,
+                query=year_query,
+                first_result=year_result,
+                budget=budget,
+                partition_label=(
+                    f"{pass_label}/year={year['label']}/type=all"
+                ),
+            )
+            if not shard.get("complete"):
+                return shard
+            shard_results.append((shard, year_query, year, None))
+            continue
+
+        for notice_type in filter_manifest["notice_types"]:
+            logger.info(
+                "FINRA listing partition start pass=%s year=%s type=%s "
+                "budget=%s/%s last_completed=%s",
+                pass_label,
+                year["label"],
+                notice_type["label"],
+                budget["used"],
+                budget["limit"],
+                budget["last_completed"],
+            )
+            query = {
+                year_field: year["value"],
+                notice_type_field: notice_type["value"],
+            }
+            shard = _fetch_finra_listing_shard(
+                session,
+                since_date,
+                token,
+                query=query,
+                budget=budget,
+                partition_label=(
+                    f"{pass_label}/year={year['label']}/"
+                    f"type={notice_type['label']}"
+                ),
+            )
+            if not shard.get("complete"):
+                return shard
+            shard_results.append((shard, query, year, notice_type))
+
+    result = _finra_canonical_partition_result(
+        token,
+        filter_manifest,
+        shard_results,
+        year_observations,
+        unfiltered_reconciliation,
+        since_date,
+    )
+    logger.info(
+        "FINRA listing pass complete pass=%s complete=%s budget=%s/%s "
+        "last_completed=%s",
+        pass_label,
+        result.get("complete"),
+        budget["used"],
+        budget["limit"],
+        budget["last_completed"],
+    )
+    return result
 
 
 def _fetch_finra_listing_page(
@@ -4305,6 +5812,13 @@ def _new_finra_pass_session(template: requests.Session) -> requests.Session:
     headers = getattr(template, "headers", None)
     if headers:
         session.headers.update(dict(headers))
+    if (
+        getattr(template, "_finra_legacy_fixture_capability", None)
+        is _FINRA_LEGACY_FIXTURE_CAPABILITY
+    ):
+        session._finra_legacy_fixture_capability = (
+            _FINRA_LEGACY_FIXTURE_CAPABILITY
+        )
     return session
 
 
@@ -4329,6 +5843,21 @@ def _compare_finra_listing_pass_proofs(
                 f"FINRA independent-pass mismatch in {label}: "
                 f"{first.get(key)!r} != {second.get(key)!r}"
             )
+    first_partitioned = any(
+        key in first for key in FINRA_DETERMINISTIC_PROOF_FIELDS
+    )
+    second_partitioned = any(
+        key in second for key in FINRA_DETERMINISTIC_PROOF_FIELDS
+    )
+    if first_partitioned != second_partitioned:
+        return "FINRA independent-pass mismatch in partition proof mode"
+    if first_partitioned:
+        for key in FINRA_DETERMINISTIC_PROOF_FIELDS:
+            if first.get(key) != second.get(key):
+                return (
+                    "FINRA independent-pass mismatch in "
+                    f"{key.replace('_', ' ')}"
+                )
     first_payloads = _finra_normalized_payload_pages(first)
     second_payloads = _finra_normalized_payload_pages(second)
     if first_payloads is None or second_payloads is None:
@@ -4338,22 +5867,71 @@ def _compare_finra_listing_pass_proofs(
     return None
 
 
+def _finra_unstable_single_page_year_values(
+    first: dict,
+    second: dict,
+) -> set[str]:
+    """Find direct year shards whose page-zero evidence changed by pass."""
+    observations = []
+    for proof in (first, second):
+        items = proof.get("year_observations")
+        if not isinstance(items, list):
+            return set()
+        observations.append({
+            item["year"]["value"]: item
+            for item in items
+            if (
+                isinstance(item, dict)
+                and isinstance(item.get("year"), dict)
+                and isinstance(item["year"].get("value"), str)
+                and item.get("partition_mode") == "year"
+                and item.get("declared_pages") == 1
+            )
+        })
+    unstable = set()
+    for year_value in set(observations[0]) & set(observations[1]):
+        if (
+            observations[0][year_value].get("row_payloads")
+            != observations[1][year_value].get("row_payloads")
+        ):
+            unstable.add(year_value)
+    return unstable
+
+
 def _fetch_finra_listing_passes_sequential(
     session: requests.Session,
     since_date: Optional[str],
+    prior_filter_manifest: Optional[dict] = None,
 ) -> dict:
     """Require two matching complete passes, with one bounded consensus retry."""
     pass_results = []
     selected_results = None
     mismatches = []
-    for index in (1, 2, 3):
+    subdivide_year_values: set[str] = set()
+    index = 1
+    max_passes = 3
+    while index <= max_passes:
         pass_session = _new_finra_pass_session(session)
         try:
-            result = _fetch_finra_listing_pass(
+            pass_args = (
                 pass_session,
                 since_date,
                 _finra_pass_token(index),
             )
+            pass_kwargs = {}
+            if prior_filter_manifest is not None:
+                pass_kwargs["prior_filter_manifest"] = prior_filter_manifest
+            if subdivide_year_values:
+                pass_kwargs["subdivide_year_values"] = frozenset(
+                    subdivide_year_values
+                )
+            if not pass_kwargs:
+                result = _fetch_finra_listing_pass(*pass_args)
+            else:
+                result = _fetch_finra_listing_pass(
+                    *pass_args,
+                    **pass_kwargs,
+                )
             pass_results.append(result)
         finally:
             close = getattr(pass_session, "close", None)
@@ -4375,6 +5953,7 @@ def _fetch_finra_listing_passes_sequential(
                     result.get("pass_proof", {}),
                 ],
             }
+        restart_with_subdivision = False
         for prior in pass_results[:-1]:
             mismatch = _compare_finra_listing_pass_proofs(
                 prior["pass_proof"],
@@ -4384,8 +5963,27 @@ def _fetch_finra_listing_passes_sequential(
                 selected_results = (prior, result)
                 break
             mismatches.append(mismatch)
+            unstable_years = _finra_unstable_single_page_year_values(
+                prior["pass_proof"],
+                result["pass_proof"],
+            ) - subdivide_year_values
+            if unstable_years:
+                subdivide_year_values.update(unstable_years)
+                max_passes = 4
+                logger.warning(
+                    "FINRA single-page year proof instability detected; "
+                    "subdividing years=%s on subsequent passes",
+                    sorted(unstable_years),
+                )
+                pass_results = []
+                restart_with_subdivision = True
+                break
+        if restart_with_subdivision:
+            index += 1
+            continue
         if selected_results is not None:
             break
+        index += 1
 
     if selected_results is None:
         first = pass_results[0]
@@ -4408,6 +6006,20 @@ def _fetch_finra_listing_passes_sequential(
     first, second = selected_results
     proofs = [first["pass_proof"], second["pass_proof"]]
     rows = first["rows"]
+    partitioned = "filter_manifest" in proofs[0]
+    listing_mode = (
+        "deterministic-year-type-partitions"
+        if partitioned
+        else "complete-unfiltered"
+    )
+    manifest_coverage = (
+        {
+            key: deepcopy(proofs[0][key])
+            for key in FINRA_DETERMINISTIC_PROOF_FIELDS
+        }
+        if partitioned
+        else {}
+    )
     return {
         "complete": True,
         "rows": rows,
@@ -4420,8 +6032,13 @@ def _fetch_finra_listing_passes_sequential(
         "cutoff_page": first["cutoff_page"],
         "pass_proofs": proofs,
         "coverage": {
+            "schema_version": (
+                FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+                if partitioned
+                else FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+            ),
             "complete": True,
-            "listing_mode": "complete-unfiltered",
+            "listing_mode": listing_mode,
             "listing_url": FINRA_NOTICES_URL,
             "listing_record_count": proofs[0]["resolved_row_count"],
             "raw_row_count": proofs[0]["raw_row_count"],
@@ -4436,6 +6053,7 @@ def _fetch_finra_listing_passes_sequential(
             "duplicate_ledger": [],
             "date_resolution_ledger": [],
             "conflict_ledger": [],
+            **manifest_coverage,
         },
     }
 
@@ -4443,9 +6061,14 @@ def _fetch_finra_listing_passes_sequential(
 def _fetch_finra_listing_records(
     session: requests.Session,
     since_date: Optional[str],
+    prior_filter_manifest: Optional[dict] = None,
 ) -> dict:
     """Require two stable independent passes, with one bounded consensus retry."""
-    return _fetch_finra_listing_passes_sequential(session, since_date)
+    return _fetch_finra_listing_passes_sequential(
+        session,
+        since_date,
+        prior_filter_manifest,
+    )
 
 
 def fetch_finra_notices(
@@ -4455,6 +6078,7 @@ def fetch_finra_notices(
     since_date: Optional[str] = None,
     known_urls: Optional[list[str]] = None,
     fallback_urls: Optional[dict[str, str]] = None,
+    prior_filter_manifest: Optional[dict] = None,
 ) -> FetchResult:
     """Fetch FINRA listing rows and authoritative notice details fail-closed."""
     items: list[RegulatoryItem] = []
@@ -4465,7 +6089,11 @@ def fetch_finra_notices(
 
     try:
         logger.info("Fetching FINRA notices from %s...", FINRA_NOTICES_URL)
-        listing = _fetch_finra_listing_records(session, since_date)
+        listing = _fetch_finra_listing_records(
+            session,
+            since_date,
+            prior_filter_manifest,
+        )
         if not listing.get("complete"):
             return _incomplete_result(
                 error=listing.get("error") or "FINRA listing was incomplete",
@@ -5422,8 +7050,17 @@ def update_source_state(
     if source_key == SOURCE_KEY_FEDERAL_REGISTER:
         source_state['last_checked'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     coverage_proof = dict(coverage or {})
+    coverage_schema_version = 1
+    if (
+        source_key == SOURCE_KEY_FINRA
+        and coverage_proof.get("listing_mode")
+        == "deterministic-year-type-partitions"
+    ):
+        coverage_schema_version = (
+            FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+        )
     coverage_proof.update({
-        "schema_version": 1,
+        "schema_version": coverage_schema_version,
         "source": source_key,
         "entry_count": len(entries),
         "entries_digest": _entries_digest(entries),
@@ -5833,6 +7470,19 @@ def main():
                 since_date=_state_date(comparison_finra_state),
                 known_urls=finra_refresh_urls,
                 fallback_urls=finra_fallback_urls,
+                prior_filter_manifest=(
+                    comparison_finra_state.get("coverage", {}).get(
+                        "filter_manifest"
+                    )
+                    if isinstance(
+                        comparison_finra_state.get("coverage"),
+                        dict,
+                    )
+                    and comparison_finra_state.get("coverage", {}).get(
+                        "listing_mode"
+                    ) == "deterministic-year-type-partitions"
+                    else None
+                ),
             )
         )
         source_runs.append((

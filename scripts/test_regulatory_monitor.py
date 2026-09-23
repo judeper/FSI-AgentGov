@@ -2308,9 +2308,13 @@ def test_shared_fetch_page_honors_valid_retry_after(monkeypatch):
 
 
 class _FakeSession:
-    def __init__(self, responses):
+    def __init__(self, responses, *, allow_legacy_finra=True):
         self.responses = list(responses)
         self.calls = []
+        if allow_legacy_finra:
+            self._finra_legacy_fixture_capability = (
+                regulatory_monitor._FINRA_LEGACY_FIXTURE_CAPABILITY
+            )
 
     def get(self, url, **kwargs):
         self.calls.append((url, kwargs))
@@ -3051,10 +3055,1004 @@ def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
         },
     )
     result = regulatory_monitor._fetch_finra_listing_pass(
-        _FakeSession([]), None, "test-token"
+        _FakeSession([]),
+        None,
+        "test-token",
     )
     assert result["complete"] is False
     assert "unresolved" in result["error"]
+
+
+def _finra_filter_form(years=(("1", "2026"),), notice_types=(("1", "Regulatory Notice"),)):
+    year_options = '<option value="">All</option>' + "".join(
+        f'<option value="{value}">{label}</option>'
+        for value, label in years
+    )
+    type_options = '<option value="">All</option>' + "".join(
+        f'<option value="{value}">{label}</option>'
+        for value, label in notice_types
+    )
+    return (
+        '<select name="combine_1">'
+        f"{year_options}</select>"
+        '<select name="field_core_content_type_tax_target_id">'
+        f"{type_options}</select>"
+    )
+
+
+def _finra_filtered_listing_page(
+    page,
+    total_pages,
+    records,
+    *,
+    filters="",
+):
+    return _finra_listing_page(page, total_pages, records).replace(
+        "<body>", f"<body>{filters}", 1
+    )
+
+
+def test_finra_filter_option_discovery_is_dynamic_and_deterministic():
+    soup = BeautifulSoup(
+        _finra_filter_form(
+            years=(("7", "2024"), ("3", "2026"), ("5", "2025")),
+            notice_types=(("9", "Special Notice"), ("2", "Regulatory Notice")),
+        ),
+        "html.parser",
+    )
+
+    assert regulatory_monitor._extract_finra_filter_manifest(soup) == {
+        "year_field": "combine_1",
+        "years": [
+            {"label": "2024", "value": "7"},
+            {"label": "2025", "value": "5"},
+            {"label": "2026", "value": "3"},
+        ],
+        "notice_type_field": "field_core_content_type_tax_target_id",
+        "notice_types": [
+            {"label": "Regulatory Notice", "value": "2"},
+            {"label": "Special Notice", "value": "9"},
+        ],
+    }
+
+
+@pytest.mark.parametrize(
+    "markup",
+    [
+        _finra_filter_form(years=(("1", "2026"), ("2", "2026"))),
+        _finra_filter_form(years=(("1", "2026"), ("1", "2025"))),
+        _finra_filter_form(years=(("1", "FY 2026"),)),
+        _finra_filter_form(notice_types=(("1", "Regulatory Notice"), ("2", "Regulatory Notice"))),
+        _finra_filter_form(notice_types=(("1", "Regulatory Notice"), ("1", "Special Notice"))),
+        _finra_filter_form(notice_types=(("", "Regulatory Notice"),)),
+        '<select name="combine_1"><option value="">All</option>'
+        '<option value="1">2026</option></select>',
+    ],
+)
+def test_finra_filter_option_discovery_rejects_malformed_or_duplicate_maps(markup):
+    with pytest.raises(ValueError, match="FINRA filter"):
+        regulatory_monitor._extract_finra_filter_manifest(
+            BeautifulSoup(markup, "html.parser")
+        )
+
+
+def _run_partitioned_finra_pass(
+    monkeypatch,
+    pages,
+    *,
+    legacy_fixture=False,
+    prior_filter_manifest=None,
+    subdivide_year_values=None,
+):
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    requested = []
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        requested.append(_finra_request_base(url))
+        parsed = urlparse(_finra_request_base(url))
+        query = parse_qs(parsed.query, keep_blank_values=True)
+        page = int(query.get("page", ["0"])[0])
+        key = (
+            query.get("combine_1", [None])[0],
+            query.get("field_core_content_type_tax_target_id", [None])[0],
+            page,
+        )
+        content = pages[key]
+        return {
+            "status_code": 200,
+            "content": content,
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "_fetch_finra_page", fake_fetch_page)
+    result = regulatory_monitor._fetch_finra_listing_pass(
+        _FakeSession([], allow_legacy_finra=legacy_fixture),
+        None,
+        "1-test",
+        prior_filter_manifest=prior_filter_manifest,
+        subdivide_year_values=subdivide_year_values,
+    )
+    return result, requested
+
+
+def test_finra_partitioned_pass_uses_stable_one_page_year_shards(monkeypatch):
+    filters = _finra_filter_form(
+        years=(("1", "2026"), ("2", "2025")),
+        notice_types=(("1", "Regulatory Notice"), ("2", "Special Notice")),
+    )
+    row_2026 = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    row_2025 = (
+        "/rules-guidance/notices/25-01",
+        "Regulatory Notice 25-01",
+        "2025-01-02",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row_2026, row_2025], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [row_2026]),
+        ("2", None, 0): _finra_listing_page(0, 1, [row_2025]),
+    }
+
+    result, requested = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    assert [row["title"] for row in result["rows"]] == [
+        "Regulatory Notice 25-01",
+        "Regulatory Notice 26-15",
+    ]
+    assert result["pass_proof"]["filter_manifest"]["years"][0]["value"] == "2"
+    assert [
+        shard["query"] for shard in result["pass_proof"]["partition_manifest"]
+    ] == [{"combine_1": "2"}, {"combine_1": "1"}]
+    assert not any("field_core_content_type_tax_target_id" in url for url in requested)
+
+
+def test_finra_partitioned_pass_subdivides_multi_page_year_by_every_type(monkeypatch):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    regulatory_row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    special_row = (
+        "/rules-guidance/notices/special-notice-26-1",
+        "Special Notice 26-1",
+        "2026-06-01",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [regulatory_row, special_row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [regulatory_row]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [regulatory_row]),
+        ("1", "7", 0): _finra_listing_page(0, 1, [special_row]),
+    }
+
+    result, requested = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    assert {row["title"] for row in result["rows"]} == {
+        "Regulatory Notice 26-15",
+        "Special Notice 26-1",
+    }
+    assert {
+        tuple(sorted(shard["query"].items()))
+        for shard in result["pass_proof"]["partition_manifest"]
+    } == {
+        (
+            ("combine_1", "1"),
+            ("field_core_content_type_tax_target_id", "3"),
+        ),
+        (
+            ("combine_1", "1"),
+            ("field_core_content_type_tax_target_id", "7"),
+        ),
+    }
+    assert len(requested) == 4
+
+
+def test_finra_partitioned_pass_proof_binds_unclassified_year_page_zero_row(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    present = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted = (
+        "/rules-guidance/notices/new-notice-26-1",
+        "New Notice 26-1",
+        "2026-07-01",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [present, omitted], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [present, omitted]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [present]),
+        ("1", "7", 0): (
+            "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+            "</body></html>"
+        ),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    assert result["pass_proof"]["unclassified_evidence"]["raw_row_count"] == 1
+    assert {
+        row["title"] for row in result["rows"]
+    } == {"Regulatory Notice 26-15", "New Notice 26-1"}
+
+
+def test_finra_partition_proof_rejects_missing_type_shard_with_equal_row_union(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [row]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [row]),
+        ("1", "7", 0): _finra_listing_page(0, 1, [row]),
+    }
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    proof = deepcopy(result["pass_proof"])
+    proof["partition_manifest"].pop()
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any("topology" in error for error in errors)
+
+
+def test_finra_partition_proof_rejects_missing_discovered_year_with_equal_union(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"), ("2", "2025")),
+        notice_types=(("3", "Regulatory Notice"),),
+    )
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [row]),
+        ("2", None, 0): _finra_listing_page(0, 1, [row]),
+    }
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    proof = deepcopy(result["pass_proof"])
+    proof["partition_manifest"] = proof["partition_manifest"][:1]
+    proof["year_observations"] = proof["year_observations"][:1]
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any("discovered year" in error for error in errors)
+
+
+def test_finra_partition_listing_budget_fails_before_extra_request(
+    monkeypatch,
+):
+    monkeypatch.setattr(regulatory_monitor, "FINRA_LISTING_REQUEST_BUDGET", 3)
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [row]),
+        ("1", "3", 0): _finra_listing_page(0, 2, [row]),
+    }
+
+    result, requested = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is False
+    assert "budget exceeded" in result["error"]
+    assert len(requested) == 3
+
+
+def test_finra_listing_retries_consume_the_same_pass_budget(monkeypatch):
+    monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", lambda _seconds: None)
+    calls = []
+
+    def rate_limited(url, _session, **_kwargs):
+        calls.append(url)
+        return {
+            "status_code": 429,
+            "content": "",
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": "rate limited",
+            "retry_after": 0,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", rate_limited)
+    budget = {"used": 1, "limit": 2}
+    result = regulatory_monitor._fetch_finra_page(
+        regulatory_monitor.FINRA_NOTICES_URL,
+        _FakeSession([], allow_legacy_finra=False),
+        min_interval_seconds=0,
+        request_budget=budget,
+        first_attempt_reserved=True,
+    )
+
+    assert result["status_code"] == 0
+    assert "budget exceeded" in result["error"]
+    assert budget == {"used": 2, "limit": 2}
+    assert len(calls) == 2
+
+
+def test_finra_partitioned_pass_accepts_explicit_zero_result_type_shard(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    zero_page = (
+        "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+        "</body></html>"
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [row]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [row]),
+        ("1", "7", 0): zero_page,
+    }
+
+    result, requested = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    assert len(requested) == 4
+    zero_shard = next(
+        shard
+        for shard in result["pass_proof"]["partition_manifest"]
+        if shard["notice_type"]["value"] == "7"
+    )
+    assert zero_shard["declared_pages"] == 0
+    assert zero_shard["page_identities"] == [
+        {"requested": 0, "final": 0, "active": 0}
+    ]
+    assert zero_shard["row_payloads"] == []
+
+
+def test_finra_partition_pass_rejects_persisted_filter_shrinkage(monkeypatch):
+    prior = {
+        "year_field": "combine_1",
+        "years": [
+            {"label": "2025", "value": "2"},
+            {"label": "2026", "value": "1"},
+        ],
+        "notice_type_field": "field_core_content_type_tax_target_id",
+        "notice_types": [
+            {"label": "Regulatory Notice", "value": "3"},
+            {"label": "Special Notice", "value": "7"},
+        ],
+    }
+    filters = _finra_filter_form(
+        years=(("2", "2025"),),
+        notice_types=(("3", "Regulatory Notice"),),
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [], filters=filters
+        ),
+    }
+
+    result, requested = _run_partitioned_finra_pass(
+        monkeypatch,
+        pages,
+        prior_filter_manifest=prior,
+    )
+
+    assert result["complete"] is False
+    assert "current year is absent" in result["error"]
+    assert len(requested) == 1
+
+
+def test_finra_partitioned_pass_deduplicates_identical_topology_overlap(monkeypatch):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(0, 1, [row], filters=filters),
+        ("1", None, 0): _finra_listing_page(0, 2, [row]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [row]),
+        ("1", "7", 0): _finra_listing_page(0, 1, [row]),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    assert len(result["rows"]) == 1
+    assert result["pass_proof"]["raw_row_count"] == 1
+
+
+def test_finra_partitioned_pass_rejects_conflicting_overlap(monkeypatch):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    first = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    conflicting = (
+        "/rules-guidance/notices/26-15",
+        "Conflicting title",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(0, 1, [first], filters=filters),
+        ("1", None, 0): _finra_listing_page(0, 2, [first]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [first]),
+        ("1", "7", 0): _finra_listing_page(0, 1, [conflicting]),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is False
+    assert "conflicting partition evidence" in result["error"]
+
+
+def test_finra_partitioned_pass_reconciliation_proves_unclassified_omission(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"),),
+    )
+    present = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted = (
+        "/rules-guidance/notices/26-14",
+        "Regulatory Notice 26-14",
+        "2026-07-09",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [present, omitted], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [present]),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    assert result["pass_proof"]["unclassified_evidence"]["row_payloads"] == [
+        result["rows"][0]["raw_payload"]
+    ] or result["pass_proof"]["unclassified_evidence"]["row_payloads"] == [
+        result["rows"][1]["raw_payload"]
+    ]
+
+
+def test_finra_unfiltered_reconciliation_observes_page_one_taxonomy_omission(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"),),
+    )
+    present = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted = (
+        "/rules-guidance/notices/information-notice-20260701",
+        "Information Notice 7/1/26",
+        "2026-07-01",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 2, [present], filters=filters
+        ),
+        (None, None, 1): _finra_listing_page(1, 2, [omitted]),
+        ("1", None, 0): _finra_listing_page(0, 1, [present]),
+    }
+
+    result, requested = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    reconciliation = result["pass_proof"]["unfiltered_reconciliation"]
+    assert reconciliation["pages_observed"] == 2
+    assert reconciliation["page_numbers"] == [0, 1]
+    assert reconciliation["page_row_counts"] == [1, 1]
+    assert result["pass_proof"]["unclassified_evidence"]["raw_row_count"] == 1
+    assert any("page=1" in url for url in requested)
+
+
+def test_finra_partition_manifests_are_recomputed_and_cross_pass_bound(monkeypatch):
+    filters = _finra_filter_form()
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(0, 1, [row], filters=filters),
+        ("1", None, 0): _finra_listing_page(0, 1, [row]),
+    }
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    first = result["pass_proof"]
+    second = deepcopy(first)
+    second["token"] = "pass-2"
+
+    assert regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        first,
+        0,
+    ) == []
+    assert regulatory_monitor._compare_finra_listing_pass_proofs(
+        first,
+        second,
+    ) is None
+
+    second["filter_manifest"]["years"][0]["value"] = "changed"
+    assert "filter manifest" in (
+        regulatory_monitor._compare_finra_listing_pass_proofs(first, second)
+        or ""
+    )
+
+    forged = deepcopy(first)
+    forged["partition_manifest"][0]["row_payloads"][0]["text"] = "forged"
+    assert regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+        0,
+    )
+
+
+def test_finra_unclassified_evidence_must_be_stable_across_passes(monkeypatch):
+    filters = _finra_filter_form()
+    classified = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted_a = (
+        "/rules-guidance/notices/information-notice-20260701",
+        "Information Notice A",
+        "2026-07-01",
+    )
+    omitted_b = (
+        "/rules-guidance/notices/information-notice-20260702",
+        "Information Notice B",
+        "2026-07-02",
+    )
+
+    def proof_for(omitted):
+        pages = {
+            (None, None, 0): _finra_filtered_listing_page(
+                0, 2, [classified], filters=filters
+            ),
+            (None, None, 1): _finra_listing_page(1, 2, [omitted]),
+            ("1", None, 0): _finra_listing_page(0, 1, [classified]),
+        }
+        result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+        return result["pass_proof"]
+
+    first = proof_for(omitted_a)
+    second = proof_for(omitted_b)
+
+    assert "unclassified evidence" in (
+        regulatory_monitor._compare_finra_listing_pass_proofs(first, second)
+        or ""
+    )
+
+
+def test_finra_unstable_unclassified_evidence_fails_closed_after_three_passes(
+    monkeypatch,
+):
+    filters = _finra_filter_form()
+    classified = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted_rows = [
+        (
+            f"/rules-guidance/notices/information-notice-2026070{index}",
+            f"Information Notice {index}",
+            f"2026-07-0{index}",
+        )
+        for index in (1, 2, 3)
+    ]
+    results = []
+    for index, omitted in enumerate(omitted_rows, start=1):
+        pages = {
+            (None, None, 0): _finra_filtered_listing_page(
+                0, 2, [classified], filters=filters
+            ),
+            (None, None, 1): _finra_listing_page(1, 2, [omitted]),
+            ("1", None, 0): _finra_listing_page(0, 1, [classified]),
+        }
+        result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+        result["pass_proof"]["token"] = f"pass-{index}"
+        results.append(result)
+
+    result_iterator = iter(results)
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_pass",
+        lambda *_args, **_kwargs: next(result_iterator),
+    )
+
+    result = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([], allow_legacy_finra=False),
+        None,
+    )
+
+    assert result["complete"] is False
+    assert "unclassified evidence" in result["error"]
+
+
+def test_finra_single_page_instability_retries_with_type_subdivision(monkeypatch):
+    filters = _finra_filter_form(
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    row_a = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    row_b = (
+        "/rules-guidance/notices/26-14",
+        "Regulatory Notice 26-14",
+        "2026-07-09",
+    )
+
+    def direct_result(row):
+        pages = {
+            (None, None, 0): _finra_filtered_listing_page(
+                0, 1, [row], filters=filters
+            ),
+            ("1", None, 0): _finra_listing_page(0, 1, [row]),
+        }
+        return _run_partitioned_finra_pass(monkeypatch, pages)[0]
+
+    subdivided_pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row_b], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [row_b]),
+        ("1", "3", 0): _finra_listing_page(0, 1, [row_b]),
+        ("1", "7", 0): (
+            "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+            "</body></html>"
+        ),
+    }
+    first = direct_result(row_a)
+    second = direct_result(row_b)
+    stable, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        subdivided_pages,
+        subdivide_year_values=frozenset({"1"}),
+    )
+    stable_again = deepcopy(stable)
+    stable_again["pass_proof"]["token"] = "pass-4"
+    results = iter([first, second, stable, stable_again])
+    subdivisions = []
+
+    def fake_pass(*_args, **kwargs):
+        subdivisions.append(kwargs.get("subdivide_year_values", frozenset()))
+        return next(results)
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_pass",
+        fake_pass,
+    )
+
+    result = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([], allow_legacy_finra=False),
+        None,
+    )
+
+    assert result["complete"] is True
+    assert subdivisions == [
+        frozenset(),
+        frozenset(),
+        frozenset({"1"}),
+        frozenset({"1"}),
+    ]
+    assert all(
+        observation["partition_mode"] == "year-type"
+        for observation in result["pass_proofs"][0]["year_observations"]
+    )
+
+
+def test_finra_partition_progress_logs_include_budget_and_last_partition(
+    monkeypatch,
+    caplog,
+):
+    filters = _finra_filter_form()
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [row]),
+    }
+
+    with caplog.at_level("INFO", logger="regulatory_monitor"):
+        result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is True
+    messages = [record.getMessage() for record in caplog.records]
+    assert any(
+        "pass=pass-1" in message
+        and "year=2026" in message
+        and "type=all" in message
+        and "budget=" in message
+        and "last_completed=" in message
+        for message in messages
+    )
+    assert any(
+        "listing pass complete" in message
+        and "budget=" in message
+        and "last_completed=" in message
+        for message in messages
+    )
+
+
+def test_finra_deterministic_coverage_rejects_empty_partition_evidence():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    coverage["schema_version"] = (
+        regulatory_monitor.FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+    )
+    coverage["listing_mode"] = "deterministic-year-type-partitions"
+    for key, value in (
+        ("proof_version", None),
+        ("filter_manifest", {}),
+        ("partition_manifest", []),
+        ("year_observations", []),
+        ("unfiltered_reconciliation", {}),
+        ("unclassified_evidence", {}),
+    ):
+        coverage[key] = value
+        for proof in coverage["pass_proofs"]:
+            proof[key] = deepcopy(value)
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any(
+        "deterministic coverage filter_manifest is missing or empty" in error
+        for error in errors
+    )
+    assert any(
+        "deterministic coverage partition_manifest is missing or empty" in error
+        for error in errors
+    )
+    assert any(
+        "deterministic coverage unfiltered_reconciliation is missing or empty"
+        in error
+        for error in errors
+    )
+
+
+def test_finra_coverage_schema_versions_separate_legacy_and_deterministic():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    legacy = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+
+    assert legacy["coverage"]["schema_version"] == 1
+    assert regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        legacy,
+    ) == []
+
+    forged = deepcopy(legacy)
+    forged["coverage"]["listing_mode"] = (
+        "deterministic-year-type-partitions"
+    )
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+    assert any(
+        "legacy coverage schema cannot claim deterministic partitions" in error
+        for error in errors
+    )
+
+    forged = deepcopy(legacy)
+    forged["coverage"]["schema_version"] = (
+        regulatory_monitor.FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+    )
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged,
+    )
+    assert any(
+        "deterministic coverage schema requires partition listing mode" in error
+        for error in errors
+    )
+
+
+def test_finra_deterministic_proof_field_set_is_centralized(monkeypatch):
+    filters = _finra_filter_form()
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [row]),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert set(regulatory_monitor.FINRA_DETERMINISTIC_PROOF_FIELDS) <= set(
+        result["pass_proof"]
+    )
+
+
+def test_finra_committed_state_rejects_unequal_partition_page_identities():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    invalid = {"requested": 0, "final": 1, "active": 1}
+    coverage["page_identities"][0] = deepcopy(invalid)
+    for proof in coverage["pass_proofs"]:
+        proof["page_identities"][0] = deepcopy(invalid)
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any("pass proof 0 page identities are invalid" in error for error in errors)
+
+
+def test_finra_listing_pass_rejects_missing_filter_controls_by_default(
+    monkeypatch,
+):
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {(None, None, 0): _finra_listing_page(0, 1, [row])}
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is False
+    assert "filter controls" in result["error"]
+
+
+def test_finra_listing_pass_allows_explicit_legacy_fixture_fallback(
+    monkeypatch,
+):
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {(None, None, 0): _finra_listing_page(0, 1, [row])}
+
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        pages,
+        legacy_fixture=True,
+    )
+
+    assert result["complete"] is True
+    assert result["pass_proof"].get("filter_manifest") is None
+    assert result["pass_proof"].get("partition_manifest") is None
+
+
+def test_finra_legacy_fallback_rejects_unrecognized_session_marker(monkeypatch):
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    content = _finra_listing_page(0, 1, [row])
+    session = _FakeSession([], allow_legacy_finra=False)
+    session._finra_legacy_fixture = True
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": content,
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+
+    result = regulatory_monitor._fetch_finra_listing_pass(
+        session,
+        None,
+        "1-test",
+    )
+
+    assert result["complete"] is False
+    assert "filter controls" in result["error"]
 
 
 def test_finra_two_pass_shifted_rows_fail_closed(monkeypatch):
@@ -3606,6 +4604,19 @@ def test_workflow_documents_fail_closed_exit_two_and_rejects_unknown_statuses():
     assert "exit_code output is missing" in workflow
     assert "exit_code output is undocumented" in workflow
     assert "continue-on-error:" not in workflow
+
+
+def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "regulatory-monitoring.yml"
+    ).read_text(encoding="utf-8")
+
+    assert workflow.count("timeout-minutes: 300") == 2
+    assert workflow.count("'scripts/regulatory_monitor.py'") == 2
+    assert workflow.count("'.github/workflows/regulatory-monitoring.yml'") == 2
 
 
 def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
