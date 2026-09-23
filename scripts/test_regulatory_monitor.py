@@ -5081,10 +5081,14 @@ def test_finra_rate_limit_cooldown_is_shared_across_urls(monkeypatch):
     session = _FakeSession([])
 
     assert regulatory_monitor._fetch_finra_page(
-        "https://example.test/first", session
+        "https://example.test/first",
+        session,
+        retain_adaptive_interval=True,
     )["status_code"] == 200
     assert regulatory_monitor._fetch_finra_page(
-        "https://example.test/second", session
+        "https://example.test/second",
+        session,
+        retain_adaptive_interval=True,
     )["status_code"] == 200
     assert 10 in sleeps
     assert sleeps.count(10) == 2
@@ -5146,10 +5150,66 @@ def test_finra_rate_limit_recovery_keeps_adaptive_pacing(monkeypatch):
         result = regulatory_monitor._fetch_finra_page(
             f"https://example.test/finra?page={page}",
             session,
+            retain_adaptive_interval=True,
         )
         assert result["status_code"] == 200
 
     assert rate_limited_urls == ["https://example.test/finra?page=1"]
+
+
+def test_finra_detail_recovery_returns_to_fast_baseline(monkeypatch):
+    """A recovered detail-page 429 must not slow every remaining historical URL."""
+    clock = [0.0]
+    sleeps = []
+    responses = {
+        "https://example.test/first": [
+            {
+                "status_code": 429,
+                "content": "",
+                "final_url": "https://example.test/first",
+                "was_redirected": False,
+                "error": "rate limited",
+                "retry_after": 10,
+            },
+            {
+                "status_code": 200,
+                "content": "first",
+                "final_url": "https://example.test/first",
+                "was_redirected": False,
+                "error": None,
+            },
+        ],
+        "https://example.test/second": [
+            {
+                "status_code": 200,
+                "content": "second",
+                "final_url": "https://example.test/second",
+                "was_redirected": False,
+                "error": None,
+            },
+        ],
+    }
+
+    def fake_sleep(seconds):
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    def fake_fetch_page(url, _session, **_kwargs):
+        return responses[url].pop(0)
+
+    monkeypatch.setattr(regulatory_monitor, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", fake_sleep)
+    monkeypatch.setattr(regulatory_monitor.time, "monotonic", lambda: clock[0])
+    session = _FakeSession([])
+
+    assert regulatory_monitor._fetch_finra_page(
+        "https://example.test/first", session
+    )["status_code"] == 200
+    assert regulatory_monitor._fetch_finra_page(
+        "https://example.test/second", session
+    )["status_code"] == 200
+
+    assert sleeps == [1, 10, 1]
 
 
 def test_finra_listing_pacing_avoids_six_request_burst(monkeypatch):
