@@ -4459,6 +4459,17 @@ def _finra_is_explicit_zero_result(soup: BeautifulSoup) -> bool:
     )
 
 
+def _finra_is_empty_scoped_notice_view(soup: BeautifulSoup) -> bool:
+    """Recognize the live filtered zero shape without using global views."""
+    notice_view = soup.select_one(".notice-by-date")
+    return bool(
+        notice_view is not None
+        and not notice_view.select("table tbody tr")
+        and not notice_view.select(".views-row")
+        and notice_view.select_one(".view-content") is None
+    )
+
+
 def _finra_retry_url(url: str, attempt: int) -> str:
     """Retry the exact source URL so page identity cannot be changed."""
     return url
@@ -4771,7 +4782,9 @@ def _extract_finra_listing_rows(
     soup: BeautifulSoup,
 ) -> tuple[list[dict], int]:
     """Parse all scoped rows and count rows that cannot resolve a detail target."""
-    table_rows = soup.select("table tbody tr")
+    notice_view = soup.select_one(".notice-by-date")
+    scope = notice_view if notice_view is not None else soup
+    table_rows = scope.select("table tbody tr")
     if table_rows:
         rows = table_rows
     else:
@@ -4780,15 +4793,15 @@ def _extract_finra_listing_rows(
         # unresolved rows instead of being silently filtered out.
         rows = []
         for selector in (".views-row", ".view-content > li", ".view-content > div"):
-            rows = soup.select(selector)
+            rows = scope.select(selector)
             if rows:
                 break
-        if not rows:
+        if not rows and notice_view is None:
             # Small synthetic pages may omit both the table and row wrapper.
             # Treat supported notice anchors as individual rows.
             rows = [
                 link
-                for link in soup.find_all("a", href=True)
+                for link in scope.find_all("a", href=True)
                 if (
                     _finra_normalize_detail_link(
                         link.get("href", "")
@@ -5444,6 +5457,14 @@ def _finra_validate_listing_page_result(
                 "combine_1",
                 "field_core_content_type_tax_target_id",
             }
+        )
+    )
+    zero_shape = bool(
+        zero_shape
+        or (
+            filtered_partition
+            and page == 0
+            and _finra_is_empty_scoped_notice_view(soup)
         )
     )
     if pager is None:

@@ -2791,6 +2791,171 @@ def test_finra_listing_rows_preserve_legacy_targets_and_unresolved_rows():
     assert rows[2]["detail_url"] is None
 
 
+def _finra_live_empty_scoped_notice_view():
+    return """
+    <html><body>
+      <div class="notice-by-date"></div>
+      <div class="topic-navigation">
+        <div class="view-content">
+          <div class="views-row">
+            <a href="/rules-guidance/notices/by-topic?topic=market">
+              Market Topic
+            </a>
+          </div>
+          <div class="views-row">
+            <a href="/rules-guidance/notices/by-topic?topic=trading">
+              Trading Topic
+            </a>
+          </div>
+        </div>
+      </div>
+    </body></html>
+    """
+
+
+def test_finra_filtered_empty_scoped_view_ignores_unrelated_topic_rows():
+    url = regulatory_monitor._finra_query_page_url(
+        0,
+        {
+            "combine_1": "44",
+            "field_core_content_type_tax_target_id": "5",
+        },
+    )
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, _finra_live_empty_scoped_notice_view()),
+        url,
+        0,
+        partition_label=(
+            "pass-1/year=1983/type=-Election Notice"
+        ),
+    )
+
+    assert result["complete"] is True
+    assert result["page_declared"] == 0
+    assert result["pager_mode"] == "explicit-zero"
+    assert result["page_rows"] == []
+
+
+def test_finra_scoped_notice_rows_win_over_unrelated_global_rows():
+    soup = BeautifulSoup(
+        """
+        <html><body>
+          <div class="notice-by-date">
+            <div class="view-content">
+              <div class="views-row">
+                <a href="/rules-guidance/notices/26-15">
+                  Regulatory Notice 26-15
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="view-content">
+            <div class="views-row">
+              <a href="/rules-guidance/notices/by-topic?topic=market">
+                Market Topic
+              </a>
+            </div>
+          </div>
+        </body></html>
+        """,
+        "html.parser",
+    )
+
+    rows, unresolved = regulatory_monitor._extract_finra_listing_rows(soup)
+
+    assert unresolved == 0
+    assert len(rows) == 1
+    assert rows[0]["detail_url"] == (
+        "https://www.finra.org/rules-guidance/notices/26-15"
+    )
+    assert all(
+        "by-topic" not in link["href"]
+        for link in rows[0]["raw_payload"]["links"]
+    )
+
+
+def test_finra_filtered_scoped_unsupported_only_row_fails_closed():
+    url = regulatory_monitor._finra_query_page_url(
+        0,
+        {
+            "combine_1": "44",
+            "field_core_content_type_tax_target_id": "5",
+        },
+    )
+    content = """
+    <html><body>
+      <div class="notice-by-date">
+        <table><tbody><tr><td>
+          <a href="https://evil.example/notices/83-01">
+            Unsupported Notice
+          </a>
+        </td></tr></tbody></table>
+      </div>
+    </body></html>
+    """
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, content),
+        url,
+        0,
+        partition_label=(
+            "pass-1/year=1983/type=-Election Notice"
+        ),
+    )
+
+    assert result["complete"] is False
+    assert '"unresolved_count":1' in result["error"]
+
+
+def test_finra_unfiltered_empty_scoped_view_remains_fail_closed():
+    url = regulatory_monitor.FINRA_NOTICES_URL
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, _finra_live_empty_scoped_notice_view()),
+        url,
+        0,
+        partition_label="pass-1/unfiltered-reconciliation",
+    )
+
+    assert result["complete"] is False
+    assert "pagination metadata" in result["error"]
+    assert '"row_count":0' in result["error"]
+
+
+def test_finra_scoped_zero_pager_evidence_tampering_fails_recomputation(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("44", "1983"),),
+        notice_types=(("5", "-Election Notice"),),
+    )
+    unfiltered_row = (
+        "/rules-guidance/notices/83-01",
+        "Regulatory Notice 83-01",
+        "1983-01-02",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [unfiltered_row], filters=filters
+        ),
+        ("44", None, 0): _finra_live_empty_scoped_notice_view(),
+    }
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    proof = deepcopy(result["pass_proof"])
+    proof["partition_manifest"][0]["page_identities"][0][
+        "pager_mode"
+    ] = "inferred-single"
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any("pager evidence is invalid" in error for error in errors)
+
+
 def test_finra_active_last_page_is_included_in_declared_total():
     """An active zero-based page 91 proves a 92-page listing."""
     soup = BeautifulSoup(
