@@ -3405,6 +3405,7 @@ def _fetch_finra_page(
     *,
     max_attempts: Optional[int] = None,
     min_interval_seconds: Optional[float] = None,
+    retain_adaptive_interval: bool = False,
 ) -> dict:
     """Use one request per attempt with a coordinated session-wide cooldown."""
     attempts = (
@@ -3453,6 +3454,8 @@ def _fetch_finra_page(
             if result['status_code'] not in (0, 429):
                 try:
                     session._finra_backoff_seconds = FINRA_RETRY_BASE_WAIT_SECONDS
+                    if not retain_adaptive_interval:
+                        session._finra_request_interval_seconds = base_interval
                 except AttributeError:
                     pass
             return result
@@ -3980,6 +3983,7 @@ def _fetch_finra_listing_pass(
             expected_url,
             session,
             min_interval_seconds=_finra_listing_request_interval(),
+            retain_adaptive_interval=True,
         )
         if result["status_code"] != 200:
             return {
@@ -4182,6 +4186,7 @@ def _fetch_finra_listing_page(
         expected_url,
         session,
         min_interval_seconds=_finra_listing_request_interval(),
+        retain_adaptive_interval=True,
     )
     if result["status_code"] != 200:
         return {
