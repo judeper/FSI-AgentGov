@@ -106,14 +106,14 @@ FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 # FINRA's public listing begins throttling GitHub-hosted runners at roughly
 # six requests per minute. Detail pages use the faster general interval above;
 # only the 92-page listing crawl requires this human-scale baseline.
-FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 9.00
+FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 12.00
 # The live topology exposes 44 years and seven notice types. A full pass can
 # require one year probe plus all seven type shards per year: 44 * 8 = 352,
 # before bounded reconciliation and retry margin. A 420-request ceiling covers
 # that observed topology without permitting the old year*type*100-page
-# explosion. Four maximum passes at nine seconds consume 252 minutes.
+# explosion. Three maximum passes at twelve seconds consume 252 minutes.
 FINRA_LISTING_REQUEST_BUDGET = 420
-FINRA_MAX_LISTING_PASSES = 4
+FINRA_MAX_LISTING_PASSES = 3
 # Reserve explicit time for authoritative detail refreshes and non-listing
 # retries. With the workflow capped at 350 minutes, 23 minutes remain for setup,
 # reports, state validation, and GitHub runner overhead.
@@ -6048,11 +6048,13 @@ def _fetch_finra_listing_passes_sequential(
 ) -> dict:
     """Require two matching complete passes, with one bounded consensus retry."""
     pass_results = []
+    all_pass_results = []
     selected_results = None
     mismatches = []
     subdivide_year_values: set[str] = set()
+    subdivision_attempted = False
     index = 1
-    max_passes = FINRA_MAX_LISTING_PASSES - 1
+    max_passes = FINRA_MAX_LISTING_PASSES
     while index <= max_passes:
         pass_session = _new_finra_pass_session(session)
         try:
@@ -6076,6 +6078,7 @@ def _fetch_finra_listing_passes_sequential(
                     **pass_kwargs,
                 )
             pass_results.append(result)
+            all_pass_results.append(result)
         finally:
             close = getattr(pass_session, "close", None)
             if callable(close):
@@ -6089,11 +6092,8 @@ def _fetch_finra_listing_passes_sequential(
                 "pages_fetched": result.get("pages_fetched", 0),
                 "declared_pages": result.get("declared_pages"),
                 "pass_proofs": [
-                    *[
-                        prior.get("pass_proof", {})
-                        for prior in pass_results[:-1]
-                    ],
-                    result.get("pass_proof", {}),
+                    prior.get("pass_proof", {})
+                    for prior in all_pass_results
                 ],
             }
         restart_with_subdivision = False
@@ -6112,10 +6112,10 @@ def _fetch_finra_listing_passes_sequential(
             ) - subdivide_year_values
             if unstable_years:
                 subdivide_year_values.update(unstable_years)
-                max_passes = FINRA_MAX_LISTING_PASSES
+                subdivision_attempted = True
                 logger.warning(
                     "FINRA single-page year proof instability detected; "
-                    "subdividing years=%s on subsequent passes",
+                    "subdividing years=%s within the three-pass limit",
                     sorted(unstable_years),
                 )
                 pass_results = []
@@ -6129,20 +6129,28 @@ def _fetch_finra_listing_passes_sequential(
         index += 1
 
     if selected_results is None:
-        first = pass_results[0]
+        first = all_pass_results[0]
+        if subdivision_attempted:
+            error = (
+                "FINRA single-page year subdivision could not produce two "
+                f"matching proofs within the {FINRA_MAX_LISTING_PASSES}-pass "
+                "limit"
+            )
+        else:
+            error = mismatches[-1] if mismatches else (
+                "FINRA independent passes did not reach consensus"
+            )
         return {
             "complete": False,
-            "error": mismatches[-1] if mismatches else (
-                "FINRA independent passes did not reach consensus"
-            ),
+            "error": error,
             "pages_fetched": min(
                 result["pages_fetched"]
-                for result in pass_results
+                for result in all_pass_results
             ),
             "declared_pages": first.get("declared_pages"),
             "pass_proofs": [
                 result["pass_proof"]
-                for result in pass_results
+                for result in all_pass_results
             ],
         }
 
