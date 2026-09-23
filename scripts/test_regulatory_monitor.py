@@ -3945,6 +3945,206 @@ def test_finra_partition_manifests_are_recomputed_and_cross_pass_bound(monkeypat
     )
 
 
+def _finra_pass_with_observation_and_partition_rows(
+    monkeypatch,
+    observation_rows,
+    partition_rows,
+):
+    filters = _finra_filter_form()
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0,
+            1,
+            observation_rows,
+            filters=filters,
+        ),
+        ("1", None, 0): _finra_listing_page(
+            0,
+            1,
+            partition_rows,
+        ),
+    }
+    return _run_partitioned_finra_pass(monkeypatch, pages)[0]
+
+
+def test_finra_different_unfiltered_subsets_of_same_partition_reach_consensus(
+    monkeypatch,
+):
+    first_row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    second_row = (
+        "/rules-guidance/notices/26-14",
+        "Regulatory Notice 26-14",
+        "2026-07-09",
+    )
+    first = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [first_row],
+        [first_row, second_row],
+    )
+    second = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [second_row],
+        [first_row, second_row],
+    )
+    second["pass_proof"]["token"] = "pass-2"
+    results = iter([first, second])
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_pass",
+        lambda *_args, **_kwargs: next(results),
+    )
+
+    consensus = regulatory_monitor._fetch_finra_listing_records(
+        _FakeSession([], allow_legacy_finra=False),
+        None,
+    )
+
+    assert consensus["complete"] is True
+    assert consensus["pass_proofs"][0][
+        "unfiltered_reconciliation"
+    ] != consensus["pass_proofs"][1]["unfiltered_reconciliation"]
+    assert {
+        row["title"] for row in consensus["rows"]
+    } == {"Regulatory Notice 26-14", "Regulatory Notice 26-15"}
+
+
+def test_finra_different_unfiltered_views_with_same_unclassified_reach_consensus(
+    monkeypatch,
+):
+    first_row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    second_row = (
+        "/rules-guidance/notices/26-14",
+        "Regulatory Notice 26-14",
+        "2026-07-09",
+    )
+    omitted = (
+        "/rules-guidance/notices/information-notice-20260701",
+        "Information Notice 7/1/26",
+        "2026-07-01",
+    )
+    partition_rows = [first_row, second_row]
+    first = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [first_row, omitted],
+        partition_rows,
+    )
+    second = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [second_row, omitted],
+        partition_rows,
+    )
+    second["pass_proof"]["token"] = "pass-2"
+
+    assert first["pass_proof"]["unclassified_evidence"] == second[
+        "pass_proof"
+    ]["unclassified_evidence"]
+    assert regulatory_monitor._compare_finra_listing_pass_proofs(
+        first["pass_proof"],
+        second["pass_proof"],
+    ) is None
+
+
+def test_finra_different_derived_unclassified_evidence_fails_consensus(
+    monkeypatch,
+):
+    classified = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    omitted_a = (
+        "/rules-guidance/notices/information-notice-20260701",
+        "Information Notice A",
+        "2026-07-01",
+    )
+    omitted_b = (
+        "/rules-guidance/notices/information-notice-20260702",
+        "Information Notice B",
+        "2026-07-02",
+    )
+    first = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [classified, omitted_a],
+        [classified],
+    )
+    second = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [classified, omitted_b],
+        [classified],
+    )
+
+    mismatch = regulatory_monitor._compare_finra_listing_pass_proofs(
+        first["pass_proof"],
+        second["pass_proof"],
+    )
+
+    assert "unclassified evidence" in (mismatch or "")
+
+
+def test_finra_tampered_per_pass_reconciliation_fails_state_validation(
+    monkeypatch,
+):
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    result = _finra_pass_with_observation_and_partition_rows(
+        monkeypatch,
+        [row],
+        [row],
+    )
+    proof = deepcopy(result["pass_proof"])
+    proof["unfiltered_reconciliation"]["request_identities"][0] = [
+        ["combine_1", "forged"]
+    ]
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    coverage["schema_version"] = (
+        regulatory_monitor.FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+    )
+    coverage["listing_mode"] = "deterministic-year-type-partitions"
+    second_proof = deepcopy(proof)
+    second_proof["token"] = "pass-2"
+    coverage["pass_proofs"] = [proof, second_proof]
+    for key in (
+        "declared_pages",
+        "pages_fetched",
+        "page_numbers",
+        "page_identities",
+        "raw_row_count",
+        "resolved_row_count",
+        "unresolved_row_count",
+        "unique_node_count",
+    ):
+        coverage[key] = deepcopy(proof[key])
+    coverage["listing_record_count"] = proof["resolved_row_count"]
+    for key in regulatory_monitor.FINRA_DETERMINISTIC_PROOF_FIELDS:
+        coverage[key] = deepcopy(proof[key])
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any(
+        "bounded unfiltered reconciliation is invalid" in error
+        for error in errors
+    )
+
+
 def test_finra_unclassified_evidence_must_be_stable_across_passes(monkeypatch):
     filters = _finra_filter_form()
     classified = (
