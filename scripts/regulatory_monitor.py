@@ -133,6 +133,11 @@ FINRA_DETERMINISTIC_PROOF_FIELDS = (
     "unclassified_evidence",
     "unfiltered_reconciliation",
 )
+FINRA_CROSS_PASS_CONSENSUS_FIELDS = tuple(
+    field
+    for field in FINRA_DETERMINISTIC_PROOF_FIELDS
+    if field != "unfiltered_reconciliation"
+)
 _FINRA_LEGACY_FIXTURE_CAPABILITY = object()
 # State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
 # alias migration requires a separate code review that adds a new anchor.
@@ -1942,6 +1947,7 @@ def _finra_partition_proof_errors(
         "observation_page_limit",
         "pages_observed",
         "page_numbers",
+        "request_identities",
         "page_identities",
         "page_row_counts",
         "page_row_digests",
@@ -1968,6 +1974,18 @@ def _finra_partition_proof_errors(
         )
         or observation.get("page_numbers")
         != list(range(observation["pages_observed"]))
+        or observation.get("request_identities") != [
+            [
+                [key, value]
+                for key, value in (
+                    _finra_listing_url_identity(
+                        _finra_query_page_url(page_number)
+                    )
+                    or ()
+                )
+            ]
+            for page_number in range(observation["pages_observed"])
+        ]
         or not _finra_page_identities_are_valid(
             observation.get("page_identities"),
             observation.get("page_numbers"),
@@ -3025,13 +3043,23 @@ def _validate_source_coverage(
                                     f"{source_key} deterministic coverage "
                                     f"{key} is missing or empty"
                                 )
-                            if (
-                                proofs[0].get(key) != proofs[1].get(key)
-                                or coverage.get(key) != proofs[0].get(key)
-                            ):
+                            if key == "unfiltered_reconciliation":
+                                is_bound = (
+                                    coverage.get(key)
+                                    == proofs[0].get(key)
+                                )
+                            else:
+                                is_bound = (
+                                    key in FINRA_CROSS_PASS_CONSENSUS_FIELDS
+                                    and proofs[0].get(key)
+                                    == proofs[1].get(key)
+                                    and coverage.get(key)
+                                    == proofs[0].get(key)
+                                )
+                            if not is_bound:
                                 errors.append(
                                     f"{source_key} coverage {key} is not "
-                                    "bound to both pass proofs"
+                                    "bound to the required proof evidence"
                                 )
                     elif any(
                         key in coverage or any(key in proof for proof in proofs)
@@ -5416,6 +5444,18 @@ def _fetch_finra_unfiltered_reconciliation(
             ),
             "pages_observed": len(pages),
             "page_numbers": list(range(len(pages))),
+            "request_identities": [
+                [
+                    [key, value]
+                    for key, value in (
+                        _finra_listing_url_identity(
+                            _finra_query_page_url(page_number)
+                        )
+                        or ()
+                    )
+                ]
+                for page_number in range(len(pages))
+            ],
             "page_identities": [
                 {
                     "requested": page_number,
@@ -6377,7 +6417,7 @@ def _compare_finra_listing_pass_proofs(
                 f"evidence first={summary(first)} "
                 f"second={summary(second)}"
             )
-        for key in FINRA_DETERMINISTIC_PROOF_FIELDS:
+        for key in FINRA_CROSS_PASS_CONSENSUS_FIELDS:
             if key == "unclassified_evidence":
                 continue
             if first.get(key) != second.get(key):
