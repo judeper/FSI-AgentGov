@@ -5188,6 +5188,8 @@ def _fetch_finra_listing_shard(
             result,
             expected_url,
             page,
+            partition_label=partition_label,
+            last_completed=str(budget.get("last_completed", "none")),
         )
         if not page_result.get("complete"):
             return {
@@ -5312,47 +5314,119 @@ def _fetch_finra_listing_shard(
     }
 
 
+def _finra_redact_listing_url(url: object) -> str:
+    """Redact only the opaque cache-busting token from a diagnostic URL."""
+    value = str(url or "")
+    return re.sub(
+        rf"([?&]{re.escape(FINRA_CACHE_BUST_PARAM)}=)[^&#]*",
+        r"\1REDACTED",
+        value,
+    )
+
+
+def _finra_listing_diagnostic_partition(
+    partition_label: str,
+) -> tuple[str, str, str, str]:
+    """Derive structured pass/partition/year/type labels from progress text."""
+    pass_match = re.search(r"(?:^|/)pass-(\d+)(?:/|$)", partition_label)
+    year_match = re.search(r"(?:^|/)year=([^/]+)", partition_label)
+    type_match = re.search(r"(?:^|/)type=([^/]+)", partition_label)
+    pass_number = pass_match.group(1) if pass_match else "unknown"
+    year = year_match.group(1) if year_match else "all"
+    notice_type = type_match.group(1) if type_match else "all"
+    if "unfiltered-reconciliation" in partition_label:
+        partition = "unfiltered-reconciliation"
+    elif "legacy-unfiltered" in partition_label:
+        partition = "legacy-unfiltered"
+    elif year_match and notice_type == "all":
+        partition = "year"
+    elif year_match:
+        partition = "year-type"
+    else:
+        partition = partition_label or "unknown"
+    return pass_number, partition, year, notice_type
+
+
 def _finra_validate_listing_page_result(
     result: dict,
     expected_url: str,
     page: int,
+    *,
+    partition_label: str = "unknown",
+    last_completed: str = "none",
 ) -> dict:
     """Validate one fetched listing page without traversing its pager."""
-    if result["status_code"] != 200:
-        return {
-            "complete": False,
-            "error": (
-                f"FINRA notices page {page} returned status "
-                f"{result['status_code']}: "
-                f"{result.get('error') or 'unavailable'}"
-            ),
-        }
+    status_code = result.get("status_code")
+    content = result.get("content", "")
+    content_length = len(content) if isinstance(content, (str, bytes)) else 0
     returned_url = result.get("url") or expected_url
-    if returned_url != expected_url:
-        return {
-            "complete": False,
-            "error": (
-                f"FINRA listing request URL changed for page {page}: "
-                f"expected {expected_url}, got {returned_url}"
-            ),
-        }
     final_url = result.get("final_url") or expected_url
-    if (
-        _finra_listing_url_identity(final_url)
-        != _finra_listing_url_identity(expected_url)
-    ):
-        return {
-            "complete": False,
-            "error": (
-                f"FINRA listing URL identity changed for page {page}: "
-                f"expected {expected_url}, got {final_url}"
-            ),
-        }
-    soup = BeautifulSoup(result["content"], "html.parser")
+    soup = BeautifulSoup(
+        content if isinstance(content, (str, bytes)) else "",
+        "html.parser",
+    )
     final_page = _finra_listing_page_number(final_url)
     active_page = _extract_finra_active_page(soup)
     zero_shape = page == 0 and _finra_is_explicit_zero_result(soup)
     page_rows, unresolved = _extract_finra_listing_rows(soup)
+    pager = soup.select_one(
+        'nav[aria-labelledby="pagination-heading"] .pagination'
+    )
+    if pager is None:
+        pager = soup.select_one(".pagination")
+    pager_mode = "explicit" if pager is not None else "absent"
+    page_declared = (
+        _extract_finra_declared_pages(soup)
+        if pager is not None
+        else None
+    )
+    pass_number, partition, year, notice_type = (
+        _finra_listing_diagnostic_partition(partition_label)
+    )
+
+    def failure(message: str) -> dict:
+        diagnostic = {
+            "requested_url": _finra_redact_listing_url(expected_url),
+            "pass_number": pass_number,
+            "partition": partition,
+            "year": year,
+            "notice_type": notice_type,
+            "requested_page": page,
+            "final_url": _finra_redact_listing_url(final_url),
+            "http_status": status_code,
+            "content_length": content_length,
+            "active_page": active_page,
+            "zero_shape": zero_shape,
+            "row_count": len(page_rows),
+            "unresolved_count": unresolved,
+            "pager_mode": pager_mode,
+            "page_declared": page_declared,
+            "last_completed": last_completed,
+        }
+        return {
+            "complete": False,
+            "error": (
+                f"{message}; context="
+                f"{json.dumps(diagnostic, ensure_ascii=False, sort_keys=True, separators=(',', ':'))}"
+            ),
+        }
+
+    if status_code != 200:
+        return failure(
+            f"FINRA notices page {page} returned status "
+            f"{status_code}: {result.get('error') or 'unavailable'}"
+        )
+    if returned_url != expected_url:
+        return failure(
+            f"FINRA listing request URL changed for page {page}"
+        )
+    if (
+        _finra_listing_url_identity(final_url)
+        != _finra_listing_url_identity(expected_url)
+    ):
+        return failure(
+            f"FINRA listing URL identity changed for page {page}"
+        )
     query_identity = _finra_listing_url_identity(expected_url)
     query_keys = {
         key for key, _value in query_identity or ()
@@ -5372,12 +5446,6 @@ def _finra_validate_listing_page_result(
             }
         )
     )
-    pager = soup.select_one(
-        'nav[aria-labelledby="pagination-heading"] .pagination'
-    )
-    if pager is None:
-        pager = soup.select_one(".pagination")
-    pager_mode = "explicit"
     if pager is None:
         if filtered_partition and page == 0 and zero_shape and not page_rows:
             page_declared = 0
@@ -5393,47 +5461,34 @@ def _finra_validate_listing_page_result(
             active_page = 0
             pager_mode = "inferred-single"
         else:
-            return {
-                "complete": False,
-                "error": "FINRA pagination metadata was missing or unparseable",
-            }
+            return failure(
+                "FINRA pagination metadata was missing or unparseable"
+            )
     else:
         page_declared = _extract_finra_declared_pages(soup)
+        pager_mode = "explicit"
         if zero_shape and active_page is None:
             active_page = page
     if page_declared is None:
-        return {
-            "complete": False,
-            "error": "FINRA pagination metadata was missing or unparseable",
-        }
+        return failure(
+            "FINRA pagination metadata was missing or unparseable"
+        )
     if final_page != page or (active_page != page and not zero_shape):
-        return {
-            "complete": False,
-            "error": (
-                f"FINRA listing page identity mismatch for page {page}: "
-                f"final={final_page}, active={active_page}"
-            ),
-        }
+        return failure(
+            f"FINRA listing page identity mismatch for page {page}"
+        )
     if unresolved:
-        return {
-            "complete": False,
-            "error": (
-                f"FINRA page {page} contained {unresolved} "
-                "unresolved listing row(s)"
-            ),
-        }
+        return failure(
+            f"FINRA page {page} contained {unresolved} unresolved listing row(s)"
+        )
     if not page_rows and not (page == 0 and page_declared == 0 and zero_shape):
-        return {
-            "complete": False,
-            "error": f"FINRA page {page} contained no scoped listing rows",
-        }
+        return failure(
+            f"FINRA page {page} contained no scoped listing rows"
+        )
     if page_rows and page_declared == 0:
-        return {
-            "complete": False,
-            "error": (
-                "FINRA pagination declared zero pages but returned listing rows"
-            ),
-        }
+        return failure(
+            "FINRA pagination declared zero pages but returned listing rows"
+        )
     for row in page_rows:
         row["page"] = page
         row["unresolved"] = False
@@ -5481,6 +5536,11 @@ def _fetch_finra_unfiltered_reconciliation(
             result,
             expected_url,
             page,
+            partition_label=(
+                f"pass-{token.split('-', 1)[0]}/"
+                "unfiltered-reconciliation"
+            ),
+            last_completed=str(budget.get("last_completed", "none")),
         )
         if not page_result.get("complete"):
             return page_result
@@ -6136,6 +6196,8 @@ def _fetch_finra_listing_pass(
         observation_result,
         observation_url,
         0,
+        partition_label=f"{pass_label}/unfiltered-reconciliation",
+        last_completed=str(budget.get("last_completed", "none")),
     )
     if not observation.get("complete"):
         return observation
@@ -6183,6 +6245,10 @@ def _fetch_finra_listing_pass(
             year_result,
             year_url,
             0,
+            partition_label=(
+                f"{pass_label}/year={year['label']}/type=all"
+            ),
+            last_completed=str(budget.get("last_completed", "none")),
         )
         if not year_page.get("complete"):
             return year_page

@@ -6133,6 +6133,129 @@ def test_finra_filtered_page_after_zero_without_pager_still_fails_closed():
     assert "pagination metadata" in result["error"]
 
 
+@pytest.mark.parametrize(
+    ("case", "url", "content", "final_url", "page"),
+    [
+        (
+            "missing-pager",
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?combine_1=1&_finra_pass=secret-token"
+            ),
+            "<html><body><div class=\"view-content\"></div></body></html>",
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?combine_1=1&_finra_pass=secret-token"
+            ),
+            0,
+        ),
+        (
+            "identity-mismatch",
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?combine_1=1&_finra_pass=secret-token"
+            ),
+            _finra_listing_page(
+                0,
+                1,
+                [(
+                    "/rules-guidance/notices/26-15",
+                    "Regulatory Notice 26-15",
+                    "2026-07-24",
+                )],
+            ),
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?combine_1=2&_finra_pass=other-secret"
+            ),
+            0,
+        ),
+        (
+            "malformed-filtered",
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?combine_1=1&_finra_pass=secret-token"
+            ),
+            """
+            <nav aria-labelledby="pagination-heading">
+              <ul class="pagination">
+                <li><a href="?page=not-a-number">Next</a></li>
+              </ul>
+            </nav>
+            """,
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?combine_1=1&_finra_pass=secret-token"
+            ),
+            0,
+        ),
+        (
+            "unfiltered",
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?_finra_pass=secret-token"
+            ),
+            _finra_live_shaped_filtered_rows(),
+            (
+                "https://www.finra.org/rules-guidance/notices"
+                "?_finra_pass=secret-token"
+            ),
+            0,
+        ),
+    ],
+)
+def test_finra_listing_page_errors_include_redacted_structured_context(
+    case,
+    url,
+    content,
+    final_url,
+    page,
+):
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, content) | {"final_url": final_url},
+        url,
+        page,
+        partition_label=(
+            "pass-2/year=2026/type=-Regulatory Notice"
+            if case != "unfiltered"
+            else "pass-2/unfiltered-reconciliation"
+        ),
+        last_completed="pass-2/year=2025/type=all/page=0",
+    )
+
+    assert result["complete"] is False
+    error = result["error"]
+    for field in (
+        "requested_url",
+        "pass_number",
+        "partition",
+        "year",
+        "notice_type",
+        "requested_page",
+        "final_url",
+        "http_status",
+        "content_length",
+        "active_page",
+        "zero_shape",
+        "row_count",
+        "unresolved_count",
+        "pager_mode",
+        "page_declared",
+        "last_completed",
+    ):
+        assert f'"{field}"' in error
+    assert "secret-token" not in error
+    assert "other-secret" not in error
+    assert "_finra_pass=REDACTED" in error
+    assert '"pass_number":"2"' in error
+    assert '"requested_page":0' in error
+    assert (
+        '"partition":"unfiltered-reconciliation"' in error
+        if case == "unfiltered"
+        else '"year":"2026"' in error
+    )
+
+
 def test_finra_malformed_pager_fails_closed(monkeypatch):
     """A pager with an unparseable page value is not silently treated as page one."""
     listing_html = """
