@@ -1233,6 +1233,10 @@ def _finra_pass_proof_recomputation_errors(
     if not _finra_page_identities_are_valid(
         proof.get("page_identities"),
         page_numbers,
+        require_pager_mode=(
+            proof.get("proof_version")
+            == FINRA_DETERMINISTIC_PROOF_VERSION
+        ),
     ):
         errors.append(f"{label} page identities are invalid")
     errors.extend(_finra_partition_proof_errors(proof, label, payloads))
@@ -1242,6 +1246,8 @@ def _finra_pass_proof_recomputation_errors(
 def _finra_page_identities_are_valid(
     identities: object,
     page_numbers: object,
+    *,
+    require_pager_mode: bool = False,
 ) -> bool:
     """Require requested, final, and active identities to be equal integers."""
     if (
@@ -1251,11 +1257,14 @@ def _finra_page_identities_are_valid(
     ):
         return False
     for expected, identity in zip(page_numbers, identities, strict=True):
+        expected_keys = {"requested", "final", "active"}
+        if require_pager_mode:
+            expected_keys.add("pager_mode")
         if (
             not isinstance(expected, int)
             or isinstance(expected, bool)
             or not isinstance(identity, dict)
-            or set(identity) != {"requested", "final", "active"}
+            or set(identity) != expected_keys
             or any(
                 not isinstance(identity.get(key), int)
                 or isinstance(identity.get(key), bool)
@@ -1264,6 +1273,11 @@ def _finra_page_identities_are_valid(
             or identity["requested"] != expected
             or identity["final"] != expected
             or identity["active"] != expected
+            or (
+                require_pager_mode
+                and identity.get("pager_mode")
+                not in {"explicit", "inferred-single", "explicit-zero"}
+            )
         ):
             return False
     return True
@@ -1444,6 +1458,33 @@ def _finra_partition_proof_errors(
             or not _finra_page_identities_are_valid(
                 page_identities,
                 page_numbers,
+                require_pager_mode=True,
+            )
+            or any(
+                identity["pager_mode"] == "inferred-single"
+                and not (
+                    declared_pages == 1
+                    and pages_fetched == 1
+                    and identity["requested"] == 0
+                )
+                or identity["pager_mode"] == "explicit-zero"
+                and not (
+                    declared_pages == 0
+                    and pages_fetched == 1
+                    and identity["requested"] == 0
+                )
+                for identity in (
+                    page_identities
+                    if isinstance(page_identities, list)
+                    else []
+                )
+            )
+            or (
+                declared_pages == 0
+                and isinstance(page_identities, list)
+                and page_identities
+                and page_identities[0].get("pager_mode")
+                != "explicit-zero"
             )
             or not isinstance(page_row_counts, list)
             or len(page_row_counts) != pages_fetched
@@ -1574,7 +1615,21 @@ def _finra_partition_proof_errors(
                 subdivision_reason == "cross-pass-instability"
                 and declared_pages > 1
             )
-            or not _finra_page_identities_are_valid([page_identity], [0])
+            or not _finra_page_identities_are_valid(
+                [page_identity],
+                [0],
+                require_pager_mode=True,
+            )
+            or (
+                isinstance(page_identity, dict)
+                and page_identity.get("pager_mode") == "inferred-single"
+                and declared_pages != 1
+            )
+            or (
+                isinstance(page_identity, dict)
+                and page_identity.get("pager_mode") == "explicit-zero"
+                and declared_pages != 0
+            )
             or not isinstance(row_payloads, list)
             or any(
                 not _is_finra_listing_row_payload(payload)
@@ -1767,6 +1822,12 @@ def _finra_partition_proof_errors(
         or not _finra_page_identities_are_valid(
             observation.get("page_identities"),
             observation.get("page_numbers"),
+            require_pager_mode=True,
+        )
+        or any(
+            identity.get("pager_mode") != "explicit"
+            for identity in observation.get("page_identities", [])
+            if isinstance(identity, dict)
         )
         or not isinstance(observation.get("page_row_payloads"), list)
         or len(observation["page_row_payloads"])
@@ -4917,6 +4978,7 @@ def _fetch_finra_listing_shard(
             "requested": page,
             "final": page_result["final_page"],
             "active": page_result["active_page"],
+            "pager_mode": page_result["pager_mode"],
         })
         page_row_counts.append(len(page_rows))
         page_row_digests.append(compute_hash(json.dumps(
@@ -5042,9 +5104,55 @@ def _finra_validate_listing_page_result(
     final_page = _finra_listing_page_number(final_url)
     active_page = _extract_finra_active_page(soup)
     zero_shape = page == 0 and _finra_is_explicit_zero_result(soup)
-    if zero_shape and active_page is None:
-        active_page = page
-    page_declared = _extract_finra_declared_pages(soup)
+    page_rows, unresolved = _extract_finra_listing_rows(soup)
+    query_identity = _finra_listing_url_identity(expected_url)
+    query_keys = {
+        key for key, _value in query_identity or ()
+    }
+    filtered_partition = (
+        query_identity is not None
+        and query_keys <= {
+            "combine_1",
+            "field_core_content_type_tax_target_id",
+            "page",
+        }
+        and bool(
+            query_keys
+            & {
+                "combine_1",
+                "field_core_content_type_tax_target_id",
+            }
+        )
+    )
+    pager = soup.select_one(
+        'nav[aria-labelledby="pagination-heading"] .pagination'
+    )
+    if pager is None:
+        pager = soup.select_one(".pagination")
+    pager_mode = "explicit"
+    if pager is None:
+        if filtered_partition and page == 0 and zero_shape and not page_rows:
+            page_declared = 0
+            active_page = 0
+            pager_mode = "explicit-zero"
+        elif (
+            filtered_partition
+            and page == 0
+            and page_rows
+            and unresolved == 0
+        ):
+            page_declared = 1
+            active_page = 0
+            pager_mode = "inferred-single"
+        else:
+            return {
+                "complete": False,
+                "error": "FINRA pagination metadata was missing or unparseable",
+            }
+    else:
+        page_declared = _extract_finra_declared_pages(soup)
+        if zero_shape and active_page is None:
+            active_page = page
     if page_declared is None:
         return {
             "complete": False,
@@ -5058,7 +5166,6 @@ def _finra_validate_listing_page_result(
                 f"final={final_page}, active={active_page}"
             ),
         }
-    page_rows, unresolved = _extract_finra_listing_rows(soup)
     if unresolved:
         return {
             "complete": False,
@@ -5088,6 +5195,7 @@ def _finra_validate_listing_page_result(
         "page_declared": page_declared,
         "final_page": final_page,
         "active_page": active_page,
+        "pager_mode": pager_mode,
         "zero_shape": zero_shape,
         "page_rows": page_rows,
     }
@@ -5164,6 +5272,7 @@ def _fetch_finra_unfiltered_reconciliation(
                     "requested": page_number,
                     "final": page["final_page"],
                     "active": page["active_page"],
+                    "pager_mode": page["pager_mode"],
                 }
                 for page_number, page in enumerate(pages)
             ],
@@ -5428,7 +5537,12 @@ def _finra_canonical_partition_result(
         "declared_pages": 1,
         "pages_fetched": 1,
         "page_numbers": [0],
-        "page_identities": [{"requested": 0, "final": 0, "active": 0}],
+        "page_identities": [{
+            "requested": 0,
+            "final": 0,
+            "active": 0,
+            "pager_mode": "explicit",
+        }],
         "page_row_counts": [len(rows)],
         "page_row_digests": [compute_hash(json.dumps(
             payloads,
@@ -5622,6 +5736,7 @@ def _fetch_finra_listing_pass(
                 "requested": 0,
                 "final": year_page["final_page"],
                 "active": year_page["active_page"],
+                "pager_mode": year_page["pager_mode"],
             },
             "row_payloads": sorted(
                 (

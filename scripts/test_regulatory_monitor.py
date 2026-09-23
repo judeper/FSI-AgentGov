@@ -3534,7 +3534,12 @@ def test_finra_partitioned_pass_accepts_explicit_zero_result_type_shard(
     )
     assert zero_shard["declared_pages"] == 0
     assert zero_shard["page_identities"] == [
-        {"requested": 0, "final": 0, "active": 0}
+        {
+            "requested": 0,
+            "final": 0,
+            "active": 0,
+            "pager_mode": "explicit-zero",
+        }
     ]
     assert zero_shard["row_payloads"] == []
 
@@ -4055,6 +4060,53 @@ def test_finra_committed_state_rejects_unequal_partition_page_identities():
     )
 
     assert any("pass proof 0 page identities are invalid" in error for error in errors)
+
+
+def test_finra_committed_state_rejects_tampered_pager_mode():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    coverage["page_identities"][0]["pager_mode"] = "fabricated"
+    for proof in coverage["pass_proofs"]:
+        proof["page_identities"][0]["pager_mode"] = "fabricated"
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any("pass proof 0 page identities are invalid" in error for error in errors)
+
+
+def test_finra_partition_proof_rejects_tampered_pager_mode(monkeypatch):
+    filters = _finra_filter_form()
+    row = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [row], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 1, [row]),
+    }
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    proof = deepcopy(result["pass_proof"])
+    proof["partition_manifest"][0]["page_identities"][0]["pager_mode"] = (
+        "fabricated"
+    )
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any("pager evidence is invalid" in error for error in errors)
 
 
 def test_finra_listing_pass_rejects_missing_filter_controls_by_default(
@@ -5285,6 +5337,126 @@ def test_finra_missing_pager_fails_closed(monkeypatch):
     assert "pagination metadata" in result.error
 
 
+def _finra_page_result(url, content):
+    return {
+        "status_code": 200,
+        "content": content,
+        "final_url": url,
+        "url": url,
+        "was_redirected": False,
+        "error": None,
+    }
+
+
+def _finra_live_shaped_filtered_rows(filters=""):
+    return f"""
+    <html><body>{filters}
+      <table><tbody>
+        <tr><td><time datetime="2026-08-26T12:00:00Z"></time>
+          <a href="/rules-guidance/notices/26-16">
+            Regulatory Notice 26-16
+          </a>
+        </td></tr>
+      </tbody></table>
+    </body></html>
+    """
+
+
+def test_finra_filtered_page_zero_infers_single_page_with_resolved_rows():
+    url = regulatory_monitor._finra_query_page_url(
+        0,
+        {"combine_1": "1"},
+    )
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(
+            url,
+            _finra_live_shaped_filtered_rows(_finra_filter_form()),
+        ),
+        url,
+        0,
+    )
+
+    assert result["complete"] is True
+    assert result["page_declared"] == 1
+    assert result["active_page"] == 0
+    assert result["final_page"] == 0
+    assert result["pager_mode"] == "inferred-single"
+    assert len(result["page_rows"]) == 1
+
+
+def test_finra_filtered_page_zero_infers_explicit_zero_without_pager():
+    url = regulatory_monitor._finra_query_page_url(
+        0,
+        {"combine_1": "1"},
+    )
+    content = (
+        "<html><body>"
+        '<div class="view-empty">No regulatory notices</div>'
+        "</body></html>"
+    )
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, content),
+        url,
+        0,
+    )
+
+    assert result["complete"] is True
+    assert result["page_declared"] == 0
+    assert result["active_page"] == 0
+    assert result["pager_mode"] == "explicit-zero"
+    assert result["page_rows"] == []
+
+
+def test_finra_filtered_page_zero_without_rows_or_zero_shape_fails_closed():
+    url = regulatory_monitor._finra_query_page_url(
+        0,
+        {"combine_1": "1"},
+    )
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(
+            url,
+            "<html><body><div class=\"view-content\"></div></body></html>",
+        ),
+        url,
+        0,
+    )
+
+    assert result["complete"] is False
+    assert "pagination metadata" in result["error"]
+
+
+def test_finra_unfiltered_page_zero_without_pager_still_fails_closed():
+    url = regulatory_monitor.FINRA_NOTICES_URL
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, _finra_live_shaped_filtered_rows()),
+        url,
+        0,
+    )
+
+    assert result["complete"] is False
+    assert "pagination metadata" in result["error"]
+
+
+def test_finra_filtered_page_after_zero_without_pager_still_fails_closed():
+    url = regulatory_monitor._finra_query_page_url(
+        1,
+        {"combine_1": "1"},
+    )
+
+    result = regulatory_monitor._finra_validate_listing_page_result(
+        _finra_page_result(url, _finra_live_shaped_filtered_rows()),
+        url,
+        1,
+    )
+
+    assert result["complete"] is False
+    assert "pagination metadata" in result["error"]
+
+
 def test_finra_malformed_pager_fails_closed(monkeypatch):
     """A pager with an unparseable page value is not silently treated as page one."""
     listing_html = """
@@ -5314,8 +5486,10 @@ def test_finra_malformed_pager_fails_closed(monkeypatch):
     assert "pagination metadata" in result.error
 
 
-def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
-    """Only explicit one-page or zero-result markup may complete without page links."""
+def test_finra_authoritative_single_page_and_unfiltered_zero_result_shapes(
+    monkeypatch,
+):
+    """Explicit pager markup completes; unfiltered pager-less zero fails closed."""
     detail = _finra_detail_page("Notice title", "2026-07-24", "Summary text.")
     requested = []
 
@@ -5356,9 +5530,8 @@ def test_finra_authoritative_single_page_and_zero_result_shapes(monkeypatch):
     zero = regulatory_monitor.fetch_finra_notices(
         _FakeSession([]), {"regulatory": {}, "keyword_control_map": []}
     )
-    assert zero.complete is True
-    assert zero == []
-    assert zero.declared_pages == 0
+    assert zero.complete is False
+    assert "pagination metadata" in zero.error
 
 
 def test_finra_known_notice_outside_listing_proof_fails_closed(monkeypatch):
