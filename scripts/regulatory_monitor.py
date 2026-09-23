@@ -138,6 +138,9 @@ FINRA_CROSS_PASS_CONSENSUS_FIELDS = tuple(
     for field in FINRA_DETERMINISTIC_PROOF_FIELDS
     if field != "unfiltered_reconciliation"
 )
+FINRA_RESERVED_NOTICE_SLUGS = frozenset({
+    "by-topic",
+})
 _FINRA_LEGACY_FIXTURE_CAPABILITY = object()
 # State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
 # alias migration requires a separate code review that adds a new anchor.
@@ -921,6 +924,13 @@ def _validate_finra_alias_ledger(
         ):
             errors.append("regulatory-finra alias ledger item is malformed")
             continue
+        if (
+            _finra_is_reserved_notice_route(old_identity)
+            or _finra_is_reserved_notice_route(canonical_identity)
+        ):
+            errors.append(
+                "regulatory-finra alias ledger contains a reserved notice route"
+            )
         if old_identity == canonical_identity:
             errors.append(
                 f"regulatory-finra alias points at itself: {old_identity}"
@@ -2062,6 +2072,7 @@ def _is_finra_listing_row_payload(row: object) -> bool:
         and link["href"] == " ".join(link["href"].split())
         and isinstance(link["text"], str)
         and link["text"] == " ".join(link["text"].split())
+        and not _finra_is_reserved_notice_route(link["href"])
         for link in row["links"]
     )
 
@@ -2787,6 +2798,23 @@ def _validate_source_coverage(
             )
         if coverage.get("listing_url") != FINRA_NOTICES_URL:
             errors.append(f"{source_key} coverage listing_url is not authoritative")
+        if any(
+            _finra_is_reserved_notice_route(identity)
+            for identity in entries
+        ):
+            errors.append(
+                f"{source_key} entries contain a reserved notice route"
+            )
+        fallback_urls = source_state.get("fallback_urls", {})
+        if not isinstance(fallback_urls, dict):
+            errors.append(f"{source_key} fetched node evidence is invalid")
+        elif any(
+            _finra_is_reserved_notice_route(canonical_url)
+            for canonical_url in fallback_urls
+        ):
+            errors.append(
+                f"{source_key} fallback evidence contains a reserved notice route"
+            )
         if coverage.get("unresolved_row_count") != 0:
             errors.append(f"{source_key} coverage contains unresolved listing rows")
         raw_row_count = coverage.get("raw_row_count")
@@ -2847,6 +2875,13 @@ def _validate_source_coverage(
         ):
             errors.append(f"{source_key} fetched entry identities are invalid")
             fetched_entry_identities = []
+        if any(
+            _finra_is_reserved_notice_route(identity)
+            for identity in fetched_entry_identities
+        ):
+            errors.append(
+                f"{source_key} fetched identities contain a reserved notice route"
+            )
         if coverage.get("fetched_entry_identity_digest") != _identity_digest(
             fetched_entry_identities
         ):
@@ -4667,6 +4702,30 @@ def _extract_finra_notice_links(soup: BeautifulSoup) -> list[tuple[str, str, str
     ]
 
 
+def _finra_is_reserved_notice_route(value: object) -> bool:
+    """Identify reviewed non-document routes under the notices collection."""
+    if not isinstance(value, str) or not value.strip():
+        return False
+    candidate = value.strip()
+    if candidate.startswith("url:"):
+        candidate = candidate[len("url:"):]
+    base = urlparse(FINRA_NOTICES_URL)
+    parsed = urlparse(urljoin(FINRA_NOTICES_URL, candidate))
+    if (
+        parsed.scheme != base.scheme
+        or parsed.netloc.lower() != base.netloc.lower()
+    ):
+        return False
+    path = parsed.path.rstrip("/")
+    if path.startswith("/index.php/rules-guidance/notices/"):
+        path = path[len("/index.php"):]
+    match = re.fullmatch(r"/rules-guidance/notices/([^/]+)", path)
+    return bool(
+        match
+        and match.group(1).casefold() in FINRA_RESERVED_NOTICE_SLUGS
+    )
+
+
 def _finra_normalize_detail_link(href: str) -> tuple[Optional[str], Optional[str]]:
     """Resolve supported same-origin FINRA notice forms to stable identities."""
     base = urlparse(FINRA_NOTICES_URL)
@@ -4676,6 +4735,8 @@ def _finra_normalize_detail_link(href: str) -> tuple[Optional[str], Optional[str
     path = parsed.path.rstrip("/") or "/"
     if path.startswith("/index.php/rules-guidance/notices/"):
         path = path[len("/index.php"):]
+    if _finra_is_reserved_notice_route(path):
+        return None, None
     node_match = re.fullmatch(r"/node/(\d+)", path)
     if node_match:
         node_id = f"node:{node_match.group(1)}"
@@ -4693,8 +4754,11 @@ def _finra_listing_row_payload(row) -> dict:
         [row] if row.name == "a" and row.get("href") else row.find_all("a", href=True)
     )
     for link in row_links:
+        href = " ".join(str(link.get("href", "")).split())
+        if _finra_is_reserved_notice_route(href):
+            continue
         links.append({
-            "href": " ".join(str(link.get("href", "")).split()),
+            "href": href,
             "text": " ".join(link.get_text(" ", strip=True).split()),
         })
     return {
@@ -4725,7 +4789,14 @@ def _extract_finra_listing_rows(
             rows = [
                 link
                 for link in soup.find_all("a", href=True)
-                if _finra_normalize_detail_link(link.get("href", ""))[0]
+                if (
+                    _finra_normalize_detail_link(
+                        link.get("href", "")
+                    )[0]
+                    or _finra_is_reserved_notice_route(
+                        link.get("href", "")
+                    )
+                )
             ]
     parsed_rows = []
     unresolved = 0
@@ -7484,7 +7555,13 @@ def update_source_state(
         if fallback_urls is not None:
             for canonical_url, node_url in fallback_urls.items():
                 valid_node_url = _validate_finra_node_url(node_url)
-                if valid_node_url:
+                valid_canonical_url, _ = _finra_normalize_detail_link(
+                    canonical_url
+                )
+                if (
+                    valid_node_url
+                    and valid_canonical_url == canonical_url
+                ):
                     finra_fallback_urls[canonical_url] = valid_node_url
 
     for item in items:
@@ -8034,6 +8111,8 @@ def main():
                 canonical_url: node_url
                 for canonical_url, node_url in persisted_fallback_urls.items()
                 if isinstance(canonical_url, str)
+                and _finra_normalize_detail_link(canonical_url)[0]
+                == canonical_url
                 and _validate_finra_node_url(node_url)
             }
 

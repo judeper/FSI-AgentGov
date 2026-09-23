@@ -3063,6 +3063,151 @@ def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
     assert "unresolved" in result["error"]
 
 
+def test_finra_reserved_by_topic_route_is_not_a_detail_document():
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "/rules-guidance/notices/by-topic"
+    ) == (None, None)
+
+    soup = BeautifulSoup(
+        """
+        <table><tbody><tr><td>
+          <a href="/rules-guidance/notices/by-topic">Browse by Topic</a>
+        </td></tr></tbody></table>
+        """,
+        "html.parser",
+    )
+    rows, unresolved = regulatory_monitor._extract_finra_listing_rows(soup)
+
+    assert unresolved == 1
+    assert len(rows) == 1
+    assert rows[0]["detail_url"] is None
+    assert rows[0]["raw_payload"]["links"] == []
+
+
+def test_finra_reserved_navigation_anchor_is_ignored_beside_valid_detail():
+    soup = BeautifulSoup(
+        """
+        <table><tbody><tr><td>
+          <a href="/rules-guidance/notices/by-topic">Browse by Topic</a>
+          <a href="/rules-guidance/notices/26-15">
+            Regulatory Notice 26-15
+          </a>
+        </td></tr></tbody></table>
+        """,
+        "html.parser",
+    )
+
+    rows, unresolved = regulatory_monitor._extract_finra_listing_rows(soup)
+
+    assert unresolved == 0
+    assert len(rows) == 1
+    assert rows[0]["detail_url"] == (
+        "https://www.finra.org/rules-guidance/notices/26-15"
+    )
+    assert rows[0]["raw_payload"]["links"] == [
+        {
+            "href": "/rules-guidance/notices/26-15",
+            "text": "Regulatory Notice 26-15",
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    "slug",
+    [
+        "information-notice-20260803",
+        "election-notice-060826",
+    ],
+)
+def test_finra_reserved_route_filter_does_not_overblock_notice_slugs(slug):
+    canonical, identity = regulatory_monitor._finra_normalize_detail_link(
+        f"/rules-guidance/notices/{slug}"
+    )
+
+    assert canonical == f"{regulatory_monitor.FINRA_NOTICES_URL}/{slug}"
+    assert identity == f"url:/rules-guidance/notices/{slug}"
+
+
+def test_finra_pass_proof_rejects_reserved_route_payload_injection():
+    proof = _synthetic_pass_proofs(["FINRA 26-15"])[0]
+    proof["page_row_payloads"][0][0]["links"].append({
+        "href": "/rules-guidance/notices/by-topic",
+        "text": "Browse by Topic",
+    })
+    proof["page_row_counts"] = [1]
+    proof["page_row_digests"] = [
+        _page_row_digest(proof["page_row_payloads"][0])
+    ]
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any("production row evidence schema" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "surface",
+    ["entries", "fetched", "alias", "fallback"],
+)
+def test_finra_committed_state_rejects_reserved_route_identity_injection(
+    surface,
+):
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    reserved = f"{regulatory_monitor.FINRA_NOTICES_URL}/by-topic"
+    if surface == "entries":
+        source_state["entries"][reserved] = "sha256:reserved"
+        coverage["entry_count"] = len(source_state["entries"])
+        coverage["entries_digest"] = regulatory_monitor._entries_digest(
+            source_state["entries"]
+        )
+    elif surface == "fetched":
+        coverage["fetched_entry_identities"] = sorted([
+            *coverage["fetched_entry_identities"],
+            reserved,
+        ])
+        coverage["fetched_entry_identity_digest"] = (
+            regulatory_monitor._identity_digest(
+                coverage["fetched_entry_identities"]
+            )
+        )
+    elif surface == "alias":
+        coverage["alias_ledger"].append({
+            "old_identity": reserved,
+            "canonical_identity": next(iter(source_state["entries"])),
+            "source_hash": "sha256:reserved",
+            "evidence": {
+                "reason": "forged",
+                "source_hash_at_migration": "sha256:reserved",
+                "canonical_hash_at_migration": "sha256:reserved",
+                "content_updates": [],
+            },
+        })
+        coverage["alias_ledger_digest"] = (
+            regulatory_monitor._alias_ledger_digest(
+                coverage["alias_ledger"]
+            )
+        )
+    else:
+        source_state["fallback_urls"] = {
+            reserved: "https://www.finra.org/node/382806"
+        }
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any("reserved notice route" in error for error in errors)
+
+
 def _finra_filter_form(years=(("1", "2026"),), notice_types=(("1", "Regulatory Notice"),)):
     year_options = '<option value="All">- Any -</option>' + "".join(
         f'<option value="{value}">{label}</option>'
