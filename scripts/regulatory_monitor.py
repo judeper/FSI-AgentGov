@@ -106,18 +106,18 @@ FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 # FINRA's public listing begins throttling GitHub-hosted runners at roughly
 # six requests per minute. Detail pages use the faster general interval above;
 # only the 92-page listing crawl requires this human-scale baseline.
-FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 12.00
-# The live topology currently exposes 44 years and seven notice types. Canary
-# evidence showed that historical multi-page years can exhaust 120 requests
-# before discovery completes. A 220-request pass remains bounded while covering
-# the observed 129-request topology plus retry growth. Four maximum passes at
-# the 12-second listing interval consume 176 minutes, leaving 124 minutes under
-# the workflow's 300-minute ceiling.
-FINRA_LISTING_REQUEST_BUDGET = 220
+FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 9.00
+# The live topology exposes 44 years and seven notice types. A full pass can
+# require one year probe plus all seven type shards per year: 44 * 8 = 352,
+# before bounded reconciliation and retry margin. A 420-request ceiling covers
+# that observed topology without permitting the old year*type*100-page
+# explosion. Four maximum passes at nine seconds consume 252 minutes.
+FINRA_LISTING_REQUEST_BUDGET = 420
 FINRA_MAX_LISTING_PASSES = 4
 # Reserve explicit time for authoritative detail refreshes and non-listing
-# retries; the remaining 34 minutes cover setup, reports, and state validation.
-FINRA_DETAIL_REFRESH_HEADROOM_MINUTES = 90
+# retries. With the workflow capped at 350 minutes, 23 minutes remain for setup,
+# reports, state validation, and GitHub runner overhead.
+FINRA_DETAIL_REFRESH_HEADROOM_MINUTES = 75
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6

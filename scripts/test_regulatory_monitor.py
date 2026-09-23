@@ -3499,29 +3499,12 @@ def _finra_observed_44_year_topology_pages():
             filters=filters,
         ),
     }
-    subdivided_values = {
-        value for value, year_label in years
-        if int(year_label) <= 1994
-    }
     zero_page = (
         "<html><body><div class=\"view-empty\">No regulatory notices</div>"
         "</body></html>"
     )
     for value, _year_label in years:
         row = rows_by_value[value]
-        if value not in subdivided_values:
-            pages[(value, None, 0)] = _finra_live_shaped_filtered_rows()
-            pages[(value, None, 0)] = pages[(value, None, 0)].replace(
-                "/rules-guidance/notices/26-16",
-                row[0],
-            ).replace(
-                "Regulatory Notice 26-16",
-                row[1],
-            ).replace(
-                "2026-08-26",
-                row[2],
-            )
-            continue
         pages[(value, None, 0)] = _finra_listing_page(0, 2, [row])
         for type_value, _type_label in notice_types:
             if type_value == "1":
@@ -3536,15 +3519,15 @@ def _finra_observed_44_year_topology_pages():
     return pages
 
 
-def test_finra_observed_44_year_topology_requires_more_than_120_requests(
+def test_finra_live_44_year_type_cross_product_requires_more_than_220_requests(
     monkeypatch,
 ):
-    assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 220
+    assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 420
     pages = _finra_observed_44_year_topology_pages()
     monkeypatch.setattr(
         regulatory_monitor,
         "FINRA_LISTING_REQUEST_BUDGET",
-        120,
+        220,
     )
 
     rejected, rejected_requests = _run_partitioned_finra_pass(
@@ -3554,12 +3537,12 @@ def test_finra_observed_44_year_topology_requires_more_than_120_requests(
 
     assert rejected["complete"] is False
     assert "budget exceeded" in rejected["error"]
-    assert len(rejected_requests) == 120
+    assert len(rejected_requests) == 220
 
     monkeypatch.setattr(
         regulatory_monitor,
         "FINRA_LISTING_REQUEST_BUDGET",
-        220,
+        420,
     )
     completed, completed_requests = _run_partitioned_finra_pass(
         monkeypatch,
@@ -3567,10 +3550,10 @@ def test_finra_observed_44_year_topology_requires_more_than_120_requests(
     )
 
     assert completed["complete"] is True
-    assert len(completed_requests) == 129
+    assert len(completed_requests) == 353
 
 
-def test_finra_listing_budget_rejects_request_221(monkeypatch):
+def test_finra_listing_budget_rejects_request_421(monkeypatch):
     calls = []
 
     def fake_fetch(url, _session, **_kwargs):
@@ -3585,8 +3568,8 @@ def test_finra_listing_budget_rejects_request_221(monkeypatch):
         }
 
     monkeypatch.setattr(regulatory_monitor, "_fetch_finra_page", fake_fetch)
-    budget = {"used": 0, "limit": 220, "last_completed": "fixture"}
-    for request_number in range(1, 221):
+    budget = {"used": 0, "limit": 420, "last_completed": "fixture"}
+    for request_number in range(1, 421):
         result = regulatory_monitor._fetch_finra_listing_page_with_budget(
             regulatory_monitor.FINRA_NOTICES_URL,
             _FakeSession([], allow_legacy_finra=False),
@@ -3599,12 +3582,12 @@ def test_finra_listing_budget_rejects_request_221(monkeypatch):
         regulatory_monitor.FINRA_NOTICES_URL,
         _FakeSession([], allow_legacy_finra=False),
         budget,
-        progress="fixture/request=221",
+        progress="fixture/request=421",
     )
 
     assert rejected["status_code"] == 0
-    assert "budget exceeded (220/220)" in rejected["error"]
-    assert len(calls) == 220
+    assert "budget exceeded (420/420)" in rejected["error"]
+    assert len(calls) == 420
 
 
 def test_finra_listing_retries_consume_the_same_pass_budget(monkeypatch):
@@ -4879,17 +4862,22 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
         / "regulatory-monitoring.yml"
     ).read_text(encoding="utf-8")
 
-    assert workflow.count("timeout-minutes: 300") == 2
+    assert workflow.count("timeout-minutes: 350") == 2
     assert workflow.count("'scripts/regulatory_monitor.py'") == 2
     assert workflow.count("'.github/workflows/regulatory-monitoring.yml'") == 2
-    workflow_timeout_minutes = 300
+    workflow_timeout_minutes = 350
+    assert workflow_timeout_minutes < 360
+    assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 420
+    assert regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS == 9.0
+    assert regulatory_monitor.FINRA_MAX_LISTING_PASSES == 4
+    assert regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES == 75
     listing_minutes = (
         regulatory_monitor.FINRA_MAX_LISTING_PASSES
         * regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET
         * regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS
         / 60
     )
-    assert listing_minutes == 176
+    assert listing_minutes == 252
     assert (
         listing_minutes
         + regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
@@ -4899,7 +4887,7 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
         workflow_timeout_minutes
         - listing_minutes
         - regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
-        >= 30
+        == 23
     )
 
 
@@ -6628,8 +6616,8 @@ def test_finra_detail_recovery_returns_to_fast_baseline(monkeypatch):
     assert sleeps == [1, 10, 1]
 
 
-def test_finra_listing_pacing_avoids_six_request_burst(monkeypatch):
-    """Production pacing stays below a five-request rolling-minute threshold."""
+def test_finra_listing_pacing_adapts_after_six_request_burst(monkeypatch):
+    """Nine-second pacing honors a 429 cooldown and retains adaptive slowdown."""
     clock = [0.0]
     request_times = []
     rate_limited_urls = []
@@ -6674,10 +6662,12 @@ def test_finra_listing_pacing_avoids_six_request_burst(monkeypatch):
             min_interval_seconds=(
                 regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS
             ),
+            retain_adaptive_interval=True,
         )
         assert result["status_code"] == 200
 
-    assert rate_limited_urls == []
+    assert rate_limited_urls == ["https://example.test/finra?page=5"]
+    assert session._finra_request_interval_seconds == 60
 
 
 def test_finra_listing_pacing_does_not_slow_detail_requests(monkeypatch):
