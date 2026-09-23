@@ -3950,7 +3950,9 @@ def test_finra_unstable_unclassified_evidence_fails_closed_after_three_passes(
     assert "unclassified evidence" in result["error"]
 
 
-def test_finra_single_page_instability_retries_with_type_subdivision(monkeypatch):
+def test_finra_single_page_instability_subdivides_pass_three_then_fails_closed(
+    monkeypatch,
+):
     filters = _finra_filter_form(
         notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
     )
@@ -3992,9 +3994,7 @@ def test_finra_single_page_instability_retries_with_type_subdivision(monkeypatch
         subdivided_pages,
         subdivide_year_values=frozenset({"1"}),
     )
-    stable_again = deepcopy(stable)
-    stable_again["pass_proof"]["token"] = "pass-4"
-    results = iter([first, second, stable, stable_again])
+    results = iter([first, second, stable])
     subdivisions = []
 
     def fake_pass(*_args, **kwargs):
@@ -4012,17 +4012,17 @@ def test_finra_single_page_instability_retries_with_type_subdivision(monkeypatch
         None,
     )
 
-    assert result["complete"] is True
+    assert result["complete"] is False
+    assert (
+        "single-page year subdivision could not produce two matching proofs "
+        "within the 3-pass limit"
+    ) in result["error"]
     assert subdivisions == [
         frozenset(),
         frozenset(),
         frozenset({"1"}),
-        frozenset({"1"}),
     ]
-    assert all(
-        observation["partition_mode"] == "year-type"
-        for observation in result["pass_proofs"][0]["year_observations"]
-    )
+    assert len(result["pass_proofs"]) == 3
 
 
 def test_finra_partition_progress_logs_include_budget_and_last_partition(
@@ -4868,8 +4868,8 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
     workflow_timeout_minutes = 350
     assert workflow_timeout_minutes < 360
     assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 420
-    assert regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS == 9.0
-    assert regulatory_monitor.FINRA_MAX_LISTING_PASSES == 4
+    assert regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS == 12.0
+    assert regulatory_monitor.FINRA_MAX_LISTING_PASSES == 3
     assert regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES == 75
     listing_minutes = (
         regulatory_monitor.FINRA_MAX_LISTING_PASSES
@@ -6616,8 +6616,10 @@ def test_finra_detail_recovery_returns_to_fast_baseline(monkeypatch):
     assert sleeps == [1, 10, 1]
 
 
-def test_finra_listing_pacing_adapts_after_six_request_burst(monkeypatch):
-    """Nine-second pacing honors a 429 cooldown and retains adaptive slowdown."""
+def test_finra_listing_pacing_never_exceeds_five_requests_per_rolling_minute(
+    monkeypatch,
+):
+    """Twelve-second pacing avoids a sixth request in any rolling minute."""
     clock = [0.0]
     request_times = []
     rate_limited_urls = []
@@ -6662,12 +6664,10 @@ def test_finra_listing_pacing_adapts_after_six_request_burst(monkeypatch):
             min_interval_seconds=(
                 regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS
             ),
-            retain_adaptive_interval=True,
         )
         assert result["status_code"] == 200
 
-    assert rate_limited_urls == ["https://example.test/finra?page=5"]
-    assert session._finra_request_interval_seconds == 60
+    assert rate_limited_urls == []
 
 
 def test_finra_listing_pacing_does_not_slow_detail_requests(monkeypatch):
