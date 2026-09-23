@@ -3064,11 +3064,11 @@ def test_finra_unresolved_listing_row_fails_closed(monkeypatch):
 
 
 def _finra_filter_form(years=(("1", "2026"),), notice_types=(("1", "Regulatory Notice"),)):
-    year_options = '<option value="">All</option>' + "".join(
+    year_options = '<option value="All">- Any -</option>' + "".join(
         f'<option value="{value}">{label}</option>'
         for value, label in years
     )
-    type_options = '<option value="">All</option>' + "".join(
+    type_options = '<option value="All">- Any -</option>' + "".join(
         f'<option value="{value}">{label}</option>'
         for value, label in notice_types
     )
@@ -3116,6 +3116,74 @@ def test_finra_filter_option_discovery_is_dynamic_and_deterministic():
     }
 
 
+def test_finra_filter_option_discovery_accepts_exact_live_select_markup():
+    markup = """
+    <select data-drupal-selector="edit-combine-1" id="edit-combine-1"
+      name="combine_1" class="form-select form-control"
+      aria-label="Filter options">
+      <option value="All" selected="selected">- Any -</option>
+      <option value="1">2026</option>
+      <option value="2">2025</option>
+    </select>
+    <select data-drupal-selector="edit-field-core-content-type-tax-target-id"
+      id="edit-field-core-content-type-tax-target-id"
+      name="field_core_content_type_tax_target_id"
+      class="form-select form-control" aria-label="Filter options">
+      <option value="All" selected="selected">- Any -</option>
+      <option value="1">-Trade Reporting Notice</option>
+      <option value="2">-Regulatory Notice</option>
+    </select>
+    """
+
+    assert regulatory_monitor._extract_finra_filter_manifest(
+        BeautifulSoup(markup, "html.parser")
+    ) == {
+        "year_field": "combine_1",
+        "years": [
+            {"label": "2025", "value": "2"},
+            {"label": "2026", "value": "1"},
+        ],
+        "notice_type_field": "field_core_content_type_tax_target_id",
+        "notice_types": [
+            {"label": "-Regulatory Notice", "value": "2"},
+            {"label": "-Trade Reporting Notice", "value": "1"},
+        ],
+    }
+
+
+@pytest.mark.parametrize(
+    ("sentinel_value", "sentinel_label"),
+    [
+        ("All", "- Any -"),
+        ("  aLl  ", " \u00a0-\u00a0 aNy \u00a0-\u00a0 "),
+        ("ALL", "\u2014 ANY \u2014"),
+        ("all", "\u2011Any\u2011"),
+        ("Ａｌｌ", "\uff0d Any \uff0d"),
+    ],
+)
+def test_finra_filter_sentinel_accepts_normalized_live_variants(
+    sentinel_value,
+    sentinel_label,
+):
+    markup = (
+        '<select name="combine_1">'
+        f'<option value="{sentinel_value}">{sentinel_label}</option>'
+        '<option value="1">2026</option></select>'
+        '<select name="field_core_content_type_tax_target_id">'
+        f'<option value="{sentinel_value}">{sentinel_label}</option>'
+        '<option value="2">-Regulatory Notice</option></select>'
+    )
+
+    manifest = regulatory_monitor._extract_finra_filter_manifest(
+        BeautifulSoup(markup, "html.parser")
+    )
+
+    assert manifest["years"] == [{"label": "2026", "value": "1"}]
+    assert manifest["notice_types"] == [
+        {"label": "-Regulatory Notice", "value": "2"}
+    ]
+
+
 @pytest.mark.parametrize(
     "markup",
     [
@@ -3125,8 +3193,11 @@ def test_finra_filter_option_discovery_is_dynamic_and_deterministic():
         _finra_filter_form(notice_types=(("1", "Regulatory Notice"), ("2", "Regulatory Notice"))),
         _finra_filter_form(notice_types=(("1", "Regulatory Notice"), ("1", "Special Notice"))),
         _finra_filter_form(notice_types=(("", "Regulatory Notice"),)),
-        '<select name="combine_1"><option value="">All</option>'
+        '<select name="combine_1"><option value="All">- Any -</option>'
         '<option value="1">2026</option></select>',
+        _finra_filter_form(years=(("All", "2026"),)),
+        _finra_filter_form(years=(("1", "- Any -"),)),
+        _finra_filter_form(years=(("All", "Any"),)),
     ],
 )
 def test_finra_filter_option_discovery_rejects_malformed_or_duplicate_maps(markup):
