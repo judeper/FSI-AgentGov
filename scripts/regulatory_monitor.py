@@ -33,6 +33,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 import uuid
 from collections import Counter
 from copy import deepcopy
@@ -3970,6 +3971,17 @@ def _extract_finra_filter_manifest(soup: BeautifulSoup) -> Optional[dict]:
     if year_select is None or notice_type_select is None:
         raise ValueError("FINRA filter controls are incomplete")
 
+    def normalize_sentinel_text(value: str) -> str:
+        normalized = unicodedata.normalize("NFKC", value)
+        normalized = "".join(
+            "-"
+            if unicodedata.category(character) == "Pd"
+            or character == "\N{MINUS SIGN}"
+            else character
+            for character in normalized
+        )
+        return " ".join(normalized.split()).casefold()
+
     def parse_options(select, *, years: bool) -> list[dict[str, str]]:
         options: list[dict[str, str]] = []
         labels: set[str] = set()
@@ -3982,9 +3994,16 @@ def _extract_finra_filter_manifest(soup: BeautifulSoup) -> Optional[dict]:
             if value in values:
                 raise ValueError("FINRA filter option values are duplicated")
             values.add(value)
-            if folded_label == "all":
+            sentinel_value = normalize_sentinel_text(value) == "all"
+            sentinel_label = bool(re.fullmatch(
+                r"-\s*any\s*-",
+                normalize_sentinel_text(label),
+            ))
+            if sentinel_value and sentinel_label:
                 all_count += 1
                 continue
+            if sentinel_value or sentinel_label:
+                raise ValueError("FINRA filter sentinel option is malformed")
             if not label or not value:
                 raise ValueError("FINRA filter option is missing a label or value")
             if years and not re.fullmatch(r"\d{4}", label):
