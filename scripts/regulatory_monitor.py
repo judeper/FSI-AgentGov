@@ -107,8 +107,17 @@ FINRA_REQUEST_INTERVAL_SECONDS = 1.00
 # six requests per minute. Detail pages use the faster general interval above;
 # only the 92-page listing crawl requires this human-scale baseline.
 FINRA_LISTING_REQUEST_INTERVAL_SECONDS = 12.00
-# One maximum-size shard plus bounded discovery/reconciliation overhead.
-FINRA_LISTING_REQUEST_BUDGET = FINRA_MAX_PAGES + 20
+# The live topology currently exposes 44 years and seven notice types. Canary
+# evidence showed that historical multi-page years can exhaust 120 requests
+# before discovery completes. A 220-request pass remains bounded while covering
+# the observed 129-request topology plus retry growth. Four maximum passes at
+# the 12-second listing interval consume 176 minutes, leaving 124 minutes under
+# the workflow's 300-minute ceiling.
+FINRA_LISTING_REQUEST_BUDGET = 220
+FINRA_MAX_LISTING_PASSES = 4
+# Reserve explicit time for authoritative detail refreshes and non-listing
+# retries; the remaining 34 minutes cover setup, reports, and state validation.
+FINRA_DETAIL_REFRESH_HEADROOM_MINUTES = 90
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
@@ -6043,7 +6052,7 @@ def _fetch_finra_listing_passes_sequential(
     mismatches = []
     subdivide_year_values: set[str] = set()
     index = 1
-    max_passes = 3
+    max_passes = FINRA_MAX_LISTING_PASSES - 1
     while index <= max_passes:
         pass_session = _new_finra_pass_session(session)
         try:
@@ -6103,7 +6112,7 @@ def _fetch_finra_listing_passes_sequential(
             ) - subdivide_year_values
             if unstable_years:
                 subdivide_year_values.update(unstable_years)
-                max_passes = 4
+                max_passes = FINRA_MAX_LISTING_PASSES
                 logger.warning(
                     "FINRA single-page year proof instability detected; "
                     "subdividing years=%s on subsequent passes",

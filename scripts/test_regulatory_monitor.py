@@ -3465,6 +3465,148 @@ def test_finra_partition_listing_budget_fails_before_extra_request(
     assert len(requested) == 3
 
 
+def _finra_observed_44_year_topology_pages():
+    years = tuple(
+        (str(2027 - year), str(year))
+        for year in range(1983, 2027)
+    )
+    notice_types = (
+        ("1", "-Trade Reporting Notice"),
+        ("2", "-Regulatory Notice"),
+        ("3", "-Notice to Members"),
+        ("4", "-Information Notice"),
+        ("5", "-Election Notice"),
+        ("6", "-Special Notice"),
+        ("7", "-Request for Comment"),
+    )
+    filters = _finra_filter_form(
+        years=years,
+        notice_types=notice_types,
+    )
+    rows_by_value = {}
+    for value, year_label in years:
+        suffix = int(year_label) % 100
+        rows_by_value[value] = (
+            f"/rules-guidance/notices/{suffix:02d}-01",
+            f"Regulatory Notice {suffix:02d}-01",
+            f"{year_label}-01-02",
+        )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0,
+            1,
+            list(rows_by_value.values()),
+            filters=filters,
+        ),
+    }
+    subdivided_values = {
+        value for value, year_label in years
+        if int(year_label) <= 1994
+    }
+    zero_page = (
+        "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+        "</body></html>"
+    )
+    for value, _year_label in years:
+        row = rows_by_value[value]
+        if value not in subdivided_values:
+            pages[(value, None, 0)] = _finra_live_shaped_filtered_rows()
+            pages[(value, None, 0)] = pages[(value, None, 0)].replace(
+                "/rules-guidance/notices/26-16",
+                row[0],
+            ).replace(
+                "Regulatory Notice 26-16",
+                row[1],
+            ).replace(
+                "2026-08-26",
+                row[2],
+            )
+            continue
+        pages[(value, None, 0)] = _finra_listing_page(0, 2, [row])
+        for type_value, _type_label in notice_types:
+            if type_value == "1":
+                pages[(value, type_value, 0)] = (
+                    _finra_live_shaped_filtered_rows()
+                    .replace("/rules-guidance/notices/26-16", row[0])
+                    .replace("Regulatory Notice 26-16", row[1])
+                    .replace("2026-08-26", row[2])
+                )
+            else:
+                pages[(value, type_value, 0)] = zero_page
+    return pages
+
+
+def test_finra_observed_44_year_topology_requires_more_than_120_requests(
+    monkeypatch,
+):
+    assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 220
+    pages = _finra_observed_44_year_topology_pages()
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_LISTING_REQUEST_BUDGET",
+        120,
+    )
+
+    rejected, rejected_requests = _run_partitioned_finra_pass(
+        monkeypatch,
+        pages,
+    )
+
+    assert rejected["complete"] is False
+    assert "budget exceeded" in rejected["error"]
+    assert len(rejected_requests) == 120
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_LISTING_REQUEST_BUDGET",
+        220,
+    )
+    completed, completed_requests = _run_partitioned_finra_pass(
+        monkeypatch,
+        pages,
+    )
+
+    assert completed["complete"] is True
+    assert len(completed_requests) == 129
+
+
+def test_finra_listing_budget_rejects_request_221(monkeypatch):
+    calls = []
+
+    def fake_fetch(url, _session, **_kwargs):
+        calls.append(url)
+        return {
+            "status_code": 200,
+            "content": "",
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    monkeypatch.setattr(regulatory_monitor, "_fetch_finra_page", fake_fetch)
+    budget = {"used": 0, "limit": 220, "last_completed": "fixture"}
+    for request_number in range(1, 221):
+        result = regulatory_monitor._fetch_finra_listing_page_with_budget(
+            regulatory_monitor.FINRA_NOTICES_URL,
+            _FakeSession([], allow_legacy_finra=False),
+            budget,
+            progress=f"fixture/request={request_number}",
+        )
+        assert result["status_code"] == 200
+
+    rejected = regulatory_monitor._fetch_finra_listing_page_with_budget(
+        regulatory_monitor.FINRA_NOTICES_URL,
+        _FakeSession([], allow_legacy_finra=False),
+        budget,
+        progress="fixture/request=221",
+    )
+
+    assert rejected["status_code"] == 0
+    assert "budget exceeded (220/220)" in rejected["error"]
+    assert len(calls) == 220
+
+
 def test_finra_listing_retries_consume_the_same_pass_budget(monkeypatch):
     monkeypatch.setattr(regulatory_monitor, "FINRA_REQUEST_INTERVAL_SECONDS", 0)
     monkeypatch.setattr(regulatory_monitor.time, "sleep", lambda _seconds: None)
@@ -4740,6 +4882,25 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
     assert workflow.count("timeout-minutes: 300") == 2
     assert workflow.count("'scripts/regulatory_monitor.py'") == 2
     assert workflow.count("'.github/workflows/regulatory-monitoring.yml'") == 2
+    workflow_timeout_minutes = 300
+    listing_minutes = (
+        regulatory_monitor.FINRA_MAX_LISTING_PASSES
+        * regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET
+        * regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS
+        / 60
+    )
+    assert listing_minutes == 176
+    assert (
+        listing_minutes
+        + regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
+        < workflow_timeout_minutes
+    )
+    assert (
+        workflow_timeout_minutes
+        - listing_minutes
+        - regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
+        >= 30
+    )
 
 
 def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
