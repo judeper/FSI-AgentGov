@@ -7068,6 +7068,107 @@ def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch)
     assert "_complete_entry_hashes" not in result.coverage
 
 
+def test_finra_validated_legacy_migration_carries_historical_archive():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    prior = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    rows = [
+        _synthetic_finra_row(
+            url,
+            f"url:{urlparse(url).path}",
+            title=f"Historical notice {index}",
+        )
+        for index, url in enumerate(
+            sorted(prior["fallback_urls"]),
+            start=1,
+        )
+    ]
+    new_url = (
+        "https://www.finra.org/rules-guidance/notices/26-16"
+    )
+    rows.append(_synthetic_finra_row(
+        new_url,
+        "url:/rules-guidance/notices/26-16",
+        title="Regulatory Notice 26-16",
+    ))
+    scheduled = regulatory_monitor._finra_refresh_batch(prior)
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        prior,
+        scheduled,
+        limit=None,
+        prior_state_validated=True,
+    )
+
+    assert any(
+        row["detail_url"] == new_url for row in plan["fetch_rows"]
+    )
+    assert len(plan["fetch_rows"]) <= (
+        regulatory_monitor.FINRA_REFRESH_BATCH_SIZE + 1 + 120
+    )
+    assert len(plan["fetch_rows"]) < 500
+    assert len(plan["legacy_migration_bindings"]) > 3000
+    assert plan["forced_fetch_reasons"][new_url] == [
+        "missing-prior-canonical-hash",
+        "missing-prior-identity-binding",
+        "new-listing-identity",
+    ]
+
+
+@pytest.mark.parametrize("tamper", ["hash", "fallback", "alias"])
+def test_finra_legacy_migration_tampering_forces_detail_fetch(tamper):
+    row, prior = _bounded_detail_fixture(1)
+    prior["coverage"].update({
+        "schema_version": 1,
+        "listing_mode": "complete-unfiltered",
+        "complete": True,
+    })
+    url = row[0]["detail_url"]
+    identity = next(iter(prior["entries"]))
+    if tamper == "hash":
+        prior["entries"][identity] = ""
+    elif tamper == "fallback":
+        prior["fallback_urls"].pop(url)
+    else:
+        prior["coverage"]["alias_ledger"] = [
+            _alias(identity, "https://www.finra.org/node/99999", "sha256:x")
+        ]
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        row,
+        prior,
+        [],
+        limit=None,
+        prior_state_validated=True,
+    )
+
+    assert plan["fetch_rows"] == row
+    assert not plan["legacy_migration_bindings"]
+
+
+def test_finra_second_v2_run_has_no_legacy_migration_marker():
+    rows, prior = _bounded_detail_fixture(3)
+    prior["coverage"].update({
+        "schema_version": 2,
+        "listing_mode": "deterministic-year-type-partitions",
+        "complete": True,
+    })
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        prior,
+        [],
+        limit=None,
+        prior_state_validated=True,
+    )
+
+    assert plan["legacy_migration_mode"] is False
+    assert plan["legacy_migration_bindings"] == []
+
+
 def test_finra_hashes_and_classifies_non_summary_edits(monkeypatch):
     """Changes in Action Required/Background content affect provenance and tier."""
     listing = _finra_listing_page(
