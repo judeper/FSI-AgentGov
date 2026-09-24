@@ -5684,18 +5684,18 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
         / "regulatory-monitoring.yml"
     ).read_text(encoding="utf-8")
 
-    assert workflow.count("timeout-minutes: 350") == 2
+    assert workflow.count("timeout-minutes: 360") == 2
     assert workflow.count("'scripts/regulatory_monitor.py'") == 2
     assert workflow.count("'.github/workflows/regulatory-monitoring.yml'") == 2
-    workflow_timeout_minutes = 350
-    assert workflow_timeout_minutes < 360
+    workflow_timeout_minutes = 360
+    assert workflow_timeout_minutes <= 360
     assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 420
     assert regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS == 12.0
     assert regulatory_monitor.FINRA_MAX_LISTING_PASSES == 3
     assert regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES == 75
     assert (
         regulatory_monitor.FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS
-        == 900
+        == 1800
     )
     listing_minutes = (
         regulatory_monitor.FINRA_MAX_LISTING_PASSES
@@ -5712,8 +5712,8 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
             / 60
         )
     )
-    assert total_minutes == 342
-    assert workflow_timeout_minutes - total_minutes == 8
+    assert total_minutes == 357
+    assert workflow_timeout_minutes - total_minutes == 3
 
 
 def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
@@ -7102,13 +7102,13 @@ def test_finra_bounded_detail_refresh_carries_hashes_and_reports_changed_item(
     )
 
     assert result.complete is True
-    assert sleeps == [900]
+    assert sleeps == [1800]
     assert requested == [urls[0]]
     assert len(result) == 1
     assert result.coverage["detail_mode"] == "bounded-refresh"
     assert len(result.coverage["carried_entry_identities"]) == 2
     assert len(result.coverage["fetched_entry_identities"]) == 3
-    assert result.coverage["detail_phase_cooldown_seconds"] == 900
+    assert result.coverage["detail_phase_cooldown_seconds"] == 1800
     assert (
         result.coverage["detail_phase_start_marker"]
         == "phase-cooldown-complete"
@@ -7248,7 +7248,7 @@ def test_finra_detail_phase_cooldown_tampering_is_rejected():
         "skipped_scheduled_urls": [],
         "forced_fetch_reasons": {},
         "expected_detail_request_count": 0,
-        "detail_phase_cooldown_seconds": 900,
+        "detail_phase_cooldown_seconds": 1800,
         "detail_phase_start_marker": "phase-cooldown-complete",
     })
 
@@ -7301,7 +7301,7 @@ def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch)
 
     assert result.complete is False
     assert "_complete_entry_hashes" not in result.coverage
-    assert 900 not in sleeps
+    assert 1800 not in sleeps
     assert result.coverage["detail_phase_cooldown_seconds"] == 0
 
 
