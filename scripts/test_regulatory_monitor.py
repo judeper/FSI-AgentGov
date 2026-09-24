@@ -6498,8 +6498,8 @@ def test_finra_authoritative_single_page_and_unfiltered_zero_result_shapes(
     assert "pagination metadata" in zero.error
 
 
-def test_finra_known_notice_outside_listing_proof_fails_closed(monkeypatch):
-    """A detail refresh absent from both listing proofs cannot advance state."""
+def test_finra_known_notice_outside_listing_proof_is_pruned(monkeypatch):
+    """A prior refresh target absent from the complete listing is removed."""
     listing = _finra_listing_page(
         0, 1, [("/rules-guidance/notices/26-15", "Regulatory Notice 26-15", "2026-07-24")]
     )
@@ -6533,10 +6533,9 @@ def test_finra_known_notice_outside_listing_proof_fails_closed(monkeypatch):
         known_urls=["https://www.finra.org/rules-guidance/notices/26-14"],
     )
 
-    assert result.complete is False
-    assert {item.document_id for item in result} == {"FINRA 26-15", "FINRA 26-14"}
-    assert "https://www.finra.org/rules-guidance/notices/26-14" in requested
-    assert "absent from both complete listing proofs" in result.error
+    assert result.complete is True
+    assert {item.document_id for item in result} == {"FINRA 26-15"}
+    assert "https://www.finra.org/rules-guidance/notices/26-14" not in requested
 
 
 def test_finra_known_node_refresh_uses_independent_listing_binding(monkeypatch):
@@ -6680,6 +6679,393 @@ def test_finra_known_refresh_is_bounded_and_resumable():
     assert batch[0].endswith("/26-40")
     assert batch[1].endswith("/26-01")
     assert len(set(batch)) == len(batch)
+
+
+def test_finra_alias_pruning_retains_node_keys_and_prunes_absent_url_sources():
+    state = {
+        "coverage": {
+            "alias_ledger": [
+                _alias(
+                    "node:12345",
+                    "https://www.finra.org/node/99999",
+                    "sha256:node",
+                ),
+                _alias(
+                    "FINRA 26-01",
+                    "https://www.finra.org/node/99998",
+                    "sha256:url",
+                ),
+            ]
+        }
+    }
+
+    retained = regulatory_monitor._finra_pruned_alias_ledger(
+        state,
+        set(),
+    )
+
+    assert [item["old_identity"] for item in retained] == ["node:12345"]
+
+
+def test_finra_refresh_ring_sweeps_alias_and_fallback_urls():
+    urls = [
+        f"https://www.finra.org/rules-guidance/notices/26-{index:02d}"
+        for index in range(1, 31)
+    ]
+    state = {
+        "entries": {
+            f"https://www.finra.org/node/{1000 + index}": "sha256:old"
+            for index in range(30)
+        },
+        "fallback_urls": {
+            url: f"https://www.finra.org/node/{1000 + index}"
+            for index, url in enumerate(urls)
+        },
+        "coverage": {"alias_ledger": []},
+        "refresh_cursor": 0,
+    }
+    selected = []
+    for _ in range(2):
+        batch = regulatory_monitor._finra_refresh_batch(state)
+        selected.extend(batch)
+        state["refresh_cursor"] = (
+            state["refresh_cursor"] + len(batch)
+        ) % len(urls)
+
+    assert set(selected) == set(urls)
+
+
+def test_finra_legacy_identity_resurfacing_carries_canonical_entry():
+    url = "https://www.finra.org/rules-guidance/notices/26-01"
+    row = _synthetic_finra_row(
+        url,
+        "url:/rules-guidance/notices/26-01",
+    )
+    canonical = "https://www.finra.org/node/99999"
+    state = {
+        "entries": {canonical: "sha256:canonical"},
+        "fallback_urls": {url: canonical},
+        "coverage": {
+            "alias_ledger": [
+                _alias("FINRA 26-01", canonical, "sha256:canonical")
+            ],
+            "pass_proofs": [
+                {"page_row_payloads": [[deepcopy(row["raw_payload"])]]},
+            ],
+        },
+    }
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        [row],
+        state,
+        [],
+        limit=None,
+    )
+
+    assert plan["fetch_rows"] == []
+    assert plan["carried_entries"] == {canonical: "sha256:canonical"}
+
+
+def test_finra_cursor_advances_across_unrepresented_scheduled_batch():
+    rows, state = _bounded_detail_fixture(40, cursor=0)
+    scheduled = regulatory_monitor._finra_refresh_batch(state)
+    represented = rows[25:]
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        represented,
+        state,
+        scheduled,
+        limit=None,
+    )
+
+    assert plan["scheduled_current_urls"] == []
+    assert plan["scheduled_skipped_urls"] == scheduled
+    assert plan["refresh_cursor_output"] == 25
+
+
+def _bounded_detail_fixture(count=100, *, cursor=0):
+    rows = []
+    entries = {}
+    fallbacks = {}
+    payloads = []
+    for index in range(count):
+        url = (
+            "https://www.finra.org/rules-guidance/notices/"
+            f"information-notice-{20000000 + index}"
+        )
+        row = _synthetic_finra_row(
+            url,
+            f"url:{urlparse(url).path}",
+            title=f"Information Notice {index}",
+        )
+        rows.append(row)
+        entries[url] = f"sha256:{index:064x}"
+        fallbacks[url] = f"https://www.finra.org/node/{100000 + index}"
+        payloads.append(row["raw_payload"])
+    state = {
+        "entries": entries,
+        "fallback_urls": fallbacks,
+        "refresh_cursor": cursor,
+        "coverage": {
+            "alias_ledger": [],
+            "pass_proofs": [
+                {"page_row_payloads": [deepcopy(payloads)]},
+                {"page_row_payloads": [deepcopy(payloads)]},
+            ],
+        },
+    }
+    return rows, state
+
+
+def test_finra_bounded_detail_plan_limits_3600_entries_to_refresh_batch():
+    rows, state = _bounded_detail_fixture(3600)
+    scheduled = regulatory_monitor._finra_refresh_batch(state)
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        state,
+        scheduled,
+        limit=None,
+    )
+
+    assert len(plan["fetch_rows"]) == regulatory_monitor.FINRA_REFRESH_BATCH_SIZE
+    assert len(plan["carried_entries"]) == 3575
+    assert len(plan["fetch_rows"]) < len(rows)
+    assert all(
+        plan["forced_fetch_reasons"][url] == ["scheduled-refresh"]
+        for url in scheduled
+    )
+
+
+def test_finra_bounded_detail_plan_forces_new_and_missing_prior_proof():
+    rows, state = _bounded_detail_fixture(3)
+    new_row = _synthetic_finra_row(
+        "https://www.finra.org/rules-guidance/notices/information-notice-new",
+        "url:/rules-guidance/notices/information-notice-new",
+    )
+    rows.append(new_row)
+    state["coverage"]["pass_proofs"][0]["page_row_payloads"][0].pop()
+    state["coverage"]["pass_proofs"][1]["page_row_payloads"][0].pop()
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        state,
+        [],
+        limit=None,
+    )
+
+    reasons = plan["forced_fetch_reasons"]
+    assert "new-listing-identity" in reasons[new_row["detail_url"]]
+    assert any(
+        "listing-evidence-changed" in reason_set
+        for reason_set in reasons.values()
+    )
+
+
+def test_finra_bounded_detail_plan_prunes_removed_identity_and_advances_cursor():
+    rows, state = _bounded_detail_fixture(40, cursor=39)
+    removed = rows.pop()
+    scheduled = regulatory_monitor._finra_refresh_batch(state)
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        state,
+        scheduled,
+        limit=None,
+    )
+
+    assert removed["detail_url"] not in plan["current_listing_identities"]
+    scheduled_current = [
+        url for url in scheduled
+        if url != removed["detail_url"]
+    ]
+    assert plan["refresh_cursor_output"] == (
+        (39 + len(scheduled_current)) % 39
+    )
+
+
+def test_finra_bounded_detail_refresh_carries_hashes_and_reports_changed_item(
+    monkeypatch,
+):
+    urls = [
+        f"https://www.finra.org/rules-guidance/notices/26-0{index}"
+        for index in (1, 2, 3)
+    ]
+    rows = [
+        _synthetic_finra_row(
+            url,
+            f"url:{urlparse(url).path}",
+            title=f"Regulatory Notice 26-0{index}",
+        )
+        for index, url in enumerate(urls, start=1)
+    ]
+    listing = _synthetic_finra_listing(rows)
+    prior_items = [
+        _make_item(
+            f"Regulatory Notice 26-0{index}",
+            f"FINRA 26-0{index}",
+            source="FINRA",
+            agency="FINRA",
+            url=url,
+            abstract=f"Prior content {index}",
+        )
+        for index, url in enumerate(urls, start=1)
+    ]
+    prior_state = {
+        "entries": {
+            item.document_id: _item_hash(item)
+            for item in prior_items
+        },
+        "fallback_urls": {
+            url: f"https://www.finra.org/node/{380000 + index}"
+            for index, url in enumerate(urls, start=1)
+        },
+        "refresh_cursor": 0,
+        "coverage": {
+            "alias_ledger": [],
+            "pass_proofs": listing["coverage"]["pass_proofs"],
+        },
+    }
+    requested = []
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda url, _session, **_kwargs: (
+            requested.append(url)
+            or {
+                "status_code": 200,
+                "content": _finra_detail_page(
+                    "Regulatory Notice 26-01",
+                    rows[0]["listing_date"] or "2026-01-01",
+                    "Changed refreshed content.",
+                ),
+                "final_url": url,
+                "url": url,
+                "was_redirected": False,
+                "error": None,
+            }
+        ),
+    )
+
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        known_urls=[urls[0]],
+        fallback_urls=prior_state["fallback_urls"],
+        prior_source_state=prior_state,
+    )
+
+    assert result.complete is True
+    assert requested == [urls[0]]
+    assert len(result) == 1
+    assert result.coverage["detail_mode"] == "bounded-refresh"
+    assert len(result.coverage["carried_entry_identities"]) == 2
+    assert len(result.coverage["fetched_entry_identities"]) == 3
+    assert regulatory_monitor.check_for_new_items(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        list(result),
+        prior_state,
+    ) == list(result)
+
+    state = {
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: deepcopy(prior_state)
+        }
+    }
+    regulatory_monitor.update_source_state(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        list(result),
+        state,
+        refreshed_urls=[urls[0]],
+        fallback_urls=result.fallback_urls,
+        coverage=result.coverage,
+    )
+    persisted = state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    assert len(persisted["entries"]) == 3
+    assert persisted["refresh_cursor"] == 1
+
+
+def test_finra_bounded_detail_carried_hash_tampering_is_rejected():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    identities = sorted(source_state["entries"])
+    listing_identities = sorted({
+        regulatory_monitor._extract_finra_document_id(url)
+        for url in regulatory_monitor._finra_retained_listing_detail_urls(
+            coverage["pass_proofs"]
+        )
+    })
+    coverage.update({
+        "schema_version": 2,
+        "listing_mode": "deterministic-year-type-partitions",
+        "detail_mode": "bounded-refresh",
+        "refreshed_entry_identities": [],
+        "refreshed_urls": [],
+        "carried_entry_identities": identities,
+        "carried_entry_hash_digest": "sha256:forged",
+        "current_listing_identities": listing_identities,
+        "current_listing_identity_digest": (
+            regulatory_monitor._identity_digest(listing_identities)
+        ),
+        "refresh_cursor_input": 0,
+        "refresh_cursor_output": 0,
+        "forced_fetch_reasons": {},
+        "expected_detail_request_count": 0,
+    })
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any("carried entry hash digest is invalid" in error for error in errors)
+
+
+def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch):
+    url = "https://www.finra.org/rules-guidance/notices/26-01"
+    row = _synthetic_finra_row(
+        url,
+        "url:/rules-guidance/notices/26-01",
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args: _synthetic_finra_listing([row]),
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda requested_url, _session, **_kwargs: {
+            "status_code": 200,
+            "content": _finra_detail_page(
+                "Regulatory Notice 26-01",
+                row["listing_date"] or "2026-01-01",
+                "Limited content.",
+            ),
+            "final_url": requested_url,
+            "url": requested_url,
+            "was_redirected": False,
+            "error": None,
+        },
+    )
+
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        limit=1,
+    )
+
+    assert result.complete is False
+    assert "_complete_entry_hashes" not in result.coverage
 
 
 def test_finra_hashes_and_classifies_non_summary_edits(monkeypatch):

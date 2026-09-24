@@ -2882,6 +2882,203 @@ def _validate_source_coverage(
             errors.append(
                 f"{source_key} fetched identities contain a reserved notice route"
             )
+        if deterministic_schema:
+            detail_required = (
+                "detail_mode",
+                "refreshed_entry_identities",
+                "refreshed_urls",
+                "carried_entry_identities",
+                "carried_entry_hash_digest",
+                "current_listing_identities",
+                "current_listing_identity_digest",
+                "refresh_cursor_input",
+                "refresh_cursor_output",
+                "refresh_ring_urls",
+                "skipped_scheduled_urls",
+                "forced_fetch_reasons",
+                "expected_detail_request_count",
+            )
+            for key in detail_required:
+                if key not in coverage:
+                    errors.append(
+                        f"{source_key} bounded detail coverage is missing {key}"
+                    )
+            refreshed_identities = coverage.get(
+                "refreshed_entry_identities",
+                [],
+            )
+            carried_identities = coverage.get(
+                "carried_entry_identities",
+                [],
+            )
+            current_listing_identities = coverage.get(
+                "current_listing_identities",
+                [],
+            )
+            refreshed_urls = coverage.get("refreshed_urls", [])
+            forced_reasons = coverage.get("forced_fetch_reasons", {})
+            skipped_scheduled_urls = coverage.get(
+                "skipped_scheduled_urls",
+                [],
+            )
+            refresh_ring_urls = coverage.get("refresh_ring_urls", [])
+            if coverage.get("detail_mode") != "bounded-refresh":
+                errors.append(
+                    f"{source_key} deterministic detail mode is invalid"
+                )
+            for label, identities in (
+                ("refreshed", refreshed_identities),
+                ("carried", carried_identities),
+                ("current listing", current_listing_identities),
+            ):
+                if (
+                    not isinstance(identities, list)
+                    or identities != sorted(set(identities))
+                    or any(
+                        not isinstance(identity, str) or not identity
+                        for identity in identities
+                    )
+                ):
+                    errors.append(
+                        f"{source_key} {label} identities are invalid"
+                    )
+            if (
+                isinstance(refreshed_identities, list)
+                and isinstance(carried_identities, list)
+                and (
+                    set(refreshed_identities) & set(carried_identities)
+                    or set(refreshed_identities)
+                    | set(carried_identities)
+                    != set(fetched_entry_identities)
+                )
+            ):
+                errors.append(
+                    f"{source_key} refreshed and carried identities do not "
+                    "reconstruct the complete entry set"
+                )
+            carried_hashes = {
+                identity: entries[identity]
+                for identity in carried_identities
+                if identity in entries
+            } if isinstance(carried_identities, list) else {}
+            if coverage.get("carried_entry_hash_digest") != compute_hash(
+                json.dumps(
+                    sorted(carried_hashes.items()),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )
+            ):
+                errors.append(
+                    f"{source_key} carried entry hash digest is invalid"
+                )
+            if coverage.get(
+                "current_listing_identity_digest"
+            ) != _identity_digest(current_listing_identities):
+                errors.append(
+                    f"{source_key} current listing identity digest is invalid"
+                )
+            retained_listing_identities = sorted({
+                _extract_finra_document_id(url)
+                for url in _finra_retained_listing_detail_urls(
+                    coverage.get("pass_proofs")
+                )
+            })
+            if current_listing_identities != retained_listing_identities:
+                errors.append(
+                    f"{source_key} current listing identities are not "
+                    "proof-bound"
+                )
+            resolved_listing_identities = {
+                _finra_resolve_canonical_identity(
+                    identity,
+                    coverage.get("alias_ledger"),
+                )
+                for identity in current_listing_identities
+            } if isinstance(current_listing_identities, list) else set()
+            if resolved_listing_identities != set(fetched_entry_identities):
+                errors.append(
+                    f"{source_key} alias-resolved listing identities do not "
+                    "equal the complete entry set"
+                )
+            if (
+                not isinstance(refreshed_urls, list)
+                or refreshed_urls != sorted(set(refreshed_urls))
+                or any(
+                    _finra_normalize_detail_link(url)[0] != url
+                    for url in refreshed_urls
+                )
+            ):
+                errors.append(
+                    f"{source_key} refreshed URLs are invalid"
+                )
+            if (
+                not isinstance(forced_reasons, dict)
+                or set(forced_reasons) != set(refreshed_urls)
+                or any(
+                    not isinstance(reasons, list) or not reasons
+                    for reasons in forced_reasons.values()
+                )
+            ):
+                errors.append(
+                    f"{source_key} forced detail reasons are invalid"
+                )
+            if (
+                not isinstance(skipped_scheduled_urls, list)
+                or skipped_scheduled_urls
+                != sorted(set(skipped_scheduled_urls))
+                or any(
+                    _finra_normalize_detail_link(url)[0] != url
+                    for url in skipped_scheduled_urls
+                )
+            ):
+                errors.append(
+                    f"{source_key} skipped scheduled URLs are invalid"
+                )
+            if (
+                not isinstance(refresh_ring_urls, list)
+                or refresh_ring_urls != sorted(set(refresh_ring_urls))
+                or any(
+                    _finra_normalize_detail_link(url)[0] != url
+                    for url in refresh_ring_urls
+                )
+            ):
+                errors.append(
+                    f"{source_key} refresh ring evidence is invalid"
+                )
+            if coverage.get("expected_detail_request_count") != len(
+                refreshed_urls
+            ):
+                errors.append(
+                    f"{source_key} expected detail request count is invalid"
+                )
+            cursor_input = coverage.get("refresh_cursor_input")
+            cursor_output = coverage.get("refresh_cursor_output")
+            scheduled_count = (
+                sum(
+                    "scheduled-refresh" in reasons
+                    for reasons in forced_reasons.values()
+                )
+                if isinstance(forced_reasons, dict)
+                else 0
+            )
+            if isinstance(skipped_scheduled_urls, list):
+                scheduled_count += len(skipped_scheduled_urls)
+            if (
+                not isinstance(cursor_input, int)
+                or isinstance(cursor_input, bool)
+                or cursor_input < 0
+                or not isinstance(cursor_output, int)
+                or isinstance(cursor_output, bool)
+                or cursor_output < 0
+                or cursor_output
+                != (
+                    (cursor_input + scheduled_count)
+                    % max(1, len(refresh_ring_urls))
+                )
+            ):
+                errors.append(
+                    f"{source_key} refresh cursor evidence is invalid"
+                )
         if coverage.get("fetched_entry_identity_digest") != _identity_digest(
             fetched_entry_identities
         ):
@@ -4667,21 +4864,25 @@ def _finra_known_notice_urls(source_state: dict) -> list[str]:
     coverage = source_state.get("coverage")
     if isinstance(coverage, dict):
         for alias in coverage.get("alias_ledger", []):
-            if isinstance(alias, dict) and isinstance(
-                alias.get("old_identity"), str
-            ):
-                identities.add(
-                    _resolve_finra_identity(
-                        source_state,
-                        alias["old_identity"],
-                    )
+            if isinstance(alias, dict):
+                source_url = _finra_alias_source_url(
+                    alias.get("old_identity")
                 )
+                if source_url:
+                    identities.add(source_url)
+    fallback_urls = source_state.get("fallback_urls")
+    if isinstance(fallback_urls, dict):
+        identities.update(fallback_urls)
 
     urls = []
     for key in identities:
         if isinstance(key, str) and key.startswith("http"):
-            canonical_url, _ = _finra_normalize_detail_link(key)
-            if canonical_url:
+            canonical_url, identity = _finra_normalize_detail_link(key)
+            if (
+                canonical_url
+                and isinstance(identity, str)
+                and identity.startswith("url:")
+            ):
                 urls.append(canonical_url)
             continue
         match = re.fullmatch(r"FINRA (\d{2}-\d{2})", str(key))
@@ -4702,6 +4903,161 @@ def _finra_refresh_batch(source_state: dict) -> list[str]:
     return [urls[(cursor + offset) % len(urls)] for offset in range(
         min(FINRA_REFRESH_BATCH_SIZE, len(urls))
     )]
+
+
+def _finra_pruned_alias_ledger(
+    source_state: dict,
+    retained_detail_urls: set[str],
+) -> list[dict]:
+    """Retain node-keyed aliases; prune only absent URL-resolvable sources."""
+    coverage = source_state.get("coverage")
+    ledger = coverage.get("alias_ledger", []) if isinstance(coverage, dict) else []
+    return [
+        deepcopy(alias)
+        for alias in ledger
+        if isinstance(alias, dict)
+        and (
+            (source_url := _finra_alias_source_url(
+                alias.get("old_identity")
+            )) is None
+            or source_url in retained_detail_urls
+        )
+    ]
+
+
+def _finra_resolve_canonical_identity(
+    identity: str,
+    alias_ledger: object,
+) -> str:
+    """Resolve one identity through the validated/pruned alias ledger."""
+    return _finra_resolve_identity_via_ledger(
+        identity,
+        _finra_alias_map(alias_ledger),
+    )
+
+
+def _plan_finra_detail_refresh(
+    rows: list[dict],
+    prior_source_state: Optional[dict],
+    scheduled_urls: list[str],
+    *,
+    limit: Optional[int],
+) -> dict:
+    """Plan bounded detail work from a complete current listing proof."""
+    prior = prior_source_state if isinstance(prior_source_state, dict) else {}
+    prior_entries = prior.get("entries")
+    prior_entries = prior_entries if isinstance(prior_entries, dict) else {}
+    prior_coverage = prior.get("coverage")
+    prior_coverage = prior_coverage if isinstance(prior_coverage, dict) else {}
+    retained_urls = {
+        row["detail_url"] for row in rows if row.get("detail_url")
+    }
+    alias_ledger = _finra_pruned_alias_ledger(prior, retained_urls)
+    fallbacks = prior.get("fallback_urls")
+    fallbacks = fallbacks if isinstance(fallbacks, dict) else {}
+    prior_payloads = {
+        _finra_payload_sort_key(payload)
+        for proof in prior_coverage.get("pass_proofs", [])
+        if isinstance(proof, dict)
+        for page in proof.get("page_row_payloads", [])
+        if isinstance(page, list)
+        for payload in page
+        if _is_finra_listing_row_payload(payload)
+    }
+    refresh_ring = _finra_known_notice_urls(prior)
+    scheduled_list = list(scheduled_urls)
+    scheduled = set(scheduled_list)
+    reasons: dict[str, set[str]] = {}
+    row_identity: dict[int, str] = {}
+    node_groups: dict[str, list[int]] = {}
+    current_listing_identities = set()
+
+    for index, row in enumerate(rows):
+        url = row["detail_url"]
+        raw_identity = _extract_finra_document_id(url)
+        identity = _finra_resolve_canonical_identity(
+            raw_identity,
+            alias_ledger,
+        )
+        row_identity[index] = identity
+        current_listing_identities.add(raw_identity)
+        row_reasons = reasons.setdefault(url, set())
+        if limit is not None:
+            row_reasons.add("explicit-limit")
+        if identity not in prior_entries:
+            row_reasons.add("new-listing-identity")
+        if url in scheduled:
+            row_reasons.add("scheduled-refresh")
+        if (
+            identity not in prior_entries
+            or not isinstance(prior_entries.get(identity), str)
+            or not prior_entries.get(identity)
+        ):
+            row_reasons.add("missing-prior-canonical-hash")
+        if _finra_payload_sort_key(row["raw_payload"]) not in prior_payloads:
+            row_reasons.add("listing-evidence-changed")
+        fallback = _validate_finra_node_url(fallbacks.get(url, ""))
+        node_identity = (
+            f"node:{urlparse(fallback).path.rsplit('/', 1)[-1]}"
+            if fallback
+            else row.get("node_identity")
+        )
+        if not isinstance(node_identity, str) or not node_identity:
+            row_reasons.add("missing-prior-identity-binding")
+            node_identity = f"unbound:{url}"
+        node_groups.setdefault(node_identity, []).append(index)
+
+    for indexes in node_groups.values():
+        if len(indexes) <= 1:
+            continue
+        for index in indexes:
+            reasons[rows[index]["detail_url"]].add(
+                "duplicate-authority-refresh"
+            )
+
+    fetch_indexes = {
+        index
+        for index, row in enumerate(rows)
+        if reasons[row["detail_url"]]
+    }
+    fetch_rows = [
+        row for index, row in enumerate(rows) if index in fetch_indexes
+    ]
+    carried_entries = {
+        identity: prior_entries[identity]
+        for index, identity in row_identity.items()
+        if index not in fetch_indexes and identity in prior_entries
+    }
+    current_urls = {row["detail_url"] for row in rows}
+    scheduled_current = [url for url in scheduled_list if url in current_urls]
+    scheduled_skipped = [url for url in scheduled_list if url not in current_urls]
+    cursor_input = prior.get("refresh_cursor", 0)
+    if (
+        not isinstance(cursor_input, int)
+        or isinstance(cursor_input, bool)
+        or cursor_input < 0
+    ):
+        cursor_input = 0
+    cursor_output = (
+        (cursor_input + len(scheduled_list))
+        % max(1, len(refresh_ring))
+    )
+    return {
+        "fetch_rows": fetch_rows,
+        "carried_entries": carried_entries,
+        "current_listing_identities": sorted(current_listing_identities),
+        "scheduled_current_urls": scheduled_current,
+        "scheduled_skipped_urls": scheduled_skipped,
+        "refresh_ring": refresh_ring,
+        "alias_ledger": alias_ledger,
+        "refresh_cursor_input": cursor_input,
+        "refresh_cursor_output": cursor_output,
+        "forced_fetch_reasons": {
+            url: sorted(url_reasons)
+            for url, url_reasons in sorted(reasons.items())
+            if url_reasons
+        },
+    }
 
 
 def _extract_finra_notice_links(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
@@ -6812,6 +7168,7 @@ def fetch_finra_notices(
     known_urls: Optional[list[str]] = None,
     fallback_urls: Optional[dict[str, str]] = None,
     prior_filter_manifest: Optional[dict] = None,
+    prior_source_state: Optional[dict] = None,
 ) -> FetchResult:
     """Fetch FINRA listing rows and authoritative notice details fail-closed."""
     items: list[RegulatoryItem] = []
@@ -6874,66 +7231,35 @@ def fetch_finra_notices(
                     "listing_date": listing_date,
                     "unresolved": False,
                 })
-        seen_urls = {row["detail_url"] for row in rows if row.get("detail_url")}
-        seen_node_urls = {
-            node_url
-            for listing_url in seen_urls
-            if (
-                node_url := (
-                    _validate_finra_node_url(listing_url)
-                    or _validate_finra_node_url(
-                        resolved_fallback_urls.get(listing_url, "")
-                    )
-                )
-            )
-        }
-        unproven_known_urls = []
         for known_url in sorted(set(known_urls or [])):
-            canonical_url, node_identity = _finra_normalize_detail_link(known_url)
+            canonical_url, _ = _finra_normalize_detail_link(known_url)
             if not canonical_url:
                 return _incomplete_result(
                     error=f"FINRA known refresh URL was unsupported: {known_url}",
                     coverage=listing.get("coverage", {}),
                 )
-            known_node_url = (
-                canonical_url
-                if node_identity and node_identity.startswith("node:")
-                else _validate_finra_node_url(
-                    resolved_fallback_urls.get(canonical_url, "")
-                )
-            )
-            represented_by_listing = (
-                canonical_url in seen_urls
-                or (
-                    known_node_url is not None
-                    and known_node_url in seen_node_urls
-                )
-            )
-            if not represented_by_listing:
-                raw_payload = {"known_refresh_url": canonical_url}
-                rows.append({
-                    "row_index": -1,
-                    "page": None,
-                    "raw_payload": raw_payload,
-                    "raw_row_digest": compute_hash(json.dumps(
-                        raw_payload,
-                        ensure_ascii=False,
-                        sort_keys=True,
-                        separators=(",", ":"),
-                    )),
-                    "detail_url": canonical_url,
-                    "node_identity": node_identity,
-                    "title": "",
-                    "listing_date": "",
-                    "unresolved": False,
-                })
-                seen_urls.add(canonical_url)
-                unproven_known_urls.append(canonical_url)
 
         if limit is not None:
             rows = rows[:limit]
             logger.info("Limited to %s notices for testing; state will not advance", limit)
 
+        detail_plan = _plan_finra_detail_refresh(
+            rows,
+            prior_source_state,
+            list(known_urls or []),
+            limit=limit,
+        )
+        detail_rows = detail_plan["fetch_rows"]
+        expected_detail_urls = sorted({
+            row["detail_url"] for row in detail_rows
+        })
+        logger.info(
+            "FINRA bounded detail refresh expected_requests=%s carried=%s "
+            "listing_identities=%s",
+            len(expected_detail_urls),
+            len(detail_plan["carried_entries"]),
+            len(detail_plan["current_listing_identities"]),
+        )
         detail_cache: dict[str, dict] = {}
         detail_identity_proofs: dict[str, str] = {}
         node_groups: dict[str, dict] = {}
@@ -6941,8 +7267,17 @@ def fetch_finra_notices(
         date_resolution_ledger: list[dict] = []
         conflict_ledger: list[dict] = []
 
-        for row in rows:
+        for detail_index, row in enumerate(detail_rows, start=1):
             url = row["detail_url"]
+            logger.info(
+                "FINRA detail refresh progress=%s/%s url=%s reasons=%s",
+                detail_index,
+                len(detail_rows),
+                url,
+                ",".join(
+                    detail_plan["forced_fetch_reasons"].get(url, [])
+                ),
+            )
             listing_title = row.get("title", "")
             listing_date = row.get("listing_date", "")
             fallback_url = _validate_finra_node_url(
@@ -7271,13 +7606,47 @@ def fetch_finra_notices(
                 },
             )
 
+        refreshed_entries = {
+            _finra_resolve_canonical_identity(
+                item.document_id or item.url,
+                detail_plan["alias_ledger"],
+            ): _item_content_hash(item)
+            for item in items
+        }
+        complete_entries = {
+            **detail_plan["carried_entries"],
+            **refreshed_entries,
+        }
+        carried_identities = sorted(detail_plan["carried_entries"])
         coverage = {
             **listing.get("coverage", {}),
-            "detail_count": len(items),
-            "unique_node_count": len(node_groups),
-            "fetched_entry_identities": sorted({
-                item.document_id or item.url for item in items
-            }),
+            "detail_mode": "bounded-refresh",
+            "detail_count": len(complete_entries),
+            "unique_node_count": len(complete_entries),
+            "fetched_entry_identities": sorted(complete_entries),
+            "refreshed_entry_identities": sorted(refreshed_entries),
+            "refreshed_urls": expected_detail_urls,
+            "carried_entry_identities": carried_identities,
+            "carried_entry_hash_digest": compute_hash(json.dumps(
+                sorted(detail_plan["carried_entries"].items()),
+                ensure_ascii=False,
+                separators=(",", ":"),
+            )),
+            "current_listing_identities": (
+                detail_plan["current_listing_identities"]
+            ),
+            "current_listing_identity_digest": _identity_digest(
+                detail_plan["current_listing_identities"]
+            ),
+            "refresh_cursor_input": detail_plan["refresh_cursor_input"],
+            "refresh_cursor_output": detail_plan["refresh_cursor_output"],
+            "refresh_ring_urls": detail_plan["refresh_ring"],
+            "skipped_scheduled_urls": detail_plan[
+                "scheduled_skipped_urls"
+            ],
+            "forced_fetch_reasons": detail_plan["forced_fetch_reasons"],
+            "expected_detail_request_count": len(expected_detail_urls),
+            "_complete_entry_hashes": complete_entries,
             "alias_ledger": [],
             "detail_identity_proofs": [
                 detail_identity_proofs[url]
@@ -7299,32 +7668,21 @@ def fetch_finra_notices(
                 coverage["detail_identity_proofs"]
             )
         )
-        if unproven_known_urls:
-            return _incomplete_result(
-                items,
-                error=(
-                    "FINRA known refresh target was absent from both complete "
-                    f"listing proofs: {unproven_known_urls[0]}"
-                ),
-                expected_count=listing.get("coverage", {}).get(
-                    "listing_record_count"
-                ),
-                pages_fetched=listing["pages_fetched"],
-                declared_pages=listing["declared_pages"],
-                cutoff_page=listing["cutoff_page"],
-                fallback_urls=resolved_fallback_urls,
-                coverage=coverage,
-            )
         if limit is not None:
+            public_coverage = {
+                key: value
+                for key, value in coverage.items()
+                if not key.startswith("_")
+            }
             return _incomplete_result(
                 items,
                 error="FINRA fetch was explicitly limited",
-                expected_count=len(rows),
+                expected_count=len(detail_rows),
                 pages_fetched=listing["pages_fetched"],
                 declared_pages=listing["declared_pages"],
                 cutoff_page=listing["cutoff_page"],
                 limited=True,
-                coverage=coverage,
+                coverage=public_coverage,
             )
         return _complete_result(
             items,
@@ -7660,19 +8018,32 @@ def update_source_state(
         and isinstance(coverage, dict)
         and "fetched_entry_identities" in coverage
     ):
+        complete_entry_hashes = coverage.pop(
+            "_complete_entry_hashes",
+            None,
+        )
         fetched_identities = coverage.get("fetched_entry_identities")
         if (
             not isinstance(fetched_identities, list)
-            or set(fetched_identities) != set(fetched_entries)
+            or (
+                isinstance(complete_entry_hashes, dict)
+                and set(fetched_identities) != set(complete_entry_hashes)
+            )
+            or (
+                not isinstance(complete_entry_hashes, dict)
+                and set(fetched_identities) != set(fetched_entries)
+            )
         ):
             raise ValueError(
                 "FINRA coverage identities do not match fetched detail identities"
             )
         prior_coverage = source_state.get("coverage", {})
-        existing_alias_ledger = (
-            prior_coverage.get("alias_ledger", [])
-            if isinstance(prior_coverage, dict)
-            else []
+        retained_detail_urls = _finra_retained_listing_detail_urls(
+            coverage.get("pass_proofs")
+        )
+        existing_alias_ledger = _finra_pruned_alias_ledger(
+            source_state,
+            retained_detail_urls,
         )
         # Blocker 4: a listing/detail fetch (e.g. via node-transport fallback)
         # can surface an identity that production already migrated to a
@@ -7681,10 +8052,12 @@ def update_source_state(
         # alias ledger BEFORE rebuilding entries so it updates the existing
         # canonical entry in place instead of orphaning it (which would both
         # break the alias chain-head binding and strand the canonical node).
-        alias_map = _finra_alias_map(existing_alias_ledger)
         resolved_fetched: dict[str, str] = {}
         for raw_key, content_hash in fetched_entries.items():
-            canonical_key = _finra_resolve_identity_via_ledger(raw_key, alias_map)
+            canonical_key = _finra_resolve_canonical_identity(
+                raw_key,
+                existing_alias_ledger,
+            )
             if (
                 canonical_key in resolved_fetched
                 and resolved_fetched[canonical_key] != content_hash
@@ -7694,7 +8067,35 @@ def update_source_state(
                     f"{canonical_key} with conflicting content"
                 )
             resolved_fetched[canonical_key] = content_hash
-        fetched_entries = resolved_fetched
+        if isinstance(complete_entry_hashes, dict):
+            for canonical_key, content_hash in resolved_fetched.items():
+                if (
+                    canonical_key in complete_entry_hashes
+                    and complete_entry_hashes[canonical_key] != content_hash
+                ):
+                    raise ValueError(
+                        "FINRA refreshed content does not match the complete "
+                        f"entry proof: {canonical_key}"
+                    )
+                complete_entry_hashes[canonical_key] = content_hash
+            fetched_entries = dict(complete_entry_hashes)
+        else:
+            fetched_entries = resolved_fetched
+        coverage["refreshed_entry_identities"] = sorted(resolved_fetched)
+        coverage["carried_entry_identities"] = sorted(
+            set(fetched_entries) - set(resolved_fetched)
+        )
+        coverage["carried_entry_hash_digest"] = compute_hash(json.dumps(
+            sorted(
+                (
+                    identity,
+                    fetched_entries[identity],
+                )
+                for identity in coverage["carried_entry_identities"]
+            ),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ))
         coverage["fetched_entry_identities"] = sorted(fetched_entries)
         coverage["fetched_entry_identity_digest"] = _identity_digest(
             coverage["fetched_entry_identities"]
@@ -7707,15 +8108,20 @@ def update_source_state(
             if isinstance(prior_coverage, dict)
             else None
         ) or coverage.get("detail_identity_anchor")
-        retained_detail_urls = _finra_retained_listing_detail_urls(
-            coverage.get("pass_proofs")
-        )
-        merged_detail_proofs = _merge_finra_detail_identity_proofs(
-            (
+        prior_detail_proofs = [
+            proof
+            for proof in (
                 prior_coverage.get("detail_identity_proofs", [])
                 if isinstance(prior_coverage, dict)
                 else []
-            ),
+            )
+            if (
+                binding := _finra_detail_identity_from_proof(proof)
+            ) is not None
+            and binding[0] in retained_detail_urls
+        ]
+        merged_detail_proofs = _merge_finra_detail_identity_proofs(
+            prior_detail_proofs,
             coverage.get("detail_identity_proofs"),
             retained_detail_urls=retained_detail_urls,
         )
@@ -7773,18 +8179,37 @@ def update_source_state(
         and fallback_urls is not None
         and finra_fallback_urls is not None
     ):
-        source_state['fallback_urls'] = finra_fallback_urls
-    if source_key == SOURCE_KEY_FINRA and refreshed_urls is not None:
-        known_urls = _finra_known_notice_urls(source_state)
-        if known_urls:
-            cursor = source_state.get('refresh_cursor', 0)
-            if not isinstance(cursor, int) or isinstance(cursor, bool) or cursor < 0:
-                cursor = 0
-            source_state['refresh_cursor'] = (
-                cursor + len(refreshed_urls)
-            ) % len(known_urls)
+        if isinstance(coverage, dict) and coverage.get("pass_proofs"):
+            retained_urls = _finra_retained_listing_detail_urls(
+                coverage.get("pass_proofs")
+            )
+            source_state['fallback_urls'] = {
+                url: node_url
+                for url, node_url in finra_fallback_urls.items()
+                if url in retained_urls
+            }
         else:
-            source_state['refresh_cursor'] = 0
+            source_state['fallback_urls'] = finra_fallback_urls
+    if source_key == SOURCE_KEY_FINRA and refreshed_urls is not None:
+        if (
+            isinstance(coverage, dict)
+            and coverage.get("detail_mode") == "bounded-refresh"
+            and isinstance(coverage.get("refresh_cursor_output"), int)
+        ):
+            source_state["refresh_cursor"] = coverage[
+                "refresh_cursor_output"
+            ]
+        else:
+            known_urls = _finra_known_notice_urls(source_state)
+            if known_urls:
+                cursor = source_state.get('refresh_cursor', 0)
+                if not isinstance(cursor, int) or isinstance(cursor, bool) or cursor < 0:
+                    cursor = 0
+                source_state['refresh_cursor'] = (
+                    cursor + len(refreshed_urls)
+                ) % len(known_urls)
+            else:
+                source_state['refresh_cursor'] = 0
     source_state['last_run'] = datetime.now(timezone.utc).isoformat()
     if source_key == SOURCE_KEY_FEDERAL_REGISTER:
         source_state['last_checked'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')
@@ -8191,8 +8616,11 @@ def main():
             args.initialize_baseline
             and bool(_validate_regulatory_state(state, [SOURCE_KEY_FINRA]))
         )
-        finra_refresh_urls = _finra_refresh_batch(finra_state)
-        persisted_fallback_urls = finra_state.get('fallback_urls', {})
+        finra_refresh_urls = _finra_refresh_batch(comparison_finra_state)
+        persisted_fallback_urls = comparison_finra_state.get(
+            'fallback_urls',
+            {},
+        )
         if isinstance(persisted_fallback_urls, dict):
             finra_fallback_urls = {
                 canonical_url: node_url
@@ -8224,6 +8652,7 @@ def main():
                     ) == "deterministic-year-type-partitions"
                     else None
                 ),
+                prior_source_state=comparison_finra_state,
             )
         )
         source_runs.append((
