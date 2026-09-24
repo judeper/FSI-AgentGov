@@ -3297,6 +3297,93 @@ def _validate_source_coverage(
                     errors.append(
                         f"{source_key} legacy migration evidence digest is invalid"
                     )
+            removal_evidence = coverage.get("removed_entry_evidence")
+            removed_identities = coverage.get("removed_entry_identities")
+            removal_digest = coverage.get(
+                "removed_entry_evidence_digest"
+            )
+            prior_identities = coverage.get("prior_entry_identities")
+            prior_identity_digest = coverage.get(
+                "prior_entry_identity_digest"
+            )
+            removal_present = any(
+                value is not None
+                for value in (
+                    removal_evidence,
+                    removed_identities,
+                    removal_digest,
+                    prior_identities,
+                    prior_identity_digest,
+                )
+            )
+            if removal_present:
+                expected_removed = (
+                    set(prior_identities) - set(fetched_entry_identities)
+                    if isinstance(prior_identities, list)
+                    else set()
+                )
+                partition_proof_digest = compute_hash(json.dumps(
+                    {
+                        "filter_manifest": coverage.get("filter_manifest"),
+                        "partition_manifest": coverage.get(
+                            "partition_manifest"
+                        ),
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+                if (
+                    not isinstance(prior_identities, list)
+                    or prior_identities != sorted(set(prior_identities))
+                    or prior_identity_digest
+                    != _identity_digest(prior_identities)
+                    or not isinstance(removed_identities, list)
+                    or removed_identities != sorted(expected_removed)
+                    or not isinstance(removal_evidence, list)
+                    or {
+                        record.get("prior_canonical_identity")
+                        for record in removal_evidence
+                        if isinstance(record, dict)
+                    } != expected_removed
+                    or any(
+                        not isinstance(record, dict)
+                        or record.get("reason")
+                        != "absent-from-complete-deterministic-listing"
+                        or record.get("prior_canonical_identity")
+                        not in expected_removed
+                        or not isinstance(record.get("prior_hash"), str)
+                        or not record["prior_hash"]
+                        or record.get("current_listing_identity_digest")
+                        != coverage.get("current_listing_identity_digest")
+                        or record.get("partition_proof_digest")
+                        != partition_proof_digest
+                        or not isinstance(record.get("source_urls"), list)
+                        for record in removal_evidence
+                    )
+                    or removal_digest != compute_hash(json.dumps(
+                        removal_evidence,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ))
+                ):
+                    errors.append(
+                        f"{source_key} removal evidence is invalid"
+                    )
+                migration_ids = {
+                    record.get("canonical_identity")
+                    for record in (
+                        migration_evidence
+                        if isinstance(migration_evidence, list)
+                        else []
+                    )
+                    if isinstance(record, dict)
+                }
+                if expected_removed & migration_ids:
+                    errors.append(
+                        f"{source_key} migration and removal evidence overlap"
+                    )
         if coverage.get("fetched_entry_identity_digest") != _identity_digest(
             fetched_entry_identities
         ):
@@ -5213,6 +5300,7 @@ def _plan_finra_detail_refresh(
     row_identity: dict[int, str] = {}
     node_groups: dict[str, list[int]] = {}
     current_listing_identities = set()
+    current_canonical_identities = set()
     legacy_migration_bindings = []
 
     for index, row in enumerate(rows):
@@ -5222,6 +5310,17 @@ def _plan_finra_detail_refresh(
             raw_identity,
             alias_ledger,
         )
+        fallback = _validate_finra_node_url(fallbacks.get(url, ""))
+        fallback_identity = (
+            _extract_finra_document_id(fallback)
+            if fallback
+            else None
+        )
+        if (
+            identity not in prior_entries
+            and fallback_identity in prior_entries
+        ):
+            identity = fallback_identity
         row_identity[index] = identity
         current_listing_identities.add(raw_identity)
         row_reasons = reasons.setdefault(url, set())
@@ -5242,7 +5341,6 @@ def _plan_finra_detail_refresh(
             and _finra_payload_sort_key(row["raw_payload"]) not in prior_payloads
         ):
             row_reasons.add("listing-evidence-changed")
-        fallback = _validate_finra_node_url(fallbacks.get(url, ""))
         node_identity = (
             f"node:{urlparse(fallback).path.rsplit('/', 1)[-1]}"
             if fallback
@@ -5255,6 +5353,7 @@ def _plan_finra_detail_refresh(
             row_reasons.add("missing-prior-identity-binding")
             node_identity = f"unbound:{url}"
         node_groups.setdefault(node_identity, []).append(index)
+        current_canonical_identities.add(identity)
         if legacy_migration_mode and not row_reasons:
             legacy_migration_bindings.append({
                 "listing_identity": raw_identity,
@@ -5298,6 +5397,44 @@ def _plan_finra_detail_refresh(
         (cursor_input + len(scheduled_list))
         % max(1, len(refresh_ring))
     )
+    removed_identities = sorted(
+        set(prior_entries) - current_canonical_identities
+    )
+    alias_sources_by_target: dict[str, set[str]] = {}
+    for alias in prior_coverage.get("alias_ledger", []):
+        if not isinstance(alias, dict):
+            continue
+        source_url = _finra_alias_source_url(alias.get("old_identity"))
+        canonical_identity = alias.get("canonical_identity")
+        if source_url and isinstance(canonical_identity, str):
+            alias_sources_by_target.setdefault(
+                canonical_identity,
+                set(),
+            ).add(source_url)
+    fallback_sources_by_target: dict[str, set[str]] = {}
+    for source_url, node_url in fallbacks.items():
+        canonical_identity = _extract_finra_document_id(node_url)
+        fallback_sources_by_target.setdefault(
+            canonical_identity,
+            set(),
+        ).add(source_url)
+    removal_candidates = [
+        {
+            "prior_canonical_identity": identity,
+            "prior_hash": prior_entries[identity],
+            "source_urls": sorted({
+                *alias_sources_by_target.get(identity, set()),
+                *fallback_sources_by_target.get(identity, set()),
+                *(
+                    {identity}
+                    if _finra_normalize_detail_link(identity)[0] == identity
+                    else set()
+                ),
+            }),
+            "reason": "absent-from-complete-deterministic-listing",
+        }
+        for identity in removed_identities
+    ]
     return {
         "fetch_rows": fetch_rows,
         "carried_entries": carried_entries,
@@ -5314,6 +5451,8 @@ def _plan_finra_detail_refresh(
                 item["canonical_identity"],
             ),
         ),
+        "prior_entry_identities": sorted(prior_entries),
+        "removal_candidates": removal_candidates,
         "refresh_cursor_input": cursor_input,
         "refresh_cursor_output": cursor_output,
         "forced_fetch_reasons": {
@@ -8215,6 +8354,47 @@ def fetch_finra_notices(
                     separators=(",", ":"),
                 )
             )
+        if detail_plan["removal_candidates"]:
+            partition_proof_digest = compute_hash(json.dumps(
+                {
+                    "filter_manifest": coverage.get("filter_manifest"),
+                    "partition_manifest": coverage.get(
+                        "partition_manifest"
+                    ),
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
+            removal_evidence = [
+                {
+                    **record,
+                    "current_listing_identity_digest": coverage[
+                        "current_listing_identity_digest"
+                    ],
+                    "partition_proof_digest": partition_proof_digest,
+                }
+                for record in detail_plan["removal_candidates"]
+            ]
+            coverage["removed_entry_evidence"] = removal_evidence
+            coverage["removed_entry_identities"] = [
+                record["prior_canonical_identity"]
+                for record in removal_evidence
+            ]
+            coverage["removed_entry_evidence_digest"] = compute_hash(
+                json.dumps(
+                    removal_evidence,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
+            coverage["prior_entry_identities"] = detail_plan[
+                "prior_entry_identities"
+            ]
+            coverage["prior_entry_identity_digest"] = _identity_digest(
+                detail_plan["prior_entry_identities"]
+            )
         coverage["fetched_entry_identity_digest"] = _identity_digest(
             coverage["fetched_entry_identities"]
         )
@@ -8658,6 +8838,44 @@ def update_source_state(
         coverage["fetched_entry_identity_digest"] = _identity_digest(
             coverage["fetched_entry_identities"]
         )
+        removal_evidence = coverage.get("removed_entry_evidence", [])
+        removed_identities = {
+            record.get("prior_canonical_identity")
+            for record in removal_evidence
+            if isinstance(record, dict)
+        }
+        prior_identity_set = set(
+            coverage.get("prior_entry_identities", entries)
+        )
+        expected_removed = prior_identity_set - set(fetched_entries)
+        if removed_identities != expected_removed:
+            missing = sorted(expected_removed - removed_identities)
+            extra = sorted(removed_identities - expected_removed)
+            raise ValueError(
+                "FINRA removal evidence does not match prior minus current "
+                f"identities: expected={len(expected_removed)} "
+                f"provided={len(removed_identities)} "
+                f"missing={missing[:5]} extra={extra[:5]}"
+            )
+        migration_canonical_ids = {
+            record.get("canonical_identity")
+            for record in coverage.get("legacy_migration_evidence", [])
+            if isinstance(record, dict)
+        }
+        if removed_identities & migration_canonical_ids:
+            raise ValueError(
+                "FINRA migration and removal evidence overlap"
+            )
+        prior_entries_for_alias = {
+            identity: content_hash
+            for identity, content_hash in entries.items()
+            if identity not in removed_identities
+        }
+        existing_alias_ledger = [
+            alias
+            for alias in existing_alias_ledger
+            if alias.get("canonical_identity") not in removed_identities
+        ]
         legacy_migration_ledger = coverage.get("migration_ledger")
         if legacy_migration_ledger is None and isinstance(prior_coverage, dict):
             legacy_migration_ledger = prior_coverage.get("migration_ledger")
@@ -8684,7 +8902,7 @@ def update_source_state(
             retained_detail_urls=retained_detail_urls,
         )
         alias_ledger = _build_finra_alias_ledger(
-            entries,
+            prior_entries_for_alias,
             fetched_entries,
             existing_alias_ledger=existing_alias_ledger,
             legacy_migration_ledger=legacy_migration_ledger,

@@ -176,7 +176,10 @@ def test_finra_alias_migration_removes_duplicate_entries_and_requires_evidence()
     assert migrated[0]["canonical_identity"] == canonical_identity
     assert migrated[0]["source_hash"] == source_hash
     assert migrated[0]["evidence"]["reason"] == "verified duplicate"
-    with pytest.raises(ValueError, match="lack explicit migration evidence"):
+    with pytest.raises(
+        ValueError,
+        match="lack explicit migration evidence",
+    ):
         regulatory_monitor._build_finra_alias_ledger(
             {old_identity: source_hash},
             {canonical_identity: source_hash},
@@ -6916,6 +6919,87 @@ def test_finra_cursor_advances_across_unrepresented_scheduled_batch():
     assert plan["refresh_cursor_output"] == 25
 
 
+def test_finra_removal_plan_prunes_only_absent_canonical_identity():
+    rows, state = _bounded_detail_fixture(3)
+    removed_row = rows.pop()
+    removed_identity = removed_row["detail_url"]
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        state,
+        [],
+        limit=None,
+    )
+
+    assert [record["prior_canonical_identity"] for record in plan[
+        "removal_candidates"
+    ]] == [removed_identity]
+    assert plan["removal_candidates"][0]["prior_hash"] == state[
+        "entries"
+    ][removed_identity]
+
+
+def test_finra_fallback_represented_node_is_not_removed():
+    url = "https://www.finra.org/rules-guidance/notices/26-01"
+    canonical = "https://www.finra.org/node/99999"
+    row = _synthetic_finra_row(
+        url,
+        "url:/rules-guidance/notices/26-01",
+    )
+    state = {
+        "entries": {canonical: "sha256:canonical"},
+        "fallback_urls": {url: canonical},
+        "coverage": {
+            "alias_ledger": [],
+            "pass_proofs": [
+                {"page_row_payloads": [[deepcopy(row["raw_payload"])]]}
+            ],
+        },
+    }
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        [row],
+        state,
+        [],
+        limit=None,
+    )
+
+    assert plan["removal_candidates"] == []
+    assert plan["carried_entries"] == {canonical: "sha256:canonical"}
+
+
+def test_finra_no_removal_evidence_when_prior_and_current_sets_match():
+    rows, state = _bounded_detail_fixture(3)
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        state,
+        [],
+        limit=None,
+    )
+
+    assert plan["removal_candidates"] == []
+
+
+def test_finra_removed_identity_reappears_as_forced_new_fetch():
+    rows, state = _bounded_detail_fixture(2)
+    removed = rows.pop()
+    state["entries"].pop(removed["detail_url"])
+    state["fallback_urls"].pop(removed["detail_url"])
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        [removed],
+        state,
+        [],
+        limit=None,
+    )
+
+    assert plan["fetch_rows"] == [removed]
+    assert "new-listing-identity" in plan["forced_fetch_reasons"][
+        removed["detail_url"]
+    ]
+
+
 def _bounded_detail_fixture(count=100, *, cursor=0):
     rows = []
     entries = {}
@@ -7885,7 +7969,10 @@ def test_finra_node_transport_fallback_preserves_canonical_identity(monkeypatch)
             }
         }
     }
-    with pytest.raises(ValueError, match="lack explicit migration evidence"):
+    with pytest.raises(
+        ValueError,
+        match="removal evidence does not match prior minus current identities",
+    ):
         regulatory_monitor.update_source_state(
             regulatory_monitor.SOURCE_KEY_FINRA,
             list(result),
