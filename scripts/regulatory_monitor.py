@@ -118,9 +118,10 @@ FINRA_MAX_LISTING_PASSES = 3
 # retries. With the workflow capped at 350 minutes, 23 minutes remain for setup,
 # reports, state validation, and GitHub runner overhead.
 FINRA_DETAIL_REFRESH_HEADROOM_MINUTES = 75
-# Live canaries showed FINRA's listing-phase IP throttle persisting more than
-# five minutes into detail work. Wait fifteen minutes once between phases.
-FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS = 900
+# Sep. 24, 2026 live canaries showed FINRA's listing-phase IP throttle still
+# blocking the first detail request more than twenty minutes after pass two.
+# Wait thirty minutes once between listing and detail phases.
+FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS = 1800
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
