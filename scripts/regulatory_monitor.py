@@ -3079,6 +3079,45 @@ def _validate_source_coverage(
                 errors.append(
                     f"{source_key} refresh cursor evidence is invalid"
                 )
+            migration_evidence = coverage.get("legacy_migration_evidence")
+            migration_digest = coverage.get(
+                "legacy_migration_evidence_digest"
+            )
+            if migration_evidence is not None or migration_digest is not None:
+                if (
+                    not isinstance(migration_evidence, list)
+                    or not migration_evidence
+                    or any(
+                        not isinstance(record, dict)
+                        or set(record) != {
+                            "listing_identity",
+                            "canonical_identity",
+                            "content_hash",
+                            "reason",
+                        }
+                        or record.get("reason")
+                        != "validated-legacy-migration"
+                        or record.get("listing_identity")
+                        not in current_listing_identities
+                        or record.get("canonical_identity")
+                        not in fetched_entry_identities
+                        or entries.get(record.get("canonical_identity"))
+                        != record.get("content_hash")
+                        for record in migration_evidence
+                    )
+                ):
+                    errors.append(
+                        f"{source_key} legacy migration evidence is invalid"
+                    )
+                elif migration_digest != compute_hash(json.dumps(
+                    migration_evidence,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )):
+                    errors.append(
+                        f"{source_key} legacy migration evidence digest is invalid"
+                    )
         if coverage.get("fetched_entry_identity_digest") != _identity_digest(
             fetched_entry_identities
         ):
@@ -4942,6 +4981,7 @@ def _plan_finra_detail_refresh(
     scheduled_urls: list[str],
     *,
     limit: Optional[int],
+    prior_state_validated: bool = False,
 ) -> dict:
     """Plan bounded detail work from a complete current listing proof."""
     prior = prior_source_state if isinstance(prior_source_state, dict) else {}
@@ -4949,6 +4989,13 @@ def _plan_finra_detail_refresh(
     prior_entries = prior_entries if isinstance(prior_entries, dict) else {}
     prior_coverage = prior.get("coverage")
     prior_coverage = prior_coverage if isinstance(prior_coverage, dict) else {}
+    legacy_migration_mode = bool(
+        prior_state_validated
+        and prior_coverage.get("schema_version")
+        == FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+        and prior_coverage.get("listing_mode") == "complete-unfiltered"
+        and prior_coverage.get("complete") is True
+    )
     retained_urls = {
         row["detail_url"] for row in rows if row.get("detail_url")
     }
@@ -4971,6 +5018,7 @@ def _plan_finra_detail_refresh(
     row_identity: dict[int, str] = {}
     node_groups: dict[str, list[int]] = {}
     current_listing_identities = set()
+    legacy_migration_bindings = []
 
     for index, row in enumerate(rows):
         url = row["detail_url"]
@@ -4994,7 +5042,10 @@ def _plan_finra_detail_refresh(
             or not prior_entries.get(identity)
         ):
             row_reasons.add("missing-prior-canonical-hash")
-        if _finra_payload_sort_key(row["raw_payload"]) not in prior_payloads:
+        if (
+            not legacy_migration_mode
+            and _finra_payload_sort_key(row["raw_payload"]) not in prior_payloads
+        ):
             row_reasons.add("listing-evidence-changed")
         fallback = _validate_finra_node_url(fallbacks.get(url, ""))
         node_identity = (
@@ -5002,10 +5053,20 @@ def _plan_finra_detail_refresh(
             if fallback
             else row.get("node_identity")
         )
-        if not isinstance(node_identity, str) or not node_identity:
+        if (
+            not isinstance(node_identity, str)
+            or re.fullmatch(r"node:\d+", node_identity) is None
+        ):
             row_reasons.add("missing-prior-identity-binding")
             node_identity = f"unbound:{url}"
         node_groups.setdefault(node_identity, []).append(index)
+        if legacy_migration_mode and not row_reasons:
+            legacy_migration_bindings.append({
+                "listing_identity": raw_identity,
+                "canonical_identity": identity,
+                "content_hash": prior_entries[identity],
+                "reason": "validated-legacy-migration",
+            })
 
     for indexes in node_groups.values():
         if len(indexes) <= 1:
@@ -5050,6 +5111,14 @@ def _plan_finra_detail_refresh(
         "scheduled_skipped_urls": scheduled_skipped,
         "refresh_ring": refresh_ring,
         "alias_ledger": alias_ledger,
+        "legacy_migration_mode": legacy_migration_mode,
+        "legacy_migration_bindings": sorted(
+            legacy_migration_bindings,
+            key=lambda item: (
+                item["listing_identity"],
+                item["canonical_identity"],
+            ),
+        ),
         "refresh_cursor_input": cursor_input,
         "refresh_cursor_output": cursor_output,
         "forced_fetch_reasons": {
@@ -7169,6 +7238,7 @@ def fetch_finra_notices(
     fallback_urls: Optional[dict[str, str]] = None,
     prior_filter_manifest: Optional[dict] = None,
     prior_source_state: Optional[dict] = None,
+    prior_state_validated: bool = False,
 ) -> FetchResult:
     """Fetch FINRA listing rows and authoritative notice details fail-closed."""
     items: list[RegulatoryItem] = []
@@ -7248,6 +7318,7 @@ def fetch_finra_notices(
             prior_source_state,
             list(known_urls or []),
             limit=limit,
+            prior_state_validated=prior_state_validated,
         )
         detail_rows = detail_plan["fetch_rows"]
         expected_detail_urls = sorted({
@@ -7259,6 +7330,18 @@ def fetch_finra_notices(
             len(expected_detail_urls),
             len(detail_plan["carried_entries"]),
             len(detail_plan["current_listing_identities"]),
+        )
+        reason_counts = Counter(
+            reason
+            for reasons in detail_plan["forced_fetch_reasons"].values()
+            for reason in reasons
+        )
+        logger.info(
+            "FINRA detail refresh plan expected_unique_requests=%s "
+            "reason_counts=%s legacy_migration_carried=%s",
+            len(expected_detail_urls),
+            dict(sorted(reason_counts.items())),
+            len(detail_plan["legacy_migration_bindings"]),
         )
         detail_cache: dict[str, dict] = {}
         detail_identity_proofs: dict[str, str] = {}
@@ -7657,6 +7740,18 @@ def fetch_finra_notices(
             "date_resolution_ledger": date_resolution_ledger,
             "conflict_ledger": conflict_ledger,
         }
+        if detail_plan["legacy_migration_bindings"]:
+            coverage["legacy_migration_evidence"] = detail_plan[
+                "legacy_migration_bindings"
+            ]
+            coverage["legacy_migration_evidence_digest"] = compute_hash(
+                json.dumps(
+                    coverage["legacy_migration_evidence"],
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
         coverage["fetched_entry_identity_digest"] = _identity_digest(
             coverage["fetched_entry_identities"]
         )
@@ -8653,6 +8748,7 @@ def main():
                     else None
                 ),
                 prior_source_state=comparison_finra_state,
+                prior_state_validated=(strict_state or recovery_mode),
             )
         )
         source_runs.append((
