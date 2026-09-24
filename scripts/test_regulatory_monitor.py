@@ -1188,6 +1188,113 @@ def test_finra_reviewed_anchor_does_not_freeze_future_duplicate_records():
     ) == []
 
 
+def test_finra_anchored_proofs_allow_new_supplemental_binding():
+    source_state = _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    new_url = "https://www.finra.org/rules-guidance/notices/26-16"
+    new_node = "https://www.finra.org/node/999999"
+    supplemental = [_detail_identity_proof("26-16", new_node)]
+    entries = {
+        **source_state["entries"],
+        new_node: "sha256:new",
+    }
+    fetched = [
+        *coverage["fetched_entry_identities"],
+        new_node,
+    ]
+
+    errors = regulatory_monitor._validate_finra_alias_ledger(
+        coverage["alias_ledger"],
+        entries,
+        fetched,
+        detail_identity_proofs=coverage["detail_identity_proofs"],
+        supplemental_detail_identity_proofs=supplemental,
+        retained_detail_urls={
+            *regulatory_monitor._finra_retained_listing_detail_urls(
+                coverage["pass_proofs"]
+            ),
+            new_url,
+        },
+        immutable_binding_digest=(
+            regulatory_monitor.FINRA_DETAIL_IDENTITY_ANCHORS[
+                coverage["detail_identity_anchor"]
+            ]
+        ),
+    )
+
+    assert errors == []
+    assert regulatory_monitor._finra_detail_identity_proof_digest(
+        coverage["detail_identity_proofs"]
+    ) == coverage["detail_identity_proof_digest"]
+
+
+def test_finra_removed_anchor_proof_remains_inert_trust_evidence():
+    source_state = _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    removed_alias = coverage["alias_ledger"][0]
+    removed_target = removed_alias["canonical_identity"]
+    aliases = [
+        alias for alias in coverage["alias_ledger"]
+        if alias is not removed_alias
+    ]
+    entries = {
+        identity: content_hash
+        for identity, content_hash in source_state["entries"].items()
+        if identity != removed_target
+    }
+    fetched = [
+        identity for identity in coverage["fetched_entry_identities"]
+        if identity != removed_target
+    ]
+
+    errors = regulatory_monitor._validate_finra_alias_ledger(
+        aliases,
+        entries,
+        fetched,
+        detail_identity_proofs=coverage["detail_identity_proofs"],
+        supplemental_detail_identity_proofs=[],
+        retained_detail_urls=(
+            regulatory_monitor._finra_retained_listing_detail_urls(
+                coverage["pass_proofs"]
+            )
+            - {
+                regulatory_monitor._finra_alias_source_url(
+                    removed_alias["old_identity"]
+                )
+            }
+        ),
+        immutable_binding_digest=(
+            regulatory_monitor.FINRA_DETAIL_IDENTITY_ANCHORS[
+                coverage["detail_identity_anchor"]
+            ]
+        ),
+    )
+
+    assert errors == []
+
+
+def test_finra_supplemental_proof_digest_tracks_add_update_remove():
+    first = _detail_identity_proof(
+        "26-16",
+        "https://www.finra.org/node/999999",
+    )
+    updated = first.replace("Notice to Members", "Regulatory Notice")
+
+    empty_digest = regulatory_monitor._finra_detail_identity_proof_digest([])
+    added_digest = regulatory_monitor._finra_detail_identity_proof_digest(
+        [first]
+    )
+    updated_digest = regulatory_monitor._finra_detail_identity_proof_digest(
+        [updated]
+    )
+
+    assert added_digest != empty_digest
+    assert updated_digest != added_digest
+    assert regulatory_monitor._finra_detail_identity_proof_digest([]) == (
+        empty_digest
+    )
+
+
 def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected():
     """Recomputed rows/flags cannot replace independent detail-date authority."""
     forged_state = _load_shipped_state()

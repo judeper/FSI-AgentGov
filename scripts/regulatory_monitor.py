@@ -882,6 +882,7 @@ def _validate_finra_alias_ledger(
     fetched_entry_identities: list[str],
     *,
     detail_identity_proofs: object = None,
+    supplemental_detail_identity_proofs: object = None,
     retained_detail_urls: object = None,
     immutable_binding_digest: Optional[str] = None,
 ) -> list[str]:
@@ -899,11 +900,24 @@ def _validate_finra_alias_ledger(
     if not isinstance(ledger, list):
         return ["regulatory-finra alias ledger is invalid"]
 
-    detail_bindings, detail_errors = _validate_finra_detail_identity_proofs(
+    anchored_bindings, detail_errors = _validate_finra_detail_identity_proofs(
         detail_identity_proofs,
-        retained_detail_urls=retained_detail_urls,
+        retained_detail_urls=None,
     )
     errors.extend(detail_errors)
+    supplemental_bindings, supplemental_errors = (
+        _validate_finra_detail_identity_proofs(
+            supplemental_detail_identity_proofs
+            if supplemental_detail_identity_proofs is not None
+            else [],
+            retained_detail_urls=retained_detail_urls,
+        )
+    )
+    errors.extend(supplemental_errors)
+    detail_bindings = {
+        **anchored_bindings,
+        **supplemental_bindings,
+    }
     fetched = set(fetched_entry_identities)
     old_identities = set()
     canonical_identities = set()
@@ -1013,7 +1027,7 @@ def _validate_finra_alias_ledger(
 
     if old_identities & canonical_identities:
         errors.append("regulatory-finra alias ledger contains a cycle")
-    if set(detail_bindings) != alias_source_urls:
+    if not alias_source_urls <= set(detail_bindings):
         errors.append(
             "regulatory-finra retained detail-page evidence does not exactly "
             "cover the alias ledger"
@@ -1024,7 +1038,7 @@ def _validate_finra_alias_ledger(
                 "regulatory-finra alias ledger lacks an immutable binding anchor"
             )
         elif _finra_detail_identity_binding_digest(
-            alias_detail_bindings
+            anchored_bindings
         ) != immutable_binding_digest:
             errors.append(
                 "regulatory-finra retained detail-page bindings do not match "
@@ -1063,6 +1077,7 @@ def _build_finra_alias_ledger(
     existing_alias_ledger: Optional[list[dict]] = None,
     legacy_migration_ledger: Optional[list[dict]] = None,
     detail_identity_proofs: object = None,
+    supplemental_detail_identity_proofs: object = None,
     retained_detail_urls: object = None,
     immutable_binding_digest: Optional[str] = None,
 ) -> list[dict]:
@@ -1133,36 +1148,20 @@ def _build_finra_alias_ledger(
             },
         })
 
-    proof_by_source = {
-        binding[0]: proof
-        for proof in (
-            detail_identity_proofs
-            if isinstance(detail_identity_proofs, list)
-            else []
-        )
-        if (
-            binding := _finra_detail_identity_from_proof(proof)
-        )
-    }
-    alias_source_urls = sorted({
-        source_url
-        for alias in ledger
-        if (
-            source_url := _finra_alias_source_url(
-                alias.get("old_identity")
-            )
-        )
-    })
-    alias_detail_proofs = [
-        proof_by_source[source_url]
-        for source_url in alias_source_urls
-        if source_url in proof_by_source
-    ]
     errors = _validate_finra_alias_ledger(
         ledger,
         fetched_entries,
         sorted(fetched_ids),
-        detail_identity_proofs=alias_detail_proofs,
+        detail_identity_proofs=(
+            detail_identity_proofs
+            if isinstance(detail_identity_proofs, list)
+            else []
+        ),
+        supplemental_detail_identity_proofs=(
+            supplemental_detail_identity_proofs
+            if isinstance(supplemental_detail_identity_proofs, list)
+            else []
+        ),
         retained_detail_urls=retained_detail_urls,
         immutable_binding_digest=immutable_binding_digest,
     )
@@ -3401,6 +3400,10 @@ def _validate_source_coverage(
                 )
             alias_ledger = coverage.get("alias_ledger")
             detail_identity_proofs = coverage.get("detail_identity_proofs")
+            supplemental_detail_identity_proofs = coverage.get(
+                "supplemental_detail_identity_proofs",
+                [],
+            )
             detail_identity_anchor = coverage.get("detail_identity_anchor")
             duplicate_recovery_anchor_digest = coverage.get(
                 "duplicate_recovery_anchor_digest"
@@ -3411,6 +3414,9 @@ def _validate_source_coverage(
                     entries,
                     fetched_entry_identities,
                     detail_identity_proofs=detail_identity_proofs,
+                    supplemental_detail_identity_proofs=(
+                        supplemental_detail_identity_proofs
+                    ),
                     retained_detail_urls=_finra_retained_listing_detail_urls(
                         coverage.get("pass_proofs")
                     ),
@@ -3436,6 +3442,80 @@ def _validate_source_coverage(
             ):
                 errors.append(
                     f"{source_key} detail identity proof digest is invalid"
+                )
+            if (
+                deterministic_schema
+                or "supplemental_detail_identity_proof_digest" in coverage
+                or "supplemental_detail_identity_proofs" in coverage
+            ) and coverage.get(
+                "supplemental_detail_identity_proof_digest"
+            ) != _finra_detail_identity_proof_digest(
+                supplemental_detail_identity_proofs
+                if isinstance(
+                    supplemental_detail_identity_proofs,
+                    list,
+                )
+                else []
+            ):
+                errors.append(
+                    f"{source_key} supplemental detail identity proof "
+                    "digest is invalid"
+                )
+            anchored_bindings = _validate_finra_detail_identity_proofs(
+                detail_identity_proofs
+                if isinstance(detail_identity_proofs, list)
+                else [],
+                retained_detail_urls=None,
+            )[0]
+            supplemental_bindings = _validate_finra_detail_identity_proofs(
+                supplemental_detail_identity_proofs
+                if isinstance(
+                    supplemental_detail_identity_proofs,
+                    list,
+                )
+                else [],
+                retained_detail_urls=(
+                    _finra_retained_listing_detail_urls(
+                        coverage.get("pass_proofs")
+                    )
+                ),
+            )[0]
+            if set(anchored_bindings) & set(supplemental_bindings):
+                errors.append(
+                    f"{source_key} detail identity proof moved between "
+                    "anchored and supplemental sets"
+                )
+            if deterministic_schema and isinstance(
+                detail_identity_anchor,
+                str,
+            ) and detail_identity_anchor in FINRA_DETAIL_IDENTITY_ANCHORS:
+                if coverage.get(
+                    "anchored_detail_identity_sequence_digest"
+                ) != compute_hash(json.dumps(
+                    detail_identity_proofs
+                    if isinstance(detail_identity_proofs, list)
+                    else [],
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )):
+                    errors.append(
+                        f"{source_key} anchored detail identity proof "
+                        "sequence digest is invalid"
+                    )
+            if (
+                isinstance(supplemental_detail_identity_proofs, list)
+                and _validate_finra_detail_identity_proofs(
+                    supplemental_detail_identity_proofs,
+                    retained_detail_urls=(
+                        _finra_retained_listing_detail_urls(
+                            coverage.get("pass_proofs")
+                        )
+                    ),
+                )[1]
+            ):
+                errors.append(
+                    f"{source_key} supplemental detail identity proofs "
+                    "are invalid"
                 )
             if (
                 isinstance(detail_count, int)
@@ -8884,21 +8964,54 @@ def update_source_state(
             if isinstance(prior_coverage, dict)
             else None
         ) or coverage.get("detail_identity_anchor")
-        prior_detail_proofs = [
-            proof
-            for proof in (
-                prior_coverage.get("detail_identity_proofs", [])
-                if isinstance(prior_coverage, dict)
-                else []
+        anchor_is_immutable = (
+            isinstance(detail_identity_anchor, str)
+            and detail_identity_anchor in FINRA_DETAIL_IDENTITY_ANCHORS
+        )
+        prior_detail_proofs = list(
+            prior_coverage.get("detail_identity_proofs", [])
+            if isinstance(prior_coverage, dict)
+            else []
+        )
+        anchored_detail_proofs = (
+            prior_detail_proofs if anchor_is_immutable else []
+        )
+        current_detail_proofs = list(
+            coverage.get("detail_identity_proofs", [])
+            if isinstance(coverage.get("detail_identity_proofs"), list)
+            else []
+        )
+        if (
+            anchor_is_immutable
+            and not anchored_detail_proofs
+            and current_detail_proofs
+        ):
+            anchored_detail_proofs = current_detail_proofs
+            current_detail_proofs = []
+        prior_supplemental_proofs = list(
+            prior_coverage.get(
+                "supplemental_detail_identity_proofs",
+                [],
             )
+            if isinstance(prior_coverage, dict)
+            else []
+        )
+        if not anchor_is_immutable:
+            prior_supplemental_proofs = [
+                *prior_detail_proofs,
+                *prior_supplemental_proofs,
+            ]
+        prior_supplemental_proofs = [
+            proof
+            for proof in prior_supplemental_proofs
             if (
                 binding := _finra_detail_identity_from_proof(proof)
             ) is not None
             and binding[0] in retained_detail_urls
         ]
-        merged_detail_proofs = _merge_finra_detail_identity_proofs(
-            prior_detail_proofs,
-            coverage.get("detail_identity_proofs"),
+        supplemental_detail_proofs = _merge_finra_detail_identity_proofs(
+            prior_supplemental_proofs,
+            current_detail_proofs,
             retained_detail_urls=retained_detail_urls,
         )
         alias_ledger = _build_finra_alias_ledger(
@@ -8906,7 +9019,10 @@ def update_source_state(
             fetched_entries,
             existing_alias_ledger=existing_alias_ledger,
             legacy_migration_ledger=legacy_migration_ledger,
-            detail_identity_proofs=merged_detail_proofs,
+            detail_identity_proofs=anchored_detail_proofs,
+            supplemental_detail_identity_proofs=(
+                supplemental_detail_proofs
+            ),
             retained_detail_urls=retained_detail_urls,
             immutable_binding_digest=(
                 FINRA_DETAIL_IDENTITY_ANCHORS.get(detail_identity_anchor)
@@ -8914,23 +9030,25 @@ def update_source_state(
                 else None
             ),
         )
-        proof_by_source = {
-            _finra_detail_identity_from_proof(proof)[0]: proof
-            for proof in merged_detail_proofs
-        }
-        alias_source_urls = sorted({
-            source_url
-            for alias in alias_ledger
-            if (
-                source_url := _finra_alias_source_url(
-                    alias.get("old_identity")
-                )
+        coverage["detail_identity_proofs"] = anchored_detail_proofs
+        coverage["detail_identity_proof_digest"] = (
+            _finra_detail_identity_proof_digest(anchored_detail_proofs)
+        )
+        coverage["anchored_detail_identity_sequence_digest"] = compute_hash(
+            json.dumps(
+                anchored_detail_proofs,
+                ensure_ascii=False,
+                separators=(",", ":"),
             )
-        })
-        coverage["detail_identity_proofs"] = [
-            proof_by_source[source_url]
-            for source_url in alias_source_urls
-        ]
+        )
+        coverage["supplemental_detail_identity_proofs"] = (
+            supplemental_detail_proofs
+        )
+        coverage["supplemental_detail_identity_proof_digest"] = (
+            _finra_detail_identity_proof_digest(
+                supplemental_detail_proofs
+            )
+        )
         coverage["detail_identity_anchor"] = detail_identity_anchor
         if (
             detail_identity_anchor
