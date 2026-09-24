@@ -2315,6 +2315,7 @@ class _FakeSession:
             self._finra_legacy_fixture_capability = (
                 regulatory_monitor._FINRA_LEGACY_FIXTURE_CAPABILITY
             )
+        self._finra_skip_phase_cooldown = True
 
     def get(self, url, **kwargs):
         self.calls.append((url, kwargs))
@@ -5692,6 +5693,10 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
     assert regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS == 12.0
     assert regulatory_monitor.FINRA_MAX_LISTING_PASSES == 3
     assert regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES == 75
+    assert (
+        regulatory_monitor.FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS
+        == 900
+    )
     listing_minutes = (
         regulatory_monitor.FINRA_MAX_LISTING_PASSES
         * regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET
@@ -5699,17 +5704,16 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
         / 60
     )
     assert listing_minutes == 252
-    assert (
+    total_minutes = (
         listing_minutes
         + regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
-        < workflow_timeout_minutes
+        + (
+            regulatory_monitor.FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS
+            / 60
+        )
     )
-    assert (
-        workflow_timeout_minutes
-        - listing_minutes
-        - regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
-        == 23
-    )
+    assert total_minutes == 342
+    assert workflow_timeout_minutes - total_minutes == 8
 
 
 def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
@@ -7056,6 +7060,14 @@ def test_finra_bounded_detail_refresh_carries_hashes_and_reports_changed_item(
         },
     }
     requested = []
+    sleeps = []
+    session = _FakeSession([])
+    session._finra_skip_phase_cooldown = False
+    session._finra_cooldown_until = 9999.0
+    session._finra_backoff_seconds = 60
+    session._finra_request_interval_seconds = 60
+    session._finra_last_request_at = 9999.0
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", sleeps.append)
     monkeypatch.setattr(
         regulatory_monitor,
         "_fetch_finra_listing_records",
@@ -7082,7 +7094,7 @@ def test_finra_bounded_detail_refresh_carries_hashes_and_reports_changed_item(
     )
 
     result = regulatory_monitor.fetch_finra_notices(
-        _FakeSession([]),
+        session,
         {"regulatory": {}, "keyword_control_map": []},
         known_urls=[urls[0]],
         fallback_urls=prior_state["fallback_urls"],
@@ -7090,11 +7102,23 @@ def test_finra_bounded_detail_refresh_carries_hashes_and_reports_changed_item(
     )
 
     assert result.complete is True
+    assert sleeps == [900]
     assert requested == [urls[0]]
     assert len(result) == 1
     assert result.coverage["detail_mode"] == "bounded-refresh"
     assert len(result.coverage["carried_entry_identities"]) == 2
     assert len(result.coverage["fetched_entry_identities"]) == 3
+    assert result.coverage["detail_phase_cooldown_seconds"] == 900
+    assert (
+        result.coverage["detail_phase_start_marker"]
+        == "phase-cooldown-complete"
+    )
+    assert session._finra_cooldown_until == 0.0
+    assert session._finra_backoff_seconds == (
+        regulatory_monitor.FINRA_RETRY_BASE_WAIT_SECONDS
+    )
+    assert session._finra_request_interval_seconds == 1.0
+    assert session._finra_last_request_at == 0.0
     assert regulatory_monitor.check_for_new_items(
         regulatory_monitor.SOURCE_KEY_FINRA,
         list(result),
@@ -7117,6 +7141,40 @@ def test_finra_bounded_detail_refresh_carries_hashes_and_reports_changed_item(
     persisted = state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
     assert len(persisted["entries"]) == 3
     assert persisted["refresh_cursor"] == 1
+
+
+def test_finra_zero_detail_plan_has_no_phase_cooldown(monkeypatch):
+    rows, prior = _bounded_detail_fixture(2)
+    listing = _synthetic_finra_listing(rows)
+    sleeps = []
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda *_args, **_kwargs: pytest.fail(
+            "zero-detail plan must not fetch"
+        ),
+    )
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", sleeps.append)
+
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        prior_source_state=prior,
+    )
+
+    assert result.complete is True
+    assert sleeps == []
+    assert result.coverage["expected_detail_request_count"] == 0
+    assert result.coverage["detail_phase_cooldown_seconds"] == 0
+    assert (
+        result.coverage["detail_phase_start_marker"]
+        == "no-detail-requests"
+    )
 
 
 def test_finra_bounded_detail_carried_hash_tampering_is_rejected():
@@ -7149,6 +7207,8 @@ def test_finra_bounded_detail_carried_hash_tampering_is_rejected():
         "refresh_cursor_output": 0,
         "forced_fetch_reasons": {},
         "expected_detail_request_count": 0,
+        "detail_phase_cooldown_seconds": 0,
+        "detail_phase_start_marker": "no-detail-requests",
     })
 
     errors = regulatory_monitor._validate_source_coverage(
@@ -7157,6 +7217,50 @@ def test_finra_bounded_detail_carried_hash_tampering_is_rejected():
     )
 
     assert any("carried entry hash digest is invalid" in error for error in errors)
+
+
+def test_finra_detail_phase_cooldown_tampering_is_rejected():
+    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    source_state = deepcopy(
+        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    )
+    coverage = source_state["coverage"]
+    coverage.update({
+        "schema_version": 2,
+        "listing_mode": "deterministic-year-type-partitions",
+        "detail_mode": "bounded-refresh",
+        "refreshed_entry_identities": [],
+        "refreshed_urls": [],
+        "carried_entry_identities": sorted(source_state["entries"]),
+        "carried_entry_hash_digest": compute_hash(json.dumps(
+            sorted(source_state["entries"].items()),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )),
+        "current_listing_identities": sorted(source_state["entries"]),
+        "current_listing_identity_digest": (
+            regulatory_monitor._identity_digest(source_state["entries"])
+        ),
+        "refresh_cursor_input": 0,
+        "refresh_cursor_output": 0,
+        "refresh_ring_urls": [],
+        "skipped_scheduled_urls": [],
+        "forced_fetch_reasons": {},
+        "expected_detail_request_count": 0,
+        "detail_phase_cooldown_seconds": 900,
+        "detail_phase_start_marker": "phase-cooldown-complete",
+    })
+
+    errors = regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    )
+
+    assert any(
+        "detail phase cooldown evidence is invalid" in error
+        for error in errors
+    )
 
 
 def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch):
@@ -7186,6 +7290,8 @@ def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch)
             "error": None,
         },
     )
+    sleeps = []
+    monkeypatch.setattr(regulatory_monitor.time, "sleep", sleeps.append)
 
     result = regulatory_monitor.fetch_finra_notices(
         _FakeSession([]),
@@ -7195,6 +7301,8 @@ def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch)
 
     assert result.complete is False
     assert "_complete_entry_hashes" not in result.coverage
+    assert 900 not in sleeps
+    assert result.coverage["detail_phase_cooldown_seconds"] == 0
 
 
 def test_finra_validated_legacy_migration_carries_historical_archive():

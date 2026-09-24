@@ -118,6 +118,9 @@ FINRA_MAX_LISTING_PASSES = 3
 # retries. With the workflow capped at 350 minutes, 23 minutes remain for setup,
 # reports, state validation, and GitHub runner overhead.
 FINRA_DETAIL_REFRESH_HEADROOM_MINUTES = 75
+# Live canaries showed FINRA's listing-phase IP throttle persisting more than
+# five minutes into detail work. Wait fifteen minutes once between phases.
+FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS = 900
 FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
@@ -3040,6 +3043,8 @@ def _validate_source_coverage(
                 "skipped_scheduled_urls",
                 "forced_fetch_reasons",
                 "expected_detail_request_count",
+                "detail_phase_cooldown_seconds",
+                "detail_phase_start_marker",
             )
             for key in detail_required:
                 if key not in coverage:
@@ -3193,6 +3198,36 @@ def _validate_source_coverage(
             ):
                 errors.append(
                     f"{source_key} expected detail request count is invalid"
+                )
+            expected_request_count = coverage.get(
+                "expected_detail_request_count"
+            )
+            cooldown_seconds = coverage.get(
+                "detail_phase_cooldown_seconds"
+            )
+            phase_marker = coverage.get("detail_phase_start_marker")
+            if expected_request_count == 0:
+                cooldown_valid = (
+                    cooldown_seconds == 0
+                    and phase_marker == "no-detail-requests"
+                )
+            elif phase_marker == "phase-cooldown-complete":
+                cooldown_valid = (
+                    cooldown_seconds
+                    == FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS
+                )
+            elif phase_marker == "zero-delay-no-cooldown":
+                cooldown_valid = (
+                    cooldown_seconds == 0
+                    and FINRA_REQUEST_INTERVAL_SECONDS <= 0
+                )
+            elif phase_marker == "limited-no-cooldown":
+                cooldown_valid = cooldown_seconds == 0
+            else:
+                cooldown_valid = False
+            if not cooldown_valid:
+                errors.append(
+                    f"{source_key} detail phase cooldown evidence is invalid"
                 )
             cursor_input = coverage.get("refresh_cursor_input")
             cursor_output = coverage.get("refresh_cursor_output")
@@ -5046,6 +5081,14 @@ def _fetch_finra_page(
         # The next loop iteration consumes the shared cooldown. Sleeping here
         # as well would double-wait every 429 and create a nested retry storm.
     return result
+
+
+def _reset_finra_detail_session_state(session: requests.Session) -> None:
+    """Start detail work at the one-second baseline after the phase wait."""
+    session._finra_cooldown_until = 0.0
+    session._finra_backoff_seconds = FINRA_RETRY_BASE_WAIT_SECONDS
+    session._finra_request_interval_seconds = FINRA_REQUEST_INTERVAL_SECONDS
+    session._finra_last_request_at = 0.0
 
 
 def _finra_known_notice_urls(source_state: dict) -> list[str]:
@@ -7734,6 +7777,32 @@ def fetch_finra_notices(
             dict(sorted(reason_counts.items())),
             len(detail_plan["legacy_migration_bindings"]),
         )
+        detail_cooldown_seconds = 0
+        detail_phase_start_marker = "no-detail-requests"
+        if expected_detail_urls:
+            if limit is not None:
+                detail_phase_start_marker = "limited-no-cooldown"
+            elif getattr(
+                session,
+                "_finra_skip_phase_cooldown",
+                False,
+            ):
+                detail_phase_start_marker = "synthetic-test-no-cooldown"
+            elif FINRA_REQUEST_INTERVAL_SECONDS <= 0:
+                detail_phase_start_marker = "zero-delay-no-cooldown"
+            else:
+                detail_cooldown_seconds = (
+                    FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS
+                )
+                logger.info(
+                    "FINRA listing-to-detail phase cooldown "
+                    "seconds=%s expected_unique_requests=%s",
+                    detail_cooldown_seconds,
+                    len(expected_detail_urls),
+                )
+                time.sleep(detail_cooldown_seconds)
+                detail_phase_start_marker = "phase-cooldown-complete"
+            _reset_finra_detail_session_state(session)
         detail_cache: dict[str, dict] = {}
         detail_identity_proofs: dict[str, str] = {}
         node_groups: dict[str, dict] = {}
@@ -8120,6 +8189,8 @@ def fetch_finra_notices(
             ],
             "forced_fetch_reasons": detail_plan["forced_fetch_reasons"],
             "expected_detail_request_count": len(expected_detail_urls),
+            "detail_phase_cooldown_seconds": detail_cooldown_seconds,
+            "detail_phase_start_marker": detail_phase_start_marker,
             "_complete_entry_hashes": complete_entries,
             "alias_ledger": [],
             "detail_identity_proofs": [
