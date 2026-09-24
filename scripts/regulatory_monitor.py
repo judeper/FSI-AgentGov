@@ -1200,7 +1200,14 @@ def _finra_pass_proof_recomputation_errors(
 
     for page_index, page in enumerate(payloads):
         for row_index, row in enumerate(page):
-            if not _is_finra_listing_row_payload(row):
+            if (
+                not _is_finra_listing_row_payload(row)
+                or (
+                    proof.get("proof_version")
+                    != FINRA_DETERMINISTIC_PROOF_VERSION
+                    and "listing_date" in row
+                )
+            ):
                 errors.append(
                     f"{label} row {page_index}:{row_index} does not match "
                     "the production row evidence schema"
@@ -1220,6 +1227,28 @@ def _finra_pass_proof_recomputation_errors(
         errors.append(f"{label} page row counts are not recomputable from payloads")
     if proof.get("page_row_digests") != recomputed_digests:
         errors.append(f"{label} page row digests are not recomputable from payloads")
+    if proof.get("proof_version") == FINRA_DETERMINISTIC_PROOF_VERSION:
+        recomputed_semantic_pages = [
+            [_finra_semantic_row_payload(row) for row in page]
+            for page in payloads
+        ]
+        recomputed_semantic_digests = [
+            compute_hash(json.dumps(
+                page,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
+            for page in recomputed_semantic_pages
+        ]
+        if proof.get("page_semantic_payloads") != recomputed_semantic_pages:
+            errors.append(
+                f"{label} semantic page payloads are not raw-proof-bound"
+            )
+        if proof.get("page_semantic_digests") != recomputed_semantic_digests:
+            errors.append(
+                f"{label} semantic page digests are not recomputable"
+            )
 
     resolved = 0
     unresolved = 0
@@ -1401,6 +1430,7 @@ def _finra_partition_proof_errors(
     }
     query_identities = set()
     canonical_by_identity: dict[str, Counter] = {}
+    semantic_targets: dict[str, str] = {}
     shards_by_year: dict[tuple[str, str], list[dict]] = {}
     expected_shard_keys = {
         "year",
@@ -1417,6 +1447,8 @@ def _finra_partition_proof_errors(
         "unique_node_count",
         "row_payloads",
         "row_evidence_digest",
+        "semantic_row_payloads",
+        "semantic_row_evidence_digest",
     }
     for shard_index, shard in enumerate(partition_manifest):
         shard_label = f"{label} partition shard {shard_index}"
@@ -1538,6 +1570,32 @@ def _finra_partition_proof_errors(
             separators=(",", ":"),
         )):
             errors.append(f"{shard_label} row evidence digest is invalid")
+        expected_semantic_payloads = sorted(
+            (
+                _finra_semantic_row_payload(payload)
+                for payload in row_payloads
+            ),
+            key=lambda payload: json.dumps(
+                payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+        )
+        if (
+            shard.get("semantic_row_payloads")
+            != expected_semantic_payloads
+            or shard.get("semantic_row_evidence_digest")
+            != compute_hash(json.dumps(
+                expected_semantic_payloads,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
+        ):
+            errors.append(
+                f"{shard_label} semantic row evidence is invalid"
+            )
         raw_row_count = shard.get("raw_row_count")
         if (
             raw_row_count != len(row_payloads)
@@ -1562,8 +1620,17 @@ def _finra_partition_proof_errors(
             _, identity = _finra_normalize_detail_link(detail_url)
             if identity is None:
                 continue
+            observation_key = _finra_semantic_observation_key(payload)
+            prior_target = semantic_targets.get(observation_key)
+            if prior_target is not None and prior_target != detail_url:
+                errors.append(
+                    f"{shard_label} conflicts on canonical target "
+                    f"{prior_target} != {detail_url}"
+                )
+            else:
+                semantic_targets[observation_key] = detail_url
             shard_by_identity.setdefault(identity, Counter())[
-                _finra_payload_sort_key(payload)
+                _finra_semantic_payload_sort_key(payload)
             ] += 1
         if shard.get("unique_node_count") != len(shard_by_identity):
             errors.append(f"{shard_label} unique node count is invalid")
@@ -1584,6 +1651,8 @@ def _finra_partition_proof_errors(
         "subdivision_reason",
         "page_identity",
         "row_payloads",
+        "semantic_row_payloads",
+        "semantic_row_evidence_digest",
     }
     observations_by_year: dict[tuple[str, str], dict] = {}
     if not isinstance(year_observations, list) or not year_observations:
@@ -1614,6 +1683,9 @@ def _finra_partition_proof_errors(
         subdivision_reason = observation.get("subdivision_reason")
         page_identity = observation.get("page_identity")
         row_payloads = observation.get("row_payloads")
+        semantic_row_payloads = observation.get(
+            "semantic_row_payloads"
+        )
         if (
             not isinstance(declared_pages, int)
             or isinstance(declared_pages, bool)
@@ -1663,6 +1735,27 @@ def _finra_partition_proof_errors(
                 row_payloads,
                 key=_finra_payload_sort_key,
             )
+            or semantic_row_payloads != sorted(
+                (
+                    _finra_semantic_row_payload(payload)
+                    for payload in row_payloads
+                ),
+                key=lambda payload: json.dumps(
+                    payload,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+            )
+            or observation.get("semantic_row_evidence_digest")
+            != compute_hash(json.dumps(
+                semantic_row_payloads
+                if isinstance(semantic_row_payloads, list)
+                else [],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
         ):
             errors.append(f"{observation_label} evidence is invalid")
             continue
@@ -1677,7 +1770,7 @@ def _finra_partition_proof_errors(
         item["value"] for item in notice_types
     }
     unclassified_counter_for_reconciliation = Counter(
-        _finra_payload_sort_key(payload)
+        _finra_semantic_payload_sort_key(payload)
         for payload in (
             proof.get("unclassified_evidence", {}).get("row_payloads", [])
             if isinstance(proof.get("unclassified_evidence"), dict)
@@ -1705,12 +1798,12 @@ def _finra_partition_proof_errors(
                     f"{label} partition topology omits a discovered notice type"
                 )
             type_union = Counter(
-                _finra_payload_sort_key(payload)
+                _finra_semantic_payload_sort_key(payload)
                 for shard in shards
                 for payload in shard.get("row_payloads", [])
             )
             year_page_zero = Counter(
-                _finra_payload_sort_key(payload)
+                _finra_semantic_payload_sort_key(payload)
                 for payload in observation["row_payloads"]
             )
             if year_page_zero - (
@@ -1734,6 +1827,8 @@ def _finra_partition_proof_errors(
         "observations",
         "row_payloads",
         "row_evidence_digest",
+        "semantic_row_payloads",
+        "semantic_row_evidence_digest",
         "raw_row_count",
         "resolved_row_count",
         "unresolved_row_count",
@@ -1749,7 +1844,7 @@ def _finra_partition_proof_errors(
         counter: Counter,
     ) -> list[dict]:
         payload_by_key = {
-            _finra_payload_sort_key(payload): payload
+            _finra_semantic_payload_sort_key(payload): payload
             for payload in available_payloads
         }
         return [
@@ -1780,7 +1875,7 @@ def _finra_partition_proof_errors(
                 if _is_finra_listing_row_payload(payload)
             ]
             global_missing = Counter(
-                _finra_payload_sort_key(payload)
+                _finra_semantic_payload_sort_key(payload)
                 for payload in global_payloads
             ) - classified_counter
             if global_missing:
@@ -1810,13 +1905,13 @@ def _finra_partition_proof_errors(
             continue
         shards = shards_by_year.get(year_identity, [])
         type_union = Counter(
-            _finra_payload_sort_key(payload)
+            _finra_semantic_payload_sort_key(payload)
             for shard in shards
             for payload in shard.get("row_payloads", [])
         )
         year_payloads = observation["row_payloads"]
         year_missing = Counter(
-            _finra_payload_sort_key(payload)
+            _finra_semantic_payload_sort_key(payload)
             for payload in year_payloads
         ) - type_union
         if not year_missing:
@@ -1889,6 +1984,10 @@ def _finra_partition_proof_errors(
             _finra_payload_sort_key(payload)
             for payload in unclassified_payloads
         ]
+        expected_semantic_unclassified = [
+            _finra_semantic_row_payload(payload)
+            for payload in unclassified_payloads
+        ]
         unclassified_identity_list = []
         for payload in unclassified_payloads:
             detail_url = _finra_row_detail_target(payload)
@@ -1917,6 +2016,15 @@ def _finra_partition_proof_errors(
             or unclassified.get("unique_node_count")
             != len(unclassified_identities)
             or unclassified_payloads != expected_merged_payloads
+            or unclassified.get("semantic_row_payloads")
+            != expected_semantic_unclassified
+            or unclassified.get("semantic_row_evidence_digest")
+            != compute_hash(json.dumps(
+                expected_semantic_unclassified,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
         ):
             evidence_years = [
                 (
@@ -1938,11 +2046,11 @@ def _finra_partition_proof_errors(
 
     recomputed_partition_counter = Counter(classified_counter)
     recomputed_partition_counter.update(
-        _finra_payload_sort_key(payload)
+        _finra_semantic_payload_sort_key(payload)
         for payload in unclassified_payloads
     )
     canonical_counter = Counter(
-        _finra_payload_sort_key(payload)
+        _finra_semantic_payload_sort_key(payload)
         for page in canonical_payload_pages
         for payload in page
     )
@@ -1962,6 +2070,8 @@ def _finra_partition_proof_errors(
         "page_row_counts",
         "page_row_digests",
         "page_row_payloads",
+        "page_semantic_payloads",
+        "page_semantic_digests",
     }
     if (
         not isinstance(observation, dict)
@@ -2042,8 +2152,30 @@ def _finra_partition_proof_errors(
             errors.append(
                 f"{label} bounded unfiltered page evidence is inconsistent"
             )
+        expected_semantic_pages = [
+            [_finra_semantic_row_payload(payload) for payload in page]
+            for page in reconciliation_pages
+        ]
+        expected_semantic_digests = [
+            compute_hash(json.dumps(
+                page,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ))
+            for page in expected_semantic_pages
+        ]
+        if (
+            observation.get("page_semantic_payloads")
+            != expected_semantic_pages
+            or observation.get("page_semantic_digests")
+            != expected_semantic_digests
+        ):
+            errors.append(
+                f"{label} bounded unfiltered semantic evidence is invalid"
+            )
         observation_counter = Counter(
-            _finra_payload_sort_key(payload)
+            _finra_semantic_payload_sort_key(payload)
             for page in reconciliation_pages
             for payload in page
         )
@@ -2059,10 +2191,21 @@ def _is_finra_listing_row_payload(row: object) -> bool:
     """Accept exactly the raw row shape emitted by the production scraper."""
     if (
         not isinstance(row, dict)
-        or set(row) != {"text", "links"}
+        or set(row) not in (
+            {"text", "links"},
+            {"text", "links", "listing_date"},
+        )
         or not isinstance(row["text"], str)
         or row["text"] != " ".join(row["text"].split())
         or not isinstance(row["links"], list)
+        or (
+            "listing_date" in row
+            and (
+                not isinstance(row["listing_date"], str)
+                or _normalize_finra_date(row["listing_date"])
+                != row["listing_date"]
+            )
+        )
     ):
         return False
     return all(
@@ -3322,8 +3465,14 @@ def _validate_source_coverage(
                             else:
                                 is_bound = (
                                     key in FINRA_CROSS_PASS_CONSENSUS_FIELDS
-                                    and proofs[0].get(key)
-                                    == proofs[1].get(key)
+                                    and _finra_cross_pass_field_value(
+                                        key,
+                                        proofs[0].get(key),
+                                    )
+                                    == _finra_cross_pass_field_value(
+                                        key,
+                                        proofs[1].get(key),
+                                    )
                                     and coverage.get(key)
                                     == proofs[0].get(key)
                                 )
@@ -4169,7 +4318,9 @@ def _validate_finra_node_url(href: str) -> Optional[str]:
 
 def _extract_listing_date(link) -> str:
     """Read the optional authoritative date rendered beside a FINRA listing link."""
-    row = link.find_parent('tr')
+    row = link if getattr(link, "name", None) == "tr" else link.find_parent('tr')
+    if row is None and getattr(link, "select_one", None):
+        row = link
     if row is None:
         return ""
     time_tag = row.select_one('time[datetime]')
@@ -5200,6 +5351,7 @@ def _finra_listing_row_payload(row) -> dict:
     return {
         "text": " ".join(row.get_text(" ", strip=True).split()),
         "links": links,
+        "listing_date": _extract_listing_date(row),
     }
 
 
@@ -5605,6 +5757,8 @@ def _fetch_finra_listing_shard(
     page_row_counts: list[int] = []
     page_row_digests: list[str] = []
     page_row_payloads: list[list[dict]] = []
+    page_semantic_payloads: list[list[dict]] = []
+    page_semantic_digests: list[str] = []
     pages_fetched = 0
     declared_pages = None
     cutoff_page = None
@@ -5676,6 +5830,17 @@ def _fetch_finra_listing_shard(
             separators=(",", ":"),
         )))
         page_row_payloads.append([row["raw_payload"] for row in page_rows])
+        semantic_payloads = [
+            _finra_semantic_row_payload(row["raw_payload"])
+            for row in page_rows
+        ]
+        page_semantic_payloads.append(semantic_payloads)
+        page_semantic_digests.append(compute_hash(json.dumps(
+            semantic_payloads,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )))
         for row in page_rows:
             row["page"] = page
             row["unresolved"] = not row["detail_url"]
@@ -5731,6 +5896,8 @@ def _fetch_finra_listing_shard(
         "page_row_counts": page_row_counts,
         "page_row_digests": page_row_digests,
         "page_row_payloads": page_row_payloads,
+        "page_semantic_payloads": page_semantic_payloads,
+        "page_semantic_digests": page_semantic_digests,
         "raw_row_count": len(rows),
         "resolved_row_count": len(resolved_rows),
         "unresolved_row_count": len(rows) - len(resolved_rows),
@@ -6007,6 +6174,10 @@ def _fetch_finra_unfiltered_reconciliation(
         [deepcopy(row["raw_payload"]) for row in page["page_rows"]]
         for page in pages
     ]
+    page_semantic_payloads = [
+        [_finra_semantic_row_payload(payload) for payload in payloads]
+        for payloads in page_payloads
+    ]
     return {
         "complete": True,
         "rows": [
@@ -6055,6 +6226,16 @@ def _fetch_finra_unfiltered_reconciliation(
                 for payloads in page_payloads
             ],
             "page_row_payloads": page_payloads,
+            "page_semantic_payloads": page_semantic_payloads,
+            "page_semantic_digests": [
+                compute_hash(json.dumps(
+                    payloads,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+                for payloads in page_semantic_payloads
+            ],
         },
     }
 
@@ -6088,6 +6269,19 @@ def _finra_unclassified_observation(
             ensure_ascii=False,
             separators=(",", ":"),
         )),
+        "semantic_row_payloads": [
+            _finra_semantic_row_payload(payload)
+            for payload in normalized_payloads
+        ],
+        "semantic_row_evidence_digest": compute_hash(json.dumps(
+            [
+                _finra_semantic_row_payload(payload)
+                for payload in normalized_payloads
+            ],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )),
     }
 
 
@@ -6118,11 +6312,13 @@ def _finra_merged_unclassified_payloads(
     merged_counter = Counter()
     for observation in observations:
         observation_counter = Counter(
-            _finra_payload_sort_key(payload)
+            _finra_semantic_payload_sort_key(payload)
             for payload in observation["row_payloads"]
         )
         for payload in observation["row_payloads"]:
-            payload_by_key[_finra_payload_sort_key(payload)] = payload
+            payload_by_key[
+                _finra_semantic_payload_sort_key(payload)
+            ] = payload
         for payload_key, count in observation_counter.items():
             merged_counter[payload_key] = max(
                 merged_counter[payload_key],
@@ -6162,6 +6358,19 @@ def _finra_unclassified_evidence(
         "unique_node_count": len({
             row["node_identity"] for row in rows
         }),
+        "semantic_row_payloads": [
+            _finra_semantic_row_payload(payload)
+            for payload in payloads
+        ],
+        "semantic_row_evidence_digest": compute_hash(json.dumps(
+            [
+                _finra_semantic_row_payload(payload)
+                for payload in payloads
+            ],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )),
     }
 
 
@@ -6208,6 +6417,25 @@ def _finra_partition_shard_manifest(
         ensure_ascii=False,
         separators=(",", ":"),
     ))
+    semantic_payloads = sorted(
+        (
+            _finra_semantic_row_payload(payload)
+            for payload in normalized_payloads
+        ),
+        key=lambda payload: json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+    )
+    manifest["semantic_row_payloads"] = semantic_payloads
+    manifest["semantic_row_evidence_digest"] = compute_hash(json.dumps(
+        semantic_payloads,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
     return manifest
 
 
@@ -6219,7 +6447,7 @@ def _finra_partition_row_counters(
     for row in rows:
         identity = row["node_identity"]
         counters.setdefault(identity, Counter())[
-            _finra_payload_sort_key(row["raw_payload"])
+            _finra_semantic_payload_sort_key(row["raw_payload"])
         ] += 1
     return counters
 
@@ -6235,6 +6463,7 @@ def _finra_canonical_partition_result(
 ) -> dict:
     """Merge final shards without erasing multiplicity or accepting conflicts."""
     canonical_by_identity: dict[str, tuple[Counter, list[dict]]] = {}
+    semantic_targets: dict[str, str] = {}
     partition_manifest = []
     cutoff_page = None
     for shard, query, year, notice_type in shard_results:
@@ -6249,6 +6478,23 @@ def _finra_canonical_partition_result(
         )
         shard_rows_by_identity: dict[str, list[dict]] = {}
         for row in shard["rows"]:
+            observation_key = _finra_semantic_observation_key(
+                row["raw_payload"]
+            )
+            prior_target = semantic_targets.get(observation_key)
+            if (
+                prior_target is not None
+                and prior_target != row["detail_url"]
+            ):
+                return {
+                    "complete": False,
+                    "error": (
+                        "FINRA conflicting partition evidence for canonical "
+                        f"targets {prior_target} and {row['detail_url']}"
+                    ),
+                    "pass_proof": {},
+                }
+            semantic_targets[observation_key] = row["detail_url"]
             shard_rows_by_identity.setdefault(
                 row["node_identity"], []
             ).append(row)
@@ -6278,7 +6524,7 @@ def _finra_canonical_partition_result(
         )
     ]
     classified_counter = Counter(
-        _finra_payload_sort_key(row["raw_payload"])
+        _finra_semantic_payload_sort_key(row["raw_payload"])
         for row in classified_rows
     )
     unclassified_observations = []
@@ -6291,7 +6537,9 @@ def _finra_canonical_partition_result(
         remaining = Counter(missing)
         selected = []
         for row in observed_rows:
-            payload_key = _finra_payload_sort_key(row["raw_payload"])
+            payload_key = _finra_semantic_payload_sort_key(
+                row["raw_payload"]
+            )
             if remaining[payload_key] <= 0:
                 continue
             remaining[payload_key] -= 1
@@ -6300,7 +6548,7 @@ def _finra_canonical_partition_result(
 
     observed_rows = unfiltered_reconciliation["rows"]
     observed_counter = Counter(
-        _finra_payload_sort_key(row["raw_payload"])
+        _finra_semantic_payload_sort_key(row["raw_payload"])
         for row in observed_rows
     )
     global_missing = observed_counter - classified_counter
@@ -6338,12 +6586,12 @@ def _finra_canonical_partition_result(
             year_observation["year"]["value"],
         )
         type_union = Counter(
-            _finra_payload_sort_key(row["raw_payload"])
+            _finra_semantic_payload_sort_key(row["raw_payload"])
             for shard in shards_by_year.get(year_identity, [])
             for row in shard["rows"]
         )
         year_page_zero = Counter(
-            _finra_payload_sort_key(payload)
+            _finra_semantic_payload_sort_key(payload)
             for payload in year_observation["row_payloads"]
         )
         year_missing = year_page_zero - type_union
@@ -6394,12 +6642,12 @@ def _finra_canonical_partition_result(
     candidate_rows_by_payload: dict[str, list[dict]] = {}
     for row in unclassified_candidate_rows:
         candidate_rows_by_payload.setdefault(
-            _finra_payload_sort_key(row["raw_payload"]),
+            _finra_semantic_payload_sort_key(row["raw_payload"]),
             [],
         ).append(row)
     unclassified_rows = []
     for payload in merged_unclassified_payloads:
-        payload_key = _finra_payload_sort_key(payload)
+        payload_key = _finra_semantic_payload_sort_key(payload)
         candidates = candidate_rows_by_payload.get(payload_key, [])
         if not candidates:
             return {
@@ -6420,7 +6668,7 @@ def _finra_canonical_partition_result(
         ).append(row)
     for identity, identity_rows in unclassified_by_identity.items():
         identity_counter = Counter(
-            _finra_payload_sort_key(row["raw_payload"])
+            _finra_semantic_payload_sort_key(row["raw_payload"])
             for row in identity_rows
         )
         if identity in canonical_by_identity or len(identity_counter) != 1:
@@ -6452,10 +6700,11 @@ def _finra_canonical_partition_result(
         row["row_index"] = row_index
 
     canonical_counter = Counter(
-        _finra_payload_sort_key(row["raw_payload"]) for row in rows
+        _finra_semantic_payload_sort_key(row["raw_payload"])
+        for row in rows
     )
     unclassified_counter = Counter(
-        _finra_payload_sort_key(row["raw_payload"])
+        _finra_semantic_payload_sort_key(row["raw_payload"])
         for row in unclassified_rows
     )
 
@@ -6467,12 +6716,12 @@ def _finra_canonical_partition_result(
             year_observation["year"]["value"],
         )
         type_union = Counter(
-            _finra_payload_sort_key(row["raw_payload"])
+            _finra_semantic_payload_sort_key(row["raw_payload"])
             for shard in shards_by_year.get(year_identity, [])
             for row in shard["rows"]
         )
         year_page_zero = Counter(
-            _finra_payload_sort_key(payload)
+            _finra_semantic_payload_sort_key(payload)
             for payload in year_observation["row_payloads"]
         )
         if year_page_zero - (type_union + unclassified_counter):
@@ -6498,6 +6747,9 @@ def _finra_canonical_partition_result(
         }
 
     payloads = [row["raw_payload"] for row in rows]
+    semantic_payloads = [
+        _finra_semantic_row_payload(payload) for payload in payloads
+    ]
     if (
         since_date
         and rows
@@ -6526,6 +6778,13 @@ def _finra_canonical_partition_result(
             separators=(",", ":"),
         ))],
         "page_row_payloads": [payloads],
+        "page_semantic_payloads": [semantic_payloads],
+        "page_semantic_digests": [compute_hash(json.dumps(
+            semantic_payloads,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ))],
         "raw_row_count": len(rows),
         "resolved_row_count": len(rows),
         "unresolved_row_count": 0,
@@ -6728,7 +6987,27 @@ def _fetch_finra_listing_pass(
                 ),
                 key=_finra_payload_sort_key,
             ),
+            "semantic_row_payloads": sorted(
+                (
+                    _finra_semantic_row_payload(row["raw_payload"])
+                    for row in year_page["page_rows"]
+                ),
+                key=lambda payload: json.dumps(
+                    payload,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+            ),
         })
+        year_observations[-1]["semantic_row_evidence_digest"] = compute_hash(
+            json.dumps(
+                year_observations[-1]["semantic_row_payloads"],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        )
         year_observation_rows[year["value"]] = deepcopy(
             year_page["page_rows"]
         )
@@ -6898,9 +7177,84 @@ def _finra_payload_sort_key(payload: dict) -> str:
     )
 
 
+def _finra_semantic_row_payload(payload: dict) -> dict:
+    """Canonicalize row meaning while retaining raw evidence separately."""
+    semantic_links = []
+    canonical_targets = set()
+    for link in payload.get("links", []):
+        href = " ".join(str(link.get("href", "")).split())
+        text = " ".join(str(link.get("text", "")).split())
+        canonical_url, _ = _finra_normalize_detail_link(href)
+        if canonical_url:
+            canonical_targets.add(canonical_url)
+            semantic_href = canonical_url
+        else:
+            semantic_href = href
+        semantic_links.append({
+            "href": semantic_href,
+            "text": text,
+        })
+    semantic_links.sort(
+        key=lambda item: (item["href"], item["text"])
+    )
+    return {
+        "text": " ".join(str(payload.get("text", "")).split()),
+        "listing_date": (
+            payload.get("listing_date")
+            if isinstance(payload.get("listing_date"), str)
+            else _finra_listing_date_from_payload(payload)
+        ),
+        "canonical_target": (
+            next(iter(canonical_targets))
+            if len(canonical_targets) == 1
+            else None
+        ),
+        "links": semantic_links,
+    }
+
+
+def _finra_semantic_payload_sort_key(payload: dict) -> str:
+    """Return a stable key for canonical row meaning."""
+    return json.dumps(
+        _finra_semantic_row_payload(payload),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _finra_semantic_observation_key(payload: dict) -> str:
+    """Bind visible row evidence independently of its canonical target."""
+    semantic = _finra_semantic_row_payload(payload)
+    return json.dumps(
+        {
+            "text": semantic["text"],
+            "listing_date": semantic["listing_date"],
+            "anchor_texts": sorted(
+                link["text"] for link in semantic["links"]
+            ),
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
 def _finra_normalized_payload_pages(proof: dict) -> Optional[list[list[dict]]]:
     """Normalize nondeterministic same-date row ordering across page boundaries."""
-    payload_pages = proof.get("page_row_payloads")
+    payload_pages = proof.get("page_semantic_payloads")
+    if payload_pages is None:
+        raw_pages = proof.get("page_row_payloads")
+        if isinstance(raw_pages, list):
+            payload_pages = [
+                [
+                    _finra_semantic_row_payload(payload)
+                    for payload in page
+                ]
+                if isinstance(page, list)
+                else page
+                for page in raw_pages
+            ]
     page_counts = proof.get("page_row_counts")
     if (
         not isinstance(payload_pages, list)
@@ -6915,7 +7269,12 @@ def _finra_normalized_payload_pages(proof: dict) -> Optional[list[list[dict]]]:
         return None
     payloads = sorted(
         (payload for page in payload_pages for payload in page),
-        key=_finra_payload_sort_key,
+        key=lambda payload: json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
     )
     if sum(page_counts) != len(payloads):
         return None
@@ -6973,8 +7332,12 @@ def _compare_finra_listing_pass_proofs(
     if first_partitioned != second_partitioned:
         return "FINRA independent-pass mismatch in partition proof mode"
     if first_partitioned:
-        if first.get("unclassified_evidence") != second.get(
-            "unclassified_evidence"
+        if _finra_cross_pass_field_value(
+            "unclassified_evidence",
+            first.get("unclassified_evidence"),
+        ) != _finra_cross_pass_field_value(
+            "unclassified_evidence",
+            second.get("unclassified_evidence"),
         ):
             def summary(proof: dict) -> list[str]:
                 evidence = proof.get("unclassified_evidence")
@@ -7003,7 +7366,13 @@ def _compare_finra_listing_pass_proofs(
         for key in FINRA_CROSS_PASS_CONSENSUS_FIELDS:
             if key == "unclassified_evidence":
                 continue
-            if first.get(key) != second.get(key):
+            if _finra_cross_pass_field_value(
+                key,
+                first.get(key),
+            ) != _finra_cross_pass_field_value(
+                key,
+                second.get(key),
+            ):
                 return (
                     "FINRA independent-pass mismatch in "
                     f"{key.replace('_', ' ')}"
@@ -7015,6 +7384,28 @@ def _compare_finra_listing_pass_proofs(
     if first_payloads != second_payloads:
         return "FINRA independent-pass mismatch in global row evidence"
     return None
+
+
+def _finra_cross_pass_field_value(key: str, value: object) -> object:
+    """Project proof fields onto deterministic semantic consensus evidence."""
+    projected = deepcopy(value)
+    if key == "partition_manifest" and isinstance(projected, list):
+        for shard in projected:
+            if isinstance(shard, dict):
+                shard.pop("row_payloads", None)
+                shard.pop("row_evidence_digest", None)
+    elif key == "year_observations" and isinstance(projected, list):
+        for observation in projected:
+            if isinstance(observation, dict):
+                observation.pop("row_payloads", None)
+    elif key == "unclassified_evidence" and isinstance(projected, dict):
+        projected.pop("row_payloads", None)
+        projected.pop("row_evidence_digest", None)
+        for observation in projected.get("observations", []):
+            if isinstance(observation, dict):
+                observation.pop("row_payloads", None)
+                observation.pop("row_evidence_digest", None)
+    return projected
 
 
 def _finra_unstable_single_page_year_values(

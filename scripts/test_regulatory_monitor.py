@@ -4116,6 +4116,135 @@ def test_finra_partitioned_pass_deduplicates_identical_topology_overlap(monkeypa
     assert result["pass_proof"]["raw_row_count"] == 1
 
 
+def _finra_semantic_25_15_pages(
+    *,
+    second_href="/rules-guidance/notices/25-15",
+    second_title="Regulatory Notice 25-15",
+    second_date="2025-09-15",
+):
+    filters = _finra_filter_form(
+        years=(("2", "2025"),),
+        notice_types=(("3", "Regulatory Notice"), ("7", "Special Notice")),
+    )
+    canonical = (
+        "/rules-guidance/notices/25-15",
+        "Regulatory Notice 25-15",
+        "2025-09-15",
+    )
+    legacy = (
+        "/index.php/rules-guidance/notices/25-15",
+        "Regulatory Notice 25-15",
+        "2025-09-15",
+    )
+    return {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [canonical], filters=filters
+        ),
+        ("2", None, 0): _finra_listing_page(0, 2, [canonical]),
+        ("2", "3", 0): _finra_listing_page(0, 1, [legacy]),
+        ("2", "7", 0): _finra_listing_page(
+            0,
+            1,
+            [(second_href, second_title, second_date)],
+        ),
+    }
+
+
+def test_finra_semantic_rows_dedupe_canonical_and_index_php_hrefs(monkeypatch):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_semantic_25_15_pages(),
+    )
+
+    assert result["complete"] is True
+    assert len(result["rows"]) == 1
+    shard_payloads = result["pass_proof"]["partition_manifest"]
+    assert shard_payloads[0]["row_payloads"] != shard_payloads[1][
+        "row_payloads"
+    ]
+    assert shard_payloads[0]["semantic_row_payloads"] == shard_payloads[1][
+        "semantic_row_payloads"
+    ]
+
+
+@pytest.mark.parametrize(
+    ("title", "date"),
+    [
+        ("Changed Notice 25-15", "2025-09-15"),
+        ("Regulatory Notice 25-15", "2025-09-16"),
+    ],
+)
+def test_finra_semantic_rows_still_conflict_on_text_or_date(
+    monkeypatch,
+    title,
+    date,
+):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_semantic_25_15_pages(
+            second_title=title,
+            second_date=date,
+        ),
+    )
+
+    assert result["complete"] is False
+    assert "conflicting partition evidence" in result["error"]
+
+
+def test_finra_semantic_rows_conflict_on_different_canonical_targets(
+    monkeypatch,
+):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_semantic_25_15_pages(
+            second_href="/rules-guidance/notices/25-14",
+        ),
+    )
+
+    assert result["complete"] is False
+    assert "canonical targets" in result["error"]
+
+
+def test_finra_semantic_digest_tampering_fails_recomputation(monkeypatch):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_semantic_25_15_pages(),
+    )
+    proof = deepcopy(result["pass_proof"])
+    proof["partition_manifest"][0][
+        "semantic_row_evidence_digest"
+    ] = "sha256:forged"
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert any("semantic row evidence is invalid" in error for error in errors)
+
+
+def test_finra_raw_payload_tampering_fails_with_semantic_digest_unchanged(
+    monkeypatch,
+):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_semantic_25_15_pages(),
+    )
+    proof = deepcopy(result["pass_proof"])
+    proof["partition_manifest"][0]["row_payloads"][0]["links"][0][
+        "href"
+    ] = "/rules-guidance/notices/25-99"
+
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        proof,
+        0,
+    )
+
+    assert errors
+
+
 def test_finra_partitioned_pass_rejects_conflicting_overlap(monkeypatch):
     filters = _finra_filter_form(
         years=(("1", "2026"),),
