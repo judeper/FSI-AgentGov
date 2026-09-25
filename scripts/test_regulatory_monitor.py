@@ -7102,6 +7102,103 @@ def test_finra_cursor_advances_across_unrepresented_scheduled_batch():
     assert plan["refresh_cursor_output"] == 25
 
 
+def test_finra_historical_variant_derives_node_from_prior_semantic_authority():
+    prior_url = (
+        "https://www.finra.org/rules-guidance/notices/"
+        "election-notice-090716"
+    )
+    current_url = f"{prior_url}-0"
+    node_url = "https://www.finra.org/node/65983"
+    prior_row = _synthetic_finra_row(
+        prior_url,
+        f"url:{urlparse(prior_url).path}",
+        title="Election Notice 9/7/16",
+    )
+    current_row = deepcopy(prior_row)
+    current_row["detail_url"] = current_url
+    current_row["node_identity"] = f"url:{urlparse(current_url).path}"
+    current_row["raw_payload"]["links"][0]["href"] = current_url
+    state = {
+        "entries": {node_url: "sha256:historical"},
+        "fallback_urls": {prior_url: node_url},
+        "coverage": {
+            "alias_ledger": [],
+            "pass_proofs": [
+                {"page_row_payloads": [[prior_row["raw_payload"]]]}
+            ],
+        },
+    }
+
+    authority = regulatory_monitor._finra_derive_node_authority(
+        state,
+        {current_url},
+        rows=[current_row],
+    )
+
+    assert authority[current_url] == {
+        "node_url": node_url,
+        "source": "persisted",
+        "authority_url": prior_url,
+    }
+
+
+def test_finra_conflicting_node_authority_sources_fail_closed():
+    url = "https://www.finra.org/rules-guidance/notices/26-15"
+    state = {
+        "fallback_urls": {url: "https://www.finra.org/node/1"},
+        "coverage": {
+            "detail_identity_proofs": [
+                _detail_identity_proof(
+                    "26-15",
+                    "https://www.finra.org/node/2",
+                )
+            ],
+        },
+    }
+
+    with pytest.raises(ValueError, match="sources conflict"):
+        regulatory_monitor._finra_derive_node_authority(
+            state,
+            {url},
+        )
+
+
+def test_finra_bootstrap_authority_is_exact_and_persisted_supersedes():
+    url = "https://www.finra.org/rules-guidance/notices/26-16"
+    node = "https://www.finra.org/node/385061"
+
+    assert regulatory_monitor._finra_derive_node_authority(
+        {},
+        {url},
+    )[url] == {
+        "node_url": node,
+        "source": "bootstrap",
+        "authority_url": url,
+    }
+    assert regulatory_monitor._finra_derive_node_authority(
+        {"fallback_urls": {url: node}},
+        {url},
+    )[url]["source"] == "persisted"
+    assert regulatory_monitor._finra_derive_node_authority(
+        {},
+        {"https://www.finra.org/rules-guidance/notices/26-15"},
+    ) == {}
+
+
+def test_finra_bootstrap_conflict_with_persisted_mapping_fails():
+    url = "https://www.finra.org/rules-guidance/notices/26-16"
+
+    with pytest.raises(ValueError, match="bootstrap node authority conflicts"):
+        regulatory_monitor._finra_derive_node_authority(
+            {
+                "fallback_urls": {
+                    url: "https://www.finra.org/node/999999"
+                }
+            },
+            {url},
+        )
+
+
 def test_finra_removal_plan_prunes_only_absent_canonical_identity():
     rows, state = _bounded_detail_fixture(3)
     removed_row = rows.pop()
@@ -7912,7 +8009,6 @@ def test_finra_validated_legacy_migration_carries_historical_archive():
     assert len(plan["legacy_migration_bindings"]) > 3000
     assert plan["forced_fetch_reasons"][new_url] == [
         "missing-prior-canonical-hash",
-        "missing-prior-identity-binding",
         "new-listing-identity",
     ]
 
@@ -8373,13 +8469,13 @@ def _run_finra_legacy_transport_case(
     *,
     legacy_status=200,
     legacy_canonical=None,
-    legacy_node="999999",
+    legacy_node="385061",
     legacy_final_url=None,
     node_fallback=None,
     node_status=200,
     query_status=429,
     query_canonical=None,
-    query_node="999999",
+    query_node="385061",
     query_final_url=None,
 ):
     canonical = "https://www.finra.org/rules-guidance/notices/26-16"
@@ -8414,10 +8510,15 @@ def _run_finra_legacy_transport_case(
         canonical_url=query_canonical or canonical,
         node_id=query_node,
     )
-    node_content = _finra_detail_page(
+    node_content = _finra_detail_page_with_identity(
         "Regulatory Notice 26-16",
         row["listing_date"] or "2026-09-25",
         "Node transport content.",
+        canonical_url=canonical,
+        node_id=(
+            (node_fallback or "https://www.finra.org/node/385061")
+            .rsplit("/", 1)[-1]
+        ),
     )
 
     def fake_fetch(url, _session, **_kwargs):
@@ -8480,7 +8581,7 @@ def test_finra_canonical_429_uses_legacy_transport_once(monkeypatch):
         canonical: "legacy-index"
     }
     assert result.fallback_urls[canonical] == (
-        "https://www.finra.org/node/999999"
+        "https://www.finra.org/node/385061"
     )
 
 
@@ -8503,7 +8604,7 @@ def test_finra_canonical_429_uses_query_transport_once(monkeypatch):
         canonical
     ]["raw_request_url"] == query_url
     assert result.fallback_urls[canonical] == (
-        "https://www.finra.org/node/999999"
+        "https://www.finra.org/node/385061"
     )
 
 
@@ -8696,7 +8797,7 @@ def test_finra_legacy_transport_identity_mismatch_fails_closed(
 
 
 def test_finra_legacy_429_uses_numeric_node_fallback(monkeypatch):
-    node = "https://www.finra.org/node/999999"
+    node = "https://www.finra.org/node/385061"
     result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
         legacy_status=429,
@@ -8712,7 +8813,7 @@ def test_finra_legacy_429_uses_numeric_node_fallback(monkeypatch):
 
 
 def test_finra_all_detail_transports_fail_closed(monkeypatch):
-    node = "https://www.finra.org/node/999999"
+    node = "https://www.finra.org/node/385061"
     result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
         legacy_status=429,
@@ -8727,6 +8828,176 @@ def test_finra_all_detail_transports_fail_closed(monkeypatch):
     assert "canonical-query=429" in result.error
     assert "legacy-index=429" in result.error
     assert "node=429" in result.error
+
+
+def test_finra_bootstrap_node_transport_succeeds_after_three_429s(
+    monkeypatch,
+):
+    canonical = "https://www.finra.org/rules-guidance/notices/26-16"
+    query = f"{canonical}?output=1"
+    legacy = (
+        "https://www.finra.org/index.php/"
+        "rules-guidance/notices/26-16"
+    )
+    node = "https://www.finra.org/node/385061"
+    requested = []
+
+    def fake_fetch(url, _session, **_kwargs):
+        requested.append(url)
+        if url != node:
+            return {
+                "status_code": 429,
+                "content": "",
+                "final_url": url,
+                "url": url,
+                "error": "rate limited",
+                "retry_after": 0,
+            }
+        return {
+            "status_code": 200,
+            "content": _finra_detail_page_with_identity(
+                "Regulatory Notice 26-16",
+                "2026-09-25",
+                "Bootstrap node content.",
+                canonical_url=canonical,
+                node_id="385061",
+            ),
+            "final_url": url,
+            "url": url,
+            "error": None,
+        }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        fake_fetch,
+    )
+
+    result, transport = (
+        regulatory_monitor._fetch_finra_detail_with_transports(
+            canonical,
+            _FakeSession([]),
+            node,
+            "bootstrap",
+        )
+    )
+
+    assert result["status_code"] == 200
+    assert transport == "node"
+    assert requested == [canonical, query, legacy, node]
+    assert result["node_transport_identity_proof"][
+        "normalized_node_url"
+    ] == node
+
+
+def test_finra_bootstrap_node_transport_rejects_wrong_proof(monkeypatch):
+    canonical = "https://www.finra.org/rules-guidance/notices/26-16"
+    node = "https://www.finra.org/node/385061"
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 429 if url != node else 200,
+            "content": (
+                ""
+                if url != node
+                else _finra_detail_page_with_identity(
+                    "Regulatory Notice 26-16",
+                    "2026-09-25",
+                    "Wrong node content.",
+                    canonical_url=canonical,
+                    node_id="999999",
+                )
+            ),
+            "final_url": url,
+            "url": url,
+            "error": "rate limited" if url != node else None,
+            "retry_after": 0,
+        },
+    )
+
+    result, _ = regulatory_monitor._fetch_finra_detail_with_transports(
+        canonical,
+        _FakeSession([]),
+        node,
+        "bootstrap",
+    )
+
+    assert result["status_code"] == 0
+    assert "bootstrap node transport identity proof failed" in result["error"]
+
+
+def test_finra_bootstrap_node_success_persists_numeric_fallback(monkeypatch):
+    canonical = "https://www.finra.org/rules-guidance/notices/26-16"
+    node = "https://www.finra.org/node/385061"
+    row = _synthetic_finra_row(
+        canonical,
+        "url:/rules-guidance/notices/26-16",
+        title="Regulatory Notice 26-16",
+    )
+    listing = _synthetic_finra_listing([row])
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+
+    def fake_fetch(url, _session, **_kwargs):
+        if url != node:
+            return {
+                "status_code": 429,
+                "content": "",
+                "final_url": url,
+                "url": url,
+                "error": "rate limited",
+                "retry_after": 0,
+            }
+        return {
+            "status_code": 200,
+            "content": _finra_detail_page_with_identity(
+                "Regulatory Notice 26-16",
+                row["listing_date"] or "2026-09-25",
+                "Bootstrap content.",
+                canonical_url=canonical,
+                node_id="385061",
+            ),
+            "final_url": url,
+            "url": url,
+            "error": None,
+        }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        fake_fetch,
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+    )
+
+    assert result.complete is True
+    assert result.fallback_urls[canonical] == node
+    assert result.coverage["detail_node_authority_by_url"][canonical] == {
+        "node_url": node,
+        "source": "bootstrap",
+        "authority_url": canonical,
+    }
+    state = {
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {"entries": {}}
+        }
+    }
+    regulatory_monitor.update_source_state(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        list(result),
+        state,
+        fallback_urls=result.fallback_urls,
+    )
+    assert state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
+        "fallback_urls"
+    ] == {canonical: node}
 
 
 def test_finra_legacy_transport_off_origin_redirect_fails(monkeypatch):
