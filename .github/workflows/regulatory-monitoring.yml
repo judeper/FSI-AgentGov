@@ -59,21 +59,73 @@ jobs:
       - name: Run Regulatory Monitor (read-only dry validation)
         run: python scripts/regulatory_monitor.py --dry-run
 
-  monitor-regulatory:
+  collect-regulatory-listing:
     if: >-
       github.event_name != 'pull_request' &&
       github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 270
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
 
     steps:
-      - name: Checkout trusted default branch
+      - name: Checkout exact trusted commit for listing
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Verify trusted default-branch listing checkout
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "${{ github.event.repository.default_branch }}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pyyaml
+
+      - name: Collect deterministic FINRA listing artifact
+        run: |
+          set -euo pipefail
+          STATE_SHA=$(sha256sum data/monitor-state.json | awk '{print $1}')
+          mkdir -p "$RUNNER_TEMP/finra-phase"
+          python scripts/regulatory_monitor.py \
+            --source finra \
+            --phase listing \
+            --phase-artifact "$RUNNER_TEMP/finra-phase/finra-listing-phase.json" \
+            --base-sha "$GITHUB_SHA" \
+            --state-sha "$STATE_SHA"
+
+      - name: Upload FINRA listing artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: finra-listing-${{ github.sha }}
+          path: ${{ runner.temp }}/finra-phase/finra-listing-phase.json
+          retention-days: 1
+          if-no-files-found: error
+
+  monitor-regulatory:
+    needs: collect-regulatory-listing
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout exact trusted commit for detail
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -92,6 +144,12 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pyyaml
 
+      - name: Download FINRA listing artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: finra-listing-${{ github.sha }}
+          path: ${{ runner.temp }}/finra-phase
+
       - name: Run Regulatory Monitor
         id: monitor
         run: |
@@ -104,7 +162,12 @@ jobs:
           # Run the monitor and capture exit code
           # Disable set -e so exit code 1 (changes detected) doesn't abort the script
           set +e
-          python scripts/regulatory_monitor.py
+          python scripts/regulatory_monitor.py \
+            --source finra \
+            --phase detail \
+            --phase-artifact "$RUNNER_TEMP/finra-phase/finra-listing-phase.json" \
+            --base-sha "$GITHUB_SHA" \
+            --state-sha "$STATE_SHA_BEFORE"
           EXIT_CODE=$?
           set -e
           echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
