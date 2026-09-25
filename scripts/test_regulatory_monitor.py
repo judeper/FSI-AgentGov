@@ -8377,8 +8377,13 @@ def _run_finra_legacy_transport_case(
     legacy_final_url=None,
     node_fallback=None,
     node_status=200,
+    query_status=429,
+    query_canonical=None,
+    query_node="999999",
+    query_final_url=None,
 ):
     canonical = "https://www.finra.org/rules-guidance/notices/26-16"
+    query_url = f"{canonical}?output=1"
     legacy = (
         "https://www.finra.org/index.php/"
         "rules-guidance/notices/26-16"
@@ -8402,6 +8407,13 @@ def _run_finra_legacy_transport_case(
         canonical_url=legacy_canonical or canonical,
         node_id=legacy_node,
     )
+    query_content = _finra_detail_page_with_identity(
+        "Regulatory Notice 26-16",
+        row["listing_date"] or "2026-09-25",
+        "Query transport content.",
+        canonical_url=query_canonical or canonical,
+        node_id=query_node,
+    )
     node_content = _finra_detail_page(
         "Regulatory Notice 26-16",
         row["listing_date"] or "2026-09-25",
@@ -8412,6 +8424,11 @@ def _run_finra_legacy_transport_case(
         requested.append(url)
         if url == canonical:
             status, content, final_url = 429, "", url
+        elif url == query_url:
+            status, content = query_status, (
+                query_content if query_status == 200 else ""
+            )
+            final_url = query_final_url or url
         elif url == legacy:
             status, content = legacy_status, (
                 legacy_content if legacy_status == 200 else ""
@@ -8447,16 +8464,16 @@ def _run_finra_legacy_transport_case(
             {canonical: node_fallback} if node_fallback else None
         ),
     )
-    return result, requested, canonical, legacy
+    return result, requested, canonical, query_url, legacy
 
 
 def test_finra_canonical_429_uses_legacy_transport_once(monkeypatch):
-    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+    result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
     )
 
     assert result.complete is True
-    assert requested == [canonical, legacy]
+    assert requested == [canonical, query_url, legacy]
     assert result[0].url == canonical
     assert result[0].document_id == "FINRA 26-16"
     assert result.coverage["detail_transport_by_url"] == {
@@ -8465,6 +8482,74 @@ def test_finra_canonical_429_uses_legacy_transport_once(monkeypatch):
     assert result.fallback_urls[canonical] == (
         "https://www.finra.org/node/999999"
     )
+
+
+def test_finra_canonical_429_uses_query_transport_once(monkeypatch):
+    result, requested, canonical, query_url, _ = (
+        _run_finra_legacy_transport_case(
+            monkeypatch,
+            query_status=200,
+        )
+    )
+
+    assert result.complete is True
+    assert requested == [canonical, query_url]
+    assert result[0].url == canonical
+    assert result[0].document_id == "FINRA 26-16"
+    assert result.coverage["detail_transport_by_url"] == {
+        canonical: "canonical-query"
+    }
+    assert result.coverage["query_transport_identity_proofs"][
+        canonical
+    ]["raw_request_url"] == query_url
+    assert result.fallback_urls[canonical] == (
+        "https://www.finra.org/node/999999"
+    )
+
+
+@pytest.mark.parametrize(
+    ("query_canonical", "query_final_url"),
+    [
+        (
+            "https://www.finra.org/rules-guidance/notices/26-15",
+            None,
+        ),
+        (
+            None,
+            "https://evil.example/rules-guidance/notices/26-16?output=1",
+        ),
+        (
+            None,
+            "https://www.finra.org/rules-guidance/notices/26-16?output=2",
+        ),
+    ],
+)
+def test_finra_query_transport_identity_or_url_mismatch_fails(
+    monkeypatch,
+    query_canonical,
+    query_final_url,
+):
+    result, requested, canonical, query_url, _ = (
+        _run_finra_legacy_transport_case(
+            monkeypatch,
+            query_status=200,
+            query_canonical=query_canonical,
+            query_final_url=query_final_url,
+        )
+    )
+
+    assert result.complete is False
+    assert requested == [canonical, query_url]
+    assert "canonical query transport" in result.error
+
+
+def test_finra_query_transport_rejects_existing_query_or_fragment():
+    assert regulatory_monitor._finra_canonical_query_transport_url(
+        "https://www.finra.org/rules-guidance/notices/26-16?other=1"
+    ) is None
+    assert regulatory_monitor._finra_canonical_query_transport_url(
+        "https://www.finra.org/rules-guidance/notices/26-16#fragment"
+    ) is None
 
 
 def test_finra_old_00_33_index_canonical_normalizes_to_expected_identity():
@@ -8557,7 +8642,7 @@ def test_finra_legacy_canonical_wrong_or_conflicting_links_rejected(
 def test_finra_legacy_transport_raw_and_normalized_proof_tampering_detected(
     monkeypatch,
 ):
-    result, _, canonical, _ = _run_finra_legacy_transport_case(monkeypatch)
+    result, _, canonical, _, _ = _run_finra_legacy_transport_case(monkeypatch)
     proof = result.coverage["legacy_transport_identity_proofs"][canonical]
     original_digest = result.coverage[
         "legacy_transport_identity_proof_digest"
@@ -8598,7 +8683,7 @@ def test_finra_legacy_transport_identity_mismatch_fails_closed(
     legacy_node,
     fallback,
 ):
-    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+    result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
         legacy_canonical=legacy_canonical,
         legacy_node=legacy_node,
@@ -8606,20 +8691,20 @@ def test_finra_legacy_transport_identity_mismatch_fails_closed(
     )
 
     assert result.complete is False
-    assert requested == [canonical, legacy]
+    assert requested == [canonical, query_url, legacy]
     assert "legacy detail transport" in result.error
 
 
 def test_finra_legacy_429_uses_numeric_node_fallback(monkeypatch):
     node = "https://www.finra.org/node/999999"
-    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+    result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
         legacy_status=429,
         node_fallback=node,
     )
 
     assert result.complete is True
-    assert requested == [canonical, legacy, node]
+    assert requested == [canonical, query_url, legacy, node]
     assert result[0].url == canonical
     assert result.coverage["detail_transport_by_url"] == {
         canonical: "node"
@@ -8628,7 +8713,7 @@ def test_finra_legacy_429_uses_numeric_node_fallback(monkeypatch):
 
 def test_finra_all_detail_transports_fail_closed(monkeypatch):
     node = "https://www.finra.org/node/999999"
-    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+    result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
         legacy_status=429,
         node_fallback=node,
@@ -8636,18 +8721,22 @@ def test_finra_all_detail_transports_fail_closed(monkeypatch):
     )
 
     assert result.complete is False
-    assert requested == [canonical, legacy, node]
+    assert requested == [canonical, query_url, legacy, node]
     assert result == []
+    assert "canonical=429" in result.error
+    assert "canonical-query=429" in result.error
+    assert "legacy-index=429" in result.error
+    assert "node=429" in result.error
 
 
 def test_finra_legacy_transport_off_origin_redirect_fails(monkeypatch):
-    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+    result, requested, canonical, query_url, legacy = _run_finra_legacy_transport_case(
         monkeypatch,
         legacy_final_url="https://evil.example/notices/26-16",
     )
 
     assert result.complete is False
-    assert requested == [canonical, legacy]
+    assert requested == [canonical, query_url, legacy]
     assert "changed canonical identity" in result.error
 
 

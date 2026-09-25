@@ -3055,6 +3055,8 @@ def _validate_source_coverage(
                 "detail_transport_counts",
                 "legacy_transport_identity_proofs",
                 "legacy_transport_identity_proof_digest",
+                "query_transport_identity_proofs",
+                "query_transport_identity_proof_digest",
             )
             for key in detail_required:
                 if key not in coverage:
@@ -3090,6 +3092,10 @@ def _validate_source_coverage(
             )
             legacy_transport_identity_proofs = coverage.get(
                 "legacy_transport_identity_proofs",
+                {},
+            )
+            query_transport_identity_proofs = coverage.get(
+                "query_transport_identity_proofs",
                 {},
             )
             if coverage.get("detail_mode") != "bounded-refresh":
@@ -3221,7 +3227,12 @@ def _validate_source_coverage(
                 errors.append(
                     f"{source_key} expected detail request count is invalid"
                 )
-            allowed_transports = {"canonical", "legacy-index", "node"}
+            allowed_transports = {
+                "canonical",
+                "canonical-query",
+                "legacy-index",
+                "node",
+            }
             if (
                 not isinstance(detail_transport_by_url, dict)
                 or set(detail_transport_by_url) != set(refreshed_urls)
@@ -3329,6 +3340,108 @@ def _validate_source_coverage(
                     ):
                         errors.append(
                             f"{source_key} legacy transport node binding "
+                            f"is invalid for {url}"
+                        )
+            query_urls = {
+                url
+                for url, transport in (
+                    detail_transport_by_url.items()
+                    if isinstance(detail_transport_by_url, dict)
+                    else []
+                )
+                if transport == "canonical-query"
+            }
+            if (
+                not isinstance(query_transport_identity_proofs, dict)
+                or set(query_transport_identity_proofs) != query_urls
+                or coverage.get(
+                    "query_transport_identity_proof_digest"
+                ) != compute_hash(json.dumps(
+                    query_transport_identity_proofs,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+            ):
+                errors.append(
+                    f"{source_key} query transport identity proof "
+                    "collection is invalid"
+                )
+            else:
+                fallback_urls = source_state.get("fallback_urls", {})
+                fallback_urls = (
+                    fallback_urls
+                    if isinstance(fallback_urls, dict)
+                    else {}
+                )
+                expected_keys = {
+                    "raw_canonical_hrefs",
+                    "normalized_canonical_url",
+                    "normalized_identity",
+                    "raw_shortlinks",
+                    "normalized_node_url",
+                    "raw_request_url",
+                    "raw_final_url",
+                }
+                for url, proof in query_transport_identity_proofs.items():
+                    expected_url, expected_identity = (
+                        _finra_normalize_detail_link(url)
+                    )
+                    if (
+                        not isinstance(proof, dict)
+                        or set(proof) != expected_keys
+                        or proof.get("raw_request_url")
+                        != _finra_canonical_query_transport_url(url)
+                        or not _finra_query_transport_final_url_is_valid(
+                            proof.get("raw_final_url", ""),
+                            url,
+                        )
+                        or proof.get("normalized_canonical_url")
+                        != expected_url
+                        or proof.get("normalized_identity")
+                        != expected_identity
+                        or not isinstance(
+                            proof.get("raw_canonical_hrefs"),
+                            list,
+                        )
+                        or not proof["raw_canonical_hrefs"]
+                        or any(
+                            _finra_normalize_detail_link(href)
+                            != (expected_url, expected_identity)
+                            for href in proof["raw_canonical_hrefs"]
+                        )
+                        or not isinstance(
+                            proof.get("raw_shortlinks"),
+                            list,
+                        )
+                    ):
+                        errors.append(
+                            f"{source_key} query transport identity proof "
+                            f"is invalid for {url}"
+                        )
+                        continue
+                    normalized_nodes = [
+                        _validate_finra_node_url(href)
+                        for href in proof["raw_shortlinks"]
+                    ]
+                    if (
+                        any(node is None for node in normalized_nodes)
+                        or len(set(normalized_nodes)) > 1
+                        or proof.get("normalized_node_url")
+                        != (
+                            normalized_nodes[0]
+                            if normalized_nodes
+                            else None
+                        )
+                        or (
+                            url in fallback_urls
+                            and proof.get("normalized_node_url") is not None
+                            and proof.get("normalized_node_url")
+                            != fallback_urls[url]
+                        )
+                    ):
+                        errors.append(
+                            f"{source_key} query transport node binding "
                             f"is invalid for {url}"
                         )
             expected_request_count = coverage.get(
@@ -5415,6 +5528,41 @@ def _finra_legacy_detail_transport_url(
     )
 
 
+def _finra_canonical_query_transport_url(
+    canonical_url: str,
+) -> Optional[str]:
+    """Derive the sole allowed canonical query transport."""
+    parsed = urlparse(canonical_url)
+    if parsed.query or parsed.fragment:
+        return None
+    normalized, identity = _finra_normalize_detail_link(canonical_url)
+    if (
+        normalized != canonical_url
+        or not isinstance(identity, str)
+        or not identity.startswith("url:")
+    ):
+        return None
+    return f"{canonical_url}?output=1"
+
+
+def _finra_query_transport_final_url_is_valid(
+    final_url: str,
+    canonical_url: str,
+) -> bool:
+    """Accept output=1 or a redirect back to the bare canonical URL."""
+    parsed = urlparse(final_url)
+    canonical = urlparse(canonical_url)
+    if (
+        parsed.scheme != canonical.scheme
+        or parsed.netloc.lower() != canonical.netloc.lower()
+        or parsed.path.rstrip("/") != canonical.path.rstrip("/")
+        or parsed.fragment
+    ):
+        return False
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    return query in ({}, {"output": ["1"]})
+
+
 def _finra_legacy_transport_identity_proof(
     soup: BeautifulSoup,
     expected_canonical_url: str,
@@ -5481,15 +5629,67 @@ def _fetch_finra_detail_with_transports(
     session: requests.Session,
     node_fallback_url: Optional[str],
 ) -> tuple[dict, str]:
-    """Try canonical once, then validated legacy, then numeric node."""
+    """Try canonical, output=1, validated legacy, then numeric node."""
+    attempts = []
     canonical_result = _fetch_finra_page(
         canonical_url,
         session,
         max_attempts=1,
     )
+    attempts.append(("canonical", canonical_result.get("status_code")))
     if canonical_result["status_code"] == 200:
         canonical_result["finra_transport"] = "canonical"
         return canonical_result, "canonical"
+
+    query_url = _finra_canonical_query_transport_url(canonical_url)
+    if query_url:
+        query_result = _fetch_finra_page(
+            query_url,
+            session,
+            max_attempts=1,
+        )
+        attempts.append(
+            ("canonical-query", query_result.get("status_code"))
+        )
+        if query_result["status_code"] == 200:
+            final_url = query_result.get("final_url") or query_url
+            if not _finra_query_transport_final_url_is_valid(
+                final_url,
+                canonical_url,
+            ):
+                return {
+                    **query_result,
+                    "status_code": 0,
+                    "error": (
+                        "FINRA canonical query transport final URL was "
+                        f"invalid for {canonical_url}"
+                    ),
+                }, "canonical-query"
+            soup = BeautifulSoup(query_result["content"], "html.parser")
+            identity_proof, proof_error = (
+                _finra_legacy_transport_identity_proof(
+                    soup,
+                    canonical_url,
+                    node_fallback_url,
+                )
+            )
+            if identity_proof is None:
+                return {
+                    **query_result,
+                    "status_code": 0,
+                    "error": (
+                        "FINRA canonical query transport identity proof "
+                        f"failed for {canonical_url}: {proof_error}"
+                    ),
+                }, "canonical-query"
+            query_result["finra_transport"] = "canonical-query"
+            query_result["transport_fallback_url"] = query_url
+            query_result["query_transport_identity_proof"] = {
+                **identity_proof,
+                "raw_request_url": query_url,
+                "raw_final_url": final_url,
+            }
+            return query_result, "canonical-query"
 
     legacy_url = _finra_legacy_detail_transport_url(canonical_url)
     if legacy_url:
@@ -5498,6 +5698,7 @@ def _fetch_finra_detail_with_transports(
             session,
             max_attempts=1,
         )
+        attempts.append(("legacy-index", legacy_result.get("status_code")))
         if legacy_result["status_code"] == 200:
             final_url = legacy_result.get("final_url") or legacy_url
             normalized_final, _ = _finra_normalize_detail_link(final_url)
@@ -5536,11 +5737,23 @@ def _fetch_finra_detail_with_transports(
 
     if node_fallback_url and node_fallback_url != canonical_url:
         node_result = _fetch_finra_page(node_fallback_url, session)
+        attempts.append(("node", node_result.get("status_code")))
         if node_result["status_code"] == 200:
             node_result["finra_transport"] = "node"
             node_result["transport_fallback_url"] = node_fallback_url
-        return node_result, "node"
-    return canonical_result, "canonical"
+            return node_result, "node"
+    summary = ", ".join(
+        f"{transport}={status}"
+        for transport, status in attempts
+    )
+    return {
+        **canonical_result,
+        "status_code": 0,
+        "error": (
+            f"FINRA detail transports exhausted for {canonical_url}: "
+            f"{summary}"
+        ),
+    }, attempts[-1][0] if attempts else "canonical"
 
 
 def _finra_known_notice_urls(source_state: dict) -> list[str]:
@@ -8323,6 +8536,7 @@ def fetch_finra_notices(
         detail_cache: dict[str, dict] = {}
         detail_transport_by_url: dict[str, str] = {}
         legacy_transport_identity_proofs: dict[str, dict] = {}
+        query_transport_identity_proofs: dict[str, dict] = {}
         detail_identity_proofs: dict[str, str] = {}
         node_groups: dict[str, dict] = {}
         duplicate_ledger: list[dict] = []
@@ -8364,6 +8578,17 @@ def fetch_finra_notices(
                 ):
                     legacy_transport_identity_proofs[url] = deepcopy(
                         detail["legacy_transport_identity_proof"]
+                    )
+                if (
+                    transport == "canonical-query"
+                    and detail.get("status_code") == 200
+                    and isinstance(
+                        detail.get("query_transport_identity_proof"),
+                        dict,
+                    )
+                ):
+                    query_transport_identity_proofs[url] = deepcopy(
+                        detail["query_transport_identity_proof"]
                     )
             if detail["status_code"] != 200:
                 return _incomplete_result(
@@ -8722,6 +8947,19 @@ def fetch_finra_notices(
                 json.dumps(
                     dict(sorted(
                         legacy_transport_identity_proofs.items()
+                    )),
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            ),
+            "query_transport_identity_proofs": dict(sorted(
+                query_transport_identity_proofs.items()
+            )),
+            "query_transport_identity_proof_digest": compute_hash(
+                json.dumps(
+                    dict(sorted(
+                        query_transport_identity_proofs.items()
                     )),
                     ensure_ascii=False,
                     sort_keys=True,
