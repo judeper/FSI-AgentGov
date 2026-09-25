@@ -8368,6 +8368,179 @@ def test_finra_rate_limit_uses_persisted_authoritative_node_fallback(monkeypatch
     }
 
 
+def _run_finra_legacy_transport_case(
+    monkeypatch,
+    *,
+    legacy_status=200,
+    legacy_canonical=None,
+    legacy_node="999999",
+    legacy_final_url=None,
+    node_fallback=None,
+    node_status=200,
+):
+    canonical = "https://www.finra.org/rules-guidance/notices/26-16"
+    legacy = (
+        "https://www.finra.org/index.php/"
+        "rules-guidance/notices/26-16"
+    )
+    row = _synthetic_finra_row(
+        canonical,
+        "url:/rules-guidance/notices/26-16",
+        title="Regulatory Notice 26-16",
+    )
+    listing = _synthetic_finra_listing([row])
+    requested = []
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+    legacy_content = _finra_detail_page_with_identity(
+        "Regulatory Notice 26-16",
+        row["listing_date"] or "2026-09-25",
+        "Legacy transport content.",
+        canonical_url=legacy_canonical or canonical,
+        node_id=legacy_node,
+    )
+    node_content = _finra_detail_page(
+        "Regulatory Notice 26-16",
+        row["listing_date"] or "2026-09-25",
+        "Node transport content.",
+    )
+
+    def fake_fetch(url, _session, **_kwargs):
+        requested.append(url)
+        if url == canonical:
+            status, content, final_url = 429, "", url
+        elif url == legacy:
+            status, content = legacy_status, (
+                legacy_content if legacy_status == 200 else ""
+            )
+            final_url = legacy_final_url or url
+        elif url == node_fallback:
+            status, content, final_url = (
+                node_status,
+                node_content if node_status == 200 else "",
+                url,
+            )
+        else:
+            raise AssertionError(f"unexpected transport URL: {url}")
+        return {
+            "status_code": status,
+            "content": content,
+            "final_url": final_url,
+            "url": url,
+            "was_redirected": final_url != url,
+            "error": "rate limited" if status == 429 else None,
+            "retry_after": 0,
+        }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        fake_fetch,
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+        fallback_urls=(
+            {canonical: node_fallback} if node_fallback else None
+        ),
+    )
+    return result, requested, canonical, legacy
+
+
+def test_finra_canonical_429_uses_legacy_transport_once(monkeypatch):
+    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+        monkeypatch,
+    )
+
+    assert result.complete is True
+    assert requested == [canonical, legacy]
+    assert result[0].url == canonical
+    assert result[0].document_id == "FINRA 26-16"
+    assert result.coverage["detail_transport_by_url"] == {
+        canonical: "legacy-index"
+    }
+    assert result.fallback_urls[canonical] == (
+        "https://www.finra.org/node/999999"
+    )
+
+
+@pytest.mark.parametrize(
+    ("legacy_canonical", "legacy_node", "fallback"),
+    [
+        (
+            "https://www.finra.org/rules-guidance/notices/26-15",
+            "999999",
+            None,
+        ),
+        (
+            None,
+            "999998",
+            "https://www.finra.org/node/999999",
+        ),
+    ],
+)
+def test_finra_legacy_transport_identity_mismatch_fails_closed(
+    monkeypatch,
+    legacy_canonical,
+    legacy_node,
+    fallback,
+):
+    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+        monkeypatch,
+        legacy_canonical=legacy_canonical,
+        legacy_node=legacy_node,
+        node_fallback=fallback,
+    )
+
+    assert result.complete is False
+    assert requested == [canonical, legacy]
+    assert "legacy detail transport" in result.error
+
+
+def test_finra_legacy_429_uses_numeric_node_fallback(monkeypatch):
+    node = "https://www.finra.org/node/999999"
+    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+        monkeypatch,
+        legacy_status=429,
+        node_fallback=node,
+    )
+
+    assert result.complete is True
+    assert requested == [canonical, legacy, node]
+    assert result[0].url == canonical
+    assert result.coverage["detail_transport_by_url"] == {
+        canonical: "node"
+    }
+
+
+def test_finra_all_detail_transports_fail_closed(monkeypatch):
+    node = "https://www.finra.org/node/999999"
+    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+        monkeypatch,
+        legacy_status=429,
+        node_fallback=node,
+        node_status=429,
+    )
+
+    assert result.complete is False
+    assert requested == [canonical, legacy, node]
+    assert result == []
+
+
+def test_finra_legacy_transport_off_origin_redirect_fails(monkeypatch):
+    result, requested, canonical, legacy = _run_finra_legacy_transport_case(
+        monkeypatch,
+        legacy_final_url="https://evil.example/notices/26-16",
+    )
+
+    assert result.complete is False
+    assert requested == [canonical, legacy]
+    assert "changed canonical identity" in result.error
+
+
 def test_finra_node_transport_fallback_preserves_canonical_identity(monkeypatch):
     """A node-URL transport fallback must not rewrite an existing notice identity."""
     canonical = "https://www.finra.org/rules-guidance/notices/26-14"

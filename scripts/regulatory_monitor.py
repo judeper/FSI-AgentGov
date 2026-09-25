@@ -3051,6 +3051,8 @@ def _validate_source_coverage(
                 "expected_detail_request_count",
                 "detail_phase_cooldown_seconds",
                 "detail_phase_start_marker",
+                "detail_transport_by_url",
+                "detail_transport_counts",
             )
             for key in detail_required:
                 if key not in coverage:
@@ -3076,6 +3078,14 @@ def _validate_source_coverage(
                 [],
             )
             refresh_ring_urls = coverage.get("refresh_ring_urls", [])
+            detail_transport_by_url = coverage.get(
+                "detail_transport_by_url",
+                {},
+            )
+            detail_transport_counts = coverage.get(
+                "detail_transport_counts",
+                {},
+            )
             if coverage.get("detail_mode") != "bounded-refresh":
                 errors.append(
                     f"{source_key} deterministic detail mode is invalid"
@@ -3204,6 +3214,22 @@ def _validate_source_coverage(
             ):
                 errors.append(
                     f"{source_key} expected detail request count is invalid"
+                )
+            allowed_transports = {"canonical", "legacy-index", "node"}
+            if (
+                not isinstance(detail_transport_by_url, dict)
+                or set(detail_transport_by_url) != set(refreshed_urls)
+                or any(
+                    transport not in allowed_transports
+                    for transport in detail_transport_by_url.values()
+                )
+                or detail_transport_counts
+                != dict(sorted(Counter(
+                    detail_transport_by_url.values()
+                ).items()))
+            ):
+                errors.append(
+                    f"{source_key} detail transport evidence is invalid"
                 )
             expected_request_count = coverage.get(
                 "expected_detail_request_count"
@@ -5265,6 +5291,102 @@ def _reset_finra_detail_session_state(session: requests.Session) -> None:
     session._finra_backoff_seconds = FINRA_RETRY_BASE_WAIT_SECONDS
     session._finra_request_interval_seconds = FINRA_REQUEST_INTERVAL_SECONDS
     session._finra_last_request_at = 0.0
+
+
+def _finra_legacy_detail_transport_url(
+    canonical_url: str,
+) -> Optional[str]:
+    """Derive FINRA's official legacy transport for one canonical notice."""
+    canonical, identity = _finra_normalize_detail_link(canonical_url)
+    if (
+        canonical != canonical_url
+        or not isinstance(identity, str)
+        or not identity.startswith("url:")
+    ):
+        return None
+    path = urlparse(canonical_url).path
+    match = re.fullmatch(r"/rules-guidance/notices/([^/]+)", path)
+    if match is None:
+        return None
+    return (
+        f"{urlparse(FINRA_NOTICES_URL).scheme}://"
+        f"{urlparse(FINRA_NOTICES_URL).netloc}"
+        f"/index.php/rules-guidance/notices/{match.group(1)}"
+    )
+
+
+def _fetch_finra_detail_with_transports(
+    canonical_url: str,
+    session: requests.Session,
+    node_fallback_url: Optional[str],
+) -> tuple[dict, str]:
+    """Try canonical once, then validated legacy, then numeric node."""
+    canonical_result = _fetch_finra_page(
+        canonical_url,
+        session,
+        max_attempts=1,
+    )
+    if canonical_result["status_code"] == 200:
+        canonical_result["finra_transport"] = "canonical"
+        return canonical_result, "canonical"
+
+    legacy_url = _finra_legacy_detail_transport_url(canonical_url)
+    if legacy_url:
+        legacy_result = _fetch_finra_page(
+            legacy_url,
+            session,
+            max_attempts=1,
+        )
+        if legacy_result["status_code"] == 200:
+            final_url = legacy_result.get("final_url") or legacy_url
+            normalized_final, _ = _finra_normalize_detail_link(final_url)
+            if normalized_final != canonical_url:
+                return {
+                    **legacy_result,
+                    "status_code": 0,
+                    "error": (
+                        "FINRA legacy detail transport changed canonical "
+                        f"identity: {canonical_url} -> {final_url}"
+                    ),
+                }, "legacy-index"
+            soup = BeautifulSoup(legacy_result["content"], "html.parser")
+            proof = _capture_finra_detail_identity_proof(soup)
+            binding = _finra_detail_identity_from_proof(proof)
+            if binding is None or binding[0] != canonical_url:
+                return {
+                    **legacy_result,
+                    "status_code": 0,
+                    "error": (
+                        "FINRA legacy detail transport lacked an exact "
+                        f"canonical identity proof: {canonical_url}"
+                    ),
+                }, "legacy-index"
+            shortlink = _extract_finra_shortlink(soup)
+            if shortlink:
+                valid_shortlink = _validate_finra_node_url(shortlink)
+                if valid_shortlink is None or (
+                    node_fallback_url is not None
+                    and valid_shortlink != node_fallback_url
+                ):
+                    return {
+                        **legacy_result,
+                        "status_code": 0,
+                        "error": (
+                            "FINRA legacy detail transport shortlink "
+                            f"conflicted for {canonical_url}"
+                        ),
+                    }, "legacy-index"
+            legacy_result["finra_transport"] = "legacy-index"
+            legacy_result["transport_fallback_url"] = legacy_url
+            return legacy_result, "legacy-index"
+
+    if node_fallback_url and node_fallback_url != canonical_url:
+        node_result = _fetch_finra_page(node_fallback_url, session)
+        if node_result["status_code"] == 200:
+            node_result["finra_transport"] = "node"
+            node_result["transport_fallback_url"] = node_fallback_url
+        return node_result, "node"
+    return canonical_result, "canonical"
 
 
 def _finra_known_notice_urls(source_state: dict) -> list[str]:
@@ -8045,6 +8167,7 @@ def fetch_finra_notices(
                 detail_phase_start_marker = "phase-cooldown-complete"
             _reset_finra_detail_session_state(session)
         detail_cache: dict[str, dict] = {}
+        detail_transport_by_url: dict[str, str] = {}
         detail_identity_proofs: dict[str, str] = {}
         node_groups: dict[str, dict] = {}
         duplicate_ledger: list[dict] = []
@@ -8069,25 +8192,13 @@ def fetch_finra_notices(
             )
             detail = detail_cache.get(url)
             if detail is None:
-                detail = _fetch_finra_page(
+                detail, transport = _fetch_finra_detail_with_transports(
                     url,
                     session,
-                    max_attempts=1 if fallback_url and fallback_url != url else None,
-                )
-                detail_cache[url] = detail
-            if detail["status_code"] != 200 and fallback_url and fallback_url != url:
-                logger.warning(
-                    "FINRA canonical detail for %s was unavailable; retrying "
-                    "authoritative node fallback %s",
-                    url,
                     fallback_url,
                 )
-                detail = _fetch_finra_page(fallback_url, session)
-                # The node URL is transport only. Record that this response did
-                # not come from the canonical document URL so the notice keeps
-                # its listing identity instead of adopting the transport URL.
-                detail["transport_fallback_url"] = fallback_url
                 detail_cache[url] = detail
+                detail_transport_by_url[url] = transport
             if detail["status_code"] != 200:
                 return _incomplete_result(
                     items,
@@ -8155,7 +8266,9 @@ def fetch_finra_notices(
             # replace the listing/canonical document identity; doing so would
             # orphan the existing canonical entry and force an alias migration
             # that has no legitimate evidence behind it.
-            transport_fallback = bool(detail.get("transport_fallback_url"))
+            transport_fallback = (
+                detail.get("finra_transport") in {"legacy-index", "node"}
+            )
             identity_url = url if transport_fallback else (final_url or url)
             node_identity = (
                 shortlink_node_identity
@@ -8430,6 +8543,12 @@ def fetch_finra_notices(
             ],
             "forced_fetch_reasons": detail_plan["forced_fetch_reasons"],
             "expected_detail_request_count": len(expected_detail_urls),
+            "detail_transport_by_url": dict(sorted(
+                detail_transport_by_url.items()
+            )),
+            "detail_transport_counts": dict(sorted(Counter(
+                detail_transport_by_url.values()
+            ).items())),
             "detail_phase_cooldown_seconds": detail_cooldown_seconds,
             "detail_phase_start_marker": detail_phase_start_marker,
             "_complete_entry_hashes": complete_entries,
