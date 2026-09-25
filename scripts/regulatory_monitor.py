@@ -151,6 +151,12 @@ FINRA_CROSS_PASS_CONSENSUS_FIELDS = tuple(
 FINRA_RESERVED_NOTICE_SLUGS = frozenset({
     "by-topic",
 })
+# Reviewed Sep. 25, 2026 from FINRA's official canonical detail shortlink.
+# Transport seed only; it never defines content or persisted item identity.
+FINRA_NODE_TRANSPORT_BOOTSTRAP = {
+    "https://www.finra.org/rules-guidance/notices/26-16":
+        "https://www.finra.org/node/385061",
+}
 _FINRA_LEGACY_FIXTURE_CAPABILITY = object()
 # State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
 # alias migration requires a separate code review that adds a new anchor.
@@ -3057,6 +3063,8 @@ def _validate_source_coverage(
                 "legacy_transport_identity_proof_digest",
                 "query_transport_identity_proofs",
                 "query_transport_identity_proof_digest",
+                "detail_node_authority_by_url",
+                "detail_node_authority_digest",
             )
             for key in detail_required:
                 if key not in coverage:
@@ -3096,6 +3104,10 @@ def _validate_source_coverage(
             )
             query_transport_identity_proofs = coverage.get(
                 "query_transport_identity_proofs",
+                {},
+            )
+            detail_node_authority_by_url = coverage.get(
+                "detail_node_authority_by_url",
                 {},
             )
             if coverage.get("detail_mode") != "bounded-refresh":
@@ -3443,6 +3455,65 @@ def _validate_source_coverage(
                         errors.append(
                             f"{source_key} query transport node binding "
                             f"is invalid for {url}"
+                        )
+            allowed_authority_sources = {
+                "persisted",
+                "anchored-proof",
+                "supplemental-proof",
+                "date-authority",
+                "alias-proof",
+                "bootstrap",
+            }
+            if (
+                not isinstance(detail_node_authority_by_url, dict)
+                or not set(detail_node_authority_by_url) <= set(refreshed_urls)
+                or any(
+                    not isinstance(record, dict)
+                    or set(record)
+                    != {"node_url", "source", "authority_url"}
+                    or _validate_finra_node_url(
+                        record.get("node_url", "")
+                    ) != record.get("node_url")
+                    or _finra_normalize_detail_link(
+                        record.get("authority_url", "")
+                    )[0] != record.get("authority_url")
+                    or record.get("source")
+                    not in allowed_authority_sources
+                    for record in detail_node_authority_by_url.values()
+                )
+                or coverage.get("detail_node_authority_digest")
+                != compute_hash(json.dumps(
+                    detail_node_authority_by_url,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+            ):
+                errors.append(
+                    f"{source_key} detail node authority evidence is invalid"
+                )
+            else:
+                candidates = _finra_node_authority_candidates(source_state)
+                for url, record in detail_node_authority_by_url.items():
+                    source_node = (
+                        record["source"],
+                        record["node_url"],
+                    )
+                    if record["source"] == "bootstrap":
+                        valid = (
+                            FINRA_NODE_TRANSPORT_BOOTSTRAP.get(url)
+                            == record["node_url"]
+                            and record["authority_url"] == url
+                        )
+                    else:
+                        valid = source_node in candidates.get(
+                            record["authority_url"],
+                            [],
+                        )
+                    if not valid:
+                        errors.append(
+                            f"{source_key} detail node authority source "
+                            f"is not proof-bound for {url}"
                         )
             expected_request_count = coverage.get(
                 "expected_detail_request_count"
@@ -5628,6 +5699,7 @@ def _fetch_finra_detail_with_transports(
     canonical_url: str,
     session: requests.Session,
     node_fallback_url: Optional[str],
+    node_authority_source: Optional[str] = None,
 ) -> tuple[dict, str]:
     """Try canonical, output=1, validated legacy, then numeric node."""
     attempts = []
@@ -5739,6 +5811,27 @@ def _fetch_finra_detail_with_transports(
         node_result = _fetch_finra_page(node_fallback_url, session)
         attempts.append(("node", node_result.get("status_code")))
         if node_result["status_code"] == 200:
+            if node_authority_source == "bootstrap":
+                soup = BeautifulSoup(node_result["content"], "html.parser")
+                proof, proof_error = _finra_legacy_transport_identity_proof(
+                    soup,
+                    canonical_url,
+                    node_fallback_url,
+                )
+                if (
+                    proof is None
+                    or proof.get("normalized_node_url")
+                    != node_fallback_url
+                ):
+                    return {
+                        **node_result,
+                        "status_code": 0,
+                        "error": (
+                            "FINRA bootstrap node transport identity proof "
+                            f"failed for {canonical_url}: {proof_error}"
+                        ),
+                    }, "node"
+                node_result["node_transport_identity_proof"] = proof
             node_result["finra_transport"] = "node"
             node_result["transport_fallback_url"] = node_fallback_url
             return node_result, "node"
@@ -5834,6 +5927,192 @@ def _finra_resolve_canonical_identity(
     )
 
 
+def _finra_node_authority_candidates(
+    source_state: dict,
+) -> dict[str, list[tuple[str, str]]]:
+    """Collect independently validated canonical URL -> node authorities."""
+    candidates: dict[str, list[tuple[str, str]]] = {}
+
+    def add(url: object, node_url: object, source: str) -> None:
+        canonical_url, identity = _finra_normalize_detail_link(
+            url if isinstance(url, str) else ""
+        )
+        valid_node = _validate_finra_node_url(
+            node_url if isinstance(node_url, str) else ""
+        )
+        if (
+            canonical_url
+            and isinstance(identity, str)
+            and identity.startswith("url:")
+            and valid_node
+        ):
+            candidates.setdefault(canonical_url, []).append(
+                (source, valid_node)
+            )
+
+    fallbacks = source_state.get("fallback_urls", {})
+    if isinstance(fallbacks, dict):
+        for url, node_url in fallbacks.items():
+            add(url, node_url, "persisted")
+
+    coverage = source_state.get("coverage", {})
+    coverage = coverage if isinstance(coverage, dict) else {}
+    proof_sources = (
+        ("anchored-proof", coverage.get("detail_identity_proofs", [])),
+        (
+            "supplemental-proof",
+            coverage.get("supplemental_detail_identity_proofs", []),
+        ),
+    )
+    proof_bindings = {}
+    for source, proofs in proof_sources:
+        if not isinstance(proofs, list):
+            continue
+        for proof in proofs:
+            binding = _finra_detail_identity_from_proof(proof)
+            if binding:
+                add(binding[0], binding[1], source)
+                proof_bindings[binding[0]] = binding[1]
+
+    for record in coverage.get("date_resolution_ledger", []):
+        if not isinstance(record, dict):
+            continue
+        facts = _finra_duplicate_date_proof_facts(
+            record.get("detail_date_proof")
+        )
+        if facts:
+            add(facts[0], facts[1], "date-authority")
+    for record in coverage.get("duplicate_ledger", []):
+        if not isinstance(record, dict):
+            continue
+        target = _finra_row_detail_target(record.get("raw_payload"))
+        node_identity = record.get("node_identity")
+        node_url = (
+            f"https://www.finra.org/node/{node_identity.split(':', 1)[1]}"
+            if isinstance(node_identity, str)
+            and re.fullmatch(r"node:\d+", node_identity)
+            else None
+        )
+        add(target, node_url, "date-authority")
+
+    for alias in coverage.get("alias_ledger", []):
+        if not isinstance(alias, dict):
+            continue
+        source_url = _finra_alias_source_url(alias.get("old_identity"))
+        canonical_identity = alias.get("canonical_identity")
+        if (
+            source_url
+            and proof_bindings.get(source_url) == canonical_identity
+        ):
+            add(source_url, canonical_identity, "alias-proof")
+    return candidates
+
+
+def _finra_derive_node_authority(
+    source_state: dict,
+    urls: set[str],
+    rows: Optional[list[dict]] = None,
+) -> dict[str, dict[str, str]]:
+    """Resolve one conflict-free node authority per requested canonical URL."""
+    candidates = _finra_node_authority_candidates(source_state)
+    priority = (
+        "persisted",
+        "anchored-proof",
+        "supplemental-proof",
+        "date-authority",
+        "alias-proof",
+        "bootstrap",
+    )
+    result = {}
+    for url in sorted(urls):
+        url_candidates = list(candidates.get(url, []))
+        bootstrap_node = FINRA_NODE_TRANSPORT_BOOTSTRAP.get(url)
+        if bootstrap_node is not None:
+            prior_nodes = {node for _source, node in url_candidates}
+            if prior_nodes and prior_nodes != {bootstrap_node}:
+                raise ValueError(
+                    "FINRA bootstrap node authority conflicts with prior "
+                    f"evidence for {url}: {sorted(prior_nodes)}"
+                )
+            if not url_candidates:
+                url_candidates.append(("bootstrap", bootstrap_node))
+        nodes = {node for _source, node in url_candidates}
+        if len(nodes) > 1:
+            raise ValueError(
+                "FINRA node authority sources conflict for "
+                f"{url}: {sorted(nodes)}"
+            )
+        if not url_candidates:
+            continue
+        for source in priority:
+            match = next(
+                (
+                    node for candidate_source, node in url_candidates
+                    if candidate_source == source
+                ),
+                None,
+            )
+            if match:
+                result[url] = {
+                    "node_url": match,
+                    "source": source,
+                    "authority_url": url,
+                }
+                break
+    if rows:
+        prior_observations: dict[str, set[str]] = {}
+        coverage = source_state.get("coverage", {})
+        coverage = coverage if isinstance(coverage, dict) else {}
+        for proof in coverage.get("pass_proofs", []):
+            if not isinstance(proof, dict):
+                continue
+            for page in proof.get("page_row_payloads", []):
+                if not isinstance(page, list):
+                    continue
+                for payload in page:
+                    target = _finra_row_detail_target(payload)
+                    if target:
+                        prior_observations.setdefault(
+                            _finra_semantic_observation_key(payload),
+                            set(),
+                        ).add(target)
+        all_direct_urls = set(candidates)
+        direct_authority = _finra_derive_node_authority(
+            source_state,
+            all_direct_urls,
+            rows=None,
+        ) if all_direct_urls else {}
+        for row in rows:
+            url = row.get("detail_url")
+            if not isinstance(url, str) or url in result:
+                continue
+            prior_urls = prior_observations.get(
+                _finra_semantic_observation_key(row["raw_payload"]),
+                set(),
+            )
+            matches = [
+                direct_authority[prior_url]
+                for prior_url in sorted(prior_urls)
+                if prior_url in direct_authority
+            ]
+            nodes = {match["node_url"] for match in matches}
+            if len(nodes) > 1:
+                raise ValueError(
+                    "FINRA semantic node authorities conflict for "
+                    f"{url}: {sorted(nodes)}"
+                )
+            if len(matches) == 1:
+                result[url] = {
+                    **matches[0],
+                    "authority_url": next(
+                        prior_url
+                        for prior_url in sorted(prior_urls)
+                        if prior_url in direct_authority
+                    ),
+                }
+    return result
+
+
 def _plan_finra_detail_refresh(
     rows: list[dict],
     prior_source_state: Optional[dict],
@@ -5861,6 +6140,11 @@ def _plan_finra_detail_refresh(
     alias_ledger = _finra_pruned_alias_ledger(prior, retained_urls)
     fallbacks = prior.get("fallback_urls")
     fallbacks = fallbacks if isinstance(fallbacks, dict) else {}
+    node_authority = _finra_derive_node_authority(
+        prior,
+        retained_urls,
+        rows=rows,
+    )
     prior_payloads = {
         _finra_payload_sort_key(payload)
         for proof in prior_coverage.get("pass_proofs", [])
@@ -5887,7 +6171,10 @@ def _plan_finra_detail_refresh(
             raw_identity,
             alias_ledger,
         )
-        fallback = _validate_finra_node_url(fallbacks.get(url, ""))
+        authority = node_authority.get(url)
+        fallback = (
+            authority["node_url"] if authority is not None else None
+        )
         fallback_identity = (
             _extract_finra_document_id(fallback)
             if fallback
@@ -6020,6 +6307,11 @@ def _plan_finra_detail_refresh(
         "scheduled_skipped_urls": scheduled_skipped,
         "refresh_ring": refresh_ring,
         "alias_ledger": alias_ledger,
+        "node_authority_by_url": {
+            row["detail_url"]: deepcopy(node_authority[row["detail_url"]])
+            for row in fetch_rows
+            if row["detail_url"] in node_authority
+        },
         "legacy_migration_mode": legacy_migration_mode,
         "legacy_migration_bindings": sorted(
             legacy_migration_bindings,
@@ -8505,6 +8797,20 @@ def fetch_finra_notices(
             dict(sorted(reason_counts.items())),
             len(detail_plan["legacy_migration_bindings"]),
         )
+        node_authority_counts = Counter(
+            record["source"]
+            for record in detail_plan.get(
+                "node_authority_by_url",
+                {},
+            ).values()
+        )
+        logger.info(
+            "FINRA detail node fallback availability=%s/%s "
+            "source_counts=%s",
+            len(detail_plan.get("node_authority_by_url", {})),
+            len(expected_detail_urls),
+            dict(sorted(node_authority_counts.items())),
+        )
         detail_cooldown_seconds = 0
         detail_phase_start_marker = "no-detail-requests"
         if expected_detail_urls:
@@ -8556,8 +8862,23 @@ def fetch_finra_notices(
             )
             listing_title = row.get("title", "")
             listing_date = row.get("listing_date", "")
-            fallback_url = _validate_finra_node_url(
-                resolved_fallback_urls.get(url, "")
+            authority = detail_plan.get(
+                "node_authority_by_url",
+                {},
+            ).get(url)
+            fallback_url = (
+                _validate_finra_node_url(authority.get("node_url", ""))
+                if isinstance(authority, dict)
+                else _validate_finra_node_url(
+                    resolved_fallback_urls.get(url, "")
+                )
+            )
+            authority_source = (
+                authority.get("source")
+                if isinstance(authority, dict)
+                else "persisted"
+                if fallback_url
+                else None
             )
             detail = detail_cache.get(url)
             if detail is None:
@@ -8565,6 +8886,7 @@ def fetch_finra_notices(
                     url,
                     session,
                     fallback_url,
+                    authority_source,
                 )
                 detail_cache[url] = detail
                 detail_transport_by_url[url] = transport
@@ -8940,6 +9262,20 @@ def fetch_finra_notices(
             "detail_transport_counts": dict(sorted(Counter(
                 detail_transport_by_url.values()
             ).items())),
+            "detail_node_authority_by_url": dict(sorted(
+                detail_plan.get("node_authority_by_url", {}).items()
+            )),
+            "detail_node_authority_digest": compute_hash(json.dumps(
+                dict(sorted(
+                    detail_plan.get(
+                        "node_authority_by_url",
+                        {},
+                    ).items()
+                )),
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )),
             "legacy_transport_identity_proofs": dict(sorted(
                 legacy_transport_identity_proofs.items()
             )),
