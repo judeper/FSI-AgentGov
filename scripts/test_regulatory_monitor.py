@@ -5962,10 +5962,42 @@ def test_workflow_two_phase_artifact_permissions_and_ordering():
         )
 
     read_only_block = workflow.split("validate-read-only:", 1)[1].split(
-        "monitor-regulatory:", 1
+        "collect-regulatory-listing:", 1
     )[0]
     assert "contents: write" not in read_only_block
     assert "pull-requests: write" not in read_only_block
+    assert "GITHUB_REF_NAME" not in read_only_block
+
+
+def test_workflow_routes_pr_and_default_branch_events_to_correct_jobs():
+    workflow = _workflow_text()
+    read_only_block = workflow.split("validate-read-only:", 1)[1].split(
+        "collect-regulatory-listing:", 1
+    )[0]
+    listing_block = workflow.split(
+        "collect-regulatory-listing:", 1
+    )[1].split("monitor-regulatory:", 1)[0]
+    detail_block = workflow.split("monitor-regulatory:", 1)[1]
+
+    assert "github.event_name == 'pull_request'" in read_only_block
+    assert "github.ref_name != github.event.repository.default_branch" in (
+        read_only_block
+    )
+    assert "GITHUB_REF_NAME" not in read_only_block
+    assert "Verify trusted default-branch listing checkout" not in (
+        read_only_block
+    )
+
+    for block in (listing_block, detail_block):
+        assert "github.event_name != 'pull_request'" in block
+        assert (
+            "github.ref_name == github.event.repository.default_branch"
+            in block
+        )
+    assert "Verify trusted default-branch listing checkout" in listing_block
+    assert 'test "${GITHUB_REF_NAME}" =' in listing_block
+    assert 'test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"' in listing_block
+    assert "needs: collect-regulatory-listing" in workflow
     assert "private-key:" not in read_only_block
 
 
