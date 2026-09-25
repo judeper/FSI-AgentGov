@@ -17,6 +17,7 @@ import re
 import sys
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import pytest
@@ -5794,11 +5795,11 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
         / "regulatory-monitoring.yml"
     ).read_text(encoding="utf-8")
 
-    assert workflow.count("timeout-minutes: 360") == 2
+    assert workflow.count("timeout-minutes: 360") == 1
+    assert workflow.count("timeout-minutes: 270") == 1
+    assert workflow.count("timeout-minutes: 150") == 1
     assert workflow.count("'scripts/regulatory_monitor.py'") == 2
     assert workflow.count("'.github/workflows/regulatory-monitoring.yml'") == 2
-    workflow_timeout_minutes = 360
-    assert workflow_timeout_minutes <= 360
     assert regulatory_monitor.FINRA_LISTING_REQUEST_BUDGET == 420
     assert regulatory_monitor.FINRA_LISTING_REQUEST_INTERVAL_SECONDS == 12.0
     assert regulatory_monitor.FINRA_MAX_LISTING_PASSES == 3
@@ -5814,16 +5815,17 @@ def test_workflow_gives_finra_partition_budget_explicit_timeout_headroom():
         / 60
     )
     assert listing_minutes == 252
-    total_minutes = (
-        listing_minutes
-        + regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
-        + (
-            regulatory_monitor.FINRA_LISTING_TO_DETAIL_COOLDOWN_SECONDS
-            / 60
-        )
+    assert 270 - listing_minutes == 18
+    assert (
+        regulatory_monitor
+        .REGULATORY_DETAIL_FEDERAL_REGISTER_ALLOWANCE_MINUTES
+        == 60
     )
-    assert total_minutes == 357
-    assert workflow_timeout_minutes - total_minutes == 3
+    assert 150 - (
+        regulatory_monitor.FINRA_DETAIL_REFRESH_HEADROOM_MINUTES
+        + regulatory_monitor
+        .REGULATORY_DETAIL_FEDERAL_REGISTER_ALLOWANCE_MINUTES
+    ) == 15
 
 
 def test_workflow_persists_exit0_dirty_state_without_clean_run_pr_noise():
@@ -5882,13 +5884,13 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
     assert "validate-read-only:" in workflow
     assert "monitor-regulatory:" in workflow
     assert "contents: read" in workflow
-    assert "contents: write" in workflow
     assert "pull-requests: read" in workflow
-    assert "pull-requests: write" in workflow
+    assert "contents: write" not in workflow
+    assert "pull-requests: write" not in workflow
     assert "python scripts/regulatory_monitor.py --dry-run" in workflow
     assert workflow.count("scripts/regulatory_recovery_anchors.py") == 2
     assert "persist-credentials: false" in workflow
-    assert "Checkout trusted default branch" in workflow
+    assert "Checkout exact trusted commit for detail" in workflow
     assert "Verify trusted default-branch checkout" in workflow
     assert "Generate GitHub App token" in workflow
     assert "STATE_SHA_BEFORE=$(sha256sum data/monitor-state.json" in workflow
@@ -5896,6 +5898,48 @@ def test_workflow_mutation_is_default_branch_only_and_cas_checked():
     assert 'git fetch --no-tags origin "$DEFAULT_BRANCH"' in workflow
     assert 'BASE_STATE=$(git show "$EXPECTED_BASE:data/monitor-state.json"' in workflow
     assert "steps.cas.outputs.valid == 'true'" in workflow
+
+
+def test_workflow_two_phase_artifact_permissions_and_ordering():
+    workflow = _workflow_text()
+
+    assert "collect-regulatory-listing:" in workflow
+    assert "needs: collect-regulatory-listing" in workflow
+    assert "--phase listing" in workflow
+    assert "--phase detail" in workflow
+    assert "actions/upload-artifact@v7" in workflow
+    assert "actions/download-artifact@v7" in workflow
+    assert "retention-days: 1" in workflow
+    assert workflow.count("persist-credentials: false") >= 3
+    assert workflow.count("ref: ${{ github.sha }}") >= 2
+    assert "Verify trusted default-branch listing checkout" in workflow
+    assert '$RUNNER_TEMP/finra-phase/finra-listing-phase.json' in workflow
+    assert "${{ runner.temp }}/finra-phase" in workflow
+    listing_block = workflow.split(
+        "collect-regulatory-listing:", 1
+    )[1].split("monitor-regulatory:", 1)[0]
+    assert "contents: read" in listing_block
+    assert "private-key:" not in listing_block
+    assert "Generate GitHub App token" not in listing_block
+    assert "GITHUB_WORKSPACE" not in listing_block
+    detail_block = workflow.split("monitor-regulatory:", 1)[1]
+    assert detail_block.index("Validate default-branch monitor CAS") < (
+        detail_block.index("Generate GitHub App token")
+    )
+    assert detail_block.index("Run Regulatory Monitor") < (
+        detail_block.index("Generate GitHub App token")
+    )
+    cas_blocks = [
+        workflow.split(
+            "- name: Detect persisted monitor changes", 1
+        )[1].split("- name:", 1)[0],
+        workflow.split(
+            "- name: Validate default-branch monitor CAS", 1
+        )[1].split("- name:", 1)[0],
+    ]
+    for block in cas_blocks:
+        assert "finra-listing-phase.json" not in block
+        assert "ALLOWED_PATHS=" in block
     assert "baseRefName,baseRefOid" in workflow
     # The removed auto-merge step's "Maintenance PR base CAS mismatch" is gone;
     # the post-create verification step is what now binds the PR to the exact
@@ -7494,6 +7538,301 @@ def test_finra_limited_result_never_exposes_private_complete_hashes(monkeypatch)
     assert "_complete_entry_hashes" not in result.coverage
     assert 1800 not in sleeps
     assert result.coverage["detail_phase_cooldown_seconds"] == 0
+
+
+def _finra_phase_artifact_fixture():
+    rows, prior = _bounded_detail_fixture(3)
+    listing = _synthetic_finra_listing(rows)
+    scheduled = regulatory_monitor._finra_refresh_batch(prior)
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        prior,
+        scheduled,
+        limit=None,
+    )
+    config = {"regulatory": {}, "keyword_control_map": []}
+    return listing, plan, prior, config
+
+
+def test_finra_phase_artifact_roundtrip_recomputes_listing_and_plan(tmp_path):
+    listing, plan, prior, config = _finra_phase_artifact_fixture()
+    artifact = regulatory_monitor._build_finra_phase_artifact(
+        listing=listing,
+        detail_plan=plan,
+        prior_source_state=prior,
+        base_sha="a" * 40,
+        state_sha="b" * 64,
+        config=config,
+    )
+    path = tmp_path / "finra-phase.json"
+    regulatory_monitor._write_finra_phase_artifact(path, artifact)
+
+    loaded_listing, loaded_plan = (
+        regulatory_monitor._load_finra_phase_artifact(
+            path,
+            base_sha="a" * 40,
+            state_sha="b" * 64,
+            config=config,
+            prior_source_state=prior,
+        )
+    )
+
+    assert loaded_listing == listing
+    assert loaded_plan == plan
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ["base", "state", "config", "schema", "source", "hash", "unknown"],
+)
+def test_finra_phase_artifact_tampering_fails_closed(tmp_path, tamper):
+    listing, plan, prior, config = _finra_phase_artifact_fixture()
+    artifact = regulatory_monitor._build_finra_phase_artifact(
+        listing=listing,
+        detail_plan=plan,
+        prior_source_state=prior,
+        base_sha="a" * 40,
+        state_sha="b" * 64,
+        config=config,
+    )
+    if tamper == "base":
+        artifact["base_sha"] = "c" * 40
+    elif tamper == "state":
+        artifact["state_sha256"] = "d" * 64
+    elif tamper == "config":
+        artifact["config_fingerprint"] = "sha256:forged"
+    elif tamper == "schema":
+        artifact["schema_version"] = 999
+    elif tamper == "source":
+        artifact["source"] = "forged"
+    elif tamper == "hash":
+        artifact["payload_checksum_sha256"] = "sha256:forged"
+    else:
+        artifact["unexpected"] = True
+    if tamper not in {"hash", "unknown"}:
+        artifact["payload_checksum_sha256"] = (
+            regulatory_monitor._finra_phase_artifact_hash(artifact)
+        )
+    path = tmp_path / "tampered.json"
+    path.write_text(json.dumps(artifact), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="phase artifact"):
+        regulatory_monitor._load_finra_phase_artifact(
+            path,
+            base_sha="a" * 40,
+            state_sha="b" * 64,
+            config=config,
+            prior_source_state=prior,
+        )
+
+
+@pytest.mark.parametrize("tamper", ["add", "remove", "reorder", "raw"])
+def test_finra_phase_artifact_row_tampering_fails_with_recomputed_checksum(
+    tmp_path,
+    tamper,
+):
+    listing, plan, prior, config = _finra_phase_artifact_fixture()
+    artifact = regulatory_monitor._build_finra_phase_artifact(
+        listing=listing,
+        detail_plan=plan,
+        prior_source_state=prior,
+        base_sha="a" * 40,
+        state_sha="b" * 64,
+        config=config,
+    )
+    rows = artifact["listing"]["rows"]
+    if tamper == "add":
+        rows.append(deepcopy(rows[0]))
+    elif tamper == "remove":
+        rows.pop()
+    elif tamper == "reorder":
+        rows.reverse()
+    else:
+        rows[0]["raw_payload"]["text"] = "forged row"
+    artifact["payload_checksum_sha256"] = (
+        regulatory_monitor._finra_phase_artifact_hash(artifact)
+    )
+    path = tmp_path / "rows-tampered.json"
+    path.write_text(json.dumps(artifact), encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="rows are not proof-bound|page row digests",
+    ):
+        regulatory_monitor._load_finra_phase_artifact(
+            path,
+            base_sha="a" * 40,
+            state_sha="b" * 64,
+            config=config,
+            prior_source_state=prior,
+        )
+
+
+def test_finra_phase_artifact_plan_tampering_fails_with_recomputed_checksum(
+    tmp_path,
+):
+    listing, plan, prior, config = _finra_phase_artifact_fixture()
+    artifact = regulatory_monitor._build_finra_phase_artifact(
+        listing=listing,
+        detail_plan=plan,
+        prior_source_state=prior,
+        base_sha="a" * 40,
+        state_sha="b" * 64,
+        config=config,
+    )
+    artifact["detail_plan"]["refresh_cursor_output"] += 1
+    artifact["payload_checksum_sha256"] = (
+        regulatory_monitor._finra_phase_artifact_hash(artifact)
+    )
+    path = tmp_path / "plan-tampered.json"
+    path.write_text(json.dumps(artifact), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="detail plan is invalid"):
+        regulatory_monitor._load_finra_phase_artifact(
+            path,
+            base_sha="a" * 40,
+            state_sha="b" * 64,
+            config=config,
+            prior_source_state=prior,
+        )
+
+
+def test_finra_phase_artifact_size_and_secret_guard(tmp_path, monkeypatch):
+    listing, plan, prior, config = _finra_phase_artifact_fixture()
+    artifact = regulatory_monitor._build_finra_phase_artifact(
+        listing=listing,
+        detail_plan=plan,
+        prior_source_state=prior,
+        base_sha="a" * 40,
+        state_sha="b" * 64,
+        config=config,
+    )
+    serialized = json.dumps(artifact)
+    for forbidden in ("Authorization", "Bearer ", "private-key", "secret-token"):
+        assert forbidden not in serialized
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_PHASE_ARTIFACT_MAX_BYTES",
+        10,
+    )
+    with pytest.raises(ValueError, match="maximum allowed size"):
+        regulatory_monitor._write_finra_phase_artifact(
+            tmp_path / "oversized.json",
+            artifact,
+        )
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"source": "all"},
+        {"dry_run": True},
+        {"limit": 1},
+        {"initialize_baseline": True},
+        {"recovery_from_state": "trusted.json"},
+    ],
+)
+def test_finra_phase_cli_rejects_incompatible_modes(overrides):
+    values = {
+        "phase": "listing",
+        "source": "finra",
+        "dry_run": False,
+        "limit": None,
+        "initialize_baseline": False,
+        "recovery_from_state": None,
+        "phase_artifact": "artifact.json",
+        "base_sha": "a" * 40,
+        "state_sha": "b" * 64,
+    }
+    values.update(overrides)
+
+    assert regulatory_monitor._finra_phase_cli_error(
+        SimpleNamespace(**values)
+    )
+
+
+def test_finra_phase_all_remains_backward_compatible():
+    args = SimpleNamespace(
+        phase="all",
+        source="all",
+        dry_run=True,
+        limit=1,
+        initialize_baseline=True,
+        recovery_from_state="trusted.json",
+        phase_artifact=None,
+        base_sha=None,
+        state_sha=None,
+    )
+
+    assert regulatory_monitor._finra_phase_cli_error(args) is None
+
+
+def test_finra_phase_git_verification_failure_is_fail_closed(monkeypatch):
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_finra_current_git_sha",
+        lambda: (_ for _ in ()).throw(OSError("git unavailable")),
+    )
+
+    with pytest.raises(ValueError, match="could not be verified"):
+        regulatory_monitor._verify_finra_phase_runtime_bindings(
+            base_sha="a" * 40,
+            state_sha="b" * 64,
+        )
+
+
+def test_finra_detail_phase_uses_artifact_without_listing_network(monkeypatch):
+    listing, plan, prior, config = _finra_phase_artifact_fixture()
+    requested = []
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args, **_kwargs: pytest.fail(
+            "detail phase must not fetch listing pages"
+        ),
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda url, _session, **_kwargs: (
+            requested.append(url)
+            or {
+                "status_code": 200,
+                "content": _finra_detail_page(
+                    "Information Notice",
+                    next(
+                        row["listing_date"]
+                        for row in plan["fetch_rows"]
+                        if row["detail_url"] == url
+                    ) or "2026-01-01",
+                    "Current content.",
+                ),
+                "final_url": url,
+                "url": url,
+                "was_redirected": False,
+                "error": None,
+            }
+        ),
+    )
+
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        config,
+        known_urls=regulatory_monitor._finra_refresh_batch(prior),
+        fallback_urls=prior["fallback_urls"],
+        prior_source_state=prior,
+        prevalidated_listing=listing,
+        precomputed_detail_plan=plan,
+        skip_phase_cooldown=True,
+    )
+
+    assert result.complete is True
+    assert set(requested) == {
+        row["detail_url"] for row in plan["fetch_rows"]
+    }
+    assert result.coverage["detail_phase_start_marker"] == (
+        "two-phase-no-cooldown"
+    )
 
 
 def test_finra_validated_legacy_migration_carries_historical_archive():

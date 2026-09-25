@@ -26,11 +26,13 @@ Environment Variables:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import math
 import os
 import re
+import subprocess
 import sys
 import time
 import unicodedata
@@ -126,6 +128,10 @@ FINRA_RETRY_BASE_WAIT_SECONDS = 5
 FINRA_MAX_RETRY_WAIT_SECONDS = 60
 FINRA_MAX_RETRY_ATTEMPTS = 6
 FINRA_CACHE_BUST_PARAM = "_finra_pass"
+FINRA_PHASE_ARTIFACT_SCHEMA_VERSION = 1
+FINRA_PHASE_ARTIFACT_SOURCE = "regulatory-finra-listing"
+FINRA_PHASE_ARTIFACT_MAX_BYTES = 100 * 1024 * 1024
+REGULATORY_DETAIL_FEDERAL_REGISTER_ALLOWANCE_MINUTES = 60
 FINRA_LEGACY_COVERAGE_SCHEMA_VERSION = 1
 FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION = 2
 FINRA_DETERMINISTIC_PROOF_VERSION = 2
@@ -3221,6 +3227,8 @@ def _validate_source_coverage(
                     cooldown_seconds == 0
                     and FINRA_REQUEST_INTERVAL_SECONDS <= 0
                 )
+            elif phase_marker == "two-phase-no-cooldown":
+                cooldown_valid = cooldown_seconds == 0
             elif phase_marker == "limited-no-cooldown":
                 cooldown_valid = cooldown_seconds == 0
             else:
@@ -7893,6 +7901,9 @@ def fetch_finra_notices(
     prior_filter_manifest: Optional[dict] = None,
     prior_source_state: Optional[dict] = None,
     prior_state_validated: bool = False,
+    prevalidated_listing: Optional[dict] = None,
+    precomputed_detail_plan: Optional[dict] = None,
+    skip_phase_cooldown: bool = False,
 ) -> FetchResult:
     """Fetch FINRA listing rows and authoritative notice details fail-closed."""
     items: list[RegulatoryItem] = []
@@ -7903,10 +7914,14 @@ def fetch_finra_notices(
 
     try:
         logger.info("Fetching FINRA notices from %s...", FINRA_NOTICES_URL)
-        listing = _fetch_finra_listing_records(
-            session,
-            since_date,
-            prior_filter_manifest,
+        listing = (
+            deepcopy(prevalidated_listing)
+            if isinstance(prevalidated_listing, dict)
+            else _fetch_finra_listing_records(
+                session,
+                since_date,
+                prior_filter_manifest,
+            )
         )
         if not listing.get("complete"):
             return _incomplete_result(
@@ -7967,12 +7982,16 @@ def fetch_finra_notices(
             rows = rows[:limit]
             logger.info("Limited to %s notices for testing; state will not advance", limit)
 
-        detail_plan = _plan_finra_detail_refresh(
-            rows,
-            prior_source_state,
-            list(known_urls or []),
-            limit=limit,
-            prior_state_validated=prior_state_validated,
+        detail_plan = (
+            deepcopy(precomputed_detail_plan)
+            if isinstance(precomputed_detail_plan, dict)
+            else _plan_finra_detail_refresh(
+                rows,
+                prior_source_state,
+                list(known_urls or []),
+                limit=limit,
+                prior_state_validated=prior_state_validated,
+            )
         )
         detail_rows = detail_plan["fetch_rows"]
         expected_detail_urls = sorted({
@@ -8002,6 +8021,8 @@ def fetch_finra_notices(
         if expected_detail_urls:
             if limit is not None:
                 detail_phase_start_marker = "limited-no-cooldown"
+            elif skip_phase_cooldown:
+                detail_phase_start_marker = "two-phase-no-cooldown"
             elif getattr(
                 session,
                 "_finra_skip_phase_cooldown",
@@ -9272,6 +9293,385 @@ def generate_regulatory_report(
     logger.info(f"Report written to {report_path}")
 
 
+def _finra_phase_config_fingerprint(config: dict) -> str:
+    """Bind the phase artifact to the exact normalized monitor config."""
+    return compute_hash(json.dumps(
+        config,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
+def _finra_state_file_sha256(path: Path = STATE_FILE) -> str:
+    """Return the raw SHA-256 used by workflow CAS checks."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _finra_current_git_sha() -> str:
+    """Return the exact checked-out commit for cross-run artifact binding."""
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=PROJECT_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _finra_phase_cli_error(args: argparse.Namespace) -> Optional[str]:
+    """Reject unsupported phase combinations before network or state writes."""
+    if args.phase == "all":
+        return None
+    if args.source != "finra":
+        return "Listing/detail phases require --source finra"
+    if args.dry_run:
+        return "Listing/detail phases cannot be combined with --dry-run"
+    if args.limit is not None:
+        return "Listing/detail phases cannot be combined with --limit"
+    if args.initialize_baseline:
+        return (
+            "Listing/detail phases cannot be combined with "
+            "--initialize-baseline"
+        )
+    if args.recovery_from_state is not None:
+        return (
+            "Listing/detail phases cannot be combined with "
+            "--recovery-from-state"
+        )
+    if not (args.phase_artifact and args.base_sha and args.state_sha):
+        return (
+            "Listing/detail phases require --phase-artifact, "
+            "--base-sha, and --state-sha"
+        )
+    return None
+
+
+def _verify_finra_phase_runtime_bindings(
+    *,
+    base_sha: str,
+    state_sha: str,
+) -> None:
+    """Fail closed when checkout or state CAS cannot be established."""
+    try:
+        current_sha = _finra_current_git_sha()
+        current_state_sha = _finra_state_file_sha256()
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise ValueError(
+            f"FINRA phase runtime binding could not be verified: {exc}"
+        ) from exc
+    if base_sha != current_sha:
+        raise ValueError(
+            "FINRA phase checkout SHA does not match --base-sha"
+        )
+    if state_sha != current_state_sha:
+        raise ValueError(
+            "FINRA phase state SHA does not match --state-sha"
+        )
+
+
+def _finra_phase_artifact_hash(artifact: dict) -> str:
+    """Compute a self-consistency checksum, not an authentication primitive."""
+    payload = {
+        key: value
+        for key, value in artifact.items()
+        if key != "payload_checksum_sha256"
+    }
+    return compute_hash(json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
+def _finra_prior_state_binding(source_state: dict) -> dict:
+    """Retain only non-secret prior-state facts required for recomputation."""
+    entries = source_state.get("entries", {})
+    coverage = source_state.get("coverage", {})
+    fallbacks = source_state.get("fallback_urls", {})
+    return {
+        "entry_count": len(entries) if isinstance(entries, dict) else -1,
+        "entries_digest": _entries_digest(
+            entries if isinstance(entries, dict) else {}
+        ),
+        "entry_identity_digest": _identity_digest(
+            entries if isinstance(entries, dict) else []
+        ),
+        "coverage_schema_version": (
+            coverage.get("schema_version")
+            if isinstance(coverage, dict)
+            else None
+        ),
+        "alias_ledger_digest": (
+            coverage.get("alias_ledger_digest")
+            if isinstance(coverage, dict)
+            else None
+        ),
+        "fallback_digest": compute_hash(json.dumps(
+            sorted(
+                fallbacks.items()
+                if isinstance(fallbacks, dict)
+                else []
+            ),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )),
+        "refresh_cursor": source_state.get("refresh_cursor", 0),
+    }
+
+
+def _finra_rows_from_pass_proof(proof: dict) -> Optional[list[dict]]:
+    """Reconstruct canonical listing rows from retained raw proof payloads."""
+    payload_pages = proof.get("page_row_payloads")
+    page_numbers = proof.get("page_numbers")
+    if (
+        not isinstance(payload_pages, list)
+        or not isinstance(page_numbers, list)
+        or len(payload_pages) != len(page_numbers)
+    ):
+        return None
+    rows = []
+    canonical_index = 0
+    for page_index, payloads in enumerate(payload_pages):
+        if not isinstance(payloads, list):
+            return None
+        page_number = page_numbers[page_index]
+        for payload in payloads:
+            detail_url = _finra_row_detail_target(payload)
+            if detail_url is None:
+                return None
+            _, node_identity = _finra_normalize_detail_link(detail_url)
+            matching_links = [
+                link
+                for link in payload.get("links", [])
+                if _finra_normalize_detail_link(
+                    link.get("href", "")
+                )[0] == detail_url
+            ]
+            if not matching_links:
+                return None
+            rows.append({
+                "row_index": canonical_index,
+                "page": page_number,
+                "raw_payload": deepcopy(payload),
+                "raw_row_digest": compute_hash(json.dumps(
+                    payload,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )),
+                "detail_url": detail_url,
+                "node_identity": node_identity,
+                "title": matching_links[0].get("text", ""),
+                "listing_date": _finra_listing_date_from_payload(payload),
+                "unresolved": False,
+            })
+            canonical_index += 1
+    return rows
+
+
+def _validate_finra_listing_for_artifact(listing: dict) -> list[str]:
+    """Recompute the complete deterministic listing result before reuse."""
+    errors = []
+    if not isinstance(listing, dict) or listing.get("complete") is not True:
+        return ["FINRA phase artifact listing is incomplete"]
+    proofs = listing.get("pass_proofs")
+    if proofs is None and isinstance(listing.get("coverage"), dict):
+        proofs = listing["coverage"].get("pass_proofs")
+    if not isinstance(proofs, list) or len(proofs) != 2:
+        return ["FINRA phase artifact listing lacks two proofs"]
+    for index, proof in enumerate(proofs):
+        if not isinstance(proof, dict):
+            errors.append(f"FINRA phase artifact proof {index} is malformed")
+            continue
+        errors.extend(_finra_pass_proof_recomputation_errors(
+            SOURCE_KEY_FINRA,
+            proof,
+            index,
+        ))
+    if (
+        len(proofs) == 2
+        and all(isinstance(proof, dict) for proof in proofs)
+    ):
+        mismatch = _compare_finra_listing_pass_proofs(
+            proofs[0],
+            proofs[1],
+        )
+        if mismatch:
+            errors.append(mismatch)
+    if proofs and isinstance(proofs[0], dict):
+        expected_rows = _finra_rows_from_pass_proof(proofs[0])
+        if expected_rows is None or listing.get("rows") != expected_rows:
+            errors.append(
+                "FINRA phase artifact listing rows are not proof-bound"
+            )
+    return errors
+
+
+def _build_finra_phase_artifact(
+    *,
+    listing: dict,
+    detail_plan: dict,
+    prior_source_state: dict,
+    base_sha: str,
+    state_sha: str,
+    config: dict,
+) -> dict:
+    """Build the strict handoff between listing and detail runners."""
+    reason_counts = Counter(
+        reason
+        for reasons in detail_plan["forced_fetch_reasons"].values()
+        for reason in reasons
+    )
+    artifact = {
+        "schema_version": FINRA_PHASE_ARTIFACT_SCHEMA_VERSION,
+        "source": FINRA_PHASE_ARTIFACT_SOURCE,
+        "base_sha": base_sha,
+        "state_sha256": state_sha,
+        "config_fingerprint": _finra_phase_config_fingerprint(config),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "listing": deepcopy(listing),
+        "detail_plan": deepcopy(detail_plan),
+        "prior_state_binding": _finra_prior_state_binding(
+            prior_source_state
+        ),
+        "mode_constraints": {
+            "source": "finra",
+            "dry_run": False,
+            "limit": None,
+            "initialize_baseline": False,
+            "recovery_from_state": None,
+        },
+        "summary": {
+            "pass_count": len(
+                listing.get("pass_proofs")
+                or listing.get("coverage", {}).get("pass_proofs", [])
+            ),
+            "listing_requests": sum(
+                proof.get("pages_fetched", 0)
+                for proof in (
+                    listing.get("pass_proofs")
+                    or listing.get("coverage", {}).get("pass_proofs", [])
+                )
+                if isinstance(proof, dict)
+            ),
+            "canonical_identities": len(
+                detail_plan.get("current_listing_identities", [])
+            ),
+            "unclassified_count": (
+                listing.get("coverage", {})
+                .get("unclassified_evidence", {})
+                .get("raw_row_count", 0)
+            ),
+            "expected_detail_requests": len({
+                row["detail_url"]
+                for row in detail_plan.get("fetch_rows", [])
+            }),
+            "detail_reason_counts": dict(sorted(reason_counts.items())),
+            "carried_count": len(detail_plan.get("carried_entries", {})),
+            "removed_count": len(
+                detail_plan.get("removal_candidates", [])
+            ),
+            "migration_count": len(
+                detail_plan.get("legacy_migration_bindings", [])
+            ),
+        },
+    }
+    artifact["payload_checksum_sha256"] = _finra_phase_artifact_hash(
+        artifact
+    )
+    return artifact
+
+
+def _write_finra_phase_artifact(path: Path, artifact: dict) -> None:
+    """Write one bounded canonical listing artifact."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    serialized = json.dumps(
+        artifact,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    encoded = serialized.encode("utf-8")
+    if len(encoded) > FINRA_PHASE_ARTIFACT_MAX_BYTES:
+        raise ValueError(
+            "FINRA phase artifact exceeds the maximum allowed size"
+        )
+    path.write_bytes(encoded)
+
+
+def _load_finra_phase_artifact(
+    path: Path,
+    *,
+    base_sha: str,
+    state_sha: str,
+    config: dict,
+    prior_source_state: dict,
+) -> tuple[dict, dict]:
+    """Validate and recompute a listing artifact before any detail request."""
+    artifact = json.loads(path.read_text(encoding="utf-8"))
+    expected_fields = {
+        "schema_version",
+        "source",
+        "base_sha",
+        "state_sha256",
+        "config_fingerprint",
+        "created_at",
+        "listing",
+        "detail_plan",
+        "prior_state_binding",
+        "mode_constraints",
+        "summary",
+        "payload_checksum_sha256",
+    }
+    if not isinstance(artifact, dict) or set(artifact) != expected_fields:
+        raise ValueError("FINRA phase artifact fields are invalid")
+    if artifact.get("schema_version") != FINRA_PHASE_ARTIFACT_SCHEMA_VERSION:
+        raise ValueError("FINRA phase artifact schema is unsupported")
+    if artifact.get("source") != FINRA_PHASE_ARTIFACT_SOURCE:
+        raise ValueError("FINRA phase artifact source is invalid")
+    if artifact.get(
+        "payload_checksum_sha256"
+    ) != _finra_phase_artifact_hash(artifact):
+        raise ValueError("FINRA phase artifact payload checksum is invalid")
+    if artifact.get("base_sha") != base_sha:
+        raise ValueError("FINRA phase artifact base SHA is invalid")
+    if artifact.get("state_sha256") != state_sha:
+        raise ValueError("FINRA phase artifact state SHA is invalid")
+    if artifact.get("config_fingerprint") != _finra_phase_config_fingerprint(
+        config
+    ):
+        raise ValueError("FINRA phase artifact config fingerprint is invalid")
+    if artifact.get("prior_state_binding") != _finra_prior_state_binding(
+        prior_source_state
+    ):
+        raise ValueError("FINRA phase artifact prior-state binding is invalid")
+    if artifact.get("mode_constraints") != {
+        "source": "finra",
+        "dry_run": False,
+        "limit": None,
+        "initialize_baseline": False,
+        "recovery_from_state": None,
+    }:
+        raise ValueError("FINRA phase artifact mode constraints are invalid")
+    listing_errors = _validate_finra_listing_for_artifact(
+        artifact["listing"]
+    )
+    if listing_errors:
+        raise ValueError(listing_errors[0])
+    recomputed_plan = _plan_finra_detail_refresh(
+        artifact["listing"].get("rows", []),
+        prior_source_state,
+        _finra_refresh_batch(prior_source_state),
+        limit=None,
+        prior_state_validated=True,
+    )
+    if recomputed_plan != artifact["detail_plan"]:
+        raise ValueError("FINRA phase artifact detail plan is invalid")
+    return artifact["listing"], artifact["detail_plan"]
+
+
 def main():
     """Main execution."""
     parser = argparse.ArgumentParser(
@@ -9297,6 +9697,30 @@ def main():
         choices=['federal-register', 'finra', 'all'],
         default='all',
         help="Which source(s) to monitor"
+    )
+    parser.add_argument(
+        '--phase',
+        choices=['all', 'listing', 'detail'],
+        default='all',
+        help="Run the integrated monitor or one resumable FINRA phase",
+    )
+    parser.add_argument(
+        '--phase-artifact',
+        type=str,
+        default=None,
+        help="Path to the checksum-protected FINRA phase artifact",
+    )
+    parser.add_argument(
+        '--base-sha',
+        type=str,
+        default=None,
+        help="Exact checked-out commit bound to a phase artifact",
+    )
+    parser.add_argument(
+        '--state-sha',
+        type=str,
+        default=None,
+        help="SHA-256 of the committed monitor state bound to a phase artifact",
     )
     parser.add_argument(
         '--config',
@@ -9333,6 +9757,10 @@ def main():
     # Setup logging
     global logger
     logger = setup_logging(verbose=args.verbose)
+    phase_cli_error = _finra_phase_cli_error(args)
+    if phase_cli_error:
+        logger.error(phase_cli_error)
+        sys.exit(2)
 
     # Load and validate config
     config_path = args.config or DEFAULT_CONFIG_PATH
@@ -9451,6 +9879,101 @@ def main():
         'User-Agent': 'FSI-AgentGov-Regulatory-Monitor/1.0 (https://github.com/judeper/FSI-AgentGov)'
     })
 
+    phase_listing = None
+    phase_detail_plan = None
+    if args.phase != "all":
+        try:
+            _verify_finra_phase_runtime_bindings(
+                base_sha=args.base_sha,
+                state_sha=args.state_sha,
+            )
+        except ValueError as exc:
+            logger.error("%s", exc)
+            sys.exit(2)
+        finra_state_for_phase = get_source_state(
+            state,
+            SOURCE_KEY_FINRA,
+        )
+        comparison_finra_for_phase = (
+            get_source_state(trusted_state, SOURCE_KEY_FINRA)
+            if recovery_mode
+            else finra_state_for_phase
+        )
+        artifact_path = Path(args.phase_artifact)
+        if args.phase == "listing":
+            refresh_urls = _finra_refresh_batch(
+                comparison_finra_for_phase
+            )
+            prior_coverage = comparison_finra_for_phase.get(
+                "coverage",
+                {},
+            )
+            listing = _fetch_finra_listing_records(
+                session,
+                _state_date(comparison_finra_for_phase),
+                (
+                    prior_coverage.get("filter_manifest")
+                    if isinstance(prior_coverage, dict)
+                    and prior_coverage.get("listing_mode")
+                    == "deterministic-year-type-partitions"
+                    else None
+                ),
+            )
+            if not listing.get("complete"):
+                logger.error(
+                    "FINRA listing phase failed: %s",
+                    listing.get("error") or "incomplete listing",
+                )
+                sys.exit(2)
+            plan = _plan_finra_detail_refresh(
+                listing.get("rows", []),
+                comparison_finra_for_phase,
+                refresh_urls,
+                limit=None,
+                prior_state_validated=True,
+            )
+            artifact = _build_finra_phase_artifact(
+                listing=listing,
+                detail_plan=plan,
+                prior_source_state=comparison_finra_for_phase,
+                base_sha=args.base_sha,
+                state_sha=args.state_sha,
+                config=config,
+            )
+            _write_finra_phase_artifact(artifact_path, artifact)
+            logger.info(
+                "FINRA listing artifact summary=%s",
+                json.dumps(
+                    artifact["summary"],
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+            )
+            sys.exit(0)
+        try:
+            phase_listing, phase_detail_plan = (
+                _load_finra_phase_artifact(
+                    artifact_path,
+                    base_sha=args.base_sha,
+                    state_sha=args.state_sha,
+                    config=config,
+                    prior_source_state=comparison_finra_for_phase,
+                )
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            logger.error("FINRA detail phase artifact invalid: %s", exc)
+            sys.exit(2)
+        logger.info(
+            "FINRA detail artifact summary=%s",
+            json.dumps(
+                json.loads(artifact_path.read_text(encoding="utf-8"))[
+                    "summary"
+                ],
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+        )
+
     all_new_items = []
     source_runs = []
     finra_refresh_urls = []
@@ -9548,6 +10071,9 @@ def main():
                 ),
                 prior_source_state=comparison_finra_state,
                 prior_state_validated=(strict_state or recovery_mode),
+                prevalidated_listing=phase_listing,
+                precomputed_detail_plan=phase_detail_plan,
+                skip_phase_cooldown=(args.phase == "detail"),
             )
         )
         source_runs.append((
