@@ -3053,6 +3053,8 @@ def _validate_source_coverage(
                 "detail_phase_start_marker",
                 "detail_transport_by_url",
                 "detail_transport_counts",
+                "legacy_transport_identity_proofs",
+                "legacy_transport_identity_proof_digest",
             )
             for key in detail_required:
                 if key not in coverage:
@@ -3084,6 +3086,10 @@ def _validate_source_coverage(
             )
             detail_transport_counts = coverage.get(
                 "detail_transport_counts",
+                {},
+            )
+            legacy_transport_identity_proofs = coverage.get(
+                "legacy_transport_identity_proofs",
                 {},
             )
             if coverage.get("detail_mode") != "bounded-refresh":
@@ -3231,6 +3237,100 @@ def _validate_source_coverage(
                 errors.append(
                     f"{source_key} detail transport evidence is invalid"
                 )
+            legacy_urls = {
+                url
+                for url, transport in (
+                    detail_transport_by_url.items()
+                    if isinstance(detail_transport_by_url, dict)
+                    else []
+                )
+                if transport == "legacy-index"
+            }
+            if (
+                not isinstance(legacy_transport_identity_proofs, dict)
+                or set(legacy_transport_identity_proofs) != legacy_urls
+                or coverage.get(
+                    "legacy_transport_identity_proof_digest"
+                ) != compute_hash(json.dumps(
+                    legacy_transport_identity_proofs,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+            ):
+                errors.append(
+                    f"{source_key} legacy transport identity proof "
+                    "collection is invalid"
+                )
+            else:
+                fallback_urls = source_state.get("fallback_urls", {})
+                fallback_urls = (
+                    fallback_urls
+                    if isinstance(fallback_urls, dict)
+                    else {}
+                )
+                expected_keys = {
+                    "raw_canonical_hrefs",
+                    "normalized_canonical_url",
+                    "normalized_identity",
+                    "raw_shortlinks",
+                    "normalized_node_url",
+                }
+                for url, proof in legacy_transport_identity_proofs.items():
+                    expected_url, expected_identity = (
+                        _finra_normalize_detail_link(url)
+                    )
+                    if (
+                        not isinstance(proof, dict)
+                        or set(proof) != expected_keys
+                        or proof.get("normalized_canonical_url")
+                        != expected_url
+                        or proof.get("normalized_identity")
+                        != expected_identity
+                        or not isinstance(
+                            proof.get("raw_canonical_hrefs"),
+                            list,
+                        )
+                        or not proof["raw_canonical_hrefs"]
+                        or any(
+                            _finra_normalize_detail_link(href)
+                            != (expected_url, expected_identity)
+                            for href in proof["raw_canonical_hrefs"]
+                        )
+                        or not isinstance(
+                            proof.get("raw_shortlinks"),
+                            list,
+                        )
+                    ):
+                        errors.append(
+                            f"{source_key} legacy transport identity proof "
+                            f"is invalid for {url}"
+                        )
+                        continue
+                    normalized_nodes = [
+                        _validate_finra_node_url(href)
+                        for href in proof["raw_shortlinks"]
+                    ]
+                    if (
+                        any(node is None for node in normalized_nodes)
+                        or len(set(normalized_nodes)) > 1
+                        or proof.get("normalized_node_url")
+                        != (
+                            normalized_nodes[0]
+                            if normalized_nodes
+                            else None
+                        )
+                        or (
+                            url in fallback_urls
+                            and proof.get("normalized_node_url") is not None
+                            and proof.get("normalized_node_url")
+                            != fallback_urls[url]
+                        )
+                    ):
+                        errors.append(
+                            f"{source_key} legacy transport node binding "
+                            f"is invalid for {url}"
+                        )
             expected_request_count = coverage.get(
                 "expected_detail_request_count"
             )
@@ -5315,6 +5415,67 @@ def _finra_legacy_detail_transport_url(
     )
 
 
+def _finra_legacy_transport_identity_proof(
+    soup: BeautifulSoup,
+    expected_canonical_url: str,
+    expected_node_url: Optional[str],
+) -> tuple[Optional[dict], Optional[str]]:
+    """Normalize old canonical spelling while retaining raw transport facts."""
+    expected_url, expected_identity = _finra_normalize_detail_link(
+        expected_canonical_url
+    )
+    canonical_hrefs = [
+        " ".join(str(link.get("href", "")).split())
+        for link in soup.select('link[rel="canonical"][href]')
+    ]
+    if not canonical_hrefs:
+        return None, "missing canonical link"
+    normalized_canonicals = []
+    for href in canonical_hrefs:
+        normalized_url, normalized_identity = (
+            _finra_normalize_detail_link(href)
+        )
+        if (
+            normalized_url != expected_url
+            or normalized_identity != expected_identity
+        ):
+            return None, "canonical link did not match expected notice"
+        normalized_canonicals.append(
+            (normalized_url, normalized_identity)
+        )
+    if len(set(normalized_canonicals)) != 1:
+        return None, "canonical links conflicted"
+
+    raw_shortlinks = [
+        " ".join(str(link.get("href", "")).split())
+        for link in soup.select('link[rel="shortlink"][href]')
+    ]
+    normalized_nodes = []
+    for href in raw_shortlinks:
+        node_url = _validate_finra_node_url(href)
+        if node_url is None:
+            return None, "shortlink was invalid"
+        normalized_nodes.append(node_url)
+    if len(set(normalized_nodes)) > 1:
+        return None, "shortlinks conflicted"
+    normalized_node_url = (
+        normalized_nodes[0] if normalized_nodes else None
+    )
+    if (
+        expected_node_url is not None
+        and normalized_node_url is not None
+        and normalized_node_url != expected_node_url
+    ):
+        return None, "shortlink conflicted with persisted node binding"
+    return {
+        "raw_canonical_hrefs": canonical_hrefs,
+        "normalized_canonical_url": expected_url,
+        "normalized_identity": expected_identity,
+        "raw_shortlinks": raw_shortlinks,
+        "normalized_node_url": normalized_node_url,
+    }, None
+
+
 def _fetch_finra_detail_with_transports(
     canonical_url: str,
     session: requests.Session,
@@ -5350,34 +5511,27 @@ def _fetch_finra_detail_with_transports(
                     ),
                 }, "legacy-index"
             soup = BeautifulSoup(legacy_result["content"], "html.parser")
-            proof = _capture_finra_detail_identity_proof(soup)
-            binding = _finra_detail_identity_from_proof(proof)
-            if binding is None or binding[0] != canonical_url:
+            identity_proof, proof_error = (
+                _finra_legacy_transport_identity_proof(
+                    soup,
+                    canonical_url,
+                    node_fallback_url,
+                )
+            )
+            if identity_proof is None:
                 return {
                     **legacy_result,
                     "status_code": 0,
                     "error": (
-                        "FINRA legacy detail transport lacked an exact "
-                        f"canonical identity proof: {canonical_url}"
+                        "FINRA legacy detail transport identity proof "
+                        f"failed for {canonical_url}: {proof_error}"
                     ),
                 }, "legacy-index"
-            shortlink = _extract_finra_shortlink(soup)
-            if shortlink:
-                valid_shortlink = _validate_finra_node_url(shortlink)
-                if valid_shortlink is None or (
-                    node_fallback_url is not None
-                    and valid_shortlink != node_fallback_url
-                ):
-                    return {
-                        **legacy_result,
-                        "status_code": 0,
-                        "error": (
-                            "FINRA legacy detail transport shortlink "
-                            f"conflicted for {canonical_url}"
-                        ),
-                    }, "legacy-index"
             legacy_result["finra_transport"] = "legacy-index"
             legacy_result["transport_fallback_url"] = legacy_url
+            legacy_result["legacy_transport_identity_proof"] = (
+                identity_proof
+            )
             return legacy_result, "legacy-index"
 
     if node_fallback_url and node_fallback_url != canonical_url:
@@ -8168,6 +8322,7 @@ def fetch_finra_notices(
             _reset_finra_detail_session_state(session)
         detail_cache: dict[str, dict] = {}
         detail_transport_by_url: dict[str, str] = {}
+        legacy_transport_identity_proofs: dict[str, dict] = {}
         detail_identity_proofs: dict[str, str] = {}
         node_groups: dict[str, dict] = {}
         duplicate_ledger: list[dict] = []
@@ -8199,6 +8354,17 @@ def fetch_finra_notices(
                 )
                 detail_cache[url] = detail
                 detail_transport_by_url[url] = transport
+                if (
+                    transport == "legacy-index"
+                    and detail.get("status_code") == 200
+                    and isinstance(
+                        detail.get("legacy_transport_identity_proof"),
+                        dict,
+                    )
+                ):
+                    legacy_transport_identity_proofs[url] = deepcopy(
+                        detail["legacy_transport_identity_proof"]
+                    )
             if detail["status_code"] != 200:
                 return _incomplete_result(
                     items,
@@ -8549,6 +8715,19 @@ def fetch_finra_notices(
             "detail_transport_counts": dict(sorted(Counter(
                 detail_transport_by_url.values()
             ).items())),
+            "legacy_transport_identity_proofs": dict(sorted(
+                legacy_transport_identity_proofs.items()
+            )),
+            "legacy_transport_identity_proof_digest": compute_hash(
+                json.dumps(
+                    dict(sorted(
+                        legacy_transport_identity_proofs.items()
+                    )),
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            ),
             "detail_phase_cooldown_seconds": detail_cooldown_seconds,
             "detail_phase_start_marker": detail_phase_start_marker,
             "_complete_entry_hashes": complete_entries,

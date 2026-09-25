@@ -8467,6 +8467,116 @@ def test_finra_canonical_429_uses_legacy_transport_once(monkeypatch):
     )
 
 
+def test_finra_old_00_33_index_canonical_normalizes_to_expected_identity():
+    canonical = "https://www.finra.org/rules-guidance/notices/00-33"
+    legacy_canonical = (
+        "https://www.finra.org/index.php/"
+        "rules-guidance/notices/00-33"
+    )
+    soup = BeautifulSoup(
+        _finra_detail_page_with_identity(
+            "Regulatory Notice 00-33",
+            "2000-06-01",
+            "Historical content.",
+            canonical_url=legacy_canonical,
+            node_id="6547",
+        ),
+        "html.parser",
+    )
+
+    proof, error = regulatory_monitor._finra_legacy_transport_identity_proof(
+        soup,
+        canonical,
+        None,
+    )
+
+    assert error is None
+    assert proof["raw_canonical_hrefs"] == [legacy_canonical]
+    assert proof["normalized_canonical_url"] == canonical
+    assert proof["normalized_identity"] == (
+        "url:/rules-guidance/notices/00-33"
+    )
+
+
+def test_finra_26_16_modern_canonical_spelling_is_accepted():
+    canonical = "https://www.finra.org/rules-guidance/notices/26-16"
+    soup = BeautifulSoup(
+        _finra_detail_page_with_identity(
+            "Regulatory Notice 26-16",
+            "2026-09-25",
+            "Current content.",
+            canonical_url=canonical,
+            node_id="999999",
+        ),
+        "html.parser",
+    )
+
+    proof, error = regulatory_monitor._finra_legacy_transport_identity_proof(
+        soup,
+        canonical,
+        None,
+    )
+
+    assert error is None
+    assert proof["normalized_canonical_url"] == canonical
+
+
+@pytest.mark.parametrize(
+    "canonical_hrefs",
+    [
+        ["https://www.finra.org/rules-guidance/notices/26-15"],
+        ["https://evil.example/rules-guidance/notices/26-16"],
+        [
+            "https://www.finra.org/rules-guidance/notices/26-16",
+            "https://www.finra.org/rules-guidance/notices/26-15",
+        ],
+    ],
+)
+def test_finra_legacy_canonical_wrong_or_conflicting_links_rejected(
+    canonical_hrefs,
+):
+    links = "".join(
+        f'<link rel="canonical" href="{href}">'
+        for href in canonical_hrefs
+    )
+    soup = BeautifulSoup(
+        f"<html><head>{links}</head><body></body></html>",
+        "html.parser",
+    )
+
+    proof, error = regulatory_monitor._finra_legacy_transport_identity_proof(
+        soup,
+        "https://www.finra.org/rules-guidance/notices/26-16",
+        None,
+    )
+
+    assert proof is None
+    assert error
+
+
+def test_finra_legacy_transport_raw_and_normalized_proof_tampering_detected(
+    monkeypatch,
+):
+    result, _, canonical, _ = _run_finra_legacy_transport_case(monkeypatch)
+    proof = result.coverage["legacy_transport_identity_proofs"][canonical]
+    original_digest = result.coverage[
+        "legacy_transport_identity_proof_digest"
+    ]
+    proof["raw_canonical_hrefs"][0] = (
+        "https://www.finra.org/rules-guidance/notices/26-15"
+    )
+    proof["normalized_identity"] = (
+        "url:/rules-guidance/notices/26-15"
+    )
+
+    assert original_digest != compute_hash(json.dumps(
+        result.coverage["legacy_transport_identity_proofs"],
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
 @pytest.mark.parametrize(
     ("legacy_canonical", "legacy_node", "fallback"),
     [
