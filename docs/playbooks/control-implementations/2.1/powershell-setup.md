@@ -799,18 +799,19 @@ function Set-Fsi-SolutionCheckerEnforcement {
 ## §7 — Maker Welcome Content
 
 !!! note "Maker welcome content is excluded from CMK"
-    Maker welcome content is rendered by Microsoft-managed services and is **not encrypted with your Customer-Managed Key**, even after `Add-Fsi-CMKPolicyToEnvironment` succeeds. Do **not** embed sensitive content (PII, MNPI, internal account numbers, draft policy text). The recommended pattern is to link to the firm's WSPs and training portal rather than to embed text. `Set-Fsi-MakerWelcome` enforces a 1500-character cap and runs a regex sweep against a sensitive-pattern set; values that match are rejected with `Status='Anomaly'`. The exclusion is restated in the per-environment CMK exclusions narrative produced by `Test-Fsi-CMKExclusions` (§11.3).
+    Maker welcome content is rendered by Microsoft-managed services and is **not encrypted with your Customer-Managed Key**, even after `Add-Fsi-CMKPolicyToEnvironment` succeeds. Do **not** embed sensitive content (PII, MNPI, internal account numbers, draft policy text). The recommended pattern is to link to the firm's WSPs and training portal rather than to embed text. `Set-Fsi-MakerWelcome` enforces a local 1500-character guardrail and runs a regex sweep against a sensitive-pattern set; values that match are rejected with `Status='Anomaly'`. Microsoft Learn does not publish 1500 characters as a platform limit, so tenant-test actual field behavior before treating this helper guardrail as a Microsoft maximum. The exclusion is restated in the per-environment CMK exclusions narrative produced by `Test-Fsi-CMKExclusions` (§11.3).
 
 ```powershell
 function Set-Fsi-MakerWelcome {
 <#
 .SYNOPSIS
     Sets the maker welcome content displayed in Power Apps / Power Automate / Copilot Studio
-    designers for a Managed Environment. Refuses to apply content that exceeds 1500 chars or
-    matches the sensitive-pattern regex.
+    designers for a Managed Environment. Refuses to apply content that exceeds the playbook's
+    local 1500-character guardrail or matches the sensitive-pattern regex.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
     Welcome content is NOT CMK-encrypted. Link to WSPs/training rather than embed text.
+    Microsoft Learn does not publish 1500 characters as a platform limit; tenant-test actual field behavior.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(

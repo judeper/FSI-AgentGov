@@ -88,7 +88,7 @@
 
 ## Step 3: Build Power Automate Report Flows
 
-**Portal Path:** [Power Automate](https://make.powerautomate.com) > **+ Create** > **Scheduled cloud flow**
+**Portal Path:** [Power Automate](https://make.powerautomate.com) > **My flows** > **Cloud flows** tab > **Create from blank** > **Add a trigger** > **Recurrence**. If your tenant still exposes **+ Create** > **Scheduled cloud flow**, verify that shortcut in your tenant before using it.
 
 Create the following flows in a **Managed Environment** owned by the Power Platform Admin (see Control 2.1):
 

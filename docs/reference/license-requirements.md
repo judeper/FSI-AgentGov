@@ -224,15 +224,15 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 ## Premium Connector Licensing by Product
 
 !!! info "Copilot Studio premium connector usage is metered"
-    Premium connector licensing varies by product. For Copilot Studio, premium connector calls are [consumption-based](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) and billed against Copilot Studio messages, prepaid message packs, or PAYG rather than being unconditionally "included." Microsoft documents the same distinction in the [Power Apps / Power Automate licensing FAQ](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-flow-licensing-faq).
+    Premium connector licensing varies by product. For Copilot Studio, premium connector calls are [consumption-based](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) and billed against Copilot Credits capacity, prepaid capacity packs, or PAYG rather than being unconditionally "included." Microsoft documents the same distinction in the [Power Apps / Power Automate licensing FAQ](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-flow-licensing-faq).
 
 | Product | Premium Connectors | Dataverse Access | Notes |
 |---------|-------------------|------------------|-------|
-| **Copilot Studio** | Consumption-based (metered against Copilot Studio messages / prepaid message packs / PAYG) | Included via tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals | Standalone Power Platform Premium per-user license is not required for end users when calls are metered to the agent's billing capability. Verify tenant capacity in [Power Platform Admin Center](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage) |
+| **Copilot Studio** | Consumption-based (metered against Copilot Credits capacity / prepaid capacity packs / PAYG) | Included via tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals | Standalone Power Platform Premium per-user license is not required for end users when calls are metered to the agent's billing capability. Verify tenant capacity in [Power Platform Admin Center](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage) |
 | **Power Apps** | Requires Premium license | Requires Premium license | Per-user or per-app licensing |
 | **Power Automate** | Requires Premium license | Requires Premium license | Per-user or per-flow licensing |
 
-**Common Misconception:** Teams building Copilot Studio agents do not need separate premium connector licenses for end users when premium connector calls are billed to the agent's message capacity. If the same connectors are used outside the agent billing path, standard Power Apps / Power Automate premium licensing rules still apply.
+**Common Misconception:** Teams building Copilot Studio agents do not need separate premium connector licenses for end users when premium connector calls are billed to the agent's Copilot Credits capacity. If the same connectors are used outside the agent billing path, standard Power Apps / Power Automate premium licensing rules still apply.
 
 **Power Apps/Power Automate Context:** Premium connector and Dataverse access require Power Apps Premium, Power Apps per app, Power Automate Premium, or Power Automate per flow licenses for all accessing users.
 
