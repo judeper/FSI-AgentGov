@@ -5934,7 +5934,12 @@ def test_workflow_exit_semantics_keep_findings_and_fail_closed_runs_distinct():
     assert "steps.monitor.outputs.exit_code == '0' ||" in workflow
     assert "steps.monitor.outputs.exit_code == '1'" in workflow
     assert 'if [ "$EXIT_CODE" -eq 1 ]; then' in workflow
-    assert "if: steps.create_pr.outputs.pull-request-number && steps.monitor.outputs.exit_code == '1'" in workflow
+    assert "**Total New Items:** CRITICAL:" in workflow
+    assert "**CRITICAL items** directly mention AI agents" in workflow
+    assert "Add summary comment with priority items" not in workflow
+    assert workflow.index("- name: Create Pull Request") < workflow.index(
+        "- name: Verify created PR binds the validated generated output"
+    )
     assert "steps.should_create_pr.outputs.create_pr == 'true'" in workflow
     assert "steps.monitor.outputs.exit_code == '0' ||" in workflow
 
