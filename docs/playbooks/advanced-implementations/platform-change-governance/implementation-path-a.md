@@ -197,10 +197,12 @@ All components should be created within a single solution for ALM and deployment
 
 ## Step 5: Create Power Automate Ingestion Flow
 
-1. Go to [Power Automate](https://make.powerautomate.com) → **My flows** → **New flow** → **Scheduled cloud flow**
+1. Go to [Power Automate](https://make.powerautomate.com) → **My flows** → **Cloud flows** tab → **Create from blank** → **Add a trigger** → search for and select **Recurrence**.
 2. Configure schedule:
-   - **Name:** MC Ingestion - Message Center Posts
-   - **Run every:** 15 minutes
+   - **Interval:** 15
+   - **Frequency:** Minute
+   - **Start time:** enter the UTC start date/time in `YYYY-MM-DDTHH:MM:SSZ` format
+3. Select **Create**, then name the flow `MC Ingestion - Message Center Posts` in the designer.
 
 ### Flow Actions
 

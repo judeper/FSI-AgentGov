@@ -335,7 +335,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Approval Workflows** | https://learn.microsoft.com/en-us/power-automate/get-started-approvals | Jan 2026 |
-| Scheduled Flows | https://learn.microsoft.com/en-us/power-automate/run-scheduled-tasks | Jan 2026 |
+| Scheduled Flows | https://learn.microsoft.com/en-us/power-automate/run-scheduled-tasks | Sep 2026 |
 
 ---
 
