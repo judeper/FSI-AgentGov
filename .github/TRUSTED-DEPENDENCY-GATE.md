@@ -122,20 +122,21 @@ trusted because they contain a familiar command.
 
 This policy-only branch does not activate the package change. Policy version 3
 selects the closed `exact-pins` mode and authorizes one all-or-nothing,
-base-relative two-file registry transaction with patch digest
-`ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43`:
+base-relative four-file Playwright registry/container transaction with patch
+digest `6dec5764f4b2a07e939cb64e946e8680ac1c342b1f2f9beec598b57d8ef5b051`:
 
 | Path | Immutable base | Exact target |
 |---|---|---|
-| `package-lock.json` | mode `100644`, blob `08aafb595607f78f0a0998b022a2cebe920bb257` | mode `100644`, blob `11b6591aa1b39b50d451005dae574fb465f66871`, SHA-256 `4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1`, 76,919 bytes |
-| `tests/spa/fast-uri-security.test.mjs` | absent | mode `100644`, blob `a43678648562f3b13a40ca672ce81953b89c1b2a`, SHA-256 `0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd`, 2,573 bytes |
+| `package.json` | mode `100644`, blob `e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d` | mode `100644`, blob `a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2`, SHA-256 `bf97e1c0d8b078c28d3d47ccb3cfdb6a3ff98c744b46f61e7d1f9e4d60a91739`, 863 bytes |
+| `package-lock.json` | mode `100644`, blob `11b6591aa1b39b50d451005dae574fb465f66871` | mode `100644`, blob `a8e028cab203c4a160a654e672730f269b588b90`, SHA-256 `efa4589bb962f3b7947de12a82dd6763b7ec1ba451ac580a5eccfbb8464f7f75`, 76,375 bytes |
+| `.github/workflows/e2e.yml` | mode `100644`, blob `1636e666417025c45b949c61319d1cae7a6a14b8` | mode `100644`, blob `10877192c6614a3b24bc8516b9ba7822ba5f65c1`, SHA-256 `1812e1dccc4f9246dec3234988c0675415a8053ff46aa91d152c09e80108924a`, 7,311 bytes |
+| `.github/workflows/update-snapshots.yml` | mode `100644`, blob `7e309fdd56a24ca42c26e8810bb04b3ad1d64022` | mode `100644`, blob `282b78f3ced956c178f10c66d7bbebffe98bb8e0`, SHA-256 `5fad958d477290547257ba1bbc7e48669168088e6564a10e790c597114a990a4`, 2,357 bytes |
 
-No `package.json` override, vendored tarball/provenance/README, workflow,
-`.gitattributes`, verifier/runtime file, or `SECURITY.md` is an activation
+No vendored tarball/provenance/README, `.gitattributes`, verifier/runtime
+file, `SECURITY.md`, or optional Playwright spec migration is an activation
 target. The security workflows, verifier/runtime paths, `.gitattributes`,
-package manifests and lockfile, vendor root, former focused tests, and the new
-fast-uri security test remain guarded after removal from the old activation
-set.
+package manifests and lockfile, Playwright container workflows, vendor root,
+former focused tests, and the new fast-uri security test remain protected.
 
 For each immutable tree, all base pins must match (pre-state) or all target
 pins must match (post-state); every mixed or poisoned state is invalid. An
@@ -160,8 +161,8 @@ policy material, not an active workflow, and the policy v3 `exact-pins`
 transaction does not consume it.
 
 The future activation branch must be recreated or rebased from the merged
-policy-v3 head. Its only permitted delta is the two pinned files above. If
-either base pin has moved, policy owners must stop and issue another standalone
+policy-v3 head. Its only permitted delta is the four pinned files above. If
+any base pin has moved, policy owners must stop and issue another standalone
 policy review instead of adapting the activation branch. The tracked
 `trusted-gate-artifact-acceptance.template.mjs` can replay the exact pre/post
 trees when the target Git objects are locally available; setting

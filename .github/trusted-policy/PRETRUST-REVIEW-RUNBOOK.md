@@ -16,8 +16,8 @@ active transaction.
 
 The trusted `security-scan.activation.yml` file remains the canonical workflow
 target for a future policy-reviewed use of the legacy vendored mode. It is
-inert policy material, not an active workflow, and the current two-file
-registry activation does not consume it.
+inert policy material, not an active workflow, and the current four-file
+Playwright registry/container activation does not consume it.
 
 The `trusted-dependency-artifact-preflight` Actions workflow is useful
 base-controlled evidence, but it is **not an enforced or non-spoofable signal**.
@@ -54,33 +54,46 @@ loaded; do not delete it while it is still a trusted path.
 
 The only accepted activation is policy version 3's `exact-pins`,
 base-relative tree delta, identified by patch digest
-`ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43`.
+`6dec5764f4b2a07e939cb64e946e8680ac1c342b1f2f9beec598b57d8ef5b051`.
 It contains exactly:
 
-1. `package-lock.json`: base mode/blob
-   `100644`/`08aafb595607f78f0a0998b022a2cebe920bb257`; target
+1. `package.json`: base mode/blob
+   `100644`/`e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d`; target
    mode/blob/SHA-256/size
-   `100644`/`11b6591aa1b39b50d451005dae574fb465f66871`/
-   `4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1`/
-   `76919`.
-2. `tests/spa/fast-uri-security.test.mjs`: absent in the base; target
+   `100644`/`a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2`/
+   `bf97e1c0d8b078c28d3d47ccb3cfdb6a3ff98c744b46f61e7d1f9e4d60a91739`/
+   `863`.
+2. `package-lock.json`: base mode/blob
+   `100644`/`11b6591aa1b39b50d451005dae574fb465f66871`; target
    mode/blob/SHA-256/size
-   `100644`/`a43678648562f3b13a40ca672ce81953b89c1b2a`/
-   `0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd`/
-   `2573`.
+   `100644`/`a8e028cab203c4a160a654e672730f269b588b90`/
+   `efa4589bb962f3b7947de12a82dd6763b7ec1ba451ac580a5eccfbb8464f7f75`/
+   `76375`.
+3. `.github/workflows/e2e.yml`: base mode/blob
+   `100644`/`1636e666417025c45b949c61319d1cae7a6a14b8`; target
+   mode/blob/SHA-256/size
+   `100644`/`10877192c6614a3b24bc8516b9ba7822ba5f65c1`/
+   `1812e1dccc4f9246dec3234988c0675415a8053ff46aa91d152c09e80108924a`/
+   `7311`.
+4. `.github/workflows/update-snapshots.yml`: base mode/blob
+   `100644`/`7e309fdd56a24ca42c26e8810bb04b3ad1d64022`; target
+   mode/blob/SHA-256/size
+   `100644`/`282b78f3ced956c178f10c66d7bbebffe98bb8e0`/
+   `5fad958d477290547257ba1bbc7e48669168088e6564a10e790c597114a990a4`/
+   `2357`.
 
-No `package.json` override, vendored artifact, provenance file, workflow,
-`.gitattributes`, verifier/runtime file, or `SECURITY.md` belongs in this
+No vendored artifact, provenance file, `.gitattributes`, verifier/runtime
+file, `SECURITY.md`, or optional Playwright spec migration belongs in this
 transaction. Those former activation-sensitive surfaces remain guarded,
 including both security workflows, all verifier/runtime paths, package
-manifests and lockfiles, the vendor root, the former focused tests, and the new
-fast-uri security test.
+manifests and lockfiles, the Playwright container workflows, the vendor root,
+the former focused tests, and the new fast-uri security test.
 
 The evaluator derives each immutable tree's state from **all** base or target
 pins. A mixed or poisoned base fails every pull request. Only the exact
-pre-state to exact post-state two-file delta may activate. Partial or extra
+pre-state to exact post-state four-file delta may activate. Partial or extra
 changes, reversion, rename/alias tricks, mode changes, and altered bytes fail.
-In the post-state, both target files are revalidated by mode, Git blob,
+In the post-state, all four target files are revalidated by mode, Git blob,
 raw-byte SHA-256, and size on every pull request.
 
 `exact-pins` mode never performs tar, provenance, packed-manifest, or artifact
@@ -89,10 +102,9 @@ code. The legacy `vendored-artifact` mode remains covered by synthetic
 regressions for future reviewed policies.
 
 After this policy is merged, recreate or rebase the dependent branch from that
-merged policy head and materialize only the two target blobs. If either base
-pin differs, stop and rotate policy; do not alter the dependent branch to make
-the pins fit. The policy branch itself must not contain either activation
-change.
+merged policy head and materialize only the four target blobs. If any base pin
+differs, stop and rotate policy; do not alter the dependent branch to make the
+pins fit. The policy branch itself must not contain any activation change.
 
 On a local checkout with both target Git objects available, run the full
 pre/post replay without installing or executing candidate package code:
