@@ -664,7 +664,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Steps
 
-1. Read welcome content per environment and record whether the native consent control is configured for the environment:
+1. Read welcome content per environment:
 
     ```powershell
     $rows = foreach ($env in $envs) {
@@ -675,7 +675,6 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
             HasWelcome       = [bool]$w.message
             LinksToWsp       = $w.message -match [regex]::Escape($env:ME21_WSP_URL)
             LinksToTraining  = $w.message -match [regex]::Escape($env:ME21_TRAINING_CATALOG)
-            ConsentAuditCheck = 'If native consent is enabled, retain Purview audit evidence of maker acknowledgement activity.'
             MessageLen       = ($w.message | Measure-Object -Character).Characters
             MessageSample    = if ($w.message) { $w.message.Substring(0,[Math]::Min(200,$w.message.Length)) } else { $null }
         }
@@ -694,11 +693,23 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
     ```
 
 3. Verify the CMK exclusion narrative (`cmk-exclusion-narrative.md`) lists `maker_welcome_content` and is signed by the Compliance Officer within the last 12 months. (Cross-check with TC-12.)
+4. Manual attestation, if the owner adopts native maker acknowledgement for this control: capture a PPAC screenshot showing **Include consent button and log maker activity**, the **Terms and conditions** URL, and a Purview audit-search export for maker acknowledgement activity. Record the operator-filled evidence paths in the run notes, for example:
+
+    ```json
+    {
+      "EnvironmentId": "<environment-guid>",
+      "NativeConsentEnabled": true,
+      "TermsAndConditionsUrl": "https://<approved-url>",
+      "PpacScreenshotPath": "tc07-consent-setting-<runId>.png",
+      "PurviewAuditExportPath": "tc07-consent-audit-<runId>.csv",
+      "EvidenceNotes": "Manual attestation; no documented PowerShell property was used for this setting."
+    }
+    ```
 
 #### Expected
 
 - 100% of Z2/Z3 environments have welcome content; content links to both WSPs and training.
-- If the tenant uses native maker acknowledgement, the Terms and conditions URL is recorded and Purview audit evidence shows acknowledgement activity.
+- If the owner adopts native maker acknowledgement for this control, the manual attestation records the Terms and conditions URL, PPAC screenshot path, and Purview audit export path.
 - 0 sensitive-data hits in the DLP scan.
 - CMK exclusion narrative present, signed, and within 12 months.
 
