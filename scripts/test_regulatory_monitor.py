@@ -8913,6 +8913,41 @@ def test_finra_canonical_and_index_node_forms_are_equivalent():
     ) == expected[0]
 
 
+def test_finra_date_consensus_ignores_legacy_transport_spelling_digest():
+    canonical = "https://www.finra.org/rules-guidance/notices/93-59"
+    first_pass = {
+        "node:100751": [
+            regulatory_monitor._finra_date_occurrence(
+                page=0,
+                row_index=2468,
+                target=canonical,
+                raw_row_digest="sha256:" + ("a" * 64),
+                listing_date="1993-08-01",
+            )
+        ]
+    }
+    second_pass = {
+        "node:100751": [
+            regulatory_monitor._finra_date_occurrence(
+                page=0,
+                row_index=2468,
+                target=canonical,
+                raw_row_digest="sha256:" + ("b" * 64),
+                listing_date="1993-08-01",
+            )
+        ]
+    }
+
+    assert regulatory_monitor._finra_date_occurrence_counters(
+        first_pass
+    ) == regulatory_monitor._finra_date_occurrence_counters(second_pass)
+    assert regulatory_monitor._finra_date_occurrence_exact_identity(
+        first_pass["node:100751"][0]
+    ) != regulatory_monitor._finra_date_occurrence_exact_identity(
+        second_pass["node:100751"][0]
+    )
+
+
 @pytest.mark.parametrize(
     "href",
     [
