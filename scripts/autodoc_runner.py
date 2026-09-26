@@ -997,20 +997,27 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     existing = _existing_issue_url(config, ctx)
     if existing:
         return existing
+    existing_redirect = _existing_redirect_issue_record(config, ctx, reason)
+    if existing_redirect and existing_redirect.url:
+        _comment_existing_redirect_issue(config, existing_redirect, ctx, reason, details)
+        return existing_redirect.url
     # Include the source URL AND content hash so the deferred-baseline advance workflow
     # (learn-monitor-advance.yml) can match this issue to its EXACT pending change once it
     # is closed. The advance step compares these two lines verbatim against the pending blob's
     # (url, content_hash) — it never relies on GitHub's tokenized `in:body` search, which can
     # subset an unrelated issue's body and advance the wrong baseline (silent data loss).
     source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
+    destination_url = _redirect_destination_for_identity(ctx) if reason.startswith("redirect_") else ""
     content_hash = ctx.contract.get("content_hash", "") if isinstance(ctx.contract, dict) else ""
     source_line = f"Source: {source_url}\n" if source_url else ""
+    destination_line = f"Destination: {destination_url}\n" if destination_url else ""
     content_hash_line = f"Content-Hash: {content_hash}\n" if content_hash else ""
     body = (
         f"Autodoc escalation — human review required.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
         f"Reason: {reason}\n"
         f"{source_line}"
+        f"{destination_line}"
         f"{content_hash_line}"
         f"\n{details}\n"
     )
@@ -1068,6 +1075,98 @@ def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
         if issue.fingerprint == ctx.fingerprint and issue.url:
             return issue.url
     return None
+
+
+def _redirect_destination_for_identity(ctx: ChangeContext) -> str:
+    contract_destination = str(ctx.contract.get("destination_url", "")) if isinstance(ctx.contract, dict) else ""
+    match = _REDIRECT_TO_RE.search(ctx.instructions)
+    evidence_destination = match.group(1).strip() if match else ""
+    return autodoc_classifier._canonicalize_url(contract_destination or evidence_destination)  # noqa: SLF001
+
+
+def _existing_redirect_issue_record(
+    config: RunnerConfig,
+    ctx: ChangeContext,
+    reason: str,
+) -> autodoc_issue_identity.IssueRecord | None:
+    """Return the newest open escalation for the same redirect source/destination.
+
+    New issues carry an explicit Destination line. Legacy open issues created before this fix
+    only have Source + Reason, so they are accepted as a backward-compatible fallback to stop
+    the already-open daily duplicate chain from creating a fifth issue.
+    """
+
+    if not reason.startswith("redirect_") or not isinstance(ctx.contract, dict):
+        return None
+    source_url = autodoc_classifier._canonicalize_url(str(ctx.contract.get("source_url", "")))  # noqa: SLF001
+    destination_url = _redirect_destination_for_identity(ctx)
+    if not source_url or not destination_url:
+        return None
+
+    reason_norm = reason.strip()
+    exact_matches: list[autodoc_issue_identity.IssueRecord] = []
+    legacy_matches: list[autodoc_issue_identity.IssueRecord] = []
+    for issue in _list_open_autodoc_issues(config):
+        if issue.reason and issue.reason.strip() != reason_norm:
+            continue
+        if not issue.source_url:
+            continue
+        issue_source = autodoc_classifier._canonicalize_url(issue.source_url)  # noqa: SLF001
+        if issue_source != source_url:
+            continue
+        if issue.destination_url:
+            issue_destination = autodoc_classifier._canonicalize_url(issue.destination_url)  # noqa: SLF001
+            if issue_destination == destination_url:
+                exact_matches.append(issue)
+        else:
+            legacy_matches.append(issue)
+
+    candidates = exact_matches or legacy_matches
+    if not candidates:
+        return None
+    return max(candidates, key=lambda issue: issue.number or -1)
+
+
+def _comment_existing_redirect_issue(
+    config: RunnerConfig,
+    issue: autodoc_issue_identity.IssueRecord,
+    ctx: ChangeContext,
+    reason: str,
+    details: str,
+) -> None:
+    if issue.number is None:
+        raise RuntimeError("cannot comment on existing redirect escalation without an issue number")
+    source_url = str(ctx.contract.get("source_url", "")) if isinstance(ctx.contract, dict) else ""
+    destination_url = _redirect_destination_for_identity(ctx)
+    body = (
+        "Autodoc observed this redirect escalation again and reused this open issue.\n\n"
+        f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
+        f"Reason: {reason}\n"
+        f"Source: {source_url}\n"
+        f"Destination: {destination_url}\n\n"
+        f"{details}\n"
+    )
+    completed = subprocess.run(
+        [
+            "gh",
+            "issue",
+            "comment",
+            str(issue.number),
+            "--repo",
+            _repo_slug(config),
+            "--body",
+            body,
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(config.repo_path),
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "gh issue comment failed "
+            f"(#{issue.number}, exit {completed.returncode}): {(completed.stderr or '').strip()}"
+        )
 
 
 def _list_open_autodoc_issues(config: RunnerConfig) -> list[autodoc_issue_identity.IssueRecord]:
