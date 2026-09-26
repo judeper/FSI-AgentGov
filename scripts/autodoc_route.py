@@ -81,13 +81,7 @@ def compute_fingerprint(
     canonical_destination = classifier._canonicalize_url(  # noqa: SLF001 - shared routing identity rule.
         destination_url
     )
-    if classification == "REDIRECT":
-        # Redirect identity is the source->destination mapping, not the daily report that
-        # observed it. Including learn-changes-YYYY-MM-DD.md here creates a new escalation
-        # fingerprint every day for the same unresolved redirect.
-        parts = [canonical_url, classification, *sorted(allowed_files)]
-    else:
-        parts = [report_name, canonical_url, classification, *sorted(allowed_files)]
+    parts = [report_name, canonical_url, classification, *sorted(allowed_files)]
     if canonical_destination:
         parts.append(f"destination:{canonical_destination}")
     payload = "\n".join(parts)
