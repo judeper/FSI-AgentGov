@@ -83,17 +83,17 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Copilot Studio Overview** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio | Jan 2026 |
+| **Copilot Studio Overview** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio | Sep 2026 |
 | **Security and Governance** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance | Jan 2026 |
 | **Sensitivity Labels in Copilot Studio** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio | Jan 2026 |
-| **Agent Publishing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels | Jan 2026 |
+| **Agent Publishing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels | Sep 2026 |
 | Share and Manage Agents | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots | Jan 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview | Jan 2026 |
 | Customer Satisfaction | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness | Feb 2026 |
 | **Connectors** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-connectors | Jan 2026 |
 | **Knowledge Sources** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio | Jan 2026 |
 | **Quickstart: Create and deploy an agent** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-gpt-overview | Jan 2026 |
-| Agent Orchestration | https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-tools-custom-agent | Feb 2026 |
+| Agent Orchestration | https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-tools-custom-agent | Sep 2026 |
 | **External Threat Detection** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider | Jan 2026 |
 | Human Agent Handoff | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off | Jan 2026 |
 | Test Your Agent | https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-test-bot | Jan 2026 |
@@ -216,8 +216,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Create Cases | https://learn.microsoft.com/en-us/purview/ediscovery-create-and-manage-cases | Jan 2026 |
 | KeyQL Reference | https://learn.microsoft.com/en-us/purview/ediscovery-keyword-queries-and-search-conditions | Jan 2026 |
 | eDiscovery Holds | https://learn.microsoft.com/en-us/purview/ediscovery-create-holds | Jan 2026 |
-| **Endpoint DLP** | https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about | Feb 2026 |
-| Endpoint DLP Overview | https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about | Jan 2026 |
+| **Endpoint DLP** | https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about | Sep 2026 |
 | Onboard Devices | https://learn.microsoft.com/en-us/purview/endpoint-dlp-getting-started | Jan 2026 |
 | Configure Settings | https://learn.microsoft.com/en-us/purview/dlp-configure-endpoint-settings | Jan 2026 |
 | **Information Barriers** | https://learn.microsoft.com/en-us/purview/information-barriers | Jan 2026 |
