@@ -9,7 +9,9 @@ from dataclasses import dataclass
 from typing import Any, Iterable, Mapping
 
 _FINGERPRINT_LINE_RE = re.compile(r"^AUTODOC-FINGERPRINT:\s*(\S+)\s*$", re.MULTILINE)
+_REASON_LINE_RE = re.compile(r"^Reason:\s*(.+?)\s*$", re.MULTILINE)
 _SOURCE_LINE_RE = re.compile(r"^Source:\s*(\S+)\s*$", re.MULTILINE)
+_DESTINATION_LINE_RE = re.compile(r"^Destination:\s*(\S+)\s*$", re.MULTILINE)
 _CONTENT_HASH_LINE_RE = re.compile(r"^Content-Hash:\s*(\S+)\s*$", re.MULTILINE)
 _JSON_CONTRACT_RE = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)
 
@@ -45,6 +47,8 @@ class IssueBodyIdentity:
     source_url: str | None
     content_hash: str | None
     source_kind: str  # source_line | contract | missing
+    reason: str | None = None
+    destination_url: str | None = None
 
     @property
     def identity(self) -> tuple[str, str] | None:
@@ -65,6 +69,8 @@ class IssueRecord:
     source_url: str | None
     content_hash: str | None
     source_kind: str
+    reason: str | None = None
+    destination_url: str | None = None
 
     @property
     def identity(self) -> tuple[str, str] | None:
@@ -80,30 +86,46 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
     `source_url` values. No tokenized substring matching is used.
     """
     if not body:
-        return IssueBodyIdentity(fingerprint=None, source_url=None, content_hash=None, source_kind="missing")
+        return IssueBodyIdentity(
+            fingerprint=None,
+            reason=None,
+            source_url=None,
+            destination_url=None,
+            content_hash=None,
+            source_kind="missing",
+        )
 
     fingerprint_match = _FINGERPRINT_LINE_RE.search(body)
+    reason_match = _REASON_LINE_RE.search(body)
     source_match = _SOURCE_LINE_RE.search(body)
+    destination_match = _DESTINATION_LINE_RE.search(body)
     content_hash_match = _CONTENT_HASH_LINE_RE.search(body)
     fingerprint_line = _as_non_empty_string(fingerprint_match.group(1)) if fingerprint_match else None
+    reason_line = _as_non_empty_string(reason_match.group(1)) if reason_match else None
     source_line = _as_non_empty_string(source_match.group(1)) if source_match else None
+    destination_line = _as_non_empty_string(destination_match.group(1)) if destination_match else None
     content_hash_line = _as_non_empty_string(content_hash_match.group(1)) if content_hash_match else None
 
     contract_source: str | None = None
+    contract_destination: str | None = None
     contract_hash: str | None = None
     contract_fingerprint: str | None = None
     for contract in _iter_json_contracts(body):
         current_fingerprint = _as_non_empty_string(contract.get("fingerprint"))
         current_source = _as_non_empty_string(contract.get("source_url"))
+        current_destination = _as_non_empty_string(contract.get("destination_url"))
         current_hash = _as_non_empty_string(contract.get("content_hash"))
         if contract_source is None:
             contract_source = current_source
+        if contract_destination is None:
+            contract_destination = current_destination
         if contract_hash is None:
             contract_hash = current_hash
         if contract_fingerprint is None:
             contract_fingerprint = current_fingerprint
         if fingerprint_line and current_fingerprint == fingerprint_line:
             contract_source = current_source
+            contract_destination = current_destination
             contract_hash = current_hash
             contract_fingerprint = current_fingerprint
             break
@@ -112,21 +134,26 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
     contract_pair = contract_source and contract_hash
     if plaintext_pair:
         source_url = source_line
+        destination_url = destination_line or contract_destination
         content_hash = content_hash_line
         source_kind = "source_line"
     elif contract_pair:
         source_url = contract_source
+        destination_url = destination_line or contract_destination
         content_hash = contract_hash
         source_kind = "contract"
     else:
-        source_url = None
+        source_url = source_line or contract_source
+        destination_url = destination_line or contract_destination
         content_hash = None
         source_kind = "missing"
 
     fingerprint = fingerprint_line or contract_fingerprint
     return IssueBodyIdentity(
         fingerprint=fingerprint,
+        reason=reason_line,
         source_url=source_url,
+        destination_url=destination_url,
         content_hash=content_hash,
         source_kind=source_kind,
     )
@@ -143,7 +170,9 @@ def parse_issue_record(issue: Mapping[str, Any]) -> IssueRecord:
         state=str(issue.get("state") or "").strip().upper(),
         state_reason=normalize_state_reason(issue.get("stateReason")),
         fingerprint=identity.fingerprint,
+        reason=identity.reason,
         source_url=identity.source_url,
+        destination_url=identity.destination_url,
         content_hash=identity.content_hash,
         source_kind=identity.source_kind,
     )
