@@ -646,6 +646,7 @@ def _validate_finra_recovery_duplicate_anchor(
     *,
     detail_identity_anchor: object,
     persisted_anchor_digest: object,
+    require_order: bool = False,
 ) -> list[str]:
     """Bind the reviewed recovery duplicate subset to repository-held facts."""
     errors: list[str] = []
@@ -711,7 +712,8 @@ def _validate_finra_recovery_duplicate_anchor(
         errors.append(
             "regulatory-finra duplicate recovery anchor records are ambiguous"
         )
-    if sorted(actual_keys) != expected_keys:
+    comparable_actual = actual_keys if require_order else sorted(actual_keys)
+    if comparable_actual != expected_keys:
         missing = len(set(expected_keys) - set(actual_keys))
         extra = len(set(actual_keys) - set(expected_keys))
         errors.append(
@@ -720,6 +722,37 @@ def _validate_finra_recovery_duplicate_anchor(
             f"(missing={missing}, extra={extra})"
         )
     return errors
+
+
+def _finra_recovery_duplicate_anchor_evidence(
+    ledger: object,
+) -> list[dict]:
+    """Extract the exact ordered raw records covered by the reviewed anchor."""
+    if not isinstance(ledger, list):
+        return []
+    expected = _finra_recovery_duplicate_anchor_records()
+    field_order = FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_FIELDS
+    expected_keys = [
+        tuple(record[field] for field in field_order)
+        for record in expected
+    ]
+    raw_by_key = {}
+    for record in ledger:
+        candidate, record_errors, _canonical_urls, _node_urls = (
+            _finra_duplicate_anchor_record_from_resolution(record)
+        )
+        if candidate is None or record_errors:
+            continue
+        candidate_key = tuple(
+            candidate[field] for field in field_order
+        )
+        if candidate_key in expected_keys:
+            raw_by_key.setdefault(candidate_key, deepcopy(record))
+    return [
+        raw_by_key[key]
+        for key in expected_keys
+        if key in raw_by_key
+    ]
 
 
 def _capture_finra_duplicate_date_proof(
@@ -4239,12 +4272,36 @@ def _validate_source_coverage(
                 entries,
                 _finra_alias_map(coverage.get("alias_ledger")),
             ))
+            anchor_ledger = date_resolution_ledger
+            require_anchor_order = False
+            if (
+                deterministic_schema
+                and detail_identity_anchor
+                == FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION
+            ):
+                anchor_ledger = coverage.get(
+                    "recovery_duplicate_anchor_evidence"
+                )
+                require_anchor_order = True
+                if coverage.get(
+                    "recovery_duplicate_anchor_sequence_digest"
+                ) != compute_hash(json.dumps(
+                    anchor_ledger if isinstance(anchor_ledger, list) else [],
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )):
+                    errors.append(
+                        f"{source_key} recovery duplicate anchor sequence "
+                        "digest is invalid"
+                    )
             errors.extend(_validate_finra_recovery_duplicate_anchor(
-                date_resolution_ledger,
+                anchor_ledger,
                 detail_identity_anchor=detail_identity_anchor,
                 persisted_anchor_digest=(
                     duplicate_recovery_anchor_digest
                 ),
+                require_order=require_anchor_order,
             ))
         if not isinstance(coverage.get("conflict_ledger"), list):
             errors.append(f"{source_key} conflict ledger is invalid")
@@ -9950,11 +10007,44 @@ def update_source_state(
             detail_identity_anchor
             == FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION
         ):
+            prior_anchor_evidence = (
+                prior_coverage.get(
+                    "recovery_duplicate_anchor_evidence"
+                )
+                if isinstance(prior_coverage, dict)
+                else None
+            )
+            if isinstance(prior_anchor_evidence, list):
+                anchor_evidence = deepcopy(prior_anchor_evidence)
+            else:
+                anchor_evidence = (
+                    _finra_recovery_duplicate_anchor_evidence(
+                        prior_coverage.get("date_resolution_ledger", [])
+                        if isinstance(prior_coverage, dict)
+                        else []
+                    )
+                )
+            coverage["recovery_duplicate_anchor_evidence"] = (
+                anchor_evidence
+            )
+            coverage["recovery_duplicate_anchor_sequence_digest"] = (
+                compute_hash(json.dumps(
+                    anchor_evidence,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ))
+            )
             coverage["duplicate_recovery_anchor_digest"] = (
                 FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST
             )
         else:
             coverage.pop("duplicate_recovery_anchor_digest", None)
+            coverage.pop("recovery_duplicate_anchor_evidence", None)
+            coverage.pop(
+                "recovery_duplicate_anchor_sequence_digest",
+                None,
+            )
         coverage["alias_ledger"] = alias_ledger
         coverage["alias_ledger_digest"] = _alias_ledger_digest(alias_ledger)
         coverage.pop("migration_ledger", None)
