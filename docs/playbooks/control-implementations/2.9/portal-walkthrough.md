@@ -100,7 +100,7 @@ The pre-built [Agent Usage & Performance Workbook](../../advanced-implementation
 
 ### Built-in (Power Automate, all zones)
 
-1. [Power Automate](https://make.powerautomate.com) → **+ Create** → **Scheduled cloud flow**.
+1. [Power Automate](https://make.powerautomate.com) → **My flows** → **Cloud flows** tab → **Create from blank** → **Add a trigger** → search for and select **Recurrence**. If your tenant still exposes **+ Create** → **Scheduled cloud flow**, verify that shortcut in your tenant before using it.
 2. Name `FSI-Agent-Performance-Alert`, recurrence hourly (Zone 3) / daily (Zones 1–2).
 3. Action: query the Power BI dataset or ADLS export for threshold breaches.
 4. Conditions per zone:

@@ -114,7 +114,8 @@ System backups support Microsoft-side recovery for in-region events. Within a re
 1. From the **Backups** view select **Create**
 2. Enter a **Label** describing the change (for example, `Pre-deploy TradingAssistant 4.2.0`)
 3. Select **Create**
-4. Manual backups of production Managed Environments with extended retention enabled are kept up to **28 days**; all other environments retain manual backups for **7 days** by default. Verify current retention for this environment against [Backup and restore environments](https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments) before relying on a specific window.
+4. Wait at least **10 to 15 minutes** before attempting to restore from the manual backup; Microsoft Learn says manual backups can take up to **10 minutes** to become available for restoration.
+5. Manual backups of production Managed Environments with extended retention enabled are kept up to **28 days**; all other environments retain manual backups for **7 days** by default. Verify current retention for this environment against [Backup and restore environments](https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments) before relying on a specific window.
 
 ### 3.3 Restore drill (sandbox only — never on production without a change ticket)
 
@@ -122,6 +123,7 @@ System backups support Microsoft-side recovery for in-region events. Within a re
 2. Select **Backups** → choose a system or manual backup → **Restore**
 3. Choose **Restore over an existing environment** (sandbox target) or **Restore to a new environment**
 4. Record the start and finish times in the exercise log — this measures Microsoft-side restore time as one input to RTO
+5. For large restore or copy operations, allow up to **48 hours** from operation start before opening a Microsoft Support ticket unless tenant-specific error evidence indicates failure.
 
 ---
 

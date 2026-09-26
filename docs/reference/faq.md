@@ -516,7 +516,7 @@ A: Key licensing updates to track:
 
 | Change | Effective | Impact |
 |--------|-----------|--------|
-| **Copilot Credits model** | September 2025 (transitioned) | Capacity-based billing for Copilot Studio message capacity |
+| **Copilot Credits model** | Verify current rollout/licensing status | Capacity-based billing for Copilot Studio Copilot Credits capacity |
 | **Managed Environments for pipelines** | February 2026 | Pipeline targets must be Managed Environments; requires Premium licensing |
 
 See [Control 2.1](../controls/pillar-2-management/2.1-managed-environments.md) for Managed Environment licensing requirements.
