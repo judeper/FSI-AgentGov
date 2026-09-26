@@ -58,6 +58,25 @@ def test_redirect_fingerprint_distinguishes_a_to_b_from_a_to_c():
     assert to_b != to_c
 
 
+def test_redirect_fingerprint_ignores_daily_report_name_for_same_source_and_destination():
+    first = route.compute_fingerprint(
+        "learn-changes-2026-09-23.md",
+        "https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features",
+    )
+    second = route.compute_fingerprint(
+        "learn-changes-2026-09-26.md",
+        "https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features",
+    )
+
+    assert first == second
+
+
 def test_extract_allowed_files_prefixes_docs_and_reads_playbooks():
     block = """
 ### 1. Synthetic
