@@ -19,8 +19,10 @@ const readBlob = async sha => {
   return bytes.get(sha);
 };
 const expectedPaths = [
+  "package.json",
   "package-lock.json",
-  "tests/spa/fast-uri-security.test.mjs",
+  ".github/workflows/e2e.yml",
+  ".github/workflows/update-snapshots.yml",
 ];
 
 // Project the approved transaction from content-addressed blobs, never execute
@@ -43,14 +45,14 @@ const judge = (before, after) => evaluateCandidate({
 });
 
 describe("current policy contract and exact pinned activation", () => {
-  it("uses policy v3 exact-pins mode, two paths, and no trusted overlap", () => {
+  it("uses policy v3 exact-pins mode, four paths, and no trusted overlap", () => {
     expect(() => assertPolicyShape(policy)).not.toThrow();
     expect(policy.policyVersion).toBe(3);
     expect(policy.activation.validationMode).toBe("exact-pins");
     expect(policy.activation.allowedFiles).toEqual(expectedPaths);
     expect(expectedPaths.filter(path => policy.trustedPaths.includes(path))).toEqual([]);
     expect(activationPatchDigest(policy.activation)).toBe(policy.activation.patchSha256);
-    expect(diffImmutableTrees(base, candidate).changes.map(change => change.filename).sort()).toEqual(expectedPaths);
+    expect(diffImmutableTrees(base, candidate).changes.map(change => change.filename).sort()).toEqual([...expectedPaths].sort());
   });
 
   it("keeps the captured index in either the complete exact pre-state or post-state", () => {
