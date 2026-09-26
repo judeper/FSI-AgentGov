@@ -8865,6 +8865,114 @@ def test_finra_old_00_33_index_canonical_normalizes_to_expected_identity():
     )
 
 
+def test_finra_00_32_legacy_index_node_shortlink_is_normalized():
+    canonical = "https://www.finra.org/rules-guidance/notices/00-32"
+    html = _finra_detail_page_with_identity(
+        "Regulatory Notice 00-32",
+        "2000-06-01",
+        "Historical content.",
+        canonical_url=(
+            "https://www.finra.org/index.php/"
+            "rules-guidance/notices/00-32"
+        ),
+        node_id="6417",
+    ).replace(
+        'href="https://www.finra.org/node/6417"',
+        'href="https://www.finra.org/index.php/node/6417"',
+    )
+
+    proof, error = regulatory_monitor._finra_legacy_transport_identity_proof(
+        BeautifulSoup(html, "html.parser"),
+        canonical,
+        None,
+    )
+
+    assert error is None
+    assert proof["raw_shortlinks"] == [
+        "https://www.finra.org/index.php/node/6417"
+    ]
+    assert proof["normalized_node_url"] == (
+        "https://www.finra.org/node/6417"
+    )
+
+
+def test_finra_canonical_and_index_node_forms_are_equivalent():
+    expected = (
+        "https://www.finra.org/node/6417",
+        "node:6417",
+    )
+
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "https://www.finra.org/node/6417"
+    ) == expected
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "https://www.finra.org/index.php/node/6417"
+    ) == expected
+    assert regulatory_monitor._validate_finra_node_url(
+        "/index.php/node/6417"
+    ) == expected[0]
+
+
+@pytest.mark.parametrize(
+    "href",
+    [
+        "https://evil.example/index.php/node/6417",
+        "https://www.finra.org/index.php/node/not-a-number",
+        "https://www.finra.org/index.php/node/6417/extra",
+        "https://www.finra.org/index.php/node/6417?output=1",
+        "https://www.finra.org/index.php/node/6417#fragment",
+    ],
+)
+def test_finra_legacy_node_forms_reject_malformed_or_off_origin(href):
+    assert regulatory_monitor._validate_finra_node_url(href) is None
+    assert regulatory_monitor._finra_normalize_detail_link(href) == (
+        None,
+        None,
+    )
+
+
+def test_finra_index_notice_normalization_remains_supported():
+    assert regulatory_monitor._finra_normalize_detail_link(
+        "/index.php/rules-guidance/notices/00-32"
+    ) == (
+        "https://www.finra.org/rules-guidance/notices/00-32",
+        "url:/rules-guidance/notices/00-32",
+    )
+
+
+def test_finra_legacy_node_raw_and_normalized_proof_tampering_detected():
+    canonical = "https://www.finra.org/rules-guidance/notices/00-32"
+    proof = {
+        "raw_canonical_hrefs": [
+            "https://www.finra.org/index.php/"
+            "rules-guidance/notices/00-32"
+        ],
+        "normalized_canonical_url": canonical,
+        "normalized_identity": "url:/rules-guidance/notices/00-32",
+        "raw_shortlinks": [
+            "https://www.finra.org/index.php/node/6417"
+        ],
+        "normalized_node_url": "https://www.finra.org/node/6417",
+    }
+    original = compute_hash(json.dumps(
+        proof,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+    proof["raw_shortlinks"][0] = (
+        "https://www.finra.org/index.php/node/9999"
+    )
+    proof["normalized_node_url"] = "https://www.finra.org/node/9999"
+
+    assert original != compute_hash(json.dumps(
+        proof,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ))
+
+
 def test_finra_26_16_modern_canonical_spelling_is_accepted():
     canonical = "https://www.finra.org/rules-guidance/notices/26-16"
     soup = BeautifulSoup(
