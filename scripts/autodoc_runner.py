@@ -1052,12 +1052,14 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     # must never suppress creation success.
     source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
     if isinstance(source_url, str) and source_url.strip():
+        sibling_kind = _escalation_sibling_kind(reason, content_hash)
         try:
             _close_source_siblings_not_planned(
                 config=config,
                 source_url=source_url.strip(),
                 fingerprint=ctx.fingerprint,
                 superseding_issue_url=created_issue_url,
+                sibling_kind=sibling_kind,
             )
         except Exception as exc:  # noqa: BLE001 - creation already succeeded; cleanup is best-effort.
             print(
@@ -1214,15 +1216,18 @@ def _close_source_siblings_not_planned(
     source_url: str,
     fingerprint: str,
     superseding_issue_url: str,
+    sibling_kind: str | None,
 ) -> None:
-    """Close older open same-source/different-fingerprint siblings as NOT_PLANNED."""
+    """Close older open same-kind/source/different-fingerprint siblings as NOT_PLANNED."""
 
     superseding_number = _issue_number_from_url(superseding_issue_url)
-    if superseding_number is None:
+    if superseding_number is None or sibling_kind is None:
         return
 
     for issue in _list_open_autodoc_issues(config):
         if issue.source_url != source_url:
+            continue
+        if _issue_sibling_kind(issue) != sibling_kind:
             continue
         if issue.fingerprint == fingerprint:
             continue
@@ -1260,6 +1265,22 @@ def _close_source_siblings_not_planned(
                 "gh issue close failed "
                 f"(#{issue.number}, exit {completed.returncode}): {(completed.stderr or '').strip()}"
             )
+
+
+def _escalation_sibling_kind(reason: str, content_hash: str) -> str | None:
+    if reason.strip().startswith("redirect_"):
+        return "redirect"
+    if content_hash:
+        return "content"
+    return None
+
+
+def _issue_sibling_kind(issue: autodoc_issue_identity.IssueRecord) -> str | None:
+    if issue.reason and issue.reason.strip().startswith("redirect_"):
+        return "redirect"
+    if issue.content_hash:
+        return "content"
+    return None
 
 
 def _issue_number_from_url(url: str) -> int | None:
