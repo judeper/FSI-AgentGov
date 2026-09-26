@@ -478,42 +478,6 @@ jobs:
             ${{ steps.monitor.outputs.exit_code == '1' && 'needs-review' || '' }}
           assignees: ${{ github.repository_owner }}
 
-      - name: Add summary comment with priority items
-        if: steps.create_pr.outputs.pull-request-number && steps.monitor.outputs.exit_code == '1'
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ steps.create_pr.outputs.pull-request-number }}
-          body: |
-            ## 📋 Priority Regulatory Changes Detected
-
-            The following regulatory changes may require updates to FSI-AgentGov controls or playbooks:
-
-            <details>
-            <summary>View CRITICAL/HIGH priority items (${{ steps.monitor.outputs.critical_items }} critical, ${{ steps.monitor.outputs.high_items }} high)</summary>
-
-            See the full change report: `${{ steps.monitor.outputs.report_file }}`
-
-            **Classification Tiers:**
-            - 🔴 **CRITICAL** - Directly mentions AI agents, copilot, or automated advice
-            - 🟠 **HIGH** - References AI/ML/automation or FSI-specific requirements
-            - 🟡 **MEDIUM** - General FSI regulations (indirect AI agent impact)
-            - ⚪ **NOISE** - No FSI AI agent governance relevance
-
-            </details>
-
-            ---
-
-            ### Quick Actions
-
-            | Action | Command |
-            |--------|---------|
-            | Checkout PR | `gh pr checkout ${{ steps.create_pr.outputs.pull-request-number }}` |
-            | View change report | Open `${{ steps.monitor.outputs.report_file }}` |
-            | Merge without changes | Approve and merge this PR |
-
-            > 💡 **Tip:** Review CRITICAL and HIGH items first. Check the "Potentially Affected Controls" section for keyword-based suggestions.
-
       - name: Verify created PR binds the validated generated output
         # Blockers 1 & 2: this privileged monitor workflow does NOT auto-merge.
         # No GitHub merge API binds BOTH the exact base and the exact head
