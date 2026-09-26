@@ -181,7 +181,7 @@ Automated monitoring detects agents with missing or incomplete metadata and aler
 
 1. Open [Power Automate](https://make.powerautomate.com)
 2. Select your **default environment** or a dedicated governance environment (not Zone 3 production)
-3. Click **+ Create** > **Scheduled cloud flow**
+3. Use **My flows** → **Cloud flows** tab → **Create from blank** → **Add a trigger** → search for and select **Recurrence**. If your tenant still exposes **+ Create** > **Scheduled cloud flow**, verify that shortcut in your tenant before using it.
 4. Name the flow: `Agent Inventory Completeness Monitor`
 5. Configure schedule:
    - **Recurrence:** Daily

@@ -664,7 +664,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Steps
 
-1. Read welcome content per environment:
+1. Read welcome content per environment and record whether the native consent control is configured for the environment:
 
     ```powershell
     $rows = foreach ($env in $envs) {
@@ -675,6 +675,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
             HasWelcome       = [bool]$w.message
             LinksToWsp       = $w.message -match [regex]::Escape($env:ME21_WSP_URL)
             LinksToTraining  = $w.message -match [regex]::Escape($env:ME21_TRAINING_CATALOG)
+            ConsentAuditCheck = 'If native consent is enabled, retain Purview audit evidence of maker acknowledgement activity.'
             MessageLen       = ($w.message | Measure-Object -Character).Characters
             MessageSample    = if ($w.message) { $w.message.Substring(0,[Math]::Min(200,$w.message.Length)) } else { $null }
         }
@@ -697,6 +698,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 #### Expected
 
 - 100% of Z2/Z3 environments have welcome content; content links to both WSPs and training.
+- If the tenant uses native maker acknowledgement, the Terms and conditions URL is recorded and Purview audit evidence shows acknowledgement activity.
 - 0 sensitive-data hits in the DLP scan.
 - CMK exclusion narrative present, signed, and within 12 months.
 

@@ -140,7 +140,7 @@ The firm's retention obligations under FINRA Rule 4511 and SEC Rule 17a-4 may re
 
 ## Step 6 — Build the quarterly review reminder flow
 
-1. **+ Create** → **Scheduled cloud flow**.
+1. In Power Automate, use **My flows** → **Cloud flows** tab → **Create from blank** → **Add a trigger** → search for and select **Recurrence**. If your tenant still exposes **+ Create** → **Scheduled cloud flow**, verify that shortcut in your tenant before using it.
 2. Recurrence: **Weekly**, Monday, 09:00 in the firm's primary business time zone.
 3. **SharePoint — Get items**:
     - Site Address: AI Governance site

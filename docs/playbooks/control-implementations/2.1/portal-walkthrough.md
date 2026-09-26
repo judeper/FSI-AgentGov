@@ -513,9 +513,10 @@ Maker welcome content is rendered to a maker the first time they enter the envir
 1. **PPAC → Environments → {env} → Settings → Product → Maker welcome content**.
 2. Two input modes:
    - **URL** — link to the firm's intranet landing page (e.g., SharePoint Online site). Recommended when the firm wants centrally-controlled content with version history.
-   - **Markdown text** — paste up to 1500 characters of Markdown directly into the field.
+   - **Markdown text** — paste tenant-tested Markdown directly into the field. This playbook's PowerShell helper uses a local 1500-character guardrail, but Microsoft Learn does not publish that number as a platform limit; verify actual field behavior in your tenant before treating it as a maximum.
 3. Recommended (URL mode): paste the SharePoint Online URL of the **AI Tools — Maker Welcome** page, which embeds the WSP excerpt, AUP link, and incident-reporting link.
-4. Click **Save**. The welcome surface appears for any maker entering the environment.
+4. If the firm needs explicit maker acknowledgement, select **Include consent button and log maker activity**, enter the approved **Terms and conditions** URL, and retain the resulting Microsoft Purview audit evidence.
+5. Click **Save**. The welcome surface appears for makers entering the environment.
 
 !!! note "Maker Welcome Content Is EXCLUDED from Customer-Managed Keys"
     Per [Microsoft Learn — Customer-managed key — Excluded data](https://learn.microsoft.com/en-us/power-platform/admin/customer-managed-key#excluded-data), maker welcome content is among the data categories **NOT encrypted by Customer-Managed Keys** even when CMK is enabled on the environment. Other excluded categories (non-exhaustive — verify against current Microsoft documentation):
@@ -536,6 +537,7 @@ Maker welcome content is rendered to a maker the first time they enter the envir
 - [ ] **Settings → Product → Maker welcome content** shows the configured URL or Markdown text.
 - [ ] Test: with a maker test account, enter the environment for the first time. Confirm the welcome content renders.
 - [ ] Confirm the linked SharePoint page is owned by the AI Governance Lead and has version history enabled.
+- [ ] If native consent is enabled, confirm the **Terms and conditions** URL is correct and retain Purview audit evidence showing maker acknowledgement activity.
 
 ---
 
