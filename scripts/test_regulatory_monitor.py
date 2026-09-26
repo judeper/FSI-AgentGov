@@ -1189,6 +1189,73 @@ def test_finra_reviewed_anchor_does_not_freeze_future_duplicate_records():
     ) == []
 
 
+def test_finra_schema_v2_preserved_duplicate_anchor_survives_removed_current_record():
+    source_state = _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    historical = regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
+        coverage["date_resolution_ledger"]
+    )
+    current = coverage["date_resolution_ledger"][1:]
+
+    assert len(historical) == (
+        regulatory_monitor.FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT
+    )
+    assert len(current) < len(coverage["date_resolution_ledger"])
+    assert regulatory_monitor._validate_finra_recovery_duplicate_anchor(
+        historical,
+        detail_identity_anchor=coverage["detail_identity_anchor"],
+        persisted_anchor_digest=coverage[
+            "duplicate_recovery_anchor_digest"
+        ],
+        require_order=True,
+    ) == []
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["missing", "extra", "reorder", "tamper"],
+)
+def test_finra_preserved_duplicate_anchor_rejects_mutation(mutation):
+    source_state = _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    evidence = regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
+        coverage["date_resolution_ledger"]
+    )
+    if mutation == "missing":
+        evidence.pop()
+    elif mutation == "extra":
+        evidence.append(deepcopy(evidence[0]))
+    elif mutation == "reorder":
+        evidence[0], evidence[1] = evidence[1], evidence[0]
+    else:
+        evidence[0]["publication_date"] = "1999-01-01"
+
+    errors = regulatory_monitor._validate_finra_recovery_duplicate_anchor(
+        evidence,
+        detail_identity_anchor=coverage["detail_identity_anchor"],
+        persisted_anchor_digest=coverage[
+            "duplicate_recovery_anchor_digest"
+        ],
+        require_order=True,
+    )
+
+    assert errors
+
+
+def test_finra_future_current_duplicate_does_not_change_historical_anchor():
+    source_state = _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    historical = regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
+        coverage["date_resolution_ledger"]
+    )
+    future = deepcopy(coverage["date_resolution_ledger"][0])
+    future["node_identity"] = "node:999999"
+
+    assert regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
+        [*coverage["date_resolution_ledger"], future]
+    ) == historical
+
+
 def test_finra_anchored_proofs_allow_new_supplemental_binding():
     source_state = _load_shipped_finra_source_state()
     coverage = source_state["coverage"]
