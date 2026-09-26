@@ -4885,15 +4885,19 @@ def _extract_finra_shortlink(soup: BeautifulSoup) -> Optional[str]:
 
 def _validate_finra_node_url(href: str) -> Optional[str]:
     """Accept only same-origin numeric FINRA node URLs as fallbacks."""
-    parsed = urlparse(href)
+    base = urlparse(FINRA_NOTICES_URL)
+    parsed = urlparse(urljoin(FINRA_NOTICES_URL, href.strip()))
+    path = parsed.path.rstrip("/")
+    if path.startswith("/index.php/node/"):
+        path = path[len("/index.php"):]
     if (
-        parsed.scheme.casefold() == "https"
-        and parsed.netloc.casefold() == "www.finra.org"
-        and re.fullmatch(r"/node/\d+", parsed.path)
+        parsed.scheme == base.scheme
+        and parsed.netloc.casefold() == base.netloc.casefold()
+        and re.fullmatch(r"/node/\d+", path)
         and not parsed.query
         and not parsed.fragment
     ):
-        return href
+        return f"{base.scheme}://{base.netloc}{path}"
     return None
 
 
@@ -6431,7 +6435,11 @@ def _finra_normalize_detail_link(href: str) -> tuple[Optional[str], Optional[str
     parsed = urlparse(urljoin(FINRA_NOTICES_URL, href.strip()))
     if parsed.scheme != base.scheme or parsed.netloc.lower() != base.netloc.lower():
         return None, None
+    if parsed.query or parsed.fragment:
+        return None, None
     path = parsed.path.rstrip("/") or "/"
+    if path.startswith("/index.php/node/"):
+        path = path[len("/index.php"):]
     if path.startswith("/index.php/rules-guidance/notices/"):
         path = path[len("/index.php"):]
     if _finra_is_reserved_notice_route(path):
