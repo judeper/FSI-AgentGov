@@ -5,13 +5,15 @@ import { git, readGitIndex, repoRoot } from "./_gitTreeFixtures.mjs";
 const policy = loadPolicy(repoRoot);
 const index = new Map(readGitIndex().map(entry => [entry.path, entry]));
 describe("policy-stage activation assets", () => {
-  it("retains the v3 exact-pins schema and two-file activation transaction", () => {
+  it("retains the v3 exact-pins schema and four-file activation transaction", () => {
     expect(() => assertPolicyShape(policy)).not.toThrow();
     expect(policy.policyVersion).toBe(3);
     expect(policy.activation.validationMode).toBe("exact-pins");
     expect(policy.activation.allowedFiles).toEqual([
+      "package.json",
       "package-lock.json",
-      "tests/spa/fast-uri-security.test.mjs",
+      ".github/workflows/e2e.yml",
+      ".github/workflows/update-snapshots.yml",
     ]);
     expect(activationPatchDigest(policy.activation)).toBe(policy.activation.patchSha256);
     expect(policy.activation.allowedFiles.filter(path => policy.trustedPaths.includes(path))).toEqual([]);

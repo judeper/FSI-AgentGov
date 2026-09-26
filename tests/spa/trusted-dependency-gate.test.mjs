@@ -77,8 +77,10 @@ const VENDORED_BASE_ABSENT = new Set([
   "vendor/npm/fast-uri/3.1.7/provenance.json",
 ]);
 const EXACT_PIN_PATHS = [
+  "package.json",
   "package-lock.json",
-  "tests/spa/fast-uri-security.test.mjs",
+  ".github/workflows/e2e.yml",
+  ".github/workflows/update-snapshots.yml",
 ];
 const FORMER_ACTIVATION_GUARDED_PATHS = [
   ".gitattributes",
@@ -327,6 +329,14 @@ const EXACT_PACKAGE_JSON = {
     vitest: "4.1.11",
   },
 };
+const EXACT_TARGET_PACKAGE_JSON = {
+  ...EXACT_PACKAGE_JSON,
+  devDependencies: {
+    ...EXACT_PACKAGE_JSON.devDependencies,
+    "@playwright/test": "1.63.0",
+    "markdown-it": "^15.0.2",
+  },
+};
 
 const exactLock = ({ version, resolved, integrity }) => JSON.stringify({
   name: "fsi-agentgov-spa-tests",
@@ -360,16 +370,10 @@ const EXACT_TARGET_LOCK = exactLock({
   integrity:
     "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==",
 });
-const EXACT_SECURITY_TEST = [
-  'import { describe, expect, it } from "vitest";',
-  "",
-  'describe("fast-uri registry security regression", () => {',
-  '  it("keeps the reviewed behavior covered", () => {',
-  "    expect(true).toBe(true);",
-  "  });",
-  "});",
-  "",
-].join("\n");
+const EXACT_BASE_E2E_WORKFLOW = "container:\n  image: mcr.microsoft.com/playwright:v1.62.1-noble\n";
+const EXACT_TARGET_E2E_WORKFLOW = "container:\n  image: mcr.microsoft.com/playwright:v1.63.0-noble\n";
+const EXACT_BASE_UPDATE_SNAPSHOTS_WORKFLOW = "container:\n  image: mcr.microsoft.com/playwright:v1.62.1-noble\n";
+const EXACT_TARGET_UPDATE_SNAPSHOTS_WORKFLOW = "container:\n  image: mcr.microsoft.com/playwright:v1.63.0-noble\n";
 
 const GITATTRIBUTES = "vendor/npm/**/*.tgz binary\nvendor/npm/**/*.json text eol=lf\n";
 const SAFE_README = [
@@ -429,9 +433,14 @@ function candidate({ tarball, files = {}, modes = {}, extraPaths = [] } = {}) {
 
 function exactPolicyFor() {
   const policy = structuredClone(realPolicy);
+  const basePackage = utf8(JSON.stringify(EXACT_PACKAGE_JSON));
+  const targetPackage = utf8(JSON.stringify(EXACT_TARGET_PACKAGE_JSON));
   const baseLock = utf8(EXACT_BASE_LOCK);
   const targetLock = utf8(EXACT_TARGET_LOCK);
-  const targetTest = utf8(EXACT_SECURITY_TEST);
+  const baseE2e = utf8(EXACT_BASE_E2E_WORKFLOW);
+  const targetE2e = utf8(EXACT_TARGET_E2E_WORKFLOW);
+  const baseUpdateSnapshots = utf8(EXACT_BASE_UPDATE_SNAPSHOTS_WORKFLOW);
+  const targetUpdateSnapshots = utf8(EXACT_TARGET_UPDATE_SNAPSHOTS_WORKFLOW);
   policy.activation = {
     strategy: "base-relative-exact-tree-delta",
     validationMode: "exact-pins",
@@ -440,26 +449,47 @@ function exactPolicyFor() {
     patchSha256: "",
     allowedFiles: [...EXACT_PIN_PATHS],
     basePins: {
+      "package.json": {
+        mode: "100644",
+        blob: gitBlobId(basePackage),
+      },
       "package-lock.json": {
         mode: "100644",
         blob: gitBlobId(baseLock),
       },
-      "tests/spa/fast-uri-security.test.mjs": {
-        absent: true,
+      ".github/workflows/e2e.yml": {
+        mode: "100644",
+        blob: gitBlobId(baseE2e),
+      },
+      ".github/workflows/update-snapshots.yml": {
+        mode: "100644",
+        blob: gitBlobId(baseUpdateSnapshots),
       },
     },
     pins: {
+      "package.json": {
+        mode: "100644",
+        blob: gitBlobId(targetPackage),
+        sha256: sha256(targetPackage),
+        size: targetPackage.length,
+      },
       "package-lock.json": {
         mode: "100644",
         blob: gitBlobId(targetLock),
         sha256: sha256(targetLock),
         size: targetLock.length,
       },
-      "tests/spa/fast-uri-security.test.mjs": {
+      ".github/workflows/e2e.yml": {
         mode: "100644",
-        blob: gitBlobId(targetTest),
-        sha256: sha256(targetTest),
-        size: targetTest.length,
+        blob: gitBlobId(targetE2e),
+        sha256: sha256(targetE2e),
+        size: targetE2e.length,
+      },
+      ".github/workflows/update-snapshots.yml": {
+        mode: "100644",
+        blob: gitBlobId(targetUpdateSnapshots),
+        sha256: sha256(targetUpdateSnapshots),
+        size: targetUpdateSnapshots.length,
       },
     },
   };
@@ -478,9 +508,11 @@ function exactPinsTree(
   { files = {}, modes = {}, extraPaths = [], includeInvalidArtifact = false } = {},
 ) {
   const fixture = {
-    "package.json": JSON.stringify(EXACT_PACKAGE_JSON),
+    "package.json": JSON.stringify(state === "post" ? EXACT_TARGET_PACKAGE_JSON : EXACT_PACKAGE_JSON),
     "package-lock.json": state === "post" ? EXACT_TARGET_LOCK : EXACT_BASE_LOCK,
     ".gitattributes": GITATTRIBUTES,
+    ".github/workflows/e2e.yml": state === "post" ? EXACT_TARGET_E2E_WORKFLOW : EXACT_BASE_E2E_WORKFLOW,
+    ".github/workflows/update-snapshots.yml": state === "post" ? EXACT_TARGET_UPDATE_SNAPSHOTS_WORKFLOW : EXACT_BASE_UPDATE_SNAPSHOTS_WORKFLOW,
     ".github/workflows/security-scan.yml": "name: security-scan\n",
     ".github/workflows/sri-check.yml": "name: sri-check\n",
     "scripts/verify-fast-uri-artifact.mjs": VERIFIER_SOURCE,
@@ -492,9 +524,6 @@ function exactPinsTree(
     "tests/spa/trusted-gate-artifact-acceptance.test.mjs": "// acceptance\n",
     "tests/spa/vendor-runtime-policy.test.mjs": "// runtime policy\n",
   };
-  if (state === "post") {
-    fixture["tests/spa/fast-uri-security.test.mjs"] = EXACT_SECURITY_TEST;
-  }
   if (includeInvalidArtifact) {
     fixture[policy.package.artifactPath] = "not a tarball and never fetched";
     fixture[policy.package.provenancePath] = "{ not provenance";
@@ -1458,7 +1487,7 @@ describe("authoritative gate — immutable path and rename evidence", () => {
 });
 
 describe("authoritative gate — exact-pins activation", () => {
-  it("accepts only the exact two-file transition and never reads vendored package data", async () => {
+  it("accepts only the exact four-file transition and never reads vendored package data", async () => {
     const policy = exactPolicyFor();
     const baseTree = exactPinsTree(policy, "pre", { includeInvalidArtifact: true });
     const tree = exactPinsTree(policy, "post", { includeInvalidArtifact: true });
@@ -1514,7 +1543,7 @@ describe("authoritative gate — exact-pins activation", () => {
 
     const altered = exactPinsTree(policy, "post", {
       files: {
-        "tests/spa/fast-uri-security.test.mjs": `${EXACT_SECURITY_TEST}// altered\n`,
+        ".github/workflows/e2e.yml": `${EXACT_TARGET_E2E_WORKFLOW}# altered\n`,
       },
     });
     const alteredVerdict = await judge({
@@ -1634,9 +1663,9 @@ describe("authoritative gate — exact-pins activation", () => {
     const unchangedPost = exactPinsTree(policy, "post");
     const originalRead = unchangedPost.readBlob;
     unchangedPost.readBlob = async (sha, path) => {
-      if (path === "tests/spa/fast-uri-security.test.mjs") {
+      if (path === ".github/workflows/update-snapshots.yml") {
         unchangedPost.reads.push(path);
-        return Buffer.from(`${EXACT_SECURITY_TEST}// poisoned read\n`, "utf8");
+        return Buffer.from(`${EXACT_TARGET_UPDATE_SNAPSHOTS_WORKFLOW}# poisoned read\n`, "utf8");
       }
       return originalRead(sha, path);
     };
@@ -1651,7 +1680,7 @@ describe("authoritative gate — exact-pins activation", () => {
     expect(unchangedPost.reads).toEqual(expect.arrayContaining(EXACT_PIN_PATHS));
   });
 
-  it("rejects post-state guarded mutations outside the two-file transaction", async () => {
+  it("rejects post-state guarded mutations outside the four-file transaction", async () => {
     const policy = exactPolicyFor();
     const baseTree = exactPinsTree(policy, "post");
     const tree = exactPinsTree(policy, "post", {
@@ -1676,12 +1705,12 @@ describe("authoritative gate — exact-pins activation", () => {
   it("rejects target rename, alias, and mode substitutions", async () => {
     const policy = exactPolicyFor();
     const baseTree = exactPinsTree(policy, "pre");
-    const targetPath = "tests/spa/fast-uri-security.test.mjs";
+    const targetPath = ".github/workflows/update-snapshots.yml";
 
     const renamed = exactPinsTree(policy, "post");
     renamed.treeEntries = renamed.treeEntries.map(entry =>
       entry.path === targetPath
-        ? { ...entry, path: "tests/spa/fast-uri-security-renamed.test.mjs" }
+        ? { ...entry, path: ".github/workflows/update-snapshots-renamed.yml" }
         : entry,
     );
     const renameVerdict = await judge({
@@ -1691,23 +1720,23 @@ describe("authoritative gate — exact-pins activation", () => {
       changedFiles: [{
         status: "renamed",
         previous_filename: targetPath,
-        filename: "tests/spa/fast-uri-security-renamed.test.mjs",
+        filename: ".github/workflows/update-snapshots-renamed.yml",
       }],
     });
     expect(renameVerdict.failed).toBe(true);
-    expect(renameVerdict.messages.join("\n")).toMatch(/protected-path rename/);
+    expect(renameVerdict.messages.join("\n")).toMatch(/protected-path rename|complete exact-pins|exact policy-approved/);
 
     const aliased = exactPinsTree(policy, "post");
     aliased.treeEntries = aliased.treeEntries.map(entry =>
       entry.path === targetPath
-        ? { ...entry, path: "Tests/spa/fast-uri-security.test.mjs" }
+        ? { ...entry, path: ".github/Workflows/update-snapshots.yml" }
         : entry,
     );
     const aliasVerdict = await judge({
       policy,
       baseTree,
       tree: aliased,
-      changedFiles: [{ status: "added", filename: "Tests/spa/fast-uri-security.test.mjs" }],
+      changedFiles: [{ status: "added", filename: ".github/Workflows/update-snapshots.yml" }],
     });
     expect(aliasVerdict.toJSON()).toMatchObject({
       conclusion: "failure",
@@ -2159,45 +2188,66 @@ describe("trusted policy document", () => {
     expect(realPolicy.verifierPolicyLiterals.requiredAdvisories).toHaveLength(6);
   });
 
-  it("pins the exact two-file registry activation with no trusted-path overlap", () => {
+  it("pins the exact four-file Playwright activation with no trusted-path overlap", () => {
     expect(realPolicy.policyVersion).toBe(3);
     expect(realPolicy.activation.strategy).toBe("base-relative-exact-tree-delta");
     expect(realPolicy.activation.validationMode).toBe("exact-pins");
     expect(realPolicy.activation.requiredBasePolicyVersion).toBe(realPolicy.policyVersion);
     expect(realPolicy.activation.patchSha256).toBe(activationPatchDigest(realPolicy.activation));
     expect(realPolicy.activation.patchSha256).toBe(
-      "ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43",
+      "6dec5764f4b2a07e939cb64e946e8680ac1c342b1f2f9beec598b57d8ef5b051",
     );
     expect(realPolicy.activation.allowedFiles).toEqual(EXACT_PIN_PATHS);
     expect(
       realPolicy.activation.allowedFiles.filter(path => realPolicy.trustedPaths.includes(path)),
     ).toEqual([]);
     expect(realPolicy.activation.allowedFiles).not.toContain("SECURITY.md");
-    expect(realPolicy.activation.allowedFiles).not.toContain("package.json");
+    expect(realPolicy.activation.allowedFiles).not.toContain("tests/e2e/36-search-correctness.spec.mjs");
     expect(realPolicy.activation.allowedFiles).not.toContain(realPolicy.package.artifactPath);
     expect(realPolicy.activation.allowedFiles).not.toContain(
       ".github/workflows/security-scan.yml",
     );
     expect(realPolicy.activation.approvedCommit).toBeUndefined();
     expect(realPolicy.activation.approvedParent).toBeUndefined();
+    expect(realPolicy.activation.basePins["package.json"]).toEqual({
+      mode: "100644",
+      blob: "e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d",
+    });
     expect(realPolicy.activation.basePins["package-lock.json"]).toEqual({
       mode: "100644",
-      blob: "08aafb595607f78f0a0998b022a2cebe920bb257",
+      blob: "11b6591aa1b39b50d451005dae574fb465f66871",
     });
-    expect(realPolicy.activation.basePins["tests/spa/fast-uri-security.test.mjs"]).toEqual({
-      absent: true,
+    expect(realPolicy.activation.basePins[".github/workflows/e2e.yml"]).toEqual({
+      mode: "100644",
+      blob: "1636e666417025c45b949c61319d1cae7a6a14b8",
+    });
+    expect(realPolicy.activation.basePins[".github/workflows/update-snapshots.yml"]).toEqual({
+      mode: "100644",
+      blob: "7e309fdd56a24ca42c26e8810bb04b3ad1d64022",
+    });
+    expect(realPolicy.activation.pins["package.json"]).toEqual({
+      mode: "100644",
+      blob: "a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2",
+      sha256: "bf97e1c0d8b078c28d3d47ccb3cfdb6a3ff98c744b46f61e7d1f9e4d60a91739",
+      size: 863,
     });
     expect(realPolicy.activation.pins["package-lock.json"]).toEqual({
       mode: "100644",
-      blob: "11b6591aa1b39b50d451005dae574fb465f66871",
-      sha256: "4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1",
-      size: 76919,
+      blob: "a8e028cab203c4a160a654e672730f269b588b90",
+      sha256: "efa4589bb962f3b7947de12a82dd6763b7ec1ba451ac580a5eccfbb8464f7f75",
+      size: 76375,
     });
-    expect(realPolicy.activation.pins["tests/spa/fast-uri-security.test.mjs"]).toEqual({
+    expect(realPolicy.activation.pins[".github/workflows/e2e.yml"]).toEqual({
       mode: "100644",
-      blob: "a43678648562f3b13a40ca672ce81953b89c1b2a",
-      sha256: "0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd",
-      size: 2573,
+      blob: "10877192c6614a3b24bc8516b9ba7822ba5f65c1",
+      sha256: "1812e1dccc4f9246dec3234988c0675415a8053ff46aa91d152c09e80108924a",
+      size: 7311,
+    });
+    expect(realPolicy.activation.pins[".github/workflows/update-snapshots.yml"]).toEqual({
+      mode: "100644",
+      blob: "282b78f3ced956c178f10c66d7bbebffe98bb8e0",
+      sha256: "5fad958d477290547257ba1bbc7e48669168088e6564a10e790c597114a990a4",
+      size: 2357,
     });
   });
 
@@ -2234,8 +2284,8 @@ describe("trusted policy document", () => {
 
   it("rejects a noncanonical activation path even with recomputed pins", () => {
     const policy = structuredClone(realPolicy);
-    const original = "tests/spa/fast-uri-security.test.mjs";
-    const noncanonical = "tests/spa/fast-uri-securite\u0301.test.mjs";
+    const original = ".github/workflows/update-snapshots.yml";
+    const noncanonical = ".github/workflows/update-sna\u0301pshots.yml";
     policy.activation.allowedFiles = policy.activation.allowedFiles.map(path =>
       path === original ? noncanonical : path,
     );
@@ -2329,6 +2379,12 @@ describe("trusted policy document", () => {
     expect(
       classifyChangedPaths(realPolicy, ["tests/spa/fast-uri-security.test.mjs"]).guarded,
     ).toContain("tests/spa/fast-uri-security.test.mjs");
+    expect(
+      classifyChangedPaths(realPolicy, [".github/workflows/e2e.yml"]).activation,
+    ).toContain(".github/workflows/e2e.yml");
+    expect(
+      classifyChangedPaths(realPolicy, [".github/workflows/update-snapshots.yml"]).activation,
+    ).toContain(".github/workflows/update-snapshots.yml");
     expect(classifyChangedPaths(realPolicy, ["npm-shrinkwrap.json"]).guarded).toHaveLength(1);
     expect(classifyChangedPaths(realPolicy, [".npmrc"]).guarded).toHaveLength(1);
     expect(classifyChangedPaths(realPolicy, ["vendor/npm/other/x.tgz"]).guarded).toHaveLength(1);

@@ -9,8 +9,8 @@
     "Activation is a base-relative exact tree delta: every approved base blob/absence, target mode,",
     "Git blob ID, raw-byte SHA-256, size, and the canonical patch digest are pinned.",
     "digestPins retains post-activation byte pins for the legacy vendored-artifact capability;",
-    "its package-lock entry intentionally matches policy v3's registry target, while the active",
-    "exact-pins state is defined only by activation.basePins, activation.pins, and patchSha256.",
+    "its package-lock entry intentionally matches the latest policy v3 registry target, while",
+    "the active exact-pins state is defined only by activation.basePins, activation.pins, and patchSha256.",
     "security-scan.activation.yml remains trusted as the canonical legacy vendored-mode workflow",
     "target; exact-pins mode does not consume or activate it."
   ],
@@ -111,9 +111,9 @@
       "size": 1083
     },
     "package-lock.json": {
-      "blob": "11b6591aa1b39b50d451005dae574fb465f66871",
-      "sha256": "4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1",
-      "size": 76919
+      "blob": "a8e028cab203c4a160a654e672730f269b588b90",
+      "sha256": "efa4589bb962f3b7947de12a82dd6763b7ec1ba451ac580a5eccfbb8464f7f75",
+      "size": 76375
     },
     "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
       "blob": "792e315ea09e9b09e157544ab038c349f6cfc1d6",
@@ -261,32 +261,55 @@
     "validationMode": "exact-pins",
     "requiredBasePolicyVersion": 3,
     "requiresCompleteSet": true,
-    "patchSha256": "ce866287d558a90428d4656e8e0f7456263bc72e52426488c09d29dc9dcbff43",
+    "patchSha256": "6dec5764f4b2a07e939cb64e946e8680ac1c342b1f2f9beec598b57d8ef5b051",
     "allowedFiles": [
+      "package.json",
       "package-lock.json",
-      "tests/spa/fast-uri-security.test.mjs"
+      ".github/workflows/e2e.yml",
+      ".github/workflows/update-snapshots.yml"
     ],
     "basePins": {
+      "package.json": {
+        "mode": "100644",
+        "blob": "e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d"
+      },
       "package-lock.json": {
         "mode": "100644",
-        "blob": "08aafb595607f78f0a0998b022a2cebe920bb257"
+        "blob": "11b6591aa1b39b50d451005dae574fb465f66871"
       },
-      "tests/spa/fast-uri-security.test.mjs": {
-        "absent": true
+      ".github/workflows/e2e.yml": {
+        "mode": "100644",
+        "blob": "1636e666417025c45b949c61319d1cae7a6a14b8"
+      },
+      ".github/workflows/update-snapshots.yml": {
+        "mode": "100644",
+        "blob": "7e309fdd56a24ca42c26e8810bb04b3ad1d64022"
       }
     },
     "pins": {
+      "package.json": {
+        "mode": "100644",
+        "blob": "a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2",
+        "sha256": "bf97e1c0d8b078c28d3d47ccb3cfdb6a3ff98c744b46f61e7d1f9e4d60a91739",
+        "size": 863
+      },
       "package-lock.json": {
         "mode": "100644",
-        "blob": "11b6591aa1b39b50d451005dae574fb465f66871",
-        "sha256": "4eeef37fa3ff1b558fbb40829786791591807f400aa5907b6388f9ebe5c3e3d1",
-        "size": 76919
+        "blob": "a8e028cab203c4a160a654e672730f269b588b90",
+        "sha256": "efa4589bb962f3b7947de12a82dd6763b7ec1ba451ac580a5eccfbb8464f7f75",
+        "size": 76375
       },
-      "tests/spa/fast-uri-security.test.mjs": {
+      ".github/workflows/e2e.yml": {
         "mode": "100644",
-        "blob": "a43678648562f3b13a40ca672ce81953b89c1b2a",
-        "sha256": "0b23c08eb971f8f787a284a966a014e4fbd70acad01bba121cb614a5a96245bd",
-        "size": 2573
+        "blob": "10877192c6614a3b24bc8516b9ba7822ba5f65c1",
+        "sha256": "1812e1dccc4f9246dec3234988c0675415a8053ff46aa91d152c09e80108924a",
+        "size": 7311
+      },
+      ".github/workflows/update-snapshots.yml": {
+        "mode": "100644",
+        "blob": "282b78f3ced956c178f10c66d7bbebffe98bb8e0",
+        "sha256": "5fad958d477290547257ba1bbc7e48669168088e6564a10e790c597114a990a4",
+        "size": 2357
       }
     }
   },
