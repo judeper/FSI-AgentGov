@@ -7105,14 +7105,14 @@ def test_finra_cursor_advances_across_unrepresented_scheduled_batch():
 def test_finra_historical_variant_derives_node_from_prior_semantic_authority():
     prior_url = (
         "https://www.finra.org/rules-guidance/notices/"
-        "election-notice-090716"
+        "election-notice-101712"
     )
     current_url = f"{prior_url}-0"
-    node_url = "https://www.finra.org/node/65983"
+    node_url = "https://www.finra.org/node/65984"
     prior_row = _synthetic_finra_row(
         prior_url,
         f"url:{urlparse(prior_url).path}",
-        title="Election Notice 9/7/16",
+        title="Election Notice 10/17/12",
     )
     current_row = deepcopy(prior_row)
     current_row["detail_url"] = current_url
@@ -7183,6 +7183,18 @@ def test_finra_bootstrap_authority_is_exact_and_persisted_supersedes():
         {},
         {"https://www.finra.org/rules-guidance/notices/26-15"},
     ) == {}
+    election_url = (
+        "https://www.finra.org/rules-guidance/notices/"
+        "election-notice-090716-0"
+    )
+    assert regulatory_monitor._finra_derive_node_authority(
+        {},
+        {election_url},
+    )[election_url] == {
+        "node_url": "https://www.finra.org/node/65982",
+        "source": "bootstrap",
+        "authority_url": election_url,
+    }
 
 
 def test_finra_bootstrap_conflict_with_persisted_mapping_fails():
@@ -7197,6 +7209,55 @@ def test_finra_bootstrap_conflict_with_persisted_mapping_fails():
             },
             {url},
         )
+
+
+def test_finra_election_bootstrap_conflict_with_persisted_mapping_fails():
+    url = (
+        "https://www.finra.org/rules-guidance/notices/"
+        "election-notice-090716-0"
+    )
+
+    with pytest.raises(ValueError, match="bootstrap node authority conflicts"):
+        regulatory_monitor._finra_derive_node_authority(
+            {
+                "fallback_urls": {
+                    url: "https://www.finra.org/node/999999"
+                }
+            },
+            {url},
+        )
+
+
+def test_finra_bootstrap_completes_node_authority_for_planned_new_rows():
+    urls = [
+        "https://www.finra.org/rules-guidance/notices/26-16",
+        (
+            "https://www.finra.org/rules-guidance/notices/"
+            "election-notice-090716-0"
+        ),
+    ]
+    rows = [
+        _synthetic_finra_row(
+            url,
+            f"url:{urlparse(url).path}",
+            title=f"New notice {index}",
+        )
+        for index, url in enumerate(urls)
+    ]
+
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        rows,
+        {},
+        [],
+        limit=None,
+    )
+
+    assert {row["detail_url"] for row in plan["fetch_rows"]} == set(urls)
+    assert set(plan["node_authority_by_url"]) == set(urls)
+    assert all(
+        record["source"] == "bootstrap"
+        for record in plan["node_authority_by_url"].values()
+    )
 
 
 def test_finra_removal_plan_prunes_only_absent_canonical_identity():
@@ -7814,6 +7875,54 @@ def test_finra_phase_artifact_plan_tampering_fails_with_recomputed_checksum(
         regulatory_monitor._finra_phase_artifact_hash(artifact)
     )
     path = tmp_path / "plan-tampered.json"
+    path.write_text(json.dumps(artifact), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="detail plan is invalid"):
+        regulatory_monitor._load_finra_phase_artifact(
+            path,
+            base_sha="a" * 40,
+            state_sha="b" * 64,
+            config=config,
+            prior_source_state=prior,
+        )
+
+
+def test_finra_election_bootstrap_artifact_authority_tampering_fails(
+    tmp_path,
+):
+    url = (
+        "https://www.finra.org/rules-guidance/notices/"
+        "election-notice-090716-0"
+    )
+    row = _synthetic_finra_row(
+        url,
+        f"url:{urlparse(url).path}",
+        title="Upcoming Election to Fill FINRA District Committee Vacancies",
+    )
+    listing = _synthetic_finra_listing([row])
+    prior = {"entries": {}, "coverage": {}, "fallback_urls": {}}
+    plan = regulatory_monitor._plan_finra_detail_refresh(
+        [row],
+        prior,
+        [],
+        limit=None,
+    )
+    config = {"regulatory": {}, "keyword_control_map": []}
+    artifact = regulatory_monitor._build_finra_phase_artifact(
+        listing=listing,
+        detail_plan=plan,
+        prior_source_state=prior,
+        base_sha="a" * 40,
+        state_sha="b" * 64,
+        config=config,
+    )
+    artifact["detail_plan"]["node_authority_by_url"][url][
+        "source"
+    ] = "persisted"
+    artifact["payload_checksum_sha256"] = (
+        regulatory_monitor._finra_phase_artifact_hash(artifact)
+    )
+    path = tmp_path / "election-authority-tampered.json"
     path.write_text(json.dumps(artifact), encoding="utf-8")
 
     with pytest.raises(ValueError, match="detail plan is invalid"):
@@ -8998,6 +9107,122 @@ def test_finra_bootstrap_node_success_persists_numeric_fallback(monkeypatch):
     assert state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
         "fallback_urls"
     ] == {canonical: node}
+
+
+def test_finra_election_bootstrap_node_success_persists_fallback(monkeypatch):
+    canonical = (
+        "https://www.finra.org/rules-guidance/notices/"
+        "election-notice-090716-0"
+    )
+    node = "https://www.finra.org/node/65982"
+    row = _synthetic_finra_row(
+        canonical,
+        f"url:{urlparse(canonical).path}",
+        title="Upcoming Election to Fill FINRA District Committee Vacancies",
+    )
+    listing = _synthetic_finra_listing([row])
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_listing_records",
+        lambda *_args: listing,
+    )
+
+    def fake_fetch(url, _session, **_kwargs):
+        if url != node:
+            return {
+                "status_code": 429,
+                "content": "",
+                "final_url": url,
+                "url": url,
+                "error": "rate limited",
+                "retry_after": 0,
+            }
+        return {
+            "status_code": 200,
+            "content": _finra_detail_page_with_identity(
+                "Upcoming Election to Fill FINRA District Committee Vacancies",
+                row["listing_date"] or "2016-09-07",
+                "Election notice content.",
+                canonical_url=canonical,
+                node_id="65982",
+            ),
+            "final_url": url,
+            "url": url,
+            "error": None,
+        }
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        fake_fetch,
+    )
+    result = regulatory_monitor.fetch_finra_notices(
+        _FakeSession([]),
+        {"regulatory": {}, "keyword_control_map": []},
+    )
+
+    assert result.complete is True
+    assert result[0].url == canonical
+    assert result.fallback_urls[canonical] == node
+    assert result.coverage["detail_node_authority_by_url"][canonical][
+        "source"
+    ] == "bootstrap"
+
+    state = {
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: {"entries": {}}
+        }
+    }
+    regulatory_monitor.update_source_state(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        list(result),
+        state,
+        fallback_urls=result.fallback_urls,
+    )
+    assert state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
+        "fallback_urls"
+    ] == {canonical: node}
+
+
+def test_finra_election_bootstrap_rejects_wrong_node_response(monkeypatch):
+    canonical = (
+        "https://www.finra.org/rules-guidance/notices/"
+        "election-notice-090716-0"
+    )
+    node = "https://www.finra.org/node/65982"
+
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_fetch_finra_page",
+        lambda url, _session, **_kwargs: {
+            "status_code": 429 if url != node else 200,
+            "content": (
+                ""
+                if url != node
+                else _finra_detail_page_with_identity(
+                    "Upcoming Election to Fill FINRA District Committee Vacancies",
+                    "2016-09-07",
+                    "Wrong node content.",
+                    canonical_url=canonical,
+                    node_id="999999",
+                )
+            ),
+            "final_url": url,
+            "url": url,
+            "error": "rate limited" if url != node else None,
+            "retry_after": 0,
+        },
+    )
+
+    result, _ = regulatory_monitor._fetch_finra_detail_with_transports(
+        canonical,
+        _FakeSession([]),
+        node,
+        "bootstrap",
+    )
+
+    assert result["status_code"] == 0
+    assert "bootstrap node transport identity proof failed" in result["error"]
 
 
 def test_finra_legacy_transport_off_origin_redirect_fails(monkeypatch):
