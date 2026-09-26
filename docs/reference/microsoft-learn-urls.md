@@ -52,7 +52,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Agent Access Points** | https://learn.microsoft.com/en-us/power-platform/admin/security/identity-access-management#agent-access-points-preview | Jan 2026 |
 | **Copilot Studio Message Capacity** | https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity | Jan 2026 |
 | **Business Continuity** | https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery | Jan 2026 |
-| Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Jan 2026 |
+| Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Sep 2026 |
 | Regions Overview | https://learn.microsoft.com/en-us/power-platform/admin/regions-overview | Jan 2026 |
 | Capacity Storage | https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage | Jan 2026 |
 | **PowerShell** | https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell | Jan 2026 |
