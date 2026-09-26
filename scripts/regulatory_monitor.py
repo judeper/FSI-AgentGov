@@ -156,6 +156,9 @@ FINRA_RESERVED_NOTICE_SLUGS = frozenset({
 FINRA_NODE_TRANSPORT_BOOTSTRAP = {
     "https://www.finra.org/rules-guidance/notices/26-16":
         "https://www.finra.org/node/385061",
+    # Reviewed Sep. 25, 2026 from FINRA's official election notice shortlink.
+    "https://www.finra.org/rules-guidance/notices/election-notice-090716-0":
+        "https://www.finra.org/node/65982",
 }
 _FINRA_LEGACY_FIXTURE_CAPABILITY = object()
 # State-only monitor PRs cannot rewrite this reviewed recovery root. Any future
