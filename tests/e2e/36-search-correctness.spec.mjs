@@ -218,7 +218,8 @@ const TYPED_QUERIES = [
 
 async function getSearchInput(page, timeoutMs = 15_000) {
   const visibleInput = page
-    .locator('input[data-md-component="search-query"]:visible')
+    .locator('input[data-md-component="search-query"]')
+    .visible()
     .first();
   try {
     await visibleInput.waitFor({ state: "visible", timeout: 2_000 });
