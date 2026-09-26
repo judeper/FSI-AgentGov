@@ -112,7 +112,7 @@ Integration between an agent and external systems (SharePoint, Teams, Excel, etc
 Generic label used across multiple Microsoft products (e.g., Microsoft 365 Copilot, Copilot Studio, Security Copilot). In this framework, avoid using “Copilot” alone; prefer the full product name.
 
 **Copilot Studio**
-Microsoft platform for building, testing, and publishing agents. See [What is Copilot Studio?](https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio)
+Microsoft platform for building, testing, and publishing agents. Microsoft Learn notes that the app creation experience in Copilot Studio is in preview; treat app-creation scope separately from established agent and workflow authoring until your tenant rollout confirms availability. See [What is Copilot Studio?](https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio)
 
 **Copilot Hub**
 Unified dashboard in Power Platform Admin Center that consolidates governance, analytics, and business value metrics for Copilot usage across the organization. Access via PPAC → Copilot. Microsoft officially uses "Copilot area/hub" terminology. See [Copilot hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
