@@ -2406,7 +2406,6 @@ def _finra_date_occurrence_identity(occurrence: dict) -> tuple:
     """Return stable date evidence while retaining coordinates as audit metadata."""
     return (
         occurrence.get("target"),
-        occurrence.get("raw_row_digest"),
         occurrence.get("listing_date"),
     )
 
@@ -2416,7 +2415,9 @@ def _finra_date_occurrence_exact_identity(occurrence: dict) -> tuple:
     return (
         occurrence.get("page"),
         occurrence.get("row_index"),
-        *_finra_date_occurrence_identity(occurrence),
+        occurrence.get("target"),
+        occurrence.get("raw_row_digest"),
+        occurrence.get("listing_date"),
     )
 
 
