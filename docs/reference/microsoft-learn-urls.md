@@ -23,7 +23,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Usage Insights | https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-usage-insights | Jan 2026 |
 | **Environment Groups** | https://learn.microsoft.com/en-us/power-platform/admin/environment-groups | Jan 2026 |
 | Environment Group Rules | https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules | Jan 2026 |
-| **Environment Routing** | https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing | Jan 2026 |
+| **Environment Routing** | https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing | Sep 2026 |
 | Developer Environments | https://learn.microsoft.com/en-us/power-platform/developer/create-developer-environment | Jan 2026 |
 | **Advanced Connector Policies** | https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies | Jan 2026 |
 | DLP Policies (Power Platform) | https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention | Jan 2026 |
@@ -48,11 +48,11 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Monitor Alerts | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts | Jan 2026 |
 | Admin Activity Logging | https://learn.microsoft.com/en-us/power-platform/admin/activity-logging-auditing/activity-logs-power-platform-admin | Feb 2026 |
 | **Copilot Hub** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Jan 2026 |
-| **Maker Onboarding (Welcome Content)** | https://learn.microsoft.com/en-us/power-platform/admin/welcome-content | Jan 2026 |
+| **Maker Onboarding (Welcome Content)** | https://learn.microsoft.com/en-us/power-platform/admin/welcome-content | Sep 2026 |
 | **Agent Access Points** | https://learn.microsoft.com/en-us/power-platform/admin/security/identity-access-management#agent-access-points-preview | Jan 2026 |
-| **Copilot Studio Message Capacity** | https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity | Jan 2026 |
+| **Copilot Studio Copilot Credits Capacity** | https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity | Sep 2026 |
 | **Business Continuity** | https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery | Jan 2026 |
-| Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Jan 2026 |
+| Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Sep 2026 |
 | Regions Overview | https://learn.microsoft.com/en-us/power-platform/admin/regions-overview | Jan 2026 |
 | Capacity Storage | https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage | Jan 2026 |
 | **PowerShell** | https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell | Jan 2026 |
@@ -336,7 +336,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Approval Workflows** | https://learn.microsoft.com/en-us/power-automate/get-started-approvals | Jan 2026 |
-| Scheduled Flows | https://learn.microsoft.com/en-us/power-automate/run-scheduled-tasks | Jan 2026 |
+| Scheduled Flows | https://learn.microsoft.com/en-us/power-automate/run-scheduled-tasks | Sep 2026 |
 
 ---
 

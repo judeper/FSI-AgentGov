@@ -78,7 +78,7 @@ Financial services organizations face continuous configuration drift risk across
 | # | Setting | Portal Path | Expected Value | Severity | Automation |
 |---|---------|-------------|----------------|----------|------------|
 | 14 | Environment creation restriction | PPAC > Tenant settings > Developer environment assignment / Production environment assignment / Trial environment assignment ([Tenant settings reference](https://learn.microsoft.com/en-us/power-platform/admin/tenant-settings)) | "Only specific admins" | High | Automated |
-| 15 | Environment routing | PPAC > Tenant settings > Environment routing ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing)) | Configured for correct region | Medium | Automated |
+| 15 | Environment routing | PPAC > Tenant settings > Environment routing ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing)) | Rules target approved Managed environment group(s); rule order and catch-all/default behavior documented | Medium | Automated |
 | 16 | Tenant isolation | PPAC > Security > Tenant isolation ([Tenant isolation in Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/cross-tenant-restrictions)) | "Restrict Cross-Tenant Connections" enabled | High | Automated |
 | 17 | Environment security groups | PPAC > Environment details > Security group | Assigned for all Zone 2/3 environments | High | Automated |
 
