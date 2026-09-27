@@ -5273,6 +5273,22 @@ def test_finra_partition_progress_logs_include_budget_and_last_partition(
     )
 
 
+def test_incomplete_result_retains_error_without_logging_details(caplog):
+    sensitive_error = (
+        "FINRA notices scraping error: "
+        "https://user:secret@example.test/private"
+    )
+
+    with caplog.at_level("ERROR", logger="regulatory_monitor"):
+        result = regulatory_monitor._incomplete_result(
+            error=sensitive_error
+        )
+
+    assert result.error == sensitive_error
+    assert sensitive_error not in caplog.text
+    assert "error details suppressed" in caplog.text
+
+
 def test_finra_deterministic_coverage_rejects_empty_partition_evidence():
     state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
     state = json.loads(state_path.read_text(encoding="utf-8"))
