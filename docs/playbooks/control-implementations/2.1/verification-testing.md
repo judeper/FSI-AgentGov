@@ -693,10 +693,23 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
     ```
 
 3. Verify the CMK exclusion narrative (`cmk-exclusion-narrative.md`) lists `maker_welcome_content` and is signed by the Compliance Officer within the last 12 months. (Cross-check with TC-12.)
+4. Manual attestation, if the owner adopts native maker acknowledgement for this control: capture a PPAC screenshot showing **Include consent button and log maker activity**, the **Terms and conditions** URL, and a Purview audit-search export for maker acknowledgement activity. Record the operator-filled evidence paths in the run notes, for example:
+
+    ```json
+    {
+      "EnvironmentId": "<environment-guid>",
+      "NativeConsentEnabled": true,
+      "TermsAndConditionsUrl": "https://<approved-url>",
+      "PpacScreenshotPath": "tc07-consent-setting-<runId>.png",
+      "PurviewAuditExportPath": "tc07-consent-audit-<runId>.csv",
+      "EvidenceNotes": "Manual attestation; no documented PowerShell property was used for this setting."
+    }
+    ```
 
 #### Expected
 
 - 100% of Z2/Z3 environments have welcome content; content links to both WSPs and training.
+- If the owner adopts native maker acknowledgement for this control, the manual attestation records the Terms and conditions URL, PPAC screenshot path, and Purview audit export path.
 - 0 sensitive-data hits in the DLP scan.
 - CMK exclusion narrative present, signed, and within 12 months.
 
@@ -1527,4 +1540,4 @@ For automated Pester coverage of the `Fsi-` configuration helpers, see the siste
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI last verified April 2026)*
