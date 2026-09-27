@@ -1003,14 +1003,17 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     # (url, content_hash) — it never relies on GitHub's tokenized `in:body` search, which can
     # subset an unrelated issue's body and advance the wrong baseline (silent data loss).
     source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
+    destination_url = ctx.contract.get("destination_url", "") if isinstance(ctx.contract, dict) else ""
     content_hash = ctx.contract.get("content_hash", "") if isinstance(ctx.contract, dict) else ""
     source_line = f"Source: {source_url}\n" if source_url else ""
+    destination_line = f"Destination: {_canonical_endpoint_url(destination_url)}\n" if destination_url else ""
     content_hash_line = f"Content-Hash: {content_hash}\n" if content_hash else ""
     body = (
         f"Autodoc escalation — human review required.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
         f"Reason: {reason}\n"
         f"{source_line}"
+        f"{destination_line}"
         f"{content_hash_line}"
         f"\n{details}\n"
     )
@@ -1064,9 +1067,42 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
 def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
     """Return the URL of an open escalation issue already carrying this fingerprint."""
 
+    redirect_identity = _redirect_endpoint_identity_from_context(ctx)
+    if redirect_identity is not None:
+        for issue in _list_open_autodoc_issues(config):
+            if _redirect_endpoint_identity_from_issue(issue) == redirect_identity and issue.url:
+                return issue.url
+        return None
+
     for issue in _list_open_autodoc_issues(config):
         if issue.fingerprint == ctx.fingerprint and issue.url:
             return issue.url
+    return None
+
+
+def _canonical_endpoint_url(value: Any) -> str:
+    if not isinstance(value, str):
+        return ""
+    return autodoc_classifier._canonicalize_url(value).strip()  # noqa: SLF001 - shared URL identity rule.
+
+
+def _redirect_endpoint_identity_from_context(ctx: ChangeContext) -> tuple[str, str] | None:
+    if not _is_redirect(ctx):
+        return None
+    source_url = _canonical_endpoint_url(ctx.contract.get("source_url"))
+    destination_url = _canonical_endpoint_url(ctx.contract.get("destination_url"))
+    if source_url and destination_url:
+        return (source_url, destination_url)
+    return None
+
+
+def _redirect_endpoint_identity_from_issue(
+    issue: autodoc_issue_identity.IssueRecord,
+) -> tuple[str, str] | None:
+    source_url = _canonical_endpoint_url(issue.source_url)
+    destination_url = _canonical_endpoint_url(issue.destination_url)
+    if source_url and destination_url:
+        return (source_url, destination_url)
     return None
 
 

@@ -81,9 +81,10 @@ def compute_fingerprint(
     canonical_destination = classifier._canonicalize_url(  # noqa: SLF001 - shared routing identity rule.
         destination_url
     )
-    parts = [report_name, canonical_url, classification, *sorted(allowed_files)]
     if canonical_destination:
-        parts.append(f"destination:{canonical_destination}")
+        payload = "\n".join(["redirect", canonical_url, canonical_destination])
+        return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    parts = [report_name, canonical_url, classification, *sorted(allowed_files)]
     payload = "\n".join(parts)
     return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 

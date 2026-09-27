@@ -843,6 +843,176 @@ def test_existing_issue_url_reuses_same_fingerprint_from_open_snapshot(
     assert runner._existing_issue_url(_config(tmp_path), _ctx()) == "https://github.com/x/y/issues/33"
 
 
+def _redirect_escalation_ctx(
+    *,
+    fingerprint: str = "sha256:redirect-current",
+    source: str = "https://learn.microsoft.com/en-us/old",
+    destination: str = "https://learn.microsoft.com/en-us/new",
+) -> runner.ChangeContext:
+    return runner.ChangeContext(
+        fingerprint=fingerprint,
+        route="autodraft",
+        contract={
+            "fingerprint": fingerprint,
+            "classification": "REDIRECT",
+            "source_url": source,
+            "destination_url": destination,
+            "allowed_files": ["docs/reference/microsoft-learn-urls.md"],
+        },
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions=f"## Learn change evidence\n```diff\nredirects to {destination}\n```\n",
+        title=f"Autodoc draft: URL redirect: {source}",
+        labels=["autodoc"],
+    )
+
+
+def test_existing_issue_url_reuses_open_redirect_with_same_endpoint_not_fingerprint(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    payload = [
+        {
+            "number": 44,
+            "url": "https://github.com/x/y/issues/44",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                "AUTODOC-FINGERPRINT: sha256:older-run-specific\n"
+                "Reason: redirect_ambiguous\n"
+                "Source: https://learn.microsoft.com/en-us/old?msockid=tracked\n"
+                "Destination: https://learn.microsoft.com/en-us/new?utm_source=monitor\n"
+            ),
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+
+    assert (
+        runner._existing_issue_url(_config(tmp_path), _redirect_escalation_ctx())
+        == "https://github.com/x/y/issues/44"
+    )
+
+
+def test_existing_issue_url_reuses_redirect_when_only_reason_changed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    payload = [
+        {
+            "number": 45,
+            "url": "https://github.com/x/y/issues/45",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                "AUTODOC-FINGERPRINT: sha256:redirect-url-not-found-run\n"
+                "Reason: redirect_url_not_found\n"
+                "Source: https://learn.microsoft.com/en-us/old\n"
+                "Destination: https://learn.microsoft.com/en-us/new\n"
+            ),
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+
+    assert (
+        runner._existing_issue_url(
+            _config(tmp_path),
+            _redirect_escalation_ctx(fingerprint="sha256:redirect-ambiguous-later-run"),
+        )
+        == "https://github.com/x/y/issues/45"
+    )
+
+
+def test_existing_issue_url_does_not_reuse_destinationless_redirect_even_with_same_fingerprint(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    fingerprint = "sha256:redirect-current"
+    payload = [
+        {
+            "number": 46,
+            "url": "https://github.com/x/y/issues/46",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                f"AUTODOC-FINGERPRINT: {fingerprint}\n"
+                "Reason: redirect_ambiguous\n"
+                "Source: https://learn.microsoft.com/en-us/old\n"
+            ),
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+
+    assert runner._existing_issue_url(_config(tmp_path), _redirect_escalation_ctx(fingerprint=fingerprint)) is None
+
+
+def test_existing_issue_url_keeps_non_redirect_fingerprint_reuse_unchanged(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    fingerprint = "sha256:deadbeefcafe0001"
+    payload = [
+        {
+            "number": 47,
+            "url": "https://github.com/x/y/issues/47",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                f"AUTODOC-FINGERPRINT: {fingerprint}\n"
+                "Source: https://learn.microsoft.com/en-us/content\n"
+                "Content-Hash: sha256:content\n"
+            ),
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+
+    assert runner._existing_issue_url(_config(tmp_path), _ctx()) == "https://github.com/x/y/issues/47"
+
+
+def test_escalate_destination_change_creates_parseable_redirect_issue_and_supersedes_source_sibling(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    old_payload = [
+        {
+            "number": 77,
+            "url": "https://github.com/x/y/issues/77",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                "AUTODOC-FINGERPRINT: sha256:older-destination\n"
+                "Reason: redirect_ambiguous\n"
+                "Source: https://learn.microsoft.com/en-us/old\n"
+                "Destination: https://learn.microsoft.com/en-us/old-destination\n"
+            ),
+        }
+    ]
+    calls: list[list[str]] = []
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        calls.append(list(args))
+        if args[:3] == ["gh", "issue", "list"]:
+            return _FakeCompleted(0, stdout=json.dumps(old_payload))
+        if args[:3] == ["gh", "issue", "create"]:
+            return _FakeCompleted(0, stdout="https://github.com/x/y/issues/101")
+        if args[:3] == ["gh", "issue", "close"]:
+            return _FakeCompleted(0, stdout="closed")
+        raise AssertionError(f"unexpected command: {args}")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+
+    result = runner._escalate(
+        _config(tmp_path),
+        _redirect_escalation_ctx(destination="https://learn.microsoft.com/en-us/new-destination"),
+        "redirect_ambiguous",
+        "canonical destination URL already exists; needs human review",
+    )
+
+    assert result == "https://github.com/x/y/issues/101"
+    create_call = next(command for command in calls if command[:3] == ["gh", "issue", "create"])
+    body = create_call[create_call.index("--body") + 1]
+    assert "Destination: https://learn.microsoft.com/en-us/new-destination" in body
+    assert any(command[:4] == ["gh", "issue", "close", "77"] for command in calls)
+
+
 def test_escalate_closes_exact_source_sibling_with_audit_comment(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

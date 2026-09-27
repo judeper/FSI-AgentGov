@@ -58,6 +58,38 @@ def test_redirect_fingerprint_distinguishes_a_to_b_from_a_to_c():
     assert to_b != to_c
 
 
+def test_redirect_fingerprint_uses_endpoint_identity_not_report_or_reason():
+    first_report = route.compute_fingerprint(
+        "learn-changes-2026-06-18.md",
+        "https://learn.microsoft.com/a?msockid=tracked",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "https://learn.microsoft.com/b?utm_source=monitor",
+    )
+    later_report = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/a",
+        "REDIRECT_AMBIGUOUS",
+        ["docs/unexpected-if-redirect-identity-used-this.md"],
+        "https://learn.microsoft.com/b",
+    )
+    content_first_report = route.compute_fingerprint(
+        "learn-changes-2026-06-18.md",
+        "https://learn.microsoft.com/a",
+        "MEDIUM",
+        ["docs/a.md"],
+    )
+    content_later_report = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/a",
+        "MEDIUM",
+        ["docs/a.md"],
+    )
+
+    assert first_report == later_report
+    assert content_first_report != content_later_report
+
+
 def test_extract_allowed_files_prefixes_docs_and_reads_playbooks():
     block = """
 ### 1. Synthetic
