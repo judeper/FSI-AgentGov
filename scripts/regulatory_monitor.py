@@ -228,7 +228,9 @@ def _complete_result(items: list[RegulatoryItem], **kwargs) -> FetchResult:
 
 def _incomplete_result(items=(), *, error: str, **kwargs) -> FetchResult:
     """Build an incomplete result; callers must not advance source state from it."""
-    logger.error(error)
+    logger.error(
+        "Source fetch returned unverifiable data; error details suppressed"
+    )
     return FetchResult(items, complete=False, error=error, **kwargs)
 
 
@@ -11058,13 +11060,16 @@ def main():
         ))
 
     incomplete_runs = [
-        (source_key, result.error or "source returned unverifiable data")
+        source_key
         for source_key, _, _, result in source_runs
         if not result.complete
     ]
     if incomplete_runs:
-        for source_key, error in incomplete_runs:
-            logger.error(f"{source_key}: state watermark not advanced: {error}")
+        for source_key in incomplete_runs:
+            logger.error(
+                "%s: state watermark not advanced; error details suppressed",
+                source_key,
+            )
         sys.exit(2)
 
     # Only complete, unbounded source fetches may affect state or reports.
