@@ -123,7 +123,7 @@ Do not proceed past §1 until every gate below is signed off. Each gate maps to 
 | Microsoft 365 E5 Compliance (or E5 Information Protection & Governance) | Required for Purview DSPM for AI, DLP for M365 Copilot location, and Activity Explorer. | Same Licenses page; record SKU. | E1 (combined) |
 | SharePoint Advanced Management (SAM) | Included with Microsoft 365 Copilot license; provides RCD, RSS, and DAG (consumed by Control 4.6 from this walkthrough). | Microsoft 365 admin center → Billing → Licenses | E1 (combined) |
 | Microsoft Entra ID Governance (Entra ID P2 or Microsoft Entra Suite) | Required for Access Reviews on agent identities, connector connections, and knowledge-source SharePoint groups. | Entra admin center → Billing → Licenses | E1 (combined) |
-| Copilot Studio per-message capacity (or per-user license) | Required for Copilot Studio agent runtime in production. | PPAC → Billing → Capacity | E1 (combined) |
+| Copilot Studio Copilot Credits capacity (or applicable per-user license) | Required for Copilot Studio agent runtime in production. | Power Platform admin center → Licensing → Products → Copilot Studio → Summary → Capacity summary (Pay-as-you-go credits and Prepaid capacity cards) | E1 (combined) |
 
 !!! warning "Common license misconception"
     DSPM for AI and DLP-for-Copilot are **not** covered by the base Microsoft 365 Copilot license alone — they require an E5 Compliance / Information Protection & Governance add-on. If your tenant has Copilot but not E5 Compliance, several detective steps in §5, §6, and §7 will not be available.
@@ -1099,4 +1099,4 @@ That playbook indexes symptoms to the section in this walkthrough that owns the 
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; §1.1 Copilot Studio capacity path sourced from Microsoft Learn September 2026; portal UI not reverified in September 2026)*
