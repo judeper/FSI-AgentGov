@@ -23,7 +23,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Usage Insights | https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-usage-insights | Jan 2026 |
 | **Environment Groups** | https://learn.microsoft.com/en-us/power-platform/admin/environment-groups | Jan 2026 |
 | Environment Group Rules | https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules | Jan 2026 |
-| **Environment Routing** | https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing | Jan 2026 |
+| **Environment Routing** | https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing | Sep 2026 |
 | Developer Environments | https://learn.microsoft.com/en-us/power-platform/developer/create-developer-environment | Jan 2026 |
 | **Advanced Connector Policies** | https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies | Jan 2026 |
 | DLP Policies (Power Platform) | https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention | Jan 2026 |

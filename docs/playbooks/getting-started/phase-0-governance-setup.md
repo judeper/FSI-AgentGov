@@ -155,8 +155,8 @@ Configure environment groups in PPAC:
 
 1. Navigate to PPAC > **Manage > Tenant settings > Environment routing**. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
 2. Set **Environment routing** to **On**. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
-3. Configure routing rules by defining attribute conditions and the target environment. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
-4. Configure the fallback environment. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
+3. Configure routing rules by choosing **Everyone** or a specific Microsoft Entra security group, then selecting the target environment group. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
+4. Order rules top-down; Learn states the first matching rule applies, and makers are routed to the default environment if no rule matches or routing is off. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
 
 **Verification:**
 
