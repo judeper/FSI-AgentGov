@@ -147,11 +147,12 @@ Add these columns to MessageCenterPost:
 **Step 3.1:** Create Scheduled Flow
 
 1. Go to [Power Automate](https://make.powerautomate.com)
-2. Click **Create** → **Scheduled cloud flow**
+2. Use the current Learn path: **My flows** → **Cloud flows** tab → **Create from blank** → **Add a trigger** → search for and select **Recurrence**. If your tenant still exposes **Create** → **Scheduled cloud flow**, verify that shortcut in your tenant before using it.
 3. Configure:
-   - Flow name: `Lab - MC Ingestion`
-   - Run every: 15 minutes
-4. Click **Create**
+   - Interval: `15`
+   - Frequency: `Minute`
+   - Start time: enter the UTC start date/time in `YYYY-MM-DDTHH:MM:SSZ` format
+4. Select **Create**, then name the flow `Lab - MC Ingestion` in the designer.
 
 **Step 3.2:** Add HTTP Action - Get Token
 

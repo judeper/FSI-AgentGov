@@ -488,7 +488,7 @@ Add the following columns to track exception lifecycle:
 
 #### Step 16: Create Scheduled Flow for Expiration Alerts
 
-1. In Power Automate, click **+ Create** → **Scheduled cloud flow**
+1. In Power Automate, use **My flows** → **Cloud flows** tab → **Create from blank** → **Add a trigger** → search for and select **Recurrence**. If your tenant still exposes **+ Create** → **Scheduled cloud flow**, verify that shortcut in your tenant before using it.
 2. Configure:
    - **Flow name:** Exception Expiration Monitor
    - **Recurrence:** Daily at 8:00 AM
