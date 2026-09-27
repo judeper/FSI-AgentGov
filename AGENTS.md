@@ -199,6 +199,15 @@ Each worktree is a full working directory at `../FSI-AgentGov.{branch-name}/`.
 - **post-create**: Copies `.venv/`, `site/`, and other gitignored files from the base worktree via `git-wt step copy-ignored`
 - **pre-merge**: Runs `mkdocs build --strict` and `python scripts/verify_controls.py` before merging
 
+### Clean-State Handoff
+
+After a PR merges, remove its worktree, local branch, and remote branch, then
+prune worktree/ref metadata. Preserve `.mcp.json`, `.venv/`, `node_modules/`,
+`maintainers-local/`, and `assessment/output/` unless the user explicitly
+chooses a deeper cleanup. For a full repository cleanup, run
+`.github/prompts/repo-clean-state.prompt.md`; it contains the classify-before-delete
+procedure and completion invariant.
+
 
 ## Agent Workflows
 

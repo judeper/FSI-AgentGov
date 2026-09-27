@@ -6,6 +6,10 @@ tools: ["read", "search", "execute", "agent"]
 
 <objective>
 Run a 3-phase repository health check: automated scripts, structural/content analysis, and external reference validation. This orchestrator runs all three phases sequentially in a single session. For targeted checks, use the individual prompts instead: `/repo-health-check-scripts`, `/repo-health-check-analysis`, `/repo-health-check-references`.
+
+This prompt diagnoses repository health; it does not delete refs or ignored
+files. When the user requests cleanup or a minimal steady state, run
+`/repo-clean-state` after the findings are classified.
 </objective>
 
 <instructions>

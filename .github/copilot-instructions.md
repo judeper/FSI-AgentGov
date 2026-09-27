@@ -186,8 +186,8 @@ This repository supports GitHub Copilot and uses [Worktrunk](https://worktrunk.d
 
 **Parallel agent runs:** Use `git-wt switch --create branch-name` to create isolated worktrees for each agent session. On Windows, use `git-wt` (winget installs it alongside `wt` to avoid the Windows Terminal conflict). See `AGENTS.md` "Parallel Agent Runs with Worktrunk" for full details.
 
-### Workspace Prompts (5)
-Located in `.github/prompts/`: `repo-health-check`, `repo-health-check-analysis`, `repo-health-check-references`, `repo-health-check-scripts`, and `review-learn-changes`.
+### Workspace Prompts (6)
+Located in `.github/prompts/`: `repo-clean-state`, `repo-health-check`, `repo-health-check-analysis`, `repo-health-check-references`, `repo-health-check-scripts`, and `review-learn-changes`.
 
 ### Instruction Files (5)
 Located in `.github/instructions/`: `fsi-language-rules`, `fsi-control-template`, `build-validation`, `git-integration`, and `commercial-scope`. Auto-included by `applyTo` glob patterns.
@@ -326,6 +326,12 @@ git-wt remove
 ```
 
 Project hooks in `.config/wt.toml` automatically copy dependencies on create and validate docs before merge.
+
+### Clean-State Handoff
+
+Use `.github/prompts/repo-clean-state.prompt.md` for cleanup requests. Keep the
+detailed classify-before-delete procedure in that prompt; `AGENTS.md` defines
+the concise handoff invariant and approved ignored-path preserve list.
 
 ## Common Tasks
 
