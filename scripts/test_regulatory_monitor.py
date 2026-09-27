@@ -377,6 +377,201 @@ def _load_shipped_finra_source_state():
     return deepcopy(state["sources"][regulatory_monitor.SOURCE_KEY_FINRA])
 
 
+def _reviewed_duplicate_anchor_evidence(source_state=None):
+    """Return the immutable 55-record evidence from either supported schema."""
+    source_state = source_state or _load_shipped_finra_source_state()
+    coverage = source_state["coverage"]
+    if (
+        coverage.get("schema_version")
+        == regulatory_monitor.FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+    ):
+        evidence = deepcopy(
+            coverage["recovery_duplicate_anchor_evidence"]
+        )
+    else:
+        evidence = (
+            regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
+                coverage["date_resolution_ledger"]
+            )
+        )
+    assert len(evidence) == (
+        regulatory_monitor.FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT
+    )
+    return evidence
+
+
+def _build_legacy_finra_source_fixture(monkeypatch, *, duplicates=False):
+    """Generate compact, deterministic schema-v1 coverage through production."""
+    urls = [
+        "https://www.finra.org/rules-guidance/notices/test-legacy-a",
+        "https://www.finra.org/rules-guidance/notices/test-legacy-b",
+    ]
+    rows = []
+    for url_index, url in enumerate(urls):
+        repeat = 2 if duplicates else 1
+        for occurrence in range(repeat):
+            row = _synthetic_finra_row(
+                url,
+                f"url:{urlparse(url).path}",
+                title=f"Legacy fixture notice {url_index}",
+            )
+            if duplicates and url_index == 0 and occurrence == 0:
+                row["listing_date"] = "2026-07-08"
+            rows.append(row)
+    listing = _synthetic_finra_listing(rows)
+
+    def _detail_page(url, _session, **_kwargs):
+        node_id = "900001" if url == urls[0] else "900002"
+        return {
+            "status_code": 200,
+            "content": _finra_detail_page_with_identity(
+                f"Legacy fixture {node_id}",
+                "2026-07-09",
+                "Stable fixture content.",
+                canonical_url=url,
+                node_id=node_id,
+            ),
+            "final_url": url,
+            "url": url,
+            "was_redirected": False,
+            "error": None,
+        }
+
+    with monkeypatch.context() as fixture_patch:
+        fixture_patch.setattr(
+            regulatory_monitor,
+            "_fetch_finra_listing_records",
+            lambda *_args, **_kwargs: listing,
+        )
+        fixture_patch.setattr(
+            regulatory_monitor,
+            "fetch_page",
+            _detail_page,
+        )
+        result = regulatory_monitor.fetch_finra_notices(
+            _FakeSession([]),
+            {"regulatory": {}, "keyword_control_map": []},
+        )
+
+    assert result.complete is True, result.error
+    coverage = deepcopy(result.coverage)
+    entries = coverage.pop("_complete_entry_hashes")
+    last_run = "2026-09-01T00:00:00+00:00"
+    source_state = {
+        "last_run": last_run,
+        "entries": entries,
+        "fallback_urls": result.fallback_urls,
+        "coverage": coverage,
+    }
+    coverage.update({
+        "schema_version": (
+            regulatory_monitor.FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+        ),
+        "source": regulatory_monitor.SOURCE_KEY_FINRA,
+        "entry_count": len(entries),
+        "entries_digest": regulatory_monitor._entries_digest(entries),
+        "entry_identity_digest": regulatory_monitor._identity_digest(
+            sorted(entries)
+        ),
+        "watermark": {"last_run": last_run},
+        "page_identities": listing["pass_proof"]["page_identities"],
+    })
+    assert regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        source_state,
+    ) == []
+    return source_state
+
+
+def _build_reviewed_duplicate_anchor_fixture(monkeypatch):
+    """Build 55 ordered records with a test-held immutable trust root."""
+    version = "test-reviewed-duplicate-anchor-v1"
+    evidence = []
+    anchor_records = []
+    identity_bindings = {}
+    for index in range(
+        regulatory_monitor.FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORD_COUNT
+    ):
+        canonical_url = (
+            "https://www.finra.org/rules-guidance/notices/"
+            f"test-reviewed-anchor-{index:02d}"
+        )
+        node_url = f"https://www.finra.org/node/{910000 + index}"
+        publication_date = "2026-01-01"
+        soup = BeautifulSoup(
+            _finra_detail_page_with_identity(
+                f"Reviewed anchor {index}",
+                publication_date,
+                "Stable reviewed fixture content.",
+                canonical_url=canonical_url,
+                node_id=str(910000 + index),
+            ),
+            "html.parser",
+        )
+        proof = regulatory_monitor._capture_finra_duplicate_date_proof(
+            soup
+        )
+        detail_content = (
+            regulatory_monitor._extract_finra_substantive_content(soup)
+        )
+        record = {
+            "node_identity": f"node:{910000 + index}",
+            "publication_date": publication_date,
+            "detail_date_proof": proof,
+            "detail_date_proof_hash": compute_hash(proof),
+            "detail_content": detail_content,
+            "detail_hash": compute_hash(detail_content),
+        }
+        evidence.append(record)
+        anchor_records.append((
+            canonical_url,
+            node_url,
+            publication_date,
+            record["detail_date_proof_hash"],
+            record["detail_hash"],
+        ))
+        identity_bindings[canonical_url] = node_url
+
+    binding_digest = (
+        regulatory_monitor._finra_detail_identity_binding_digest(
+            identity_bindings
+        )
+    )
+    monkeypatch.setitem(
+        regulatory_monitor.FINRA_DETAIL_IDENTITY_ANCHORS,
+        version,
+        binding_digest,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_RECOVERY_DUPLICATE_ANCHOR_VERSION",
+        version,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_RECOVERY_DUPLICATE_ANCHOR_DETAIL_IDENTITY_BINDING_DIGEST",
+        binding_digest,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_RECOVERY_DUPLICATE_ANCHOR_RECORDS",
+        tuple(anchor_records),
+    )
+    anchor_digest = (
+        regulatory_monitor._finra_recovery_duplicate_anchor_digest()
+    )
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST",
+        anchor_digest,
+    )
+    assert (
+        regulatory_monitor._finra_recovery_duplicate_anchor_catalog_errors()
+        == []
+    )
+    return evidence, version, anchor_digest
+
+
 def test_finra_alias_redirect_with_recomputed_evidence_rejected_by_node_binding():
     """A self-consistent alias repoint still fails its independent node binding."""
     source_state = _load_shipped_finra_source_state()
@@ -588,7 +783,7 @@ def _first_uniquely_resolved_row(proof):
     raise AssertionError("no uniquely resolved listing row found")
 
 
-def test_finra_forged_pass_row_target_outside_fetched_is_rejected():
+def test_finra_forged_pass_row_target_outside_fetched_is_rejected(monkeypatch):
     """A retained row that recomputes cleanly but points elsewhere is rejected.
 
     Blocker 6: pass proofs are self-supplied. Repointing a single retained row
@@ -598,7 +793,7 @@ def test_finra_forged_pass_row_target_outside_fetched_is_rejected():
     entries. Only the entry binding -- not the self-recomputation proof --
     catches it, in BOTH passes.
     """
-    source_state = _load_shipped_finra_source_state()
+    source_state = _build_legacy_finra_source_fixture(monkeypatch)
     assert regulatory_monitor._validate_source_coverage(
         regulatory_monitor.SOURCE_KEY_FINRA, source_state
     ) == []
@@ -689,17 +884,27 @@ def test_finra_duplicate_ledger_rejects_empty_and_forged_records():
         "date-resolver",
     ),
 )
-def test_finra_duplicate_ledger_exactly_matches_both_retained_passes(tamper):
+def test_finra_duplicate_ledger_exactly_matches_both_retained_passes(
+    monkeypatch,
+    tamper,
+):
     """Every duplicate record must be the exact occurrence proven by both passes."""
-    source_state = _load_shipped_finra_source_state()
+    source_state = _build_legacy_finra_source_fixture(
+        monkeypatch,
+        duplicates=True,
+    )
     forged = deepcopy(source_state)
     ledger = forged["coverage"]["duplicate_ledger"]
 
     if tamper == "fabricated-payload":
+        ledger[0]["raw_payload"] = deepcopy(ledger[0]["raw_payload"])
         ledger[0]["raw_payload"]["text"] += " fabricated"
-        ledger[0]["raw_row_digest"] = _page_row_digest(
-            ledger[0]["raw_payload"]
-        )
+        ledger[0]["raw_row_digest"] = compute_hash(json.dumps(
+            ledger[0]["raw_payload"],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ))
     elif tamper == "target":
         ledger[0]["raw_payload"] = deepcopy(ledger[1]["raw_payload"])
         ledger[0]["raw_row_digest"] = _page_row_digest(
@@ -944,44 +1149,29 @@ def _coherently_rewrite_finra_duplicate_authority(
 def test_finra_full_coherent_duplicate_forgery_is_rejected_by_reviewed_anchor(
     monkeypatch,
 ):
-    """Every mutable proof may agree and still cannot rewrite reviewed facts."""
-    forged_state = _load_shipped_state()
-    _coherently_rewrite_finra_duplicate_authority(
-        forged_state,
-        node_identity="node:126166",
-        replacement_display_date="Thursday, October 31, 2002",
-        replacement_date="2002-10-31",
+    """Self-consistent historical evidence cannot rewrite reviewed facts."""
+    evidence, version, anchor_digest = (
+        _build_reviewed_duplicate_anchor_fixture(monkeypatch)
+    )
+    record = evidence[0]
+    record["detail_content"] += "\n\nCoherent forged recovery content."
+    record["detail_hash"] = compute_hash(record["detail_content"])
+    assert record["detail_hash"] == compute_hash(record["detail_content"])
+    assert record["detail_date_proof_hash"] == compute_hash(
+        record["detail_date_proof"]
+    )
+    assert regulatory_monitor._finra_duplicate_date_proof_facts(
+        record["detail_date_proof"]
     )
 
-    # Prove this is the reported exploit rather than an ordinary broken digest:
-    # with only the duplicate trust root disabled, every mutable invariant
-    # validates after the attacker recomputes the complete state.
-    mutable_only = deepcopy(forged_state)
-    mutable_coverage = mutable_only["sources"][
-        regulatory_monitor.SOURCE_KEY_FINRA
-    ]["coverage"]
-    test_version = "test-mutable-only-recovery-anchor"
-    monkeypatch.setitem(
-        regulatory_monitor.FINRA_DETAIL_IDENTITY_ANCHORS,
-        test_version,
-        (
-            regulatory_monitor
-            .FINRA_RECOVERY_DUPLICATE_ANCHOR_DETAIL_IDENTITY_BINDING_DIGEST
-        ),
-    )
-    mutable_coverage["detail_identity_anchor"] = test_version
-    mutable_coverage.pop("duplicate_recovery_anchor_digest")
-    assert regulatory_monitor._validate_regulatory_state(
-        mutable_only,
-        [regulatory_monitor.SOURCE_KEY_FINRA],
-    ) == []
-
-    errors = regulatory_monitor._validate_regulatory_state(
-        forged_state,
-        [regulatory_monitor.SOURCE_KEY_FINRA],
+    errors = regulatory_monitor._validate_finra_recovery_duplicate_anchor(
+        evidence,
+        detail_identity_anchor=version,
+        persisted_anchor_digest=anchor_digest,
+        require_order=True,
     )
     assert any(
-        "reviewed duplicate recovery anchor" in error for error in errors
+        "duplicate recovery anchor" in error for error in errors
     ), errors
 
 
@@ -990,17 +1180,14 @@ def test_finra_full_coherent_duplicate_forgery_is_rejected_by_reviewed_anchor(
     ("date", "proof", "content", "node", "url"),
 )
 def test_finra_reviewed_duplicate_anchor_rejects_single_fact_mutations(
+    monkeypatch,
     mutation,
 ):
     """Each minimum bound fact is independently outside mutable state trust."""
-    state = _load_shipped_state()
-    source_state = state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
-    coverage = source_state["coverage"]
-    record = next(
-        item
-        for item in coverage["date_resolution_ledger"]
-        if item["node_identity"] == "node:126166"
+    evidence, version, anchor_digest = (
+        _build_reviewed_duplicate_anchor_fixture(monkeypatch)
     )
+    record = evidence[0]
 
     if mutation == "date":
         record["publication_date"] = "2002-10-31"
@@ -1016,29 +1203,15 @@ def test_finra_reviewed_duplicate_anchor_rejects_single_fact_mutations(
         proof_facts = regulatory_monitor._finra_duplicate_date_proof_facts(
             record["detail_date_proof"]
         )
-        entry_identity = (
-            regulatory_monitor._finra_resolve_identity_via_ledger(
-                regulatory_monitor._extract_finra_document_id(
-                    proof_facts[0]
-                ),
-                regulatory_monitor._finra_alias_map(
-                    coverage["alias_ledger"]
-                ),
-            )
-        )
-        source_state["entries"][entry_identity] = replacement_hash
-        for duplicate in coverage["duplicate_ledger"]:
-            if duplicate["node_identity"] == record["node_identity"]:
-                duplicate["detail_hash"] = replacement_hash
-        coverage["entries_digest"] = regulatory_monitor._entries_digest(
-            source_state["entries"]
-        )
+        assert proof_facts
     elif mutation == "node":
         record["node_identity"] = "node:999999"
     elif mutation == "url":
-        old_url = (
-            "https://www.finra.org/rules-guidance/notices/FYI-10-2002"
-        )
+        old_url = next(iter(
+            regulatory_monitor._finra_duplicate_date_proof_facts(
+                record["detail_date_proof"]
+            )
+        ))
         new_url = (
             "https://www.finra.org/rules-guidance/notices/"
             "forged-recovery-url"
@@ -1052,30 +1225,34 @@ def test_finra_reviewed_duplicate_anchor_rejects_single_fact_mutations(
     else:  # pragma: no cover - parametrization is closed above
         raise AssertionError(f"unknown mutation: {mutation}")
 
-    errors = regulatory_monitor._validate_regulatory_state(
-        state,
-        [regulatory_monitor.SOURCE_KEY_FINRA],
+    errors = regulatory_monitor._validate_finra_recovery_duplicate_anchor(
+        evidence,
+        detail_identity_anchor=version,
+        persisted_anchor_digest=anchor_digest,
+        require_order=True,
     )
     assert any("duplicate recovery anchor" in error for error in errors), errors
 
 
 @pytest.mark.parametrize("mutation", ("missing", "extra"))
 def test_finra_reviewed_duplicate_anchor_requires_complete_state_set(
+    monkeypatch,
     mutation,
 ):
     """The retained recovery subset cannot omit or duplicate anchor members."""
-    state = _load_shipped_state()
-    ledger = state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
-        "coverage"
-    ]["date_resolution_ledger"]
+    ledger, version, anchor_digest = (
+        _build_reviewed_duplicate_anchor_fixture(monkeypatch)
+    )
     if mutation == "missing":
         ledger.pop()
     else:
         ledger.append(deepcopy(ledger[0]))
 
-    errors = regulatory_monitor._validate_regulatory_state(
-        state,
-        [regulatory_monitor.SOURCE_KEY_FINRA],
+    errors = regulatory_monitor._validate_finra_recovery_duplicate_anchor(
+        ledger,
+        detail_identity_anchor=version,
+        persisted_anchor_digest=anchor_digest,
+        require_order=True,
     )
     assert any(
         "reviewed duplicate recovery anchor" in error
@@ -1146,7 +1323,7 @@ def test_finra_reviewed_duplicate_anchor_matches_current_recovery_state():
         == regulatory_monitor.FINRA_RECOVERY_DUPLICATE_ANCHOR_DIGEST
     )
     assert regulatory_monitor._validate_finra_recovery_duplicate_anchor(
-        coverage["date_resolution_ledger"],
+        _reviewed_duplicate_anchor_evidence(source_state),
         detail_identity_anchor=coverage["detail_identity_anchor"],
         persisted_anchor_digest=coverage[
             "duplicate_recovery_anchor_digest"
@@ -1154,11 +1331,14 @@ def test_finra_reviewed_duplicate_anchor_matches_current_recovery_state():
     ) == []
 
 
-def test_finra_reviewed_anchor_does_not_freeze_future_duplicate_records():
+def test_finra_reviewed_anchor_does_not_freeze_future_duplicate_records(
+    monkeypatch,
+):
     """A valid later duplicate outside the reviewed recovery set is unanchored."""
-    source_state = _load_shipped_finra_source_state()
-    coverage = source_state["coverage"]
-    future = deepcopy(coverage["date_resolution_ledger"][0])
+    evidence, version, anchor_digest = (
+        _build_reviewed_duplicate_anchor_fixture(monkeypatch)
+    )
+    future = deepcopy(evidence[0])
     facts = regulatory_monitor._finra_duplicate_date_proof_facts(
         future["detail_date_proof"]
     )
@@ -1181,20 +1361,16 @@ def test_finra_reviewed_anchor_does_not_freeze_future_duplicate_records():
     )
 
     assert regulatory_monitor._validate_finra_recovery_duplicate_anchor(
-        [*coverage["date_resolution_ledger"], future],
-        detail_identity_anchor=coverage["detail_identity_anchor"],
-        persisted_anchor_digest=coverage[
-            "duplicate_recovery_anchor_digest"
-        ],
+        [*evidence, future],
+        detail_identity_anchor=version,
+        persisted_anchor_digest=anchor_digest,
     ) == []
 
 
 def test_finra_schema_v2_preserved_duplicate_anchor_survives_removed_current_record():
     source_state = _load_shipped_finra_source_state()
     coverage = source_state["coverage"]
-    historical = regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
-        coverage["date_resolution_ledger"]
-    )
+    historical = _reviewed_duplicate_anchor_evidence(source_state)
     current = coverage["date_resolution_ledger"][1:]
 
     assert len(historical) == (
@@ -1218,9 +1394,7 @@ def test_finra_schema_v2_preserved_duplicate_anchor_survives_removed_current_rec
 def test_finra_preserved_duplicate_anchor_rejects_mutation(mutation):
     source_state = _load_shipped_finra_source_state()
     coverage = source_state["coverage"]
-    evidence = regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
-        coverage["date_resolution_ledger"]
-    )
+    evidence = _reviewed_duplicate_anchor_evidence(source_state)
     if mutation == "missing":
         evidence.pop()
     elif mutation == "extra":
@@ -1244,16 +1418,37 @@ def test_finra_preserved_duplicate_anchor_rejects_mutation(mutation):
 
 def test_finra_future_current_duplicate_does_not_change_historical_anchor():
     source_state = _load_shipped_finra_source_state()
-    coverage = source_state["coverage"]
-    historical = regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
-        coverage["date_resolution_ledger"]
-    )
-    future = deepcopy(coverage["date_resolution_ledger"][0])
+    historical = _reviewed_duplicate_anchor_evidence(source_state)
+    future = deepcopy(historical[0])
     future["node_identity"] = "node:999999"
 
     assert regulatory_monitor._finra_recovery_duplicate_anchor_evidence(
-        [*coverage["date_resolution_ledger"], future]
+        [*historical, future]
     ) == historical
+
+
+def test_finra_reviewed_anchor_fixture_is_independent_of_state_schema(
+    monkeypatch,
+):
+    evidence, _version, _anchor_digest = (
+        _build_reviewed_duplicate_anchor_fixture(monkeypatch)
+    )
+    v1 = {
+        "coverage": {
+            "schema_version": 1,
+            "date_resolution_ledger": deepcopy(evidence),
+        }
+    }
+    v2 = {
+        "coverage": {
+            "schema_version": 2,
+            "date_resolution_ledger": [],
+            "recovery_duplicate_anchor_evidence": deepcopy(evidence),
+        }
+    }
+
+    assert _reviewed_duplicate_anchor_evidence(v1) == evidence
+    assert _reviewed_duplicate_anchor_evidence(v2) == evidence
 
 
 def test_finra_anchored_proofs_allow_new_supplemental_binding():
@@ -1363,12 +1558,21 @@ def test_finra_supplemental_proof_digest_tracks_add_update_remove():
     )
 
 
-def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected():
+def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected(
+    monkeypatch,
+):
     """Recomputed rows/flags cannot replace independent detail-date authority."""
-    forged_state = _load_shipped_state()
-    forged = forged_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
+    forged = _build_legacy_finra_source_fixture(
+        monkeypatch,
+        duplicates=True,
+    )
+    forged_state = {
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: forged,
+        }
+    }
     coverage = forged["coverage"]
-    node_identity = "node:126166"
+    node_identity = "node:900001"
 
     for proof in coverage["pass_proofs"]:
         affected_pages = set()
@@ -1377,7 +1581,7 @@ def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected():
         ))
         assert len(rows) == 2
         for page_index, _page, _row_index, row in rows:
-            _rewrite_finra_row_date(row, "Thursday, October 31, 2002")
+            _rewrite_finra_row_date(row, "Thursday, July 9, 2026")
             affected_pages.add(page_index)
         for page_index in affected_pages:
             proof["page_row_digests"][page_index] = _page_row_digest(
@@ -1398,6 +1602,7 @@ def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected():
     )
     duplicate["raw_payload"] = deepcopy(retained)
     duplicate["raw_row_digest"] = _page_row_digest(retained)
+    duplicate["raw_row_conflicts_with_first"] = False
     duplicate["listing_date_conflict"] = False
     duplicate["resolves_listing_date_conflict"] = False
     coverage["date_resolution_ledger"] = [
@@ -1425,9 +1630,9 @@ def test_finra_coherent_duplicate_date_rewrite_without_authority_is_rejected():
     assert any("every duplicate node" in error for error in errors), errors
 
 
-def test_finra_pass_proof_rejects_fabricated_listing_date_field():
+def test_finra_pass_proof_rejects_fabricated_listing_date_field(monkeypatch):
     """Persisted rows accept only text/links, exactly as production emits."""
-    source_state = _load_shipped_finra_source_state()
+    source_state = _build_legacy_finra_source_fixture(monkeypatch)
     forged = deepcopy(source_state)
     for proof in forged["coverage"]["pass_proofs"]:
         proof["page_row_payloads"][0][0]["listing_date"] = "2026-01-01"
@@ -1501,10 +1706,15 @@ def test_finra_every_duplicate_has_legitimate_authoritative_date_evidence():
         for record in coverage["date_resolution_ledger"]
     }
 
-    assert len(coverage["duplicate_ledger"]) == 55
-    assert len(duplicate_nodes) == 55
     assert authority_nodes == duplicate_nodes
-    assert len(coverage["date_resolution_ledger"]) == 55
+    if (
+        coverage["schema_version"]
+        == regulatory_monitor.FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+    ):
+        assert len(duplicate_nodes) == 55
+    else:
+        assert len(duplicate_nodes) == 54
+        assert len(_reviewed_duplicate_anchor_evidence(source_state)) == 55
     assert any(
         not record["conflicts"]
         for record in coverage["date_resolution_ledger"]
@@ -5106,17 +5316,20 @@ def test_finra_deterministic_coverage_rejects_empty_partition_evidence():
     )
 
 
-def test_finra_coverage_schema_versions_separate_legacy_and_deterministic():
-    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8"))
-    legacy = deepcopy(
-        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
-    )
+def test_finra_coverage_schema_versions_separate_legacy_and_deterministic(
+    monkeypatch,
+):
+    current = _load_shipped_finra_source_state()
+    legacy = _build_legacy_finra_source_fixture(monkeypatch)
 
     assert legacy["coverage"]["schema_version"] == 1
     assert regulatory_monitor._validate_source_coverage(
         regulatory_monitor.SOURCE_KEY_FINRA,
         legacy,
+    ) == []
+    assert regulatory_monitor._validate_source_coverage(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        current,
     ) == []
 
     forged = deepcopy(legacy)
@@ -6340,7 +6553,18 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
         finra_coverage = finra["coverage"]
         assert finra["last_run"] >= RECOVERY_WATERMARK_DATE
         assert len(entries) >= MIN_FINRA_ENTRIES
-        assert finra_coverage["pages_fetched"] >= MIN_FINRA_LISTING_PAGES
+        if (
+            finra_coverage["schema_version"]
+            == regulatory_monitor.FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+        ):
+            assert finra_coverage["pages_fetched"] >= MIN_FINRA_LISTING_PAGES
+        else:
+            assert finra_coverage["listing_mode"] == (
+                "deterministic-year-type-partitions"
+            )
+            assert finra_coverage["filter_manifest"]
+            assert finra_coverage["partition_manifest"]
+            assert finra_coverage["unfiltered_reconciliation"]
         assert finra_coverage["raw_row_count"] >= MIN_FINRA_RAW_LISTING_ROWS
 
         # Internal reconciliation replaces frozen totals.
@@ -6398,9 +6622,8 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
     _assert_complete_baseline(primary)
     _assert_complete_baseline(backup)
 
-    # Relationship / rollback semantics between the two snapshots. The backup is
-    # the state the primary superseded, so the primary may only move forward:
-    # watermarks never regress and the complete FINRA archive never shrinks.
+    # Relationship / rollback semantics between the two snapshots. Watermarks
+    # cannot regress; deterministic removals must remain explicitly proof-bound.
     primary_fr = primary["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]
     backup_fr = backup["sources"][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]
     assert primary_fr["last_checked"] >= backup_fr["last_checked"]
@@ -6408,7 +6631,6 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
     primary_finra = primary["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
     backup_finra = backup["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
     assert primary_finra["last_run"] >= backup_finra["last_run"]
-    assert len(primary_finra["entries"]) >= len(backup_finra["entries"])
 
     # Coverage preservation: no notice the backup covered may vanish across the
     # save. Every backup FINRA identity must remain reachable in the primary --
@@ -6421,59 +6643,41 @@ def test_recovery_state_restores_complete_regulatory_baseline_without_watermark_
     }
     primary_reachable = set(primary_finra["entries"]) | primary_alias_old_identities
     missing_from_primary = set(backup_finra["entries"]) - primary_reachable
-    assert not missing_from_primary, (
-        "primary lost FINRA coverage present in the backup: "
-        f"{sorted(missing_from_primary)[:5]}"
-    )
+    if missing_from_primary:
+        assert (
+            primary_finra["coverage"]["schema_version"]
+            == regulatory_monitor.FINRA_DETERMINISTIC_COVERAGE_SCHEMA_VERSION
+        )
+        assert missing_from_primary <= set(
+            primary_finra["coverage"]["removed_entry_identities"]
+        )
 
 
-def test_legacy_finra_proof_requires_explicit_recovery_migration():
+def test_legacy_finra_proof_requires_explicit_recovery_migration(monkeypatch):
     """Legacy FINRA coverage is admitted only by the approved recovery path."""
-    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8"))
-    legacy_state = deepcopy(state)
-    coverage = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["coverage"]
-    prior_alias_ledger = coverage.get("alias_ledger", [])
-    prior_migration_ledger = coverage.get("migration_ledger", [])
+    legacy_source = _build_legacy_finra_source_fixture(monkeypatch)
+    legacy_state = {
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FINRA: legacy_source,
+        }
+    }
+    coverage = legacy_source["coverage"]
     for key in (
         "alias_ledger",
         "alias_ledger_digest",
     ):
         coverage.pop(key, None)
-    coverage["migration_ledger"] = prior_migration_ledger or [
-        {
-            "identity": item["old_identity"],
-            "reason": item["evidence"]["reason"],
-        }
-        for item in prior_alias_ledger
-    ]
-    for item in prior_alias_ledger:
-        legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]["entries"][
-            item["old_identity"]
-        ] = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
-            "entries"
-        ][item["canonical_identity"]]
-    legacy_entries = legacy_state["sources"][regulatory_monitor.SOURCE_KEY_FINRA][
-        "entries"
-    ]
-    coverage["entry_count"] = len(legacy_entries)
-    coverage["entries_digest"] = regulatory_monitor._entries_digest(legacy_entries)
+    coverage["migration_ledger"] = []
 
     normal_errors = regulatory_monitor._validate_regulatory_state(
         legacy_state,
-        [
-            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
-            regulatory_monitor.SOURCE_KEY_FINRA,
-        ],
+        [regulatory_monitor.SOURCE_KEY_FINRA],
     )
     assert any("alias_ledger" in error for error in normal_errors)
 
     recovery_errors = regulatory_monitor._validate_regulatory_state(
         legacy_state,
-        [
-            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER,
-            regulatory_monitor.SOURCE_KEY_FINRA,
-        ],
+        [regulatory_monitor.SOURCE_KEY_FINRA],
         allow_legacy_finra_identity_proof=True,
     )
     assert recovery_errors == []
@@ -8146,22 +8350,14 @@ def test_finra_detail_phase_uses_artifact_without_listing_network(monkeypatch):
 
 
 def test_finra_validated_legacy_migration_carries_historical_archive():
-    state_path = Path(__file__).resolve().parents[1] / "data" / "monitor-state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8"))
-    prior = deepcopy(
-        state["sources"][regulatory_monitor.SOURCE_KEY_FINRA]
-    )
-    rows = [
-        _synthetic_finra_row(
-            url,
-            f"url:{urlparse(url).path}",
-            title=f"Historical notice {index}",
-        )
-        for index, url in enumerate(
-            sorted(prior["fallback_urls"]),
-            start=1,
-        )
-    ]
+    rows, prior = _bounded_detail_fixture(3608)
+    prior["coverage"].update({
+        "schema_version": (
+            regulatory_monitor.FINRA_LEGACY_COVERAGE_SCHEMA_VERSION
+        ),
+        "listing_mode": "complete-unfiltered",
+        "complete": True,
+    })
     new_url = (
         "https://www.finra.org/rules-guidance/notices/26-16"
     )
