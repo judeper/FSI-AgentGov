@@ -145,7 +145,7 @@ jobs:
           pip install requests beautifulsoup4 pyyaml
 
       - name: Download FINRA listing artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: finra-listing-${{ github.sha }}
           path: ${{ runner.temp }}/finra-phase
