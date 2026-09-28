@@ -33,6 +33,7 @@ REDIRECT_PATH = "docs/reference/microsoft-learn-urls.md"
 REDIRECT_OLD_URL = "https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-messages-capacity"
 REDIRECT_NEW_URL = "https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity"
 REDIRECT_FINGERPRINT = "sha256:211b5d9c4d433ce43853df5d2985082d66ff5f008243bf1124b91c29960d2e3a"
+OLD_REPORT_SCOPED_REDIRECT_FINGERPRINT = "sha256:c3af9af0d43c439f7f51ca530185d7eff9816ba23445ea038e07f18d67a791ed"
 REDIRECT_REPORT_PATH = "reports/monitoring/learn-changes-2026-08-20.md"
 REDIRECT_BEFORE_FIXTURE = PROJECT_ROOT / "tests" / "fixtures" / "autodoc" / "trusted-redirect-before.md"
 REDIRECT_PR_BODY = f"""Automated **deterministic** Learn-URL redirect update.
@@ -460,6 +461,13 @@ def test_trusted_1228_redirect_passes_without_treating_unchanged_date_as_claim(t
         repo_root=repo,
     )
     assert gate["conclusion"] == "pass"
+
+
+def test_old_report_scoped_redirect_pr_body_fails_closed_in_trusted_contract_derivation() -> None:
+    old_formula_body = REDIRECT_PR_BODY.replace(REDIRECT_FINGERPRINT, OLD_REPORT_SCOPED_REDIRECT_FINGERPRINT)
+
+    with pytest.raises(ValueError, match="did not resolve exactly one contract"):
+        autodoc_workflow.derive_trusted_contract(old_formula_body, repo_root=PROJECT_ROOT)
 
 
 @pytest.mark.parametrize(

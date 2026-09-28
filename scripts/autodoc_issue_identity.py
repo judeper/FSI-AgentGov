@@ -8,6 +8,11 @@ import re
 from dataclasses import dataclass
 from typing import Any, Iterable, Mapping
 
+if __package__:
+    from . import autodoc_endpoint_identity as endpoint_identity
+else:
+    import autodoc_endpoint_identity as endpoint_identity
+
 _FINGERPRINT_LINE_RE = re.compile(r"^AUTODOC-FINGERPRINT:\s*(\S+)\s*$", re.MULTILINE)
 _SOURCE_LINE_RE = re.compile(r"^Source:\s*(\S+)\s*$", re.MULTILINE)
 _DESTINATION_LINE_RE = re.compile(r"^Destination:\s*(\S+)\s*$", re.MULTILINE)
@@ -36,6 +41,48 @@ def _iter_json_contracts(body: str) -> Iterable[dict[str, Any]]:
             continue
         if isinstance(payload, dict):
             yield payload
+
+
+def _iter_visible_lines(body: str) -> Iterable[str]:
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+    for line in body.splitlines():
+        stripped = line.lstrip(" ")
+        indent = len(line) - len(stripped)
+        marker_char = stripped[:1]
+        marker_len = len(stripped) - len(stripped.lstrip(marker_char)) if marker_char in {"`", "~"} else 0
+        is_fence = indent <= 3 and marker_char in {"`", "~"} and marker_len >= 3
+        if is_fence:
+            if in_fence and marker_char == fence_char and marker_len >= fence_len and not stripped[marker_len:].strip():
+                in_fence = False
+                fence_char = ""
+                fence_len = 0
+                continue
+            if not in_fence:
+                in_fence = True
+                fence_char = marker_char
+                fence_len = marker_len
+                continue
+        if in_fence or stripped.startswith(">"):
+            continue
+        yield line
+
+
+def _unique_visible_marker(body: str, pattern: re.Pattern[str]) -> tuple[str | None, bool]:
+    values: list[str] = []
+    for line in _iter_visible_lines(body):
+        match = pattern.match(line)
+        if match:
+            value = _as_non_empty_string(match.group(1))
+            if value:
+                values.append(value)
+    if not values:
+        return None, False
+    first = values[0]
+    if all(value == first for value in values):
+        return first, False
+    return None, True
 
 
 @dataclass(frozen=True)
@@ -97,14 +144,10 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
     if not body:
         return IssueBodyIdentity(fingerprint=None, source_url=None, content_hash=None, source_kind="missing")
 
-    fingerprint_match = _FINGERPRINT_LINE_RE.search(body)
-    source_match = _SOURCE_LINE_RE.search(body)
-    destination_match = _DESTINATION_LINE_RE.search(body)
-    content_hash_match = _CONTENT_HASH_LINE_RE.search(body)
-    fingerprint_line = _as_non_empty_string(fingerprint_match.group(1)) if fingerprint_match else None
-    source_line = _as_non_empty_string(source_match.group(1)) if source_match else None
-    destination_line = _as_non_empty_string(destination_match.group(1)) if destination_match else None
-    content_hash_line = _as_non_empty_string(content_hash_match.group(1)) if content_hash_match else None
+    fingerprint_line, _fingerprint_conflict = _unique_visible_marker(body, _FINGERPRINT_LINE_RE)
+    source_line, source_conflict = _unique_visible_marker(body, _SOURCE_LINE_RE)
+    destination_line, destination_conflict = _unique_visible_marker(body, _DESTINATION_LINE_RE)
+    content_hash_line, content_hash_conflict = _unique_visible_marker(body, _CONTENT_HASH_LINE_RE)
 
     contract_source: str | None = None
     contract_destination: str | None = None
@@ -130,28 +173,51 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
             contract_fingerprint = current_fingerprint
             break
 
+    if source_conflict or destination_conflict or content_hash_conflict:
+        return IssueBodyIdentity(
+            fingerprint=fingerprint_line or contract_fingerprint,
+            source_url=None,
+            content_hash=None,
+            source_kind="missing",
+            destination_url=None,
+        )
+
     plaintext_pair = source_line and content_hash_line
+    plaintext_redirect_pair = source_line and destination_line
     contract_pair = contract_source and contract_hash
     if plaintext_pair:
         source_url = source_line
         content_hash = content_hash_line
         source_kind = "source_line"
+        destination_url = (
+            endpoint_identity.canonicalize_destination_identity(destination_line)
+            if destination_line
+            else None
+        )
+    elif plaintext_redirect_pair:
+        source_url = endpoint_identity.canonicalize_endpoint_url(source_line)
+        content_hash = None
+        source_kind = "source_line"
+        destination_url = endpoint_identity.canonicalize_destination_identity(destination_line)
     elif contract_pair:
         source_url = contract_source
         content_hash = contract_hash
         source_kind = "contract"
-    elif source_line:
-        source_url = source_line
-        content_hash = None
-        source_kind = "source_line"
-    elif contract_source:
-        source_url = contract_source
+        destination_url = (
+            endpoint_identity.canonicalize_destination_identity(contract_destination)
+            if contract_destination
+            else None
+        )
+    elif contract_source and contract_destination:
+        source_url = endpoint_identity.canonicalize_endpoint_url(contract_source)
         content_hash = None
         source_kind = "contract"
+        destination_url = endpoint_identity.canonicalize_destination_identity(contract_destination)
     else:
         source_url = None
         content_hash = None
         source_kind = "missing"
+        destination_url = None
 
     fingerprint = fingerprint_line or contract_fingerprint
     return IssueBodyIdentity(
@@ -159,7 +225,7 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
         source_url=source_url,
         content_hash=content_hash,
         source_kind=source_kind,
-        destination_url=destination_line or contract_destination,
+        destination_url=destination_url,
     )
 
 

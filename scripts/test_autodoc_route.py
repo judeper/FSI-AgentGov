@@ -90,6 +90,70 @@ def test_redirect_fingerprint_uses_endpoint_identity_not_report_or_reason():
     assert content_first_report != content_later_report
 
 
+def test_redirect_fingerprint_endpoint_canonicalization_decisions():
+    base = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Path?view=power-platform&utm_source=monitor#source-section",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Destination?view=power-platform#destination-section",
+    )
+    same_endpoint = route.compute_fingerprint(
+        "learn-changes-2026-09-28.md",
+        "https://learn.microsoft.com/en-us/Path?view=power-platform",
+        "REDIRECT_AMBIGUOUS",
+        ["docs/unexpected.md"],
+        "https://learn.microsoft.com/en-us/Destination?view=power-platform",
+    )
+    different_trailing_slash = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/en-us/Path/?view=power-platform",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "https://learn.microsoft.com/en-us/Destination?view=power-platform",
+    )
+    different_locale = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/fr-fr/Path?view=power-platform",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "https://learn.microsoft.com/en-us/Destination?view=power-platform",
+    )
+    different_query = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/en-us/Path?view=other",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "https://learn.microsoft.com/en-us/Destination?view=power-platform",
+    )
+
+    assert base == same_endpoint
+    # Conservative identity: path spelling, trailing slash, locale path segment, and
+    # functional query values remain significant so different Learn pages do not merge.
+    assert base != different_trailing_slash
+    assert base != different_locale
+    assert base != different_query
+
+
+def test_redirect_conflict_fingerprint_uses_stable_no_destination_state():
+    first = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/en-us/source",
+        "REDIRECT_CONFLICT",
+        [],
+        "",
+    )
+    second = route.compute_fingerprint(
+        "learn-changes-2026-09-28.md",
+        "https://learn.microsoft.com/en-us/source",
+        "REDIRECT_CONFLICT",
+        ["docs/ignored-for-redirect-identity.md"],
+        "",
+    )
+
+    assert first == second
+
+
 def test_extract_allowed_files_prefixes_docs_and_reads_playbooks():
     block = """
 ### 1. Synthetic
@@ -256,6 +320,17 @@ def test_route_report_skips_already_ledgered_fingerprint():
 
     assert len(second_pass) == len(first_pass) - 1
     assert first_pass[0]["fingerprint"] not in {item["fingerprint"] for item in second_pass}
+
+
+def test_route_report_second_run_on_unchanged_input_creates_no_new_issue_specs():
+    report_text = FIXTURE.read_text(encoding="utf-8")
+    first_pass = route.route_report(report_text, FIXTURE.name, {"schema_version": 1, "changes": {}})
+    ledger = {
+        "schema_version": 1,
+        "changes": {item["fingerprint"]: {"issue_number": index} for index, item in enumerate(first_pass, start=1)},
+    }
+
+    assert route.route_report(report_text, FIXTURE.name, ledger) == []
 
 
 def test_route_report_real_fixture_expected_split():

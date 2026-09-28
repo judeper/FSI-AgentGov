@@ -41,6 +41,7 @@ if str(SCRIPT_DIR) not in sys.path:
 import autodoc_automerge
 import autodoc_canary
 import autodoc_classifier
+import autodoc_endpoint_identity
 import autodoc_issue_identity
 import autodoc_retry
 import autodoc_route
@@ -292,6 +293,10 @@ def _do_escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details:
 
 def _is_redirect(ctx: ChangeContext) -> bool:
     return ctx.contract.get("classification") == "REDIRECT"
+
+
+def _has_redirect_identity(ctx: ChangeContext) -> bool:
+    return autodoc_endpoint_identity.is_redirect_classification(ctx.contract.get("classification"))
 
 
 def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
@@ -1002,11 +1007,16 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     # is closed. The advance step compares these two lines verbatim against the pending blob's
     # (url, content_hash) — it never relies on GitHub's tokenized `in:body` search, which can
     # subset an unrelated issue's body and advance the wrong baseline (silent data loss).
-    source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
-    destination_url = ctx.contract.get("destination_url", "") if isinstance(ctx.contract, dict) else ""
+    redirect_identity = _redirect_endpoint_identity_from_context(ctx)
+    if redirect_identity is not None:
+        source_url = redirect_identity[0]
+        destination_url = redirect_identity[1]
+    else:
+        source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
+        destination_url = ""
     content_hash = ctx.contract.get("content_hash", "") if isinstance(ctx.contract, dict) else ""
     source_line = f"Source: {source_url}\n" if source_url else ""
-    destination_line = f"Destination: {_canonical_endpoint_url(destination_url)}\n" if destination_url else ""
+    destination_line = f"Destination: {destination_url}\n" if destination_url else ""
     content_hash_line = f"Content-Hash: {content_hash}\n" if content_hash else ""
     body = (
         f"Autodoc escalation — human review required.\n\n"
@@ -1054,6 +1064,7 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
                 source_url=source_url.strip(),
                 fingerprint=ctx.fingerprint,
                 superseding_issue_url=created_issue_url,
+                redirect_identity=redirect_identity,
             )
         except Exception as exc:  # noqa: BLE001 - creation already succeeded; cleanup is best-effort.
             print(
@@ -1081,16 +1092,24 @@ def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
 
 
 def _canonical_endpoint_url(value: Any) -> str:
-    if not isinstance(value, str):
-        return ""
-    return autodoc_classifier._canonicalize_url(value).strip()  # noqa: SLF001 - shared URL identity rule.
+    return autodoc_endpoint_identity.canonicalize_endpoint_url(value)
+
+
+def _redirect_destination_for_identity(ctx: ChangeContext) -> str:
+    contract_destination = str(ctx.contract.get("destination_url", "")) if isinstance(ctx.contract, dict) else ""
+    match = _REDIRECT_TO_RE.search(ctx.instructions)
+    evidence_destination = match.group(1).strip() if match else ""
+    canonical = _canonical_endpoint_url(contract_destination or evidence_destination)
+    if canonical and (canonical == autodoc_endpoint_identity.NO_DESTINATION or _URL_WELL_FORMED_RE.match(canonical)):
+        return canonical
+    return autodoc_endpoint_identity.NO_DESTINATION
 
 
 def _redirect_endpoint_identity_from_context(ctx: ChangeContext) -> tuple[str, str] | None:
-    if not _is_redirect(ctx):
+    if not _has_redirect_identity(ctx):
         return None
     source_url = _canonical_endpoint_url(ctx.contract.get("source_url"))
-    destination_url = _canonical_endpoint_url(ctx.contract.get("destination_url"))
+    destination_url = _redirect_destination_for_identity(ctx)
     if source_url and destination_url:
         return (source_url, destination_url)
     return None
@@ -1151,16 +1170,21 @@ def _close_source_siblings_not_planned(
     source_url: str,
     fingerprint: str,
     superseding_issue_url: str,
+    redirect_identity: tuple[str, str] | None = None,
 ) -> None:
-    """Close older open same-source/different-fingerprint siblings as NOT_PLANNED."""
+    """Close older open same-identity/different-fingerprint siblings as NOT_PLANNED."""
 
     superseding_number = _issue_number_from_url(superseding_issue_url)
     if superseding_number is None:
         return
 
     for issue in _list_open_autodoc_issues(config):
-        if issue.source_url != source_url:
-            continue
+        if redirect_identity is not None:
+            if _redirect_endpoint_identity_from_issue(issue) != redirect_identity:
+                continue
+        else:
+            if issue.identity is None or issue.source_url != source_url:
+                continue
         if issue.fingerprint == fingerprint:
             continue
         if issue.number is None:
