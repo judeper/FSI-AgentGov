@@ -80,3 +80,40 @@ def test_issue_identity_source_only_body_has_no_non_redirect_identity() -> None:
     assert parsed.source_url is None
     assert parsed.identity is None
     assert parsed.redirect_identity is None
+
+
+def test_issue_identity_plaintext_json_destination_disagreement_rejects_complete_identity() -> None:
+    parsed = identity.parse_issue_body_identity(
+        """AUTODOC-FINGERPRINT: sha256:fp
+Source: https://learn.microsoft.com/en-us/source
+Destination: https://learn.microsoft.com/en-us/plaintext-destination
+Content-Hash: sha256:content
+```json
+{
+  "fingerprint": "sha256:fp",
+  "source_url": "https://learn.microsoft.com/en-us/source",
+  "destination_url": "https://learn.microsoft.com/en-us/json-destination",
+  "content_hash": "sha256:content"
+}
+```
+"""
+    )
+
+    assert parsed.fingerprint is None
+    assert parsed.identity is None
+    assert parsed.redirect_identity is None
+
+
+def test_issue_identity_conflicting_fingerprints_reject_complete_content_identity() -> None:
+    parsed = identity.parse_issue_body_identity(
+        """AUTODOC-FINGERPRINT: sha256:first
+AUTODOC-FINGERPRINT: sha256:second
+Source: https://learn.microsoft.com/en-us/content
+Content-Hash: sha256:content
+"""
+    )
+
+    assert parsed.fingerprint is None
+    assert parsed.source_url is None
+    assert parsed.content_hash is None
+    assert parsed.identity is None

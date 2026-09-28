@@ -121,18 +121,10 @@ def build_contract(
     else:
         allowed_headings = list(ALLOWED_HEADINGS)
     classification = str(decision.classification or "")
-    source_url = (
-        endpoint_identity.canonicalize_endpoint_url(decision.url)
-        if endpoint_identity.is_redirect_classification(classification)
-        else classifier._canonicalize_url(decision.url)  # noqa: SLF001
-    )
+    source_url = classifier._canonicalize_url(decision.url)  # noqa: SLF001
     raw_destination = getattr(decision, "destination_url", "")
-    destination_url = (
-        endpoint_identity.canonicalize_destination_identity(raw_destination)
-        if endpoint_identity.is_redirect_classification(classification)
-        else classifier._canonicalize_url(raw_destination)  # noqa: SLF001
-    )
-    return {
+    destination_url = classifier._canonicalize_url(raw_destination)  # noqa: SLF001
+    contract = {
         "schema_version": 1,
         "fingerprint": fingerprint,
         "report_path": f"reports/monitoring/{Path(report_name).name}",
@@ -150,6 +142,10 @@ def build_contract(
             "mkdocs build --strict",
         ],
     }
+    if endpoint_identity.is_redirect_classification(classification):
+        contract["source_identity_url"] = endpoint_identity.canonicalize_endpoint_url(source_url)
+        contract["destination_identity_url"] = endpoint_identity.canonicalize_destination_identity(destination_url)
+    return contract
 
 
 def _redirect_allowed_headings(repo_root: str | Path, allowed_files: list[str]) -> list[str]:

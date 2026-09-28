@@ -13,6 +13,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+import autodoc_classifier as ac  # noqa: E402
+import autodoc_route as route  # noqa: E402
 import autodoc_runner as runner  # noqa: E402
 
 
@@ -177,6 +179,69 @@ def test_regression_734_tracking_urls_produce_one_clean_canonical_redirect(
     assert "utm_source" not in url_file.read_text(encoding="utf-8")
     assert canonical_new in bodies[0]
     assert tracked_new not in bodies[0]
+
+
+def test_process_redirect_uses_route_contract_operational_urls_with_fragments(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    source = "HTTPS://LEARN.MICROSOFT.COM/en-us/old?msockid=tracked&view=power-platform#source-fragment"
+    destination = "https://learn.microsoft.com/en-us/new?utm_source=monitor&view=power-platform#destination-fragment"
+    operational_source = ac._canonicalize_url(source)  # noqa: SLF001 - this test locks route/runner integration.
+    operational_destination = ac._canonicalize_url(destination)  # noqa: SLF001
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text(f"| Redirect | {operational_source} | Mar 2026 |\n", encoding="utf-8")
+    diff = (
+        "--- a/x\n+++ b/x\n@@ -1 +1 @@\n"
+        f"-| Redirect | {operational_source} | Mar 2026 |\n"
+        f"+| Redirect | {operational_destination} | Mar 2026 |\n"
+    )
+    monkeypatch.setattr(runner, "_git", _redirect_git_mock(diff))
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, baseline: None)
+    monkeypatch.setattr(runner, "_push_and_create_pr", lambda config, ctx, body: "PR#1705")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+
+    change = ac.Change(
+        topic=f"URL redirect: {source}",
+        url=source,
+        classification="REDIRECT",
+        reason=f"redirects to {destination}",
+        kind="redirect",
+        destination_url=destination,
+    )
+    decision = ac.classify_change(change)
+    fingerprint = route.compute_fingerprint(
+        "report.md",
+        decision.url,
+        decision.classification,
+        [route.REDIRECT_TARGET_FILE],
+        decision.destination_url,
+    )
+    contract = route.build_contract(
+        decision,
+        "report.md",
+        [route.REDIRECT_TARGET_FILE],
+        fingerprint,
+        repo_root=tmp_path,
+    )
+    ctx = runner.ChangeContext(
+        fingerprint=fingerprint,
+        route="autodraft",
+        contract=contract,
+        report_path=contract["report_path"],
+        instructions=f"## Learn change evidence\n```diff\nredirects to {operational_destination}\n```\n",
+        title=f"Autodoc draft: URL redirect: {operational_source}",
+        labels=["autodoc"],
+    )
+
+    outcome = runner._process_redirect(runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b"), ctx)
+
+    assert outcome.status == "pr_opened"
+    content = url_file.read_text(encoding="utf-8")
+    assert operational_source not in content
+    assert f"| Redirect | {operational_destination} |" in content
 
 
 def test_process_redirect_url_not_found_escalates(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -866,6 +931,193 @@ def _redirect_escalation_ctx(
     )
 
 
+_IDENTITY_SOURCE = "https://learn.microsoft.com/en-us/old"
+_IDENTITY_DESTINATION = "https://learn.microsoft.com/en-us/new"
+_IDENTITY_OTHER_DESTINATION = "https://learn.microsoft.com/en-us/other-new"
+_IDENTITY_CONTENT_HASH = "sha256:content-for-source"
+
+
+def _json_contract_body(**overrides: str) -> str:
+    contract = {
+        "fingerprint": "sha256:older",
+        "source_url": _IDENTITY_SOURCE,
+        "destination_url": _IDENTITY_DESTINATION,
+        "content_hash": _IDENTITY_CONTENT_HASH,
+    }
+    contract.update(overrides)
+    return "```json\n" + json.dumps(contract, sort_keys=True) + "\n```\n"
+
+
+_CONFLICTING_IDENTITY_BODIES = [
+    pytest.param(
+        _json_contract_body()
+        + _json_contract_body(destination_url=_IDENTITY_OTHER_DESTINATION),
+        id="two-json-contracts-conflicting-destinations",
+    ),
+    pytest.param(
+        (
+            "AUTODOC-FINGERPRINT: sha256:older\n"
+            f"Source: {_IDENTITY_SOURCE}\n"
+            f"Destination: {_IDENTITY_DESTINATION}\n"
+            f"Content-Hash: {_IDENTITY_CONTENT_HASH}\n"
+            + _json_contract_body(destination_url=_IDENTITY_OTHER_DESTINATION)
+        ),
+        id="plaintext-destination-disagrees-json",
+    ),
+    pytest.param(
+        (
+            "AUTODOC-FINGERPRINT: sha256:older\n"
+            "AUTODOC-FINGERPRINT: sha256:different\n"
+            f"Source: {_IDENTITY_SOURCE}\n"
+            f"Destination: {_IDENTITY_DESTINATION}\n"
+            f"Content-Hash: {_IDENTITY_CONTENT_HASH}\n"
+        ),
+        id="conflicting-plaintext-fingerprints",
+    ),
+    pytest.param(
+        _json_contract_body(fingerprint="sha256:older")
+        + _json_contract_body(fingerprint="sha256:different"),
+        id="conflicting-json-fingerprints",
+    ),
+    pytest.param(
+        (
+            "AUTODOC-FINGERPRINT: sha256:content-first\n"
+            "AUTODOC-FINGERPRINT: sha256:content-second\n"
+            f"Source: {_IDENTITY_SOURCE}\n"
+            f"Destination: {_IDENTITY_DESTINATION}\n"
+            f"Content-Hash: {_IDENTITY_CONTENT_HASH}\n"
+        ),
+        id="content-body-conflicting-fingerprints",
+    ),
+]
+
+
+@pytest.mark.parametrize("body", _CONFLICTING_IDENTITY_BODIES)
+def test_existing_issue_url_rejects_conflicting_identity_representations(
+    body: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    payload = [
+        {
+            "number": 48,
+            "url": "https://github.com/x/y/issues/48",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": body,
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+
+    assert (
+        runner._existing_issue_url(
+            _config(tmp_path),
+            _redirect_escalation_ctx(source=_IDENTITY_SOURCE, destination=_IDENTITY_DESTINATION),
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize("body", _CONFLICTING_IDENTITY_BODIES)
+def test_content_supersession_rejects_conflicting_identity_representations(
+    body: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    issue = runner.autodoc_issue_identity.parse_issue_record(
+        {
+            "number": 48,
+            "url": "https://github.com/x/y/issues/48",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": body,
+        }
+    )
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [issue])
+    close_calls: list[list[str]] = []
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        close_calls.append(list(args))
+        return _FakeCompleted(0, stdout="closed")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+
+    runner._close_source_siblings_not_planned(
+        config=_config(tmp_path),
+        source_url=_IDENTITY_SOURCE,
+        fingerprint="sha256:active-content",
+        superseding_issue_url="https://github.com/x/y/issues/101",
+    )
+
+    assert close_calls == []
+
+
+def test_existing_issue_url_reuses_stable_no_destination_redirect_identity(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    payload = [
+        {
+            "number": 49,
+            "url": "https://github.com/x/y/issues/49",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                "AUTODOC-FINGERPRINT: sha256:older-none\n"
+                f"Source: {_IDENTITY_SOURCE}\n"
+                "Destination: autodoc:none\n"
+            ),
+        }
+    ]
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(0, stdout=json.dumps(payload)))
+
+    assert (
+        runner._existing_issue_url(
+            _config(tmp_path),
+            _redirect_escalation_ctx(source=_IDENTITY_SOURCE, destination=""),
+        )
+        == "https://github.com/x/y/issues/49"
+    )
+
+
+def test_no_destination_redirect_supersession_closes_same_identity_sibling(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    issue = runner.autodoc_issue_identity.parse_issue_record(
+        {
+            "number": 49,
+            "url": "https://github.com/x/y/issues/49",
+            "state": "OPEN",
+            "stateReason": None,
+            "body": (
+                "AUTODOC-FINGERPRINT: sha256:older-none\n"
+                f"Source: {_IDENTITY_SOURCE}\n"
+                "Destination: autodoc:none\n"
+            ),
+        }
+    )
+    monkeypatch.setattr(runner, "_list_open_autodoc_issues", lambda config: [issue])
+    close_calls: list[list[str]] = []
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        close_calls.append(list(args))
+        return _FakeCompleted(0, stdout="closed")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+
+    runner._close_source_siblings_not_planned(
+        config=_config(tmp_path),
+        source_url=_IDENTITY_SOURCE,
+        fingerprint="sha256:active-none",
+        superseding_issue_url="https://github.com/x/y/issues/101",
+        redirect_identity=(_IDENTITY_SOURCE, runner.autodoc_endpoint_identity.NO_DESTINATION),
+    )
+
+    close_call = next(command for command in close_calls if command[:3] == ["gh", "issue", "close"])
+    assert "49" in close_call
+
+
 def test_existing_issue_url_reuses_open_redirect_with_same_endpoint_not_fingerprint(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1386,6 +1638,61 @@ def test_run_no_specs_skips_worktree(monkeypatch: pytest.MonkeyPatch, tmp_path: 
 
     assert result["outcomes"] == []
     assert patched["worktree"] == []  # no worktree created when there is nothing to do
+
+
+def test_run_twice_on_unchanged_human_input_creates_one_issue_total(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("AUTODOC_ENABLED", "true")
+    monkeypatch.setattr(runner, "_assert_canary", lambda config: None)
+    monkeypatch.setattr(runner, "_reconcile_automerge", lambda config: None)
+    monkeypatch.setattr(runner, "_create_worktree", lambda config: config.repo_path)
+    monkeypatch.setattr(runner, "_remove_worktree", lambda config, work_path: None)
+    report = tmp_path / "reports" / "monitoring" / "learn-changes-x.md"
+    report.parent.mkdir(parents=True)
+    report.write_text("irrelevant", encoding="utf-8")
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+    fingerprint = "sha256:unchanged-human"
+    contract = {
+        "fingerprint": fingerprint,
+        "report_path": "reports/monitoring/learn-changes-x.md",
+        "source_url": "https://learn.microsoft.com/en-us/content",
+        "content_hash": "sha256:content",
+    }
+    spec = {
+        "fingerprint": fingerprint,
+        "route": "human",
+        "body": "```json\n" + json.dumps(contract) + "\n```",
+        "title": "Autodoc human review: content",
+        "labels": ["autodoc", "escalate"],
+    }
+
+    def route_once_unledgered(text: str, name: str, ledger: dict[str, Any], **_kwargs: Any) -> list[dict[str, Any]]:
+        return [] if fingerprint in ledger.get("changes", {}) else [spec]
+
+    monkeypatch.setattr(runner.autodoc_route, "route_report", route_once_unledgered)
+    issue_create_calls = 0
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        nonlocal issue_create_calls
+        if args[:3] == ["gh", "issue", "list"]:
+            return _FakeCompleted(0, stdout="[]")
+        if args[:3] == ["gh", "issue", "create"]:
+            issue_create_calls += 1
+            return _FakeCompleted(0, stdout="https://github.com/x/y/issues/101")
+        if args[:3] == ["gh", "issue", "close"]:
+            return _FakeCompleted(0, stdout="closed")
+        raise AssertionError(f"unexpected command: {args}")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+
+    first = runner.run(_config(tmp_path))
+    second = runner.run(_config(tmp_path))
+
+    assert first["outcomes"][0]["status"] == "escalated"
+    assert second["outcomes"] == []
+    assert issue_create_calls == 1
 
 
 def test_open_pr_failure_does_not_record_pr_open(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:

@@ -69,7 +69,7 @@ def _iter_visible_lines(body: str) -> Iterable[str]:
         yield line
 
 
-def _unique_visible_marker(body: str, pattern: re.Pattern[str]) -> tuple[str | None, bool]:
+def _visible_marker_values(body: str, pattern: re.Pattern[str]) -> list[str]:
     values: list[str] = []
     for line in _iter_visible_lines(body):
         match = pattern.match(line)
@@ -77,12 +77,21 @@ def _unique_visible_marker(body: str, pattern: re.Pattern[str]) -> tuple[str | N
             value = _as_non_empty_string(match.group(1))
             if value:
                 values.append(value)
+    return values
+
+
+def _first(values: list[str]) -> str | None:
+    return values[0] if values else None
+
+
+def _has_conflict(values: list[str], *, endpoint: bool = False) -> bool:
     if not values:
-        return None, False
-    first = values[0]
-    if all(value == first for value in values):
-        return first, False
-    return None, True
+        return False
+    normalized = [
+        endpoint_identity.canonicalize_endpoint_url(value) if endpoint else value
+        for value in values
+    ]
+    return any(value != normalized[0] for value in normalized[1:])
 
 
 @dataclass(frozen=True)
@@ -144,43 +153,69 @@ def parse_issue_body_identity(body: str | None) -> IssueBodyIdentity:
     if not body:
         return IssueBodyIdentity(fingerprint=None, source_url=None, content_hash=None, source_kind="missing")
 
-    fingerprint_line, _fingerprint_conflict = _unique_visible_marker(body, _FINGERPRINT_LINE_RE)
-    source_line, source_conflict = _unique_visible_marker(body, _SOURCE_LINE_RE)
-    destination_line, destination_conflict = _unique_visible_marker(body, _DESTINATION_LINE_RE)
-    content_hash_line, content_hash_conflict = _unique_visible_marker(body, _CONTENT_HASH_LINE_RE)
+    fingerprint_lines = _visible_marker_values(body, _FINGERPRINT_LINE_RE)
+    source_lines = _visible_marker_values(body, _SOURCE_LINE_RE)
+    destination_lines = _visible_marker_values(body, _DESTINATION_LINE_RE)
+    content_hash_lines = _visible_marker_values(body, _CONTENT_HASH_LINE_RE)
 
-    contract_source: str | None = None
-    contract_destination: str | None = None
-    contract_hash: str | None = None
-    contract_fingerprint: str | None = None
+    contract_sources: list[str] = []
+    contract_source_outputs: list[str] = []
+    contract_destinations: list[str] = []
+    contract_destination_outputs: list[str] = []
+    contract_hashes: list[str] = []
+    contract_fingerprints: list[str] = []
     for contract in _iter_json_contracts(body):
         current_fingerprint = _as_non_empty_string(contract.get("fingerprint"))
         current_source = _as_non_empty_string(contract.get("source_url"))
+        current_source_identity = _as_non_empty_string(contract.get("source_identity_url"))
         current_destination = _as_non_empty_string(contract.get("destination_url"))
+        current_destination_identity = _as_non_empty_string(contract.get("destination_identity_url"))
         current_hash = _as_non_empty_string(contract.get("content_hash"))
-        if contract_source is None:
-            contract_source = current_source
-        if contract_destination is None:
-            contract_destination = current_destination
-        if contract_hash is None:
-            contract_hash = current_hash
-        if contract_fingerprint is None:
-            contract_fingerprint = current_fingerprint
-        if fingerprint_line and current_fingerprint == fingerprint_line:
-            contract_source = current_source
-            contract_destination = current_destination
-            contract_hash = current_hash
-            contract_fingerprint = current_fingerprint
-            break
+        if current_fingerprint:
+            contract_fingerprints.append(current_fingerprint)
+        if current_source:
+            contract_sources.append(current_source)
+            contract_source_outputs.append(current_source)
+        if current_source_identity:
+            contract_sources.append(current_source_identity)
+            if not current_source:
+                contract_source_outputs.append(current_source_identity)
+        if current_destination:
+            contract_destinations.append(current_destination)
+            contract_destination_outputs.append(current_destination)
+        if current_destination_identity:
+            contract_destinations.append(current_destination_identity)
+            if not current_destination:
+                contract_destination_outputs.append(current_destination_identity)
+        if current_hash:
+            contract_hashes.append(current_hash)
 
-    if source_conflict or destination_conflict or content_hash_conflict:
+    fingerprint_candidates = [*fingerprint_lines, *contract_fingerprints]
+    source_candidates = [*source_lines, *contract_sources]
+    destination_candidates = [*destination_lines, *contract_destinations]
+    content_hash_candidates = [*content_hash_lines, *contract_hashes]
+    if (
+        _has_conflict(fingerprint_candidates)
+        or _has_conflict(source_candidates, endpoint=True)
+        or _has_conflict(destination_candidates, endpoint=True)
+        or _has_conflict(content_hash_candidates)
+    ):
         return IssueBodyIdentity(
-            fingerprint=fingerprint_line or contract_fingerprint,
+            fingerprint=None,
             source_url=None,
             content_hash=None,
             source_kind="missing",
             destination_url=None,
         )
+
+    fingerprint_line = _first(fingerprint_lines)
+    source_line = _first(source_lines)
+    destination_line = _first(destination_lines)
+    content_hash_line = _first(content_hash_lines)
+    contract_fingerprint = _first(contract_fingerprints)
+    contract_source = _first(contract_source_outputs)
+    contract_destination = _first(contract_destination_outputs)
+    contract_hash = _first(contract_hashes)
 
     plaintext_pair = source_line and content_hash_line
     plaintext_redirect_pair = source_line and destination_line

@@ -143,21 +143,34 @@ def test_parse_issue_identity_json_contract_requires_both_fields() -> None:
     assert advance.parse_issue_identity(no_url) is None
 
 
-def test_parse_issue_identity_prefers_complete_plaintext_pair_over_contract() -> None:
+def test_parse_issue_identity_accepts_matching_plaintext_pair_and_contract() -> None:
+    body = (
+        f"Source: {TERMINAL_URL}\n"
+        "Content-Hash: sha256:plain\n"
+        + '```json\n{"source_url": "'
+        + TERMINAL_URL
+        + '", "content_hash": "sha256:plain"}\n```\n'
+    )
+    assert advance.parse_issue_identity(body) == (TERMINAL_URL, "sha256:plain")
+
+
+def test_parse_issue_identity_rejects_complete_plaintext_contract_conflict() -> None:
     body = (
         f"Source: {TERMINAL_URL}\n"
         "Content-Hash: sha256:plain\n"
         + '```json\n{"source_url": "https://learn.microsoft.com/en-us/contract", "content_hash": "sha256:contract"}\n```\n'
     )
-    assert advance.parse_issue_identity(body) == (TERMINAL_URL, "sha256:plain")
+    assert advance.parse_issue_identity(body) is None
 
 
-def test_parse_issue_identity_uses_complete_contract_when_plaintext_is_partial() -> None:
+def test_parse_issue_identity_uses_complete_contract_when_plaintext_source_matches() -> None:
     body = (
         f"Source: {TERMINAL_URL}\n"
-        + '```json\n{"source_url": "https://learn.microsoft.com/en-us/contract", "content_hash": "sha256:contract"}\n```\n'
+        + '```json\n{"source_url": "'
+        + TERMINAL_URL
+        + '", "content_hash": "sha256:contract"}\n```\n'
     )
-    assert advance.parse_issue_identity(body) == ("https://learn.microsoft.com/en-us/contract", "sha256:contract")
+    assert advance.parse_issue_identity(body) == (TERMINAL_URL, "sha256:contract")
 
 
 def test_parse_issue_identity_rejects_mixed_partial_pairs() -> None:

@@ -1096,7 +1096,11 @@ def _canonical_endpoint_url(value: Any) -> str:
 
 
 def _redirect_destination_for_identity(ctx: ChangeContext) -> str:
-    contract_destination = str(ctx.contract.get("destination_url", "")) if isinstance(ctx.contract, dict) else ""
+    contract_destination = (
+        str(ctx.contract.get("destination_identity_url") or ctx.contract.get("destination_url", ""))
+        if isinstance(ctx.contract, dict)
+        else ""
+    )
     match = _REDIRECT_TO_RE.search(ctx.instructions)
     evidence_destination = match.group(1).strip() if match else ""
     canonical = _canonical_endpoint_url(contract_destination or evidence_destination)
@@ -1108,7 +1112,7 @@ def _redirect_destination_for_identity(ctx: ChangeContext) -> str:
 def _redirect_endpoint_identity_from_context(ctx: ChangeContext) -> tuple[str, str] | None:
     if not _has_redirect_identity(ctx):
         return None
-    source_url = _canonical_endpoint_url(ctx.contract.get("source_url"))
+    source_url = _canonical_endpoint_url(ctx.contract.get("source_identity_url") or ctx.contract.get("source_url"))
     destination_url = _redirect_destination_for_identity(ctx)
     if source_url and destination_url:
         return (source_url, destination_url)
