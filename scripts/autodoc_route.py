@@ -13,9 +13,11 @@ from typing import Any
 
 if __package__:
     from . import autodoc_classifier as classifier
+    from . import autodoc_endpoint_identity as endpoint_identity
     from . import autodoc_verify
 else:
     import autodoc_classifier as classifier
+    import autodoc_endpoint_identity as endpoint_identity
     import autodoc_verify
 
 ALLOWED_HEADINGS = [
@@ -77,13 +79,13 @@ def compute_fingerprint(
     destination_url: str = "",
 ) -> str:
     """Return a stable sha256 fingerprint for a routed Learn change."""
+    if endpoint_identity.is_redirect_classification(classification):
+        canonical_url = endpoint_identity.canonicalize_fingerprint_url(url)
+        canonical_destination = endpoint_identity.canonicalize_destination_fingerprint_url(destination_url)
+        payload = "\n".join(["redirect", canonical_url, canonical_destination])
+        return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
     canonical_url = classifier._canonicalize_url(url)  # noqa: SLF001 - shared routing identity rule.
-    canonical_destination = classifier._canonicalize_url(  # noqa: SLF001 - shared routing identity rule.
-        destination_url
-    )
     parts = [report_name, canonical_url, classification, *sorted(allowed_files)]
-    if canonical_destination:
-        parts.append(f"destination:{canonical_destination}")
     payload = "\n".join(parts)
     return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
@@ -118,14 +120,16 @@ def build_contract(
         allowed_headings = _redirect_allowed_headings(repo_root, allowed_files)
     else:
         allowed_headings = list(ALLOWED_HEADINGS)
-    return {
+    classification = str(decision.classification or "")
+    source_url = classifier._canonicalize_url(decision.url)  # noqa: SLF001
+    raw_destination = getattr(decision, "destination_url", "")
+    destination_url = classifier._canonicalize_url(raw_destination)  # noqa: SLF001
+    contract = {
         "schema_version": 1,
         "fingerprint": fingerprint,
         "report_path": f"reports/monitoring/{Path(report_name).name}",
-        "source_url": classifier._canonicalize_url(decision.url),  # noqa: SLF001
-        "destination_url": classifier._canonicalize_url(  # noqa: SLF001
-            getattr(decision, "destination_url", "")
-        ),
+        "source_url": source_url,
+        "destination_url": destination_url,
         "content_hash": getattr(decision, "content_hash", ""),
         "classification": decision.classification,
         "route": decision.route,
@@ -138,6 +142,10 @@ def build_contract(
             "mkdocs build --strict",
         ],
     }
+    if endpoint_identity.is_redirect_classification(classification):
+        contract["source_identity_url"] = endpoint_identity.canonicalize_endpoint_url(source_url)
+        contract["destination_identity_url"] = endpoint_identity.canonicalize_destination_identity(destination_url)
+    return contract
 
 
 def _redirect_allowed_headings(repo_root: str | Path, allowed_files: list[str]) -> list[str]:
