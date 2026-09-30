@@ -257,7 +257,10 @@ def save_ledger(path: str | Path, ledger: dict[str, Any]) -> None:
 
 
 def already_processed(ledger: dict[str, Any], fingerprint: str) -> bool:
-    return fingerprint in ledger.get("changes", {})
+    entry = ledger.get("changes", {}).get(fingerprint)
+    if isinstance(entry, dict) and entry.get("state") == "retry_pending":
+        return False
+    return entry is not None
 
 
 def _change_blocks_by_url(report_text: str) -> dict[str, str]:

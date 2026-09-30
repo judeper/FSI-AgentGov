@@ -382,6 +382,14 @@ def test_ledger_load_save_and_already_processed(tmp_path):
     assert route.already_processed(loaded, "sha256:abc") is True
 
 
+def test_retry_pending_ledger_entry_is_not_already_processed():
+    ledger = {"schema_version": 1, "changes": {"sha256:abc": {"state": "retry_pending"}}}
+    assert route.already_processed(ledger, "sha256:abc") is False
+
+    ledger["changes"]["sha256:abc"]["state"] = "retry_exhausted"
+    assert route.already_processed(ledger, "sha256:abc") is True
+
+
 def test_route_report_skips_already_ledgered_fingerprint():
     report_text = FIXTURE.read_text(encoding="utf-8")
     first_pass = route.route_report(report_text, FIXTURE.name, {"schema_version": 1, "changes": {}})

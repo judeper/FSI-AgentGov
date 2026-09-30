@@ -31,6 +31,7 @@ import sys
 import tempfile
 import urllib.parse
 from dataclasses import dataclass, field, replace
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -62,6 +63,7 @@ _REDIRECT_TO_RE = re.compile(r"redirects to (\S[^\n]*)")
 # break the markdown table or isn't URL-legal (|, quotes, <>, backtick, braces, control chars).
 _URL_WELL_FORMED_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
 _ISSUE_URL_NUMBER_RE = re.compile(r"/issues/(\d+)(?:/)?$")
+MAX_REDIRECT_RETRIES_PER_FINGERPRINT = 2
 
 
 def _redirect_host_allowed(url: str) -> bool:
@@ -180,9 +182,10 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     main_ledger_path = config.repo_path / config.ledger_path
     main_automerge_ledger = config.repo_path / config.automerge_ledger_path
     ledger = autodoc_route.load_ledger(main_ledger_path)
+    retry_summary = _reconcile_redirect_retries(config, ledger)
     specs = autodoc_route.route_report(report_text, report_path.name, ledger, repo_root=config.repo_path)
     if not specs:
-        return {"enabled": True, "report": report_path.name, "outcomes": []}
+        return {"enabled": True, "report": report_path.name, "outcomes": [], "retry_summary": retry_summary}
 
     work_path = _create_worktree(config)
     work_config = replace(config, repo_path=work_path, ledger_abs=main_ledger_path, automerge_ledger_abs=main_automerge_ledger)
@@ -211,7 +214,7 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     finally:
         _remove_worktree(config, work_path)
 
-    return {"enabled": True, "report": report_path.name, "outcomes": [vars(o) for o in outcomes]}
+    return {"enabled": True, "report": report_path.name, "outcomes": [vars(o) for o in outcomes], "retry_summary": retry_summary}
 
 
 def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
@@ -534,6 +537,131 @@ def _reconcile_automerge(config: RunnerConfig) -> None:
         return
 
 
+def _reconcile_redirect_retries(config: RunnerConfig, ledger: dict[str, Any]) -> dict[str, Any]:
+    """Mark bounded redirect PR retries before routing the latest report.
+
+    Only entries that are provably redirect PRs are inspected. Older ledger rows without a
+    redirect classification stay suppressed because the ledger alone cannot distinguish a
+    redirect autodraft from a content autodraft.
+    """
+
+    summary: dict[str, Any] = {"checked": 0, "retry_pending": [], "retry_exhausted": [], "skipped": []}
+    changes = ledger.get("changes", {})
+    if not isinstance(changes, dict):
+        return summary
+
+    changed = False
+    for fingerprint, entry in changes.items():
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("state") != "pr_open":
+            continue
+        if not autodoc_endpoint_identity.is_redirect_classification(entry.get("classification")):
+            if "classification" not in entry:
+                summary["skipped"].append({"fingerprint": fingerprint, "reason": "missing_redirect_classification"})
+            continue
+
+        pr_number = _strict_pr_number_from_detail(config, str(entry.get("detail") or ""))
+        if pr_number is None:
+            summary["skipped"].append({"fingerprint": fingerprint, "reason": "unparseable_or_foreign_pr_url"})
+            continue
+
+        summary["checked"] += 1
+        try:
+            observed = _fetch_pr_state(config, {"pr_number": pr_number, "skip_diff": True})
+        except Exception as exc:  # noqa: BLE001 - fail closed: leave ledger suppression intact.
+            summary["skipped"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": f"pr_lookup_error: {exc}"})
+            continue
+
+        if observed.state == "closed":
+            if _has_retry_reason(entry, "closed_unmerged") or _retry_count(entry) >= MAX_REDIRECT_RETRIES_PER_FINGERPRINT:
+                _mark_retry_exhausted(entry, "closed_unmerged_limit", pr_number)
+                summary["retry_exhausted"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "closed_unmerged_limit"})
+                changed = True
+                continue
+            _mark_retry_pending(entry, "closed_unmerged", pr_number)
+            summary["retry_pending"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "closed_unmerged"})
+            changed = True
+            continue
+
+        if observed.state != "merged":
+            summary["skipped"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "open_or_unknown"})
+            continue
+
+        merge_sha = observed.merge_sha
+        if not merge_sha:
+            summary["skipped"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "missing_merge_sha"})
+            continue
+        reverted = _commit_revert_status(config, merge_sha)
+        if reverted is None:
+            summary["skipped"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "revert_lookup_error"})
+            continue
+        if not reverted:
+            continue
+        if _retry_count(entry) >= MAX_REDIRECT_RETRIES_PER_FINGERPRINT:
+            _mark_retry_exhausted(entry, "retry_cap_reached", pr_number)
+            summary["retry_exhausted"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "retry_cap_reached"})
+            changed = True
+            continue
+        _mark_retry_pending(entry, "merged_reverted", pr_number, merge_sha)
+        summary["retry_pending"].append({"fingerprint": fingerprint, "pr_number": pr_number, "reason": "merged_reverted"})
+        changed = True
+
+    if changed and not config.dry_run:
+        ledger_path = config.ledger_abs or (config.repo_path / config.ledger_path)
+        autodoc_route.save_ledger(ledger_path, ledger)
+    return summary
+
+
+def _retry_count(entry: dict[str, Any]) -> int:
+    try:
+        return max(0, int(entry.get("retries") or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _retry_history(entry: dict[str, Any]) -> list[dict[str, Any]]:
+    history = entry.get("retry_history")
+    return history if isinstance(history, list) else []
+
+
+def _has_retry_reason(entry: dict[str, Any], reason: str) -> bool:
+    return any(isinstance(item, dict) and item.get("reason") == reason for item in _retry_history(entry))
+
+
+def _mark_retry_pending(entry: dict[str, Any], reason: str, pr_number: int, merge_sha: str | None = None) -> None:
+    next_retry = _retry_count(entry) + 1
+    entry["state"] = "retry_pending"
+    entry["retries"] = next_retry
+    history = list(_retry_history(entry))
+    event: dict[str, Any] = {
+        "retry": next_retry,
+        "reason": reason,
+        "pr_number": pr_number,
+        "at": datetime.now(timezone.utc).isoformat(),
+    }
+    if merge_sha:
+        event["merge_sha"] = merge_sha
+    history.append(event)
+    entry["retry_history"] = history
+    entry.pop("retry_exhausted_reason", None)
+
+
+def _mark_retry_exhausted(entry: dict[str, Any], reason: str, pr_number: int) -> None:
+    entry["state"] = "retry_exhausted"
+    entry["retry_exhausted_reason"] = reason
+    entry["retry_exhausted_pr_number"] = pr_number
+
+
+def _strict_pr_number_from_detail(config: RunnerConfig, detail: str) -> int | None:
+    prefix = f"https://github.com/{_repo_slug(config)}/pull/"
+    if not detail.startswith(prefix):
+        return None
+    remainder = detail[len(prefix):]
+    match = re.match(r"([1-9]\d*)(?:$|\s|\))", remainder)
+    return int(match.group(1)) if match else None
+
+
 def _fetch_pr_state(config: RunnerConfig, sample: dict[str, Any]) -> autodoc_automerge.PrState:
     # Once a sample is known merged, the only thing that can still change is whether its
     # merge commit was reverted. Re-check that with git against the stored merge sha — git
@@ -561,6 +689,8 @@ def _fetch_pr_state(config: RunnerConfig, sample: dict[str, Any]) -> autodoc_aut
         merge_sha = (info.get("mergeCommit") or {}).get("oid")
         if not merge_sha:
             return autodoc_automerge.PrState("open")  # merged but sha unknown -> retry next run
+        if sample.get("skip_diff"):
+            return autodoc_automerge.PrState("merged", merge_sha=merge_sha)
         if _commit_is_reverted(config, merge_sha):
             return autodoc_automerge.PrState("merged", merge_sha=merge_sha, reverted=True)
         diff = _fetch_commit_diff(config, merge_sha)
@@ -582,6 +712,13 @@ def _commit_is_reverted(config: RunnerConfig, sha: str) -> bool:
     indeterminate revert status never silently counts as agreement.
     """
 
+    reverted = _commit_revert_status(config, sha)
+    return True if reverted is None else reverted
+
+
+def _commit_revert_status(config: RunnerConfig, sha: str) -> bool | None:
+    """Return whether ``sha`` was reverted, or ``None`` when git could not answer."""
+
     completed = subprocess.run(
         ["git", "-C", str(config.repo_path), "log", "--format=%H", "--grep", f"This reverts commit {sha}", config.base_branch],
         check=False,
@@ -589,7 +726,7 @@ def _commit_is_reverted(config: RunnerConfig, sha: str) -> bool:
         text=True,
     )
     if completed.returncode != 0:
-        return True
+        return None
     return bool((completed.stdout or "").strip())
 
 
@@ -1266,10 +1403,18 @@ def _record_ledger(config: RunnerConfig, ctx: ChangeContext, state: str, detail:
         return
     ledger_path = config.ledger_abs or (config.repo_path / config.ledger_path)
     ledger = autodoc_route.load_ledger(ledger_path)
+    existing = ledger.setdefault("changes", {}).get(ctx.fingerprint)
+    preserved: dict[str, Any] = {}
+    if isinstance(existing, dict):
+        for key in ("retries", "retry_history", "retry_exhausted_reason", "retry_exhausted_pr_number"):
+            if key in existing:
+                preserved[key] = existing[key]
     ledger.setdefault("changes", {})[ctx.fingerprint] = {
         "state": state,
         "route": ctx.route,
         "detail": detail,
+        "classification": ctx.contract.get("classification"),
+        **preserved,
     }
     autodoc_route.save_ledger(ledger_path, ledger)
 
