@@ -80,8 +80,8 @@ def compute_fingerprint(
 ) -> str:
     """Return a stable sha256 fingerprint for a routed Learn change."""
     if endpoint_identity.is_redirect_classification(classification):
-        canonical_url = endpoint_identity.canonicalize_endpoint_url(url)
-        canonical_destination = endpoint_identity.canonicalize_destination_identity(destination_url)
+        canonical_url = endpoint_identity.canonicalize_fingerprint_url(url)
+        canonical_destination = endpoint_identity.canonicalize_destination_fingerprint_url(destination_url)
         payload = "\n".join(["redirect", canonical_url, canonical_destination])
         return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
     canonical_url = classifier._canonicalize_url(url)  # noqa: SLF001 - shared routing identity rule.

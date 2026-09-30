@@ -1640,59 +1640,105 @@ def test_run_no_specs_skips_worktree(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     assert patched["worktree"] == []  # no worktree created when there is nothing to do
 
 
-def test_run_twice_on_unchanged_human_input_creates_one_issue_total(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
-) -> None:
+def _write_redirect_catalog(repo_root: Path) -> None:
+    url_file = repo_root / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True, exist_ok=True)
+    url_file.write_text(
+        "# Microsoft Learn URLs\n\n"
+        "## Microsoft Purview\n\n"
+        "| Topic | URL | Last checked |\n"
+        "| --- | --- | --- |\n"
+        "| Existing | https://learn.microsoft.com/en-us/existing | Sep 2026 |\n",
+        encoding="utf-8",
+    )
+
+
+def _write_redirect_report(path: Path, rows: list[tuple[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    table_rows = "\n".join(f"| {source} | {destination} |" for source, destination in rows)
+    path.write_text(
+        "# Learn Monitor report\n\n"
+        "## URL Redirects Detected\n\n"
+        "| Original URL | Final URL |\n"
+        "| --- | --- |\n"
+        f"{table_rows}\n",
+        encoding="utf-8",
+    )
+
+
+def _patch_redirect_run_side_effects(monkeypatch: pytest.MonkeyPatch) -> dict[str, int]:
     monkeypatch.setenv("AUTODOC_ENABLED", "true")
     monkeypatch.setattr(runner, "_assert_canary", lambda config: None)
     monkeypatch.setattr(runner, "_reconcile_automerge", lambda config: None)
     monkeypatch.setattr(runner, "_create_worktree", lambda config: config.repo_path)
     monkeypatch.setattr(runner, "_remove_worktree", lambda config, work_path: None)
-    report = tmp_path / "reports" / "monitoring" / "learn-changes-x.md"
-    report.parent.mkdir(parents=True)
-    report.write_text("irrelevant", encoding="utf-8")
-    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
-    fingerprint = "sha256:unchanged-human"
-    contract = {
-        "fingerprint": fingerprint,
-        "report_path": "reports/monitoring/learn-changes-x.md",
-        "source_url": "https://learn.microsoft.com/en-us/content",
-        "content_hash": "sha256:content",
-    }
-    spec = {
-        "fingerprint": fingerprint,
-        "route": "human",
-        "body": "```json\n" + json.dumps(contract) + "\n```",
-        "title": "Autodoc human review: content",
-        "labels": ["autodoc", "escalate"],
-    }
-
-    def route_once_unledgered(text: str, name: str, ledger: dict[str, Any], **_kwargs: Any) -> list[dict[str, Any]]:
-        return [] if fingerprint in ledger.get("changes", {}) else [spec]
-
-    monkeypatch.setattr(runner.autodoc_route, "route_report", route_once_unledgered)
-    issue_create_calls = 0
+    monkeypatch.setattr(runner, "_git", lambda config, *args: "")
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, baseline: None)
+    calls = {"issue_create": 0}
 
     def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
-        nonlocal issue_create_calls
         if args[:3] == ["gh", "issue", "list"]:
             return _FakeCompleted(0, stdout="[]")
         if args[:3] == ["gh", "issue", "create"]:
-            issue_create_calls += 1
-            return _FakeCompleted(0, stdout="https://github.com/x/y/issues/101")
+            calls["issue_create"] += 1
+            return _FakeCompleted(0, stdout=f"https://github.com/x/y/issues/{100 + calls['issue_create']}")
         if args[:3] == ["gh", "issue", "close"]:
             return _FakeCompleted(0, stdout="closed")
         raise AssertionError(f"unexpected command: {args}")
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    return calls
+
+
+def test_run_processes_fragment_distinct_redirects_before_seen_dedupe(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls = _patch_redirect_run_side_effects(monkeypatch)
+    _write_redirect_catalog(tmp_path)
+    report = tmp_path / "reports" / "monitoring" / "learn-changes-fragments.md"
+    source = "https://learn.microsoft.com/en-us/purview/create-retention-policies"
+    destination = "https://learn.microsoft.com/en-us/purview/retention"
+    _write_redirect_report(
+        report,
+        [
+            (source, destination),
+            (f"{source}#retaining-content-thats-in-sharepoint-sites", destination),
+        ],
+    )
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+
+    result = runner.run(_config(tmp_path))
+
+    statuses = [outcome["status"] for outcome in result["outcomes"]]
+    fingerprints = [outcome["fingerprint"] for outcome in result["outcomes"]]
+    assert statuses == ["escalated", "escalated"]
+    assert len(set(fingerprints)) == 2
+    assert calls["issue_create"] == 2
+
+
+def test_run_twice_on_unchanged_human_input_creates_one_issue_total(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls = _patch_redirect_run_side_effects(monkeypatch)
+    _write_redirect_catalog(tmp_path)
+    source = "https://learn.microsoft.com/en-us/purview/create-retention-policies"
+    destination = "https://learn.microsoft.com/en-us/purview/retention"
+    first_report = tmp_path / "reports" / "monitoring" / "learn-changes-2026-09-29.md"
+    second_report = tmp_path / "reports" / "monitoring" / "learn-changes-2026-09-30.md"
+    _write_redirect_report(first_report, [(source, destination)])
+    _write_redirect_report(second_report, [(source, destination)])
+    reports = iter([first_report, second_report])
+    monkeypatch.setattr(runner, "_latest_report", lambda config: next(reports))
 
     first = runner.run(_config(tmp_path))
     second = runner.run(_config(tmp_path))
 
     assert first["outcomes"][0]["status"] == "escalated"
     assert second["outcomes"] == []
-    assert issue_create_calls == 1
+    assert calls["issue_create"] == 1
 
 
 def test_open_pr_failure_does_not_record_pr_open(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:

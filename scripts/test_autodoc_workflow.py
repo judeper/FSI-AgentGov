@@ -204,6 +204,38 @@ def test_derive_trusted_contract_fails_on_route_mismatch(monkeypatch: pytest.Mon
         )
 
 
+def test_derive_trusted_contract_fragment_redirect_resolves_exactly_one_match(tmp_path: Path) -> None:
+    report_rel = "reports/monitoring/learn-changes-fragments.md"
+    report_file = tmp_path / "reports" / "monitoring" / "learn-changes-fragments.md"
+    report_file.parent.mkdir(parents=True)
+    source = "https://learn.microsoft.com/en-us/purview/create-retention-policies"
+    destination = "https://learn.microsoft.com/en-us/purview/retention"
+    report_file.write_text(
+        "# Learn Monitor report\n\n"
+        "## URL Redirects Detected\n\n"
+        "| Original URL | Final URL |\n"
+        "| --- | --- |\n"
+        f"| {source} | {destination} |\n"
+        f"| {source}#retaining-content-thats-in-sharepoint-sites | {destination} |\n",
+        encoding="utf-8",
+    )
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text("# Microsoft Learn URLs\n\n## Microsoft Purview\n", encoding="utf-8")
+    specs = workflow._route_specs_for_report(report_file.read_text(encoding="utf-8"), report_file.name, tmp_path)
+    fragment_spec = next(spec for spec in specs if "#retaining-content-thats-in-sharepoint-sites" in spec["body"])
+
+    resolved = workflow.derive_trusted_contract(
+        f"AUTODOC-FINGERPRINT: {fragment_spec['fingerprint']}\n"
+        f"AUTODOC-REPORT: {report_rel}\n"
+        "AUTODOC-ROUTE: autodraft\n",
+        repo_root=tmp_path,
+    )
+
+    assert resolved["fingerprint"] == fragment_spec["fingerprint"]
+    assert resolved["contract"]["source_url"] == f"{source}#retaining-content-thats-in-sharepoint-sites"
+
+
 def test_derive_trusted_contract_fails_closed_for_missing_report_file(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="does not exist on base checkout"):
         workflow.derive_trusted_contract(

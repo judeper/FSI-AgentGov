@@ -58,7 +58,7 @@ def test_redirect_fingerprint_distinguishes_a_to_b_from_a_to_c():
     assert to_b != to_c
 
 
-def test_redirect_fingerprint_uses_endpoint_identity_not_report_or_reason():
+def test_redirect_fingerprint_uses_source_and_destination_url_not_report_or_reason():
     first_report = route.compute_fingerprint(
         "learn-changes-2026-06-18.md",
         "https://learn.microsoft.com/a?msockid=tracked",
@@ -90,7 +90,7 @@ def test_redirect_fingerprint_uses_endpoint_identity_not_report_or_reason():
     assert content_first_report != content_later_report
 
 
-def test_redirect_fingerprint_endpoint_canonicalization_decisions():
+def test_redirect_fingerprint_preserves_fragments_without_reintroducing_report_identity():
     base = route.compute_fingerprint(
         "learn-changes-2026-09-27.md",
         "HTTPS://LEARN.MICROSOFT.COM/en-us/Path?view=power-platform&utm_source=monitor#source-section",
@@ -98,12 +98,26 @@ def test_redirect_fingerprint_endpoint_canonicalization_decisions():
         [route.REDIRECT_TARGET_FILE],
         "HTTPS://LEARN.MICROSOFT.COM/en-us/Destination?view=power-platform#destination-section",
     )
-    same_endpoint = route.compute_fingerprint(
+    same_redirect_different_report = route.compute_fingerprint(
         "learn-changes-2026-09-28.md",
-        "https://learn.microsoft.com/en-us/Path?view=power-platform",
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Path?view=power-platform#source-section",
         "REDIRECT_AMBIGUOUS",
         ["docs/unexpected.md"],
-        "https://learn.microsoft.com/en-us/Destination?view=power-platform",
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Destination?view=power-platform#destination-section",
+    )
+    different_source_fragment = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Path?view=power-platform#other-source-section",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Destination?view=power-platform#destination-section",
+    )
+    different_destination_fragment = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Path?view=power-platform#source-section",
+        "REDIRECT",
+        [route.REDIRECT_TARGET_FILE],
+        "HTTPS://LEARN.MICROSOFT.COM/en-us/Destination?view=power-platform#other-destination-section",
     )
     different_trailing_slash = route.compute_fingerprint(
         "learn-changes-2026-09-27.md",
@@ -127,12 +141,33 @@ def test_redirect_fingerprint_endpoint_canonicalization_decisions():
         "https://learn.microsoft.com/en-us/Destination?view=power-platform",
     )
 
-    assert base == same_endpoint
+    assert base == same_redirect_different_report
+    assert base != different_source_fragment
+    assert base != different_destination_fragment
     # Conservative identity: path spelling, trailing slash, locale path segment, and
     # functional query values remain significant so different Learn pages do not merge.
     assert base != different_trailing_slash
     assert base != different_locale
     assert base != different_query
+
+
+def test_redirect_fingerprint_malformed_destination_uses_stable_no_destination_state():
+    no_destination = route.compute_fingerprint(
+        "learn-changes-2026-09-27.md",
+        "https://learn.microsoft.com/en-us/source",
+        "REDIRECT_CONFLICT",
+        [],
+        "",
+    )
+    malformed_destination = route.compute_fingerprint(
+        "learn-changes-2026-09-28.md",
+        "https://learn.microsoft.com/en-us/source",
+        "REDIRECT_CONFLICT",
+        ["docs/ignored-for-redirect-identity.md"],
+        "https://[::1/x",
+    )
+
+    assert no_destination == malformed_destination
 
 
 def test_build_contract_redirect_keeps_operational_urls_separate_from_identity(tmp_path):
