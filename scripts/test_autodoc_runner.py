@@ -1691,6 +1691,285 @@ def _patch_redirect_run_side_effects(monkeypatch: pytest.MonkeyPatch) -> dict[st
     return calls
 
 
+def _redirect_entry(pr_number: int = 1352, **overrides: Any) -> dict[str, Any]:
+    entry: dict[str, Any] = {
+        "state": "pr_open",
+        "route": "autodraft",
+        "classification": "REDIRECT",
+        "detail": f"https://github.com/judeper/FSI-AgentGov/pull/{pr_number} (OceanSquad merge)",
+    }
+    entry.update(overrides)
+    return entry
+
+
+def _write_autodoc_ledger(path: Path, changes: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"schema_version": 1, "changes": changes}, indent=2), encoding="utf-8")
+
+
+def test_reconcile_reverted_redirect_reroutes_and_preserves_retry_count(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("AUTODOC_ENABLED", "true")
+    monkeypatch.setattr(runner, "_assert_canary", lambda config: None)
+    monkeypatch.setattr(runner, "_reconcile_automerge", lambda config: None)
+    monkeypatch.setattr(runner, "_create_worktree", lambda config: config.repo_path)
+    monkeypatch.setattr(runner, "_remove_worktree", lambda config, work_path: None)
+    monkeypatch.setattr(
+        runner,
+        "_fetch_pr_state",
+        lambda config, sample: runner.autodoc_automerge.PrState("merged", merge_sha="abc123"),
+    )
+    monkeypatch.setattr(runner, "_commit_revert_status", lambda config, sha: True)
+
+    source = "https://learn.microsoft.com/en-us/purview/create-retention-policies"
+    destination = "https://learn.microsoft.com/en-us/purview/retention"
+    _write_redirect_catalog(tmp_path)
+    catalog = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    catalog.write_text(catalog.read_text(encoding="utf-8").replace("https://learn.microsoft.com/en-us/existing", source), encoding="utf-8")
+    report = tmp_path / "reports" / "monitoring" / "learn-changes-2026-09-30.md"
+    _write_redirect_report(report, [(source, destination)])
+    fingerprint = route.compute_fingerprint(report.name, source, "REDIRECT", [route.REDIRECT_TARGET_FILE], destination)
+    _write_autodoc_ledger(tmp_path / "data" / "autodoc-ledger.json", {fingerprint: _redirect_entry()})
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+    diff = f"--- a/x\n+++ b/x\n@@ -1 +1 @@\n-| Existing | {source} | Sep 2026 |\n+| Existing | {destination} | Sep 2026 |\n"
+    monkeypatch.setattr(runner, "_git", _redirect_git_mock(diff))
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, baseline: None)
+    monkeypatch.setattr(
+        runner,
+        "_push_and_create_pr",
+        lambda config, ctx, body: "https://github.com/judeper/FSI-AgentGov/pull/1400",
+    )
+
+    result = runner.run(_config(tmp_path))
+
+    assert result["outcomes"][0]["status"] == "pr_opened"
+    ledger = route.load_ledger(tmp_path / "data" / "autodoc-ledger.json")
+    entry = ledger["changes"][fingerprint]
+    assert entry["state"] == "pr_open"
+    assert entry["retries"] == 1
+    assert entry["retry_history"][0]["reason"] == "merged_reverted"
+    assert entry["detail"].startswith("https://github.com/judeper/FSI-AgentGov/pull/1400")
+
+
+def test_reconcile_closed_unmerged_retries_once_then_exhausts(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    cfg = _config(tmp_path)
+    ledger = {"schema_version": 1, "changes": {"sha256:redir": _redirect_entry()}}
+    monkeypatch.setattr(runner, "_fetch_pr_state", lambda config, sample: runner.autodoc_automerge.PrState("closed"))
+
+    first = runner._reconcile_redirect_retries(cfg, ledger)
+
+    entry = ledger["changes"]["sha256:redir"]
+    assert first["retry_pending"][0]["reason"] == "closed_unmerged"
+    assert entry["state"] == "retry_pending"
+    assert entry["retries"] == 1
+
+    entry["state"] = "pr_open"
+    entry["detail"] = "https://github.com/judeper/FSI-AgentGov/pull/1401"
+    second = runner._reconcile_redirect_retries(cfg, ledger)
+
+    assert second["retry_exhausted"][0]["reason"] == "closed_unmerged_limit"
+    assert entry["state"] == "retry_exhausted"
+    assert entry["retries"] == 1
+
+
+def test_reconcile_redirect_retry_cap_blocks_third_attempt(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    cfg = _config(tmp_path)
+    ledger = {
+        "schema_version": 1,
+        "changes": {
+            "sha256:redir": _redirect_entry(
+                retries=2,
+                retry_history=[
+                    {"retry": 1, "reason": "merged_reverted"},
+                    {"retry": 2, "reason": "merged_reverted"},
+                ],
+            )
+        },
+    }
+    monkeypatch.setattr(
+        runner,
+        "_fetch_pr_state",
+        lambda config, sample: runner.autodoc_automerge.PrState("merged", merge_sha="abc123"),
+    )
+    monkeypatch.setattr(runner, "_commit_revert_status", lambda config, sha: True)
+
+    summary = runner._reconcile_redirect_retries(cfg, ledger)
+
+    entry = ledger["changes"]["sha256:redir"]
+    assert summary["retry_exhausted"][0]["reason"] == "retry_cap_reached"
+    assert entry["state"] == "retry_exhausted"
+    assert entry["retries"] == 2
+
+
+@pytest.mark.parametrize(
+    ("entry", "observed", "reverted", "expected_reason"),
+    [
+        (_redirect_entry(detail="not a github pr"), None, None, "unparseable_or_foreign_pr_url"),
+        (
+            _redirect_entry(detail="https://github.com/other/Repo/pull/1352"),
+            None,
+            None,
+            "unparseable_or_foreign_pr_url",
+        ),
+        (_redirect_entry(), runner.autodoc_automerge.PrState("open"), None, "open_or_unknown"),
+        (_redirect_entry(), runner.autodoc_automerge.PrState("merged", merge_sha="abc123"), None, "revert_lookup_error"),
+    ],
+)
+def test_reconcile_failures_keep_redirect_suppressed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    entry: dict[str, Any],
+    observed: runner.autodoc_automerge.PrState | None,
+    reverted: bool | None,
+    expected_reason: str,
+) -> None:
+    cfg = _config(tmp_path)
+    ledger = {"schema_version": 1, "changes": {"sha256:redir": dict(entry)}}
+    fetch_calls: list[int] = []
+
+    def fake_fetch(config: Any, sample: dict[str, Any]) -> runner.autodoc_automerge.PrState:
+        fetch_calls.append(int(sample["pr_number"]))
+        if observed is None:
+            raise AssertionError("fetch should not run")
+        return observed
+
+    monkeypatch.setattr(runner, "_fetch_pr_state", fake_fetch)
+    monkeypatch.setattr(runner, "_commit_revert_status", lambda config, sha: reverted)
+
+    summary = runner._reconcile_redirect_retries(cfg, ledger)
+
+    assert ledger["changes"]["sha256:redir"]["state"] == "pr_open"
+    assert summary["skipped"][0]["reason"] == expected_reason
+    if observed is None:
+        assert fetch_calls == []
+
+
+def test_reconcile_pr_lookup_exception_keeps_redirect_suppressed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    ledger = {"schema_version": 1, "changes": {"sha256:redir": _redirect_entry()}}
+    monkeypatch.setattr(
+        runner,
+        "_fetch_pr_state",
+        lambda config, sample: (_ for _ in ()).throw(RuntimeError("gh unavailable")),
+    )
+
+    summary = runner._reconcile_redirect_retries(_config(tmp_path), ledger)
+
+    assert ledger["changes"]["sha256:redir"]["state"] == "pr_open"
+    assert summary["skipped"][0]["reason"].startswith("pr_lookup_error:")
+
+
+def test_reconcile_content_escalated_human_and_legacy_entries_untouched(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    ledger = {
+        "schema_version": 1,
+        "changes": {
+            "sha256:content": _redirect_entry(classification="MEDIUM"),
+            "sha256:escalated": _redirect_entry(state="escalated"),
+            "sha256:human": _redirect_entry(state="human_escalated"),
+            "sha256:legacy": {
+                "state": "pr_open",
+                "route": "autodraft",
+                "detail": "https://github.com/judeper/FSI-AgentGov/pull/1352",
+            },
+        },
+    }
+    before = json.loads(json.dumps(ledger))
+    monkeypatch.setattr(runner, "_fetch_pr_state", lambda config, sample: pytest.fail("must not query non-redirect rows"))
+
+    summary = runner._reconcile_redirect_retries(_config(tmp_path), ledger)
+
+    assert ledger == before
+    assert summary["checked"] == 0
+    assert summary["skipped"] == [{"fingerprint": "sha256:legacy", "reason": "missing_redirect_classification"}]
+
+
+def test_reconcile_dry_run_does_not_write_ledger(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "data" / "autodoc-ledger.json"
+    _write_autodoc_ledger(path, {"sha256:redir": _redirect_entry()})
+    before = path.read_text(encoding="utf-8")
+    ledger = route.load_ledger(path)
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b", dry_run=True)
+    monkeypatch.setattr(runner, "_fetch_pr_state", lambda config, sample: runner.autodoc_automerge.PrState("closed"))
+
+    runner._reconcile_redirect_retries(cfg, ledger)
+
+    assert path.read_text(encoding="utf-8") == before
+    assert ledger["changes"]["sha256:redir"]["state"] == "retry_pending"
+
+
+def test_record_ledger_preserves_redirect_retry_counters(tmp_path: Path) -> None:
+    ledger_path = tmp_path / "data" / "autodoc-ledger.json"
+    _write_autodoc_ledger(
+        ledger_path,
+        {
+            "sha256:redir01": _redirect_entry(
+                state="retry_pending",
+                retries=1,
+                retry_history=[{"retry": 1, "reason": "closed_unmerged"}],
+            )
+        },
+    )
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+
+    runner._record_ledger(cfg, ctx, "pr_open", "https://github.com/judeper/FSI-AgentGov/pull/1400")
+
+    entry = route.load_ledger(ledger_path)["changes"]["sha256:redir01"]
+    assert entry["state"] == "pr_open"
+    assert entry["retries"] == 1
+    assert entry["retry_history"] == [{"retry": 1, "reason": "closed_unmerged"}]
+    assert entry["classification"] == "REDIRECT"
+
+
+def test_retry_pending_reroutes_without_incrementing_when_absent_from_report(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("AUTODOC_ENABLED", "true")
+    monkeypatch.setattr(runner, "_assert_canary", lambda config: None)
+    monkeypatch.setattr(runner, "_reconcile_automerge", lambda config: None)
+    monkeypatch.setattr(runner, "_fetch_pr_state", lambda config, sample: pytest.fail("pending entries must not be re-queried"))
+    report = tmp_path / "reports" / "monitoring" / "learn-changes-empty.md"
+    report.parent.mkdir(parents=True)
+    report.write_text("# Learn Monitor report\n\nNo changes.\n", encoding="utf-8")
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+    _write_autodoc_ledger(
+        tmp_path / "data" / "autodoc-ledger.json",
+        {
+            "sha256:redir": _redirect_entry(
+                state="retry_pending",
+                retries=1,
+                retry_history=[{"retry": 1, "reason": "merged_reverted"}],
+            )
+        },
+    )
+
+    result = runner.run(_config(tmp_path))
+
+    entry = route.load_ledger(tmp_path / "data" / "autodoc-ledger.json")["changes"]["sha256:redir"]
+    assert result["outcomes"] == []
+    assert entry["state"] == "retry_pending"
+    assert entry["retries"] == 1
+    assert route.already_processed({"changes": {"sha256:redir": entry}}, "sha256:redir") is False
+
+
 def test_run_processes_fragment_distinct_redirects_before_seen_dedupe(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

@@ -161,7 +161,10 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
 - **Stale worktrees:** the task prunes them each run (`git worktree prune`); a crashed run may leave a
   `.autodoc-worktree-<pid>` dir next to the repo — safe to delete.
 - **Audit trail:** every change carries a stable `AUTODOC-FINGERPRINT`; `data/autodoc-ledger.json`
-  records routed changes; the cross-model review verdict appears in the PR body.
+  records routed changes; the cross-model review verdict appears in the PR body. Redirect `pr_open`
+  ledger rows include `classification`, plus optional `retries` / `retry_history` fields. A redirect
+  PR that is closed without merge is retried at most once; a merged redirect PR is retried only if
+  its merge commit is later reverted; and total retries are capped at two per fingerprint.
 
 ## Redirect agreement telemetry (observational; native auto-merge disabled)
 
