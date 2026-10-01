@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Consolidated 9 Learn Monitor daily drift reports (2026-05-27 through 2026-06-04) from bot PRs #343–#383 into main via consolidation PR #385. Superseded PRs closed; `data/monitor-state.json` updated to newest cumulative state.
 
 ### Changed
+- **Optional autodoc run logging (`scripts/Register-AutodocTask.ps1 -LogDirectory`).** When registered with `-LogDirectory`, the scheduled task appends each run to a per-day `autodoc-YYYY-MM-DD.log`: start and end markers, the runner's stdout and stderr including the final JSON summary, any fail-closed auth or checkout-sync error, and the exit code. Logs older than `-LogRetentionDays` (default 35) are deleted. With a log directory, the task's `LastTaskResult` is the runner's exit code, and Python is forced to unbuffered UTF-8 output so that piped output cannot crash the runner on a non-ANSI character. Without `-LogDirectory`, the generated task command is byte-identical to before.
 - **Repository clean-state guidance.** Added the `/repo-clean-state` workspace prompt with classify-before-delete rules, an approved ignored-path preserve list, and binary handoff criteria. Corrected the project Git workflow skill and its Squad regeneration template from an inapplicable `dev`/`insiders` model to the repository's protected-`main` PR, worktree, dual-account, and post-merge cleanup workflow; added concise pointers in `AGENTS.md`, Copilot instructions, and the diagnostic health-check prompt.
 
 ### Fixed

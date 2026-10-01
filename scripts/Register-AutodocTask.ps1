@@ -62,6 +62,16 @@
     GitHub account used for all repository writes (push, PR, escalation issues). Its token is read
     from the gh keyring at task time and used for both git and gh. Default 'judeper'.
 
+.PARAMETER LogDirectory
+    Optional directory for per-day run logs (autodoc-YYYY-MM-DD.log). When set, each run appends its
+    start/end markers, the runner's stdout/stderr (including the final JSON summary), any fail-closed
+    preamble error, and the exit code, and the task's LastTaskResult reflects the runner's exit code.
+    When omitted (the default), the task command is unchanged and runner output is not captured.
+
+.PARAMETER LogRetentionDays
+    Days to keep autodoc-*.log files in -LogDirectory; older ones are deleted at the start of each
+    run. Default 35. Ignored unless -LogDirectory is set.
+
 .EXAMPLE
     ./Register-AutodocTask.ps1 -RepoPath C:\dev\FSI-AgentGov -DraftModel claude-opus-4.8 -ReviewModel gpt-5.5
 
@@ -91,7 +101,12 @@ param(
 
     [string]$PushAccount = 'judeper',
 
-    [string]$CheckoutPath = ''
+    [string]$CheckoutPath = '',
+
+    [string]$LogDirectory = '',
+
+    [ValidateRange(1, 3650)]
+    [int]$LogRetentionDays = 35
 )
 
 Set-StrictMode -Version Latest
@@ -221,7 +236,48 @@ $syncSetup = @(
     "git -C $checkoutLit worktree prune"
 ) -join '; '
 
-$innerCommand = "$authSetup; $syncSetup; & $pythonLit $runnerLit --repo $checkoutLit --draft-model $draftLit --review-model $reviewLit"
+$runnerCommand = "& $pythonLit $runnerLit --repo $checkoutLit --draft-model $draftLit --review-model $reviewLit"
+
+if ([string]::IsNullOrWhiteSpace($LogDirectory)) {
+    $innerCommand = "$authSetup; $syncSetup; $runnerCommand"
+}
+else {
+    # Optional run log. The preamble and runner run inside try/catch so a fail-closed throw is logged
+    # (and still stops the runner) and the task exits with the runner's own exit code. Logging is
+    # best-effort: a log write failure never blocks or alters the run. Python is forced to unbuffered
+    # UTF-8 output because piping switches its stdout to the ANSI code page, where printing a
+    # non-ANSI character would otherwise crash the runner.
+    $logDirLit = ConvertTo-PSLiteral -Value ([System.IO.Path]::GetFullPath($LogDirectory))
+    $logTemplate = @'
+$autodocLogDir = __LOGDIR__
+$autodocLog = Join-Path $autodocLogDir ('autodoc-' + (Get-Date -Format 'yyyy-MM-dd') + '.log')
+function Write-AutodocLog([string]$Line) { try { Add-Content -LiteralPath $autodocLog -Value $Line -Encoding UTF8 } catch { $null = $_ } }
+try {
+    $null = New-Item -ItemType Directory -Force -Path $autodocLogDir
+    Get-ChildItem -LiteralPath $autodocLogDir -Filter 'autodoc-*.log' -File | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-__RETENTION__) } | Remove-Item -Force
+} catch { $null = $_ }
+Write-AutodocLog ('=== autodoc start ' + (Get-Date -Format o) + ' pid=' + $PID)
+$autodocExit = 1
+try {
+    __PREAMBLE__
+    $env:PYTHONUNBUFFERED = '1'
+    $env:PYTHONIOENCODING = 'utf-8'
+    try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { $null = $_ }
+    __RUNNER__ 2>&1 | ForEach-Object { Write-AutodocLog ([string]$_) }
+    $autodocExit = $LASTEXITCODE
+} catch {
+    Write-AutodocLog ('FATAL: ' + $_.Exception.Message)
+    $autodocExit = 1
+}
+Write-AutodocLog ('=== autodoc end exit=' + $autodocExit + ' ' + (Get-Date -Format o))
+exit $autodocExit
+'@
+    $innerCommand = $logTemplate.
+        Replace('__LOGDIR__', $logDirLit).
+        Replace('__RETENTION__', [string]$LogRetentionDays).
+        Replace('__PREAMBLE__', "$authSetup; $syncSetup").
+        Replace('__RUNNER__', $runnerCommand)
+}
 $encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($innerCommand))
 $argument = "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encodedCommand"
 

@@ -100,6 +100,10 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
    ```
    Pick a powerful draft model and a **different family** for review (e.g. an Opus/GPT/Gemini split).
    For another repo, pass `-PushAccount <owner>` if its writes use a different account.
+   Add `-LogDirectory <dir>` (optionally `-LogRetentionDays <n>`, default 35) to capture each run in
+   `<dir>\autodoc-YYYY-MM-DD.log`: start/end markers, the runner's stdout/stderr including the final
+   JSON summary (`retry_summary` and counts), any fail-closed preamble error, and the exit code. With a
+   log directory, the task's `LastTaskResult` is the runner's exit code. Without it, output is discarded.
 
    > **Dedicated checkout.** The task does **not** run against your working tree. The script clones a
    > dedicated checkout once (default sibling `C:\dev\FSI-AgentGov.autodoc`, override with
@@ -144,6 +148,9 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
   `Start-ScheduledTask -TaskName 'FSI-AgentGov-Autodoc'`; dry run with
   `python scripts/autodoc_runner.py --repo . --draft-model <m> --review-model <m> --dry-run` (with
   `AUTODOC_ENABLED=true` in the session).
+- **Run logs (when registered with `-LogDirectory`):** read the day's `autodoc-YYYY-MM-DD.log`; each
+  run ends with `=== autodoc end exit=<code>`. A `FATAL:` line means the fail-closed auth or checkout
+  sync preamble stopped the run before the runner started.
 - **Consolidate stale queue siblings (exact-source):** snapshot issues then run the
   consolidator in reviewed dry-run mode, then a guarded apply:
   `gh issue list --state all --label autodoc --json number,url,state,stateReason,body --limit 500 > autodoc-issues-all.json`
