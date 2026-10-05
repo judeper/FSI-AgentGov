@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:ec9d69462df55822f89b1dfbecb62588daaa995ca4bd7f6677397bdd0d531210",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573335,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>\"Let an AI agent schedule profiling for a Business Central session, collect CPU and memory data, identify costly AL paths, and summarize SQL and HTTP activity.</p>\n<p>Business value: Developers and administrators can investigate slow Business Central sessions with help from an AI agent instead of manually collecting and interpreting performance profiles. The agent can capture the affected session, identify expensive AL call paths, and summarize whether CPU or managed-memory usage contributes to the problem. This guided workflow shortens the time from a reported performance problem to actionable code-level findings, even when the user isn't already debugging the session.\"</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573335",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Development - Profile slow Business Central sessions with AI agents"
+}

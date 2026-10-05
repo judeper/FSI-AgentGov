@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:d8d451b562d8afc713207d862bf1212d6b99287690fd8cd16c78bb0b390789b0",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "November CY2026",
+  "id": 570853,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Work IQ"
+  ],
+  "raw_description": "<p>Enable Work IQ to invoke custom agents and agents that call supported third-party tools.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570853",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Work IQ: Custom agents + 3P calls"
+}

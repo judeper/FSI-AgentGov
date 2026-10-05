@@ -1,0 +1,32 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:c377de5b7f830e6e94978fac0765563f41af6f8b83622758202d29064ef213fb",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "November CY2026",
+  "id": 570430,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Makers can now give their Copilot Studio agents their own accounts, making it a governed Microsoft 365 identity for shared, collaborative business processes that spans across teams. With its own mailbox, Teams presence &amp; Office access, the agent can collaborate where work happens while admins can control and govern its access, policies and use as its own first-class entity.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570430",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:identity"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Persistent identity for Copilot Studio Agents"
+}

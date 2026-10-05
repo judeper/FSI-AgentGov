@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:dc31e121c44a05b22b9aca5d32c92bf76289a92b60b3e505b0aa83f174ebad32",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "March CY2026",
+  "id": 543422,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2025",
+  "products": [
+    "Excel",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Excel Agent helps you turn data into clear charts, summaries, and insights using built‑in formulas and logic. It streamlines data preparation, formulas, and visualization so you can stay focused on the story behind the numbers. Use multi‑turn chat to refine your output or open it in Excel for full editing and collaboration. Ideal for financial forecasts, project plans, and decision‑making tools. Available to Microsoft 365 users with or without a Microsoft 365 Copilot license.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=543422",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Excel Agent"
+}

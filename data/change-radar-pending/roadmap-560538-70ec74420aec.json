@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:70ec74420aec1acc0887fbcb32262f13fc67ded12b596c0d7796690c7b055232",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 560538,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "May CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Viva"
+  ],
+  "raw_description": "<p>Users can export de-identified, row-level agent metrics and attributes from the Agent Dashboard. Exported data provides detailed insights into agent usage and user-level agent interactions across the organization, with personal identifiers removed.<br>\n#copilotcontrolsystem</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=560538",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Viva: Copilot Analytics - Export metrics from Agent Dashboard"
+}

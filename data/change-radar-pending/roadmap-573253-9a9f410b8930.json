@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:9a9f410b8930e8fe75f204654eb79017262631a8ed1bf39bddcc765a09081c52",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573253,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Expense Agent supports more languages and regions, enabling an experience for users in <strong>all countries/regions</strong> where Business Central is available, and adding the following languages: Czech, Dutch, Finnish, Icelandic, Italian, Norwegian, and Swedish.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573253",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - More countries and languages"
+}

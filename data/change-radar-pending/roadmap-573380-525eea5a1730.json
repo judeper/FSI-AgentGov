@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:525eea5a17304283a102e9afa5f9711f92136e67d501a4d8b2529aee62ac80ab",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573380,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>This feature improves PO matching quality in Payables Agent and aligns draft finalization behavior with existing posting controls.</p>\n<p>The agent uses an enriched <strong>PO Lines</strong> list page during matching that includes these fields:</p>\n<ul>\n<li>Line Amount — enables matching on value, not just description and quantity. This field is especially valuable for service lines where quantity (often just 1) isn't a meaningful discriminator.</li>\n<li>Expected Receipt Date — helps the agent factor in timing when multiple PO lines could match.</li>\n</ul>\n<p>By using these fields, the agent can more reliably distinguish between similar-looking PO lines, which improves accuracy in first-pass matches.</p>\n<p>The agent now respects the app's <em>Never block draft finalization</em> setting in the <strong>Receipt on Invoice</strong> field on purchase orders. This change means the agent doesn't block draft finalization because a matched PO line isn't yet marked as received. Whether goods are received is a posting time control, not a draft time control. The \"Receipt on Invoice\" setting on the order governs this behavior at posting.</p>\n<p>The \"Receipt on Invoice\" field is already available on purchase orders. With this release, we're expanding this setting to more entities:</p>\n<ul>\n<li>A new vendor-level \"Receipt on Invoice\" setting is introduced and automatically applied to new purchase orders created for a vendor.</li>\n<li>A new PO-line-level \"Receipt on Invoice\" setting allows per-line override. The inheritance chain for the setting is vendor, then purchase order, and then purchase order line, but each level can override the parent.</li>\n</ul>\n<p>We've also improved draft warnings. When the agent creates a purchase invoice draft matched to a PO, the draft surfaces warnings based not just on quantity, but also on amount. The draft warnings are for information only and don't block finalization. For example, they warn about the discrepancies in the draft and you can decide how to proceed.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573380",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Improve purchase order matching in Payables Agent"
+}

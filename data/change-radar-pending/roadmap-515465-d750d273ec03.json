@@ -1,0 +1,36 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:d750d273ec03feeeace1faa1f13f28eadb8afdffe4af0239e0d7cceea0223647",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 515465,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Teams"
+  ],
+  "raw_description": "<p>Discover and add SharePoint agents in chats and channels from in-context store. Users can click on 'Add agents and bots' from the roster drop down. This will open the in-context store, where users can discover SharePoint agents and add them directly to the conversation and collaborate in the group. Updated January 29, 2026: Due to a blocker we have paused rollout until March for this feature. We apologize for any inconvenience.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=515465",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "4.1",
+      "source": "keyword:sharepoint"
+    },
+    {
+      "id": "4.5",
+      "source": "keyword:sharepoint"
+    }
+  ],
+  "title": "Microsoft Teams: Adaptive card-based app & copilot agent link unfurling in Teams"
+}

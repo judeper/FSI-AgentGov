@@ -1,17 +1,17 @@
 {
   "change_type": "withdrawn",
-  "content_hash": "sha256:4c41e3bf241772e250fb0a4c4ee70a8db5fc09605b3bf2d81c0cbcb17a23be27",
+  "content_hash": "sha256:b997dd3583c0be75f50bda1562d464e6d6fcccf355781200c90359e7d59c1ca1",
   "detected_at": "2026-10-05T15:22:58Z",
   "ga_date": null,
-  "id": 490564,
+  "id": 502552,
   "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
   "preview_date": null,
   "products": [],
   "raw_description": null,
-  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=490564",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502552",
   "schema_version": 1,
   "source": "roadmap",
   "status": "Withdrawn",
   "suggested_controls": [],
-  "title": "Microsoft Teams:  Interactive Agents for Teams Meetings and Calls"
+  "title": "Microsoft Copilot (Microsoft 365): GPT-5 in Agent Builder inside Microsoft 365 Copilot "
 }

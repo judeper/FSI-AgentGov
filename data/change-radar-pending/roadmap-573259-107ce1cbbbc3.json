@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:107ce1cbbbc3194e388f71113323afb8282738f519fbe8631dfe153caa7f030f",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "December CY2026",
+  "id": 573259,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Expense Agent web app now uses dedicated resource assignments for projects to determine which projects are available to each user when they create or manage expense entries. Key capabilities include:</p>\n<ul>\n<li>You can assign dedicated resources (employees) to the whole project or to the specific task.</li>\n<li>Display only projects or/and tasks where the user is assigned as a resource.</li>\n<li>Automatically filter project lists based on project-resource relationships.</li>\n<li>Reduce the risk of users selecting projects that aren't relevant to their role or assignments.</li>\n</ul>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573259",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Use assigned projects only in the web app"
+}
