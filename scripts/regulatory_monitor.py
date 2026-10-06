@@ -1987,9 +1987,53 @@ def _finra_partition_proof_errors(
             expected_unclassified_observations
         )
     )
+    expected_payload_sources = _finra_unclassified_payload_sources(
+        expected_unclassified_observations
+    )
+    expected_discard_records = []
+    expected_discarded_payload_keys: set[str] = set()
     expected_merged_payloads = _finra_merged_unclassified_payloads(
         expected_unclassified_observations
     )
+    for payload in expected_merged_payloads:
+        identity = _finra_payload_node_identity(payload)
+        payload_key = _finra_semantic_payload_sort_key(payload)
+        if (
+            identity is None
+            or identity not in canonical_by_identity
+            or payload_key not in canonical_by_identity[identity]
+        ):
+            continue
+        expected_discard_records.append({
+            "identity": identity,
+            "count": 1,
+            "sources": sorted(
+                expected_payload_sources.get(payload_key, {"unknown"})
+            ),
+        })
+        expected_discarded_payload_keys.add(payload_key)
+    expected_duplicate_discards = (
+        _finra_duplicate_observation_discard_summary(
+            expected_discard_records
+        )
+    )
+    expected_unclassified_observations = (
+        _finra_filter_unclassified_observations(
+            expected_unclassified_observations,
+            expected_discarded_payload_keys,
+        )
+    )
+    expected_merged_payloads = _finra_merged_unclassified_payloads(
+        expected_unclassified_observations
+    )
+    actual_duplicate_discards = proof.get("duplicate_observation_discards")
+    if (
+        expected_duplicate_discards["count"] > 0
+        or actual_duplicate_discards is not None
+    ) and actual_duplicate_discards != expected_duplicate_discards:
+        errors.append(
+            f"{label} duplicate-observation discard diagnostics are invalid"
+        )
     if (
         not isinstance(unclassified, dict)
         or set(unclassified) != expected_unclassified_keys
@@ -7454,6 +7498,96 @@ def _finra_merged_unclassified_payloads(
     ]
 
 
+def _finra_observation_source_label(observation: dict) -> str:
+    source = str(observation.get("source", "unknown"))
+    year = observation.get("year")
+    if source == "year-page-zero" and isinstance(year, dict):
+        label = year.get("label")
+        if isinstance(label, str) and label:
+            return f"{source}:{label}"
+    return source
+
+
+def _finra_payload_node_identity(payload: dict) -> Optional[str]:
+    detail_url = _finra_row_detail_target(payload)
+    if detail_url is None:
+        return None
+    _detail_url, identity = _finra_normalize_detail_link(detail_url)
+    return identity
+
+
+def _finra_duplicate_observation_discard_summary(
+    records: list[dict],
+) -> dict:
+    by_identity: dict[str, dict] = {}
+    for record in records:
+        identity = record["identity"]
+        entry = by_identity.setdefault(
+            identity,
+            {
+                "identity": identity,
+                "count": 0,
+                "sources": set(),
+            },
+        )
+        entry["count"] += int(record.get("count", 1))
+        entry["sources"].update(record.get("sources", []))
+    return {
+        "count": sum(item["count"] for item in by_identity.values()),
+        "identities": [
+            {
+                "identity": identity,
+                "count": by_identity[identity]["count"],
+                "sources": sorted(by_identity[identity]["sources"]),
+            }
+            for identity in sorted(by_identity)
+        ],
+    }
+
+
+def _finra_unclassified_payload_sources(
+    observations: list[dict],
+) -> dict[str, set[str]]:
+    sources: dict[str, set[str]] = {}
+    for observation in observations:
+        source_label = _finra_observation_source_label(observation)
+        for payload in observation.get("row_payloads", []):
+            sources.setdefault(
+                _finra_semantic_payload_sort_key(payload),
+                set(),
+            ).add(source_label)
+    return sources
+
+
+def _finra_filter_unclassified_observations(
+    observations: list[dict],
+    discarded_payload_keys: set[str],
+) -> list[dict]:
+    if not discarded_payload_keys:
+        return observations
+    filtered = []
+    for observation in observations:
+        retained_payloads = [
+            payload
+            for payload in observation.get("row_payloads", [])
+            if _finra_semantic_payload_sort_key(payload)
+            not in discarded_payload_keys
+        ]
+        if not retained_payloads:
+            continue
+        replacement = deepcopy(observation)
+        updated = _finra_unclassified_observation(
+            source=replacement["source"],
+            year=replacement["year"],
+            declared_pages=replacement["declared_pages"],
+            page_numbers=replacement["page_numbers"],
+            page_identities=replacement["page_identities"],
+            payloads=retained_payloads,
+        )
+        filtered.append(updated)
+    return _finra_deduplicate_unclassified_observations(filtered)
+
+
 def _finra_unclassified_evidence(
     observations: list[dict],
     rows: list[dict],
@@ -7759,6 +7893,9 @@ def _finra_canonical_partition_result(
             unclassified_observations
         )
     )
+    unclassified_payload_sources = _finra_unclassified_payload_sources(
+        unclassified_observations
+    )
     merged_unclassified_payloads = _finra_merged_unclassified_payloads(
         unclassified_observations
     )
@@ -7789,20 +7926,86 @@ def _finra_canonical_partition_result(
             row["node_identity"],
             [],
         ).append(row)
+    accepted_unclassified_rows = []
+    duplicate_observation_records = []
+    duplicate_observation_counter = Counter()
+    discarded_payload_keys: set[str] = set()
     for identity, identity_rows in unclassified_by_identity.items():
         identity_counter = Counter(
             _finra_semantic_payload_sort_key(row["raw_payload"])
             for row in identity_rows
         )
-        if identity in canonical_by_identity or len(identity_counter) != 1:
+        if identity in canonical_by_identity:
+            canonical_counter = canonical_by_identity[identity][0]
+            conflicting_keys = sorted(
+                payload_key
+                for payload_key in identity_counter
+                if payload_key not in canonical_counter
+            )
+            if conflicting_keys:
+                return {
+                    "complete": False,
+                    "error": (
+                        "FINRA unclassified evidence conflicts with "
+                        "classified payload for normalized identity "
+                        f"{identity} missing_count={len(identity_rows)}"
+                    ),
+                    "pass_proof": {},
+                }
+            sources = sorted({
+                source
+                for row in identity_rows
+                for source in unclassified_payload_sources.get(
+                    _finra_semantic_payload_sort_key(row["raw_payload"]),
+                    {"unknown"},
+                )
+            })
+            for payload_key, count in identity_counter.items():
+                duplicate_observation_counter[payload_key] += count
+                discarded_payload_keys.add(payload_key)
+            duplicate_observation_records.append({
+                "identity": identity,
+                "count": len(identity_rows),
+                "sources": sources,
+            })
+            for source in sources:
+                logger.warning(
+                    "FINRA duplicate-observation evidence discarded "
+                    "identity=%s source=%s missing_count=%s",
+                    identity,
+                    source,
+                    len(identity_rows),
+                )
+            continue
+        if len(identity_counter) != 1:
             return {
                 "complete": False,
                 "error": (
-                    "FINRA unclassified evidence conflicts on normalized "
+                    "FINRA unclassified evidence contains multiple payload "
+                    "variants for normalized "
                     f"identity {identity} missing_count={len(identity_rows)}"
                 ),
                 "pass_proof": {},
             }
+        accepted_unclassified_rows.extend(identity_rows)
+
+    unclassified_rows = accepted_unclassified_rows
+    unclassified_observations = _finra_filter_unclassified_observations(
+        unclassified_observations,
+        discarded_payload_keys,
+    )
+    duplicate_observation_discards = (
+        _finra_duplicate_observation_discard_summary(
+            duplicate_observation_records
+        )
+    )
+    for identity, identity_rows in unclassified_by_identity.items():
+        if identity in canonical_by_identity:
+            continue
+        identity_counter = Counter(
+            _finra_semantic_payload_sort_key(row["raw_payload"])
+            for row in identity_rows
+        )
         canonical_by_identity[identity] = (
             identity_counter,
             identity_rows,
@@ -7847,14 +8050,19 @@ def _finra_canonical_partition_result(
             _finra_semantic_payload_sort_key(payload)
             for payload in year_observation["row_payloads"]
         )
-        if year_page_zero - (type_union + unclassified_counter):
+        covered_year_page_zero = (
+            type_union
+            + unclassified_counter
+            + duplicate_observation_counter
+        )
+        if year_page_zero - covered_year_page_zero:
             return {
                 "complete": False,
                 "error": (
                     "FINRA classified plus unclassified evidence does not "
                     "cover year page zero "
                     f"year={year_observation['year']['label']} "
-                    f"missing_count={sum((year_page_zero - (type_union + unclassified_counter)).values())}"
+                    f"missing_count={sum((year_page_zero - covered_year_page_zero).values())}"
                 ),
                 "pass_proof": {},
             }
@@ -7924,6 +8132,10 @@ def _finra_canonical_partition_result(
             unclassified_rows
         ),
     }
+    if duplicate_observation_discards["count"]:
+        proof["duplicate_observation_discards"] = (
+            duplicate_observation_discards
+        )
     return {
         "complete": True,
         "rows": rows,

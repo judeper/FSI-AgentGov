@@ -4662,6 +4662,141 @@ def test_finra_partitioned_pass_rejects_conflicting_overlap(monkeypatch):
     assert "conflicting partition evidence" in result["error"]
 
 
+def _finra_duplicate_classified_observation_pages(
+    duplicate_row=None,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"), ("2", "2025")),
+        notice_types=(("3", "Regulatory Notice"),),
+    )
+    canonical = (
+        "/rules-guidance/notices/25-12",
+        "Regulatory Notice 25-12",
+        "2025-10-07",
+    )
+    duplicate = duplicate_row or canonical
+    zero_page = (
+        "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+        "</body></html>"
+    )
+    return {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [canonical], filters=filters
+        ),
+        ("2", None, 0): _finra_listing_page(0, 1, [canonical]),
+        ("1", None, 0): _finra_listing_page(0, 2, [duplicate]),
+        ("1", "3", 0): zero_page,
+    }
+
+
+def test_finra_unclassified_duplicate_of_classified_payload_is_discarded(
+    monkeypatch,
+    caplog,
+):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_duplicate_classified_observation_pages(),
+    )
+
+    assert result["complete"] is True
+    assert [
+        row["node_identity"]
+        for row in result["rows"]
+    ].count("url:/rules-guidance/notices/25-12") == 1
+    assert result["pass_proof"]["unclassified_evidence"]["raw_row_count"] == 0
+    assert result["pass_proof"]["duplicate_observation_discards"] == {
+        "count": 1,
+        "identities": [
+            {
+                "identity": "url:/rules-guidance/notices/25-12",
+                "count": 1,
+                "sources": ["year-page-zero:2026"],
+            },
+        ],
+    }
+
+    with caplog.at_level("WARNING", logger="regulatory_monitor"):
+        _run_partitioned_finra_pass(
+            monkeypatch,
+            _finra_duplicate_classified_observation_pages(),
+        )
+
+    assert any(
+        "FINRA duplicate-observation evidence discarded" in record.getMessage()
+        and "url:/rules-guidance/notices/25-12" in record.getMessage()
+        and "source=year-page-zero:2026" in record.getMessage()
+        for record in caplog.records
+    )
+
+
+@pytest.mark.parametrize(
+    "duplicate_row",
+    (
+        (
+            "/rules-guidance/notices/25-12",
+            "Regulatory Notice 25-12",
+            "2025-10-08",
+        ),
+        (
+            "/rules-guidance/notices/25-12",
+            "Changed Regulatory Notice 25-12",
+            "2025-10-07",
+        ),
+    ),
+)
+def test_finra_unclassified_same_identity_different_payload_fails_closed(
+    monkeypatch,
+    duplicate_row,
+):
+    result, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_duplicate_classified_observation_pages(duplicate_row),
+    )
+
+    assert result["complete"] is False
+    assert (
+        "FINRA unclassified evidence conflicts with classified payload "
+        "for normalized identity url:/rules-guidance/notices/25-12"
+    ) in result["error"]
+
+
+def test_finra_unclassified_only_identity_with_multiple_variants_fails_closed(
+    monkeypatch,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2026"),),
+        notice_types=(("3", "Regulatory Notice"),),
+    )
+    first = (
+        "/rules-guidance/notices/26-15",
+        "Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    second = (
+        "/rules-guidance/notices/26-15",
+        "Changed Regulatory Notice 26-15",
+        "2026-07-24",
+    )
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 1, [first, second], filters=filters
+        ),
+        ("1", None, 0): _finra_listing_page(0, 2, [first, second]),
+        ("1", "3", 0): (
+            "<html><body><div class=\"view-empty\">No regulatory notices</div>"
+            "</body></html>"
+        ),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is False
+    assert (
+        "FINRA unclassified evidence contains multiple payload variants "
+        "for normalized identity url:/rules-guidance/notices/26-15"
+    ) in result["error"]
+
+
 def test_finra_partitioned_pass_reconciliation_proves_unclassified_omission(
     monkeypatch,
 ):
