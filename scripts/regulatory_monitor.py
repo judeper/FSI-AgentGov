@@ -1992,6 +1992,7 @@ def _finra_partition_proof_errors(
     )
     expected_discard_records = []
     expected_discarded_payload_keys: set[str] = set()
+    expected_discard_counter: Counter = Counter()
     expected_merged_payloads = _finra_merged_unclassified_payloads(
         expected_unclassified_observations
     )
@@ -2004,6 +2005,7 @@ def _finra_partition_proof_errors(
             or payload_key not in canonical_by_identity[identity]
         ):
             continue
+        expected_discard_counter[payload_key] += 1
         expected_discard_records.append({
             "identity": identity,
             "count": 1,
@@ -2276,7 +2278,9 @@ def _finra_partition_proof_errors(
             for page in reconciliation_pages
             for payload in page
         )
-        if observation_counter - canonical_counter:
+        if observation_counter - (
+            canonical_counter + expected_discard_counter
+        ):
             errors.append(
                 f"{label} bounded unfiltered rows are absent from "
                 "classified and unclassified evidence"
@@ -8067,7 +8071,10 @@ def _finra_canonical_partition_result(
                 "pass_proof": {},
             }
 
-    if observed_counter - canonical_counter:
+    # Identity-and-payload duplicates of classified rows (for example a
+    # same-date tie repeated across an unfiltered page boundary) are already
+    # accounted for by classified evidence; anything else still fails closed.
+    if observed_counter - (canonical_counter + duplicate_observation_counter):
         return {
             "complete": False,
             "error": (
