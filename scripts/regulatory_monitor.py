@@ -1992,7 +1992,6 @@ def _finra_partition_proof_errors(
     )
     expected_discard_records = []
     expected_discarded_payload_keys: set[str] = set()
-    expected_discard_counter: Counter = Counter()
     expected_merged_payloads = _finra_merged_unclassified_payloads(
         expected_unclassified_observations
     )
@@ -2005,7 +2004,6 @@ def _finra_partition_proof_errors(
             or payload_key not in canonical_by_identity[identity]
         ):
             continue
-        expected_discard_counter[payload_key] += 1
         expected_discard_records.append({
             "identity": identity,
             "count": 1,
@@ -2278,9 +2276,16 @@ def _finra_partition_proof_errors(
             for page in reconciliation_pages
             for payload in page
         )
-        if observation_counter - (
-            canonical_counter + expected_discard_counter
-        ):
+        boundary_credit, boundary_error = (
+            _finra_unfiltered_boundary_duplicate_credit(
+                observation_counter,
+                classified_counter,
+                expected_discarded_payload_keys,
+            )
+        )
+        if boundary_error:
+            errors.append(f"{label} {boundary_error}")
+        if observation_counter - (canonical_counter + boundary_credit):
             errors.append(
                 f"{label} bounded unfiltered rows are absent from "
                 "classified and unclassified evidence"
@@ -7549,6 +7554,49 @@ def _finra_duplicate_observation_discard_summary(
     }
 
 
+def _finra_unfiltered_boundary_duplicate_credit(
+    observed_counter: Counter,
+    classified_counter: Counter,
+    discarded_payload_keys: set[str],
+) -> tuple[Counter, Optional[str]]:
+    """Credit unfiltered repeats only when a displaced sibling is classified.
+
+    A repeated row at an unfiltered offset-page edge means a same-date row was
+    skipped. Each repeat is accepted only if classified evidence holds a
+    same-date row that the unfiltered window did not observe.
+    """
+    credit = Counter()
+    for payload_key in discarded_payload_keys:
+        excess = observed_counter[payload_key] - classified_counter[payload_key]
+        if excess > 0:
+            credit[payload_key] = excess
+    if not credit:
+        return credit, None
+
+    def listing_date(payload_key: str) -> Optional[str]:
+        value = json.loads(payload_key).get("listing_date")
+        return value if isinstance(value, str) and value else None
+
+    needed: Counter = Counter()
+    for payload_key, count in credit.items():
+        needed[listing_date(payload_key)] += count
+    unseen_classified: Counter = Counter()
+    for payload_key, count in classified_counter.items():
+        unseen = count - observed_counter[payload_key]
+        if unseen > 0:
+            unseen_classified[listing_date(payload_key)] += unseen
+    for date in sorted(needed, key=lambda item: item or ""):
+        if date is None or unseen_classified[date] < needed[date]:
+            return credit, (
+                "FINRA unfiltered duplicate observation has no classified "
+                "unobserved same-date sibling "
+                f"listing_date={date or 'unknown'} "
+                f"duplicate_count={needed[date]} "
+                f"unobserved_classified_count={unseen_classified[date]}"
+            )
+    return credit, None
+
+
 def _finra_unclassified_payload_sources(
     observations: list[dict],
 ) -> dict[str, set[str]]:
@@ -8071,10 +8119,23 @@ def _finra_canonical_partition_result(
                 "pass_proof": {},
             }
 
-    # Identity-and-payload duplicates of classified rows (for example a
-    # same-date tie repeated across an unfiltered page boundary) are already
-    # accounted for by classified evidence; anything else still fails closed.
-    if observed_counter - (canonical_counter + duplicate_observation_counter):
+    # A repeated classified row in the unfiltered window (same-date tie
+    # reordered across an offset page edge) is credited only when a displaced
+    # same-date sibling is proven by classified evidence; otherwise fail closed.
+    boundary_credit, boundary_error = (
+        _finra_unfiltered_boundary_duplicate_credit(
+            observed_counter,
+            classified_counter,
+            discarded_payload_keys,
+        )
+    )
+    if boundary_error:
+        return {
+            "complete": False,
+            "error": boundary_error,
+            "pass_proof": {},
+        }
+    if observed_counter - (canonical_counter + boundary_credit):
         return {
             "complete": False,
             "error": (

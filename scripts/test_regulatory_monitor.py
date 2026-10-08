@@ -4760,7 +4760,12 @@ def test_finra_unclassified_same_identity_different_payload_fails_closed(
     ) in result["error"]
 
 
-def _finra_unfiltered_boundary_duplicate_pages(boundary_repeat=None):
+def _finra_unfiltered_boundary_duplicate_pages(
+    boundary_repeat=None,
+    *,
+    classify_sibling=True,
+    stable_order=False,
+):
     """Model FINRA's unstable same-date ordering at an unfiltered page edge.
 
     Page 1 ends with ``election-notice-090324``; page 2 re-requests the same
@@ -4791,17 +4796,149 @@ def _finra_unfiltered_boundary_duplicate_pages(boundary_repeat=None):
         "Election Notice - 8/19/2024",
         "2024-08-19",
     )
+    page_two_first = (
+        sibling if stable_order else (boundary_repeat or boundary)
+    )
+    classified = (
+        [before, boundary, sibling, after]
+        if classify_sibling
+        else [before, boundary, after]
+    )
     return {
         (None, None, 0): _finra_filtered_listing_page(
             0, 2, [before, boundary], filters=filters
         ),
         (None, None, 1): _finra_listing_page(
-            1, 2, [boundary_repeat or boundary, after]
+            1, 2, [page_two_first, after]
         ),
-        ("1", None, 0): _finra_listing_page(
-            0, 1, [before, boundary, sibling, after]
-        ),
+        ("1", None, 0): _finra_listing_page(0, 1, classified),
     }
+
+
+def _run_finra_pass_without_boundary_sibling_guard(monkeypatch, pages):
+    """Simulate a collector that credits repeats without the sibling proof."""
+    original = regulatory_monitor._finra_unfiltered_boundary_duplicate_credit
+    monkeypatch.setattr(
+        regulatory_monitor,
+        "_finra_unfiltered_boundary_duplicate_credit",
+        lambda observed, classified, discarded: (
+            original(observed, classified, discarded)[0],
+            None,
+        ),
+    )
+    try:
+        return _run_partitioned_finra_pass(monkeypatch, pages)
+    finally:
+        monkeypatch.setattr(
+            regulatory_monitor,
+            "_finra_unfiltered_boundary_duplicate_credit",
+            original,
+        )
+
+
+def test_finra_unfiltered_boundary_duplicate_with_unclassified_sibling_fails_closed(
+    monkeypatch,
+):
+    stable, _ = _run_partitioned_finra_pass(
+        monkeypatch,
+        _finra_unfiltered_boundary_duplicate_pages(
+            classify_sibling=False,
+            stable_order=True,
+        ),
+    )
+    assert stable["complete"] is True, stable.get("error")
+    assert stable["pass_proof"]["unclassified_evidence"]["raw_row_count"] == 1
+
+    pages = _finra_unfiltered_boundary_duplicate_pages(classify_sibling=False)
+    flipped, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+    assert flipped["complete"] is False
+    assert (
+        "FINRA unfiltered duplicate observation has no classified "
+        "unobserved same-date sibling listing_date=2024-09-03 "
+        "duplicate_count=1 unobserved_classified_count=0"
+    ) in flipped["error"]
+
+    forged, _ = _run_finra_pass_without_boundary_sibling_guard(
+        monkeypatch,
+        pages,
+    )
+    assert forged["complete"] is True, forged.get("error")
+    errors = regulatory_monitor._finra_pass_proof_recomputation_errors(
+        regulatory_monitor.SOURCE_KEY_FINRA,
+        forged["pass_proof"],
+        0,
+    )
+    assert any(
+        "no classified unobserved same-date sibling" in error
+        for error in errors
+    ), errors
+
+
+@pytest.mark.parametrize(
+    ("classify_second_sibling", "expected_complete"),
+    ((True, True), (False, False)),
+)
+def test_finra_unfiltered_multiple_same_date_duplicates_require_siblings(
+    monkeypatch,
+    classify_second_sibling,
+    expected_complete,
+):
+    filters = _finra_filter_form(
+        years=(("1", "2024"),),
+        notice_types=(("5", "Election Notice"),),
+    )
+
+    def row(slug, title, date="2024-09-03"):
+        return (f"/rules-guidance/notices/{slug}", title, date)
+
+    before = row("election-notice-101824", "Election Notice A", "2024-10-18")
+    first = row("election-notice-090324-a", "Election Notice 9/3/24 A")
+    second = row("election-notice-090324-b", "Election Notice 9/3/24 B")
+    sibling_one = row("election-notice-090324-c", "Election Notice 9/3/24 C")
+    sibling_two = row("election-notice-090324-d", "Election Notice 9/3/24 D")
+    after = row("election-notice-081924", "Election Notice Z", "2024-08-19")
+    classified = [before, first, second, sibling_one, after]
+    if classify_second_sibling:
+        classified.append(sibling_two)
+    pages = {
+        (None, None, 0): _finra_filtered_listing_page(
+            0, 3, [before, first], filters=filters
+        ),
+        (None, None, 1): _finra_listing_page(1, 3, [first, second]),
+        (None, None, 2): _finra_listing_page(2, 3, [second, after]),
+        ("1", None, 0): _finra_listing_page(0, 1, classified),
+    }
+
+    result, _ = _run_partitioned_finra_pass(monkeypatch, pages)
+
+    assert result["complete"] is expected_complete, result.get("error")
+    if expected_complete:
+        assert result["pass_proof"]["duplicate_observation_discards"][
+            "count"
+        ] == 2
+        assert regulatory_monitor._finra_pass_proof_recomputation_errors(
+            regulatory_monitor.SOURCE_KEY_FINRA,
+            result["pass_proof"],
+            0,
+        ) == []
+    else:
+        assert (
+            "listing_date=2024-09-03 duplicate_count=2 "
+            "unobserved_classified_count=1"
+        ) in result["error"]
+        forged, _ = _run_finra_pass_without_boundary_sibling_guard(
+            monkeypatch,
+            pages,
+        )
+        assert forged["complete"] is True, forged.get("error")
+        assert any(
+            "no classified unobserved same-date sibling" in error
+            for error in regulatory_monitor._finra_pass_proof_recomputation_errors(
+                regulatory_monitor.SOURCE_KEY_FINRA,
+                forged["pass_proof"],
+                0,
+            )
+        )
 
 
 def test_finra_unfiltered_page_boundary_duplicate_is_reconciled(
