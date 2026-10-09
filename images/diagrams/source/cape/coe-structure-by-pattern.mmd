@@ -1,0 +1,35 @@
+flowchart LR
+    classDef shape fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef pattern fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    classDef guardrail fill:#ffe0b2,stroke:#e65100,color:#bf360c,stroke-width:2px
+
+    F["Federated<br/>Central Govern only<br/>Enable / Optimize / Scale at the edge"]:::shape
+    H["Hybrid<br/>Central Govern + Enable<br/>Federated Optimize + Scale"]:::shape
+    C["Centralized<br/>One CoE owns all four functions<br/>(default starting shape)"]:::shape
+
+    P1["P1 Employee AI Enablement"]:::pattern
+    P2["P2 Business Expert Empowerment"]:::pattern
+    P3["P3 Workplace & IT Services"]:::pattern
+    P4["P4 Core Business Process"]:::pattern
+    P5["P5 External Engagement"]:::pattern
+    P6["P6 AI-First Capabilities"]:::pattern
+
+    F -->|fits: low governance gravity| P1
+    F -->|fits| P2
+    F -->|fits| P3
+
+    H -->|fits as scaling shape| P3
+    H -->|fits with central release gates| P4
+
+    C -->|preferred for high gravity| P4
+    C ==>|required: customer-facing exposure| P5
+    C ==>|required: novel autonomy| P6
+
+    GR["Federation guardrail (load-bearing)<br/>FINRA 3110 supervision · OCC 2011-12 / SR 26-2 model risk<br/>SOX 302/404 · GLBA 501(b)<br/>— accountability stays with named principals regardless of CoE shape —"]:::guardrail
+
+    F -.-> GR
+    H -.-> GR
+    C -.-> GR
+
+    %% Source: docs/framework/agentic-coe.md (CoE shapes) and docs/framework/transformation-patterns.md (P1-P6).
+    %% Per agentic-coe.md "the federation guardrail" section: FSI accountability cannot be federated.

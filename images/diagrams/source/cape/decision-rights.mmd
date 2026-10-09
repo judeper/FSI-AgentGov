@@ -1,0 +1,41 @@
+flowchart LR
+    classDef central fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef shared fill:#ffa726,stroke:#ef6c00,color:#212121,stroke-width:2px
+    classDef domain fill:#43a047,stroke:#2e7d32,color:#fff,stroke-width:2px
+    classDef guard fill:#c62828,stroke:#8e0000,color:#fff,stroke-width:2px
+
+    subgraph CENTRAL["Central — CoE Govern decides (cannot federate)"]
+        direction TB
+        C1[Platform & environment strategy]:::central
+        C2[Security & compliance policies]:::central
+        C3[Architecture & release-gate criteria]:::central
+        C4[Risk classification tiers]:::central
+        C5[Autonomy limits]:::central
+        C6[Responsible AI guidelines]:::central
+    end
+
+    subgraph SHARED["Shared — central sets standards, business executes"]
+        direction TB
+        S1[Agent inventory & metadata 3.1]:::shared
+        S2[Monitoring thresholds & alerting]:::shared
+        S3[Knowledge refresh cadence 2.16]:::shared
+        S4[Incident response playbooks]:::shared
+    end
+
+    subgraph DOMAIN["Domain — business line decides"]
+        direction TB
+        D1[Use-case prioritization]:::domain
+        D2[Agent design within standards]:::domain
+        D3[SME knowledge curation]:::domain
+        D4[Adoption & change management]:::domain
+    end
+
+    GUARD["Federation guardrail — non-delegable named-principal accountability<br/>FINRA 3110 supervision → registered principal · OCC 2011-12 / SR 26-2 → CRO<br/>SOX 302/404 ICFR → CFO + ICFR owners · GLBA 501(b) → CISO<br/>— remains with named roles regardless of CoE shape (Centralized / Hybrid / Federated) —"]:::guard
+
+    CENTRAL --- GUARD
+    SHARED --- GUARD
+    DOMAIN --- GUARD
+
+    %% Source: agentic-coe-playbook (Decision Rights: Central vs. Delegated, page 45)
+    %% and docs/framework/operating-model.md (RACI + named-principal accountability),
+    %% reconciled with docs/framework/agentic-coe.md "the federation guardrail" section.
