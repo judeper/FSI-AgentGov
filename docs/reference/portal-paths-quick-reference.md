@@ -111,7 +111,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | Licenses | **Billing** > **Licenses** |
 | **Reports** | **Reports** > **Usage** |
 | **Agents > Settings** | **Agents** > **Settings** |
-| **Agents > Agent Registry** | **Agent 365** > **Agent registry** |
+| **Agents > Agent Registry** | **Agents** > **All agents** > **Registry** |
 | **Copilot > Agents** | **Copilot** > **Agents & connectors** > **Agents** |
 | Approve/Publish Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Publish** |
 | Activate Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Activate** |

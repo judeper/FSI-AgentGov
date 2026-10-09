@@ -60,7 +60,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Power Platform Governance | https://learn.microsoft.com/en-us/power-platform/guidance/adoption/dlp-strategy | Oct 2026 |
 | Environment Strategy | https://learn.microsoft.com/en-us/power-platform/guidance/adoption/environment-strategy | Oct 2026 |
 | CoE Power BI Monitor | https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-monitor | Oct 2026 |
-| Release Plans | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Oct 2026 |
+| Release Plans (2025 Wave 2) | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Oct 2026 |
 | Release Plans (2026 Wave 1) | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/ | Oct 2026 |
 | Enhanced Admin Controls [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/manage-copilot-security-enhanced-admin-controls | Oct 2026 |
 
@@ -410,7 +410,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Power Platform Release Wave** | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Oct 2026 |
+| **Power Platform Release Wave** | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/ | Oct 2026 |
 | **Microsoft 365 Roadmap** | https://www.microsoft.com/en-us/microsoft-365/roadmap | Jan 2026 |
 | **Copilot Studio What's New** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Oct 2026 |
 | **Purview What's New** | https://learn.microsoft.com/en-us/purview/whats-new | Oct 2026 |

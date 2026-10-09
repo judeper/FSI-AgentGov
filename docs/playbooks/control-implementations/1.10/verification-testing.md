@@ -38,7 +38,7 @@ Communication Compliance signals are **non-static**. Microsoft ships classifier 
 | 1.10-AUD-01 | Weekly | Purview Audit Admin | 7 years | FINRA 4511, SEC 17a-4(f) |
 | 1.10-PSE-01 | Monthly | Purview Compliance Admin | 7 years | GLBA 501(b), Reg S-P, EU GDPR (where applicable to US-listed FSI) |
 | 1.10-POL-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110 / 3110.06 / RN 24-09, FINRA 4511 |
-| 1.10-COP-01 | Monthly | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA RN 24-09, FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
+| 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA RN 24-09, FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | 1.10-CLS-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, FINRA 2210, FINRA RN 24-09 |
 | 1.10-SAM-01 | Quarterly | Purview Compliance Admin + Compliance Supervisor | 7 years | FINRA 3110.06 (supervisory sampling rationale) |
 | 1.10-OME-01 | Quarterly | Purview Compliance Admin + Exchange Online Admin | 7 years | FINRA 4511, GLBA 501(b) |
@@ -62,7 +62,7 @@ Run these checks before any test in §4. A failure here invalidates the entire c
 
 ### 2.1 License entitlement
 
-Per Microsoft Learn, CC is licensed through the Microsoft Purview Suite (formerly Microsoft 365 E5 Compliance), Office 365 E3 with the Office 365 Advanced Compliance add-on, or Office 365 E5 (Microsoft 365 E5 includes these entitlements). The Copilot interactions template additionally requires Microsoft 365 Copilot licensing for the in-scope users. Coverage of non-Microsoft 365 AI data (the **Enterprise AI apps** and **Other AI apps** scopes) requires **Microsoft Purview pay-as-you-go billing** (an Azure subscription linked to the tenant); Learn states there are no pay-as-you-go requirements for Microsoft 365 Copilot data. Record the date these requirements were verified against Microsoft Learn.
+Per Microsoft Learn, CC is licensed through the Microsoft Purview Suite (formerly Microsoft 365 E5 Compliance), Office 365 E3 with the Office 365 Advanced Compliance add-on, or Office 365 Enterprise E5. The Copilot interactions template additionally requires Microsoft 365 Copilot licensing for the in-scope users. Coverage of non-Microsoft 365 AI data (the **Enterprise AI apps** and **Other AI apps** scopes) requires **Microsoft Purview pay-as-you-go billing** (an Azure subscription linked to the tenant); Learn states there are no pay-as-you-go requirements for Microsoft 365 Copilot data. Record the date these requirements were verified against Microsoft Learn.
 
 ### 2.2 Unified Audit Log enabled
 
