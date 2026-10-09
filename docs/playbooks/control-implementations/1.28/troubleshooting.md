@@ -35,7 +35,7 @@ Get-DlpPolicy | Where-Object { $_.Environments -contains $envId } |
 
 In the portal:
 
-1. Power Platform Admin Center → Policies → Data policies → open the policy → review **Prebuilt connectors** classification.
+1. Power Platform Admin Center → Security → Data and privacy → Data policy → open the policy → review **Prebuilt connectors** classification.
 2. In Copilot Studio, open the agent and review the **Topics** and **Settings → Channels** for the named connector.
 
 ### Resolution Options
@@ -109,7 +109,7 @@ Get-DlpPolicy | ForEach-Object {
 } | Where-Object EnvironmentId -eq '<environment-id>'
 ```
 
-In the portal, confirm Policies → Data policies → [Policy] → **Scope** lists the expected environment.
+In the portal, confirm Security → Data and privacy → Data policy → [Policy] → **Scope** lists the expected environment.
 
 ### Resolution Options
 

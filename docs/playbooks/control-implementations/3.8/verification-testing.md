@@ -280,7 +280,7 @@ For each monthly governance review, collect and store with SHA-256 manifest (see
 | SSPM-3.8-06 | Move Data Across Regions | Disabled | PPAC → Environments → Generative AI features | Screenshot |
 | SSPM-3.8-07 | Bing Search | Disabled | PPAC → Environments → Generative AI features | Screenshot |
 | SSPM-3.8-08 | Transcript access | Restricted to Compliance roles | PPAC → Copilot → Settings | Screenshot + role export |
-| SSPM-3.8-09 | DLP for publishing | Active and applied | PPAC → Policies → Data policies | Screenshot |
+| SSPM-3.8-09 | DLP for publishing | Active and applied | PPAC → Security → Data and privacy → Data policy | Screenshot |
 
 ### Test procedures
 

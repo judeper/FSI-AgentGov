@@ -88,7 +88,7 @@ Conduct kickoff meeting with key stakeholders:
 
 **Steps:**
 
-1. Navigate to PPAC > Policies > Data policies
+1. Navigate to PPAC > Security > Data and privacy > Data policy
 2. Create baseline DLP policy
 3. Classify connectors:
    - Business (approved)

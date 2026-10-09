@@ -25,7 +25,7 @@
     | 5 | Endpoint DLP — Win 10/11, Win Server 2019/2022, last 3 macOS | Purview DLP location `Devices` (§6) |
     | 6 | Microsoft 365 Copilot & Copilot Chat — block by label (GA) | Purview DLP location `Microsoft 365 Copilot and Copilot Chat`, Custom template (§7) |
     | 7 | Microsoft 365 Copilot & Copilot Chat — block prompts by SIT (preview) | Same location, separate rule (§7) |
-    | 8 | Power Platform connector classification (Microsoft Copilot Studio agents) | PPAC `Policies > Data policies` (§8) |
+    | 8 | Power Platform connector classification (Microsoft Copilot Studio agents) | PPAC `Security > Data and privacy > Data policy` (§8) |
     | 9 | Power Platform HTTP endpoint filtering (preview) | PPAC connector configuration (§8) |
     | 10 | Edge for Business — unmanaged AI (preview) — ChatGPT, Gemini, DeepSeek, Copilot consumer | Purview Endpoint DLP browser/site restrictions + Edge configuration policy (§9) |
     | 11 | Network DLP for unmanaged AI (preview) | Purview Endpoint DLP **Network activity** rules (§9) |
@@ -329,7 +329,7 @@ The Standard DLP templates (Financial, Privacy, etc.) **do not surface** the *Mi
 ### 7.1 Create or edit a data policy
 
 1. Sign in to PPAC (`admin.powerplatform.microsoft.com`).
-2. **Policies → Data policies**.
+2. **Security → Data and privacy → Data policy**.
 3. Select an existing policy or **+ New policy**.
 4. Name and assign **environments** per zone (one policy per zone is the recommended pattern).
 

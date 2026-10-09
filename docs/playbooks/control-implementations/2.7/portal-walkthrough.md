@@ -57,7 +57,7 @@
 
 ## Part 2 — Configure DLP and Connector Policies
 
-**Portal path:** `Power Platform admin center` → `Policies` → `Data policies`.
+**Portal path:** `Power Platform admin center` → `Security` → `Data and privacy` → `Data policy`.
 
 1. Open **Data policies** and select (or create) the policy that covers your Zone 2/3 environments.
 2. On **Prebuilt connectors**, place every inventoried connector into **Business**, **Non-business**, or **Blocked** per its risk tier. Independent-publisher and unreviewed custom connectors should land in **Blocked** by default.

@@ -80,7 +80,7 @@
 **Symptoms:** Users continue to add connectors that should be blocked.
 
 **Diagnostics:**
-1. Open Power Platform admin center → **Policies → Data policies** → select policy → **Policy effects**. Confirm the connector is in the **Blocked** group and the policy is scoped to the user's environment.
+1. Open Power Platform admin center → **Security → Data and privacy → Data policy** → select policy → **Policy effects**. Confirm the connector is in the **Blocked** group and the policy is scoped to the user's environment.
 2. If multiple policies apply, the **most restrictive wins**, but only across overlapping environments. Validate environment-to-policy mapping.
 3. Check propagation: changes can take up to **one hour** to take effect.
 4. Confirm the environment is **Managed** — some advanced DLP controls require Managed Environments.

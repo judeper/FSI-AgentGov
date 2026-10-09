@@ -1099,7 +1099,7 @@ $results90 | Group-Object Severity | Select-Object Name, Count
 **Likely Cause / Context.** This is not a malfunction — it is a routine governance request that arrives via the Managed Environments surface. The scenario is included because Managed Environments and DLP interact: the Tenant Isolation policy and the Connector Allow-list both layer on top of DLP, and a malformed exception can punch a hole through Managed Environments' otherwise tight posture.
 
 **Diagnostic Steps (Portal).**
-1. PPAC → **Policies** → **Data policies** → identify the policy that applies to the target environment; confirm current connector classification.
+1. PPAC → **Security** → **Data and privacy** → **Data policy** → identify the policy that applies to the target environment; confirm current connector classification.
 2. Confirm whether the requested connector is Entra-authenticated (relevant for Tenant Isolation, see Scenario 13).
 
 **Diagnostic Steps (PowerShell).**

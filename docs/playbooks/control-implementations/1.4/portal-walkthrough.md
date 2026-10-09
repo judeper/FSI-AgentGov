@@ -17,7 +17,7 @@
 | 2 | **Managed Environments** enabled (Control 2.1) | Environment **Overview** > **Managed Environments** = `On` |
 | 3 | Environment is in an **Environment Group** (Control 2.2) | PPAC > **Manage** > **Environment groups** |
 | 4 | Documented **approved connector catalog** with owner, business purpose, security review date, and zone scope | Internal change-management system (ServiceNow, Jira, etc.) |
-| 5 | Classic DLP policy already covering custom connectors and HTTP endpoints (will run in **mixed mode** alongside ACP) | PPAC > **Policies** > **Data policies** |
+| 5 | Classic DLP policy already covering custom connectors and HTTP endpoints (will run in **mixed mode** alongside ACP) | PPAC > **Security** > **Data and privacy** > **Data policy** |
 | 6 | Caller holds **Power Platform Admin** role; sensitive change windows use Entra PIM just-in-time elevation (Control 1.1) | Entra admin center > **Roles and admins** |
 
 > **Mixed mode (recommended for FSI):** Until ACP supports custom connectors, HTTP connectors, and connector endpoint filtering, leave classic DLP policies enabled. The runtime engine evaluates the most restrictive of both systems.
