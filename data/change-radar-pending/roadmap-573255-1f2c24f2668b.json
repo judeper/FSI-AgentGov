@@ -1,0 +1,32 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:1f2c24f2668ba2d5e19c8b2a8e2ea156a2a80ae2396c2295cd27303d24025342",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "December CY2026",
+  "id": 573255,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Expense Agent can validate submitted expense reports against approval policies written in natural language and provide approvers with guidance during the review process. After an employee submits an expense report, the system evaluates both the overall report and the individual expense lines to detect potential policy violations, suspicious patterns, or situations that might require closer attention. This process supports policies that aren't limited to exact thresholds or fixed numeric conditions, such as when business class travel is allowed, what qualifies as an appropriate business meal, or when exceptions to preferred hotel standards might be acceptable. The result is additional review context that helps approvers make better-informed decisions without replacing the final human approval step.</p>\n<p>By running policy validation after submission, the feature can apply controls at the level of a single expense line in the first release. The feature complements existing approval workflows by highlighting issues, providing context, and helping organizations enforce policy consistently while keeping approvers in control of the final decision.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573255",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - AI-Driven Approvals"
+}

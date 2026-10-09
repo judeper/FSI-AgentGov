@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:53798b3a1b1821efb2899b270027624bd65c469a118b2a927f01fc748d70fc3f",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573361,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>\"Describe a failing scenario to an AI agent, record the next matching Business Central session or a known session, and collect its snapshot for offline AL debugging.</p>\n<p>Business value: Developers can investigate intermittent or production-only AL failures by describing the problem to an AI agent and reproducing the scenario, without manually configuring and operating the snapshot debugger. The agent arms the recording, monitors its status, and collects the completed snapshot for offline debugging. This guided workflow makes snapshot debugging more accessible and helps support teams capture the execution that caused an error even when the affected session doesn't yet exist.\"</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573361",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Development - Debug recorded Business Central failures with an AI agent"
+}

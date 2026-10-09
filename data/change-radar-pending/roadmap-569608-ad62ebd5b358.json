@@ -1,0 +1,24 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:ad62ebd5b358718db654bd53f197995fd3cddcf6988d755d4c1468cf9ef80a60",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "November CY2026",
+  "id": 569608,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Teams"
+  ],
+  "raw_description": "<p>For third-party applications already being used in your organization, admins can now discover and enable the corresponding Teams agents from within the Teams Admin Center. Admins receive recommendations for high-value agents and gain visibility into any required configuration changes during the enablement workflow. These agents increase employee productivity by bringing their everyday applications into the flow of work in Teams. This helps organizations get more value from their existing software investments and unlocks more surfaces for the tools their users already rely on.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569608",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Teams: Enable agents for existing applications in your organization"
+}

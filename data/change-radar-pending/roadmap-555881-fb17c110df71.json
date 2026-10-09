@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:fb17c110df713d6c058ea59d3854108dd4ce4aaee5c621f916a2eec04b11ce4b",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "July CY2026",
+  "id": 555881,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "PowerPoint"
+  ],
+  "raw_description": "<p>You can now attach and reference an image when creating a presentation with Copilot using Agent Mode in PowerPoint.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=555881",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Attach and reference an image when creating a presentation with Copilot in PowerPoint using Agent Mode."
+}

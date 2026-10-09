@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:d2d3fb8e4befcfde7b36792fb061df79ded10ad2c9c6c18b30e8bbec7924c82a",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573369,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Show and manage documents where agents require human interaction by using a new review bar on documents and lists.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573369",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: User experiences - Agent actions review notifications on lists"
+}

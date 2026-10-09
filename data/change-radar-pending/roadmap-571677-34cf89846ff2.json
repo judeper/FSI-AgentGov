@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:34cf89846ff272fb6a8db5ca43608e785f18aeda4f52f4183142ecb0c58f1f3a",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "December CY2026",
+  "id": 571677,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Finance and Operations cross-app"
+  ],
+  "raw_description": "<p>Dynamics 365 ERP security administrators can apply additional, agent-specific security restrictions that take effect when a user accesses the ERP through an agent. Administrators define these restrictions using the existing security model — assigning roles, duties, and privileges that apply only to agent-initiated requests, scoped by legal entity — so that a user's agent session can operate with narrower permissions than the same user holds when working directly in the ERP.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=571677",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Finance and Operations cross-app: Role-based access controls for ERP agents"
+}

@@ -1,0 +1,40 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:f9a5837f8690d8776a466206f5b84a50a3173498c8c295ba7ce0a6700150e951",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573364,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>This feature introduces visual avatars in Business Central list pages to indicate which user or agent created or last modified a record. The capability enhances traceability and supports collaborative work by making identity information immediately visible without opening the record.</p>\n<p>The avatars reflect either a named Business Central user, a system user or an AI agent, following the existing identity model. Users can hover over the avatar to see a tooltip with the full display name and record update timestamp (if available).</p>\n<p>This improvement benefits roles that frequently work with shared data—including accountants, order processors, warehouse staff, service teams, and administrators—by reducing time spent verifying ownership or responsibility for items, documents, or configuration entries. It also helps organizations adopting AI‑generated records understand when an automated agent has contributed.</p>\n<p>The feature surfaces existing <strong>Created By</strong> and <strong>Modified By</strong> fields more intuitively while respecting Business Central’s data privacy and permissions model.</p>\n<p>Business Value:<br>\nSupporting avatars for the users or agents who created and last modified entries makes record ownership clearer and easier to understand across Business Central. By surfacing identity information directly in list pages, you can quickly determine responsibility, follow up with the right person, and work with shared data more confidently.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573364",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.2",
+      "source": "keyword:ownership"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:identity"
+    },
+    {
+      "id": "3.6",
+      "source": "keyword:ownership"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Show avatars for record creators and modifiers in list"
+}

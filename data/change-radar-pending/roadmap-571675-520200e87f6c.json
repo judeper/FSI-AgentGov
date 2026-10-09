@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:520200e87f6cd65c336c055c651e18005f0f32d4dd0aeb7927a4bd7a341ad64e",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "April CY2027",
+  "id": 571675,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Dynamics 365 Field Service"
+  ],
+  "raw_description": "<p>This release expands the optimization capabilities of the Scheduling Operations Agent to include the ability to create recurring optimizations on a schedule. The agent considers the availability of the resources, their current schedules, and unscheduled requirements. It suggests a schedule that honors configured constraints and optimizes it according to the selected goal. The agent automatically runs optimizations and applies the results on the configured schedule.</p>\n<p>New capabilities include:</p>\n<ul>\n<li>Configure optimization plans to run on a recurrence schedule.</li>\n<li>Add and weight additional objectives to optimization goals.</li>\n</ul>\n<p>These capabilities build on the existing public preview of the Scheduling Operations Agent and are automatically enabled for all organizations that have the agent enabled. Learn more at <a href=\"https://aka.ms/soa\">Scheduling Operations Agent overview</a>.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=571675",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Field Service: Automate optimizations with Scheduling Operations Agent"
+}

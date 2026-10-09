@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:c0b38570262b2d7bd44dd2aca87cd384e125b8a39896595396a8876f4e6f6c02",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "December CY2026",
+  "id": 573262,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Expense Agent supports automated VAT handling for expense reports, which can help simplify tax management and improve reporting accuracy. Key capabilities include:</p>\n<ul>\n<li><strong>Automatic VAT Calculation</strong>: Expense Agent identifies VAT-relevant expense transactions and calculates applicable VAT amounts based on the information in submitted expense reports.</li>\n<li><strong>VAT-Aware Expense Processing</strong>: VAT values are incorporated into the expense review and processing workflow, reducing the need for manual tax calculations.</li>\n<li><strong>Enhanced VAT Reporting</strong>: VAT amounts captured from employee expenses are aggregated and reported, supporting financial reporting and tax recovery processes.</li>\n<li><strong>Improved Compliance</strong>: Standardized VAT handling helps ensure that expense-related tax calculations apply consistently across the organization.</li>\n<li><strong>Human in the loop</strong>: If the VAT calculation is enabled for expense reports, accountants must review VAT calculation and confirm that everything is correct before posting it.</li>\n</ul>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573262",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - Calculate and report VAT based on expense reports"
+}

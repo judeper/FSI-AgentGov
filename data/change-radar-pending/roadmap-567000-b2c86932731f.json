@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:b2c86932731ff1797e2eb98b238c3c363ce92ff23277b9e517c6fb438a2fbff4",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "September CY2026",
+  "id": 567000,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "June CY2025",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>To reach their sales goals, sales teams need to constantly generate enough pipeline. They need to decide which inbound leads to engage. This decision takes a lot of time because sellers must sift through large amounts of data across tools and data sources. This data includes information from internal systems like their CRM and external resources like the web and third-party data services.<br>\nSales Agent handles the work of reviewing every available data source to create a comprehensive summary for each lead. As a seller, you can quickly decide whether to engage with a prospect or pass on them. Sales Agent reviews every lead in your queue and gathers information. It synthesizes insights that are specific to your business. At a glance, you can see if a lead is worth reaching out to and what they're interested in. Use this information to personalize your engagement with the prospect. With Sales Agent, you spend less time and get higher response rates, leading to a larger, more qualified pipeline. UPDATE: This roadmap item is no longer accurate and will be removed from the roadmap. We apologize for any inconvenience.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567000",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Cancelled",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Engage prospects faster with Sales Agent-enriched leads"
+}

@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:5ac05602fe01251c2d6b961bffa898c92c14aba52dc4548c2f99aaeeff5e7059",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "April CY2027",
+  "id": 573304,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Organizations can automatically calculate employee withholding taxes (WHT) as part of the expense report process. When employees submit expenses that are subject to withholding tax requirements, the system applies the appropriate tax calculations directly within the expense report workflow. Key capabilities include:</p>\n<ul>\n<li>Automatic withholding tax calculation for employee expense transactions that require tax deductions.</li>\n<li>Calculate single or multiple withholding taxes for each category, based on you setup. Calculations can also be simple or compound.</li>\n<li>Calculate thresholds based on different periods for records, documents,  categories (period accumulation), and total (period accumulation).</li>\n<li>Base calculations on gross or net amounts.</li>\n</ul>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573304",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - Calculate withholding tax automatically in expense reports"
+}

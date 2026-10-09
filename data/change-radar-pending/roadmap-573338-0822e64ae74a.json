@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:0822e64ae74a700b5e0a9712e65c34fa001f444fe03576ac18731d3208546c7a",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573338,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>\"Run the standalone AL language server to provide completion, navigation, references, rename, formatting, and other project-aware LSP features outside Visual Studio Code.</p>\n<p>Business value: Teams can use full AL language intelligence in AI coding agents and development environments that support the Language Server Protocol (LSP), without requiring Visual Studio Code as the client. This opens AL development to additional editors and agentic workflows while retaining accurate project-aware navigation and refactoring.\"</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573338",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Development - Use AL language intelligence from AI agents and other editors"
+}

@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:c7a67c3002583599375101c933c71a5b98da11b324221a0647d7f64c145e37ac",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "August CY2025",
+  "id": 503772,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Users in DoD will be able to use custom engine agents.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503772",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users in DoD will be able to use custom engine agents"
+}

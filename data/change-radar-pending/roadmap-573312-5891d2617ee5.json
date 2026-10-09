@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:5891d2617ee5986860cac82c6d47f64965c2391d50e944dd2fd8008d4d5fc244",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 573312,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Use new MCP tools to define, validate, and run custom data queries. Your MCP application can then query data for which no existing APIs exist.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573312",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Run data queries with MCP Server"
+}

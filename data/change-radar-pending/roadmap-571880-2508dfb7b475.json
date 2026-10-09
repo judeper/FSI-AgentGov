@@ -1,0 +1,32 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:2508dfb7b475166b0d9e4b7595efdaccb680660519c4bbe88c49a2d196ead74b",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 571880,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>With the Skills catalog in Copilot Studio, makers can discover, reuse and selectively share approved organizational skills instead of recreating the same instructions and workflows for every agent. The shared catalog powered by Microsoft 365 App Store enables shared skills to extend across experiences such as Copilot Studio M365 copilot, and Cowork, helping organizations standardize proven ways of working while maintaining centralized governance.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=571880",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Discover & Add Skills from the skill catalog"
+}

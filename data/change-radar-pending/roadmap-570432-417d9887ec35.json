@@ -1,0 +1,32 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:417d9887ec35163faec3d867e0cbd07cc06e427822322703138443dde28d00f4",
+  "detected_at": "2026-10-05T15:22:58Z",
+  "ga_date": "October CY2026",
+  "id": 570432,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Soon agents can help makers improve agents using lessons from completed runs. It will identify repeated tool sequences that can be handled by workflows to standardize agent behavior, minimize errors, and most importantly control costs. Makers will be presented with recommendations and supporting evidence, expected impact, and the related instruction and tool changes. Makers accept recommendations, configure, test, and publish a refined copy of the agent. This helps improve agent output quality and controls costs while preserving work that requires model judgment and keeping makers in control.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570432",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Self-learning for Copilot Studio Agents"
+}
