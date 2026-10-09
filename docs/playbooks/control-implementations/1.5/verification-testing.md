@@ -201,7 +201,7 @@ PRE-gate verifier output is the first artifact in every evidence pack.
 | Copilot DLP rule propagation | Up to 4 hours after any DLP rule edit affecting the Copilot location | COPILOT-namespace tests within window: `Status = Pending`. Do not escalate as `Anomaly` until window elapses + 30 minutes buffer. |
 | Sensitivity label policy publication | Up to 24 hours for client refresh on Office desktop apps | LABEL-namespace tests against newly-published labels: `Status = Pending` for first 24h. |
 | Endpoint DLP policy push | Up to 1 hour after policy save | Endpoint synthetic-leak tests within window: `Status = Pending`. |
-| PP DLP policy propagation | Up to 30 minutes for tenant policies; longer for environment-scoped | PP SURFACE tests within window: `Status = Pending`. |
+| PP DLP policy propagation | Within an hour in most cases; up to 24 hours per Microsoft Learn (tenant- and environment-scoped) | PP SURFACE tests within window: `Status = Pending`. |
 | UAL ingestion lag | Up to 30 minutes typical; up to 24 hours documented worst case | AUDIT RecordType counts within window: `Status = Pending`. |
 | Defender for Cloud Apps file scan | Up to 24 hours for new file ingestion | MDA file-policy SYNTH tests within window: `Status = Pending`. |
 
@@ -326,7 +326,7 @@ In Copilot Chat, submit a prompt containing synthetic CC content. Expected (prev
 
 #### T-SYNTH-06 — Copilot grounding on labelled file (block-by-label, GA)
 
-Confirm a labelled file with `EncryptionRightsDefinitions` blocking `EXTRACT` does not appear in Copilot grounding citations for an unauthorized test user. Expected: file does not appear in citations; UAL records suppression.
+Confirm a labelled file with `EncryptionRightsDefinitions` blocking `EXTRACT` is not used by Copilot in its response for an unauthorized test user. Expected: Copilot does not access or use the file content; per Microsoft Learn the item can still appear in the response citations, so validate on content use rather than on citation absence; UAL records suppression.
 
 #### T-SYNTH-07 — Power Platform connector synthetic data flow
 
@@ -344,7 +344,7 @@ Upload a synthetic-CC file to a non-MS SaaS surface covered by an MDA file polic
 
 #### T-COPILOT-01 — Block-by-label (GA) end-to-end
 
-Authorized user requests Copilot summary of a folder containing a labelled-and-encrypted file they cannot `EXTRACT`. Expected: Copilot returns content from accessible files only; cites no encrypted content; UAL `RecordType = ComplianceDLPSharePoint` records the suppression.
+Authorized user requests Copilot summary of a folder containing a labelled-and-encrypted file they cannot `EXTRACT`. Expected: Copilot returns content from accessible files only and does not use the encrypted content (the item may still be listed in the response citations, per Microsoft Learn); UAL `RecordType = ComplianceDLPSharePoint` records the suppression.
 
 #### T-COPILOT-02 — Block-by-SIT-prompt (preview) end-to-end
 

@@ -3,7 +3,7 @@
 ## Expected Screenshots
 
 ### Screenshot 1: DLP Policy Configuration - Zone 3 Strict Policy
-**Portal Path:** Power Platform Admin Center → Policies → Data policies → [Zone 3 Policy]
+**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Zone 3 Policy]
 **What to capture:**
 - DLP policy name: "Zone 3 - Enterprise Customer-Facing DLP Policy"
 - Connector classification table showing three categories:
@@ -14,7 +14,7 @@
 - Save button and policy status (Active)
 
 ### Screenshot 2: Connector Classification Interface
-**Portal Path:** Power Platform Admin Center → Policies → Data policies → [Policy] → Assign Connectors
+**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Policy] → Assign Connectors
 **What to capture:**
 - Three connector category columns: Business | Non-Business | Blocked
 - Drag-and-drop interface showing connectors in each category
@@ -23,7 +23,7 @@
 - Example of moving a connector between categories
 
 ### Screenshot 3: DLP Policy Environment Assignment
-**Portal Path:** Power Platform Admin Center → Policies → Data policies → [Policy] → Define scope
+**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Policy] → Define scope
 **What to capture:**
 - Environment selection interface with options:
   - "Add multiple environments"
@@ -252,7 +252,7 @@
 - Success indicators (green checkmarks or "✓")
 
 ### Screenshot 20: Custom Connector Pattern Configuration
-**Portal Path:** Power Platform Admin Center → Policies → Data policies → [Policy] → Custom connector patterns
+**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Policy] → Custom connector patterns
 **What to capture:**
 - Custom connector patterns configuration page
 - URL pattern rules:
