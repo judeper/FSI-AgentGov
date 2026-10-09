@@ -20,8 +20,8 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | Create Environment Group | **Manage** > **Environment Groups** > **New group** |
 | Configure Group Rules | **Manage** > **Environment Groups** > Select group > **Rules** |
 | **Advanced Connector Policies** | **Manage** > **Environment Groups** > Select group > **Rules** > **Advanced connector policies** |
-| **DLP Policies** | **Data policies** (left nav) |
-| Create DLP Policy | **Data policies** > **New policy** |
+| **DLP Policies** | **Security** > **Data and privacy** > **Data policy** |
+| Create DLP Policy | **Security** > **Data and privacy** > **Data policy** > **+ New Policy** |
 | **Connectors** | **Data** > **Connectors** |
 | **Connections** | **Data** > **Connections** |
 | **Security Roles** | **Manage** > **Environments** > Select environment > **Settings** > **Users + permissions** > **Security roles** |
@@ -111,7 +111,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | Licenses | **Billing** > **Licenses** |
 | **Reports** | **Reports** > **Usage** |
 | **Agents > Settings** | **Agents** > **Settings** |
-| **Agents > Agent Registry** | **Agents** > **Agent registry** |
+| **Agents > Agent Registry** | **Agent 365** > **Agent registry** |
 | **Copilot > Agents** | **Copilot** > **Agents & connectors** > **Agents** |
 | Approve/Publish Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Publish** |
 | Activate Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Activate** |
@@ -212,5 +212,5 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 
 ---
 
-*Last Updated: June 2026*
-*Note: Microsoft admin portal UI changes frequently. Paths verified as of February 2026.*
+*Last Updated: October 2026*
+*Note: Microsoft admin portal UI changes frequently. The Power Platform admin center data policy path and the Microsoft 365 admin center Agent registry path were corrected against Microsoft Learn in October 2026; all other paths were last verified as of February 2026 and have not been re-verified against a live tenant.*

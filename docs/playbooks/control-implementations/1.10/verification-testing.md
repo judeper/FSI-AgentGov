@@ -38,7 +38,7 @@ Communication Compliance signals are **non-static**. Microsoft ships classifier 
 | 1.10-AUD-01 | Weekly | Purview Audit Admin | 7 years | FINRA 4511, SEC 17a-4(f) |
 | 1.10-PSE-01 | Monthly | Purview Compliance Admin | 7 years | GLBA 501(b), Reg S-P, EU GDPR (where applicable to US-listed FSI) |
 | 1.10-POL-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110 / 3110.06 / RN 24-09, FINRA 4511 |
-| 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA RN 24-09, FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
+| 1.10-COP-01 | Monthly | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA RN 24-09, FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | 1.10-CLS-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, FINRA 2210, FINRA RN 24-09 |
 | 1.10-SAM-01 | Quarterly | Purview Compliance Admin + Compliance Supervisor | 7 years | FINRA 3110.06 (supervisory sampling rationale) |
 | 1.10-OME-01 | Quarterly | Purview Compliance Admin + Exchange Online Admin | 7 years | FINRA 4511, GLBA 501(b) |
@@ -62,7 +62,7 @@ Run these checks before any test in §4. A failure here invalidates the entire c
 
 ### 2.1 License entitlement
 
-CC requires Microsoft 365 E5, Microsoft 365 E5 Compliance, Microsoft 365 E5 Insider Risk Management, or the equivalent standalone bundle. The Copilot interactions template additionally requires Microsoft 365 Copilot licensing for the in-scope users; coverage of **Enterprise AI apps** and **Other AI apps** scopes is gated by the **Microsoft 365 Copilot pay-as-you-go (PAYG)** meter on a connected Azure subscription (preview status — record the date verified against Microsoft Learn).
+Per Microsoft Learn, CC is licensed through the Microsoft Purview Suite (formerly Microsoft 365 E5 Compliance), Office 365 E3 with the Office 365 Advanced Compliance add-on, or Office 365 E5 (Microsoft 365 E5 includes these entitlements). The Copilot interactions template additionally requires Microsoft 365 Copilot licensing for the in-scope users. Coverage of non-Microsoft 365 AI data (the **Enterprise AI apps** and **Other AI apps** scopes) requires **Microsoft Purview pay-as-you-go billing** (an Azure subscription linked to the tenant); Learn states there are no pay-as-you-go requirements for Microsoft 365 Copilot data. Record the date these requirements were verified against Microsoft Learn.
 
 ### 2.2 Unified Audit Log enabled
 
@@ -146,7 +146,7 @@ Per Microsoft Learn `communication-compliance-policies` and `communication-compl
 |---|---|---|
 | Microsoft Teams chat | Up to **48 hours** | Full propagation window for chat messages |
 | Exchange Online email | Up to **24 hours** | Standard Exchange transport processing |
-| Viva Engage | Up to **24 hours** | Aligned to Exchange ceiling |
+| Viva Engage | Up to **1 hour** (chats without attachments); up to **24 hours** (with attachments) | Per Microsoft Learn CC policy guidance; 24 h is the test ceiling |
 | Non-Microsoft third-party sources (HR connectors) | **24–48 hours** | Per source connector cadence |
 | Microsoft 365 Copilot / Copilot Chat | Up to **24 hours** | Audit ingestion floor of 30 min, then up to 24h to enter `Pending` |
 
@@ -160,7 +160,7 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 
 ### 1.10-LIC-01 — License entitlement and feature availability per tenant
 
-**Objective.** Confirm every user in scope of any Communication Compliance policy carries one of the SKUs that licenses CC, and that the Copilot interactions template's PAYG dependency is satisfied for the **Enterprise AI apps** and **Other AI apps** scopes.
+**Objective.** Confirm every user in scope of any Communication Compliance policy carries one of the SKUs that licenses CC, and that the Microsoft Purview pay-as-you-go billing dependency is satisfied for the non-Microsoft 365 AI scopes (**Enterprise AI apps** and **Other AI apps**) of the Copilot interactions template.
 
 **Preconditions.** Microsoft Graph PowerShell SDK installed; `Directory.Read.All`, `User.Read.All` granted; the in-scope user list exported to `InScopeUsers.csv`.
 
@@ -169,8 +169,11 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 1. Record `T0 = Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ'`.
 2. ```powershell
    Connect-MgGraph -Scopes 'Directory.Read.All','User.Read.All'
-   $required = @('SPE_E5','M365_E5_COMPLIANCE','INFORMATION_PROTECTION_COMPLIANCE','M365_E5_INSIDER_RISK_MANAGEMENT')
-   $copilotReq = @('Microsoft_365_Copilot','Copilot_Pro')
+   # SPE_E5, INFORMATION_PROTECTION_COMPLIANCE, ENTERPRISEPREMIUM (Office 365 E5) and EQUIVIO_ANALYTICS (Office 365 Advanced Compliance)
+   # are listed in the Microsoft Entra licensing service plan reference. M365_E5_COMPLIANCE and M365_E5_INSIDER_RISK_MANAGEMENT
+   # are not listed there; keep them only if your tenant reports them via Get-MgSubscribedSku.
+   $required = @('SPE_E5','ENTERPRISEPREMIUM','EQUIVIO_ANALYTICS','INFORMATION_PROTECTION_COMPLIANCE','M365_E5_COMPLIANCE','M365_E5_INSIDER_RISK_MANAGEMENT')
+   $copilotReq = @('Microsoft_365_Copilot')   # Copilot_Pro is a consumer SKU and is not listed in the Learn service plan reference
    $inScope = Import-Csv .\InScopeUsers.csv
    $gaps = foreach ($u in $inScope) {
      $skus = (Get-MgUserLicenseDetail -UserId $u.UserPrincipalName).SkuPartNumber
@@ -184,7 +187,7 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
    }
    $gaps | Export-Csv .\1.10-LIC-01-gaps.csv -NoTypeInformation
    ```
-3. Document PAYG enablement state for the tenant (Azure subscription ID, meter resource ID, billing-admin attestation reference). PAYG is required for the **Enterprise AI apps** and **Other AI apps** scopes inside the Copilot interactions template (preview — record date verified against Learn).
+3. Document PAYG enablement state for the tenant (Azure subscription ID, meter resource ID, billing-admin attestation reference). Microsoft Purview pay-as-you-go billing is required for the **Enterprise AI apps** and **Other AI apps** scopes (non-Microsoft 365 AI data) inside the Copilot interactions template; record the date verified against Learn.
 
 **Expected result.** `$gaps` is empty. PAYG attestation file is present and dated within the last 30 days.
 
@@ -440,7 +443,7 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 
 ### 1.10-INV-01 — Investigation and remediation workflow
 
-**Objective.** Confirm the investigator can apply each documented tag (**Compliant**, **Non-compliant**, **Questionable**), notify the user, resolve the item, and that each action emits a `SupervisoryReviewTag` audit row.
+**Objective.** Confirm the investigator can apply each documented tag (**Compliant**, **Noncompliant**, **Questionable**), notify the user, resolve the item, and that each action emits a `SupervisoryReviewTag` audit row.
 
 **Preconditions.** ≥ 3 `Pending` items exist (use the matches generated by 1.10-CLS-01).
 
@@ -449,7 +452,7 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 1. Record `T0` UTC.
 2. As `cc-test-inv-01`, open the policy `Pending` tab. For three distinct items:
    - Apply tag **Compliant** to item 1; resolve.
-   - Apply tag **Non-compliant** to item 2; **Notify user** with the firm's standard notification template; resolve.
+   - Apply tag **Noncompliant** to item 2; **Notify user** with the firm's standard notification template; resolve.
    - Apply tag **Questionable** to item 3; escalate to `cc-test-inv-01`'s escalation contact; do **not** resolve.
 3. Capture portal screenshots for each tag action (UTC clock visible; reviewer name pseudonymized).
 4. ```powershell
@@ -474,12 +477,12 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 
 **Objective.** Confirm a CC item can be escalated to **eDiscovery (Premium)** with a case opened against the source mailbox / Teams chat per Microsoft Learn `communication-compliance-investigate-remediate`.
 
-**Preconditions.** eDiscovery (Premium) licensed and at least one eDiscovery Manager / eDiscovery Administrator role assignment exists; one `Pending` item from 1.10-INV-01 marked **Non-compliant** is still present (or use a fresh match).
+**Preconditions.** eDiscovery (Premium) licensed and at least one eDiscovery Manager / eDiscovery Administrator role assignment exists; one `Pending` item from 1.10-INV-01 marked **Noncompliant** is still present (or use a fresh match).
 
 **Steps.**
 
 1. Record `T0` UTC.
-2. As `cc-test-inv-01` (also member of `eDiscovery Manager` role), open the Non-compliant item and select **Escalate for investigation → Open as new eDiscovery case**.
+2. As `cc-test-inv-01` (also member of `eDiscovery Manager` role), open the Noncompliant item and select **Escalate for investigation → Open as new eDiscovery case**.
 3. Confirm the case appears in **Microsoft Purview → eDiscovery (Premium) → Cases** with the source identity and message reference attached.
 4. Capture screenshots: CC portal escalation step, eDiscovery case landing page, custodian list (UTC clock visible in each).
 
@@ -793,7 +796,7 @@ Date (UTC):                   _______________________________________
 6. **Using `Search-UnifiedAuditLog -RecordType CopilotInteraction` as evidence of Communication Compliance.** `CopilotInteraction` is the Copilot audit RecordType; CC events are emitted under `SupervisionRuleMatch`, `SupervisionPolicyCreated/Updated/Deleted`, and `SupervisoryReviewTag` per Microsoft Learn `audit-log-activities`. Confusing the two produces evidence that does not show CC was actually evaluating Copilot traffic. 1.10-AUD-01 requires the documented operation names.
 7. **Pseudonymization opt-out without an audit trail.** Toggling pseudonymization off changes who-sees-whom across the entire CC surface. Any opt-out must be matched to a `SupervisionPolicyUpdated` audit row whose `UserId` is the responsible admin and to a signed change ticket. 1.10-PSE-01 captures this trail.
 8. **Testing without the Exchange Online mailbox prerequisite verified for the reviewer.** Per Learn, *"Reviewers must have mailboxes hosted on Exchange Online."* A reviewer without an EXO mailbox does not receive notification email and cannot be relied on for supervisory action. 1.10-POL-01 fails the policy if any reviewer lacks an EXO mailbox.
-9. **Missing PAYG enablement for non-M365 AI tests.** The Copilot interactions template's **Enterprise AI apps** and **Other AI apps** scopes are gated by the Microsoft 365 Copilot pay-as-you-go meter on a connected Azure subscription (preview status). Enabling these scopes without PAYG produces an enabled-but-silent policy for those locations. 1.10-LIC-01 and 1.10-COP-01 require the PAYG attestation file.
+9. **Missing PAYG enablement for non-M365 AI tests.** The Copilot interactions template's **Enterprise AI apps** and **Other AI apps** scopes require Microsoft Purview pay-as-you-go billing (non-Microsoft 365 AI data). Enabling these scopes without PAYG produces an enabled-but-silent policy for those locations. 1.10-LIC-01 and 1.10-COP-01 require the PAYG attestation file.
 10. **Running tests within the Teams 48-hour processing window and concluding "no match."** The documented Teams chat ceiling is 48 hours from message-send to `Pending` arrival. A test that waits 6 hours and concludes "no match = fail" is wrong — the result is **inconclusive**. §3 mandates per-source documented windows; §4 marks any sub-case that completed inside the window as inconclusive and requires re-run.
 11. **Using PowerShell to "create" or "modify" a CC policy.** Per Microsoft Learn `communication-compliance-policies`: *"PowerShell isn't supported for creating and managing Communication Compliance policies."* Read-only cmdlets (`Get-SupervisoryReviewPolicyV2`, `Get-SupervisoryReviewRule`, `Get-SupervisoryReviewActivity`) are supported and used throughout this catalog; mutations must be performed in the Microsoft Purview portal and tracked via `SupervisionPolicyUpdated` audit rows.
 12. **Wrong shell — Security & Compliance vs. Exchange Online.** `Get-Supervisory*` cmdlets live in **Security & Compliance PowerShell** (IPPS, `Connect-IPPSSession`), not Exchange Online PowerShell. The wrong shell returns `CommandNotFoundException` or empty results without an error in some module versions. Pre-flight §2.4 checks the connection URI before each test.
