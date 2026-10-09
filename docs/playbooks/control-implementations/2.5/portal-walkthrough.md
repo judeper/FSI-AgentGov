@@ -222,9 +222,9 @@ For each surface used in this playbook, confirm a current, paid license is provi
 
 ### 2.4 PRE-03 — Environment isolation
 
-Three Power Platform environments named (suggested convention) `<Agent>-Dev`, `<Agent>-Test`, `<Agent>-Prod`. Each with a **distinct DLP policy** scoped via Power Platform Admin Center → **Policies** → **Data policies**. The Test environment DLP policy must mirror the Prod policy as closely as possible (the only acceptable deltas are test-only connectors explicitly approved by the AI Governance Lead). Cross-link [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for DLP authoring and [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) for Managed Environments policy.
+Three Power Platform environments named (suggested convention) `<Agent>-Dev`, `<Agent>-Test`, `<Agent>-Prod`. Each with a **distinct DLP policy** scoped via Power Platform Admin Center → **Security** → **Data and privacy** → **Data policy**. The Test environment DLP policy must mirror the Prod policy as closely as possible (the only acceptable deltas are test-only connectors explicitly approved by the AI Governance Lead). Cross-link [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for DLP authoring and [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) for Managed Environments policy.
 
-**Portal check:** Power Platform Admin Center → **Policies** → **Data policies** → list policies → confirm one policy bound to each environment. Export each policy's connector classification list as JSON evidence: `2.5-PRE03-dlp-<env>-<yyyymmdd>.json`.
+**Portal check:** Power Platform Admin Center → **Security** → **Data and privacy** → **Data policy** → list policies → confirm one policy bound to each environment. Export each policy's connector classification list as JSON evidence: `2.5-PRE03-dlp-<env>-<yyyymmdd>.json`.
 
 ### 2.5 PRE-04 — Test data governance
 

@@ -82,7 +82,7 @@ Cross-reference the agent inventory maintained under [Control 3.1](../../../cont
 
 1. Select the new DR environment → **Settings** → **Product** → **Features**
 2. Enable **Managed Environment** (required for any environment hosting Zone 2 or Zone 3 agents — see [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md))
-3. Apply the same DLP policies that govern the primary environment: **Policies** → **Data policies** → assign the DR environment to the same policy scopes
+3. Apply the same DLP policies that govern the primary environment: **Security** → **Data and privacy** → **Data policy** → assign the DR environment to the same policy scopes
 4. Reproduce in the DR environment:
    - Security roles and team memberships
    - Environment variables (values appropriate for the DR region — for example, regional API endpoints)

@@ -4,8 +4,8 @@
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
-| `01-ppac-dlp-policies.png` | PPAC | Policies → Data policies | DLP policies list |
-| `02-ppac-dlp-create.png` | PPAC | Data policies → New policy | DLP policy creation |
+| `01-ppac-dlp-policies.png` | PPAC | Security → Data and privacy → Data policy | DLP policies list |
+| `02-ppac-dlp-create.png` | PPAC | Security → Data and privacy → Data policy → New policy | DLP policy creation |
 | `03-ppac-dlp-connectors.png` | PPAC | DLP → Connector classification | Business/Non-business/Blocked |
 | `04-ppac-dlp-scope.png` | PPAC | DLP → Scope | Environment scope selection |
 | `05-purview-dlp-policies.png` | Purview | Data loss prevention → Policies | Purview DLP policies |

@@ -13,7 +13,7 @@
 | `07-ppac-acp-status.png` | PPAC | Environment groups → [group] → Rules → Advanced connector policies | Applied/not-applied portal status |
 | `08-ppac-acp-add-connectors.png` | PPAC | Advanced connector policies → Add connectors | Certified connector selection |
 | `09-ppac-acp-actions.png` | PPAC | Advanced connector policies → [connector] | Action restrictions configuration |
-| `10-ppac-dlp-endpoints.png` | PPAC | Policies → Data policies → [policy] → Configure connector | Classic DLP endpoint filtering for HTTP coverage |
+| `10-ppac-dlp-endpoints.png` | PPAC | Security → Data and privacy → Data policy → [policy] → Configure connector | Classic DLP endpoint filtering for HTTP coverage |
 
 ## Verification Focus
 

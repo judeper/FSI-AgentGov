@@ -236,7 +236,7 @@ Restrict transcript access to Compliance Officers and designated Supervisors. Ap
 
 ### Step 19. DLP for Agent Publishing Connectors
 
-**Portal Path:** PPAC → **Policies** → **Data policies**
+**Portal Path:** PPAC → **Security** → **Data and privacy** → **Data policy**
 
 In any environment where agent publishing should be restricted, block:
 
@@ -265,7 +265,7 @@ See [Control 1.5 — Data Loss Prevention](../../../controls/pillar-1-security/1
 | 12 | Semantic Search Off without scoped knowledge bases | Copilot Studio → Agent → Settings → Generative AI |
 | 13 | Move Data Across Regions / Bing Search Off | PPAC → Environments → Generative AI features |
 | 14 | Transcript access restricted to Compliance roles | PPAC → Copilot → Settings |
-| 15 | DLP blocks agent publishing connectors in restricted environments | PPAC → Policies → Data policies |
+| 15 | DLP blocks agent publishing connectors in restricted environments | PPAC → Security → Data and privacy → Data policy |
 
 **Expected outcome:** Copilot Hub and Agent governance surfaces provide the visibility needed for monthly supervision evidence, and AI feature toggles are governed per zone. These settings **support** FINRA 4511 / RN 24-09, SEC 17a-3/4, GLBA 501(b), and SOX 404 obligations; they do not by themselves constitute compliance.
 

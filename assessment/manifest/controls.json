@@ -496,7 +496,7 @@
     },
     "facilitatorNotes": {
       "ask": "Are Copilot Studio agents restricted to an explicit connector allowlist with action-level controls via Advanced Connector Policies and classic DLP?",
-      "followUp": "Open Power Platform admin center > Policies > Data policies, then review Environment Groups and ACP configuration.",
+      "followUp": "Open Power Platform admin center > Security > Data and privacy > Data policy, then review Environment Groups and ACP configuration.",
       "timeBudgetMinutes": 6
     },
     "solutions": [
@@ -616,7 +616,7 @@
     },
     "facilitatorNotes": {
       "ask": "Do you have DLP policies explicitly scoped to Copilot and Copilot Studio agents across SharePoint, OneDrive, Exchange, Teams, and Endpoint?",
-      "followUp": "Open Microsoft Purview > Data Loss Prevention > Policies, then PPAC > Policies > Data policies for Power Platform coverage.",
+      "followUp": "Open Microsoft Purview > Data Loss Prevention > Policies, then PPAC > Security > Data and privacy > Data policy for Power Platform coverage.",
       "timeBudgetMinutes": 8
     },
     "solutions": [

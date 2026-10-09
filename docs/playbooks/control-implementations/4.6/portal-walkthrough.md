@@ -21,7 +21,7 @@
 | **SPAC → Reports → Data access governance (DAG)** | Generate and review Site permissions, Sharing links activity, and EEEU activity reports to nominate sites for RCD/RSS scoping. | Identifies the high‑risk sites that grounding scope governance must protect first. |
 | **SPAC → Active sites → site → Settings → Restrict content from Microsoft 365 Copilot** | Apply per‑site Restricted Content Discovery (RCD) to remove the site from organization‑wide Copilot grounding while preserving direct user access. | Primary technical control for surgical scope reduction in Zone 2 / Zone 3. |
 | **SPAC → Settings → Restricted SharePoint Search** | Enable tenant‑wide Restricted SharePoint Search (RSS) and curate the allowed‑list of up to 100 sites. | Short‑term remediation while RCD is rolled out at scale. Not a security boundary. |
-| **PPAC → Policies → Data policies** | Create or update a Power Platform DLP policy that classifies the Copilot Studio SharePoint / OneDrive knowledge connectors and applies endpoint filtering. | Governs which SharePoint and OneDrive surfaces custom Copilot Studio agents may ground on. |
+| **PPAC → Security → Data and privacy → Data policy** | Create or update a Power Platform DLP policy that classifies the Copilot Studio SharePoint / OneDrive knowledge connectors and applies endpoint filtering. | Governs which SharePoint and OneDrive surfaces custom Copilot Studio agents may ground on. |
 | **Copilot Studio (validation only)** | Re‑publish a test agent and verify the SharePoint knowledge picker reflects DLP and RCD scope. | Confirms end‑to‑end handshake from SPAC → PPAC → agent runtime. |
 
 What this walkthrough does **not** cover (use the linked playbooks instead):
@@ -62,7 +62,7 @@ Out of scope for Control 4.6 (covered by sibling controls — see §9):
 | S4 | Per‑site RCD | `SPAC → Sites → Active sites → [select site] → Settings tab → Restrict content from Microsoft 365 Copilot → On → Save` |
 | S5 | RCD delegation flag | PowerShell only — `Set-SPOTenant -DelegateRestrictedContentDiscoverabilityManagement $true` |
 | S6 | Restricted SharePoint Search (tenant toggle + allowed‑list) | `SPAC → Settings → Restricted SharePoint Search` (tenant toggle + allowed list management); PowerShell mirror `Set-SPOTenantRestrictedSearchMode -Mode Enabled` |
-| S7 | Power Platform DLP for Copilot Studio knowledge connectors | `PPAC → Policies → Data policies → + New policy` (then classify the Copilot Studio knowledge connectors and apply endpoint filtering) |
+| S7 | Power Platform DLP for Copilot Studio knowledge connectors | `PPAC → Security → Data and privacy → Data policy → + New policy` (then classify the Copilot Studio knowledge connectors and apply endpoint filtering) |
 | S8 | Copilot Studio knowledge picker validation | `Copilot Studio → [agent] → Knowledge → + Add knowledge → SharePoint / OneDrive` |
 
 ### 0.3 Portal vs PowerShell — when to use which
@@ -76,7 +76,7 @@ Out of scope for Control 4.6 (covered by sibling controls — see §9):
 | Enable RSS tenant‑wide | SPAC → Settings → Restricted SharePoint Search (toggle) | `Set-SPOTenantRestrictedSearchMode -Mode Enabled` | Portal for one‑time enable; PowerShell for documented scripted change. |
 | Manage RSS allowed list (≤100 sites) | SPAC → Settings → Restricted SharePoint Search (allowed‑list pane) | `Add-SPOTenantRestrictedSearchAllowedListSites` (verify exact cmdlet against `Get-Command -Module Microsoft.Online.SharePoint.PowerShell -Name *RestrictedSearch*`) | Either — pick one and document it as the system of record. |
 | Generate DAG report | SPAC → Reports → Data access governance | Not available via PowerShell | Portal only. |
-| Create/edit Power Platform DLP policy | PPAC → Policies → Data policies | `New-DlpPolicy` / `Set-DlpPolicy` (Power Apps cmdlets) | Portal for first authoring; PowerShell for promotion across environments. |
+| Create/edit Power Platform DLP policy | PPAC → Security → Data and privacy → Data policy | `New-DlpPolicy` / `Set-DlpPolicy` (Power Apps cmdlets) | Portal for first authoring; PowerShell for promotion across environments. |
 
 !!! note "Why both surfaces are required"
     The portal gives you change‑managed UI evidence (screenshots) that auditors expect for SOX 302/404 control walkthroughs. PowerShell gives you the deterministic, reproducible read‑backs that satisfy SEC 17a‑4 / FINRA 4511 evidence preservation and let you scale beyond what the SPAC UI can handle. Use both — never one alone.
@@ -476,7 +476,7 @@ If a nominated site does **not** show the expected change, do not promote to the
 ### 4e.1 Open PPAC and create the policy
 
 1. Sign in to **Power Platform Admin Center** (`https://admin.powerplatform.microsoft.com`) as the named Power Platform Admin (PIM‑activated).
-2. In the left navigation, expand **Policies → Data policies**.
+2. In the left navigation, expand **Security → Data and privacy → Data policy**.
 3. Click **+ New policy**.
 4. **Name:** `dlp-copilot-studio-grounding-zone-2` (or your equivalent naming convention).
 5. **Environment scope:** Select the environment(s) that host the Zone 2 Copilot Studio agents. **Do not** apply to the default environment unless you have ratified that as your Zone 2 host. Click **Next**.
@@ -727,7 +727,7 @@ The evidence pack is the artifact you hand to internal audit, external regulator
 | E12 | RSS allowed‑list contents | SPAC RSS page + PowerShell read‑back | PNG + TXT | SharePoint Admin | After §4c |
 | E13 | UAL RSS / allowed‑list mutation events | Purview → Audit | JSON | Purview Compliance Admin | After §4c |
 | E14 | DAG report (post‑change) | SPAC → Reports → DAG | PNG + CSV | SharePoint Admin | After §4d |
-| E15 | DLP connector classification | PPAC → Policies → Data policies → policy detail | PNG | Power Platform Admin | After §4e |
+| E15 | DLP connector classification | PPAC → Security → Data and privacy → Data policy → policy detail | PNG | Power Platform Admin | After §4e |
 | E16 | DLP policy summary + Copilot Studio handshake transcripts (§4f, §5) | PPAC + Copilot Studio + audit | PNG + TXT | Power Platform Admin + Copilot Studio Admin | Final promotion |
 
 ### 6.2 Evidence file naming convention

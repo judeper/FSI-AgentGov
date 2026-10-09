@@ -95,7 +95,7 @@ Financial services organizations face continuous configuration drift risk across
 | 24 | Move Data Across Regions | PPAC > Environment > Settings > Generative AI features ([Move data across regions for Copilots, AI agents, and generative AI features](https://learn.microsoft.com/power-platform/admin/geographical-availability-copilot)) | Off | High | Semi-Automated |
 | 25 | Web search | PPAC > Environment > Settings > Generative AI features ([Move data across regions for Copilots, AI agents, and generative AI features](https://learn.microsoft.com/power-platform/admin/geographical-availability-copilot)) | Validate the literal label in your tenant (**Allow web search** or **Bing Search**) and keep it Off unless approved | Medium | Manual Attestation |
 | 26 | Conversational transcript access | PPAC > Environment > Settings > Product > Features ([Environment features](https://learn.microsoft.com/en-us/power-platform/admin/settings-features)) | Restricted to authorized personnel | Medium | Semi-Automated |
-| 27 | DLP for agent publishing connectors | PPAC > Data policies | Block Copilot Studio for Teams and Microsoft 365 Copilot Chat channel in restricted environments | High | Semi-Automated |
+| 27 | DLP for agent publishing connectors | PPAC > Security > Data and privacy > Data policy | Block Copilot Studio for Teams and Microsoft 365 Copilot Chat channel in restricted environments | High | Semi-Automated |
 
 ### Environment Security Settings (Controls 2.22, 3.7)
 

@@ -361,7 +361,7 @@ foreach ($p in Get-DlpPolicy) {
 
 **Diagnostic — portal**
 
-- PPAC → **Policies → Data policies** — list every policy that targets the affected environment; note `Environments`, `Type`, and `Last modified`.
+- PPAC → **Security → Data and privacy → Data policy** — list every policy that targets the affected environment; note `Environments`, `Type`, and `Last modified`.
 - For each policy → **Connectors** tab — confirm where `HTTP Webhook` is classified.
 - PPAC → **Environments → [env] → Settings → Features** — confirm whether the environment is a Managed Environment.
 

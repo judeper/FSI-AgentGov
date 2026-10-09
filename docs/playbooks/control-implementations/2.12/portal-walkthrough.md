@@ -370,7 +370,7 @@ Approval actions pause a Copilot Studio turn, invoke a Power Automate approval f
 
 #### 3b.5 Environment DLP and connector scoping
 
-1. Open Power Platform admin center → **Policies → Data policies**.
+1. Open Power Platform admin center → **Security → Data and privacy → Data policy**.
 2. Confirm the environment hosting the approval flow has a DLP policy that:
     - Classifies the **Approvals** connector as `Business`.
     - Classifies any external / unsanctioned connectors as `Blocked` (e.g., personal cloud storage, unapproved messaging platforms).

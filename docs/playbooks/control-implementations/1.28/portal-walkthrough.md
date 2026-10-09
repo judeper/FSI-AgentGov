@@ -24,7 +24,7 @@
 Effective February 2025, Microsoft removed the "Soft-Enabled" DLP exemption for published Copilot Studio agents. All published agents are now evaluated against tenant DLP policy at runtime and at publish/update time. There is no portal toggle to revert this — it is the platform default.
 
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com).
-2. Confirm you can see the **Policies → Data policies** node (requires Power Platform Admin).
+2. Confirm you can see the **Security → Data and privacy → Data policy** section (requires Power Platform Admin).
 3. Document in your change record that DLP enforcement mode is **Enabled** (the only supported mode as of February 2025).
 
 > **FSI Note:** For organizations with existing published agents created before February 2025, conduct a DLP compliance review immediately. Agents whose connector usage no longer aligns with the current DLP policy are blocked from update operations until the violation is resolved or the policy is amended.
@@ -35,7 +35,7 @@ Effective February 2025, Microsoft removed the "Soft-Enabled" DLP exemption for 
 
 Repeat this step once per zone (Zone 1, Zone 2, Zone 3). The escalating restriction profile is described in the parent control.
 
-1. In PPAC, go to **Policies → Data policies**.
+1. In PPAC, go to **Security → Data and privacy → Data policy**.
 2. Select **+ New policy**.
 3. **Name:** Use a clear, zone-aligned name (e.g., `FSI - Zone 3 Enterprise Restricted`).
 4. On the **Prebuilt connectors** tab, classify connectors into **Business**, **Non-Business**, and **Blocked** groups. Recommended starting baseline:
@@ -155,9 +155,9 @@ After completing these steps, confirm:
 
 | Setting | Location |
 |---------|----------|
-| DLP data policies | PPAC → Policies → Data policies |
-| Environment assignment to a policy | PPAC → Policies → Data policies → [Policy] → Scope |
-| Custom connector default behavior | PPAC → Policies → Data policies → [Policy] → Custom connectors |
+| DLP data policies | PPAC → Security → Data and privacy → Data policy |
+| Environment assignment to a policy | PPAC → Security → Data and privacy → Data policy → [Policy] → Scope |
+| Custom connector default behavior | PPAC → Security → Data and privacy → Data policy → [Policy] → Custom connectors |
 | Copilot Studio pre-publish dialog | Copilot Studio → [Agent] → Publish |
 | Channel configuration | Copilot Studio → [Agent] → Settings → Channels |
 | Power Platform Pipelines | PPAC → Resources → Pipelines |

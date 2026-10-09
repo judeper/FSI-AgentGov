@@ -31,7 +31,7 @@
 
 | **Copilot Studio → agent → Knowledge** | Scope each knowledge source to a specific document library or folder; toggle public web grounding off for Zone 3; constrain file upload and image upload posture per zone. | Per-agent grounding surface minimization. |
 | **Copilot Studio → agent → Settings → Generative AI** | Disable web search for Zone 3 agents handling NPI; review tone, instructions, and orchestration mode for scope-appropriate behavior. | Removes the "anything on the public internet" grounding path from regulated agents. |
-| **PPAC → Security → Data and privacy → Data policies** | Classify the Copilot Studio knowledge connectors and the connectors used as agent actions into Business / Non-Business / Blocked groups; scope policies to environments hosting Zone 2 / Zone 3 agents. | Constrains which connectors an agent may use; complements but does not replace OAuth scope minimization (Control 1.18). |
+| **PPAC → Security → Data and privacy → Data policy** | Classify the Copilot Studio knowledge connectors and the connectors used as agent actions into Business / Non-Business / Blocked groups; scope policies to environments hosting Zone 2 / Zone 3 agents. | Constrains which connectors an agent may use; complements but does not replace OAuth scope minimization (Control 1.18). |
 | **Purview portal → DSPM for AI → Policies + Activity Explorer** | Enable the recommended one-click DSPM-for-AI policies; review sensitive-interactions activity at the zone cadence; export weekly evidence. | Primary detective surface for sensitive-data interactions with Copilot and agents. |
 | **Purview portal → Data loss prevention → Policies** | Author DLP policies at the **Microsoft 365 Copilot** location with rules tied to sensitivity labels and SITs (Control 1.13). | Runtime enforcement that excludes labeled / SIT-matched content from agent grounding. |
 | **Purview portal → Audit → Search** | Discover the canonical Copilot and Power Platform audit operations in your tenant (record types `CopilotInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory`); export evidence. | Forensic and supervisory record (FINRA Rule 4511, FINRA Rule 3110 / RN 24-09). |
@@ -83,7 +83,7 @@ Out of scope for Control 1.14 (covered by sibling controls):
 | S3 | Per-agent public web grounding toggle | `Copilot Studio → [agent] → Settings → Generative AI → Web search` |
 | S4 | Per-agent file upload posture | `Copilot Studio → [agent] → Settings → Generative AI → File uploads` (and per-knowledge-source toggles) |
 | S5 | Per-agent image upload posture | `Copilot Studio → [agent] → Settings → Generative AI → Image uploads` |
-| S6 | Power Platform DLP — connector classification | `PPAC → Security → Data and privacy → Data policies → + New Policy` |
+| S6 | Power Platform DLP — connector classification | `PPAC → Security → Data and privacy → Data policy → + New Policy` |
 | S7 | Power Platform DLP — environment scope | Same wizard, **Scope** step |
 | S8 | Purview DSPM for AI — recommended policies | `Purview portal → Solutions → DSPM for AI → Policies` (one-click recommended policies) |
 | S9 | Purview DSPM for AI — Activity Explorer | `Purview portal → Solutions → DSPM for AI → Activity explorer` |
@@ -316,7 +316,7 @@ This discipline is what makes the §7 / §8 scope-drift detection meaningful —
 ### 3.1 Open PPAC and create the policy
 
 1. Sign in to **Power Platform Admin Center** (`https://admin.powerplatform.microsoft.com`) as the named Power Platform Admin (PIM-activated).
-2. In the left navigation, expand **Security → Data and privacy → Data policies** (the menu was reorganized in the H2 2025 PPAC refresh; older builds may still show **Policies → Data policies**).
+2. In the left navigation, expand **Security → Data and privacy → Data policy** (the menu was reorganized in the H2 2025 PPAC refresh; older builds may still show **Policies → Data policies**).
 3. Click **+ New Policy**.
 4. **Name:** `dlp-1.14-zone-2` (or your equivalent naming convention).
 5. Click **Next**.
@@ -996,7 +996,7 @@ The artifacts collected in §1–§13 form the Control 1.14 evidence pack. Each 
 | E3-B | PPAC Resources → Copilots / Agents export per environment | Power Platform Admin Center | Power Platform Admin | CSV | 7y | §2.1 |
 | E3-C | Purview DSPM for AI — AI apps and agents export | Purview portal → DSPM for AI → Reports | Purview Data Security AI Admin | CSV | 7y | §2.1 |
 | E3 | Reconciled agent inventory (the §2.2 join) | Control 1.2 registry | AI Governance Lead | XLSX or registry export | 7y | §2.2 |
-| E4 | PPAC DLP — connector classification screenshots per zone policy | PPAC → Security → Data and privacy → Data policies | Power Platform Admin | PNG bundle | 7y | §3.2 |
+| E4 | PPAC DLP — connector classification screenshots per zone policy | PPAC → Security → Data and privacy → Data policy | Power Platform Admin | PNG bundle | 7y | §3.2 |
 | E5 | PPAC DLP — final policy summary screenshot per zone | PPAC | Power Platform Admin | PNG | 7y | §3.5 |
 | E6 | DLP block (negative) and DLP allow (positive) test transcripts in Copilot Studio | Copilot Studio canary | AI Administrator | PNG + transcript text | 7y | §3.7 |
 | E7-pos / E7-neg-1 / E7-neg-2 / E7-neg-3 | SharePoint scope positive- and negative-path transcripts | Copilot Studio canary | AI Administrator | Transcript text + screenshots | 7y | §4.6 |

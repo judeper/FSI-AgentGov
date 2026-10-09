@@ -12,7 +12,7 @@
     | Per-environment feature flags and preview-feature exposure | PPAC → Environments → [env] → Settings → Product → Features | Preview features off in Z3; documented exceptions in Z2 |
     | Per-agent tool, knowledge-source, authentication, and publishing configuration | Copilot Studio → [agent] → Settings / Tools / Knowledge | Agent-level configuration matches feature catalog |
     | Feature catalog authoring and change workflow (forward **and reverse**) | Dataverse table / SharePoint list + ServiceNow / Jira / SPO | Every Z2/Z3 capability has an authorised record with expiration, risk rating, and reverse-change path |
-    | MCP connector and Agent Framework feature-flag governance (external tool egress) | PPAC → Data policies + Copilot Studio → [agent] → Actions → MCP | External tool egress is allowlisted, justified, and monitored |
+    | MCP connector and Agent Framework feature-flag governance (external tool egress) | PPAC → Security → Data and privacy → Data policy + Copilot Studio → [agent] → Actions → MCP | External tool egress is allowlisted, justified, and monitored |
     | Voice and image-upload toggles (recording consent + Purview DLP for images) | M365 admin center → Copilot → Voice; Purview → DLP | Consent banner and DLP classifier coverage verified |
 
     **This walkthrough is NOT for:**
@@ -327,7 +327,7 @@ For each toggle:
 
 ### 2.3 Configure DLP default for new environments
 
-1. Open **Copilot → Governance** (or **Data policies** under the main PPAC left nav — the Governance card typically links through).
+1. Open **Copilot → Governance** (or **Data policy** under **Security → Data and privacy** in the PPAC left nav — the Governance card typically links through).
 2. Confirm that a **default DLP policy for new environments** exists with a Z3-equivalent connector posture (most connectors in `Blocked` or `Non-business`). This is a cross-reference to Control 1.4; the relevance here is that a new environment must not be able to use generative AI or MCP connectors **before** it has been zoned and a tailored DLP applied.
 3. If no default-new-environment DLP exists, create one now (see Control 1.4 playbook).
 
@@ -740,7 +740,7 @@ MCP (Model Context Protocol) connectors and Microsoft Agent Framework feature fl
 
 ### 7.2 MCP connectors — DLP environment enforcement
 
-1. In PPAC → **Data policies**, open the policy that covers your Z3 environments.
+1. In PPAC → **Security → Data and privacy → Data policy**, open the policy that covers your Z3 environments.
 2. Locate the **MCP** or **Custom connectors** classification (UI naming varies).
 3. Confirm it is placed in the **Blocked** group for Z3 unless a specific allow-list entry exists.
 4. For Z2, place in **Non-business** (preventing cross-use with Business data) and maintain a small allow-list.

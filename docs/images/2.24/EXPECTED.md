@@ -74,7 +74,7 @@
 - Environment type visible (Sandbox or Development)
 
 ### Screenshot 6: PPAC DLP Policy - Zone 3 Connector Groups
-**Portal Path:** PPAC → Data policies → [Zone 3 DLP Policy] → Connectors
+**Portal Path:** PPAC → Security → Data and privacy → Data policy → [Zone 3 DLP Policy] → Connectors
 **What to capture:**
 - DLP policy editor showing connector classification groups
 - Three groups visible: Business, Non-business, Blocked
@@ -89,7 +89,7 @@
 - Save button visible
 
 ### Screenshot 7: PPAC DLP Policy - Environment Scope Configuration
-**Portal Path:** PPAC → Data policies → [Zone 3 DLP Policy] → Environments
+**Portal Path:** PPAC → Security → Data and privacy → Data policy → [Zone 3 DLP Policy] → Environments
 **What to capture:**
 - DLP policy environment scope configuration page
 - Policy type selected: "Apply to specific environments" (not "All environments")
