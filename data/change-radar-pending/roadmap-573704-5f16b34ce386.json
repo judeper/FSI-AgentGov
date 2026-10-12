@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:5f16b34ce3866493426770565831d7b57cc1babb4eb92a12a5600c849e27a65a",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "December CY2026",
+  "id": 573704,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Supply Chain Management"
+  ],
+  "raw_description": "<p>Organizations often use business-specific data and criteria to determine when suppliers require follow-up on purchase orders. The Procurement Agent will enable buyers to extend supplier follow-up criteria using related standard, extended, and custom table data. Buyers can add table joins and use fields from those tables as filter conditions, providing greater flexibility to determine which purchase order lines qualify for supplier follow-up based on their organization’s processes and data.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573704",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Supply Chain Management: Procurement Agent - Customize the Procurement Agent supplier follow-up criteria"
+}

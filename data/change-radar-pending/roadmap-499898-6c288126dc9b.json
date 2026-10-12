@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:6c288126dc9bacf6560b0bed99cc2d903ab9126137a8b4b9eec8cbc1d95a4c93",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "November CY2026",
+  "id": 499898,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2025",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Viva"
+  ],
+  "raw_description": "<p>Community Agent helps members get answers to questions in Viva Engage communities using community knowledge and connected sources. Community admins can choose to require human review before answers are posted or allow automatic posting.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=499898",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Viva Engage - Community Agent"
+}

@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:efa69d3594f558d820595aa007e56b5cbf16b3b5c3efed1eac864d9177e39205",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "December CY2026",
+  "id": 503771,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Users in GCC-H will be able to use custom engine agents.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503771",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users in GCC-H will be able to use custom engine agents"
+}

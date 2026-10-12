@@ -1,0 +1,32 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:242f2b1147616e98480975d901fb7ef26aa7af55fecee23b88357cb1a08044b3",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "October CY2026",
+  "id": 558436,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "March CY2026",
+  "products": [
+    "Microsoft Purview"
+  ],
+  "raw_description": "<p>We're expanding the Data Security Posture Agent with a new credential scanning capability. Discover exposed credentials and data security risks across scoped locations. Assign scanning tasks to the agent, track progress across stages, and take action on prioritized findings. The agent scans selected data locations, analyzing scoped files to detect credentials, such as Microsoft Entra user credentials, private keys, and API tokens. Each finding includes a risk score, AI-generated insights, confidence score, and credential category so you can review, confirm, and act from a single task board view. Updated October 5, 2026: We have decided not to move forward with this change at this time. We apologize for any inconvenience.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=558436",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Cancelled",
+  "suggested_controls": [
+    {
+      "id": "1.24",
+      "source": "keyword:data security posture"
+    },
+    {
+      "id": "1.6",
+      "source": "keyword:data security posture"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:entra"
+    }
+  ],
+  "title": "Microsoft Purview: Credential Scanning in Data Security Posture Agent "
+}

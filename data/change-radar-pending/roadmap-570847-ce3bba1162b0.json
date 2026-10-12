@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:ce3bba1162b0b64c27cb5a0a07106486d2da74bacce0832c4292d6690ce2934c",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "December CY2026",
+  "id": 570847,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2026",
+  "products": [
+    "Microsoft Viva"
+  ],
+  "raw_description": "<p>Customers can now view value insights in the Agent 365 Dashboard in Microsoft Viva Insights (Copilot Analytics). These insights help business leaders and change and adoption specialists understand not only whether agents are being used, but also the estimated assisted hours agents provide and the types of work contributing to that value.</p>\n<p>This update builds on the existing Agent 365 Dashboard adoption experience by connecting agent activity with a clearer view of the work agents support across the organization.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570847",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Viva: Copilot Analytics - Agent value insights in Agent 365 Dashboard"
+}

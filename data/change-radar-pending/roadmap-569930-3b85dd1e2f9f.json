@@ -1,0 +1,24 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:3b85dd1e2f9fab9bc39c1676bcb087c32ce1c022b3a6df3f349c52c3c4756999",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "September CY2026",
+  "id": 569930,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Configure the connectors your agent needs, with a simple in-chat sign-in instead of a full settings experience.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569930",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Rolling out",
+  "suggested_controls": [
+    {
+      "id": "1.4",
+      "source": "keyword:connector"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Conversational configuration of connectors in Copilot Studio"
+}

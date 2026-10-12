@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:71310b3e2896ba99deacb2dedfab46c45b4195d5ad555e9fb8fe3420ae6dbeb8",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "March CY2026",
+  "id": 486696,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Outlook"
+  ],
+  "raw_description": "<p>We will be adding declarative agents support in Copilot Chat in Outlook. This roadmap item tracks availability in Outlook for Mac.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=486696",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Outlook: Agents for Microsoft 365 Copilot available in Copilot Chat in Outlook for Mac"
+}

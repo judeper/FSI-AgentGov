@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:410cf6cc4ec256b96237c2e4d87d780a026baad21ef34e429fb97ca89b9f22e1",
+  "detected_at": "2026-10-12T16:15:56Z",
+  "ga_date": "October CY2026",
+  "id": 567886,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "August CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Planner"
+  ],
+  "raw_description": "<p>AI-powered Status Report in Planner Agent turns your plan data into a polished, stakeholder-ready update in minutes. Just ask Planner Agent for a status report and it pulls your task data and transforms it into a clear narrative covering overall status, progress, risks, and what's next. You can easily customize the report to your needs by specifying the audience, tone, length, and sections you want.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567886",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Planner: AI-generated Status Reports in Planner Agent"
+}
