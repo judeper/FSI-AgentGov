@@ -1,317 +1,164 @@
 # Control 1.28: Policy-Based Agent Publishing Restrictions
 
+**Last Verified:** 2026-10-14
+**Verification method:** Live Microsoft Learn documentation review; no tenant UI session or screenshots were captured. Actual tenant UI and configured approval workflows still require local verification.
+
 ## Expected Screenshots
 
-### Screenshot 1: DLP Policy Configuration - Zone 3 Strict Policy
-**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Zone 3 Policy]
+Capture evidence in a non-production environment with non-sensitive names. Labels and icons can vary; record the actual UI rather than reproducing sample messages. Zone classifications are framework requirements, not Microsoft product settings.
+
+### Screenshot 1: Zone-Specific Data Policy
+**Portal Path:** Power Platform Admin Center -> Security -> Data and privacy -> Data policy -> [Policy]
 **What to capture:**
-- DLP policy name: "Zone 3 - Enterprise Customer-Facing DLP Policy"
-- Connector classification table showing three categories:
-  - **Business:** SharePoint, Dataverse, Office 365 Groups (minimal approved connectors)
-  - **Non-Business:** (empty)
-  - **Blocked:** HTTP, Telegram, Facebook, Public Website, Twitter, RSS (extensive block list)
-- Policy scope showing Zone 3 environments assigned
-- Save button and policy status (Active)
+- Policy name, ID, assigned environments, and connector classifications.
+- Business, Non-business, and Blocked groups, including the default group for new connectors.
+- Exact Copilot Studio connector names, such as **HTTP**, **Facebook channel in Copilot Studio**, **Direct Line channels in Copilot Studio**, and **Chat without Microsoft Entra ID authentication in Copilot Studio**.
+- Keep an approved channel allowed. Do not confuse the Facebook service connector with the Copilot Studio Facebook channel connector.
+- Record unblockable connectors; a literal "everything else Blocked" or empty Non-business group is not always possible.
 
-### Screenshot 2: Connector Classification Interface
-**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Policy] → Assign Connectors
+### Screenshot 2: Connector Classification
+**Portal Path:** Power Platform Admin Center -> Security -> Data and privacy -> Data policy -> [Policy] -> Edit Policy -> Assign connectors
 **What to capture:**
-- Three connector category columns: Business | Non-Business | Blocked
-- Drag-and-drop interface showing connectors in each category
-- Search bar for finding specific connectors
-- Connector icons and names clearly visible
-- Example of moving a connector between categories
+- Connector list, search, Blockable attribute, and Business/Non-business/Blocked group views.
+- A selected blockable connector and its Move to Business or Block action (toolbar or ellipsis menu).
+- Do not require a three-column drag-and-drop interface.
 
-### Screenshot 3: DLP Policy Environment Assignment
-**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Policy] → Define scope
+### Screenshot 3: Environment Scope
+**Portal Path:** Power Platform Admin Center -> Security -> Data and privacy -> Data policy -> [Policy] -> Edit Policy
 **What to capture:**
-- Environment selection interface with options:
-  - "Add multiple environments"
-  - "Add all environments"
-  - "Exclude certain environments"
-- List of environments with checkboxes
-- Selected environments for Zone 3 policy (e.g., "Production", "Customer-Facing")
-- Environment count and summary
+- Scope and environment selection, including Available and Added to policy views where shown.
+- For tenant policies, record Add multiple environments, Add all environments, or Exclude certain environments as applicable.
+- Environment IDs and the saved policy's Applied to summary. Environment-level policies have no tenant-wide scope selection.
 
-### Screenshot 4: Security Scan - DLP Violation Detected
-**Portal Path:** Microsoft Copilot Studio → [Agent] → Publish → Security scan results
+### Screenshot 4: DLP Violation Prevents Publishing
+**Portal Path:** Copilot Studio -> [Agent] -> Publish / Channels
 **What to capture:**
-- Security scan panel with red error indicator
-- Error message: "This agent cannot be published due to DLP policy violations"
-- Details section showing:
-  - Violating connector name (e.g., "HTTP connector")
-  - Reason: "This connector is blocked by DLP policy"
-  - Recommended action: "Remove connector or request DLP exception"
-- Publish button grayed out/disabled
-- Agent name visible in header
+- Error banner and Details, publish failure or unavailable Publish button, and actual connector/policy information.
+- Channels -> error details -> Download: the exported workbook's **DLP violations** and **Blocked channels** worksheets.
+- If Show raw is available, capture the violation type without sensitive data.
+- This is DLP evidence, not a generic "Security scan failed" panel.
 
-### Screenshot 5: Security Scan - Passed (Green Checkmark)
-**Portal Path:** Copilot Studio → [Agent] → Publish → Security scan results
+### Screenshot 5: Successful Publish
+**Portal Path:** Copilot Studio -> [Agent] -> Publish
 **What to capture:**
-- Security scan panel with green checkmark indicator
-- Success message: "No security issues detected"
-- Summary showing:
-  - DLP compliance: Passed
-  - Channel restrictions: Passed
-  - Configuration security: Passed
-- Publish button enabled
-- Agent name visible in header
+- Successful publication of an agent whose connectors and channels comply with the assigned policy.
+- Agent identity and publication time; supporting approval evidence is collected separately.
+- Do not require invented "DLP compliance / Channel restrictions / Configuration security: Passed" scan categories.
 
-### Screenshot 6: Security Scan - Warning (Yellow - Zone 1)
-**Portal Path:** Copilot Studio → [Agent] → Publish → Security scan results
+### Screenshot 6: Automatic Security Scan Warning
+**Portal Path:** Copilot Studio -> [Agent] -> Publish
 **What to capture:**
-- Security scan panel with yellow warning indicator
-- Warning message: "1 warning detected - review before publishing"
-- Warning details:
-  - Warning type: "Insecure connector configuration"
-  - Description: "HTTP connector is used without certificate validation"
-  - Impact: "Low risk for personal productivity agents"
-- Acknowledge checkbox: "I understand the risk and want to proceed"
-- Publish button enabled after acknowledgment
-- Zone 1 environment indicator
+- In a test agent, a documented risk condition: **No authentication**, **Maker-provided credentials** for a connector/flow, or sharing with everyone in the organization.
+- The actual warning and remediation guidance shown before publishing.
+- Do not expect HTTP certificate-validation warnings, zone-specific risk ratings, fixed colors, or an acknowledgment checkbox unless observed in the tenant.
+- Security scan warnings and mandatory DLP blocks are separate signals; a warning cannot override a DLP violation.
 
-### Screenshot 7: Blocked Channel Configuration
-**Portal Path:** Copilot Studio → [Agent] → Settings → Channels
+### Screenshot 7: Restricted Channels
+**Portal Path:** Copilot Studio -> [Agent] -> Channels (top menu)
 **What to capture:**
-- Channels configuration page listing available channels
-- Prohibited channels highlighted or marked as blocked:
-  - Facebook (disabled/grayed out)
-  - Telegram (disabled/grayed out)
-  - Public Website (disabled/grayed out)
-- Allowed channels available for selection:
-  - Microsoft Teams (enabled/available)
-  - Microsoft Teams (Internal) (enabled/available)
-- Channel status: "Blocked by DLP policy"
-- Save button
+- Disabled/unavailable channels and the information icon explaining policy or authentication restrictions.
+- The approved Teams and Microsoft Copilot channel, where permitted.
+- DLP uses **Direct Line channels in Copilot Studio** for demo/custom websites and other Direct Line channels; **Facebook channel in Copilot Studio** controls Facebook.
+- Telegram is reached through Azure Bot Service channels, not a documented standalone Copilot Studio Telegram DLP connector. Record the actual channel path and policy coverage; do not infer a Telegram-specific block from a service connector.
 
-### Screenshot 8: Approval Workflow Configuration
-**Portal Path:** Power Platform Admin Center → Environments → [Environment] → Settings → Features
+### Screenshot 8: Configured Approval Process
+**Portal Path:** Power Automate -> [Organization's approval flow], or Power Apps -> [Pipelines host] -> Deployment Pipeline Configuration
 **What to capture:**
-- Features settings panel
-- "Copilot and Power Apps" section expanded
-- Approval settings:
-  - "Require approval for new chatbots" toggle (enabled)
-  - "Require approval for chatbot updates" toggle (enabled/optional)
-- Environment name visible (Zone 2 or Zone 3)
-- Save button
+- The actual intake trigger, approvers, decision branches, and evidence sink.
+- For pipeline gates, **Pre-deployment Step Required** and its custom approval/status-update flow.
+- Do not expect PPAC Features toggles called "Require approval for new chatbots" or "Require approval for chatbot updates."
 
-### Screenshot 9: Submit Agent for Approval (Agent Author View)
-**Portal Path:** Copilot Studio → [Agent] → Publish → Submit for approval
+### Screenshots 9-12: Submission, Pending, Approved, and Rejected Records
+**Location:** Organization's intake form/change ticket, Power Automate Approvals, or configured pipeline workflow
 **What to capture:**
-- Publish agent dialog with approval submission form
-- Form fields:
-  - **Publishing justification:** Text field with sample text (e.g., "Customer support agent for Q1 launch")
-  - **Expected impact:** Text field describing usage (e.g., "100 customer service reps")
-  - **Testing evidence:** Reference to test results
-- Security scan status: Passed (green checkmark)
-- "Submit for approval" button (primary action)
-- "Cancel" button
+- Request ID, agent/environment, submitter, justification, testing evidence reference, and decision history.
+- Approver, timestamp, comments, and notification for approved and rejected requests.
+- For a preventive pipeline gate, evidence that rejection stops deployment.
+- These are configured process records, not built-in Copilot Studio Submit for approval forms or PPAC Pending/Completed approvals pages. A flow triggered after an agent change is detective, not a pre-publish gate.
 
-### Screenshot 10: Pending Approval Request (Admin View)
-**Portal Path:** Power Platform Admin Center → Pending approvals (or email notification)
+### Screenshot 13: Published Agent Affected by a Policy Change
+**Portal Path:** Copilot Studio -> [Agent] -> Channels / Publish
 **What to capture:**
-- Pending approval notification showing:
-  - Agent name: "Customer Support Agent - Zone 2"
-  - Requested by: Agent author name
-  - Environment: Zone 2 environment name
-  - Publishing justification text
-  - Security scan results: Passed
-  - DLP compliance status: Compliant
-- Action buttons:
-  - "Approve" (primary)
-  - "Reject" (secondary)
-- Comment field for approval/rejection notes
-- Timestamp of request
+- In a test environment, tighten a policy for a **blockable** connector such as HTTP, then capture published and draft error details.
+- Blocked republish and, if reproduced, the runtime **DataLossPreventionViolation** error with timestamp.
+- Do not move the SharePoint service connector to Blocked; it is unblockable. Copilot Studio knowledge-source connectors are distinct policy surfaces.
+- Do not claim the previous published version continues serving normally; policy violations can disrupt runtime.
 
-### Screenshot 11: Approved Publishing Request
-**Portal Path:** Power Platform Admin Center → Completed approvals
+### Screenshot 14: Solution Promotion Pipeline
+**Portal Path:** PPAC -> Deployments -> [Custom host]; Power Apps -> [Host environment] -> Deployment Pipeline Configuration
 **What to capture:**
-- Approval record showing:
-  - Agent name
-  - Approved by: Power Platform Admin name
-  - Approval timestamp
-  - Admin comments: "Approved - Security review completed"
-  - Status: "Approved"
-- Approval history timeline
-- Link to view agent details
+- Linked development environment and Test/Production deployment stages, including Previous Deployment Stage.
+- Target Managed Environments, stage gate settings, and deployment run history.
+- Environment groups organize governance rules; they are not a promotion pipeline diagram.
 
-### Screenshot 12: Rejected Publishing Request
-**Portal Path:** Power Platform Admin Center → Completed approvals (or Copilot Studio notification)
+### Screenshot 15: Copilot Studio Publishing Audit
+**Portal Path:** Microsoft Purview -> Solutions -> Audit
 **What to capture:**
-- Rejection record showing:
-  - Agent name
-  - Rejected by: Power Platform Admin name
-  - Rejection timestamp
-  - Admin comments: "Insufficient testing evidence - please provide test results"
-  - Status: "Rejected"
-- Agent author notification display
-- Option to re-submit request
+- Copilot Studio authoring activity **BotUpdateOperation-BotPublish**; **BotCreate** is a separate creation event.
+- Actual Operation, CreationTime, user, ResultStatus, and BotId/BotSchemaName fields where present.
+- Exported record correlated with the agent and test window.
+- Do not require DLP status, connector usage, scan results, or approval comments in the publishing event; Microsoft does not document those fields as a combined record.
 
-### Screenshot 13: Published Agent with DLP Violation (Blocked Update)
-**Portal Path:** Copilot Studio → [Agent] → Publish (for update)
+### Screenshot 16: DLP Enforcement Evidence
+**Location:** Copilot Studio Channels error details and downloaded workbook
 **What to capture:**
-- Published agent details showing:
-  - Agent status: "Published (Non-Compliant)"
-  - Last published date
-  - Current version number
-- Attempt to publish update:
-  - Security scan showing DLP violation
-  - Error message: "This published agent has DLP violations and cannot be updated"
-  - Details: "SharePoint connector is now blocked by DLP policy"
-- Update button grayed out/disabled
-- Warning banner: "This agent requires remediation before updates can be published"
+- Connector, policy name/ID, agent/environment, blocked channels, and failed publish evidence.
+- Do not require a Purview activity named "DLP policy violation detected" for a blocked Copilot Studio publish.
+- Capture policy-change audit evidence separately if available; it is not proof of the blocked attempt itself.
 
-### Screenshot 14: Environment Promotion Pipeline
-**Portal Path:** Power Platform Admin Center → Environment groups
+### Screenshot 17: Approval Evidence
+**Location:** Configured Power Automate approval record, pipeline run, or change-ticket system
 **What to capture:**
-- Environment group configuration showing:
-  - Group name: "Zone 3 Production Pipeline"
-  - Linked environments:
-    - Development (Dev-Zone3)
-    - Test (UAT-Zone3)
-    - Production (Prod-Zone3)
-  - Promotion pipeline diagram or flow
-- Environment metadata:
-  - Environment type (Sandbox/Production)
-  - DLP policy assigned
-  - Approval workflow status
+- Request ID, approver, decision, timestamp, comments, and deployment correlation.
+- Do not require a Purview activity named "Approve chatbot publishing request"; preserve the supporting workflow record.
 
-### Screenshot 15: Purview Audit Log - Agent Publishing Event
-**Portal Path:** Microsoft Purview portal → Audit → Search results
+### Screenshot 18: Inventory and Evidence Hash
+**Location:** Dataverse inventory export and PowerShell evidence output
 **What to capture:**
-- Audit log entry for agent publishing showing:
-  - **Activity:** "Publish chatbot" or "Create chatbot"
-  - **User:** Agent author name
-  - **Date/Time:** Timestamp
-  - **Item:** Agent name
-  - **Details:** Environment, DLP status, approval status
-- Expanded details panel showing:
-  - Agent ID
-  - Environment ID
-  - Connector usage details
-  - Security scan results
-- Export button for compliance records
+- Inventory obtained from the documented Dataverse Bots table / List rows from selected environment approach, plus environment identifiers.
+- CSV path and SHA-256 hash from the PowerShell playbook.
+- Separate DLP violation workbook reconciliation. Inventory alone does not produce per-agent DLP-compliant/non-compliant totals.
 
-### Screenshot 16: Purview Audit Log - DLP Violation Event
-**Portal Path:** Microsoft Purview portal → Audit → Search results
+### Screenshot 19: DLP Policy Automation
+**Location:** Windows PowerShell 5.1 and PPAC policy read-back
 **What to capture:**
-- Audit log entry for DLP violation showing:
-  - **Activity:** "DLP policy violation detected"
-  - **User:** Agent author name
-  - **Date/Time:** Timestamp
-  - **Item:** Agent name
-  - **Details:** Violating connector, DLP policy name
-- Expanded details showing:
-  - Blocked connector name (e.g., "HTTP")
-  - DLP policy enforcing the block
-  - Environment name
-  - Publishing attempt result: "Blocked"
+- Pinned module version, approved policy definition, mutation confirmation, and Get-DlpPolicy read-back.
+- New-DlpPolicy supports -NewPolicy; Set-DlpPolicy uses -PolicyName and -UpdatedPolicy, not -ConnectorGroups.
+- Use the portal for connector classification/environment selection if an approved, version-tested automation definition is unavailable.
 
-### Screenshot 17: Purview Audit Log - Approval Event
-**Portal Path:** Microsoft Purview portal → Audit → Search results
+### Screenshot 20: Custom Connector Host URL Patterns
+**Portal Path:** Power Platform Admin Center -> Security -> Data and privacy -> Data policy -> [Tenant policy] -> Custom connectors
 **What to capture:**
-- Audit log entry for approval showing:
-  - **Activity:** "Approve chatbot publishing request"
-  - **User:** Power Platform Admin name
-  - **Date/Time:** Timestamp
-  - **Item:** Agent name
-  - **Details:** Approval comments, agent author
-- Expanded details showing:
-  - Request submission timestamp
-  - Approval timestamp
-  - Approver comments
-  - Agent details (name, environment, purpose)
+- Ordered host URL patterns classified Business/Non-business/Blocked.
+- Explicit approved host patterns and the final `*` rule classified Blocked; the initial default is Ignore, not Blocked.
+- Rule ordering and saved policy. Environment policies classify individual custom connectors instead.
+- HTTP endpoint filtering is a separate configuration, not an effect of custom connector host patterns.
 
-### Screenshot 18: PowerShell Compliance Report Output
-**What to capture:**
-- Terminal/PowerShell window showing output from compliance audit script
-- Report sections:
-  - **Summary:**
-    - Total Agents: 15
-    - Compliant Agents: 12
-    - Non-Compliant Agents: 3
-  - **Non-Compliant Agents Table:**
-    - Environment | Agent Name | DLP Violations | Blocked Channels
-    - Production | "Legacy Support Agent" | "HTTP connector" | "Facebook"
-    - UAT | "Test Agent 1" | "Twitter connector" | ""
-- Export confirmation: "Report exported to: agent-publishing-compliance-report-20260212.csv"
+## Verification Focus and Availability
 
-### Screenshot 19: PowerShell DLP Policy Creation
-**What to capture:**
-- Terminal/PowerShell window showing DLP policy creation script execution
-- Script output:
-  - "Creating Zone 1 DLP policy..."
-  - "✓ Zone 1 DLP policy created: Zone 1 - Personal Productivity DLP Policy"
-  - "Adding connectors to Business group..."
-  - "✓ SharePoint added to Business group"
-  - "✓ Dataverse added to Business group"
-  - "Adding connectors to Blocked group..."
-  - "✓ Telegram added to Blocked group"
-  - "✓ Facebook added to Blocked group"
-  - "DLP policies created successfully. Next: Assign policies to environments."
-- Success indicators (green checkmarks or "✓")
+- Microsoft documents tenant-wide DLP enforcement since early 2025 and removal of agent exemptions **since March 2025** (MC973179).
+- Existing published agents can experience runtime errors as well as blocked publishing. Do not describe an old Soft-Enabled exemption as a supported tenant rollout option.
+- Automatic security scans warn about the three documented risk conditions above. The retrieved Learn page does not establish a January 31, 2026 GA date or MC1217615; those release claims are not verified here.
+- Approval, pipeline, and evidence collection require organization-specific configuration. Validate actual access restrictions using a non-admin author.
+- No additional licensing SKU is established by this screenshot checklist. Confirm Copilot Studio, pipeline/Managed Environment, Power Automate, and Purview entitlements for the chosen implementation.
+- Store all screenshots, downloaded workbooks, exports, and tenant evidence under `maintainers-local/tenant-evidence/1.28/` (gitignored), never in tracked documentation.
+- Use filenames `1.28-01-*` through `1.28-20-*` matching the numbered evidence categories above; mark configured-process evidence not applicable with a reason when the implementation uses another approval path.
 
-### Screenshot 20: Custom Connector Pattern Configuration
-**Portal Path:** Power Platform Admin Center → Security → Data and privacy → Data policy → [Policy] → Custom connector patterns
-**What to capture:**
-- Custom connector patterns configuration page
-- URL pattern rules:
-  - **Allowed domain patterns:**
-    - `*.yourcompany.com`
-    - `*.microsoft.com`
-  - **Blocked domain patterns:**
-    - `*` (block all others)
-- HTTP connector restriction settings
-- Pattern matching preview showing examples
-- Save button
+## Sources
 
----
+Live documentation reviewed on 2026-10-14:
 
-## Verification Focus
-
-- Capture from pre-production or test environment when possible
-- Use non-sensitive agent names and data for screenshots
-- Include timestamps to demonstrate currency
-- Verify UI matches documentation after Microsoft portal updates (last verified: February 2026)
-- DLP enforcement change (removal of "Soft-Enabled" exemption) effective February 2025
-- Security scan feature became GA January 31, 2026 (MC1217615)
-- Approval workflow settings may vary by tenant rollout schedule
-- For Zone 3 documentation, capture multi-level approval if configured
-
----
-
-## Feature Availability Note
-
-Policy-based agent publishing restrictions with DLP enforcement became mandatory in February 2025 (removal of "Soft-Enabled" exemption). Security scans with UI integration became GA on January 31, 2026 (MC1217615). If your tenant has not yet received these updates:
-
-- DLP violations may not block publishing (old behavior - "Soft-Enabled")
-- Security scan UI may appear in a different location or under preview flag
-- Approval workflow settings may be under different menu path
-- Contact Microsoft support to confirm rollout status for your tenant region
-- Screenshots should be updated once features are available in your environment
-
----
-
-## Screenshot Organization
-
-Organize screenshots in this directory as:
-- `1.28-01-dlp-policy-zone3.png` — DLP policy configuration
-- `1.28-02-connector-classification.png` — Connector drag-and-drop interface
-- `1.28-03-environment-assignment.png` — Environment scope selection
-- `1.28-04-security-scan-violation.png` — DLP violation detected
-- `1.28-05-security-scan-passed.png` — Security scan passed
-- `1.28-06-security-scan-warning.png` — Warning in Zone 1
-- `1.28-07-blocked-channels.png` — Blocked channel configuration
-- `1.28-08-approval-workflow-settings.png` — Environment approval settings
-- `1.28-09-submit-for-approval.png` — Agent author submission form
-- `1.28-10-pending-approval.png` — Admin approval request view
-- `1.28-11-approved-request.png` — Approved publishing record
-- `1.28-12-rejected-request.png` — Rejected publishing record
-- `1.28-13-blocked-update.png` — Published agent with DLP violation
-- `1.28-14-environment-promotion.png` — Environment group pipeline
-- `1.28-15-audit-log-publishing.png` — Purview audit log entry (publishing)
-- `1.28-16-audit-log-dlp-violation.png` — Purview audit log entry (DLP)
-- `1.28-17-audit-log-approval.png` — Purview audit log entry (approval)
-- `1.28-18-powershell-compliance-report.png` — PowerShell report output
-- `1.28-19-powershell-dlp-creation.png` — PowerShell DLP policy creation
-- `1.28-20-custom-connector-patterns.png` — Custom connector URL patterns
+- [Configure data policies for agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-data-loss-prevention)
+- [Troubleshoot data policy enforcement](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-dlp-troubleshooting)
+- [Automatic security scan](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-scan)
+- [Publish and deploy your agent](https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels)
+- [Manage data policies](https://learn.microsoft.com/en-us/power-platform/admin/prevent-data-loss)
+- [Data policies for custom connectors](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity)
+- [Audit Copilot Studio activities](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio)
+- [Custom pipelines host](https://learn.microsoft.com/en-us/power-platform/alm/custom-host-pipelines)
+- [Extend pipelines](https://learn.microsoft.com/en-us/power-platform/alm/extend-pipelines)
+- [PowerShell support](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell)
+- [New-DlpPolicy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/new-dlppolicy)
+- [Set-DlpPolicy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/set-dlppolicy)
+- [Agent (bot) table](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/reference/entities/bot)
+- [Secure Copilot Studio projects](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/sec-gov-phase3)
