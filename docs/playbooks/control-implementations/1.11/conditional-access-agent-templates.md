@@ -517,7 +517,7 @@ SigninLogs
 **Control mapping:** Control 1.11 → Microsoft-managed baseline reconciliation.
 
 !!! note "Surfacing Microsoft-managed policies"
-    Microsoft-managed CA policies do not appear in a separate menu. In the Entra portal, open **Protection → Conditional Access → Policies** and filter **Source = Microsoft**. Programmatically:
+    Microsoft-managed CA policies do not appear in a separate menu. In the Entra portal, open **Entra ID → Conditional Access → Policies** and filter **Source = Microsoft**. Programmatically:
 
 ```powershell
 # List all Microsoft-managed CA policies (templated baselines)
@@ -579,7 +579,7 @@ function Set-CaPolicy {
 
 ## 7. Validation: What-If test cases per policy
 
-Run each test through the Entra **What If** tool (Protection → Conditional Access → What If) **and** programmatically via the beta `evaluate` endpoint. Document outcomes in the agent registry change ticket before promoting to `enabled`.
+Run each test through the Entra **What If** tool (Entra ID → Conditional Access → What If) **and** programmatically via the beta `evaluate` endpoint. Document outcomes in the agent registry change ticket before promoting to `enabled`.
 
 | Policy | Test principal | Test app | Expected matched policies | Expected outcome |
 |--------|----------------|----------|--------------------------|------------------|

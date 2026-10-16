@@ -255,7 +255,7 @@ This surface routes prompt + tool-invocation events to a customer-controlled or 
 #### 4b-1 — Microsoft Entra app registration
 
 1. Sign in at `https://entra.microsoft.com` as **Entra App Admin** (Application Administrator) **or** Cloud Application Administrator.
-2. **Identity** → **Applications** → **App registrations** → **+ New registration**.
+2. **Entra ID** → **App registrations** → **+ New registration**.
 3. Name: `1.8-AdditionalThreatDetection-Webhook` (descriptive; survives audit).
 4. Supported account types: **Accounts in this organizational directory only (single tenant)**.
 5. Redirect URI: leave blank (not used for FIC).
@@ -283,7 +283,7 @@ Reference: [external-security-provider](https://learn.microsoft.com/en-us/micros
 
 #### 4b-3 — Create the Federated Identity Credential in Entra
 
-1. Microsoft Entra admin center → **Identity** → **Applications** → **App registrations** → open the app from 4b-1.
+1. Microsoft Entra admin center → **Entra ID** → **App registrations** → open the app from 4b-1.
 2. **Certificates & secrets** → **Federated credentials** tab → **+ Add credential**.
 3. **Federated credential scenario:** **Other issuer** (or the equivalent "Customer scenario" option per current Entra UI).
 4. Provide:

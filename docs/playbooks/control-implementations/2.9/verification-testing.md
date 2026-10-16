@@ -20,11 +20,11 @@
 
 ### Test 1 — Native analytics data flow (TC-2.9-01)
 
-1. Open PPAC → **Analytics** → **Microsoft Copilot Studio**.
-2. Select an environment with Zone 2/3 agents.
-3. Confirm sessions, resolution rate, and CSAT data for the trailing 7+ days.
-4. **Expected:** non-zero sessions, recent timestamps, no banner indicating analytics is disabled.
-5. **Evidence:** screenshot to `maintainers-local/tenant-evidence/2.9/`.
+1. Open PPAC → **Monitor** → **Products** → **Copilot Studio** for the documented preview operational metrics.
+2. Confirm the intended environment and tenant-level analytics prerequisite.
+3. Review **Agent session success rate** and **Recent agent sessions**. Separately open the standard-harness agent in Copilot Studio → **Monitor** → **Effectiveness** for conversation outcomes and CSAT.
+4. **Expected:** activity from the test agents appears in the appropriate reporting surface; record the actual date range and any collection delay instead of assuming a fixed trailing window.
+5. **Evidence:** screenshots of both reporting surfaces to `maintainers-local/tenant-evidence/2.9/`.
 
 ### Test 2 — Application Insights linkage (TC-2.9-02)
 
@@ -108,7 +108,7 @@
 
 ## Evidence collection checklist
 
-- [ ] Screenshot: PPAC → Analytics → Copilot Studio
+- [ ] Screenshot: PPAC → Monitor → Products → Copilot Studio, plus per-agent Copilot Studio → Monitor
 - [ ] Screenshot: Copilot Studio agent → Settings → Application Insights connection
 - [ ] Screenshot: Power BI dashboard KPI cards with refresh timestamp
 - [ ] Screenshot: Alert notification (Teams / email / paging system)

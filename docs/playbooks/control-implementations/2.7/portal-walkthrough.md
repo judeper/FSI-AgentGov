@@ -20,12 +20,12 @@
 
 ## Part 1 — Build the Connector Inventory (PPAC)
 
-**Portal path:** `Power Platform admin center` → `Resources` → `Capacity` and `Analytics` → `Power Apps` / `Power Automate` / `Copilot Studio`.
+**Portal paths:** PPAC → **Manage → Products → Power Apps** / **Power Automate** for the documented product usage reports; PPAC → **Monitor → Products → Copilot Studio** for preview operational metrics. These are not a single connector-inventory surface.
 
 1. Sign in to <https://admin.powerplatform.microsoft.com> as **Power Platform Admin**.
-2. From the left rail, open **Analytics** → choose **Power Apps**, **Power Automate**, and **Copilot Studio** in turn.
-3. For each workload, set the time range to the last **30 days** and download the connector usage CSVs (per-environment).
-4. From **Resources** → **Connectors**, review the **Custom connectors** and **Independent publisher** tabs for every Zone 2/3 environment.
+2. Open **Manage → Products → Power Apps** and **Power Automate** for usage analytics. Separately review **Monitor → Products → Copilot Studio** for its documented preview metrics.
+3. Record the available reporting period and export options for each source. Do not assume all workloads expose a 30-day connector-usage CSV: the Copilot Studio Monitor page documents session success rate and recent sessions, not a complete connector inventory.
+4. For environment-selected connections, use **Power Apps maker portal** (`https://make.powerapps.com`) → **Data → Connections** and reconcile against the environment inventory. A PPAC **Resources → Connectors** catalog with **Custom connectors** / **Independent publisher** tabs is unconfirmed in the reviewed sources; use a separately verified connector-definition inventory procedure before declaring coverage complete.
 5. Consolidate into a single inventory workbook with the columns below.
 
 ### Inventory schema (one row per connector × environment)

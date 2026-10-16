@@ -179,12 +179,12 @@ $orphans = Get-SPOSite -Limit All -IncludePersonalSite:$false |
 
 ### Via Microsoft Entra Admin Center
 
-1. **Identity governance → Access reviews** — quarterly review on M365 Groups visible with **Auto-apply** = On
+1. **ID Governance → Access Reviews** — quarterly review on M365 Groups visible with **Auto-apply** = On
 2. Separate review covers Sites.Selected service principals with the AI Governance Lead listed as reviewer
 
 ### Via Microsoft Purview portal
 
-1. **Data lifecycle management → Retention policies / labels** — coverage on the evidence library, retention ≥ 6 years, Preservation Lock on for Zone 3
+1. **Data lifecycle management → Policies → Retention policies** / **Data lifecycle management → Retention labels** — coverage on the evidence library, retention ≥ 6 years, Preservation Lock on for Zone 3
 2. **Audit** — `AccessReview*` and `SiteAttestationCompleted` operations present for the last cycle
 
 ### Via PowerShell

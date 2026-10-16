@@ -91,7 +91,7 @@ Before changing anything in production, complete every gate below. Skipping a ga
 
 ### 0.1 Confirm administrative roles assigned via PIM (eligible, not active)
 
-Sign in to `https://entra.microsoft.com` with an account that already holds **Entra Global Admin** in the tenant. Browse to **Identity governance → Privileged Identity Management → Microsoft Entra roles → Assignments**. Filter to **Eligible assignments**.
+Sign in to `https://entra.microsoft.com` with an account that already holds **Entra Global Admin** in the tenant. Browse to **ID Governance → Privileged Identity Management → Microsoft Entra roles → Assignments**. Filter to **Eligible assignments**.
 
 Confirm the roles below are present and assigned only to named individuals (not shared service accounts). Use the **canonical role names** from `docs/reference/role-catalog.md` — if your tenant displays the legacy long-form name, that is the same role.
 
@@ -168,13 +168,13 @@ The Authentication Methods policy controls **what authenticators users may regis
 
 ### 2.1 Navigate to the Authentication Methods policy
 
-1. `https://entra.microsoft.com → Protection → Authentication methods → Policies`.
+1. `https://entra.microsoft.com → Entra ID → Security → Authentication methods → Policies`.
 
-The blade lists every method (FIDO2, Microsoft Authenticator, Passkey (FIDO2), Windows Hello for Business, Certificate-based authentication, OATH tokens, SMS, Voice call, Email OTP, Temporary Access Pass, Hardware OATH tokens, QR Code (Preview), Third-party software OATH tokens). Each row shows **Enabled**, **Target**, and **Last modified**.
+Use the current method list; the FIDO2 policy is named **Passkey (FIDO2)**, not a separate **FIDO2 security key** entry. Follow [Microsoft's passkey procedure](https://learn.microsoft.com/en-us/entra/identity/authentication/how-to-enable-passkey-fido2), including passkey profiles where that experience is available; do not treat the following policy criteria as a fixed UI layout.
 
 ### 2.2 Enable FIDO2 security keys
 
-1. Click **FIDO2 security key** in the methods list.
+1. Select **Passkey (FIDO2)** in the methods list.
 2. Toggle **Enable** to **On**.
 3. Under **Target**, select **All users** (or a pilot group during phased rollout — see §13).
 4. Expand **Configure** and set:
@@ -229,7 +229,7 @@ The recommended Entra pattern is **not** to disable SMS / voice tenant-wide (whi
 
 1. In the methods list, click **SMS**.
 2. Toggle **Enable** to **On** (or leave on if already enabled).
-3. Under **Target**, click **Add groups**, select **All users**, then click **Exclude** and add the group **`Privileged-Role-Holders`** (a security group that contains every PIM-eligible privileged-role holder; create this group in `Identity → Groups → All groups → New group` if it does not exist).
+3. Under **Target**, click **Add groups**, select **All users**, then click **Exclude** and add the group **`Privileged-Role-Holders`** (a security group that contains every PIM-eligible privileged-role holder; create this group in `Entra ID → Groups → All groups → New group` if it does not exist).
 4. Repeat for **Voice call**.
 
 !!! warning "Group membership must stay synchronized with PIM eligibility"
@@ -239,7 +239,7 @@ The recommended Entra pattern is **not** to disable SMS / voice tenant-wide (whi
 
 The registration campaign nudges users with weaker authenticators to register a stronger one (specifically Microsoft Authenticator) at sign-in.
 
-1. `https://entra.microsoft.com → Protection → Authentication methods → Registration campaign`.
+1. `https://entra.microsoft.com → Entra ID → Authentication methods → Registration campaign`.
 2. Set **State** to **Microsoft managed** (recommended) or **Enabled**.
 3. Set **Days allowed to snooze** to **0** for the privileged-role group (forced registration) and **14** for general users.
 4. Click **Save**.
@@ -256,7 +256,7 @@ An **Authentication Strength** is a named, reusable bundle of accepted authentic
 
 ### 3.1 Inspect the built-in strengths
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Authentication strengths`.
+1. `https://entra.microsoft.com → Entra ID → Authentication methods → Authentication strengths`.
 2. The default tab **Built-in** lists the three Microsoft strengths. Click **Phishing-resistant MFA** and review the accepted combinations:
    - Windows Hello for Business
    - Passkey (FIDO2)
@@ -281,7 +281,7 @@ The built-in **Phishing-resistant MFA** strength is acceptable for most uses. Sk
 
 ### 3.3 Confirm the strength is selectable from a CA policy
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → + New policy`.
+1. `https://entra.microsoft.com → Entra ID → Conditional Access → Policies → + New policy`.
 2. Under **Grant**, click **Grant access** and check **Require authentication strength**.
 3. Confirm the **`FSI Phishing-Resistant MFA`** entry appears in the dropdown next to the three built-in strengths.
 4. Click **Cancel** (do not save the empty test policy).
@@ -300,7 +300,7 @@ Named locations are reusable IP and country expressions referenced from CA condi
 
 ### 4.1 Create the trusted corporate IP location
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Named locations → + IP ranges location`.
+1. `https://entra.microsoft.com → Entra ID → Conditional Access → Named locations → + IP ranges location`.
 2. **Name:** `Corporate IP Ranges - Trusted`
 3. Add each office egress CIDR (`/32` for single IPs is acceptable; `/24` or wider preferred for branch ranges).
 4. Check **Mark as trusted location**.
@@ -333,7 +333,7 @@ This policy forces **AAL3-class authentication** at every sign-in (and at PIM ac
 
 ### 5.1 Create Policy A in Report-only
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → + New policy`.
+1. `https://entra.microsoft.com → Entra ID → Conditional Access → Policies → + New policy`.
 2. **Name:** `CA-001 — All users — require phishing-resistant MFA for privileged roles`
 3. **Assignments → Users**:
    - **Include:** **Directory roles** — select every privileged role:
@@ -398,7 +398,7 @@ The relevant cloud apps as enumerated in the Entra cloud-app picker are:
 | **Common Data Service** *(Dataverse)* | `00000007-0000-0000-c000-000000000000` | Dataverse data plane that agents read/write |
 
 !!! info "Verify app IDs in your tenant before saving the policy"
-    The **friendly names** in the Entra cloud-app picker are stable; the **GUIDs** above may differ slightly between tenants depending on whether the app is enterprise-app-installed or first-party. To confirm a GUID, browse to `Identity → Applications → Enterprise applications → All applications`, search by name, and read the **Application ID** column. Copy the friendly names from the picker rather than typing GUIDs into the CA policy form.
+    The **friendly names** in the Entra cloud-app picker are stable; the **GUIDs** above may differ slightly between tenants depending on whether the app is enterprise-app-installed or first-party. To confirm a GUID, browse to `Entra ID → Enterprise apps → All applications`, search by name, and read the **Application ID** column. Copy the friendly names from the picker rather than typing GUIDs into the CA policy form.
 
 ### 6.2 Create Policy B in Report-only
 
@@ -438,7 +438,7 @@ This policy is the **agent-identity** boundary. It targets **service principals*
 
 Before creating the policy, §0.2: each service principal you intend to scope must have a **Microsoft Entra Workload Identities Premium** license. To check assignments:
 
-1. `https://entra.microsoft.com → Identity → Applications → Enterprise applications → All applications`.
+1. `https://entra.microsoft.com → Entra ID → Enterprise apps → All applications`.
 2. Locate the service principal (filter by application type **Application** and search by name).
 3. Verify the current purchased/available entitlement through approved license administration; do not assume a native per-SP Properties field named **Workload Identities Premium licensed** exists.
 
@@ -446,7 +446,7 @@ Resolve licensing before creating/modifying policies, but verify existing-policy
 
 ### 7.2 Create Policy C in Report-only
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → + New policy`.
+1. `https://entra.microsoft.com → Entra ID → Conditional Access → Policies → + New policy`.
 2. **Name:** `CA-003 — Workload identities — block agent SPs from non-permitted IPs and high risk`
 3. **Assignments → Users and workload identities**:
    - Switch the **Users and workload identities** dropdown to **Workload identities**.
@@ -486,7 +486,7 @@ The fourth policy adds **session-layer** controls. Unlike Policies A–C, Policy
 
 CAE is **enabled by default** at tenant level for all CAE-aware Microsoft services (Exchange Online, SharePoint Online, Teams, Microsoft Graph). You verify it is on; you do not need to enable it per policy.
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → + New policy`.
+1. `https://entra.microsoft.com → Entra ID → Conditional Access → Policies → + New policy`.
 2. **Name:** `CA-004 — Session controls — CAE, sign-in frequency, Token Protection (Z3 environments)`
 3. **Assignments → Users**: include **`Agent-Makers-Z3`** (makers in Zone 3 environments) and **`Privileged-Role-Holders`**; exclude **`Break-Glass-Accounts`**.
 4. **Target resources → Cloud apps → All cloud apps**.
@@ -533,12 +533,12 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 
 | Surface | What you see | When to use |
 
-| `Identity → Applications → Enterprise applications → All applications` | Each agent appears as a service principal with **Application type = Agent** (a value introduced when Entra Agent ID first shipped) | When binding an agent to a CA-WID policy (§7), you select its SP from this list |
-| `Identity → Identity governance → Agent ID` *(Frontier-gated; may not appear in your tenant)* | The agent registry — sponsor (human owner of record), custom security attributes (zone classification, risk tier), agent collection membership | When governing the **lifecycle** of agent identities — provisioning, sponsor handoff, deprovisioning. This surface is owned by [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) at the governance-console level and by Control 2.26 (where present) at the directory level |
+| `Entra ID → Enterprise apps → All applications` | Use the documented **Agent ID (Preview)** application-type filter to identify agent-related entries; confirm the intended service principal | When binding an agent to a CA-WID policy (§7), you select its SP from this list |
+| `Entra ID → Agents → Agent identities` ([current documented list](https://learn.microsoft.com/en-us/entra/agent-id/agent-lists)) | The agent identity list — inspect the selected identity's available sponsorship and governance properties | When governing the **lifecycle** of agent identities — provisioning, sponsor handoff, deprovisioning. This surface is owned by [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) at the governance-console level and by Control 2.26 (where present) at the directory level |
 
 ### 9.2 Filter the Enterprise applications blade to agent identities
 
-1. `Identity → Applications → Enterprise applications → All applications`.
+1. `Entra ID → Enterprise apps → All applications`.
 2. Add a filter: **Application type** equals **Agent** (if the value does not appear in your filter dropdown, your tenant is not yet on the Agent ID rollout ring; Policy C still applies to ordinary service principals).
 3. Optionally add **Created on or after [date]** to scope to recent agents.
 
@@ -554,7 +554,7 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 Once an agent identity is in scope of Policy C, the **Agent 365 Admin Center** governance dashboard will display the CA enforcement state for that agent. Cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for the operational read-out — Agent Registry → `[agent]` → **Identity & Access** tab shows linked CA policies, last successful sign-in, and last blocked sign-in.
 
 !!! info "Entra Agent ID surfaces are still evolving post-GA"
-    Although Entra Agent ID reached GA in April 2026, schema, attribute names, and blade locations continue to evolve as Microsoft expands the surface (especially the `Identity governance → Agent ID` registry view, which remains Frontier-gated in some tenants). Document the **portal version** you verified against (header **Last UI Verified** date) and after each Microsoft Wave release. Prefer the portal-level **Enterprise applications** view as the durable enforcement plane; treat undocumented Agent ID endpoints as preview surfaces and avoid scripting against them in production.
+    Schema, attribute names, and available actions can evolve. Use the documented `Entra ID → Agents → Agent identities` list rather than the former `Identity governance → Agent ID` shortcut; a navigation reference does not establish licensing entitlement. Record the **portal version** and date actually tested separately from documentation review. Use **Entra ID → Enterprise apps** for the applicable service-principal view and avoid scripting against undocumented endpoints in production.
 
 ---
 
@@ -580,7 +580,7 @@ Note the canonical short name is **AI Administrator** (Microsoft built-in role a
 
 For each row in the table:
 
-1. `https://entra.microsoft.com → Identity governance → Privileged Identity Management → Microsoft Entra roles → Roles`.
+1. `https://entra.microsoft.com → ID Governance → Privileged Identity Management → Microsoft Entra roles → Roles`.
 2. Click the role name (e.g., **Entra Global Admin**).
 3. Click **Settings** in the left rail.
 4. Click **Edit**.
@@ -656,7 +656,7 @@ Two cloud-only emergency accounts are required by the Microsoft baseline and by 
 
 ### 12.1 Create the two accounts
 
-1. `https://entra.microsoft.com → Identity → Users → All users → + New user → Create new user`.
+1. `https://entra.microsoft.com → Entra ID → Users → All users → + New user → Create new user`.
 2. Account 1:
    - **User principal name:** `breakglass-01@<tenant>.onmicrosoft.com` (use the `.onmicrosoft.com` domain, **not** a federated custom domain — the federation IdP is itself a single point of failure).
    - **Display name:** `Break-Glass Account 01 — DO NOT USE`.
@@ -667,7 +667,7 @@ Two cloud-only emergency accounts are required by the Microsoft baseline and by 
 
 ### 12.2 Exclude break-glass accounts from every CA policy
 
-1. Create a security group **`Break-Glass-Accounts`** containing both accounts (`Identity → Groups → All groups → + New group`).
+1. Create a security group **`Break-Glass-Accounts`** containing both accounts (`Entra ID → Groups → All groups → + New group`).
 2. For **every** CA policy you author (Policies A, B, C, D, plus any future ones), under **Assignments → Users → Exclude → Users and groups**, add the **`Break-Glass-Accounts`** group.
 3. The Microsoft Managed Policy `Require multifactor authentication for admins` likewise needs the exclusion — open it (filter by `Source = Microsoft`) and confirm the exclusion.
 
@@ -732,7 +732,7 @@ Extend by another 7 days (no shortcut) if any of:
 
 ### 13.4 The flip
 
-1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → [policy name]`.
+1. `https://entra.microsoft.com → Entra ID → Conditional Access → Policies → [policy name]`.
 2. At the bottom, change **Enable policy** from **Report-only** to **On**.
 3. Click **Save**.
 

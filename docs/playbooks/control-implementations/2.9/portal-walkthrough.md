@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.9 - Agent Performance Monitoring and Optimization
 
-**Last Updated:** April 2026
+**Last Updated:** October 2026 (navigation documentation review; tenant UI not tested)
 **Portals:** Power Platform Admin Center (PPAC), Microsoft Copilot Studio, Azure Portal (Application Insights / Log Analytics), Power BI
 **Estimated Time:** 4–6 hours for a full Zone 3 setup; ~90 min for Zone 1 baseline
 **Audience:** M365 administrators in US financial services
@@ -17,28 +17,24 @@
 
 ---
 
-## Step 1 — Confirm tenant analytics is enabled (Power Platform Admin Center)
+## Step 1 — Review operational metrics (Power Platform Admin Center)
 
 1. Open **[Power Platform Admin Center](https://admin.powerplatform.microsoft.com)**.
-2. Navigate to **Analytics** → **Copilot Studio**.
-3. Confirm the analytics dashboard renders for at least one environment (data may take 24–48 hours after first agent activity).
-4. Available native metrics include: sessions, conversations, resolution rate, escalation rate, customer satisfaction (CSAT), average handling time, and abandonment.
+2. Navigate to **Monitor** → **Products** → **Copilot Studio**.
+3. Confirm the metrics page renders for the intended environments. [Microsoft's procedure](https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio) requires tenant-level analytics; opening this page does not enable collection.
+4. The documented preview metrics are **Agent session success rate** and **Recent agent sessions**. Do not treat this page as the per-agent CSAT or resolution dashboard.
 
-**Evidence to capture:** screenshot of the Analytics → Copilot Studio landing page showing your tenant name and at least one environment with non-zero session counts. Store the screenshot under `maintainers-local/tenant-evidence/2.9/` (gitignored).
+**Evidence to capture:** the actual Monitor → Products → Copilot Studio metrics and environment context, including any empty-data or prerequisite message. Store the screenshot under `maintainers-local/tenant-evidence/2.9/` (gitignored).
 
 ---
 
-## Step 2 — Enable per-agent analytics in Copilot Studio
+## Step 2 — Review per-agent analytics in Copilot Studio
 
 1. Open **[Microsoft Copilot Studio](https://copilotstudio.microsoft.com)**.
-2. Select an agent → **Analytics** in the left navigation.
-3. Review the four built-in panes:
-    - **Summary** — sessions, engagement, satisfaction
-    - **Sessions** — granular session data with topic resolution outcomes
-    - **Topics** — per-topic firing rate, completion, and escalation
-    - **Generative AI** — generative answer usage, source coverage, and (where available) quality signals
-4. For autonomous agents, also review the **Autonomous** pane (trigger success rate, action completion, escalation frequency).
-5. Confirm the **Hybrid analytics** view is enabled if the agent participates in multi-agent or Foundry-orchestrated flows.
+2. Select a standard-harness agent → **Monitor** on the top menu bar.
+3. Review **Overview**, **Summary**, and **Savings**, then **Effectiveness** for conversation outcomes, reactions, and customer satisfaction. Use **Use** for themes, generated answer quality, tools, and knowledge sources.
+4. For autonomous agents, follow the applicable health-monitoring procedure linked from the [Monitor overview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview), rather than assume a universal **Autonomous** pane.
+5. For connected/child agents, review the documented **Agents** call-volume, success-rate, and status metrics where available; do not assume a **Hybrid analytics** enable switch. See [Monitor conversational agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness).
 
 **FSI note:** Native CSAT only fires when the agent prompts for it. Confirm a satisfaction survey topic is published and routed at end-of-conversation, otherwise CSAT remains empty and supervisory reviews lack required evidence.
 
@@ -151,7 +147,7 @@ Document the schedule in your supervisory procedures (FINRA Rule 3110) and store
 
 ## Validation checklist
 
-- [ ] PPAC → Analytics → Copilot Studio renders data
+- [ ] PPAC → Monitor → Products → Copilot Studio renders the documented preview metrics
 - [ ] Each Zone 2/3 agent shows a configured Application Insights resource ID
 - [ ] ADLS export shows recent files
 - [ ] Power BI workspace `Agent-Performance-Analytics` exists with at least one published report and a recent refresh

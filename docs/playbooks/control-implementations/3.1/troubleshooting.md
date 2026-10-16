@@ -193,14 +193,16 @@ The seven pillars below are organized by **inventory source** (Pillars 1–4) an
 
 ### §2.2 Pillar 2 — PPAC Copilot Agent List Failures
 
-**Scope.** Failures of the Power Platform Admin Center Copilot agents view (`https://admin.powerplatform.microsoft.com` → Copilot → Agents) and of the underlying Power Platform Admin PowerShell module.
+**Scope.** Inventory access via **Power Platform admin center → Manage → Copilot Studio** or **Manage → Inventory**, and collection using source-specific interfaces. Follow the [current inventory procedure](https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory), not the former **Copilot → Agents** shortcut. Legacy references below to a "PPAC Copilot agents view" mean this inventory, not a cost/usage dashboard.
+
+**Evidence boundary.** The current inventory's **Download** includes the entire inventory, not only loaded rows; the former 500-row display/export assumption is not a documented export limit. Agent **Modified on** / **Last modified by** do not work. Do not treat a missing timestamp as inactivity or an empty on-screen page as proof of no agents. The inventory API / Admins V2 query action currently requires delegated-user authentication; service-principal/managed-identity HTTP 403 is not evidence of missing inventory.
 
 **Common symptoms.**
 
 - PPAC Copilot agents view returns no rows for an environment that demonstrably contains bots.
 - `Get-AdminPowerApp -EnvironmentName <env>` returns an empty result; the operator concludes "no agents" and is wrong.
 - `Get-AdminPowerAppEnvironmentRoleAssignment` returns an empty result with no error.
-- PPAC paged display caps at 500 rows per environment.
+- A partially loaded grid or an applied scope/filter can differ from the full inventory; preserve the actual filter and complete Download.
 
 **Diagnostics.**
 

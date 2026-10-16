@@ -108,7 +108,7 @@ After tenant defaults are set, tighten individual sites that store AI agent know
 
 Sharing settings control **whether** an external user can be granted access. Conditional Access controls the **conditions** under which they can use that access (MFA, device compliance, location, session lifetime).
 
-1. Navigate to **Microsoft Entra admin center** > **Protection** > **Conditional Access** > **Policies**.
+1. Navigate to **Microsoft Entra admin center** > **Entra ID** > **Conditional Access** > **Policies**.
 2. Confirm at least one policy targets **Guest or external users** with these controls (see [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) for full guidance):
    - **Require multifactor authentication**
    - **Require compliant device** (where the guest's home tenant supports cross-tenant device compliance) or **block legacy authentication**

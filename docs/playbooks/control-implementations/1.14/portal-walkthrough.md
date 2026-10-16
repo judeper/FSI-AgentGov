@@ -37,7 +37,7 @@
 | **Purview portal → Data loss prevention → Policies** | Use separate Copilot-location rules for typed-prompt SITs and labeled grounding content (Control 1.13). | No automatic source-file SIT exclusion or blanket agent upload/connector coverage. |
 | **Purview portal → Audit → Search** | Discover the canonical Copilot and Power Platform audit operations in your tenant (record types `CopilotInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory`); export evidence. | Forensic and supervisory record (FINRA Rule 4511, FINRA Rule 3110 / RN 24-09). |
 | **Purview portal → Policies → Alert policies** *(or Defender XDR → Email & collaboration → Policies & rules → Alert policy)* | Create alert policies on discovered audit operations. For Zone 3, replace with a Microsoft Sentinel analytic rule sourcing the M365 connector. | Near-real-time scope-drift detection. |
-| **Microsoft Entra admin center → Identity governance → Access reviews** | Run scheduled access reviews on agent identities (Entra Agent ID), connector connections, and SharePoint groups gating knowledge sources. | Periodic recertification (FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12)). |
+| **Microsoft Entra admin center → ID Governance → Access Reviews** | Run scheduled access reviews on agent identities (Entra Agent ID), connector connections, and SharePoint groups gating knowledge sources. | Periodic recertification (FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12)). |
 | **SPAC** *(coordinate with Control 4.6)* | Reconcile the §2 grounding inventory against the Control 4.6 RCD exclusion list and RSS allowed list. | Ensures inventory-time minimization is enforced at the tenant SharePoint layer. |
 
 What this walkthrough does **not** cover (use the linked playbooks instead):
@@ -93,19 +93,19 @@ Out of scope for Control 1.14 (covered by sibling controls):
 | S12 | Purview Alert policies | `Purview portal → Solutions → Policies → Alert policies` |
 | S12-alt | Defender XDR alert policy | `https://security.microsoft.com → Email & collaboration → Policies & rules → Alert policy` |
 | S13 | Microsoft Sentinel analytic rule (Zone 3 drift) | `Sentinel workspace → Analytics → + Create → Scheduled query rule`, sourced from the **Office 365** / **Microsoft 365** data connector |
-| S14 | Entra ID Governance — Access Reviews | `Microsoft Entra admin center → Identity governance → Access reviews → + New access review` |
+| S14 | Entra ID Governance — Access Reviews | `Microsoft Entra admin center → ID Governance → Access Reviews → + New access review` |
 | S15 | Cross-link to Control 4.6 — RCD / RSS / DAG | See Control 4.6 portal walkthrough |
 
 ### 0.3 Portal vs PowerShell — when to use which
 
 | Operation | Portal path (this walkthrough) | PowerShell mirror | Recommended primary surface |
 
-| Inventory all agents in an environment | Copilot Studio agent list + PPAC → Resources → Copilots | `Get-AdminPowerAppEnvironment` + `Get-AdminPowerApp` + `Get-CopilotEnvironment` (verify cmdlet names per `Get-Command -Module Microsoft.PowerApps.Administration.PowerShell`) | PowerShell for ≥10 environments; portal for spot checks |
+| Inventory all agents in an environment | Copilot Studio agent list + PPAC → Manage → Copilot Studio | Use a source-specific agent collector; `Get-AdminPowerApp` is not a complete agent inventory | Programmatic inventory for ≥10 environments; portal for spot checks |
 | Read knowledge sources for a specific agent | Copilot Studio → agent → Knowledge | Microsoft Graph beta `agents` endpoint (verify availability per release) or M365 Copilot Studio admin APIs (preview) | Portal for first-pass review; Graph for inventory automation |
 | Create / edit a Power Platform DLP policy | PPAC wizard | `New-DlpPolicy` / `Set-DlpPolicy` (Power Apps cmdlets) | Portal for first authoring + change-managed UI evidence; PowerShell for promotion across environments |
 | Create / edit a Purview DLP policy at the M365 Copilot location | Purview portal wizard | `New-DlpCompliancePolicy` / `New-DlpComplianceRule` via Security & Compliance PowerShell (IPPS) | Portal for first authoring; PowerShell for export and reproducible audit |
 | Search the unified audit log for Copilot or Power Platform operations | Purview → Audit → Search | `Search-UnifiedAuditLog -RecordType` (filter to Copilot Studio and Power Platform record types) | PowerShell for evidence export and SIEM hand-off |
-| Schedule an access review | Entra → Identity governance → Access reviews | Microsoft Graph `accessReviews` API | Portal for first authoring; Graph API for at-scale automation |
+| Schedule an access review | Entra → ID Governance → Access Reviews | Microsoft Graph `accessReviews` API | Portal for first authoring; Graph API for at-scale automation |
 
 !!! note "Why both surfaces are required"
     The portal gives you change-managed UI evidence (screenshots) that auditors expect for SOX 302/404 control walkthroughs and FINRA 3110 supervisory documentation. PowerShell and Graph give you the deterministic, reproducible read-backs that satisfy SEC 17a-4 / FINRA 4511 evidence preservation and let you scale beyond what UI can handle. Use both — never one alone.
@@ -153,7 +153,7 @@ Record PIM activations in the change record and include the activation timestamp
 | Gate | Required state | How to verify |
 
 | Unified Audit Log (UAL) ingestion confirmed | UAL has been on for ≥ 90 days (or since tenant creation if newer); `CopilotInteraction` and Power Platform record types are emitting. | `Purview → Audit → Search` returns results for `RecordType=CopilotInteraction` over the last 7 days. |
-| Sensitivity labels published | Required for DLP-for-Copilot rule conditions; cross-reference to Control 1.5. | `Purview → Information protection → Labels` shows ≥ 1 published label. |
+| Sensitivity labels published | Required for DLP-for-Copilot rule conditions; cross-reference to Control 1.5. | `Purview → Information Protection → Sensitivity labels` shows ≥ 1 published label. |
 | Supported built-in/custom SIT available | Typed-prompt SIT condition supports these types, not an assumed trainable classifier/EDM/fingerprint; cross-reference Control 1.13. | Capture actual definition, feature rollout, and positive/negative test. |
 | Control 1.2 agent registry exists and is current within the last 30 days | Source-of-truth inventory for §2 reconciliation. | Open the registry (SharePoint List or Dataverse table) and confirm last-modified date. |
 | Control 4.6 RCD/RSS posture documented | Required for §4 reconciliation. | Open the Control 4.6 evidence pack; confirm latest DAG snapshot and RCD list. |
@@ -224,8 +224,8 @@ There is no single tenant view that lists every agent. You must reconcile three 
 **List B — PPAC Copilots / Agents resource view:**
 
 1. Sign in to **Power Platform Admin Center** (`https://admin.powerplatform.microsoft.com`).
-2. Navigate to **Resources → Copilots** (the menu label varies — recent releases also use **Resources → Agents**; verify in your tenant).
-3. Filter by environment; export the list per environment.
+2. Navigate to **Manage → Copilot Studio**, following the [current inventory procedure](https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory). Use the full environment name when filtering. Agent **Modified on** / **Last modified by** do not work; do not use those fields as dormancy evidence. **Download** exports the entire inventory, so preserve the original and explicitly derive an environment-scoped copy.
+3. Preserve the entire inventory Download and produce a labeled environment-scoped reconciliation copy; do not assume the native Download is filtered.
 4. Save as artifact E3-B.
 
 **List C — Purview DSPM for AI agent inventory:**
@@ -873,7 +873,7 @@ For firms that consolidate alerts in Defender XDR:
 ### 11.1 Open Access Reviews
 
 1. Sign in to the **Microsoft Entra admin center** (`https://entra.microsoft.com`) as Entra Identity Governance Admin.
-2. Navigate to **Identity governance → Access reviews**.
+2. Navigate to **ID Governance → Access Reviews**.
 3. Click **+ New access review**.
 
 ### 11.2 Review template AR1 — SG-AgentAccess groups
@@ -992,7 +992,7 @@ The artifacts collected in §1–§13 form the Control 1.14 evidence pack. Each 
 | E1 | License inventory snapshot (Copilot, Entra ID P2 / Governance, Purview SKUs) | Microsoft 365 admin center → Billing → Licenses | AI Administrator | CSV | 7y per Control 6.x | §1.1 |
 | E2 | Role assignment snapshot (Entra PIM eligibility + active assignments for the §1.2 roles) | Entra admin center → Roles and admins | Entra Identity Governance Admin | JSON | 7y | §1.2 |
 | E3-A | Copilot Studio agent list per environment | Copilot Studio → admin agent inventory | AI Administrator | CSV | 7y | §2.1 |
-| E3-B | PPAC Resources → Copilots / Agents export per environment | Power Platform Admin Center | Power Platform Admin | CSV | 7y | §2.1 |
+| E3-B | PPAC Manage → Copilot Studio inventory Download; retain original plus derived environment-scoped copy | Power Platform Admin Center | Power Platform Admin | CSV | 7y | §2.1 |
 | E3-C | Purview DSPM for AI — AI apps and agents export | Purview portal → DSPM for AI → Reports | Purview Data Security AI Admin | CSV | 7y | §2.1 |
 | E3 | Reconciled agent inventory (the §2.2 join) | Control 1.2 registry | AI Governance Lead | XLSX or registry export | 7y | §2.2 |
 | E4 | PPAC DLP — connector classification screenshots per zone policy | PPAC → Security → Data and privacy → Data policy | Power Platform Admin | PNG bundle | 7y | §3.2 |
@@ -1015,7 +1015,7 @@ The artifacts collected in §1–§13 form the Control 1.14 evidence pack. Each 
 | E21 | H5 hunt — agent SPN sign-in anomaly | Sentinel / Purview Audit | Purview Compliance Admin | KQL file | 7y | §9.6 |
 | E22 | `alert-1.14-H1-grounding-out-of-inventory` alert policy summary | Purview portal → Policies → Alert policies | Purview Compliance Admin | PNG | 7y | §10.1 |
 | E23 | Synthetic-trigger alert validation packet (alert email + SOC ticket + resolution) | Email + ITSM | SOC + Compliance Officer | PDF bundle | 7y | §10.4 |
-| E24 | Access Review template AR1 (SG-AgentAccess groups) | Entra → Identity governance → Access reviews | Entra Identity Governance Admin | PNG + JSON | 7y | §11.2 |
+| E24 | Access Review template AR1 (SG-AgentAccess groups) | Entra → ID Governance → Access Reviews | Entra Identity Governance Admin | PNG + JSON | 7y | §11.2 |
 | E25 | Access Review template AR2 (agent SPN owners) | Entra | Entra Identity Governance Admin | PNG + JSON | 7y | §11.3 |
 | E26 | Access Review template AR3 (privileged Copilot Studio role) | Entra | Entra Identity Governance Admin | PNG + JSON | 7y | §11.4 |
 | E27 | Per-cycle attestation packet (signed) | Evidence repository | AI Governance Lead | PDF | 7y | §12.3 |

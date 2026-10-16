@@ -12,9 +12,9 @@
     |---|---|---|
     | Enabling Entra Agent ID via Microsoft Agent 365 / M365 E7 license assignment | M365 admin center → Billing → Licenses | Agent identities blade appears in Entra |
     | Assigning sponsors (human owners of record) to every Zone 2 / Zone 3 agent | Entra → Agent identities → Properties | Zero null-sponsor agents |
-    | Provisioning agent permissions through Entitlement Management access packages | Entra → Identity Governance → Entitlement management | Time-bound (≤365 day) entitlements with audit trail |
-    | Configuring Lifecycle Workflows to handle sponsor departure | Entra → Identity Governance → Lifecycle workflows | Augment (not replace) Microsoft's default manager-transfer behavior |
-    | Running access review campaigns scoped to agent assignments | Entra → Identity Governance → Access reviews | Quarterly attestation evidence for Z3 |
+    | Provisioning agent permissions through Entitlement Management access packages | Entra → ID Governance → Entitlement management | Time-bound (≤365 day) entitlements with audit trail |
+    | Configuring Lifecycle Workflows to handle sponsor departure | Entra → ID Governance → Lifecycle workflows | Augment (not replace) Microsoft's default manager-transfer behavior |
+    | Running access review campaigns scoped to agent assignments | Entra → ID Governance → Access Reviews | Quarterly attestation evidence for Z3 |
     | Forwarding agent identity events to SIEM with 6-year retention | Entra → Diagnostic settings + Azure Monitor | Examiner-ready evidence pipeline |
 
     **This walkthrough is NOT for:**
@@ -108,7 +108,7 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 4. Capture the current state:
    - **No Agent 365 / E7 licenses provisioned in tenant** → procure SKUs via your Microsoft account team or Cloud Solution Provider before proceeding to [§1](#1-microsoft-agent-365-microsoft-365-e7-license-assignment).
    - **Provisioned but unassigned** → proceed to [§1](#1-microsoft-agent-365-microsoft-365-e7-license-assignment) to assign at scale.
-   - **Provisioned and assigned to operating principals** — Agent identities blade should be reachable; spot-check via Entra → Identity → Applications → Agent identities and continue to [§2](#2-sponsor-assignment-in-entra-agent-id).
+   - **Provisioned and assigned to operating principals** — Agent identities blade should be reachable; spot-check via Entra → Entra ID → Agents → Agent identities and continue to [§2](#2-sponsor-assignment-in-entra-agent-id).
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-3-license-coverage` — M365 admin Billing → Licenses page showing Microsoft Agent 365 / M365 E7 SKU and assigned seat count.*
 
@@ -198,7 +198,7 @@ Every agent identity in your tenant must have a **named human sponsor** who is a
 ### 2.1 Inventory current sponsor coverage
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Agent ID Admin** or **Entra Identity Governance Admin**.
-2. Navigate to **Identity → Applications → Agent identities (preview)**.
+2. Navigate to **Entra ID → Agents → Agent identities**.
 3. In the column chooser (gear icon, upper-right of the grid), enable the columns: **Display name**, **Application ID**, **Created date**, **Sponsor (UPN)**, **Sponsor manager (UPN)**, **Zone tag**, **Last sign-in**.
 4. Sort by **Sponsor (UPN)** ascending. Empty cells will float to the top — these are your null-sponsor population.
 5. Click **Download** (top of grid) → **CSV**. Save as `agent-sponsor-inventory-<YYYY-MM-DD>.csv`.
@@ -220,7 +220,7 @@ For each row with an empty Sponsor (UPN):
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#3-2-edit-sponsor-dialog` — Agent properties Edit pane with Sponsor picker validating a UPN.*
 
 !!! warning "Manager-of-Record Verification"
-    The Lifecycle Workflow in §4 fires when the **sponsor's manager** changes or the sponsor leaves. After assigning a sponsor, immediately verify that the sponsor user's `manager` attribute in Entra is populated and points to a current employee. A sponsor with no manager will not trigger leaver workflows correctly. Verify in **Identity → Users → [sponsor] → Edit properties → Job info → Manager**.
+    The Lifecycle Workflow in §4 fires when the **sponsor's manager** changes or the sponsor leaves. After assigning a sponsor, immediately verify that the sponsor user's `manager` attribute in Entra is populated and points to a current employee. A sponsor with no manager will not trigger leaver workflows correctly. Verify in **Entra ID → Users → [sponsor] → Edit properties → Job info → Manager**.
 
 ### 2.3 Apply zone tags
 
@@ -273,7 +273,7 @@ This section is the operational heart of Control 2.26. You will:
 ### 3.1 Create the agent governance catalog
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
-2. Navigate to **Identity governance → Entitlement management → Catalogs**.
+2. Navigate to **ID Governance → Catalogs**.
 3. Click **+ New catalog**.
 4. Set:
    - **Name:** `Agent Governance — Z2 Z3`
@@ -354,7 +354,7 @@ For agents that already had ad-hoc resource grants outside access packages, run 
 1. From the catalog → **Access packages**, confirm at least one access package exists per logical Z2/Z3 permission bundle.
 2. Open each Z3 package → **Lifecycle** → confirm **Expiration** is set to a number of days ≤ 365 (preferably ≤ 180).
 3. Open each Z3 package → **Assignments**, filter to **Active**, and confirm every active assignment shows a non-empty **Expiration date**.
-4. From **Identity governance → Entitlement management → Reports → Access package assignments**, export the report scoped to your catalog. The exported CSV must show no row with empty `expiredDateTime` for Z3 assignments.
+4. From **ID Governance → Entitlement management → Reports → Access package assignments**, export the report scoped to your catalog. The exported CSV must show no row with empty `expiredDateTime` for Z3 assignments.
 
 !!! example "Examiner Evidence Box — Access Packages"
     | Element | Value |
@@ -390,7 +390,7 @@ The recommended pattern is:
 ### 4.2 Enable the lifecycle workflow templates
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
-2. Navigate to **Identity governance → Lifecycle workflows → Workflows**.
+2. Navigate to **ID Governance → Lifecycle workflows → Workflows**.
 3. Confirm the **Workflows** blade loads. (Lifecycle Workflows requires Entra ID Governance, included in P2 — verify via **Identity → Overview → License**.)
 4. Click **+ Create a custom workflow** (or start from the **Pre-hire**, **Joiner**, **Mover**, **Leaver** templates and customize). For sponsor-departure governance, the **Leaver** workflow type is the correct base.
 
@@ -452,7 +452,7 @@ A common authoring error is to scope an access review at the **agent identity ob
 ### 5.2 Create the quarterly Z3 access review
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
-2. Navigate to **Identity governance → Entitlement management → Access packages**.
+2. Navigate to **ID Governance → Entitlement management → Access package**.
 3. For each Z3 access package, open it and click **Access reviews → + New access review**.
 4. **Settings** tab:
    - **Review name:** `AR-Q[N]-<YYYY>-<package-short-name>` (e.g., `AR-Q2-2026-Sales-Library-Reader`)
@@ -480,7 +480,7 @@ A common authoring error is to scope an access review at the **agent identity ob
 
 ### 5.3 Monitor the campaign
 
-1. Navigate to **Identity governance → Access reviews → Reviews**.
+1. Navigate to **ID Governance → Access Reviews → Reviews**.
 2. Filter to your Z3 reviews. The grid shows status per review: `NotStarted`, `InProgress`, `Completed`, `Applied`.
 3. Click into an in-progress review → **Results**. Each row shows the assignment, the agent, the reviewer, the decision, and the justification.
 4. Mid-campaign, export the results as CSV. Compliance can use this snapshot to nudge non-responsive reviewers.
@@ -494,7 +494,7 @@ Per VC-7, when an assignment expires (either at lifecycle end-date from §3 or v
 
 To verify VC-7:
 
-1. Navigate to **Identity governance → Entitlement management → Reports → Access package assignments**.
+1. Navigate to **ID Governance → Entitlement management → Reports → Access package assignments**.
 2. Filter the report to assignments whose `expiredDateTime` falls within the last 30 days.
 3. Export to CSV. For each row:
    - If `assignmentState = Expired` and the resource grant is revoked → compliant outcome.
@@ -637,7 +637,7 @@ The Lifecycle Workflow in §4 only fires correctly if the `employeeLeaveDateTime
 | Workday | **Workday HR → Entra ID inbound provisioning** | Identity → Inbound provisioning → Workday connector |
 | SAP SuccessFactors | **SAP SuccessFactors → Entra ID inbound provisioning** | Identity → Inbound provisioning → SuccessFactors connector |
 | SAP HCM (on-prem) | **SAP HCM → Entra ID via Cloud Sync agent** | Identity → Cloud sync |
-| Other HRIS | Custom Graph-based provisioning to set `employeeLeaveDateTime` | Identity → Audit logs filtered to `category = ProvisioningManagement` |
+| Other HRIS | Custom Graph-based provisioning to set `employeeLeaveDateTime` | Entra ID → Monitoring & health → Audit logs filtered to `category = ProvisioningManagement` |
 | No HR feed | Manual maintenance — **not recommended for FSI** | Manual data entry creates audit findings |
 
 ### 7.1 Confirm a connector exists and is healthy
@@ -663,7 +663,7 @@ The Lifecycle Workflow in §4 only fires correctly if the `employeeLeaveDateTime
 ### 7.2 Verify population on test sponsor
 
 1. Identify a known-departed sponsor user (or, in a test tenant, set `employeeLeaveDateTime` manually via Graph PATCH for testing only).
-2. In Entra, navigate to **Identity → Users → [test sponsor] → Edit properties → Job info**.
+2. In Entra, navigate to **Entra ID → Users → [test sponsor] → Edit properties → Job info**.
 3. Confirm the **Employee leave date time** field shows the expected value.
 4. Run the Lifecycle Workflow `On-demand run` against this user (Lifecycle workflows → [your workflow] → **Run on demand** → select the user). Confirm the workflow proceeds through all configured tasks.
 
@@ -739,4 +739,3 @@ Before declaring Control 2.26 implemented, confirm:
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-

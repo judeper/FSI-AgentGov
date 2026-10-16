@@ -82,7 +82,7 @@ This section sets the operational boundary of the walkthrough and tells the oper
 - Configuration and quarterly attestation of the **canonical agent register** across all six portal surfaces (the "discovery planes").
 - Authoring and validation of the **canonical metadata schema** (§1.2) for every agent record.
 - **Lifecycle state transitions** (Draft → In Review → Approved → Active → Deprecated → Decommissioned) executed via portal procedures with audit-log capture.
-- **Orphaned-agent identification** (departed-owner, dormant beyond zone threshold, unowned shared agent, license-stripped) using the Microsoft 365 admin center "Manage Ownerless" action and equivalents in PPAC, Entra, and Agent 365.
+- **Orphaned-agent identification** (departed-owner, dormant beyond zone threshold, unowned shared agent, license-stripped) using the Microsoft 365 admin center **Agents without owners** review and source-specific evidence from PPAC, Entra, and Agent 365.
 - **DLP-policy mapping verification** per inventory entry, including the cross-plane reconciliation between Purview DLP for Microsoft 365 Copilot and Power Platform data policies for Copilot Studio.
 - **Sensitivity-label inheritance check** per registry entry against grounding sources (SharePoint sites, OneDrive containers, Dataverse tables, web URLs).
 - **Zone-specific portal workflows** with differentiated metadata depth, attestation cadence, and approval chains for Zone 1 / Zone 2 / Zone 3.
@@ -111,8 +111,8 @@ No single Microsoft surface returns the complete agent register for an FSI tenan
 
 | # | Plane | Source surface | Authoritative for | Typical refresh latency |
 |---|---|---|---|---|
-| 1 | **M365 Copilot Hub plane** | `https://admin.microsoft.com → Copilot → Inventory` | M365 Copilot agents, declarative agents, M365 Copilot extensions, Microsoft-provided agents | Hours (ad-hoc capture); some columns refresh on portal navigation |
-| 2 | **Power Platform plane** | `https://admin.powerplatform.microsoft.com → Resources → Copilot agents` (and `Manage → Inventory` legacy view) | Copilot Studio agents (custom and Studio-published declarative), environment-scoped attributes, Maker-side ownership | ~15 minutes inventory refresh; up to 48 h for deletion visibility; PPAC display capped at ~500 agents |
+| 1 | **M365 Agent Registry plane** | `https://admin.microsoft.com → Agents → All agents → Registry` | Documented Registry populations; reconcile platform/publisher/channel scope | Record capture time and actual data freshness |
+| 2 | **Power Platform plane** | `https://admin.powerplatform.microsoft.com → Manage → Copilot Studio` or `Manage → Inventory` | Copilot Studio and Microsoft 365 Copilot Agent Builder agents; cloud-specific coverage | Created/updated/deleted resources appear within 15 minutes in the documented unified inventory; Download exports the entire inventory |
 | 3 | **Entra plane** | Enterprise applications, App registrations, and Agent ID identities; distinct from the Microsoft 365 Agent Registry | Directory applications/SPs and identity/blueprint relationships; not a complete agent catalog | Record collection time and reconcile source scope |
 | 4 | **Agent 365 plane** | `https://admin.agent365.microsoft.com` (verify hostname at deploy time) | Cross-cloud agent observability, ownerless-agent queue, governance cards, agent identity → telemetry join | Hours |
 | 5 | **Purview plane** | `https://purview.microsoft.com → Solutions → Data lifecycle management` (and **Records management**) | Retention / Preservation Lock binding for the registry document library, evidence-package retention | Per policy; binding propagates within hours |
@@ -128,7 +128,7 @@ Use this table to decide whether to stay in this portal walkthrough or switch to
 | Task | Portal (this playbook) | PowerShell (sibling) | Reason for split |
 |---|:---:|:---:|---|
 | Initial register baseline (≤ 50 agents) | ✅ Primary | Optional | Faster click-through; screenshot evidence anchors |
-| Register baseline (> 50 agents, > 500 agents in PPAC) | ⚠️ Reference only | ✅ Primary | PPAC display capped at ~500 — Azure Resource Graph required for full enumeration |
+| Register baseline (> 50 agents) | Inventory Download for complete CSV | Programmatic collection for repeatability | A partially loaded grid is not the complete inventory; do not infer a 500-agent export cap |
 | Quarterly attestation diff (snapshot N vs N-1) | ❌ | ✅ Primary | Diff requires scripted hash and stable-sort key |
 | Single-agent lifecycle state transition (record move) | ✅ Primary | Optional | Click-through with named-human attribution |
 | Bulk lifecycle state transition (e.g., environment retirement) | ❌ | ✅ Primary | Repeatable, idempotent, audit-stamped |
@@ -152,14 +152,14 @@ The schema authored here is the **contract** that every other Pillar 3 control c
 
 | Surface | Hosting | Authoritative for | GA status (Commercial) | Authoring artifact | Owner role |
 |---|---|---|---|---|---|
-| M365 Copilot Hub — **Agents** tab | `admin.microsoft.com → Copilot → Inventory → Agents` | Custom Copilot agents (Studio-published), tenant-installed agents | GA | Per-agent metadata side-panel + CSV export | AI Administrator |
-| M365 Copilot Hub — **Declarative agents** tab | Same path, separate tab | Declarative agents (manifest-authored) | GA | Manifest + admin-side metadata | AI Administrator |
-| M365 Copilot Hub — **Extensions / Connectors** | Same path, **Extensions** tab | M365 Copilot extensions, Graph connectors, API plugins | GA | Per-extension Entra app ID + permissions | AI Administrator |
-| Power Platform Admin — **Resources → Copilot agents** | `admin.powerplatform.microsoft.com → Resources → Copilot agents` | Copilot Studio agents (env-scoped) | GA | Per-agent side panel + CSV export | Power Platform Admin |
+| M365 Agent Registry | `admin.microsoft.com → Agents → All agents → Registry` | Documented Registry populations | Verify feature-specific availability | Agent details + Export to Excel | AI Administrator |
+| Declarative-agent reconciliation | Registry filters plus source package; no separate tab established | Declarative agents (manifest-authored) | Verify source-specific availability | Manifest + actual available metadata | AI Administrator |
+| Extensions / Connectors reconciliation | Type-specific management surface; no universal Registry Extensions tab established | M365 Copilot extensions, Graph connectors, API plugins | Verify source-specific availability | Source-specific Entra app ID + permissions | AI Administrator |
+| Power Platform Admin — **Manage → Copilot Studio** | `admin.powerplatform.microsoft.com → Manage → Copilot Studio` | Copilot Studio and Microsoft 365 Copilot Agent Builder agents; environment-filtered | Verify cloud-specific resource coverage | Resource details + Download to CSV | Power Platform Admin |
 | Power Platform Admin — **Manage → Inventory** (legacy Maker Inventory) | `Manage → Inventory` with `Item type = Agent` filter | Departed-owner cross-check, System Account ownership detection | GA | Per-item view + CSV export | Power Platform Admin |
-| Entra Admin — **Enterprise applications** | `entra.microsoft.com → Identity → Applications → Enterprise applications` | Service principals, app ownership, OAuth permissions | GA | App list + per-app properties + CSV download | Entra Global Reader / Entra App Admin (write) |
+| Entra Admin — **Enterprise applications** | `entra.microsoft.com → Entra ID → Enterprise apps` | Service principals, app ownership, OAuth permissions | GA | App list + per-app properties + CSV download | Entra Global Reader / Entra App Admin (write) |
 | Microsoft 365 admin — **Agent Registry**; Entra identities separately | `Agents > All Agents > Registry`; documented Agent ID collection for identity records | Package catalog versus identity/blueprint directory; preserve both | Capability-specific support/licensing | Reconcile lifecycle/publisher rows and source identifiers | AI Administrator / Entra Agent ID Admin |
-| Entra Admin — **App registrations** | `Identity → Applications → App registrations` | Developer-side declarative agent registrations | GA | App registration manifest | Entra App Admin |
+| Entra Admin — **App registrations** | `Entra ID → App registrations` | Developer-side declarative agent registrations | GA | App registration manifest | Entra App Admin |
 | Agent 365 Admin Center | `admin.agent365.microsoft.com` (verify at deploy) | Cross-cloud agent observability, ownerless queue | Preview | Governance cards + export | Agent 365 Admin |
 | Purview compliance portal — **Data lifecycle / Records management** | `purview.microsoft.com → Solutions → Data lifecycle management` | Retention / Preservation Lock for register library | GA | Retention policy + label policy | Purview Records Manager / Purview Compliance Admin |
 | SharePoint Admin — **Connected apps** | SP Admin → Settings → Manage Connected apps | Site-registered Copilot extensions, Graph connectors | GA | Per-app permission record | SharePoint Admin |
@@ -261,7 +261,7 @@ Use only the framework's canonical role names from `docs/reference/role-catalog.
 |---|---|---|---|
 | **AI Governance Lead** | Owns the register of record | All six planes (read across) | Standing |
 | **AI Administrator** | M365 Copilot Hub Inventory authoring | Plane 1 | Standing read; PIM for write |
-| **Power Platform Admin** | PPAC Resources → Copilot agents; Maker Inventory | Plane 2 | PIM-elevated for environment-scoped writes |
+| **Power Platform Admin** | PPAC Manage → Copilot Studio; Manage → Inventory | Plane 2 | PIM-elevated for environment-scoped writes |
 | **Entra Global Reader** | Enterprise apps + Agent Registry read | Plane 3 | Standing |
 | **Entra App Admin** | App registrations write (rare) | Plane 3 | PIM-only |
 | **Entra Agent ID Admin** | Entra identity governance; not a universal Microsoft 365 catalog write role | Plane 3 / Plane 4 boundary | Operation-specific approval and authorization |
@@ -281,7 +281,7 @@ Use only the framework's canonical role names from `docs/reference/role-catalog.
 
 Confirm pre-existing controls that the register depends on:
 
-- [ ] **Control 1.7 Unified Audit Log** is enabled and capturing `AgentCreate`, `AgentUpdate`, `AgentDelete`, `OwnerChanged`, and SharePoint list `Update` operations on the register library.
+- [ ] **Control 1.7 Unified Audit Log** is enabled and capturing the documented operations for the selected agent runtime and register library. Record actual operation names; do not assume generic `AgentCreate`, `AgentUpdate`, `AgentDelete`, or `OwnerChanged` events exist in every source.
 - [ ] **Control 1.7 Advanced Audit retention** for Zone 3 (≥ 1 year) is configured (Premium SKU).
 - [ ] **Control 1.13 Sensitivity labels** are published to all in-scope sites (drives Data Classification inheritance check in §9).
 - [ ] **Control 1.9 Retention policies** authored and reconciled with the Records Manager for register-export Preservation Lock.
@@ -320,57 +320,37 @@ Before walking through §3 in production, validate the procedure in a sandbox or
 
 ## §3. Plane 1 — Microsoft 365 Copilot Hub Inventory walkthrough
 
-This is the primary first-party governance surface for organization-wide Copilot agents. Refresh cadence is on-demand at portal navigation; some columns (License consumption, Last activity) lag the underlying telemetry.
+Use **Agents → All agents → Registry** as documented in the [current Registry guide](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry). References in this playbook to the "Copilot Hub inventory" mean that Registry, not a separate **Copilot → Inventory** blade. The legacy Agents / Declarative agents / Extensions subsection headings below identify reconciliation populations; they are not verified separate Registry tabs.
 
 ### 3.1 Open the Copilot Hub Inventory
 
 1. Sign in to `https://admin.microsoft.com` as **AI Administrator** (or **Entra Global Reader** for read-only review).
-2. In the left navigation, expand **Copilot**. If the **Copilot** node is not present:
-   - Verify the Microsoft 365 Copilot SKU is licensed in the tenant (Gate PRE-01).
-   - Verify the operator holds at least **AI Administrator** or **Entra Global Reader**.
-   - The node may appear as **AI agents** or **Copilot agents** depending on the monthly build — verify at deploy time.
-3. Click **Inventory** (label may read **Agent inventory** or **Copilot agent inventory** depending on monthly build — verify exact heading at deploy time and capture in the §13 evidence pack).
-4. Confirm the page header reads as expected. *Screenshot description: M365 admin center top breadcrumb showing `Home > Copilot > Inventory`, with the page heading "Copilot agent inventory" and three tabs labeled "Agents", "Declarative agents", and "Extensions" visible at the top of the content area.*
+2. In the left navigation, select **Agents**.
+3. Open **All agents → Registry**.
+4. Capture the actual breadcrumb, filters, and list. If the surface is unavailable, verify the documented role and feature-specific prerequisites; a missing legacy **Copilot** node is not a blanket Microsoft 365 Copilot licensing test.
 
 !!! tip "Legacy navigation note"
-    The older path **Settings → Integrated apps → Agents** is **legacy** as of April 2026. Operators may still see it during a tenant rollout window; treat it as a compatibility fallback only and migrate to **Copilot → Inventory** as soon as the new node appears.
+    Do not substitute an old **Settings → Integrated apps → Agents** or **Copilot → Inventory** shortcut for the documented **Agents → All agents → Registry** route. Record the selected experience and actual UI separately from this documentation review.
 
 ### 3.2 The Agents tab
 
-The Agents tab enumerates Custom Copilot agents (Studio-published), tenant-installed agents, and Microsoft-provided agents that have been enabled.
+Use the Registry list for the relevant population, recording actual status, publisher, platform, channel, owner, and available detail fields. Do not require a fictional grid containing every canonical register field.
 
-1. Click the **Agents** tab (or **All agents** depending on build).
-2. Click the **column picker** (gear icon top-right of the grid) and enable at minimum:
-   - **Name**
-   - **Owner**
-   - **Type** (Custom / Declarative / Extension)
-   - **Source** (Copilot Studio / Agent Builder / Marketplace)
-   - **Created date**
-   - **Modified date**
-   - **Status** (Published / Draft / Disabled)
-   - **Environment** (Power Platform environment binding)
-   - **Risks** (where exposed — flags ownerless, departed-owner, license-stripped)
-   - **License consumption** (preview as of April 2026 — verify availability in your build)
-   - **Last activity** (preview as of April 2026)
-3. Sort by **Modified date** descending to surface recent activity.
-4. For each Zone 3 agent in the grid, click into the agent row → confirm the metadata side-panel exposes:
-   - **Owner** (with hover tooltip showing UPN)
-   - **Description** (maps to canonical **Business Justification**)
-   - **Knowledge sources** (maps to canonical **Connected Knowledge Sources**)
-   - **Actions** (maps to canonical **Connected Actions / Connectors**)
-   - **Plugins** (maps to canonical **Plugins / Connected Apps**)
-5. *Screenshot description: Agents tab grid view with all canonical-schema columns visible, the Risks column showing one "Ownerless" red badge and two "Owner inactive" amber badges, and the side-panel open on a Zone 3 agent revealing Knowledge sources listing two SharePoint sites and one Dataverse table, Actions listing three connectors with their OAuth posture, and the Owner field showing the displayName + UPN.*
+1. Record the applied filters and actual exported fields.
+2. Select each Zone 3 agent to inspect its detail pane. The [agent-details article](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-details) documents **Data & tools** for capabilities, knowledge sources, and tools, with coverage varying by agent/platform.
+3. Reconcile available ownership, description, data, and tool metadata into the canonical schema; record unavailable fields and collect authoring/source evidence separately.
+4. Do not infer an "Owner inactive" risk badge, license-consumption column, or last-activity field merely from this schema.
 
-**Evidence capture:** Screenshot the Agents tab with all canonical-schema columns visible. Save as `3.1-Plane1-Agents-{YYYY-MM-DD}.png` in the register-of-record SharePoint library under `/_evidence/{YYYY-Qn}/`.
+**Evidence capture:** Screenshot the actual Registry and selected scope. Save as `3.1-Plane1-Agents-{YYYY-MM-DD}.png` in the register-of-record SharePoint library under `/_evidence/{YYYY-Qn}/`.
 
 ### 3.3 The Declarative agents tab
 
 Declarative agents are manifest-authored (Copilot Studio Lite, Agents Toolkit, Copilot Studio declarative-agent path). They are the most likely surface for partner-published or developer-side agents.
 
-1. Click the **Declarative agents** tab.
-2. Enable columns: **Name, Owner, Manifest version, Capabilities (Knowledge / Actions / Code Interpreter), Last published, Source**.
+1. Identify the relevant population using the Registry's documented **Platform**, **Publisher Type**, **Channel**, and **Data source** filters as applicable; do not assume a separate **Declarative agents** tab.
+2. Collect manifest version and capability provenance from the source package/authoring record when the Registry does not expose them.
 3. For each row, capture the **manifest provenance** — the manifest is the source of truth for plugins/connected apps; the register mirrors but does not author the manifest.
-4. *Screenshot description: Declarative agents tab grid with eight rows visible, columns showing Manifest version (e.g., "1.4"), Capabilities cells with chips for "Knowledge" and "Actions", and a side-panel open on one agent showing the manifest JSON snippet with the plugin Entra appId highlighted for the §5 cross-check.*
+4. Capture actual Registry and source-package evidence; do not require an eight-row tab or a native manifest-JSON preview not established by the documentation.
 
 **Evidence capture:** `3.1-Plane1-Declarative-{YYYY-MM-DD}.png` plus CSV export per §3.6.
 
@@ -378,40 +358,33 @@ Declarative agents are manifest-authored (Copilot Studio Lite, Agents Toolkit, C
 
 Microsoft 365 Copilot extensions (formerly "plugins") include message extensions, Graph connectors, and API plugins. Each entry maps to an Entra App ID — capture the App ID for the §5 Entra cross-check.
 
-1. Click the **Extensions** tab (or **Connectors** depending on build).
-2. Enable columns: **Name, Publisher, Type (Message extension / Graph connector / API plugin), Entra App ID, Permissions, Status, Owner**.
-3. For each Zone 3 extension, click the row → side-panel shows the OAuth permission scopes (delegated vs application) and the consent state.
-4. *Screenshot description: Extensions tab showing twelve extensions, three flagged with "Admin consent required" amber badges, and the side-panel open on a Graph connector revealing the App ID `00000003-0000-0000-c000-000000000000`-style GUID copyable to clipboard.*
+1. Do not assume a separate Registry **Extensions** or **Connectors** tab. Establish the supported management surface for each extension type.
+2. Collect name, publisher, type, Entra App ID, permissions, status, and owner from the applicable source; record provenance and missing fields.
+3. For each Zone 3 extension, reconcile delegated/application scopes and consent state through the Entra cross-check rather than require them in one universal M365 panel.
+4. Capture the actual source evidence, not the former twelve-extension/three-consent-badge screenshot illustration.
 
 **Evidence capture:** `3.1-Plane1-Extensions-{YYYY-MM-DD}.png` and CSV.
 
 ### 3.5 Filters, views, and the Risks column
 
-The Copilot Hub provides governance filters that drive the §6 orphan workflow:
+The Registry provides documented filters and an ownerless-agent card that can feed the §6 orphan workflow:
 
 | Filter | Value | What it surfaces |
 |---|---|---|
-| **Status** | `Published` | Active agents — count for Zone-classification reconciliation |
-| **Status** | `Disabled` | Deprecated candidates that may need state transition to Decommissioned |
-| **Owner** | `(any user filter)` | Per-owner enumeration for departed-owner detection |
-| **Risks** | `Ownerless` | Surface for the **Manage Ownerless** action (see below) |
-| **Risks** | `Owner inactive` | Departed-owner candidates — feed §6 orphan workflow |
-| **Type** | `Declarative` | Cross-check against manifest source-of-truth |
+| **Status** | Actual available status values | Lifecycle reconciliation; do not equate status alone with approval |
+| **Publisher Type / Platform / Channel** | Actual documented population | Record source scope before comparing counts |
+| **Data source** | `Embedded knowledge` where relevant | Embedded-file population for Control 4.9 |
+| **Agents without owners** card | Ownerless shared agents within documented coverage | Review affected agents; reconcile ownership independently |
 
-**Save filtered views per Zone** for the quarterly attestation. Click **Save view** at the top of the grid; name as `3.1-Z{n}-attestation-{YYYY-Qn}`.
+**Preserve filter criteria per Zone** for the quarterly attestation alongside `3.1-Z{n}-attestation-{YYYY-Qn}` evidence; do not assume a native **Save view** action.
 
-**Manage Ownerless action:** When the Risks column shows one or more **Ownerless** badges, the toolbar exposes a **Manage Ownerless** button. Click it to open the ownerless-agent dialog:
-
-1. Select agents to remediate.
-2. Choose: **Assign Owner** (UPN picker — must be a named human, not a group) or **Disable** (transitions the agent to a non-published state pending decision).
-3. The action is logged in the Unified Audit Log as `OwnerChanged` with the operator's UPN — capture this entry in the §11 attestation evidence.
-4. *Screenshot description: "Manage ownerless agents" dialog overlay showing four agents with checkboxes, an "Assign Owner" picker with autocomplete, and a "Disable" option below; the dialog footer shows "Action will be logged" with a tooltip "This action is recorded to the Unified Audit Log as OwnerChanged".*
+**Ownerless review:** Select **Agents without owners** to review the affected shared agents. The Registry guide documents review followed by **block** or **delete** where appropriate. A universal **Manage Ownerless → Assign Owner / Disable** dialog and an automatic audit operation named `OwnerChanged` were not substantiated. Treat those legacy actions/event expectations as **unconfirmed**; use a supported source-specific reassignment procedure and preserve the actual resulting audit event, not a prescribed invented operation name.
 
 ### 3.6 Bulk export from Plane 1
 
-1. With the desired filter applied (or no filter for full export), click **Export** (top-right; label may read **Export to CSV**).
-2. Confirm the export contains all visible columns. If the export omits columns visible in the grid, document the omission in the §13 evidence pack and capture additional screenshots as compensating evidence.
-3. Save the file with the naming convention: `3.1-Plane1-Export-{YYYY-MM-DD}-{cloud}.csv` (e.g., `3.1-Plane1-Export-2026-04-15-Commercial.csv`).
+1. Select **Export to Excel**, choosing **All agents** or **Filtered agents** as the scope. Preserve the original workbook.
+2. Record the actual exported fields and any omissions in the §13 evidence pack; use additional source evidence where required rather than assume every visible/detail property is included.
+3. If CSV is needed, explicitly convert a copy using the naming convention `3.1-Plane1-Export-{YYYY-MM-DD}-{cloud}.csv` (e.g., `3.1-Plane1-Export-2026-04-15-Commercial.csv`); retain provenance and the original workbook.
 4. Compute SHA-256 immediately (one-liner):
    ```powershell
    Get-FileHash -Algorithm SHA256 .\3.1-Plane1-Export-2026-04-15-Commercial.csv
@@ -421,95 +394,64 @@ The Copilot Hub provides governance filters that drive the §6 orphan workflow:
 
 ### 3.7 What this surface does NOT show
 
-Mandatory operator awareness — Plane 1 alone undercounts the register:
-
-- Agents in non-Default environments **created via Copilot Studio but never published** to M365 Copilot.
-- Agents in the Power Platform Default environment that have not been promoted to a Managed Environment.
-- **Custom Engine Agents (CEAs)** hosted in Azure that authenticate via Entra App Registration only.
-- Agent Builder–authored agents pending publish.
-- Third-party agents enrolled via Entra Workload Identity Federation (visible only in Plane 3 / Plane 4).
+Mandatory operator awareness — Plane 1 alone is not proof of complete source coverage. Reconcile the current Registry's Microsoft, external, shared-by-creator, and published-by-your-organization populations with Power Platform, Entra, and the external register. Do not infer that an agent is excluded solely because it is in a non-Default environment, not in a Managed Environment, or not organization-published; source coverage and lifecycle behavior must be established for that agent.
 
 These gaps are filled by §4 (Plane 2) and §5 (Plane 3). Do **not** treat Plane 1 alone as the register.
 
 ---
 
-## §4. Plane 2 — Power Platform Admin Center: Resources → Copilot agents (and the legacy Maker Inventory)
+## §4. Plane 2 — Power Platform Admin Center: Manage → Copilot Studio and unified Inventory
 
-This is the **authoritative surface for Copilot Studio agents** and the only surface that exposes environment-scoped governance attributes. The PPAC display is capped at approximately 500 agents; tenants exceeding that threshold must use the [PowerShell Setup](powershell-setup.md) Azure Resource Graph procedure for full enumeration.
+Use the [current Power Platform inventory procedure](https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory), not the former **Resources → Copilot agents** shortcut. This discovery source includes Copilot Studio and Microsoft 365 Copilot Agent Builder agents; it is not the organization's authoritative register.
 
-### 4.1 Open Resources → Copilot agents
+### 4.1 Open agent inventory
 
 1. Sign in to `https://admin.powerplatform.microsoft.com` as **Power Platform Admin** (PIM-elevated).
-2. In the left navigation, expand **Resources**.
-3. Click **Copilot agents**.
-4. The grid loads with the tenant-scoped Copilot Studio agent list. Confirm the breadcrumb reads `Resources > Copilot agents`. *Screenshot description: PPAC left rail expanded to Resources > Copilot agents; the grid shows columns Name, Owner, Environment, Status, Created, Modified, with twelve agents visible and a "Filter" pill row above showing the current filter set.*
+2. Select **Manage → Copilot Studio** for agents, agent flows, and workflows, or **Manage → Inventory** for the unified inventory.
+3. Record the actual resource type and environment scope. Classic chatbots are excluded from the new inventory; use **Manage → Copilot Studio → Classic chatbots** when that population is in scope.
+4. Capture the actual breadcrumb, filters, count, and visible columns rather than a prescribed fictional row count.
 
 ### 4.2 Configure columns
 
-Click **Choose columns** and enable at minimum:
+Use **Add or remove columns** next to **Search**. Capture the available name, owner, environment, type, and creation metadata. Treat status, authentication, channels, knowledge sources, solution, and immutable IDs as reconciliation requirements, not guaranteed columns in every inventory grid.
 
-- **Name** / **Display name**
-- **Owner** (UPN)
-- **Environment** (joins to Control 2.1 environment list — drives Zone classification reconciliation)
-- **Status** (Published / Draft / Disabled)
-- **Type** (Custom Copilot / Declarative / Connected)
-- **Authentication** (No auth / Microsoft / Manual / Custom — drives Plane 3 cross-check)
-- **Channels** (Teams / Web / Custom — drives examiner-facing exposure surface mapping)
-- **Created on** + **Modified on**
-- **botId** / **Bot ID** (canonical AgentID join key for Plane 2 → Plane 3 stitching)
-- **Solution** (the Power Platform solution containing the agent — joins to ALM evidence)
+For agents, **Modified on** and **Last modified by** do not work and show a dash. Obtain reliable modification evidence from a separate source; neither a dash nor an old timestamp alone proves dormancy.
 
 ### 4.3 Filter, sort, and per-environment pivot
 
-| Filter | Operational use |
-|---|---|
-| **Environment = Default** | Surface candidate shadow agents — every row here is a §11 review item |
-| **Owner contains `(System Account)` or `# (deleted)`** | Departed-owner orphan signal — feed §6 orphan workflow |
-| **Status = Disabled** + **Modified on < 90 days ago** | Recent disablement — possible candidate for state transition to Decommissioned |
-| **Authentication = No auth** + **Channels contains `Web`** | High-risk public-facing agent — Zone-classification escalation candidate |
+Filter using the **full environment name**; partial names are not supported. Search covers the entire inventory, not only loaded rows. Use the actual owner field as a candidate signal, then reconcile with Entra user and source-specific ownership records before classifying a departed-owner orphan.
 
-Save per-environment views named `3.1-Plane2-Env-{environment-name}-{YYYY-Qn}` for the §11 attestation pack.
+Preserve each environment's applied criteria alongside the snapshot named `3.1-Plane2-Env-{environment-name}-{YYYY-Qn}` for the §11 attestation pack. Do not assume a saved-view button or a functioning agent Modified-on filter.
 
 ### 4.4 Per-agent metadata side panel
 
-Click into a row to open the agent details. Capture for each Zone 3 agent:
+Select the resource name, or select the resource and **Details**. The documented tabs are **Overview**, **Connectors**, and **Usage**.
 
-- **Owner** (must reconcile with Plane 1 owner if also published to M365 Copilot).
-- **Environment** (must reconcile with Control 2.1 Managed-Environment classification).
-- **Knowledge sources** (must reconcile with Plane 6 SharePoint Connected apps and Control 4.6 grounding inventory).
-- **Topics / Actions** (each connector mapped to its DLP business-data-group classification per Control 1.5).
-- **Authentication mode** (joins to Plane 3 Entra service principal where Microsoft auth is used).
-- **Solution** (joins to ALM evidence per Control 2.7).
+For each Zone 3 agent, reconcile owner and environment with the register and Control 2.1. Collect knowledge sources, topics/tools, authentication mode, and solution information separately from the supported authoring/environment records when not surfaced here; map each connector to its DLP classification per Control 1.5. Do not presume inherited-sensitivity badges or colored DLP pills in the PPAC details panel.
 
-*Screenshot description: PPAC Copilot agent details blade for a Zone 3 customer-service agent; the Knowledge sources section lists three SharePoint URLs with "Inherited sensitivity: Confidential" badges; the Actions section lists five connectors with green "DLP Business" or amber "DLP Non-Business" pills; the Authentication section reads "Microsoft" with the Entra App ID copyable.*
+### 4.5 Unified inventory cross-check (Manage → Inventory)
 
-### 4.5 The legacy Maker Inventory (Manage → Inventory)
+**Manage → Inventory** is the current unified inventory, not a separate legacy Maker Inventory. Use it to reconcile resource coverage with the agent-specific view and with the external register.
 
-The legacy **Manage → Inventory** view remains the most reliable surface for **departed-owner cross-check** because it surfaces the System Account ownership transition and the per-environment ledger. Use it in addition to (not instead of) **Resources → Copilot agents**.
+1. Record the included resource types and environments.
+2. Correlate owner candidates with Entra and source-specific records; do not assume every departed user becomes a displayed "System Account" or `# (deleted)` owner.
+3. Preserve missing properties and collection failures as gaps.
 
-1. In PPAC, navigate to **Manage → Inventory**.
-2. In the **Item type** filter, select **Agent** (or **Bot** depending on build label — verify in your tenant).
-3. The grid surfaces the per-environment, per-item ledger. Filter columns:
-   - **Owner = System Account** → license-stripped or deleted owner
-   - **Owner contains `# (deleted)`** → soft-deleted Graph user
-   - **Last modified < threshold** → dormant candidates
-4. Export to CSV via the toolbar **Export** action.
-5. *Screenshot description: PPAC Manage > Inventory grid filtered to Item type = Agent and Owner = System Account, showing four rows highlighted amber, with the Owner column reading "System Account" and the Environment column showing one Default-environment row that the operator should escalate to a §11 review item.*
-
-**Evidence capture:** `3.1-Plane2-MakerInventory-{YYYY-MM-DD}.csv` and screenshot.
+**Evidence capture:** `3.1-Plane2-MakerInventory-{YYYY-MM-DD}.csv` and the actual filter/scope screenshot. The retained filename is a local evidence convention, not a native export label.
 
 ### 4.6 Bulk export from Plane 2
 
-1. From **Resources → Copilot agents**, click **Export to CSV** in the toolbar.
-2. PPAC export caps at ~500 rows in the UI. **If the tenant exceeds 500 Copilot Studio agents, do not rely on the UI export** — switch to [PowerShell Setup](powershell-setup.md) (Azure Resource Graph + Power Platform admin connectors).
+1. Select **Download** in the inventory command bar.
+2. The documented CSV includes the **entire inventory**, not just loaded rows. Preserve the original; produce an explicitly derived environment/agent-only copy when needed. Do not apply the former unsupported 500-row export cap.
 3. Save as `3.1-Plane2-Export-{YYYY-MM-DD}.csv`. Compute SHA-256 and record in the evidence manifest.
+4. For programmatic collection, verify the chosen interface's authentication support. The inventory API / Admins V2 **Query Power Platform resources** action currently requires delegated-user authentication, not a service principal or managed identity.
 
-### 4.7 What this surface does NOT show
+### 4.7 Scope limitations
 
-- M365 Copilot extensions / Graph connectors (Plane 1).
-- Entra-registered service principals for Custom Engine Agents that are not Power Platform–hosted (Plane 3).
-- SharePoint-grounded site exposure (Plane 6).
-- Agent telemetry beyond the activity timestamp (Control 3.9 / Sentinel).
+- Do not infer all Microsoft 365 or externally hosted agent populations from a Power Platform inventory.
+- Classic chatbots need the separate view described above.
+- SharePoint-grounded site exposure and detailed telemetry need their own sources.
+- Check cloud-specific resource availability and preserve gaps; visible grid rows are not proof of complete coverage.
 
 ---
 
@@ -520,7 +462,7 @@ The Entra plane is the **identity authoritative source** for any agent that hold
 ### 5.1 Enterprise applications view
 
 1. Sign in to `https://entra.microsoft.com` as **Entra Global Reader** (read) or **Entra Cloud Application Admin** (PIM-elevated for write).
-2. Navigate to **Identity → Applications → Enterprise applications**.
+2. Navigate to **Entra ID → Enterprise apps**.
 3. Set **Application type = All applications** and **Application status = Any**.
 4. Apply filter: **Application visibility = Hidden** *or* **All** (some agent-class apps register hidden).
 5. Use the search field with the agent name pattern from your WSP. For broad sweep, filter by **Created date** to surface recent installs.
@@ -557,7 +499,7 @@ Click into a Zone 3 agent's enterprise app entry and capture:
 
 App registrations surface developer-authored declarative agents and Custom Engine Agents pre-publish.
 
-1. Navigate to **Identity → Applications → App registrations**.
+1. Navigate to **Entra ID → App registrations**.
 2. Filter by **Created date** and your firm's app-naming convention.
 3. For each agent-class app registration, capture: **Application (client) ID**, **Object ID**, **Supported account types**, **Redirect URIs**, **API permissions**, **Owners**.
 4. Reconcile every developer-side registration with the Enterprise apps tenant view (the tenant install creates the matching Service Principal). Any app registration without a corresponding Enterprise app entry is a pre-publish or ungoverned object — feed to §11 review.
@@ -594,7 +536,7 @@ Where entitled, the Agent 365 Admin Center exposes:
 
 - A consolidated agent list spanning Microsoft 365 Copilot, Copilot Studio, Custom Engine Agents, and (where rolled out) third-party agent integrations.
 - **Governance cards** per agent surfacing Owner, Sensitivity, Risk band, Last activity.
-- An **Ownerless agents** queue analogous to the Manage Ownerless action in Plane 1 — drives the §6 orphan workflow.
+- Ownerless-agent evidence reconciled with the **Agents without owners** review in Plane 1 — drives the §6 orphan workflow; do not presume a universal reassignment dialog.
 - Cross-tenant agent visibility for B2B-collaborated agents (where tenant has B2B agent invitations enabled).
 
 
@@ -815,11 +757,11 @@ This playbook **detects and routes**. The remediation procedure itself lives in 
 
 ### 11.2 Departed-owner portal workflow
 
-1. From Plane 1 (Copilot Hub Inventory → Agents tab), filter Risks = "Owner inactive" or "Ownerless".
+1. From Plane 1 (**Agents → All agents → Registry**), select **Agents without owners** for the documented ownerless shared-agent population; reconcile departed-owner candidates independently.
 2. For each result:
-   - Click **Manage Ownerless** → assign Owner to a named human (the agent's business-line manager or the AI Governance Lead's designate); **never assign to a group**.
-   - The action logs `OwnerChanged` in the Unified Audit Log; capture the entry as evidence.
-3. From Plane 2 (PPAC Manage → Inventory), filter `Owner = System Account` for cross-confirmation.
+   - Use a supported source-specific ownership procedure to assign Owner to a named human (the agent's business-line manager or the AI Governance Lead's designate); **never assign to a group**. Do not assume a native **Manage Ownerless** assignment button.
+   - Capture the actual resulting audit event and operator evidence; do not require an unsubstantiated universal `OwnerChanged` operation.
+3. From Plane 2 (PPAC Manage → Inventory), reconcile actual ownership against directory and source-specific records; do not assume every departing user's resources display `Owner = System Account`.
 4. Update the register row to reflect the new Owner; transition Lifecycle State to **In Review** until the new Owner countersigns the attestation.
 5. **SLA:** Zone 3 = 5 business days from detection to new-Owner sign-off; Zone 2 = 10 business days; Zone 1 = 30 business days.
 
@@ -834,7 +776,7 @@ This playbook **detects and routes**. The remediation procedure itself lives in 
 
 Shadow agents — created in Plane 2 (typically Default environment) but never registered — are the most common Zone-classification bypass.
 
-1. From Plane 2 (PPAC Resources → Copilot agents), filter Environment = Default. Every row is a candidate.
+1. From Plane 2 (PPAC Manage → Copilot Studio), filter by the full Default environment name. Every row is a candidate.
 2. For each candidate, open a Draft register row. Capture the Plane 2 owner as the tentative Owner. Notify the tentative Owner with a 5-business-day cure window.
 3. If the Owner accepts ownership: complete the canonical metadata, classify Zone (most Default-environment agents are Zone 1; any with Highly Confidential grounding must escalate to Zone 3 and migrate to a Managed Environment per Control 2.1).
 4. If the Owner rejects ownership or does not respond within the cure window: transition to **Decommissioned** with the AI Governance Lead's countersignature. The deletion event must be captured in the §13 evidence pack.
@@ -1110,7 +1052,7 @@ Symptom-driven diagnosis lives in [Troubleshooting](troubleshooting.md). Most-co
 - "Plane 2 grid is capped at 500 rows but the tenant has more agents" — Troubleshooting §T-02.
 - "A required registry or identity collection is unavailable" — record the exact source, permission, entitlement and outcome; use reviewed replacement evidence rather than assuming a historical Entra blade exists.
 - "Stitching produces a high `Owner-mismatch` count" — Troubleshooting §T-04.
-- "Manage Ownerless action returns an error" — Troubleshooting §T-05.
+- "Ownerless-agent review or source-specific ownership remediation fails" — Troubleshooting §T-05.
 - "Attestation Owner cannot edit the SharePoint list" — Troubleshooting §T-06.
 - "DAG report shows zero sites with Copilot grounding scope" — Troubleshooting §T-07.
 - "Preservation Lock cannot be applied — error 'records management not enabled'" — Troubleshooting §T-08.
@@ -1128,7 +1070,7 @@ A complete cycle produces (at least) the following artifacts, all hashed and sto
 | 1 | Plane 1 Agents export | `3.1-Plane1-Agents-{date}.csv` | §3.6 |
 | 2 | Plane 1 Declarative agents export | `3.1-Plane1-Declarative-{date}.csv` | §3.3 |
 | 3 | Plane 1 Extensions export | `3.1-Plane1-Extensions-{date}.csv` | §3.4 |
-| 4 | Plane 2 Resources → Copilot agents export | `3.1-Plane2-Resources-{date}.csv` | §4.6 |
+| 4 | Plane 2 Manage → Copilot Studio inventory Download | `3.1-Plane2-Resources-{date}.csv` | §4.6 |
 | 5 | Plane 2 Maker Inventory export | `3.1-Plane2-MakerInventory-{date}.csv` | §4.5 |
 | 6 | Plane 3 Enterprise apps export | `3.1-Plane3-EnterpriseApps-{date}.csv` | §5.5 |
 | 7 | Plane 3 App registrations export (PowerShell-sourced) | `3.1-Plane3-AppRegistrations-{date}.csv` | sibling PowerShell |

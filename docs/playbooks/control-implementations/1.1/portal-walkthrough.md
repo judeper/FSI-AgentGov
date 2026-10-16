@@ -49,7 +49,7 @@ This release-gate model is what makes "restrict publishing by authorization" aud
 ### Step 1: Create Security Groups for Authorized Makers
 
 1. Sign in to the **Microsoft Entra Admin Center** ([https://entra.microsoft.com](https://entra.microsoft.com))
-2. Navigate to **Identity** > **Groups** > **All groups**
+2. Navigate to **Entra ID** > **Groups** > **All groups**
 3. Select **New group**
 4. Configure the group:
    - **Group type**: Security
@@ -235,19 +235,17 @@ For each Copilot Studio agent, configure authentication settings to prevent unau
 
 ### Step 9: Block Unapproved Agents (M365 Admin Center)
 
-The current GA flow is **instance-scoped**, not agent-scoped — you must drill into a specific instance to block:
+Use Microsoft's documented [agent-level Block action](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-actions#block-or-unblock-agents); do not rely on the former **Instance availability** shortcut:
 
 1. Sign in to [M365 Admin Center](https://admin.microsoft.com)
-2. **Copilot** > **Agents & connectors** > **Agents** *(label may also appear as "Agents" alone)*
-3. Select **All agents**
-4. Click into the unapproved agent to open its **Overview**
-5. Open **Instance availability** > **See details**
-6. Select the specific instance (e.g., a tenant-wide deployment, a Teams channel, a SharePoint site)
-7. Select **Block** for that instance
-8. Repeat for each instance where the agent is exposed
-9. Document the block decision (date, who authorized, reason) and notify the agent owner
+2. **Agents** > **All agents** > **Registry**
+3. Select the unapproved agent to open its details pane
+4. Select **Block** beneath the agent name
+5. Confirm **Block agent**, then select **Save**
+6. Test access in every intended host and document the result
+7. Document the block decision (date, who authorized, reason) and notify the agent owner
 
-> **Important:** Selecting "Block" at the agent level without drilling into instances will not have the expected effect in the current UI. Block must be set at the instance level for each surface.
+> **Important:** Host coverage depends on the agent type. Blocking Agent Builder and Copilot Studio agents affects Microsoft Copilot and other supported host products; blocking SharePoint or Microsoft Foundry agents only affects Microsoft Copilot Chat. Do not infer that this action disables the underlying Foundry runtime or all SharePoint access.
 
 ---
 
@@ -272,7 +270,7 @@ The current GA flow is **instance-scoped**, not agent-scoped — you must drill 
 | **Managed Environment sharing limits** | PPAC > Environments > {env} > Settings > Sharing limits > restore prior values from screenshot | Near-immediate |
 | **Agent authentication (Step 6)** | Copilot Studio > Settings > Security > set authentication back to prior mode > **Re-publish the agent** | Only after re-publish |
 | **Generative AI feature toggle (Step 8)** | PPAC > Manage > Tenant settings > restore AI feature toggle to prior state | Up to ~1 hour |
-| **Blocked agents (Step 9)** | M365 Admin Center > Copilot > Agents & connectors > Agents > select agent > Instance availability > unblock the instance | Near-immediate |
+| **Blocked agents (Step 9)** | M365 Admin Center > Agents > All agents > select agent > Unblock > confirm > Save | Verify restored access in each intended host |
 
 !!! warning "Authentication rollback requires re-publish"
     Reverting agent authentication settings (Step 6) does **not** take effect until each affected agent is re-published. Agents in active sessions continue to use the prior authentication mode until their next session start after the re-publish.

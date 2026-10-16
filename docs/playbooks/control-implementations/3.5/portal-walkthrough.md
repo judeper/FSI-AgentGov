@@ -136,9 +136,9 @@ Document this mapping in a Power BI dataset or Dataverse reference table; do not
 
 ### 2.2 Analytics — Copilot Studio messages
 
-1. From PPAC, navigate to **Analytics → Copilot Studio**.
-2. Filter to the rolling 30-day window.
-3. Export to CSV; the export drives the chargeback in §9.
+1. From PPAC, navigate to **Copilot → Copilot Studio** for [documented usage and cost insights](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub), including message consumption. Follow **Licensing** for further consumption details; **Monitor → Products → Copilot Studio** is a separate preview operational-metrics page.
+2. Record the actual reporting period; the Copilot product page documents a 28-day lookback during initial rollout, not a guaranteed rolling 30-day selector.
+3. Reconcile consumption with billing before using it for chargeback in §9. Capture the export options actually available: a CSV export from this page was not verified, and operational session counts must not be substituted for billable consumption.
 
 ### 2.3 Environment naming + ownership audit
 

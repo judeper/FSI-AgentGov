@@ -44,7 +44,7 @@ For each method type the organization supports, repeat TC-1.23-01 substituting t
 
 ### TC-1.23-05 — Sign-in log captures the authentication context
 
-1. After TC-1.23-01, open **Entra → Monitoring → Sign-in logs** and locate the pilot user's most recent interactive sign-in.
+1. After TC-1.23-01, open **Entra → Entra ID → Monitoring & health → Sign-in logs** and locate the pilot user's most recent interactive sign-in.
 2. **Expected:** `Authentication Details` tab shows the requested context (`c1`) and the satisfying methods.
 3. **Expected:** `Conditional Access` tab shows `FSI-StepUp-c1-FinancialTxn` with result *Success*.
 

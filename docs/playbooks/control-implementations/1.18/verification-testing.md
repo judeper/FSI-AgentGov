@@ -67,7 +67,7 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 
 ### Test 4 — Access review cadence
 
-1. Open Entra Admin Center > **Identity governance** > **Access reviews**.
+1. Open Entra Admin Center > **ID Governance** > **Access Reviews**.
 2. Locate reviews for each FSI security group.
 3. Confirm:
    - **Frequency** matches Zone requirement (Zone 3: quarterly; Zone 2: semi-annual; Zone 1: annual).

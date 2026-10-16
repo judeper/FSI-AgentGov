@@ -30,7 +30,7 @@ Record outcomes against the test ID for the audit file.
 ### Test 1 — Knowledge Admin Role Hygiene
 
 1. Sign in to the [Microsoft Entra admin center](https://entra.microsoft.com).
-2. Open **Identity > Roles & admins > Roles & admins** and select **Knowledge Admin**.
+2. Open **Identity > Roles & admins** and select **Knowledge Admin**.
 3. Confirm assignments are named individuals (not groups of broad scope) with a documented business justification.
 4. If Entra PIM is in use, confirm assignments are **eligible** rather than **active** wherever feasible.
 

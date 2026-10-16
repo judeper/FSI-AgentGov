@@ -154,7 +154,7 @@ The following metrics and capabilities are **not available** through native Copi
 | Metric | Availability | Workaround |
 |--------|-------------|------------|
 | **Token / cost per conversation** | Not available | Cannot be measured from Copilot Studio telemetry; no token usage data is emitted |
-| **CSAT score** | Available in Copilot Studio Analytics tab only; **not** sent to Application Insights | Implement a custom survey topic that logs satisfaction scores to Application Insights via a custom event |
+| **CSAT score** | Native chart: Copilot Studio **Monitor > Effectiveness**; **not** sent to Application Insights | Implement a custom survey topic that logs satisfaction scores to Application Insights via a custom event |
 | **Hallucination detection** | Not native | Requires Azure AI Evaluation SDK or custom implementation outside of Application Insights |
 | **Grounding accuracy** | Not native | Requires custom citation validation logic against knowledge source content |
 | **RAI content filter details** | Limited | `GenerativeAnswers` events may indicate content filtering occurred, but detailed filter reasons require Purview Audit log analysis |

@@ -18,7 +18,7 @@ This guide provides end-to-end deployment instructions for the Conditional Acces
 ### Step 1: Create Entra ID App Registration
 
 1. Navigate to [Microsoft Entra Admin Center](https://entra.microsoft.com)
-2. Go to **Identity** > **Applications** > **App registrations**
+2. Go to **Entra ID** > **App registrations**
 3. Click **New registration**
 4. Configure:
    - **Name:** `FSI-CAA-Automation`

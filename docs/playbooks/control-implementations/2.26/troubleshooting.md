@@ -473,7 +473,7 @@ KQL-03 (sponsor reassignment) and KQL-04 (lifecycle task failures) — both for 
 
 1. Confirm the workflow has fired (`Get-Agt226LifecycleStatus`). If not, jump to [§6 LIFECYCLE-NOFIRE](#6-pillar-lifecycle-nofire).
 2. If the workflow ran but produced no agent-task action, inspect `executionConditions` — the scope query must include the agents owned by the leaver. The default Microsoft template scopes by sponsor UPN; custom templates may scope differently.
-3. If RC-D (manager null/disabled), have HR populate or correct the manager attribute, then **re-trigger the workflow on demand** for the affected user via Entra → Identity Governance → Lifecycle Workflows → "Run on demand."
+3. If RC-D (manager null/disabled), have HR populate or correct the manager attribute, then **re-trigger the workflow on demand** for the affected user via Entra → ID Governance → Lifecycle workflows → "Run on demand."
 4. If RC-F (no HR record), set `employeeLeaveDateTime` manually on the user record (Entra Identity Governance Admin) only with documented HR / People-Ops approval. This is an out-of-band action; preserve the approval record as E-09.
 
 **For P4-S3 (agents disabled — SEV-1):**
@@ -1112,5 +1112,4 @@ For each pillar §2–§9, the verification-testing pack ([`./verification-testi
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
 

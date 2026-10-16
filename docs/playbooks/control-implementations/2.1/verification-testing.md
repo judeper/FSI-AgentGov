@@ -738,12 +738,12 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Steps
 
-1. PPAC **Environments → Analytics → Usage insights**: confirm a digest dated within the last 7 days and capture screenshot.
-2. Confirm digest recipients via **Settings → Notifications → Weekly digest** matches the reference list.
+1. In the recipient mailbox, confirm the Managed Environments weekly digest was delivered within the last 7 days and capture its date and environment coverage. In PPAC → **Manage → Environments → [environment] → Edit Managed Environments → Usage insights**, confirm digest inclusion.
+2. Confirm additional digest recipients via **Settings → Weekly digest** against the reference list, accounting for the documented default admin recipients.
 
 #### Expected
 
-- PPAC digest exists within the last 7 days; recipient list matches.
+- Delivered weekly email digest exists within the last 7 days; configured additional recipients and default admin recipients match the expected delivery coverage.
 
 #### Evidence Capture
 

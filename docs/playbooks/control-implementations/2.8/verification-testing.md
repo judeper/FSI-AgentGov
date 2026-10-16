@@ -10,7 +10,7 @@
 
 ### Test 1 — Security groups exist with correct role-assignable flag
 
-1. Open **Entra Admin Center → Identity → Groups → All groups**.
+1. Open **Entra Admin Center → Entra ID → Groups → All groups**.
 2. Search `SG-Agent-`.
 3. Open each group and inspect **Properties → Microsoft Entra roles can be assigned to the group**.
 4. **Expected:** All 5 groups present. Approvers, Release Managers, and Platform Admins show **Yes**; Developers and Reviewers show **No**.
@@ -36,7 +36,7 @@
 
 ### Test 5 — Access Reviews are scheduled with auto-apply
 
-1. Open **Identity governance → Access reviews → Reviews**.
+1. Open **ID Governance → Access Reviews → Reviews**.
 2. **Expected:** Four series visible (Zone 3 privileged monthly, Zone 3 approver/release quarterly, Zone 2 maker quarterly, Zone 1 broad maker annual). Each shows **Auto apply results = Enabled** and a non-empty reviewer of record.
 
 ### Test 6 — Copilot Studio author/admin separation
@@ -85,7 +85,7 @@ Store under `maintainers-local/tenant-evidence/2.8/` (gitignored):
 - [ ] Screenshot — Each Dataverse environment **Security roles** view with team bindings
 - [ ] Screenshot — PIM → Microsoft Entra roles → **Settings** for Power Platform Administrator
 - [ ] Screenshot — PIM → Groups → onboarded list and per-group settings
-- [ ] Screenshot — Identity governance → Access reviews schedule
+- [ ] Screenshot — ID Governance → Access Reviews schedule
 - [ ] Screenshot — Power Automate flow run history showing SoD reject branch
 - [ ] Screenshot — Conditional Access policy CA-Agent-Privileged-Path summary
 - [ ] Export — `SoD-Violations-*.csv` (Script 2)

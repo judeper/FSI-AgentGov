@@ -507,7 +507,7 @@ Search-UnifiedAuditLog -StartDate <start> -EndDate <end> -UserIds <upn> `
 # AppHost values include Word, Excel, PowerPoint, Teams, Outlook, BizChat, M365App, etc.
 
 # 2. Copilot Studio agent enumeration via Power Platform.
-# Power Platform admin center → Environments → <env> → Resources → Copilot Studio agents.
+# Power Platform admin center → Manage → Copilot Studio; filter by the full environment name.
 # Capture environment ID; pull Dataverse audit for agent runs separately.
 ```
 

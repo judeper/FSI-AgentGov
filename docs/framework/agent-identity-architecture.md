@@ -187,7 +187,7 @@ When a sponsor leaves the organization or changes roles:
 
 **Configuration Steps:**
 
-1. Navigate to **Entra ID** > **Identity Governance** > **Lifecycle Workflows**
+1. Navigate to **ID Governance** > **Lifecycle workflows**
 2. Create workflow with trigger: "Employee leaves organization"
 3. Add condition: User is sponsor of an agent identity (or identities)
 4. Configure tasks: notification to backup sponsor → escalation to manager after 7 days → suspend agent after 14 days
@@ -685,9 +685,9 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 
 **Key Actions:**
 
-1. **Enable Entra Agent ID** in your tenant
-   - Navigate to Entra admin center > Identity Governance > Agent ID
-   - Enable agent identities (verify the exact admin-center toggle name against current Microsoft Learn)
+1. **Review Entra Agent ID readiness** in your tenant
+   - Navigate to Entra admin center > **Entra ID > Agents > Agent identities**
+   - Follow the [current agent-list procedure](https://learn.microsoft.com/en-us/entra/agent-id/agent-lists); opening the list is not a universal enable switch
    - Configure tenant-wide sponsorship requirements
 
 2. **Assign human sponsors to existing agents**
@@ -847,7 +847,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 #### Foundation Actions (Complete these before piloting production migration)
 
 - [ ] **Identity Audit:** Inventory all existing agents across platforms (PPAC, M365 Admin Center, Azure Portal, SharePoint Admin Center)
-- [ ] **Enable Entra Agent ID** in your tenant (Entra admin center > Identity Governance > Agent ID)
+- [ ] **Review Entra Agent ID readiness** in your tenant (Entra admin center > Entra ID > Agents > Agent identities); validate capability-specific setup rather than assume a universal enable switch
 - [ ] **Assign sponsors to existing agents:**
   - [ ] Zone 1: Agents sponsor themselves
   - [ ] Zone 2: Manager approval required for sponsorship

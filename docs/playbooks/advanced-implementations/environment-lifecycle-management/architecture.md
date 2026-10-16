@@ -317,7 +317,7 @@ $result.value.roleprivileges_association |
 
 #### Step 1: Register Application in Entra ID
 
-1. Navigate to **Microsoft Entra admin center** > **Applications** > **App registrations**
+1. Navigate to **Microsoft Entra admin center** > **Entra ID** > **App registrations**
 2. Select **New registration**
 3. Configure:
    - **Name:** `ELM-Provisioning-ServicePrincipal`

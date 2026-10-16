@@ -233,7 +233,7 @@ if ($failures -gt 0) { exit 1 } else { exit 0 }
 | SSPM-1.1-03 | Authentication enforcement | Set to "Always" | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-04 | Sharing scope | Not set to "Anyone with the link" | Copilot Studio > Agent > **…** > **Share** | Screenshot |
 | SSPM-1.1-05 | Generative AI publishing | AI / generative-AI publishing setting is **Off** (or restricted to specific environments) at tenant level; exception documented if On | PPAC > Manage > Tenant settings > AI features (label may vary by rollout) | JSON export of `Get-TenantSettings` with the AI-feature flag captured + SHA-256 |
-| SSPM-1.1-06 | Unapproved agent blocking | Unapproved Copilot Studio agents are blocked at the **instance level** in M365 Admin Center per Portal Walkthrough Step 9. The Teams Admin Center blocking surface is **distinct** from M365 Admin Center agent block — capture whichever applies to the agent's distribution surface. | M365 Admin Center > Copilot > Agents & connectors > Agents > [agent] > Overview > Instance availability **AND/OR** Teams Admin Center > Manage Apps for Teams-distributed agents | Screenshot of Block status per instance + agent ID + UTC timestamp |
+| SSPM-1.1-06 | Unapproved agent blocking | Unapproved Copilot Studio agents are blocked using the documented **Block** action in M365 Admin Center per Portal Walkthrough Step 9. The Teams Admin Center blocking surface is **distinct** from M365 Admin Center agent block — capture whichever applies to the agent's distribution surface. | M365 Admin Center > Agents > All agents > [agent] > Block > confirm > Save **AND/OR** Teams Admin Center > Manage Apps for Teams-distributed agents | Screenshot of blocked status + agent ID + UTC timestamp; test access in each intended host |
 
 ### Test Procedures
 
@@ -277,14 +277,14 @@ if ($failures -gt 0) { exit 1 } else { exit 0 }
 
 **Primary path — M365 Admin Center (cross-surface block):**
 
-1. Navigate to **M365 Admin Center** > **Copilot** > **Agents & connectors** > **Agents**
-2. Select **All agents**, then click into the agent under review to open its Overview
-3. Open **Instance availability** > **See details** to view all deployed instances
-4. For each instance, confirm the status shows **Blocked**
-5. **Pass criteria:** All unapproved agents show "Blocked" status at the instance level in M365 Admin Center; evidence covers all M365 surfaces the agent is deployed to (not Teams only)
-6. **Evidence:** Screenshot of the Instance availability panel showing "Blocked" status, agent ID, and UTC timestamp
+1. Navigate to **M365 Admin Center** > **Agents** > **All agents** > **Registry**
+2. Select the agent under review to open its details pane
+3. Confirm its blocked status using the documented agent-level **Block** / **Unblock** controls
+4. Test access in each intended host; record the agent type and host-coverage limitations
+5. **Pass criteria:** All unapproved agents are blocked in the applicable Microsoft 365 host surfaces; separately document any underlying runtime or access surface not covered by this action
+6. **Evidence:** Screenshot of blocked status, agent ID, UTC timestamp, and recorded access-test outcomes
 
-> *(Exact menu labels in the Microsoft 365 admin center evolve — verify the current path in your tenant.)*
+> [Microsoft's lifecycle procedure](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-actions#block-or-unblock-agents) distinguishes host coverage: SharePoint and Microsoft Foundry agent blocking only affects Microsoft Copilot Chat. This documentation review is not a tenant test.
 
 **Secondary path — Teams Admin Center (for Teams-distributed agents only):**
 

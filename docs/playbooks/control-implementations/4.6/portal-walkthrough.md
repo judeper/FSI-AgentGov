@@ -128,7 +128,7 @@ Record PIM activations in the change record and include the activation timestamp
 | --- | --- | --- |
 | DAG reports enabled and at least one historical run exists | `SPAC → Reports → Data access governance` shows generated reports for at least the last 30 days. | Visual check; capture screenshot E4. |
 | Unified Audit Log (UAL) ingestion confirmed | UAL has been on for ≥ 90 days (or since tenant creation if newer). | `Purview → Audit → Search` returns results for `RestrictContentDiscoverabilityEnabled` (or any common operation). |
-| Sensitivity labels published | Required for OneDrive compensating control and for cross‑reference to Control 1.5. | `Purview → Information protection → Labels` shows ≥ 1 published label. |
+| Sensitivity labels published | Required for OneDrive compensating control and for cross‑reference to Control 1.5. | `Purview → Information Protection → Sensitivity labels` shows ≥ 1 published label. |
 
 ### 2.4 Test fixtures gate (named identities, sites, agents)
 

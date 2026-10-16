@@ -142,7 +142,7 @@ Cross-link: [Control 2.25 — Agent 365 Admin Center Governance Console](../../.
 
 The Agent Card is the firm's **authoritative model inventory record** for each in-scope agent. The SharePoint list is governed by Purview retention so that inventory snapshots are retained alongside validation memos.
 
-**Portal path:** [SharePoint admin center](https://admin.microsoft.com/sharepoint) → create governed site → **Site contents → New → List**.
+**Portal path:** [SharePoint admin center](https://go.microsoft.com/fwlink/?linkid=2185219) → create governed site → **Site contents → New → List**.
 
 1. Sign in as **SharePoint Admin** (site provisioning) and **SharePoint Site Owner** (list configuration).
 2. Create a site named (e.g.) `MRM-AgentInventory` in a site collection covered by a Purview retention label that matches the firm's model-records retention requirement (commonly life-of-model + 7 years, aligning with SOX §802 and SEC 17a-4 minimums).
@@ -179,10 +179,10 @@ SR 26-2 (formerly SR 11-7) ongoing monitoring asks whether the model continues t
 
 ### 2.1 Copilot Studio Analytics — summary and event-trigger reports
 
-**Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **Analytics**.
+**Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select a standard-harness agent → **Monitor** on the top menu bar.
 
 1. Sign in as **Power Platform Admin** or **Environment Admin** for the environment hosting the agent.
-2. Open **Analytics → Summary** and review session counts, resolution rate, escalation rate, and customer satisfaction (where surveys are configured).
+2. Open **Monitor** and review **Overview** and **Effectiveness** for available session, conversation-outcome, and customer-satisfaction metrics (where surveys are configured).
 3. Open the per-agent analytics tabs that apply (conversational analytics, autonomous-agent / event-trigger analytics where the agent is configured for event triggers). The exact tab labels evolve — anchor on the page title and consult [Microsoft Learn — Copilot Studio analytics](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview). *(TODO: verify slug for current release wave.)*
 4. Define **monitoring thresholds** per agent tier in the firm's runbook. Suggested starting thresholds (the MRM Committee owns the final values):
 
@@ -210,7 +210,7 @@ The Model Risk Manager, Internal Audit, and the MRM Committee secretariat typica
 
 1. Sign in as the **agent owner** (or a Co-owner authorized to share).
 2. In the Share dialog, search for the named validator individual.
-3. Set the role to **Analytics viewer**. This grants read-only access to the agent's Analytics page (Summary, Sessions, Topics, CSAT, autonomous trigger analytics where applicable) without conferring permission to modify topics, knowledge, actions, publish settings, or sharing.
+3. Set the role to **Analytics viewer**. This grants read-only analytics access without conferring permission to modify topics, knowledge, actions, publish settings, or sharing. Open **Monitor** in the current standard experience; the sharing article still calls this the **Analytics** page. Use the sections actually available for the selected agent rather than assume separate legacy Sessions, Topics, or autonomous-trigger tabs.
 4. Optionally also assign **Bot Transcript Viewer** to the same individual when conversation transcripts are needed as outcomes-analysis evidence (§3).
 5. Save and capture a screenshot of the Share dialog as evidence in the validation work-paper.
 

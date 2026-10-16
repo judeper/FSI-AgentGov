@@ -1,5 +1,8 @@
 # Control 2.24 — Troubleshooting Playbook
 
+!!! warning "Do not diagnose a missing legacy panel as a licensing failure"
+    The [portal walkthrough](portal-walkthrough.md) identifies the universal **Copilot → Settings → Agents & connectors** capability-card panel as **unconfirmed** against current Microsoft documentation. For scenarios below that depend on that panel, first establish the current feature-specific procedure. **Agents → Settings** and **Agents → All agents → Registry** serve different purposes; neither is a blanket replacement for every legacy toggle. Do not purchase licenses or change production settings solely to make an unverified card appear. No tenant UI testing was performed in this documentation review.
+
 **Companion to:** [Control 2.24 — Agent Feature Enablement and Restriction Governance](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md)
 
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)

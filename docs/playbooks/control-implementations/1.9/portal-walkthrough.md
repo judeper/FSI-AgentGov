@@ -43,7 +43,7 @@ All steps below start from one of these entry points:
 ## Step 1 — Create retention labels for agent data
 
 **Path:** Microsoft Purview > **Solutions** > **Records management** > **File plan** > **+ Create a label**
-*(For non-record labels, use Purview > **Solutions** > **Data lifecycle management** > **Labels** > **+ Create a label**.)*
+*(For non-record labels, use Purview > **Solutions** > **Data lifecycle management** > **Retention labels** > **+ Create a label**.)*
 
 ### 1.1 Label: agent communications (3-year, communications classification)
 

@@ -1128,18 +1128,17 @@ Get-DlpPolicy | Where-Object { $_.environments.name -contains '<env-guid>' -or $
 
 ### Scenario 21 — Managed Environments enabled but usage insights show no data
 
-**Symptom.** A Power Platform Admin enables Managed Environments on a Zone 2 environment and waits for usage-insights dashboards (PPAC → Analytics → environment) to populate. After 14 days, the dashboards remain empty: zero apps, zero flows, zero makers reported even though the environment is in active use.
+**Symptom.** A Power Platform Admin enables Managed Environments on a Zone 2 environment but receives no usage-insights digest. The former PPAC → Analytics → environment dashboard shortcut is not the documented delivery surface: [usage insights](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-usage-insights) are delivered in a weekly email.
 
 **Likely Cause (ranked).**
-1. The environment lacks the **Dataverse** that usage insights depend on. Even when ME does not strictly require Dataverse for all features, certain analytics surfaces require it.
-2. Telemetry ingestion is throttled tenant-wide (rare, transient).
-3. The environment is in a region whose analytics pipeline has a known delay (verify Microsoft Learn).
-4. Usage insights respect the environment's **data residency** — if cross-region replication is partly disabled, the dashboard host may not see the source data.
-5. The maker portal cache is stale; sign out / sign in or use a private browsing session.
+1. Tenant-level analytics is not enabled.
+2. The managed environment is excluded from the weekly digest; excluding all managed environments stops the digest.
+3. Expected recipients are not covered by the documented default admin roles or additional-recipient configuration, or delivery is blocked.
+4. The environment is in a sovereign cloud where usage insights are not available.
 
 **Diagnostic Steps (Portal).**
-1. PPAC → environment → confirm Dataverse linkage (Settings → Resources → Dataverse).
-2. PPAC → **Analytics** → environment → expand "Last refreshed" timestamp.
+1. PPAC → **Manage → Environments → [environment] → Edit Managed Environments → Usage insights**: confirm digest inclusion and the tenant-analytics prerequisite.
+2. Review **Settings → Weekly digest**, the intended recipient mailbox, and mail-delivery evidence; do not look for a dashboard "Last refreshed" field.
 3. M365 Admin Center → Health → search for analytics pipeline incidents.
 
 **Diagnostic Steps (PowerShell).**
@@ -1151,14 +1150,13 @@ $env.Properties.governanceConfiguration.protectionLevel
 ```
 
 **Resolution.**
-1. If no Dataverse: provision Dataverse for the environment via PPAC. Note: this is irreversible without recreating the environment; obtain change approval per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
-2. If throttled / regional delay: wait an additional 7 days; if still empty, open a Microsoft support case.
-3. If cache: clear browser cache or test in private browsing.
-4. While the dashboards are unavailable, derive equivalent usage statistics via PowerShell inventory (`Get-AdminFlow`, `Get-AdminPowerApp`, `Get-AdminFlowRun`) and produce a custom report.
+1. Correct the documented analytics, environment-inclusion, and recipient prerequisites under an approved change. Do not provision Dataverse solely because a weekly digest is missing.
+2. Investigate mail delivery and service health; open a Microsoft support case with the actual configuration and delivery evidence if needed.
+3. Where the feature is unavailable, use separately collected inventory and activity evidence; document its coverage rather than claim parity with the digest.
 
 **Prevention.**
-- Provision Dataverse for every Zone 2 / Zone 3 environment at creation time, not retroactively.
-- Schedule a monthly inventory job that produces the same fields the PPAC analytics page would, regardless of whether the dashboard is populated; serve audit requests from this archive.
+- Record digest eligibility, inclusion, and recipients during managed-environment setup.
+- Preserve a separately collected monthly inventory with its source and coverage; do not infer "no activity" from absent digest delivery.
 
 **Regulatory-Evidence Implications.** Usage insights are an evidence source for FINRA Rule 3110 supervision (who is doing what in the environment). If the dashboards are empty, the firm should not assume "no activity" — they should derive activity from PowerShell inventory and document the data source. Retain inventory exports per the firm's standard 7-year retention.
 

@@ -42,7 +42,7 @@ Financial services organizations face continuous configuration drift risk across
 | 3 | Authentication prompt timing | Copilot Studio > Agent > Settings > Security ([Configure authentication options](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configuration-end-user-authentication)) | Validate the current prompt-timing label in your tenant before attesting; do not rely on legacy **Always / As Needed** wording | High | Manual Attestation |
 | 4 | Agent sharing scope | Copilot Studio > Agent > Channels ([Share an agent in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots)) | Share only with Copilot Readers or approved security groups (not **Anyone**) | High | Semi-Automated |
 | 5 | Publish bots with AI features | PPAC > Tenant Settings | Disabled (until governance review) | High | Automated |
-| 6 | Unapproved shared agents blocked | Microsoft 365 admin center > Copilot > Agents ([Manage agents in M365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps)) | Blocked | High | Semi-Automated |
+| 6 | Unapproved shared agents blocked | Microsoft 365 admin center > Agents > All agents > Registry ([Manage agents in M365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps)) | Blocked | High | Semi-Automated |
 
 !!! tip "Automated Validation Available"
     Items 1–6 can now be validated using `Test-AgentAuthConfiguration.ps1`, which reads per-agent authentication configuration via BAP/PPAC REST endpoints and validates all 6 SSPM items with zone-based logic, drift detection, and SHA-256 evidence export.

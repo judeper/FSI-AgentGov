@@ -65,7 +65,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 1. From Power Platform Admin Center, capture the Managed Environment licensing status: **Manage > Tenant settings > Managed Environment**.
 2. From the Microsoft 365 admin center > Billing > Licenses, export the SKU assignments to CSV.
 3. From the Microsoft Purview portal, navigate to **DSPM for AI > Get started** and confirm that signal collection is enabled and reporting.
-4. From the Microsoft Entra admin center, navigate to **Identity Governance > Access reviews** and confirm the feature is licensed (P2 or Microsoft Entra ID Governance SKU).
+4. From the Microsoft Entra admin center, navigate to **ID Governance > Access Reviews** and confirm the feature is licensed (P2 or Microsoft Entra ID Governance SKU).
 
 **Expected.** All four feature areas show entitled status and the SKU export shows at least one assignment of the required SKU(s) per zone test user.
 

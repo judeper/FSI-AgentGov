@@ -45,7 +45,7 @@
 | 9 | An AI Administrator who can sign in to the Entra portal is denied at the Microsoft Agent 365 Admin Center (`Sorry, access denied. Conditional Access policy required.`) after a CA tenant flip | [§9](#9-microsoft-agent-365-admin-center-access-denied-after-ca-policy-flip) |
 | 10 | A user was disabled or had their refresh tokens revoked, but is still seen accessing Copilot, SharePoint, or a Zone 3 agent for >30 minutes after revocation | [§10](#10-continuous-access-evaluation-not-propagating-revocations) |
 | 11 | A user's sign-in shows `ConditionalAccessStatus = notApplied` or two CA policies producing contradictory results; the audit shows multiple `Source = Microsoft` policies overlapping a custom policy | [§11](#11-conflicting-conditional-access-policies-producing-inconclusive-or-contradictory-results) |
-| 12 | Authentication Strengths blade is not visible under **Entra → Protection → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§12](#12-authentication-strengths-ui-not-visible) |
+| 12 | Authentication Strengths blade is not visible under **Entra → Entra ID → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§12](#12-authentication-strengths-ui-not-visible) |
 | 13 | Managed-identity token failure incorrectly attributed to traditional workload CA; establish the actual failing control | [§13](#13-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
 | 14 | Copilot Studio publish action returns `conditional access required` even though the maker has registered a passkey and signed in successfully ten minutes earlier | [§14](#14-copilot-studio-publish-fails-with-conditional-access-required-despite-registered-passkey) |
 | 15 | An Entra Agent ID preview workload identity for a newly-deployed Copilot Studio agent does not appear in CA Workload Identities policy targeting pickers | [§15](#15-entra-agent-id-preview-service-principals-not-appearing-in-conditional-access-targeting) |
@@ -80,10 +80,10 @@ The user reports the same key worked on a personal account or in a different ten
 
 **Portal path.**
 
-1. **Entra admin center → Protection → Authentication methods → Policies → FIDO2 security key**. Confirm `Enable` is on, the user is in the **Include** scope (directly or via group), and not in the **Exclude** scope.
+1. **Entra admin center → Entra ID → Security → Authentication methods → Policies → Passkey (FIDO2)**. Confirm `Enable` is on, the user is in the **Include** scope (directly or via group), and not in the **Exclude** scope.
 2. Open the **Configure** tab. Note `Allow self-service set up` (must be **Yes** for end-user registration), `Enforce attestation`, `Enforce key restrictions`, `Restrict specific keys` (Allow / Block), and the AAGUID list.
 3. **Entra admin center → Users → {user} → Authentication methods**. Confirm no existing FIDO2 entry from a previous registration attempt that is now stuck.
-4. **Entra admin center → Monitoring → Audit logs**. Filter `Service = Authentication Methods`, `Activity = User registered security info` and `Activity = Update authentication method`. The audit log surfaces the AAGUID and the failure reason.
+4. **Entra admin center → Entra ID → Monitoring & health → Audit logs**. Filter `Service = Authentication Methods`, `Activity = User registered security info` and `Activity = Update authentication method`. The audit log surfaces the AAGUID and the failure reason.
 
 **Microsoft Graph (PowerShell SDK v2+).**
 
@@ -186,8 +186,8 @@ A CA policy authored in **report-only** mode (`enabledForReportingButNotEnforced
 
 **Portal path.**
 
-1. **Entra → Protection → Conditional Access → Insights and reporting**. Filter to the policy ID, time range = last 7 days. Note the top three failure reasons in the **"Would have blocked" by reason** breakdown.
-2. **Entra → Protection → Conditional Access → Policies → {policy} → View policy impact**. Cross-check the user-count per Include/Exclude resolution against the expected maker population.
+1. **Entra → Entra ID → Conditional Access → Insights and reporting**. Filter to the policy ID, time range = last 7 days. Note the top three failure reasons in the **"Would have blocked" by reason** breakdown.
+2. **Entra → Entra ID → Conditional Access → Policies → {policy} → View policy impact**. Cross-check the user-count per Include/Exclude resolution against the expected maker population.
 3. **Entra → Sign-in logs → Conditional Access tab**. Filter `ConditionalAccessStatus = reportOnlyFailure` and the policy id. Inspect a representative sample of 10–20 events for `conditionsNotSatisfied`.
 
 **KQL.**
@@ -233,7 +233,7 @@ $pol.conditions.locations | ConvertTo-Json -Depth 10
 
 > **Change-control gate.** Promoting any policy from report-only to `enabled` requires a change record with attached What-If output, the Insights workbook 7-day snapshot, the maker-group membership snapshot, and the named-locations export. Two-admin co-sign is mandatory.
 
-1. **Tighten the included population.** If group membership has drifted, re-scope the policy to a curated `Copilot-Makers-Approved` group sourced from the Agent Registry (Control 1.2) rather than from a license SKU. Run an access review (Entra → Identity Governance → Access reviews) before promotion.
+1. **Tighten the included population.** If group membership has drifted, re-scope the policy to a curated `Copilot-Makers-Approved` group sourced from the Agent Registry (Control 1.2) rather than from a license SKU. Run an access review (Entra → ID Governance → Access Reviews) before promotion.
 2. **Refresh named locations.** Pull current corporate egress IP ranges from Networking; rebuild the `Trusted-Egress-Corp` named location object. Verify split-tunnel and VPN populations either egress through the trusted ranges or are explicitly excluded with a documented compensating control (e.g., compliant-device requirement plus risk-based sign-in policy).
 3. **Pre-remediate device compliance.** Run an Intune compliance dashboard report for the maker group; for the unenrolled / non-compliant subset, run an enrollment campaign **before** promoting the CA policy. Do not promote a compliant-device policy when >5% of the included scope cannot satisfy it within 24 hours.
 4. **Restore exclusion groups.** Re-establish the exclusion group (e.g., `CA-Exclude-Maker-Pilot`) with an active access review; re-add the documented exception members. Each exclusion must have a Risk Register entry and an annual CISO sign-off.
@@ -289,7 +289,7 @@ A Token Protection (sign-in token binding) CA policy promoted from preview to a 
 **Portal path.**
 
 1. **Entra → Sign-in logs**. Filter `Status = Failure` and `Conditional Access = Failure` for the affected user; expand the failure detail to confirm the failing policy is the Token Protection policy and the `clientAppUsed` / `browser` field.
-2. **Entra → Protection → Conditional Access → Policies → {Token Protection policy}**. Verify Session control "Require token protection for sign-in sessions" is on; verify Conditions → Client apps; verify Conditions → Device platforms.
+2. **Entra → Entra ID → Conditional Access → Policies → {Token Protection policy}**. Verify Session control "Require token protection for sign-in sessions" is on; verify Conditions → Client apps; verify Conditions → Device platforms.
 3. Compare against Microsoft's published support matrix for Token Protection (linked from the policy authoring blade as "Learn more").
 
 **KQL.**
@@ -370,9 +370,9 @@ A scheduled batch — Logic App, Function App, Azure Automation runbook, custom 
 
 **Portal path.**
 
-1. **Entra → Monitoring → Sign-in logs → Service principal sign-ins** tab (NOT the Users tab). Filter to the SP `appId` and the failure window.
-2. **Entra → Protection → Conditional Access → Policies**. Filter `Workload identities`. Inspect the policies that target the SP's `appId` directly or via group.
-3. **Entra → Identity → Applications → Enterprise applications → {SP}**. Confirm the SP's `appId`, owner, and credentials (client secret vs certificate vs federated credential).
+1. **Entra → Entra ID → Monitoring & health → Sign-in logs → Service principal sign-ins** tab (NOT the Users tab). Filter to the SP `appId` and the failure window.
+2. **Entra → Entra ID → Conditional Access → Policies**. Filter `Workload identities`. Inspect the policies that target the SP's `appId` directly or via group.
+3. **Entra → Entra ID → Enterprise apps → {SP}**. Confirm the SP's `appId`, owner, and credentials (client secret vs certificate vs federated credential).
 
 **KQL — use the correct table.**
 
@@ -467,7 +467,7 @@ Or — worse — a live SEV-1 is in flight and the BG account cannot be invoked 
 
 1. **Entra → Users → {BG account}** — confirm it exists, is enabled, and has a registered FIDO2 method (Authentication methods tab).
 2. **Entra → Sign-in logs** — pull the BG account's sign-in attempts for the test window; confirm `ResultType` and `ConditionalAccessStatus`.
-3. **Entra → Protection → Conditional Access → Policies** — for each policy, confirm the BG account (and its containing exclusion group) is in the Exclude scope.
+3. **Entra → Entra ID → Conditional Access → Policies** — for each policy, confirm the BG account (and its containing exclusion group) is in the Exclude scope.
 4. Physical safe inspection — the FIDO2 key is in the safe; the safe access log shows the expected custodians.
 
 **KQL.**
@@ -539,9 +539,9 @@ A privileged user attempts to activate an eligible PIM role (e.g., Privileged Ro
 **Portal path.**
 
 1. **Entra → Users → {user} → Authentication methods.** Confirm registered methods. Phishing-resistant = FIDO2 security key, Windows Hello for Business, or certificate-based authentication.
-2. **Entra → Protection → Authentication methods → Policies.** Confirm the user is in scope of a policy that **enables** FIDO2 (or WHfB / CBA) for them.
-3. **Entra → Identity Governance → PIM → {role} → Settings.** Confirm the activation requires "Authentication context" `c1` (or whichever AC binds to phishing-resistant in your tenant).
-4. **Entra → Protection → Conditional Access → Authentication contexts → c1 → bound policy.** Confirm the grant control is the named Authentication Strength `Phishing-resistant MFA`.
+2. **Entra → Entra ID → Security → Authentication methods → Policies.** Confirm the user is in scope of the applicable supported authentication-method policy; the FIDO2 policy is named **Passkey (FIDO2)**.
+3. **Entra → ID Governance → Privileged Identity Management → {role} → Settings.** Confirm the activation requires "Authentication context" `c1` (or whichever AC binds to phishing-resistant in your tenant).
+4. **Entra → Entra ID → Conditional Access → Authentication contexts → c1 → bound policy.** Confirm the grant control is the named Authentication Strength `Phishing-resistant MFA`.
 
 **KQL.**
 
@@ -662,7 +662,7 @@ The Sentinel **Conditional Access Insights and Reporting** workbook (or the firm
 
 **Portal path.**
 
-1. **Entra → Monitoring → Diagnostic settings.** Confirm a setting exists exporting all five log categories above to the target workspace.
+1. **Entra → Entra ID → Monitoring & health → Diagnostic settings.** Confirm a setting exists exporting all five log categories above to the target workspace.
 2. **Sentinel → Data connectors → Microsoft Entra ID.** Confirm "Connected" status and the last data received timestamp.
 3. **Log Analytics workspace → Usage and estimated costs → Data retention.** Confirm retention ≥ workbook lookback.
 4. **Workbook → Edit → check the workspace parameter** at the top of the workbook.
@@ -848,7 +848,7 @@ SigninLogs
 
 ### Symptom
 
-The Authentication Policy Admin opens **Entra → Protection → Authentication methods → Authentication strengths** and the blade is missing, the "Phishing-resistant MFA" built-in strength is not visible, or attempts to bind a strength to a CA grant control fail with "feature not available".
+The Authentication Policy Admin opens **Entra → Entra ID → Authentication methods → Authentication strengths** and the blade is missing, the "Phishing-resistant MFA" built-in strength is not visible, or attempts to bind a strength to a CA grant control fail with "feature not available".
 
 ### Likely Cause (frequency-ordered)
 

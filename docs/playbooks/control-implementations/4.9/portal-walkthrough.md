@@ -30,16 +30,16 @@ This step produces the complete list of agents that require Control 4.9 governan
 ### Step 1.1 — Open the All Agents Page
 
 1. Navigate to the **Microsoft 365 Admin Center**: [https://admin.microsoft.com](https://admin.microsoft.com)
-2. In the left navigation, select **Copilot** (you may need to expand the navigation panel).
-3. Select **Agents**.
-4. Select **All Agents** from the sub-navigation.
+2. In the left navigation, select **Agents** (you may need to expand the navigation panel).
+3. Select **All agents**.
+4. Open **Registry**.
 
-> Portal path: **M365 Admin Center › Copilot › Agents › All Agents**
+> Portal path: **M365 Admin Center › Agents › All agents › Registry**
 
 ### Step 1.2 — Apply the Embedded Files Filter
 
 1. On the All Agents page, locate the **Filter** control above the agent list.
-2. Click **Filter** and select or search for the **"Embedded files"** filter option.
+2. In the [documented Registry filters](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry), select **Data source → Embedded knowledge**. References below to the "embedded files filter" mean this filter, not a separate literal option named Embedded files.
 3. Apply the filter.
 
 The page now displays only agents that have at least one embedded file knowledge source.
@@ -49,9 +49,9 @@ The page now displays only agents that have at least one embedded file knowledge
 
 ### Step 1.3 — Export the Agent List for Audit Records
 
-1. Use the **Export** option on the All Agents page (if available in your tenant) to export the filtered list to CSV.
-2. If export is not available, manually record: Agent Name, Agent Owner, Creation Date, Last Modified Date, for each agent in the filtered view.
-3. Save the exported file as: `embedded-file-agents-audit-YYYY-QN.csv` (e.g., `embedded-file-agents-audit-2026-Q1.csv`).
+1. Select **Export to Excel** and choose **Filtered agents** as the scope, following the [Registry export procedure](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry#export-to-excel-for-users-and-agents).
+2. Preserve the original workbook and actual exported fields. If export is unavailable, document the gap and manually record the available agent identity and ownership evidence; do not claim an exported field that was not present.
+3. If a CSV is needed for reconciliation, explicitly convert a copy and save it as `embedded-file-agents-audit-YYYY-QN.csv` (e.g., `embedded-file-agents-audit-2026-Q1.csv`); retain provenance to the original Excel export.
 4. Store in your designated audit evidence repository.
 
 ---
@@ -95,7 +95,7 @@ This step provides a view of all SharePoint Embedded containers across the tenan
 
 ### Step 3.1 — Access SharePoint Admin Center
 
-1. Navigate to the **SharePoint Admin Center**: [https://admin.microsoft.com/sharepoint](https://admin.microsoft.com/sharepoint) or via M365 Admin Center › SharePoint.
+1. Navigate to the **SharePoint Admin Center**: [Microsoft's tenant-routing link](https://go.microsoft.com/fwlink/?linkid=2185219) or via M365 Admin Center › Admin centers › SharePoint.
 2. In the left navigation, select **More features** or navigate directly to the appropriate SharePoint Admin URL for your tenant.
 
 > Direct URL pattern: `https://[tenant]-admin.sharepoint.com`
@@ -222,7 +222,7 @@ Configuring a default sensitivity label policy ensures that any file uploaded to
 2. In the left navigation, expand **Information protection**.
 3. Select **Label policies**.
 
-> Portal path: **Microsoft Purview › Information Protection › Label policies**
+> Portal path: **Microsoft Purview › Solutions › Information Protection › Publishing policies**
 
 ### Step 6.2 — Review Existing Default Label Policy
 
@@ -246,7 +246,7 @@ If no default label is configured for documents:
 ### Step 6.4 — Test Default Label Application
 
 1. Ask a test user to upload an unclassified document to a test agent via Agent Builder.
-2. After upload, navigate to M365 Admin Center › Copilot › Agents › [Test Agent] › Overview tab.
+2. After upload, navigate to M365 Admin Center › Agents › All agents › Registry › [Test Agent] › Overview tab. The [embedded-knowledge section](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-details#manage-agents-with-embedded-file-content-as-a-knowledge-source) still calls this Overview, while the general article also describes a Details tab; verify the selected agent's actual pane rather than assume uniform labels.
 3. Verify the Sensitivity label field shows the expected default label.
 4. Document the test result as evidence of label policy configuration effectiveness.
 

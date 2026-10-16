@@ -416,7 +416,7 @@ Get-AutoSensitivityLabelPolicy | Select-Object Name, Mode, ApplySensitivityLabel
 
 **Diagnostic — portal**
 
-- Purview → **Information Protection → Labels → [label] → Edit → Scope** — confirm both **Files & emails** and **Groups & sites** are checked if both are needed.
+- Purview → **Information Protection → Sensitivity labels → [label] → Edit → Scope** — confirm both **Files & emails** and **Groups & sites** are checked if both are needed.
 - Purview → **Information Protection → Auto-labeling** — confirm at least one policy targets the SPO site and is in `Enable` (not `TestWithoutNotifications`).
 - SharePoint → **Site contents → [file] → Sensitivity** column — confirm the file label.
 

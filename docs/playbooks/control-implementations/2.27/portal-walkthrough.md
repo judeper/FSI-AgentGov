@@ -239,7 +239,7 @@ Entitlement scoping reads Entra **security groups** held in the admission-gated 
 ### 3.1 Create or identify the scope groups in Entra
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra User Admin**.
-2. Navigate to **Identity → Groups → All groups → + New group**.
+2. Navigate to **Entra ID → Groups → All groups → + New group**.
 3. For each scope group (credit-scope, API-audience, billing-policy):
    - **Group type:** **Security** (not Microsoft 365).
    - **Mail-enabled:** leave **off** — do not assign a mail address.

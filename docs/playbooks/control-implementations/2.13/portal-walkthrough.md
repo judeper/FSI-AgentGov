@@ -40,7 +40,7 @@ Zone 1 agents have low regulatory exposure. Basic documentation and standard ret
 
 ### Step 1: Create the AI Governance SharePoint Site
 
-1. Navigate to **[SharePoint Admin Center](https://admin.microsoft.com/sharepoint)** > **Active sites** > **+ Create**
+1. Navigate to **[SharePoint Admin Center](https://go.microsoft.com/fwlink/?linkid=2185219)** > **Sites** > **Active sites** > **Create**
 2. Select **Team site** (Microsoft 365 group-connected)
 3. Configure:
    - **Site name:** `AI-Governance`
@@ -127,8 +127,8 @@ Zone 2 adds Purview retention labels, auto-labeling, documented approval chains,
 
 ### Step 7: Create Purview Retention Labels
 
-1. Open **[Microsoft Purview portal](https://purview.microsoft.com)** > **Data lifecycle management** > **Microsoft 365** > **Labels**
-2. Click **+ Create a label** and create each of the following:
+1. Open **[Microsoft Purview portal](https://purview.microsoft.com)** > **Solutions** > **Records Management** > **File plan**, because the labels below include records and file plan descriptors.
+2. Select **+ Create a label** > **Retention label** and create each of the following using [Microsoft's file plan procedure](https://learn.microsoft.com/en-us/purview/file-plan-manager):
 
 | Label Name | Retention Period | Retention Action | Record Type | Regulatory Basis |
 |---|---|---|---|---|
@@ -149,7 +149,7 @@ Zone 2 adds Purview retention labels, auto-labeling, documented approval chains,
 
 ### Step 8: Publish Retention Labels
 
-1. In Purview > **Data lifecycle management** > **Microsoft 365** > **Label policies** > **Publish labels**
+1. In Purview > **Solutions** > **Records Management** > **Policies** > **Label policies** > **Publish labels** ([publishing procedure](https://learn.microsoft.com/en-us/purview/create-apply-retention-labels))
 2. Select all four FSI-Agent labels created in Step 7
 3. On the **Choose locations** page:
    - Enable **SharePoint sites** > add the AI Governance site URL
@@ -162,8 +162,8 @@ Zone 2 adds Purview retention labels, auto-labeling, documented approval chains,
 
 ### Step 9: Configure Auto-Labeling Policy
 
-1. In Purview > **Data lifecycle management** > **Microsoft 365** > **Auto-apply a label**
-2. Click **+ Auto-apply a label**
+1. In Purview > **Solutions** > **Records Management** > **Policies** > **Label policies**
+2. Select **Auto-apply a label**. Follow the [current auto-apply procedure](https://learn.microsoft.com/en-us/purview/apply-retention-labels-automatically); this scenario does not support labels that mark items as regulatory records.
 3. Configure:
    - **Label to auto-apply:** `FSI-Agent-Communications-3Year`
    - **Conditions:** Apply label to content that contains specific words or phrases
@@ -242,7 +242,7 @@ Per the October 2022 SEC amendments (compliance date May 3, 2023), broker-dealer
 
 ### Step 12: Create Regulatory Record Labels (Zone 3 Only)
 
-1. In Purview > **Data lifecycle management** > **Microsoft 365** > **Labels** > **+ Create a label**
+1. In Purview > **Solutions** > **Records Management** > **File plan** > **+ Create a label** > **Retention label**
 2. Create additional Zone 3 labels:
 
 | Label Name | Retention | Action | Record Type | Regulatory Basis |

@@ -26,7 +26,7 @@
 
 ## Issue 1: Agent Not Appearing in the Embedded Files Filter
 
-**Symptom:** An agent that uses embedded file knowledge sources does not appear when the "Embedded files" filter is applied in M365 Admin Center › Copilot › Agents › All Agents.
+**Symptom:** An agent that uses embedded file knowledge sources does not appear when **Data source → Embedded knowledge** is applied in **M365 Admin Center › Agents › All agents › Registry**. References below to the "embedded files filter" mean this current Registry filter.
 
 **Estimated Resolution Time:** 15–30 minutes
 
@@ -105,7 +105,7 @@ Sensitivity label policy changes can take up to 24 hours to fully propagate acro
 If the sensitivity label policy does not include the user or service account that performed the file upload, the label may not apply to the uploaded content.
 
 **Resolution:**
-1. Review the label policy scope in Microsoft Purview › Information Protection › Label policies.
+1. Review the label policy scope in Microsoft Purview › Solutions › Information Protection › Publishing policies.
 2. Confirm the policy is scoped to include all users who may upload files to agents (consider using an "All users" scope for the default document label policy if appropriate for your classification taxonomy).
 3. After updating the policy scope, wait for propagation and retest.
 
@@ -225,7 +225,7 @@ function Remove-ContainerSafely {
 ### Step 5.1 — Contain the Exposure
 
 1. **Immediately restrict access to the agent** for all users outside the IB-permitted segment:
-   - Navigate to: M365 Admin Center › Copilot › Agents › All Agents › [Agent]
+   - Navigate to: M365 Admin Center › Agents › All agents › Registry › [Agent]
    - Modify the agent sharing settings to remove access for the IB-separated user(s) or their segment.
 2. If the agent is a Zone 3 enterprise agent with broad access, consider **temporarily disabling the agent** until the IB assessment and compliance review is complete.
 
@@ -324,7 +324,7 @@ An agent cannot have more than 20 embedded files.
 
 ### Diagnosis
 
-1. Navigate to: M365 Admin Center › Copilot › Agents › [Agent] › Overview tab
+1. Navigate to: M365 Admin Center › Agents › All agents › Registry › [Agent] › Overview tab
 2. Record the sensitivity label applied to the agent.
 3. Check the label's protection settings in Microsoft Purview to understand the extract rights requirement.
 4. Verify whether the affected user has extract rights for this label.

@@ -142,7 +142,7 @@ These seven gates must be evidenced as **Met** before stage 1 (Report-only) of t
 ### PRE-03: Sensitivity label taxonomy published and adopted
 
 - **Why:** DLP for Microsoft 365 Copilot, Sensitivity Labels for Copilot, and label-based grounding restrictions all assume a published, adopted label taxonomy. Without it, you cannot enforce label-based controls.
-- **Check:** Microsoft Purview portal → Information Protection → Labels → confirm at least one label is published in a label policy with scope including the pilot user group. Confirm adoption rate ≥ 80% of recently-modified documents in pilot users' OneDrive (use Activity Explorer).
+- **Check:** Microsoft Purview portal → Information Protection → Sensitivity labels → confirm at least one label is published in a label policy with scope including the pilot user group. Confirm adoption rate ≥ 80% of recently-modified documents in pilot users' OneDrive (use Activity Explorer).
 - **Evidence artifact:** `pre-03-label-taxonomy.json` — labels, label policies, and pilot adoption rate.
 - **Pass criterion:** Taxonomy includes at minimum: Public, Internal, Confidential, Highly Confidential. ≥ 80% adoption in pilot population's recent activity.
 
@@ -257,7 +257,7 @@ The decision is driven by **encryption and usage rights**, not the label name. A
 
 ### 4.2 Click-path: configure a label to restrict Copilot grounding
 
-1. Microsoft Purview portal → Information Protection → Labels.
+1. Microsoft Purview portal → Information Protection → Sensitivity labels.
 2. Open the relevant label (e.g., "Highly Confidential — Restricted").
 3. Scope: confirm "Files & emails" is checked (Copilot grounding follows the file/email scope, not the groups+sites scope).
 4. Encryption: **Enabled**.
@@ -268,7 +268,7 @@ The decision is driven by **encryption and usage rights**, not the label name. A
 
 ### 4.3 Click-path: apply a label to Copilot-generated content
 
-1. Microsoft Purview portal → Information Protection → Label policies.
+1. Microsoft Purview portal → Information Protection → Publishing policies.
 2. Open the policy targeting your Copilot population → **Edit policy**.
 3. **Default label for documents** → set to your "Internal" or "Confidential" baseline (per your firm's labeling strategy).
 4. **Default label for Pages** → set to the same or stricter baseline. (Pages are stored in OneDrive; default labels propagate.)
@@ -402,7 +402,7 @@ Endpoint DLP rules can govern Copilot interactions in **Microsoft Edge**. As of 
 
 ### 7.2 Click-path: create an Endpoint DLP rule for Copilot in Edge
 
-1. Microsoft Purview portal → Data Loss Prevention → Endpoint DLP settings — confirm Edge is in scope and onboarded devices report status Healthy.
+1. Microsoft Purview portal → Data loss prevention → Overview → Data loss prevention settings → Endpoint settings — confirm Edge is in scope and onboarded devices report status Healthy.
 2. Microsoft Purview portal → DLP → Policies → **+ Create policy** → Custom → name `FSI-Copilot-Endpoint-Edge`.
 3. Locations → toggle **Devices** ON. Optionally toggle **Microsoft 365 Copilot** ON if you want a unified policy (most firms keep them split for clarity).
 4. Rules → **+ Create rule**:

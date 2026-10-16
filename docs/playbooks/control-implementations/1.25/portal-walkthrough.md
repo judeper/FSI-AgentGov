@@ -116,7 +116,7 @@
 
 ### Step 8: Configure SharePoint Tenant Blocked File Types (Defense-in-Depth)
 
-1. Open [SharePoint Admin Center](https://admin.microsoft.com/sharepoint) → **Settings** → **Sync** → **Block upload of specific file types**
+1. Open [SharePoint Admin Center](https://go.microsoft.com/fwlink/?linkid=2185219) → **Settings** → **Sync** → **Block upload of specific file types**
 2. Add executable/script extensions matching your PPAC blocklist (e.g., `exe, bat, cmd, vbs, js, ps1, dll, msi, scr, hta`)
 3. Save
 

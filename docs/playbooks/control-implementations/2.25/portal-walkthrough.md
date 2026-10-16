@@ -161,7 +161,7 @@ Do not proceed past this section unless **all** of the following are true:
 The **Entra Global Admin** role is required for tenant enrollment, licensing changes, first-time governance template authoring, and emergency lifecycle actions (such as bulk Block or Delete during an incident). For routine governance work, you should be operating as **AI Administrator**.
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as your daily-use account.
-2. Navigate to **Identity governance → Privileged Identity Management → My roles**.
+2. Navigate to **ID Governance → Privileged Identity Management → My roles**.
 3. Locate **Global Administrator** in the **Eligible assignments** tab.
 4. Click **Activate**, set the activation duration to the **shortest interval consistent with the change window** (typically 1–4 hours), and provide a business justification that names the change-management ticket ID per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 5. Complete any MFA challenge. PIM activation events are logged to the Entra audit log with the justification text and ticket ID — examiners may request these logs as evidence of JIT elevation.
@@ -616,7 +616,7 @@ Governance templates are configurable policy bundles applied at publish or activ
 
 ### 8.3 Wire an Entra Access Package into a Zone 3 Custom Template
 
-1. Before creating the Custom template, the **Entra Identity Governance Admin** creates the Access Package in **Entra → Identity Governance → Entitlement management → Access packages**. The Access Package defines:
+1. Before creating the Custom template, the **Entra Identity Governance Admin** creates the Access Package in **Entra → ID Governance → Entitlement management → Access package**. The Access Package defines:
    - Resources granted (the agent's required Entra security group, SharePoint site memberships, Dataverse roles).
    - Eligible requestor population (the team / role / business function approved to use the agent).
    - Approval workflow (typically the Agent Owner + Compliance Officer for Zone 3).

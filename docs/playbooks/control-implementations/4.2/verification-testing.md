@@ -39,7 +39,7 @@ This playbook covers manual portal verification, scripted health checks, the art
 
 ### Test 4 — Entra Access Review schedule active
 
-1. Open Microsoft Entra Admin Center → **Identity governance** → **Access reviews**.
+1. Open Microsoft Entra Admin Center → **ID Governance** → **Access Reviews**.
 2. Locate "FSI SharePoint Site Access Review — Quarterly".
 3. Confirm:
    - Status is **Initialized** or **InProgress**
@@ -64,7 +64,7 @@ This playbook covers manual portal verification, scripted health checks, the art
 
 ### Test 7 — Evidence covered by retention
 
-1. Open Microsoft Purview → **Data lifecycle management** → **Retention policies** (or **Retention labels**).
+1. Open Microsoft Purview → **Data lifecycle management** → **Policies** → **Retention policies** (or return to **Data lifecycle management → Retention labels** for labels).
 2. Confirm a policy / label covers the evidence repository with a retention period ≥ 6 years.
 3. For Zone 3, confirm **Preservation Lock** is enabled (the policy cannot be shortened or deleted).
 4. **Expected:** retention coverage in place; lock status appropriate to zone.
