@@ -445,6 +445,7 @@ Extract the source data to the host as a UTF-8 CSV with column headers matching 
 ```powershell
 # On the approved Windows host, signed in as the authorized EDM_DataUploaders user
 Set-Location 'C:\Program Files\Microsoft\EdmUploadAgent'
+.\EdmUploadAgent.exe /Authorize
 .\EdmUploadAgent.exe /SaveSchema /DataStoreName FSI_CustomerMaster /OutputDir 'D:\edm-staging'
 .\EdmUploadAgent.exe /ValidateData `
   /DataFile 'D:\edm-staging\customer-master-2026-04-15.csv' `
@@ -454,7 +455,7 @@ Set-Location 'C:\Program Files\Microsoft\EdmUploadAgent'
   /HashLocation 'D:\edm-staging\hashes' `
   /Schema 'D:\edm-staging\FSI_CustomerMaster.xml'
 
-.\EdmUploadAgent.exe /Authorize
+# Re-run /Authorize if uploading from a separate online upload host or after token expiry
 .\EdmUploadAgent.exe /UploadHash /DataStoreName FSI_CustomerMaster `
   /HashFile 'D:\edm-staging\hashes\customer-master-2026-04-15.EdmHash'
 .\EdmUploadAgent.exe /GetDataStore

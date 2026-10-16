@@ -527,7 +527,7 @@ $studio      = Search-FsiAuditLogPaged -StartDate (Get-Date).AddDays(-30) -EndDa
 # Directory audits (admin and configuration changes)
 Get-MgAuditLogDirectoryAudit -Filter "activityDateTime ge $((Get-Date).AddDays(-7).ToString('yyyy-MM-ddTHH:mm:ssZ'))" -Top 100
 
-# Sign-in logs (correlate agent identity sign-ins per Control 1.2 §8)
+# User sign-in sample only; not complete SP/agent evidence. For SPs use Control 1.2 §8's documented filter and retention boundary.
 Get-MgAuditLogSignIn -Filter "createdDateTime ge $((Get-Date).AddDays(-1).ToString('yyyy-MM-ddTHH:mm:ssZ'))" -Top 100
 
 # Audit Search query API (v1.0); see completeness and throttling caveats below

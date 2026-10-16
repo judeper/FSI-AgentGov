@@ -201,7 +201,7 @@ function Test-Agt226LicenseCoverageGating {
     param()
 
     # Post-GA (May 2026): Entra Agent ID is gated on Microsoft Agent 365 or
-    # Microsoft 365 E7 licensing, plus reachability of the /beta/agents
+    # Microsoft 365 E7 licensing, plus reachability of the documented Agent ID collection.
     # surface to the calling principal. The function name and field names
     # below are preserved from the pre-GA "PreviewGating" check to keep
     # downstream evidence-pack consumers backward-compatible across the
@@ -224,7 +224,7 @@ function Test-Agt226LicenseCoverageGating {
     $probe = Invoke-Agt226WithThrottle -ScriptBlock {
         try {
             Invoke-MgGraphRequest -Method GET `
-                -Uri 'https://graph.microsoft.com/beta/agents?$top=1' -ErrorAction Stop
+                -Uri 'https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1' -ErrorAction Stop
         } catch {
             [pscustomobject]@{ probeError = $_.Exception.Message }
         }
@@ -1620,5 +1620,4 @@ Implementation caveat to retain in narrative reports:
 **UI Verification Status:** Verified against Entra admin centre (April 2026 preview). Re-verify when Microsoft announces major Entra Agent ID changes.
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Agent ID probe documentation correction only)*

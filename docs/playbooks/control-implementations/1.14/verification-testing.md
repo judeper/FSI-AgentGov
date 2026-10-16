@@ -517,7 +517,7 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 **Objective.** Confirm OAuth scope minimization at the Microsoft Graph layer.
 
-**Preconditions.** INV-02 passed; Microsoft Graph PowerShell with `DelegatedPermissionGrant.Read.All`.
+**Preconditions.** INV-02 passed; Microsoft Graph PowerShell with `Directory.Read.All` for delegated-grant reads ([API permissions](https://learn.microsoft.com/en-us/graph/api/serviceprincipal-list-oauth2permissiongrants?view=graph-rest-1.0)).
 
 **Steps.**
 
@@ -1328,4 +1328,4 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (delegated-grant permission documentation correction only)*

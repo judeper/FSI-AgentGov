@@ -101,7 +101,7 @@ AgentGovernance.Read.All           # Entra Agent ID preview surface
 
 | Tenant identity capture | PRE-01 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name`, `cloud` for every evidence record | HALT |
 | Cloud detection | PRE-02 | Resolves Commercial | Continue with route |
-| License posture | PRE-03 | Confirms Entra ID P2 covers in-scope users; **Workload Identities Premium** covers every service principal and Agent ID in a workload-identity CA policy | HALT |
+| License posture | PRE-03 | Verify user-feature entitlements, Workload ID Premium for traditional workload CA create/modify, and separate Agent 365/E7 requirements for agent-specific CA | HALT if required entitlement is unresolved |
 | Evidence root writeable | PRE-04 | Confirms `$env:CA111_EVIDENCE_ROOT` exists, is writeable, and resolves to WORM-eligible storage with a Purview retention label of ≥7 years and deletion lock | HALT |
 | Clock skew gate | PRE-05 | Compares local UTC to Graph `Date` header; aborts on > 60 s drift (timestamp evidence under FINRA 4511 and SEC 17a-4 must be authoritative) | HALT |
 | Sentinel reachability | PRE-06 | Confirms Log Analytics workspace is reachable, the `AzureActiveDirectory` connector is enabled, and the four required tables have entries in the last 24 hours | HALT |
@@ -338,7 +338,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 
 ### TC-4 — Conditional Access for Workload Identities (Agent / Service Principal)
 
-**Verifies:** A Conditional Access for Workload Identities (CA WID) policy targeting AI agent backing identities (service principals, managed identities, or Entra Agent ID principals) **enforces the configured restriction** when an agent attempts a Microsoft Graph call from outside the named-location set, either by blocking the call (if the policy intent is "block from untrusted") or by requiring certificate-based authentication (if the policy intent is "require strong workload-identity auth"). The matching evidence row appears in `AADServicePrincipalSignInLogs` — **not** in `SigninLogs`.
+**Verifies:** a traditional workload CA **Block access** policy targets an eligible single-tenant service principal by object ID and enforces its intended conditions. Managed identities and third-party/multitenant SaaS apps are unsupported; agent-specific CA needs a separate token-subject test. This policy cannot require certificate authentication/MFA. [Current Microsoft scope](https://learn.microsoft.com/en-us/entra/identity/conditional-access/workload-identity), documentation reviewed 2026-10-16; no tenant test performed.
 
 > **Critical surface note.** Agent and service-principal sign-ins **do not appear in `SigninLogs`**. Verifiers and auditors who query `SigninLogs` for an agent UPN will find nothing and will incorrectly conclude there was no sign-in. The correct table is `AADServicePrincipalSignInLogs`. This is the most common examiner-finding pattern in early FSI agent-governance reviews.
 
@@ -347,7 +347,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 
 #### Setup
 
-1. Provision (or identify) a **canary agent** backing identity — a service principal `sp-ca111-canary-tc4` enrolled in the Workload Identities Premium SKU and bound to a CA WID policy `CA-WID-Agents-RestrictFromUntrustedLocations` whose intent is documented in the policy description (block, or require strong auth).
+1. Identify an approved eligible single-tenant canary SP and directly target its object ID in the workload CA block policy. Verify Workload ID Premium before policy creation/modification.
 2. Provision a test execution environment **outside** every named location in the policy's "Trusted locations" set (for example, an Azure Cloud Shell session in a region intentionally excluded from the corporate egress range, or a developer workstation on a dedicated test ISP segment).
 3. Ensure the canary SP holds the minimum Graph application permissions required for the test call (`User.Read.All`) and that the permission has admin consent.
 4. Confirm `CA-WID-Agents-RestrictFromUntrustedLocations` is `state = enabled` (not Report-only).
@@ -357,7 +357,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 1. From the out-of-location environment, acquire a token for the canary SP via the client credentials flow (certificate or secret as configured) and call `https://graph.microsoft.com/v1.0/users?$top=1`.
 2. Capture the HTTP response — expected outcomes per policy intent:
     - **Block intent:** HTTP 403 with `AADSTS53003` (blocked by Conditional Access) or equivalent.
-    - **Require certificate intent:** HTTP 401 with a challenge requiring certificate-based client credential, or HTTP 403 if the SP authenticated with a secret rather than the required certificate.
+    - CA can deny token issuance before a Graph request occurs; capture the token-endpoint error and evaluated policy. No certificate-challenge grant is supported by this policy type.
 3. Within 10 minutes, query Sentinel against the **service principal** sign-in table:
 
     ```kql
@@ -397,7 +397,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 #### Failure Remediation
 
 1. **If the call succeeded from out-of-location:** the WID policy is mis-bound, in Report-only, or the SP is excluded. Pause new agent publishing under [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) and open a Sev-1 change ticket. Re-target the policy and confirm `state = enabled`.
-2. **If `AADServicePrincipalSignInLogs` returned no row:** confirm Workload Identities Premium SKU is **consumed** by the SP (entitlement without consumption is a silent fail-open — see Control 1.11 anti-pattern register). Confirm the connector for SP sign-ins is selected on the Sentinel `AzureActiveDirectory` connector blade.
+2. **If no expected SP row appears:** verify collection/ingestion coverage, actual token subject, timestamps, identity eligibility and policy targeting. Missing logs alone do not diagnose licensing or establish absence of a sign-in; use a known-event positive control.
 3. **If the in-location positive control failed:** the test is invalid; the failure may be a credential or permission issue rather than a CA enforcement issue. Re-establish positive control before re-running.
 
 ---
@@ -1079,7 +1079,7 @@ This control does not stand alone. The following cross-references connect Contro
 
 - **AAL3** — Authenticator Assurance Level 3 (NIST SP 800-63B). Phishing-resistant, hardware-bound or device-bound credential. Synced (cross-device) passkeys do **not** meet AAL3.
 - **CA** — Conditional Access (Microsoft Entra).
-- **CA WID** — Conditional Access for Workload Identities. Targets service principals, managed identities, and (preview) Entra Agent ID principals.
+- **CA WID** — traditional Conditional Access for supported single-tenant SPs; not managed identities or third-party/multitenant SaaS apps. Agent-specific CA is separate.
 - **CAE** — Continuous Access Evaluation. Eventually-consistent revocation/claim propagation; per-tenant baseline measured in PRE-07.
 - **Authentication Strength** — A named, configurable combination of authentication methods that a CA grant control can require. The framework's Z3 phishing-resistant strength includes FIDO2, WHfB, device-bound passkey, and X.509 CBA — not SMS, voice, or OTP.
 - **Authentication Context** — A named claim (e.g., `c1`) bound to a CA policy and consumed by downstream resources (PIM activation, sensitive SharePoint sites) to require step-up MFA at the moment of access, not session-token reuse.
@@ -1108,4 +1108,4 @@ This control does not stand alone. The following cross-references connect Contro
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted workload-CA documentation correction only)*

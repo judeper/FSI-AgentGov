@@ -1083,29 +1083,28 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Steps
 
-1. Read Agent 365 inventory via Graph beta:
+1. Read the documented Agent 365 package catalog with `CopilotPackages.Read.All` and Agent 365 entitlement. This API correction was documentation-verified 2026-10-16, not tenant-tested; see [current sources and boundaries](../1.2/powershell-setup.md#documentation-verification-ledger).
 
     ```powershell
-    Connect-MgGraph -Scopes 'AgentGovernance.Read.All' -NoWelcome
-    $agents = Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/agents'
-    $agents.value | ConvertTo-Json -Depth 8 |
+    Connect-MgGraph -Scopes 'CopilotPackages.Read.All' -NoWelcome
+    $packages = [System.Collections.Generic.List[object]]::new()
+    $next = 'https://graph.microsoft.com/v1.0/copilot/admin/catalog/packages'
+    while ($next) {
+        $page = Invoke-MgGraphRequest -Method GET -Uri $next -OutputType Hashtable -ErrorAction Stop
+        foreach ($package in $page.value) { $packages.Add($package) }
+        $next = $page['@odata.nextLink']
+    }
+    $packages.ToArray() | ConvertTo-Json -Depth 8 |
         Out-File (Join-Path $script:EvidenceRoot "tc15-agent365-inventory-$($script:RunId).json") -Encoding utf8
     ```
 
-2. Cross-join with Copilot Studio agent enumeration from each Z2/Z3 environment (use the helper from [Control 2.25 verification](../2.25/verification-testing.md)):
+2. Reconcile Dataverse `bot` exports from every expected Z2/Z3 environment. Preserve package/manifest/app IDs and bot IDs separately; they are not interchangeable. Review relationship evidence and publisher/lifecycle rows rather than comparing bot IDs directly with package IDs.
 
-    ```powershell
-    $cs = Get-Me225CopilotStudioAgent -EnvironmentIds ($envs.EnvironmentName)
-    $missing = $cs | Where-Object { $_.Id -notin $agents.value.id -and $_.Shared }
-    $missing | ConvertTo-Json -Depth 6 |
-        Out-File (Join-Path $script:EvidenceRoot "tc15-catalog-gap-$($script:RunId).json") -Encoding utf8
-    ```
-
-3. Emit `FAIL` for any non-empty `$missing`.
+3. Record outcomes and unresolved mappings. Failed, unlicensed, or incompletely paged reads are **NotEvaluable**, not an empty compliant catalog or an automatic missing-agent finding.
 
 #### Expected
 
-- Every shared Copilot Studio agent in Z2/Z3 environments appears in Agent 365 catalog with owner/environment/policy assignment populated.
+- Every in-scope shared agent is reconciled or exception-tracked. Supplement owner/environment/policy metadata in the governance register when absent from the catalog export; do not assert those are native package properties.
 
 #### Evidence Capture
 
@@ -1540,4 +1539,4 @@ For automated Pester coverage of the `Fsi-` configuration helpers, see the siste
 
 ---
 
-*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI last verified April 2026)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (package API documentation correction only; UI last verified April 2026)*

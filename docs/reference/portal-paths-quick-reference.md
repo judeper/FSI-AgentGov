@@ -57,7 +57,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | Create IRM Policy | **Solutions** > **Insider risk management** > **Policies** > **Create policy** |
 | View IRM Alerts | **Solutions** > **Insider risk management** > **Alerts** |
 | **Sensitive Information Types** | **Solutions** > **Information Protection** > **Classifiers** > **Sensitive info types** (documentation-verified 2026-10-16; tenant UI not tested) |
-| Create Custom SIT | **Solutions** > **Data classification** > **Classifiers** > **Sensitive info types** > **Create sensitive info type** |
+| Create Custom SIT | **Solutions** > **Information Protection** > **Classifiers** > **Sensitive info types** > **Create sensitive info type** |
 | **Data Retention** | **Solutions** > **Data lifecycle management** > **Microsoft 365** |
 | Create Retention Policy | **Solutions** > **Data lifecycle management** > **Microsoft 365** > **Retention policies** > **New retention policy** |
 | Retention Labels | **Solutions** > **Data lifecycle management** > **Microsoft 365** > **Retention labels** |

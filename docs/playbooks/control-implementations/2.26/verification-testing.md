@@ -2,7 +2,7 @@
 
 > **Examiner-defensible evidence package** for Control 2.26. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, and internal audit that every Microsoft 365 AI agent identity in the tenant is sponsored, lifecycle-governed, periodically reviewed, and forwarded to the SIEM with 6-year retention.
 >
-> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §8 `TRG-LICGAP-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. TRG-LICGAP-01 was renamed to TRG-LICGAP-01 in issue #418.
+> **API correction verified 2026-10-16 (documentation only):** use the [v1.0 Agent ID collection](https://learn.microsoft.com/en-us/graph/api/agentidentity-list?view=graph-rest-1.0), `/servicePrincipals/microsoft.graph.agentIdentity`, with `AgentIdentity.Read.All`. The old `/beta/agents` probe was not a documented route. HTTP 200 establishes an authorized API response, **not** license assignment, completeness, or successful portal rendering. Verify licensing and actual UI behavior separately; keep existing result field names only for consumer compatibility.
 >
 > **Scope:** Commercial M365 tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing assigned to the operating admin and the in-scope sponsor / agent-owner users.
 >
@@ -66,7 +66,7 @@ The bootstrap script `Invoke-Agt226PreFlight.ps1` runs six pre-flight gates. Any
 | Graph context | PRE-02 | Confirms Connect-MgGraph established with required scopes | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
 | License gate | PRE-04 | Confirms tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU (post-GA: `SkuPartNumber -like 'Microsoft_Agent_365*' -or -like 'M365_E7*'`). Pre-GA, this gate looked for a `Microsoft_365_Copilot*` SKU — verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` and update the regex if needed. | HALT — Agent ID requires post-GA licensing |
-| Agent ID API operability gate | PRE-05 | Confirms the `/beta/agents` endpoint is reachable to the calling principal (HTTP 200 vs 404/403). Pre-GA this gate also evidenced Frontier program enrollment; post-GA a 404/403 most likely indicates a license-coverage gap, RBAC gap, or feature non-availability. | HALT with remediation pointer (license + RBAC) |
+| Agent ID API operability gate | PRE-05 | Probe the documented v1.0 Agent ID collection with `AgentIdentity.Read.All`; record response and known-object evidence. Classify failures without inferring a single cause from HTTP status. | HALT with exact request/permission/entitlement investigation |
 | Clock skew gate | PRE-06 | Compares local UTC to `Date` header from Graph response; aborts if drift > 60 seconds | HALT |
 
 
@@ -1111,13 +1111,13 @@ This namespace evidences **C2.26-1**: the Entra Agent ID feature is enabled in t
 1. The tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU assignment (the "license gate" already executed in PRE-04). Pre-GA this gate looked for a `Microsoft_365_Copilot*` SKU; post-GA the relevant SKUs are Agent 365 (standalone) or M365 E7 (suite). Verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` before adopting the patterns below.
 2. The Agent ID API surface is reachable to the calling principal (the "operability gate" already executed in PRE-05).
 
-In addition, the **Agent identities** blade must be reachable in the Microsoft Entra admin center. Because the blade itself does not have a stable Graph API for "blade rendering", the Pester test for blade visibility is replaced by an **API-surface probe**: if `/beta/agents` returns HTTP 200 with a JSON body (even an empty collection), the blade is considered present and operable.
+In addition, the **Agent identities** blade must be verified separately in the tenant. An **API-surface probe** of the documented collection does not test portal rendering. A 200 empty response establishes only that request's outcome; verify known identities and expected scope before accepting inventory evidence.
 
 ### 8.2 Pre-conditions
 
 - PRE-04 (Agent 365 / M365 E7 license) and PRE-05 (Agent ID API operability) returned `PASS`.
 - Graph context holds `AgentIdentity.Read.All`.
-- Probe URL: `https://graph.microsoft.com/beta/agents?$top=1`.
+- Probe URL: `https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1`.
 
 ### 8.3 Pester suite
 
@@ -1137,7 +1137,7 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
         $script:Probe = $null
         try {
             $script:Probe = Invoke-MgGraphRequest -Method GET `
-                -Uri 'https://graph.microsoft.com/beta/agents?$top=1' -ErrorAction Stop
+                -Uri 'https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1&$expand=sponsors($select=id,displayName)' -ErrorAction Stop
         } catch {
             $script:ProbeError = $_.Exception.Message
         }
@@ -1154,17 +1154,17 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
     }
 
     Context "Agent ID API operability gate (C2.26-1b)" {
-        It "the /beta/agents endpoint returns HTTP 200 (Agent ID surface reachable)" {
+        It "the documented Agent ID collection returns HTTP 200 (not a portal rendering test)" {
             $script:Probe | Should -Not -BeNullOrEmpty
             $script:Probe.value | Should -BeOfType [System.Object[]]
         }
         It "the response shape contains the expected agent-identity properties when populated" {
             if ($script:Probe.value.Count -gt 0) {
                 $first = $script:Probe.value[0]
-                $first.id            | Should -Not -BeNullOrEmpty
-                $first.displayName   | Should -Not -BeNullOrEmpty
-                # sponsor field key may vary by schema generation; tolerate both
-                ($first.sponsorObjectId -or $first.sponsorId) | Should -BeTrue
+                $first.id                        | Should -Not -BeNullOrEmpty
+                $first.displayName               | Should -Not -BeNullOrEmpty
+                $first.agentIdentityBlueprintId  | Should -Not -BeNullOrEmpty
+                @($first.sponsors).Count         | Should -BeGreaterThan 0
             }
         }
     }
@@ -1205,7 +1205,7 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
 }
 ```
 
-> **Field-name carryover.** `agent_id_probe_status` is retained as the field key for the HTTP status returned by the `/beta/agents` probe. The field name is preserved to keep examiner pipelines that already parse this key working across the GA cutover. Post-GA, a `200` indicates the Agent ID surface is reachable; a `403/404` indicates a license-coverage or RBAC gap, **not** a Frontier-enrollment gap.
+> **Field-name carryover.** `agent_id_probe_status` records the documented Agent ID collection's response. A 200 does not prove UI rendering or license assignment; a 403/404 alone does not distinguish permission, route, resource, entitlement or availability causes. Retain the response/correlation evidence and investigate.
 
 ### 8.5 Sample failing record
 
@@ -1215,11 +1215,11 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
   "namespace": "LICGAP",
   "criterion": "C2.26-1",
   "status": "FAIL",
-  "assertion": "Agent ID operability gate must return HTTP 200 from /beta/agents",
+  "assertion": "Documented v1.0 Agent ID collection must return HTTP 200; portal and license checks remain separate",
   "observed_value": {
     "license_skus": ["Microsoft_Agent_365"],
     "agent_id_probe_status": 404,
-    "probe_error": "Resource not found: /beta/agents"
+    "probe_error": "Agent ID collection request failed; inspect exact request, response and correlation identifiers"
   },
   "remediation_ref": "TRG-LICGAP-01",
   "regulator_mappings": ["SOX-404","OCC-2011-12"],
@@ -1660,4 +1660,4 @@ A `PASS` from this validator is the green light to file with the Board secretari
 > This playbook supports — but does not by itself support every compliance obligation with FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Agent ID probe documentation correction only)*

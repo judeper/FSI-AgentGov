@@ -28,8 +28,8 @@ A script that ignores this reality produces a **false-clean inventory** — the 
 
 **Why this section exists.** Two classes of silent failure produce false-clean inventory in Control 3.1 specifically:
 
-1. **Wrong PowerShell edition for the plane being queried.** `Microsoft.PowerApps.Administration.PowerShell` and `Microsoft.PowerApps.PowerShell` are **Desktop-only** (Windows PowerShell 5.1) — they autoload in PowerShell 7 but several cmdlets silently return empty arrays instead of throwing. `Microsoft.Graph.Beta`, `ExchangeOnlineManagement` v3+, modern `PnP.PowerShell` v2+, and `Az.Accounts` v3+ are **Core-only** (PowerShell 7.2+). A reconciler that runs end-to-end in one edition is necessarily incomplete on at least one plane.
-2. **Beta vs v1.0 Microsoft Graph drift.** Several Copilot / agent endpoints (`/copilot/admin/settings`, `/applications` agent-tag filters, `/reports/getCopilotAIInteractionsCount`, `/sites/{id}/copilotAgents`, `/agents` registry preview) move between beta and v1.0 quarterly, with breaking shape changes between minor SDK releases. Pinning is mandatory and version-stamping every call into the manifest is required for examiner reproducibility.
+1. **Wrong PowerShell edition for the plane being queried.** The documented Power Apps modules require Windows PowerShell 5.x/.NET Framework; unsupported-shell behavior is not guaranteed to be an empty array. Graph supports 5.1 with prerequisites and recommends 7+. This playbook's 7.4 orchestrator is a local design choice, not a universal Core-only module requirement. Verify other modules' requirements independently.
+2. **API/schema drift.** Verify each API's actual route, properties, version, permissions and licensing; there is no guaranteed quarterly beta/v1.0 migration schedule or universal agent-tag taxonomy. Current Agent ID and package routes and source limitations are recorded in the [Control 1.2 verification ledger](../1.2/powershell-setup.md#documentation-verification-ledger).
 
 **Top false-clean defects unique to inventory automation.**
 
@@ -164,9 +164,9 @@ if ($IsWindows) {
 | Power Platform CLI (`pac`) | **1.45.0** | `pac copilot list`, `pac admin list-app-resources`, `pac auth create` |
 | Microsoft 365 CLI (`m365`) | 7.0.0 | Optional declarative-agent enumeration cross-check |
 | Azure CLI (`az`) | 2.60.0 | AI Foundry project lookup, role-assignment evidence |
-| Python | 3.11.0 | Microsoft Graph beta wrappers for endpoints not yet in PowerShell SDK (e.g., preview `/agents`) |
+| Python | 3.11.0 (historical example) | Optional adapters; use documented routes, not an assumed `/agents` endpoint |
 | `Get-FileHash` (built-in) | n/a | SHA-256 evidence hashes |
-| `signtool.exe` or `Set-AuthenticodeSignature` | n/a | Manifest signing in §13 |
+| Windows file-catalog/Authenticode tooling | n/a | Sign a version-2 catalog covering the JSON manifest and exports (§13) |
 
 **Pin check (must run before §2 bootstrap):**
 
@@ -1496,16 +1496,22 @@ function Export-Agt31EvidencePack {
     $manifestPath = Join-Path $runFolder 'manifest.json'
     $manifest | ConvertTo-Json -Depth 10 | Out-File -FilePath $manifestPath -Encoding UTF8
 
-    # Sign the manifest
+    # Catalog is outside the folder it hashes; arbitrary JSON is not a supported signing target.
+    if (-not $IsWindows) { throw 'Windows file-catalog signing is required for this export path.' }
+    $catalogPath = "$runFolder.cat"
+    New-FileCatalog -Path $runFolder -CatalogFilePath $catalogPath -CatalogVersion 2 -ErrorAction Stop | Out-Null
     $cert = Get-Item -Path "Cert:\CurrentUser\My\$SigningCertThumbprint" -ErrorAction Stop
-    $sig = Set-AuthenticodeSignature -FilePath $manifestPath -Certificate $cert -HashAlgorithm SHA256 -TimestampServer 'http://timestamp.digicert.com'
-    if ($sig.Status -ne 'Valid') {
-        throw "Manifest signing failed: $($sig.Status) — $($sig.StatusMessage). Evidence pack will not be released without a valid signature."
+    Set-AuthenticodeSignature -FilePath $catalogPath -Certificate $cert -HashAlgorithm SHA256 -TimestampServer 'http://timestamp.digicert.com' -ErrorAction Stop | Out-Null
+    $sig = Get-AuthenticodeSignature -FilePath $catalogPath
+    if ($sig.Status -ne 'Valid' -or -not $sig.TimeStamperCertificate -or
+        (Test-FileCatalog -Path $runFolder -CatalogFilePath $catalogPath) -ne 'Valid') {
+        throw 'Catalog signature, timestamp, or content verification failed; do not release the evidence pack.'
     }
 
     [pscustomobject]@{
         EvidenceFolder    = $runFolder
         ManifestPath      = $manifestPath
+        CatalogPath       = $catalogPath
         SignatureStatus   = $sig.Status
         FileCount         = $files.Count
         TotalBytes        = ($files | Measure-Object -Property Length -Sum).Sum
@@ -1514,7 +1520,7 @@ function Export-Agt31EvidencePack {
 }
 ```
 
-**Fail-closed conditions:** manifest signing failure throws — evidence is not released. Reconcile-errors.csv is always written, even when empty (the empty-with-header file is itself evidence that the reconciler ran clean). `xlsxNote` records the absence of `ImportExcel` rather than silently skipping.
+**Fail-closed conditions:** catalog signature, timestamp or content verification failure throws. Retain the `.cat` beside the evidence folder and reverify after transfer. Review/approve the timestamp service locally; signing does not configure retention or prove collection completeness. See [Microsoft catalog guidance](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/new-filecatalog). Reconcile-errors.csv is always written, even when empty; that alone does not prove all required sources were collected.
 
 ---
 
@@ -1532,7 +1538,7 @@ function Test-Agt31Implementation {
     Runs the orchestrator end-to-end with -WhatIf where applicable, then verifies:
       - Every leg returned at least one record (OK or status row).
       - Reconciler produced at least one canonical record (or, in a green-field tenant, a documented zero with manifest note).
-      - Evidence pack manifest exists, is signed, and the signature is Valid.
+      - Evidence pack manifest exists and a separate signed catalog validates its contents (manual acceptance; not implemented by this smoke helper).
       - At least one Zone1 / Zone2 / Zone3 record exists in tenants where each zone is in use (warn-only).
       - Reconcile-errors count matches the number of non-OK leg rows.
 .PARAMETER Session
@@ -1602,12 +1608,12 @@ function Test-Agt31Implementation {
 | # | Anti-pattern | Why it is wrong | Correct approach |
 |---|---|---|---|
 | 1 | Single-leg inventory script with `Get-AdminPowerApp` only | Misses declarative / MCP / SPO / Hub agents — false-clean | Multi-leg reconciler in §3–§9 |
-| 2 | Running orchestrator under `powershell.exe` (5.1) | Graph v2 / PnP v2 / ExO v3 don't load; silent autoload of v1 produces wrong shapes | `pwsh` 7.4 orchestrator; spawn 5.1 child only for Power Apps Admin (§3) |
+| 2 | Ignoring per-module edition requirements | Unsupported combinations are not trustworthy evidence sources | This example uses a `pwsh` orchestrator and a 5.1 Power Apps leg; Graph itself also supports 5.1 with prerequisites |
 | 4 | `+= @($r)` to accumulate records | O(n²) on 10k-agent tenants | `[List[pscustomobject]]::new()` accumulator |
 | 5 | Default `LastActivity` to `Get-Date` when source missing | Corrupts orphan classification | §10 `ActivityUnknown` preserved; never silently filled |
 | 6 | Owner string-match (`*system*`, `*deleted*`) | Misses real orphans + false positives | §11 resolve ObjectId via `Get-MgUser` and inspect `AccountEnabled` |
 | 7 | Inventory CSV overwritten in place each run | Destroys reconciliation history | §13 run-id-stamped subfolder under WORM root |
-| 8 | SHA-256 hash file with no signature | Hashes can be regenerated by anyone with file access | §13 `Set-AuthenticodeSignature` on manifest |
+| 8 | Hash-only evidence or Authenticode on arbitrary JSON | Hashes alone do not authenticate origin; JSON is not generally a signable SIP type | §13 sign the Windows catalog and separately verify signature, timestamp and contents |
 | 9 | Treating `Search-UnifiedAuditLog` first page as authoritative | Missing rows misclassify activity | Paginate with `SessionId`/`SessionCommand ReturnLargeSet` |
 | 10 | Catching exceptions and continuing without recording | Silent partial coverage | Every leg writes a `Status != OK` row when it cannot enumerate |
 | 11 | Decommissioning purely on Dormant signal | Acts on missing-data assumption when activity source was unavailable | §11 require both DepartedOwner + DormantSharedAgent before recommending decommission |
@@ -1646,4 +1652,4 @@ function Test-Agt31Implementation {
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted shell/API/signing dependency review only)*

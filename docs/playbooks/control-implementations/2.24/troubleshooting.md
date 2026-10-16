@@ -105,7 +105,7 @@ $snap | ConvertTo-Json -Depth 10 |
 | ID | Endpoint | Returns | Used in pillar |
 |---|---|---|---|
 | **GQ-01** | `GET /copilot/admin/settings` | Tenant-level Copilot feature flags, web-grounding, plug-in policy. | §2, §3, §6 |
-| **GQ-02** | `GET /copilot/admin/agents` | All registered agents with publisher, surface, sensitivity binding. | §3, §4, §8 |
+| **GQ-02** | `GET /copilot/admin/catalog/packages` | Licensed package catalog (`CopilotPackages.Read.All`): preserve package, manifest and app IDs; enrich missing governance/sensitivity fields separately. See [current boundaries](../1.2/powershell-setup.md#documentation-verification-ledger). | §3, §4, §8 |
 | **GQ-03** | `GET /solutions/virtualAgents/bots?$expand=connectors` | Copilot Studio agents and their connector graph. | §5, §9 |
 | **GQ-04** | `GET /security/secureScores/controlProfiles?$filter=startswith(controlName,'Copilot')` | Copilot-related secure-score posture; flags toggle drift. | §3 |
 | **GQ-05** | `GET /admin/serviceAnnouncement/messages?$filter=contains(services,'Copilot')` | Message Center items: GA, deprecation, retroactive-flip notices. | §6 |
@@ -933,5 +933,4 @@ This attestation **supports** examiner response and post-incident review. It doe
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (package-query documentation correction only)*

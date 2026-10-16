@@ -1,5 +1,7 @@
 # Verification & Testing — Control 2.25: Microsoft Agent 365 Admin Center Governance Console
 
+**Dependency contract reviewed 2026-10-16 (documentation only):** the companion PowerShell inventory, approvals, templates, Researcher-policy and mutation adapters are not implemented against verified APIs and now stop with `ManualEvidenceRequired`. That outcome blocks acceptance; it is not `Clean`, `NotApplicable` or proof of an empty tenant. Supply validated feature-specific adapters or approved manual evidence before running dependent assertions. Historical UI dates and independent feature claims below are not reverified by this note.
+
 > **Examiner-defensible evidence package** for Control 2.25. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, and internal audit that every Microsoft 365 AI agent surfaced through the Microsoft Agent 365 Admin Center is licensed, admin-approved, owned, governance-template-bound, exception-monitored, inventory-exported, and (for the Researcher with Computer Use capability) configured per documented zone policy.
 >
 > **Scope:** Commercial M365 tenants holding Microsoft 365 E7 ("Frontier Suite") **or** the standalone Microsoft Agent 365 license layered on a Microsoft 365 Copilot prerequisite. Microsoft Agent 365 reached general availability on **May 1, 2026**.

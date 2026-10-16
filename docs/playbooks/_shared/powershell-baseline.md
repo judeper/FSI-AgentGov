@@ -45,7 +45,7 @@ Install-Module -Name <ModuleName> `
 |---|---|---|
 | `Microsoft.PowerApps.Administration.PowerShell` | **Desktop only** (Windows PowerShell 5.1) | 5.1 |
 | `Microsoft.PowerApps.PowerShell` | Desktop only | 5.1 |
-| `Microsoft.Graph` | Core (PS 7+) | 7.2 LTS or 7.4 |
+| `Microsoft.Graph` | PowerShell 7+ recommended; Windows PowerShell 5.1 supported with prerequisites | Verify .NET Framework / PowerShellGet prerequisites for 5.1 in the [SDK installation guide](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation) |
 | `ExchangeOnlineManagement` | Both Desktop and Core | 5.1 / 7.2+ |
 | `PnP.PowerShell` v2+ | **Core only** (PS 7+) | 7.2 |
 | `MicrosoftTeams` | Both | 5.1 / 7.2+ |
@@ -58,7 +58,7 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 }
 ```
 
-Without this guard, scripts run in PowerShell 7 silently fail or return empty results — producing **false-clean evidence**.
+The documented Power Apps modules use .NET Framework and are incompatible with PowerShell 6+ ([Microsoft guidance](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell)). Do not rely on any particular unsupported-shell failure mode such as an empty array; verify collection scope and errors explicitly.
 
 ---
 
@@ -177,4 +177,4 @@ If you find a control playbook in this framework that does **not** follow this b
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted shell documentation review only)*

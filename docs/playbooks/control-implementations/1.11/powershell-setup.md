@@ -41,7 +41,7 @@ related_controls: ["1.21", "1.23", "1.24", "2.6", "2.8", "2.12", "2.25", "2.26",
     - **Break-glass attestation** — the helpers verify that two break-glass accounts are excluded from every policy. They do **not** verify that those accounts'' credentials are escrowed, tested quarterly, or roster-attested. That is a [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) and SOX 404 obligation.
 
 !!! danger "License Dependency — Conditional Access for Workload Identities"
-    Conditional Access policies that target service principals, managed identities, or Entra Agent ID principals require the **Microsoft Entra Workload ID Premium** add-on SKU (priced per workload identity per month). Microsoft Entra ID P1 and P2 alone are **not sufficient**. Section [§5.3](#53-new-fsi-capolicy-workloadidentity) will refuse to deploy a workload-identity policy if the SKU is absent.     Confirm SKU availability with your Microsoft account team before running enforcement mode.
+    **Documentation correction verified 2026-10-16; no tenant execution:** Workload ID Premium is required to create/modify traditional workload CA policies for eligible single-tenant SPs. Existing policies can continue functioning without it. Managed identities and third-party/multitenant SaaS apps are unsupported; use SP object IDs, not app/group IDs. Entra Agent ID policies have separate licensing and token-subject targeting ([current control guidance](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)). Validate the example's SKU-detection inputs locally; a successful helper is not proof of enforcement.
 
 !!! warning "Token Protection Is Public Preview, Windows + Browser Specific"
     Token Protection for sign-in tokens is in **Public Preview** as of April 2026. It is currently effective only on Windows 10/11 with Microsoft Edge or Chrome via WAM (Web Account Manager). On macOS, iOS, Android, Linux, or unsupported browsers the policy **falls through** — the user is still challenged for MFA but the token is not cryptographically bound to the device. Do not rely on Token Protection as a sole compensating control for token-theft risk on heterogeneous fleets. Treat the helper [§5.4](#54-new-fsi-capolicy-sessioncontrols) as a **pilot deployment**, not a global enforcement.
@@ -75,7 +75,7 @@ If any v1.0 SignIns module is loaded before its Beta counterpart, **close the ho
 |---|--------|---------|------------------------|------------|
 | 1 | Mixed v1.0 + Beta Graph modules loaded; CA WID cmdlet binds to v1.0 stub | `New-MgIdentityConditionalAccessPolicy` succeeds; policy created without `clientApplications` block; report-only metrics show **zero workload identity sign-ins blocked** even under attack simulation | `Assert-Fsi-ShellHost` ([§2.1](#21-assert-fsi-shellhost)) | Throw on mixed modules; require `-Force` to bypass; record in evidence pack |
 | 2 | Authentication Methods Policy migration incomplete | Phishing-resistant grant evaluates as **legacy MFA**; FIDO2-only users see push prompts; SAW devices challenge for password | `Test-Fsi-AuthMethodsMigrationState` ([§2.3](#23-test-fsi-authmethodsmigrationstate)) | Throw with link to migration doc; do not deploy phishing-resistant CA grant until `migrationComplete` |
-| 3 | Workload Identities Premium SKU absent in tenant | CA WID policy creation returns HTTP 403 with `LicenseRequired`; or — worse — succeeds in some regions and silently no-ops | `Test-Fsi-WorkloadIdentitiesPremiumSku` ([§5.3](#53-new-fsi-capolicy-workloadidentity)) | Helper refuses to deploy; emits `Status = NotApplicable` with `Reason` naming the SKU |
+| 3 | Required entitlement absent or SKU probe unvalidated | Create/modify prerequisites are unresolved; HTTP status alone does not prove the cause or runtime behavior | Validate SKU detection against approved license records | Stop policy changes until resolved; do not infer that existing policies stop functioning |
 | 4 | Break-glass account excluded from policy A but **not** from policy B (operator drift) | Quarterly break-glass test fails when the missed-policy is the only one blocking break-glass IP range; firm''s incident-response RTO is breached | `Test-Fsi-BreakGlassExclusions` ([§7.3](#73-test-fsi-breakglassexclusions)) | Iterates **every** CA policy; emits `Status = Anomaly` with policy IDs missing the exclusion |
 | 5 | Managed identities and system-assigned SPs assumed to be in scope of Workload Identity CA | Operator believes 100% workload identity coverage; Microsoft excludes managed identities **by design** from Workload Identity CA scope | `Get-Fsi-WorkloadIdentityInventory` ([§3.4](#34-get-fsi-workloadidentityinventory)) | Returns explicit `InScope` and `ExcludedByDesign` properties so operators see the gap |
 | 6 | `SigninLogs` queried for agent / workload identity activity | Workspace shows zero agent sign-ins despite active agent traffic; gap report ships clean | `Invoke-Fsi-CAInsightsWorkbookCheck` ([§8](#8-sentinel-wiring-stub)) | Checks both `SigninLogs` and `AADServicePrincipalSignInLogs`; emits `Anomaly` if either table is missing |
@@ -124,7 +124,7 @@ The bootstrap helper [`Connect-Fsi-Graph111`](#22-connect-fsi-graph111) requests
 |-------|--------------|-----------------|-----------|
 | `Policy.Read.All` | Read existing CA policies and Authentication Methods Policy | §3.1, §3.2, §6, §7 | No |
 | `Policy.ReadWrite.ConditionalAccess` | Create / update CA policies and Authentication Strengths | §4, §5.1-§5.5 | **Yes** |
-| `Application.Read.All` | Enumerate service principals, managed identities, and Entra Agent ID registrations | §3.4 | No |
+| `Application.Read.All` | Ordinary application/SP enumeration; typed Agent ID collection separately requires `AgentIdentity.Read.All` | §3.4 | No |
 | `Directory.Read.All` | Resolve role assignments, group memberships, break-glass accounts | §3.3, §7.3 | No |
 | `AuditLog.Read.All` | Read sign-in logs (interactive, non-interactive, **service-principal**) for report-only analytics | §6, §8 | No |
 | `RoleManagement.Read.Directory` | Enumerate active and PIM-eligible role assignments for §3.3 | §3.3 | No |
@@ -1070,9 +1070,8 @@ function Test-Fsi-WorkloadIdentitiesPremiumSku {
 .SYNOPSIS
     Returns Status = Clean if the tenant has the Workload Identities Premium SKU; Anomaly otherwise.
 .DESCRIPTION
-    Queries directory subscriptions for the Workload ID Premium service plan id. The CA WID
-    cmdlets will succeed against tenants without this SKU but the resulting policy may silently
-    no-op in some regions. Defect catalogue #3.
+    Queries directory subscriptions using a locally validated Workload ID Premium service plan id.
+    Entitlement detection does not establish runtime policy evaluation. Defect catalogue #3.
 #>
     [CmdletBinding()]
     param()
@@ -1983,4 +1982,4 @@ The orchestrator emits the following artefacts to `$EvidenceRoot/<UTC-timestamp>
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted workload-CA documentation correction only)*
