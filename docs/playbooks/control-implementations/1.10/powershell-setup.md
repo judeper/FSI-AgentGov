@@ -4,6 +4,7 @@
 **Baseline:** [PowerShell baseline (`_shared/powershell-baseline.md`)](../../_shared/powershell-baseline.md)
 **Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Microsoft Copilot Studio agents.
 **Cloud:** Commercial (Global) — the deployment surface for US financial-services customers.
+**Technical documentation check:** 2026-10-16 — targeted evidence/session corrections only; no tenant commands or UI tests executed.
 **Required modules:** `ExchangeOnlineManagement` ≥ 3.5.0 (provides both `Connect-ExchangeOnline` and `Connect-IPPSSession`).
 
 !!! warning "Read the FSI PowerShell baseline first"
@@ -21,12 +22,12 @@
 
 ## 0. Wrong-shell trap (READ FIRST)
 
-Communication Compliance and Supervisory Review cmdlets live in **two separate PowerShell sessions**. Running a cmdlet in the wrong session produces either a `CommandNotFoundException` or, worse, **silent zero results that look like clean evidence**. Every script block in this playbook is labelled with its required session — do not strip those labels when copying.
+Use the connection documented for each cmdlet and verify tenant, permissions, and command availability. A connection label alone cannot establish complete evidence. Policy/rule references explicitly require IPPS; the activity reference describes a cloud-service cmdlet. Learn does not document CC audit events as exclusive to IPPS.
 
 | Cmdlet family | Required session | Module | If you run it in the wrong session |
 |---|---|---|---|
-| `*-SupervisoryReviewPolicyV2`, `*-SupervisoryReviewRule`, `Get-SupervisoryReviewActivity`, `Get-SupervisoryReviewReport` | `Connect-IPPSSession` (Security & Compliance / IPPS) | `ExchangeOnlineManagement` | `CommandNotFoundException` from `Connect-ExchangeOnline`. |
-| `Search-UnifiedAuditLog` for **CC operations** (`Supervision*`, `SupervisoryReviewTag`) | `Connect-IPPSSession` (IPPS) | `ExchangeOnlineManagement` | Returns rows from `Connect-ExchangeOnline` for some record types but **silently misses** Communication Compliance operations indexed only on the IPPS endpoint. |
+| Supervisory policy/rule reads; reviewer activity used here | `Connect-IPPSSession` for policy/rule reads; verify activity cmdlet availability | `ExchangeOnlineManagement` | Missing command or authorization is an error, not evidence of no policies/matches |
+| `Search-UnifiedAuditLog` for **CC operations** (`Supervision*`, `SupervisoryReviewTag`) | A verified supported cloud connection (IPPS used below; Exchange Online is also supported) | `ExchangeOnlineManagement` | Do not infer CC-specific omissions solely from the endpoint; verify permissions, filters, paging, and a positive control |
 | `Get-RoleGroup`, `Get-RoleGroupMember`, `Add-RoleGroupMember`, `Remove-RoleGroupMember` for *Communication Compliance* role groups | `Connect-IPPSSession` (IPPS) | `ExchangeOnlineManagement` | Exchange `Get-RoleGroup` exists but resolves a **different** role-group catalog and silently returns 0 hits for `*Communication Compliance*`. |
 | `Get-AdminAuditLogConfig` (to verify `UnifiedAuditLogIngestionEnabled`) | `Connect-ExchangeOnline` | `ExchangeOnlineManagement` | From `Connect-IPPSSession`, returns `False` for `UnifiedAuditLogIngestionEnabled` even when audit ingestion is on — Control 1.7 evidence becomes false-clean. |
 
@@ -40,7 +41,7 @@ Every Control 1.10 PowerShell session **must** start with the same five steps:
 
 1. Pin the `ExchangeOnlineManagement` module version (CAB-approved).
 2. Open a Security & Compliance PowerShell session.
-3. Connect to **IPPS** (Security & Compliance) — supervisory review and CC audit operations are IPPS-only.
+3. Connect to **IPPS** (Security & Compliance) for policy/rule reads; CC audit search is not documented as IPPS-only.
 4. Verify the caller is a member of `Communication Compliance Admins` (and optionally `Communication Compliance Investigators` for evidence collection runs).
 5. Verify the tenant has the licensing required for Communication Compliance (Microsoft 365 E5 / E5 Compliance / Insider Risk Management add-on).
 
@@ -113,9 +114,9 @@ function Initialize-Cc110Session {
 
     # 5. License surface check (informational — CC requires E5/E5 Compliance/IRM add-on)
     # Licensing detail belongs in Control 2.1; here we only flag the CC service plan.
-    $ccPolicies = Get-SupervisoryReviewPolicyV2 -ErrorAction SilentlyContinue
+    $ccPolicies = Get-SupervisoryReviewPolicyV2 -ErrorAction Stop
     if ($null -eq $ccPolicies) {
-        Write-Warning "Get-SupervisoryReviewPolicyV2 returned null. Tenant may lack the Communication Compliance / Insider Risk Management license. Verify in Microsoft 365 admin center before treating zero results as evidence."
+        Write-Warning "No policies returned. Reconcile expected portal inventory and effective permissions; this query is not a licensing test."
     }
 
     [PSCustomObject]@{
@@ -131,7 +132,7 @@ function Initialize-Cc110Session {
 }
 ```
 
-> **Why role membership is a hard pre-flight.** `Get-SupervisoryReviewPolicyV2` returns an **empty list** without throwing when the caller lacks permission. Without the membership assertion, an unauthorized run produces a zero-row evidence file that looks identical to a tenant with no policies — the exact pattern auditors flag as **fabricated false-clean evidence**.
+> **Evidence pre-flight.** Verify effective permissions and a known policy, not just direct membership in one role group. CC Admins can configure but cannot investigate messages; investigation requires the appropriate role and per-policy reviewer assignment. A null result is not a license test. Do not treat permission errors or empty results as proof of no policies.
 
 ---
 
@@ -156,6 +157,8 @@ This table is the single source of truth for what belongs in PowerShell vs. what
 | Configure tenant-wide audit ingestion (`UnifiedAuditLogIngestionEnabled`) | **Yes** — but that is **Control 1.7**, not 1.10 | Exchange Online PowerShell |
 
 > **Do not promote PowerShell as a substitute for portal CC policy CRUD.** If a sub-script in this playbook appears to "create a CC policy" via `New-SupervisoryReviewPolicyV2`, it is creating a **supervisory review** policy — a related but distinct object surface. Use it deliberately and document the choice in your change ticket.
+
+**Modern CC inventory boundary.** Reconcile raw reads with **Reports → Policy settings and status** and actual portal settings, as described in [1.10-POL-01](verification-testing.md#110-pol-01-per-template-policy-inventory). Projected fields such as `PreservationPeriodInDays`, `SamplingRate`, or `Enabled` are not a documented portable schema for every modern setting. A blank field does not prove a missing setting. Section 4 legacy examples are not the setup path for the modern verification catalog.
 
 ---
 
@@ -183,7 +186,7 @@ $policies |
 
 ```powershell
 # Session: IPPS
-foreach ($p in $policies) {
+$ruleInventory = foreach ($p in $policies) {
     $rules = Get-SupervisoryReviewRule -Policy $p.Guid -ErrorAction SilentlyContinue
     [PSCustomObject]@{
         PolicyName  = $p.Name
@@ -191,7 +194,8 @@ foreach ($p in $policies) {
         RuleCount   = ($rules | Measure-Object).Count
         Rules       = $rules | Select-Object Name, SamplingRate, ContentSources, Condition, Ocr
     }
-} | ConvertTo-Json -Depth 6
+}
+$ruleInventory | ConvertTo-Json -Depth 6
 ```
 
 ### 3.3 Snapshot Communication Compliance role-group membership
@@ -525,44 +529,53 @@ function Get-Cc110AuditEvidence {
     $ErrorActionPreference = 'Stop'
     New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
     $runId = [guid]::NewGuid().Guid
-    $ts    = Get-Date -Format 'yyyyMMddTHHmmssZ'
+    $ts    = Get-Date -AsUTC -Format 'yyyyMMddTHHmmssZ'
     Start-Transcript -Path (Join-Path $OutputDirectory "transcript-ual-$ts.log") -IncludeInvocationHeader
 
     try {
         $sessionId = "cc110-$runId"
         $all       = New-Object System.Collections.Generic.List[object]
         $pageIndex = 0
-        $maxPages  = 10   # 10 pages × 5000 rows = 50,000 row session ceiling
 
         do {
             $pageIndex++
-            $page = Search-UnifiedAuditLog `
+            $page = @(Search-UnifiedAuditLog `
                 -StartDate $StartUtc `
                 -EndDate   $EndUtc `
                 -Operations $Operations `
                 -SessionId $sessionId `
                 -SessionCommand ReturnLargeSet `
                 -ResultSize 5000 `
-                -ErrorAction Stop
+                -ErrorAction Stop)
 
             if ($null -eq $page -or $page.Count -eq 0) { break }
             $all.AddRange($page)
 
             Write-Verbose "Page $pageIndex returned $($page.Count) rows; cumulative=$($all.Count)"
 
-            if ($pageIndex -ge $maxPages -and $page.Count -eq 5000) {
+            if ($all.Count -ge 50000) {
                 throw "Session ceiling reached ($($all.Count) rows) without exhaustion. Narrow the date window and re-run; treating partial results as evidence is not safe."
             }
         } while ($true)
 
+        if (@($all | Where-Object { -not $_.Identity }).Count -gt 0) {
+            throw 'Missing audit identity; validate raw results before deduplicating evidence.'
+        }
+        $rows = @($all | Sort-Object Identity -Unique)
+
         # Emit JSON
         $jsonPath = Join-Path $OutputDirectory "ual-cc110-$ts.json"
-        $all | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+        ConvertTo-Json -InputObject $rows -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
 
         # Emit CSV (flattened AuditData JSON for spreadsheet review — NOT a retention store)
         $csvPath = Join-Path $OutputDirectory "ual-cc110-$ts.csv"
-        $all | Select-Object CreationDate, UserIds, Operations, RecordType, ResultIndex, ResultCount, Identity, AuditData |
-            Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+        if ($rows.Count -gt 0) {
+            $rows | Select-Object CreationDate, UserIds, Operations, RecordType, ResultIndex, ResultCount, Identity, AuditData |
+                Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+        } else {
+            '"CreationDate","UserIds","Operations","RecordType","ResultIndex","ResultCount","Identity","AuditData"' |
+                Set-Content -Path $csvPath -Encoding UTF8
+        }
 
         # Hashes + manifest
         $jsonHash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
@@ -584,7 +597,9 @@ function Get-Cc110AuditEvidence {
                 @{ file = (Split-Path $jsonPath -Leaf); sha256 = $jsonHash; bytes = (Get-Item $jsonPath).Length }
                 @{ file = (Split-Path $csvPath  -Leaf); sha256 = $csvHash;  bytes = (Get-Item $csvPath ).Length }
             )
-            rowCount      = $all.Count
+            rowCount      = $rows.Count
+            rawRowCount   = $all.Count
+            queryCompleted = $true
             pagesConsumed = $pageIndex
             generatedUtc  = (Get-Date).ToUniversalTime().ToString('o')
         }
@@ -601,7 +616,7 @@ function Get-Cc110AuditEvidence {
 
 ### 5.2 Per-policy reviewer activity collector
 
-`Get-SupervisoryReviewActivity` is the **per-policy** evidence path — distinct from UAL because it reflects reviewer dispositions (Compliant / Non-compliant / Questionable / Resolved) joined to the message item (`ItemSubject`, `ActivityId`, `ActionType`, `ActionAppliedBy`, `ItemStatusAfterAction`). Run it per supervisory review policy when an auditor asks for the reviewer trail behind a specific policy.
+`Get-SupervisoryReviewActivity` returns **reviewer actions**, not newly detected matches. Learn documents the example fields `PolicyId`, `ItemSubject`, `ActivityId`, `Timestamp`, `ActionType`, `ActionAppliedBy`, and `ItemStatusAfterAction`. Use actual returned action values and resolve actor identities rather than assuming a fixed enum or UPN representation. An empty result before review is legitimate; match evidence instead uses `Pending` details and `SupervisionRuleMatch`. **Export review activities** from the policy Overview page is a documented portal alternative.
 
 ```powershell
 # Session: IPPS
@@ -730,7 +745,7 @@ function Get-Cc110ReviewerReconciliation {
     $ccInvest = (Get-RoleGroupMember -Identity 'Communication Compliance Investigators' -ErrorAction SilentlyContinue).PrimarySmtpAddress
 
     $report = foreach ($p in Get-SupervisoryReviewPolicyV2) {
-        $activity = Get-SupervisoryReviewActivity -PolicyId $p.Guid -StartDate $start -EndDate $end -ErrorAction SilentlyContinue
+        $activity = Get-SupervisoryReviewActivity -PolicyId $p.Guid -StartDate $start -EndDate $end -ErrorAction Stop
         $actualReviewers = $activity | Select-Object -ExpandProperty ActionAppliedBy -Unique
         $declared = @($p.Reviewers)
 
@@ -756,7 +771,8 @@ function Get-Cc110ReviewerReconciliation {
 }
 ```
 
-> Use the **`ActedButNotDeclared`** column as a flag: anyone who tagged messages on a policy but is not in the policy's declared reviewer list is either (a) a permitted CC Admin acting on behalf of a reviewer — record the rationale, or (b) a permission gap that needs Control 1.10 + Control 2.8 (Access Control and Segregation of Duties) follow-up. Anyone in **`DeclaredButNeverActed`** for 90+ days is a reviewer-rotation candidate — surface them in your monthly attestation.
+> Normalize identities and compare against reviewer assignments **at the action time**, not just today's list. `ActedButNotDeclared` may reflect a historical reviewer change or an authorization gap; CC Admins alone cannot investigate/tag on behalf of a reviewer. Query errors are not inactivity. Validate historical assignments, effective roles, and policy-reviewer membership before raising a finding or rotating a reviewer.
+
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation check only; no tenant execution)*
 
 ---
-

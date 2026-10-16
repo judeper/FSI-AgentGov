@@ -4,6 +4,7 @@
 **Audience:** Microsoft 365 administrator at a US financial services organization, typically under audit pressure or active incident response.
 **Cloud:** Commercial (Global) — the deployment surface for US financial-services customers.
 **Last UI Verified:** May 2026
+**Technical documentation check:** 2026-10-16 — targeted corrections only; no tenant/UI execution
 
 ---
 
@@ -19,7 +20,7 @@ Microsoft Purview Communication Compliance (CC) is the **supervisory review plan
 |---|---|---|---|
 | **SEV-1** | CC policy covering a Zone 3 population of FINRA-supervised registered representatives is **off, deleted, mis-scoped, or producing zero matches** during a window where messages were known to flow; reviewer role group is empty (zero-administrator state); pseudonymization was disabled without a documented opt-in trail; an unauthorized identity opened message bodies; a Copilot-scoped CC policy is missing for a Zone 3 agent surface | Immediate | CISO + Compliance + Legal + Privacy within 1 h |
 | **SEV-2** | Coverage gap on a Zone 2 population (e.g., Teams Shared Channel not captured, Viva Engage scope missing, single business unit excluded); reviewer assigned at the role-group level but cannot open alerts (per-policy reviewer never assigned); PAYG not enabled for in-scope non-M365 AI; classifier model bumped and false-positive volume invalidated the prior week's review evidence; per-policy reviewer left the firm and replacement is not yet documented | 4 h | Communication Compliance Admin → AI Governance Lead within 4 h |
-| **SEV-3** | Single-user / single-channel coverage gap on a Zone 2 surface; processing window exceeded (Teams 48 h documented; non-M365 AI longer); OCR / translation regression on attachments; alert-routing notification email failure | 1 business day | Communication Compliance Admin |
+| **SEV-3** | Single-user / single-channel coverage gap on a Zone 2 surface; source-specific processing guidance exceeded (Teams up to 48 h; distinguish detection from processing and audit visibility); OCR / translation regression on attachments; alert-routing notification email failure | 1 business day | Communication Compliance Admin |
 | **SEV-4** | Cosmetic UI drift; tooltip / column ordering changes; preview-feature regression that does not affect coverage, reviewer access, or evidence | Best effort | Track in known-issues log |
 
 **Zone-aware reading:** Severity is interpreted against the in-scope user population. The same configuration error is SEV-1 against a Zone 3 broker-dealer population and SEV-3 against a Zone 1 administrator pilot. Always classify by the **regulatory exposure of the affected users**, not by the technical defect.
@@ -44,12 +45,12 @@ Microsoft Purview Communication Compliance (CC) is the **supervisory review plan
 
 A common audit finding in FSI is _"the policy was modified before the failing-state evidence was captured, and the firm cannot reconstruct what supervisory review was in effect during the relevant period."_ Do not be that finding. Capture the following artifacts **before** disabling, editing, re-scoping, or replacing reviewers:
 
-1. **Policy export.** Purview portal: Solutions > Communication Compliance > Policies > [policy] > **Export** (CSV of policy modification history, alerts pending review, escalated, resolved). Per Learn, this is the supported export — there is no `Get-CommunicationCompliancePolicy` equivalent.
+1. **Policy/export evidence.** Use **Reports → Policy settings and status** for configuration/status, **Export policy updates** for lifecycle changes, and the policy Overview's **Export review activities** for reviewer actions. These are distinct CSV exports; also preserve message details and raw policy/rule reads where available. Do not assume one generic Export includes every artifact.
 2. **Role-group snapshot** for: `Communication Compliance`, `Communication Compliance Admins`, `Communication Compliance Analysts`, `Communication Compliance Investigators`, `Communication Compliance Viewers`. Capture membership, AU restriction state, and effective permissions at UTC of capture.
 3. **Per-policy reviewer assignment snapshot** for every in-scope policy, including the **User-reported messages** policy (where a reviewer mis-assignment is the most common privacy violation in FSI — see §3).
 4. **Pending-queue screenshot** for the affected policy — full page, with the alert count, sample alerts, and timestamp visible.
 5. **Privacy / pseudonymization settings screenshot** — Communication Compliance > Settings > Privacy. Capture the pseudonymization state and the identity that last toggled it.
-6. **Audit-search export** for the suspect window from a `Connect-ExchangeOnline` session (NOT IPPS): `Search-UnifiedAuditLog` filtered for record types relevant to CC actions and message processing — verify the record-type names against the current Microsoft Learn `audit-log-activities` reference; do not assume names from prior playbooks. Paginate; cap 50,000 per session.
+6. **Audit-search export** from a verified supported cloud connection (`Connect-ExchangeOnline` or IPPS where available). Learn does not document CC audit results as exclusive to either endpoint. Use `SupervisionRuleMatch`, lifecycle operations (`Discovery`), and `SupervisoryReviewTag` (`AeD`); paginate, split windows at the 50,000-result session cap, and correlate raw payloads rather than assuming the audit actor equals the sender. Allow separate audit visibility time.
 7. **Classifier model version** — for any classifier-based policy, record the classifier and (where surfaced) the model version that was active at the time of the suspect window. A classifier model bump after the fact invalidates the prior baseline.
 8. **Feature availability confirmation** — verify against current Microsoft Learn that the in-scope features are available and enabled in the tenant.
 9. **PAYG billing state** for any in-scope non-Microsoft-365 generative AI source (Copilot in Fabric, Security Copilot, Microsoft Copilot Studio Copilots, connected external AI apps, browser-detected "Other AI apps"). Per Learn (`communication-compliance-channels`), PAYG is **required** for non-M365 AI sources; without it, the scope is silently empty.
@@ -125,10 +126,10 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Pseudonymization opted off without an audit trail | Per Learn, pseudonymization is **on by default**; turning it off without a documented privacy-register entry exposes raw user names to investigators and breaks the privacy-by-design model that CC is built on | Treat pseudonymization changes as evidence-bearing; require approver, date, justification, and review cadence; capture before/after screenshots |
 | Sampling instead of 100% review for FINRA-supervised registered representatives without a documented basis | The Learn-documented `Detect financial regulatory compliance` template defaults to **10% review** — that default is **not** appropriate for FINRA-supervised reps without a documented sampling methodology and supervisory plan | Use 100% review for the Copilot template (default) and Conflict-of-interest template (default); document any sampling deviation under FINRA 3110 procedures |
 | Treating Policy Match Preservation as the records-retention mechanism for SEC 17a-4 | CC retains copies of analyzed messages **for as long as the policy is in place** (Learn `communication-compliance-channels`); it is not WORM, not non-rewriteable, and is **deleted with the policy**. SEC 17a-4(b)(4) requires non-rewriteable, non-erasable retention for the required period | Pair CC with Records Management retention labels (Control 1.9) and an evidence export pipeline (Control 1.7) for SEC 17a-4 obligations; document the integration in the records-retention schedule |
-| Concluding "no match" within the Teams 48-hour processing window | Per Learn, Teams chats matching CC policy conditions may take up to 48 h to process; non-M365 AI sources can take longer | Wait the documented window before declaring a negative; record the message UTC and the assessment UTC |
+| Concluding "no match" before source-specific observation is complete | Learn distinguishes hourly body detection, channel processing, and audit visibility; it does not provide a universal non-M365 AI deadline | Record all UTCs, prove transport with a keyword control, and use complete queries; an absent classifier match alone is not a negative verdict |
 | Attempting CC policy CRUD via PowerShell | Per Learn (`communication-compliance-policies`), PowerShell is **not supported** for creating or managing CC policies. Any "fix" script that purports to mutate CC policy is wrong by construction | Perform all policy CRUD in the Microsoft Purview portal; if you need automation, use the documented Power Automate flows for **remediation actions on alerts** (a different surface) |
 | Removing or replacing a reviewer mid-investigation without preserving the prior reviewer-assignment snapshot | The reviewer's identity, assignment window, and decisions are part of the supervisory record; replacing them without snapshotting destroys the chain of custody | Snapshot per §1 BEFORE replacement; attach the prior reviewer's decision history to the incident ticket |
-| Disabling a policy as remediation before snapshotting its configuration | The disable action itself can clear in-flight alerts from the Pending queue and changes the evidence baseline | Snapshot per §1 first; if disable is required, capture the post-disable state too |
+| Pausing a policy before snapshotting its configuration | Pause can take up to 24 hours to propagate; it stops new inspection/alerts but preserves existing messages and alerts for review | Snapshot first; record pause completion and distinguish post-pause inputs from earlier matches and continuing reviewer activity |
 | Using the **`Inappropriate content`** template for Copilot scope | Per Learn `communication-compliance-policies`, the `Inappropriate content` template locations are **Microsoft Teams and Viva Engage only**, with Hate / Violence / Sexual / Self-harm classifiers — it does **not** cover M365 Copilot. Using it for Copilot scope produces a silent zero | Use the **`Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions`** template (location: M365 Copilot + Copilot Chat; Prompt Shields + Protected material classifiers; 100% review by default) |
 | Mistaking IRM behavioral signals for supervisory review | IRM is user-behavior risk (Control 1.12); CC is supervisory review of conduct content. They have different review queues, different reviewers, different evidence, and different regulatory framings | Keep them separate; cross-reference where appropriate but do not treat one as the other |
 | Authoring CC policy from a Restricted-AU admin and assuming tenant-wide effect | If the author is AU-restricted, the policy may be scoped to that AU silently; the effective scope can be narrower than intended | Author with an **unrestricted** Communication Compliance Admin; only use AU-restricted authors when AU scoping is the explicit intent |
@@ -145,8 +146,8 @@ The single most common cause of misdirected investigation in FSI is reaching for
 |---|---|---|
 | Test sender is **out of scope** of the policy's user list | Purview > Communication Compliance > Policies > [policy] > Users in scope; verify sender UPN | Add sender to scope OR send from an in-scope identity |
 | **Direction** of the test message does not match the policy direction (Inbound / Outbound / Internal) | Policy > Conditions > Direction; cross-reference with how the test message was sent | Resend in a direction the policy covers; or widen the policy direction with documented approval |
-| **Processing window not elapsed** — Teams up to 48 h per Learn (`communication-compliance-channels`); non-M365 AI longer | Record message UTC vs assessment UTC | Wait the documented window before declaring negative |
-| Policy in **`TestWithoutNotifications`** or saved-but-not-enabled state | Policy > Status / mode | Move to enabled; allow propagation |
+| Detection, processing, or audit observation is incomplete | Record each timestamp separately; Learn lists 1-hour body detection, Teams processing up to 48 h, and separate CC audit visibility up to 48 h | Use [verification §3](verification-testing.md#3-documented-processing-windows-not-slas); these are not guaranteed end-to-end SLAs or a blanket non-M365 AI ceiling |
+| Policy is paused or not yet processing | Verify portal status and last scan rather than assuming a DLP-style `TestWithoutNotifications` mode | Resume through the portal when approved; allow up to 24 hours for pause/resume propagation |
 | Review percentage is **< 100%** and the test message was outside the sampled set | Policy > Review percentage | Set 100% for in-scope FINRA-supervised reps; document any sampling deviation |
 | Classifier-only condition and the test content is below the classifier confidence threshold | Test with content that previously matched the classifier | Add a deterministic SIT or keyword condition for the test; do not rely on classifier confidence for go/no-go validation |
 
@@ -188,12 +189,12 @@ The single most common cause of misdirected investigation in FSI is reaching for
 
 | Likely cause | Fix |
 |---|---|
-| OCR not enabled on the policy | Enable OCR **per policy** on the **Conditions** page (Customize/Custom policy → **Optical character recognition (OCR)** → **Use OCR to extract text from images**); CC OCR is not a tenant/global toggle. Allow ~1 hour to take effect |
+| OCR not enabled on the policy | Enable CC's built-in OCR per policy. Learn lists 24-hour email/Teams OCR detection and up to 48 hours for detected images to appear with alerts; do not add a fabricated one-hour OCR delay |
 | Image quality below threshold or unsupported image format | Verify the format is supported per current Learn; re-test with higher-quality sample |
 | Attachment over the supported size limit | Verify size limit on current Learn; surface large-file gap as a known limitation |
 | Image embedded in a Teams modern attachment that itself is not in the supported file list | Confirm container file type is in the supported modern-attachment list |
 
-**Reference:** Microsoft Learn — `communication-compliance-feature-reference` (verify; if 404, use `communication-compliance` index).
+**Reference:** Microsoft Learn — `communication-compliance-policies`, **Configure optical character recognition (OCR) scanning**. The former feature-reference path returned 404 during this documentation check.
 
 ### Symptom 6 — Non-English messages need translation
 
@@ -212,14 +213,14 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Microsoft published a classifier model update; the classifier behaves differently than the prior baseline | Compare alert volume week-over-week; check the classifier name in alert details against the recorded baseline classifier model version | Re-baseline the classifier; document the model-version change in the supervisory record; **do not** silently re-tune the policy without preserving the prior baseline (auditor needs to see what changed and when) |
 | Tuning that previously suppressed a class of alerts no longer applies under the new model | Review tuning rules / exclusions | Re-validate exclusions; re-test against the prior known-match corpus |
 
-**Reference:** Microsoft Learn — `communication-compliance-feature-reference` (classifiers section); supervisory-record template in Control 2.12.
+**Reference:** Microsoft Learn — `communication-compliance-policies`, classifier sections; supervisory-record template in Control 2.12. Record a model version only if actually surfaced; no version-query interface is established by this review.
 
 ### Symptom 8 — Historical matches disappeared due to Policy Match Preservation expiry
 
 | Likely cause | Diagnostic | Fix |
 |---|---|---|
 | Policy was **deleted** — per Learn, deleting a CC policy deletes the copies of messages associated with it | Audit-log search for policy deletion event; reconcile against the policy export captured before deletion (you did capture it per §1, right?) | Restore from the pre-deletion evidence pack and the Records Management retention pipeline (Control 1.9); CC is **not** the SEC 17a-4 records mechanism — see §3 |
-| Reviewer cleared / resolved alerts past the firm's review-record retention | Cross-reference with retention schedule | Re-export the policy CSV; pair with eDiscovery (Control 1.19) hold for the relevant period |
+| Policy matches expired under global preservation (default 1 year) or a policy override | Inspect **Settings → Communication Compliance → Policy Match Preservation** and **Edit policy → Name and describe your policy → Preserve policy matches**; valid choices include intentional Global Setting inheritance | Document the effective period and prospective effect of changes. Increasing preservation does not recover deleted matches; use retained originals/exports and Control 1.19 where appropriate |
 
 **Reference:** Microsoft Learn — `communication-compliance-channels` (retention section); Control 1.9 Data Retention and Deletion Policies; Control 1.19 eDiscovery.
 
@@ -238,8 +239,8 @@ The single most common cause of misdirected investigation in FSI is reaching for
 
 | Likely cause | Fix |
 |---|---|
-| Message is encrypted with **Office Message Encryption (OME)** / Microsoft Purview Message Encryption — CC analyzes content **after** transport-level handling; encryption-related visibility issues belong to the OME control, not CC | Triage to OME / Message Encryption configuration; verify the message was actually delivered and indexed; do not assume CC failure |
-| Message has a sensitivity label with encryption applied; CC analyzes content but reviewer perception of "encrypted" may reflect label-driven rights, not CC visibility | Verify the label rights and the reviewer's role group access; CC reviewer access is governed by role group, not label |
+| OME / Microsoft Purview Message Encryption scenario has not been validated for CC | Delivery/indexing is not proof of CC content access. Compare with an identical unencrypted keyword positive control and record the mode, issuer, direction, and supported-configuration evidence |
+| Sensitivity-label encryption or reviewer permissions restrict visibility | Verify both protection configuration and CC role/reviewer assignment; do not assume the label or role bypasses decryption restrictions. See [1.10-OME-01](verification-testing.md#110-ome-01-encrypted-message-handling-boundary) |
 | Inbound encrypted email from external sender — content may not be decrypted for CC analysis | Document the external-encryption gap; route via DLP at the gateway or via a documented decryption pipeline |
 
 **Reference:** Microsoft Learn — Office Message Encryption documentation (out of scope for this control); Control 1.5 DLP.
@@ -340,4 +341,4 @@ Subject: Communication Compliance supervisory-review degradation — [date]
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation check only; no live UI execution)*

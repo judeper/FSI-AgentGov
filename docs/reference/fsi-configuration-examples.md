@@ -190,6 +190,8 @@ Review: Compliance Committee quarterly
 
 #### Control 1.10: Communication Compliance
 
+**Implementation caveat (documentation checked 2026-10-16; no tenant test):** This is a firm design example, not a list of built-in CC detector/action names. Configure and validate actual keyword/SIT/classifier conditions, onboard the supported Copilot Studio source under **Microsoft Copilot experiences**, and enable PAYG for that non-M365 AI data. **Retain all communications** below is implemented separately through Control 1.9, not a CC action or Policy Match Preservation. The 24-hour review SLA is an organizational workflow target, not a portal-enforced CC setting. See the [source-specific verification catalog](../playbooks/control-implementations/1.10/verification-testing.md).
+
 **Policy Configuration:**
 ```
 Policy Name: Investment-Research-Compliance
