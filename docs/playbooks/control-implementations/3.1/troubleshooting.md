@@ -63,7 +63,7 @@ The evidence floor below is the **minimum** preservation set for every SEV-1 and
 |---|---|---|---|---|
 | **E-01** | Surface screenshots: Copilot Hub agent list view, PPAC Copilot agents view, Agent 365 (where licensed), governance register UI | Hub / PPAC / Agent 365 / register | Full-page screenshots with visible URL bar, timestamp, operator UPN | Capture **before** any remediation; refresh once and recapture to detect propagation lag. |
 | **E-02** | PPAC + Dataverse `bot` table snapshot | Power Platform Admin PowerShell (`Get-AdminPowerApp` for canvas apps; Dataverse Web API for bots) | `Get-AdminPowerApp -EnvironmentName <env>` (canvas only); `GET {orgUrl}/api/data/v9.2/bots` for Microsoft Copilot Studio | **Critical**: `Get-AdminPowerApp` does NOT return Copilot Studio agents. Query Dataverse `bot` and `botcomponent` tables directly. |
-| **E-03** | Microsoft Graph snapshot | `graph.microsoft.com` | `GET /applications`, `GET /servicePrincipals` (with appRoleAssignments), `GET /copilot/agents` (preview), `GET /agents` (preview) | Page through all results; capture `@odata.nextLink` chain; record API version. |
+| **E-03** | Microsoft Graph snapshot | `graph.microsoft.com` | `GET /applications`, `GET /servicePrincipals`, per-SP grants/assignments, `GET /servicePrincipals/microsoft.graph.agentIdentity`, `GET /copilot/admin/catalog/packages` | Page through all results; record version, entitlement, permission and source-specific IDs. See [Control 1.2 sources](../1.2/powershell-setup.md#documentation-verification-ledger). |
 | **E-04** | Governance register state | Register store (SharePoint list, Dataverse table, Sentinel watchlist, etc.) | API export with timestamp + operator UPN | Capture register version/etag if available. |
 | **E-05** | Purview audit log paginated export | Purview compliance portal / `Search-UnifiedAuditLog` | Export filtered for agent operations across the incident window ±24h | Account for ~60–90 min surfacing latency; do NOT close the search until latency window has elapsed. |
 | **E-06** | Microsoft Purview DSPM for AI — Activity Explorer | Purview portal → DSPM for AI | Export filtered to affected agent(s) and zone(s) | Cross-reference to Control 1.6 evidence package. |
@@ -125,7 +125,7 @@ L4 and L5 communications must be drafted with privilege markings and routed thro
 
 ### §1.7 Worked SEV-1 Example — "Project Atlantis"
 
-A regulated relationship-manager (RM) Copilot Studio agent named "Atlantis Advisor" appears in Purview DSPM for AI usage logs at 14:03 ET on a Tuesday. It is making approximately 40 interactions per hour with high-net-worth client data. It is **not** in the Copilot Hub agent list, **not** in the PPAC Copilot agents view, **not** returned by `GET /copilot/agents` in Microsoft Graph, and **not** in the governance register. The triggering signal is a Sentinel detection wired to Control 3.9 that compares Purview Activity Explorer "agent name" cardinality to the consolidated inventory and alerts on net-new entries.
+A regulated relationship-manager (RM) Copilot Studio agent named "Atlantis Advisor" appears in Purview DSPM for AI usage logs at 14:03 ET on a Tuesday. It is making approximately 40 interactions per hour with high-net-worth client data. It is **not** in the Copilot Hub agent list, **not** in the PPAC Copilot agents view, **not** returned in the collected Microsoft Graph package catalog, and **not** in the governance register. The triggering signal is a Sentinel detection wired to Control 3.9 that compares Purview Activity Explorer "agent name" cardinality to the consolidated inventory and alerts on net-new entries.
 
 **T+0 (14:03 ET).** Sentinel alert fires; on-call AI Governance Lead acknowledges within 4 minutes. Initial severity rated **SEV-2** pending evidence (regulated zone suspected from the "RM" naming). Operator context manifest (E-13) captured.
 
@@ -133,7 +133,7 @@ A regulated relationship-manager (RM) Copilot Studio agent named "Atlantis Advis
 
 **T+0:15.** L3 + L4 paged. Compliance Operations, CCO delegate, CISO on-call joined the bridge. Reportability tree walk (§1.2) initiated. Initial answers: Q1 **Yes** (RM agent → supervisory perimeter); Q2 **Maybe** (records preservation depends on Purview retention scope, which is unconfirmed); Q4 **Yes** (AI tool, member-firm capacity); Q5 **Maybe** (HNW client data → likely NPI in scope); Q6 **TBD** (materiality assessment to be made by Disclosure Committee); Q7 **Maybe** (NYDFS-regulated entity; 72h clock provisionally starts at 14:03 ET); Q8 **No** (advisory, not a "model" under Fed SR 26-2 (formerly SR 11-7)); Q9 **Yes** (Safeguards control failure on customer information); Q10 **N/A** (not a CFTC-registered entity).
 
-**T+0:30.** Compensating controls applied: maker-restriction freeze on net-new Copilot Studio agents in Wealth-Prod-East; Purview eDiscovery hold on the prior owner's mailbox + Teams + OneDrive; supervisory blind-window notification sent to Wealth Management Compliance. Microsoft Graph snapshot (E-03) completed; the agent **is** returned by `GET /copilot/agents` (preview) but with `displayName` differing from the Dataverse record by a single character — explaining why the Hub / PPAC fuzzy joins didn't match.
+**T+0:30.** Compensating controls applied: maker-restriction freeze on net-new Copilot Studio agents in Wealth-Prod-East; Purview eDiscovery hold on the prior owner's mailbox + Teams + OneDrive; supervisory blind-window notification sent to Wealth Management Compliance. Microsoft Graph snapshot (E-03) completed; a corresponding package **is** returned by `GET /copilot/admin/catalog/packages` with a differing `displayName`. Retain package/manifest/app identifiers and verify the source relationship rather than treating fuzzy name matching as identity proof.
 
 **T+1:00.** Root cause identified: the agent was created from a Copilot Studio template by the prior owner, then renamed via the Copilot Studio UI in a way that updated the Dataverse `name` but not the Hub-cached `displayName`. PPAC `Get-AdminPowerApp` did not return it because that cmdlet returns canvas apps, not bots. The DLP policy in scope was scoped by `displayName`-prefix and missed it. Purview audit log search (E-05) shows the rename event ~16 hours ago.
 
@@ -150,7 +150,7 @@ A short index of the highest-yield diagnostic queries used throughout this playb
 | Code | Purpose | Source |
 |---|---|---|
 | **DQ-1** | List Copilot Studio bots in an environment (canonical inventory of the surface that PPAC / Hub depend on) | Dataverse Web API: `GET {orgUrl}/api/data/v9.2/bots?$select=botid,name,createdon,modifiedon,_ownerid_value,componentstate,statecode` |
-| **DQ-2** | List declarative agents and Copilot extensions registered to the tenant | Microsoft Graph: `GET /copilot/agents` (preview); `GET /applications?$filter=tags/any(t:t eq 'M365Copilot')` |
+| **DQ-2** | List cataloged packages and reconcile identity/environment records | Microsoft Graph: `GET /copilot/admin/catalog/packages` (`CopilotPackages.Read.All`, Agent 365 license); do not substitute tag-filtered applications for a complete catalog |
 | **DQ-3** | Audit recent agent operations (create/update/delete/rename/share) | Purview: `Search-UnifiedAuditLog -Operations 'BotCreated','BotUpdated','BotDeleted','SharePointAppCreated' -StartDate ... -EndDate ...` |
 | **DQ-4** | Identify orphaned agents (owner disabled, owner left, owner missing) | Cross-join Dataverse `bot._ownerid_value` ↔ Entra `users.accountEnabled / employeeLeaveDateTime` |
 | **DQ-5** | Identify zone / regulated-data classification mismatch | Cross-join governance register `zone` ↔ DSPM Activity Explorer "data classifications observed" |
@@ -222,7 +222,7 @@ The seven pillars below are organized by **inventory source** (Pillars 1–4) an
 
 **Common symptoms.**
 
-- `GET /copilot/agents` returns 404 or an empty page in a tenant where agents demonstrably exist.
+- A documented package or identity query fails, or returns no rows despite known positive controls; capture the exact request and collection outcome.
 - `GET /applications` does not include declarative agents added via Copilot Studio publishing flow.
 - Pagination is not followed; a single page is treated as "all".
 - Throttling (HTTP 429) drops results silently in poorly written enumeration scripts.
@@ -230,9 +230,9 @@ The seven pillars below are organized by **inventory source** (Pillars 1–4) an
 **Diagnostics.**
 
 1. Confirm the correct Graph host: `graph.microsoft.com`. A misconfigured connection can return **404 with no error context** that suggests a routing problem.
-2. Confirm the API version. `/copilot/agents` and `/agents` endpoints are preview; pin and record the version in E-14.
+2. Confirm current documented routes and versions. Agent ID uses `/servicePrincipals/microsoft.graph.agentIdentity`; packages use `/copilot/admin/catalog/packages`. Do not retry invented `/agents` or `/copilot/agents` paths as preview endpoints.
 3. Always page through `@odata.nextLink` until null; never rely on a single page. Capture the full page chain in E-03.
-4. Confirm the application or delegated permission scope (e.g., `Application.Read.All`, `CopilotSettings.Read.All` where required). Missing consent surfaces as 403 or as filtered (silently empty) results.
+4. Confirm each API's permission and entitlement: `Application.Read.All`, `AgentIdentity.Read.All`, or `CopilotPackages.Read.All` as applicable. Failed/missing-consent reads are not evidence of an empty compliant tenant.
 5. Honor `Retry-After` on 429s. Throttling-induced gaps look identical to "missing agents" if not retried.
 6. Compare Graph against Dataverse `bot` (DQ-1) for the same environment; the Graph and Dataverse views have different shapes (Graph is tenant-wide; Dataverse is per-environment) and require careful join keys.
 
@@ -869,4 +869,4 @@ The behaviors below are repeated failure modes observed in FSI Copilot inventory
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted API dependency review only)*

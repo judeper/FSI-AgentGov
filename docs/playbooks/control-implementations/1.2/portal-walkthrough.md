@@ -3,6 +3,8 @@
 **Control ID:** 1.2 — Agent Registry and Integrated Apps Management
 **Pillar:** 1 — Security & Identity
 **Last UI Verified:** May 2026
+
+**Last Verified:** 2026-10-16 (targeted documentation review; no tenant/UI execution or screenshots). Current Microsoft guidance places the agent registry at **Agents > All Agents > Registry**, not the historical **Copilot > Agents** path used below. Agent administration is capability-specific: do not treat the entire Agent 365 surface as preview or assume Copilot licensing unlocks every feature. The package API requires Agent 365; traditional workload CA creation/modification and risky-SP APIs require Workload ID Premium. Follow the [current source and implementation boundaries](powershell-setup.md#documentation-verification-ledger).
 **Estimated Time:** 6–10 hours initial buildout; 60–90 min per agent registration thereafter
 **Audience:** Entra App Admin, AI Administrator, Power Platform Admin, Compliance Officer, Agent Sponsor
 **Prerequisites:** Control 1.1 (Conditional Access for Agents) implemented; sponsor eligibility groups provisioned per `sponsorship-lifecycle-workflows.md`; Microsoft 365 E5 + Microsoft Entra ID P2 + Defender for Cloud Apps + Purview Audit (Premium) tenant licensing.
@@ -53,9 +55,9 @@
     | Conditional Access for workload identities (§12) | **Microsoft Entra Workload Identities Premium** (separate add-on; not part of Entra ID P2) |
     | Identity Governance access reviews on app assignments and owners | **Microsoft Entra ID Governance** (or Entra ID P2 for the basic access review feature) |
     | Lifecycle Workflows for sponsor-departure automation | Microsoft Entra ID Governance |
-    | Agent ID surface in Enterprise Applications | Tenant must have **Microsoft 365 Copilot** licenses provisioned; surface enables only after first agent is created in Microsoft Copilot Studio or Agent Builder |
+    | Entra Agent ID | Verify Agent ID feature entitlements separately; do not infer availability from creation of a first Copilot Studio agent or a Copilot license alone |
     | Microsoft 365 Integrated Apps blade (deploy / block / pending requests) | Microsoft 365 Apps for Enterprise or higher |
-    | Microsoft 365 Agents blade and Agent 365 (preview) | **Microsoft 365 Copilot** + tenant opt-in to Agent 365 preview program |
+    | Microsoft 365 agent management / Agent 365 | Feature-specific Microsoft 365, Copilot, or Agent 365 entitlement; package API specifically requires Agent 365 |
     | Power Platform Admin Center → Copilot agents resource view | Power Platform admin center access (no additional SKU); managed environments features require **Power Platform Managed Environments** add-on |
     | Connectors approval workflow (custom and certified connector requests) | Power Platform Managed Environments recommended; basic queue available without |
     | Defender for Cloud Apps — Cloud Discovery and OAuth app governance | **Microsoft Defender for Cloud Apps** standalone or as part of Microsoft 365 E5 Security |
@@ -90,7 +92,7 @@ A US financial services tenant typically exposes seven distinct surfaces where a
 | 1 | **Entra App Registrations** | `entra.microsoft.com` → Applications → App registrations | Custom-built apps and confidential clients with API permissions | Entra App Admin |
 | 2 | **Entra Enterprise Applications** (incl. Agent ID surface) | `entra.microsoft.com` → Applications → Enterprise applications | Service principals (the tenant-side projection of every app), gallery apps, and the Agent ID surface for Copilot agents | Entra App Admin / Entra Agent ID Admin |
 | 3 | **M365 Integrated Apps** | `admin.microsoft.com` → Settings → Integrated apps | Third-party Microsoft 365 add-ins, Teams apps, Outlook add-ins; Deploy / Block / Pending request queue | AI Administrator |
-| 4 | **M365 Agents blade / Agent 365 (preview)** | `admin.microsoft.com` → Copilot → Agents | First-party Copilot agents, declarative agents, custom Copilot agents | AI Administrator |
+| 4 | **M365 Agent Registry** | `admin.microsoft.com` → Agents → All Agents → Registry | Microsoft, external partner-built, Shared by creator, and Published by your org records | AI Administrator |
 | 5 | **Power Platform Admin Center → Copilot Agents** | `admin.powerplatform.microsoft.com` → Resources → Copilot agents | Copilot Studio agents per environment | Power Platform Admin |
 | 6 | **Power Platform Connectors approval queue** | `admin.powerplatform.microsoft.com` → Data → Custom connectors / Connector requests | Custom connectors and certified-connector requests | Power Platform Admin |
 | 7 | **Defender for Cloud Apps — OAuth App Governance** | `security.microsoft.com` → Cloud apps → OAuth apps | OAuth-consented third-party apps discovered post-consent | Entra Security Admin |
@@ -105,13 +107,13 @@ Every step in this playbook can be performed in the portal or in PowerShell. Use
 | Activity | Portal | PowerShell | Recommendation |
 |----------|:------:|:----------:|----------------|
 | First-time registration of one agent | ✅ | ✅ | **Portal** — visual confirmation of metadata fields prevents typo errors that downstream reconciliation will surface as orphans |
-| Bulk owner backfill across 50+ existing apps | ⚠️ Tedious | ✅ | **PowerShell** (see `powershell-setup.md`) |
+| Bulk owner backfill across 50+ existing apps | ⚠️ Tedious | Separate approved writer required | The companion playbook only collects ownership evidence |
 | Quarterly SP/MI hygiene snapshot | ⚠️ Incomplete | ✅ | **PowerShell** — the portal cannot enumerate all credential expirations or last-sign-in dates in one view |
 | Examiner audit-pull (point-in-time reconstruction) | ⚠️ Slow | ✅ | **PowerShell** for data extraction; portal screenshots for visual evidence |
 | Three-signature attestation | ✅ | ❌ | **Portal** — the human signatures are the control |
-| Sponsor metadata update on existing agent | ✅ | ✅ | Either; portal is auditable per-field |
+| Sponsor metadata update on existing agent | ✅ | Separate approved writer required | Not implemented by the read-only collection examples |
 | Consent grant approval | ✅ | ⚠️ Possible | **Portal** — admin consent grants must be reviewed visually in the consent request blade |
-| Agent retirement and SP deletion | ✅ | ✅ | **PowerShell** for SP deletion; **portal** to verify the registry status field flips to `Retired` |
+| Agent retirement and SP deletion | Verify actual surface | Separate approved writer required | Verify intended source-specific lifecycle effects; do not assume SP deletion sets a universal registry `Retired` field |
 
 When you use PowerShell for any step, re-open the corresponding portal blade and screenshot the resulting state. The screenshot, with timestamp and admin upn visible, is the audit evidence — the script log is corroborating.
 
@@ -177,7 +179,7 @@ Before you register a single agent, complete these gates. Each gate has a portal
 1. Open `entra.microsoft.com` → **Protection → Custom security attributes**.
 2. Confirm an attribute set named `AgentRegistry` exists, with at least these attributes defined: `Zone`, `BusinessUnit`, `AgentSponsor`, `BackupOwner`, `ComplianceOfficer`, `DataClassificationMax`, `RegulatedDataInScope`, `StepUpRequired`, `CompensatingControls`.
 3. Confirm the **Attribute Assignment Reader** and **Attribute Assignment Administrator** roles are scoped to the App Admin team and the Compliance team respectively.
-4. If the set or any attribute is missing, create per the schema in §1 before proceeding. (PowerShell automation in `powershell-setup.md` §3.)
+4. If the set or any attribute is missing, provision it through a separately approved attribute-management procedure. The read-only PowerShell examples in `powershell-setup.md` do not create these attributes, assign owners, approve consent, or update store settings.
 
 ### 2.3 Gate C — Audit Logging Active and Retention Confirmed
 
@@ -1041,4 +1043,4 @@ This playbook describes a configuration and operating discipline that **supports
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation review 2026-10-16; UI last verified May 2026)*

@@ -99,7 +99,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | Control | Control Name | Required License | Notes |
 |---------|--------------|------------------|-------|
 | **1.1** | Restrict Agent Publishing | Power Platform Premium | Managed Environments required |
-| **1.2** | Agent Registry | Microsoft 365 E3+ | Integrated Apps in M365 Admin |
+| **1.2** | Agent Registry | Feature-specific Microsoft 365 entitlement; Agent 365 for package API | Do not extrapolate Integrated Apps access to every collection plane. See [Control 1.2 sources](../playbooks/control-implementations/1.2/powershell-setup.md#documentation-verification-ledger), documentation reviewed 2026-10-16 |
 | **1.3** | SharePoint Content Governance | Microsoft 365 E3+ | SharePoint included; SAM for advanced |
 | **1.4** | Advanced Connector Policies | Power Platform Premium | Managed Environments + Environment Groups |
 | **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection. **Note:** DLP for Copilot *prompts* is available to all M365 Copilot/Copilot Chat users at no additional cost (any SKU); DLP to restrict Copilot from *processing files/emails* requires E5/Purview Suite |
@@ -108,7 +108,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.8** | Runtime Protection | Power Platform Premium + Microsoft Agent 365 (per-user) for AI Agent Inventory and Defender agent security from **July 1, 2026** | Managed Environments feature; Defender for Cloud Apps surfaces AI Agent Inventory during the grace period. **Effective July 1, 2026, AI Agent Inventory and Defender agent security require Microsoft Agent 365** (see **Note A** above). |
 | **1.9** | Data Retention | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
 | **1.10** | Communication Compliance | Microsoft 365 E5 or Microsoft Purview Suite | Purview Communication Compliance |
-| **1.11** | Conditional Access & MFA | Microsoft Entra ID P1 (basic) or P2 (advanced) | P2 for risk-based policies |
+| **1.11** | Conditional Access & MFA | User features: P1/P2; traditional workload CA create/modify: Workload ID Premium; agent CA: E7 or Agent 365 with Entra P1/M365 E3 | Different token subjects and supported identity types require separate [policy/licensing review](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) |
 | **1.12** | Insider Risk | Microsoft 365 E5 or E5 Insider Risk | Purview Insider Risk Management |
 | **1.13** | Sensitive Information Types | Microsoft 365 E5 or Microsoft Purview Suite | Custom SITs require E5 |
 | **1.14** | Data Minimization | Power Platform Premium | Environment-level controls |

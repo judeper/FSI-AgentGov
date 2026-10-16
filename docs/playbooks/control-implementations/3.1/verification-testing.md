@@ -6,6 +6,8 @@
 **Cloud scope:** Microsoft 365 Commercial (Global) cloud.
 **Last UI verified:** May 2026
 
+**Upstream contract reviewed 2026-10-16 (documentation only):** Control 1.2 now supplies read-only raw collections and an application-grouping projection, not a complete canonical inventory or automatic attestation. Require a reviewed per-plane outcome/scope/retention ledger and source-ID mapping before accepting its denominator. Missing/failed evidence cannot become zero findings, 90-day dormancy, or effective CA coverage. Verify a separately signed catalog and its file contents; JSON is not itself an Authenticode signing target. See the [current source ledger](../1.2/powershell-setup.md#documentation-verification-ledger). No tenant tests were run for this dependency review.
+
 ---
 
 ## Regulatory hedging notice
@@ -1009,4 +1011,4 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (upstream evidence-contract review only)*

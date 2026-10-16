@@ -376,7 +376,7 @@ The Agent 365 Admin Center shows a different ownerless / orphaned-agent count th
 
 1. Capture both inventories at a single timestamp:
    - `$console = Get-Agt225InventoryExport -Format Json -Filter "ownership eq ''ownerless''"`
-   - `$registry = Get-AgtRegistry -Filter "ownership eq ''ownerless''"` (Control 1.2 helper, see [Control 1.2 portal walkthrough](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md))
+   - Capture a registry export and resolve owner identities using the [Control 1.2 collection examples](../1.2/powershell-setup.md). `Get-AgtRegistry` is not a provided Control 1.2 helper or verified Microsoft cmdlet; the collection output still needs ownership and source reconciliation.
 2. Compute set differences: agents in Console-only, in Registry-only, and in both. Persist to evidence library as E-05 enrichment.
 3. For each Console-only-ownerless agent, issue **GQ-03** and inspect the `owners` collection. Empty array or tombstoned owner → confirms ownerless. Service principal owner → RC-C.
 4. For each Registry-only-ownerless agent, query Registry-side reconciliation log for the most recent ownership-resolution attempt.
@@ -1166,4 +1166,4 @@ Within 5 business days of incident close, the incident commander updates this tr
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Control 1.2 helper dependency correction only)*

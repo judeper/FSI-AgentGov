@@ -33,7 +33,7 @@
     | Identity type | Examples | How MFA works | Conditional Access path |
     
     | **Human (interactive) identity** | Agent maker, agent owner, Power Platform Admin, AI Administrator, end-user invoking a Copilot agent in Teams | Interactive MFA prompt — passkey, FIDO2 security key, Windows Hello for Business, Microsoft Authenticator (push + number match) | Standard CA policy targeting `Users and groups` |
-    | **Agent / workload identity** | Service principal that runs a Copilot Studio agent, managed identity for an autonomous agent, Entra Agent ID registration, third-party connector app | **Cannot perform interactive MFA** (no human at the keyboard). Governed by certificate-based auth, managed identity, secret rotation, and **Conditional Access for Workload Identities** (CA-WID) which evaluates **location, sign-in risk, and named locations** instead of MFA strength | CA policy with `Users and workload identities → Workload identities` selected (requires the **Microsoft Entra Workload Identities Premium P1 add-on** licensed per service principal in scope) |
+    | **Agent / workload identity** | Distinguish ordinary single-tenant SP, managed identity, agent identity/blueprint, and agent-user account | Traditional workload CA covers eligible single-tenant SPs, not managed identities or third-party/multitenant SaaS apps; its grant is Block access. Agent-specific CA is a separate policy model. | [Current scope and licensing](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md); documentation review 2026-10-16, not tenant/UI execution |
 
     "MFA the agent" is a category error. Strong agent-identity governance means **(a)** issuing the agent a non-shared credential (managed identity preferred, then certificate, then secret with mandatory ≤90-day rotation), **(b)** scoping it via CA-WID to permitted IP ranges and risk thresholds, and **(c)** monitoring its sign-ins separately from human sign-ins. See §7 for the workload-identity path.
 
@@ -116,13 +116,13 @@ Open `https://admin.microsoft.com → Billing → Licenses`. Confirm the SKUs be
 
 | **Microsoft Entra ID P1** | Conditional Access for human users; Authentication Strengths | All licensed users in any CA policy scope |
 | **Microsoft Entra ID P2** | Identity Protection risk policies, PIM, risky-user CA conditions | All privileged-role holders |
-| **Microsoft Entra Workload Identities Premium (P1 add-on)** | Conditional Access for Workload Identities (CA-WID) | One per service principal, managed identity, or Entra Agent ID identity in CA-WID scope |
+| **Microsoft Entra Workload ID Premium** | Creation/modification of traditional workload CA policies | P1/P2 alone is insufficient; unsupported identity types do not become eligible through licensing |
 | **Microsoft 365 E5** *or* **Microsoft 365 E3 + Entra ID P2** | Token Protection (Preview), Continuous Access Evaluation | Privileged users, Z3 environment users |
 | **Microsoft Defender for Cloud Apps** *(optional)* | Session controls beyond CAE (cloud app reverse proxy) | As scoped |
 | **Microsoft Sentinel** | §11 workbook and analytic rules | Tenant-level |
 
 !!! warning "CA-WID without the P1 add-on fails open"
-    A Conditional Access policy that targets a **workload identity** without a **Microsoft Entra Workload Identities Premium** license assigned to that identity will **not enforce** — the policy simply does not evaluate. There is **no** in-portal warning for this. The only safe verification is to (a) attempt a deliberate denial scenario (block by named location) from outside the trusted IP range and (b) inspect the Sign-in logs (Service principal sign-ins tab) for the `conditionalAccessStatus` field. A `notApplied` status with the policy in scope is the symptom. See [`./troubleshooting.md`](./troubleshooting.md) issue T-07.
+    Workload ID Premium is required to create/modify traditional workload CA. Existing policies can continue functioning without it; neither a missing SKU nor `notApplied` alone proves a licensing failure. Validate eligibility, object-ID assignments, exclusions, conditions, policy state and evaluated sign-ins ([Microsoft guidance](https://learn.microsoft.com/en-us/entra/identity/conditional-access/workload-identity)).
 
 
 ### 0.4 Confirm break-glass accounts already exist
@@ -440,9 +440,9 @@ Before creating the policy, §0.2: each service principal you intend to scope mu
 
 1. `https://entra.microsoft.com → Identity → Applications → Enterprise applications → All applications`.
 2. Locate the service principal (filter by application type **Application** and search by name).
-3. Open the SP, go to **Properties**, and look for **Workload Identities Premium licensed: Yes/No**.
+3. Verify the current purchased/available entitlement through approved license administration; do not assume a native per-SP Properties field named **Workload Identities Premium licensed** exists.
 
-If the field reads **No**, the policy will not enforce against this SP. Acquire the license SKU through `https://admin.microsoft.com → Billing → Purchase services` before continuing.
+Resolve licensing before creating/modifying policies, but verify existing-policy behavior through actual sign-in evaluation rather than inferring enforcement from a license field.
 
 ### 7.2 Create Policy C in Report-only
 
@@ -450,7 +450,7 @@ If the field reads **No**, the policy will not enforce against this SP. Acquire 
 2. **Name:** `CA-003 — Workload identities — block agent SPs from non-permitted IPs and high risk`
 3. **Assignments → Users and workload identities**:
    - Switch the **Users and workload identities** dropdown to **Workload identities**.
-   - **Include → Select service principals**: add **(a)** every service principal that backs a Copilot Studio agent published to Z3, **(b)** every Entra Agent ID registration in Z3 (see §9), **(c)** any third-party application that has Graph or Dataverse permissions consented at admin level and is invoked on behalf of an agent.
+   - **Include → Select service principals**: directly select eligible single-tenant SP **object IDs**. Do not include managed identities or third-party/multitenant SaaS apps; configure Entra Agent ID policies separately for the actual token subject.
    - **Exclude:** Microsoft-first-party service principals required for tenant operations (do not include service principals owned by `Microsoft Services` or with publisher domain `microsoft.com` unless you have a specific reason).
 
 4. **Target resources → Cloud apps → Include → All cloud apps**.
@@ -473,8 +473,8 @@ The Sign-in logs blade has a **separate tab** for service principal sign-ins.
    - Is the source IP one that **should** be in the permitted set? Add it to `Workload Identity Permitted IPs` (§4.3).
    - Is this an unexpected service principal (compromised credential, shadow integration)? Disable the SP and open an incident — see [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for the analytic rule.
 
-!!! warning "Don't apply CA-WID to managed identities you cannot test"
-    A managed identity used by an Azure Function that posts to Microsoft Graph from a public Azure egress IP that you have not enumerated in §4.3 will be **blocked** the moment Policy C goes from Report-only to On. The 7-day soak window in §13 exists for exactly this reason. Plan to add IP ranges as you discover them and to extend the soak by another week if the Report-only failure rate has not stabilized.
+!!! warning "Managed identities are outside traditional workload CA"
+    A successful workload-CA test for an eligible SP does not cover an Azure Function's managed identity. Apply separately reviewed least-privilege, resource/network and monitoring controls; do not claim that report-only soak or a license makes MI targeting supported.
 
 ---
 
@@ -546,7 +546,7 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 
 1. Open Policy C (`CA-003`) from §7.
 2. Under **Assignments → Users and workload identities → Workload identities → Include → Select service principals**, add each agent identity from §9.2 that operates in **Zone 3**.
-3. Confirm each added SP has the **Workload Identities Premium** license (§7.1) — the field is on the SP's Properties page.
+3. Confirm current entitlement and supported SP scope (§7.1); do not rely on an assumed per-SP license field.
 4. Save the policy *(it remains in Report-only; promotion is governed by §13)*.
 
 ### 9.4 Cross-reference to the Agent 365 Admin Center
@@ -806,7 +806,7 @@ The patterns below have caused real outages in FSI tenants. Avoid them.
 | AP-02 | Disabling SMS / voice tenant-wide before users have registered alternatives | Locks out users mid-migration | Exclude `Privileged-Role-Holders` from SMS targets; leave SMS available as fallback for general users until passkey rollout completes — §2.6 |
 | AP-03 | Skipping Report-only and going straight to On | First incident is always tenant-wide | Mandatory 7-day Report-only soak — §13 |
 | AP-04 | Forgetting to exclude break-glass accounts | First tenant lockout produces an "open Microsoft support ticket" stress event | Always exclude `Break-Glass-Accounts` group on every policy — §12 |
-| AP-05 | Applying CA-WID to a service principal without the Workload Identities Premium SKU | Policy fails open silently; no enforcement | Verify SKU before promotion — §0.2, §7.1 |
+| AP-05 | Inferring runtime enforcement from licensing alone | Existing policies can continue without the SKU; unsupported identities remain unsupported | Verify entitlement before create/modify and actual targeting/evaluation before acceptance |
 | AP-06 | Using "Block access" with no `Require MFA` fallback for human users | Block is final; user has no path forward | Use `Grant access → Require authentication strength` for humans; `Block access` is correct only for workload identities |
 | AP-07 | Combining Token Protection requirement with macOS / mobile users in scope | Unsupported platform → blocked | Scope Token Protection to Windows-only via Device Platform condition — §8.4 |
 | AP-08 | Standing Entra Global Admin assignments | Compromise → tenant takeover | PIM eligible-only with phishing-resistant MFA on activation — §10 |
@@ -825,4 +825,4 @@ Continue with [`./verification-testing.md`](./verification-testing.md) to run th
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted workload-CA documentation correction only)*

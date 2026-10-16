@@ -523,7 +523,7 @@ $studio      = Search-FsiAuditLogPaged -StartDate (Get-Date).AddDays(-30) -EndDa
 # Directory audits (admin and configuration changes)
 Get-MgAuditLogDirectoryAudit -Filter "activityDateTime ge $((Get-Date).AddDays(-7).ToString('yyyy-MM-ddTHH:mm:ssZ'))" -Top 100
 
-# Sign-in logs (correlate agent identity sign-ins per Control 1.2 §8)
+# User sign-in sample only; not complete SP/agent evidence. For SPs use Control 1.2 §8's documented filter and retention boundary.
 Get-MgAuditLogSignIn -Filter "createdDateTime ge $((Get-Date).AddDays(-1).ToString('yyyy-MM-ddTHH:mm:ssZ'))" -Top 100
 
 # Audit Search query API (beta) — strategic forward path for unified audit search
@@ -969,4 +969,4 @@ After the run, copy the `evidence\1.7\` folder into the immutable container veri
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (sign-in sample scope clarification only)*
