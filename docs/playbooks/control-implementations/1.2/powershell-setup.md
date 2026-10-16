@@ -601,6 +601,16 @@ function Get-Agt12OwnershipAudit {
         }
 
         $resolved = @(foreach ($o in $owners) {
+            $odataType = if ($o.AdditionalProperties -and $o.AdditionalProperties.ContainsKey('@odata.type')) {
+                [string]$o.AdditionalProperties['@odata.type']
+            } else { '' }
+            if ($odataType -and $odataType -ne '#microsoft.graph.user') {
+                $spName = if ($o.AdditionalProperties.ContainsKey('displayName')) { [string]$o.AdditionalProperties['displayName'] } else { $null }
+                [pscustomobject]@{
+                    OwnerId=$o.Id; Upn=$null; DisplayName=$spName; Enabled=$false; Kind="NonUser:$odataType"
+                }
+                continue
+            }
             $u = Resolve-User $o.Id
             if ($u) {
                 [pscustomobject]@{

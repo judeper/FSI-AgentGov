@@ -11,7 +11,7 @@
 | # | Step | Expected Result | Evidence |
 |---|------|-----------------|----------|
 | 1 | Pipelines exist for every Zone 2 / Zone 3 agent | Pipeline list in PPAC > Deployment > Pipelines includes the agent's solution | Screenshot or `pac admin pipeline list` export |
-| 2 | Approval gates configured per zone | Power Automate flow on `OnApprovalStarted` (Zone 3) or native publish approval (Zone 2) is **On** | Flow definition export, JSON of approval action |
+| 2 | Approval gates configured per zone | Configured pipeline approval/status logic (Zone 3) or release-intake approval with restricted production editing (Zone 2) is operational; non-admin bypass test fails | Flow definition, approval record, pending/rejected deployment evidence, production-role test |
 | 3 | Delegated deployment configured on Zone 3 Prod | Stage shows "Delegated deployment: On" with service principal identity distinct from any maker | PPAC stage screenshot |
 | 4 | All recent changes documented | Each pipeline run in the last 90 days has a matching change record with approver, timestamp, and justification | Change-record export joined to deployment run IDs |
 | 5 | Rollback procedure tested | At least one rollback drill completed in the last 90 days for Zone 3 | Drill report (see "Rollback Drills" below) |
@@ -303,4 +303,4 @@ When audit or examination requests evidence of Control 2.3 effectiveness, prepar
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (approval criteria checked against Microsoft Learn 2026-10-14; tenant tests pending)*

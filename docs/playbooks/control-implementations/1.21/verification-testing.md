@@ -553,7 +553,7 @@ ENCODING tests prove that **evasion** payloads are caught by Microsoft-supported
 
 **Steps.** `Get-AzSentinelAlertRule -ResourceGroupName <rg> -WorkspaceName <ws>` → filter for tag `Control:1.21` or display-name prefix `[1.21]`. Capture rule definition (KQL, severity, lookback, run frequency, suppression, entity mappings, MITRE tactics).
 
-**Expected.** ≥ 1 rule per zone in scope; KQL references at least one of `OfficeActivity` (where Copilot records flow), `CloudAppEvents`, or `SecurityAlert` (for Prompt Shields surfaces); entity mappings include `Account`, optionally `CustomEntity` for `AgentId` / `ConversationId`.
+**Expected.** ≥ 1 rule per zone in scope; KQL uses the verified source schema: `CopilotActivity` for Microsoft Copilot audit interactions, `CloudAppEvents`, or `SecurityAlert` for the applicable Defender signal. Do not treat OfficeActivity as a universal Copilot feed. Entity mappings include `Account`, optionally `CustomEntity` for validated agent/conversation identifiers.
 
 **Pass criteria.** `rulesByZone.allInScopeZonesCovered == true`.
 
@@ -1363,4 +1363,4 @@ These are the 18 patterns that have caused FSI auditor findings in this control 
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit connector correction; tenant execution not tested)*

@@ -382,7 +382,7 @@ Pass Criteria: Agent authentication events visible in service principal sign-in 
 **T6.1 — WORM Storage Verification**
 ```powershell
 # Verify immutability policy on agent log retention storage
-$Policy = Get-AzStorageContainerImmutabilityPolicy `
+$Policy = Get-AzRmStorageContainerImmutabilityPolicy `
     -ResourceGroupName "rg-fsi-agentgov-records" `
     -StorageAccountName "YOUR_STORAGE_ACCOUNT" `
     -ContainerName "agent-inventory-exports"
@@ -463,4 +463,4 @@ Date Reviewed: ____________________________
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell and SDK Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted cmdlet correction; tenant execution not tested)*

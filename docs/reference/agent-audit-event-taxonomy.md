@@ -6,7 +6,7 @@ description: "This reference provides a consolidated taxonomy of audit events re
 !!! warning "Published Operations vs. Conceptual Categories"
     This taxonomy separates **published, searchable audit operations** ([Section 1](#published-searchable-audit-operations)) from **conceptual governance categories** ([Section 2](#conceptual-governance-categories-no-dedicated-microsoft-audit-operation)) that have no dedicated Microsoft audit operation as of June 2026. Build production KQL / `Search-UnifiedAuditLog` queries **only** from operations listed in Section 1. Each operation in Section 1 is cited to a specific Microsoft Learn page. See [Purview Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) for the full catalog.
 
-**Last Updated:** June 2026
+**Last Updated:** October 2026 (targeted Copilot connector/schema correction only)
 **Version:** v1.6.2
 
 ---
@@ -211,6 +211,8 @@ The governance categories below were originally presented as searchable operatio
 
 ## KQL Query Pack
 
+**Connector scope correction (2026-10-16):** The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) writes to [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). Query 3 below uses that normalized schema. The other OfficeActivity examples require independently verified local operation/field mappings; OfficeActivity is not a universal copy of the Purview log. Do not deploy those templates or infer missing activity until the relevant source connector and schema have been confirmed.
+
 ### Query 1: Agent 365 Tool Execution Tracking
 
 Track Agent 365 tool executions for change management and supervision evidence.
@@ -264,21 +266,17 @@ Capture Copilot interactions with prompt/response tracking for regulatory record
 
 ```kql
 // FINRA 3110/4511 Copilot Interaction Audit
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(24h)
 | where RecordType == "CopilotInteraction"
-| where Operation == "CopilotInteraction"
 | extend
-    userId = UserId,
-    appHost = tostring(parse_json(AuditData).AppHost),
-    conversationId = tostring(parse_json(AuditData).ConversationId),
-    accessedResources = parse_json(AuditData).AccessedResources
+    userId = ActorUserId,
+    appHost = AppHost,
+    conversationId = tostring(LLMEventData.ThreadId),
+    accessedResources = LLMEventData.AccessedResources
 | mv-expand AccessedResources = accessedResources
-| extend
-    policyDetails = AccessedResources.PolicyDetails
 | summarize
-    ResourceCount = dcount(tostring(AccessedResources)),
-    PolicyBlocked = countif(isnotempty(policyDetails))
+    ResourceCount = dcountif(tostring(AccessedResources.Id), isnotempty(tostring(AccessedResources.Id)))
     by TimeGenerated, userId, appHost, conversationId
 | order by TimeGenerated desc
 ```

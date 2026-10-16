@@ -1137,7 +1137,7 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
         $script:Probe = $null
         try {
             $script:Probe = Invoke-MgGraphRequest -Method GET `
-                -Uri 'https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1' -ErrorAction Stop
+                -Uri 'https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1&$expand=sponsors($select=id,displayName)' -ErrorAction Stop
         } catch {
             $script:ProbeError = $_.Exception.Message
         }
@@ -1161,10 +1161,10 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
         It "the response shape contains the expected agent-identity properties when populated" {
             if ($script:Probe.value.Count -gt 0) {
                 $first = $script:Probe.value[0]
-                $first.id            | Should -Not -BeNullOrEmpty
-                $first.displayName   | Should -Not -BeNullOrEmpty
-                # sponsor field key may vary by schema generation; tolerate both
-                ($first.sponsorObjectId -or $first.sponsorId) | Should -BeTrue
+                $first.id                        | Should -Not -BeNullOrEmpty
+                $first.displayName               | Should -Not -BeNullOrEmpty
+                $first.agentIdentityBlueprintId  | Should -Not -BeNullOrEmpty
+                @($first.sponsors).Count         | Should -BeGreaterThan 0
             }
         }
     }

@@ -19,8 +19,8 @@ It is the honest answer to *what does the assessment engine actually automate to
 | State | Count | Share |
 |-------|-------|-------|
 | ✅ Auto | 11 | 13.9% |
-| 📝 Manual | 29 | 36.7% |
-| ⚠️ Unimplemented | 39 | 49.4% |
+| 📝 Manual | 30 | 38.0% |
+| ⚠️ Unimplemented | 38 | 48.1% |
 | **Total** | **79** | 100% |
 
 ### By check
@@ -28,8 +28,8 @@ It is the honest answer to *what does the assessment engine actually automate to
 | State | Count | Share |
 |-------|-------|-------|
 | ✅ Auto | 14 | 15.1% |
-| 📝 Manual | 7 | 7.5% |
-| ⚠️ Unimplemented | 72 | 77.4% |
+| 📝 Manual | 9 | 9.7% |
+| ⚠️ Unimplemented | 70 | 75.3% |
 | **Total** | **93** | 100% |
 
 ### Registered evaluators
@@ -84,7 +84,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 1.25 | Control 1.25: MIME Type Restrictions for File Uploads | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell | `pass_condition: mime_zone_compliant` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: blocked_extensions_enforced` declared in manifest but no bespoke evaluator registered … |
 | 1.26 | Control 1.26: Agent File Upload and File Analysis Restrictions | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API, PPAC_REST | `pass_condition: file_upload_zone_appropriate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: label_inheritance_configured` declared in manifest but no bespoke evaluator r… |
 | 1.27 | Control 1.27: AI Agent Content Moderation Enforcement | ⚠️ Unimplemented | 0 | 3 | 0 | Graph_API, PPAC_REST | `pass_condition: moderation_level_set` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: moderation_zone_compliant` declared in manifest but no bespoke evaluator registered i… |
-| 1.28 | Control 1.28: Policy-Based Agent Publishing Restrictions | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell | `pass_condition: dlp_publishing_restrictions` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: security_scan_enabled` declared in manifest but no bespoke evaluator registere… |
+| 1.28 | Control 1.28: Policy-Based Agent Publishing Restrictions | 📝 Manual | 0 | 0 | 2 | — | Manual review required. |
 | 1.29 | Control 1.29: Global Secure Access: Network Controls for Copilot Studio Agents | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API | `pass_condition: gsa_profile_linked` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: wcf_policy_configured` declared in manifest but no bespoke evaluator registered in scor… |
 | 1.3 | Control 1.3: SharePoint Content Governance and Permissions | ⚠️ Unimplemented | 0 | 2 | 0 | SharePoint_Graph | `pass_condition: permission_inheritance_intact` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: no_oversharing` declared in manifest but no bespoke evaluator registered in … |
 | 1.4 | Control 1.4: Advanced Connector Policies (ACP) | ✅ Auto | 1 | 0 | 2 | PPAC_PowerShell | Manual review required. |

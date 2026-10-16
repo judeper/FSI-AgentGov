@@ -588,7 +588,7 @@ Daily health check. Returns one row per **AI-relevant table**, each with explici
 | `PowerPlatformAdminActivity` | Maker / env / DLP-policy changes | Power Platform connector |
 | `AlertInfo`, `AlertEvidence` | Defender XDR alerts (M365D unified) | Defender XDR connector |
 | `CloudAppEvents` | Defender for Cloud Apps activity + DLP | Defender for Cloud Apps connector |
-| `MicrosoftCopilotEvents` | Microsoft 365 Copilot prompt + response telemetry (where licensed) | Microsoft 365 Copilot connector |
+| `CopilotActivity` | Supported Copilot audit metadata, not verbatim prompts/responses | Microsoft Copilot connector |
 
 ```powershell
 function Get-Fsi-SentinelWorkspaceHealth {
@@ -631,7 +631,7 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
         @{ Name='AlertInfo';                     ExpectMin=0;  Required=$false },
         @{ Name='AlertEvidence';                 ExpectMin=0;  Required=$false },
         @{ Name='CloudAppEvents';                ExpectMin=0;  Required=$false },
-        @{ Name='MicrosoftCopilotEvents';        ExpectMin=0;  Required=$false; CopilotConnector=$true }
+        @{ Name='CopilotActivity';               ExpectMin=1;  Required=$true; CopilotConnector=$true }
     )
     foreach ($t in $AdditionalTables) {
         $baseTables += @{ Name=$t; ExpectMin=0; Required=$false }
@@ -687,7 +687,7 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
 
 ## §5 — Connector management
 
-The AI-agent monitoring overlay requires **six** connectors. Each helper:
+The AI-agent monitoring overlay covers **six** connector families. The Microsoft Copilot example in §5.5 is an explicit, non-deploying placeholder; configure that connector using the current official portal instructions. The other illustrative connector helpers require tenant/API validation and are designed to:
 
 1. Performs a connector-state idempotency probe.
 2. Wraps the enable call in `ShouldProcess`.
@@ -1001,23 +1001,22 @@ Cross-ref:      Control 1.7, Control 1.8
 
 ### 5.5 — `Enable-Fsi-MicrosoftCopilotConnector`
 
-The Microsoft 365 Copilot connector ingests prompt + response telemetry to the `MicrosoftCopilotEvents` table. The connector has reached **GA** in the commercial cloud. Costs scale with prompt volume — review the Sentinel ingestion calculator before enabling at scale.
+The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) writes supported audit metadata to `CopilotActivity`, not verbatim prompts/responses. Configure it using the current connector instructions, including the tenant Security Administrator or Global Administrator prerequisite. The previous example guessed an ARM resource kind/properties; that provisioning route was not verified. The placeholder below now fails explicitly rather than reporting a fabricated successful deployment. Verify a known audit record after portal configuration.
 
 ```powershell
 function Enable-Fsi-MicrosoftCopilotConnector {
 <#
 .SYNOPSIS
-Enables Microsoft 365 Copilot Sentinel data connector.
+Fails explicitly: automated Microsoft Copilot connector provisioning is not implemented here.
 
 .DESCRIPTION
-Populates the MicrosoftCopilotEvents table with Copilot prompt/response telemetry.
-Costs scale with prompt volume — review the Sentinel ingestion calculator before enabling at scale.
+Use the current Microsoft Copilot connector configuration instructions, then verify CopilotActivity.
 
 .NOTES
 Control:        3.9
 LastVerified:   April 2026
 HelperVersion:  1.4.0
-Roles required: Sentinel Contributor + Microsoft 365 Copilot Admin
+Portal setup roles: see current official connector prerequisites; this placeholder performs no deployment.
 Cross-ref:      Control 2.6 (Model Risk), Control 1.24 (AISPM)
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
@@ -1025,26 +1024,7 @@ Cross-ref:      Control 2.6 (Model Risk), Control 1.24 (AISPM)
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName
     )
-    $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
-    $resourceId = "$($ws.ResourceId)/providers/Microsoft.SecurityInsights/dataConnectors/CopilotAgt39"
-    if ($PSCmdlet.ShouldProcess("$WorkspaceName / Microsoft 365 Copilot connector", "Enable")) {
-        try {
-            $props = @{
-                tenantId = (Get-AzContext).Tenant.Id
-                dataTypes = @{
-                    copilotEvents = @{ state = 'Enabled' }
-                }
-            }
-            New-AzResource -ResourceId $resourceId -ApiVersion '2024-03-01' -Properties $props -Kind 'MicrosoftCopilot' -Force | Out-Null
-            $status='Clean'; $reason='Microsoft 365 Copilot connector enabled. Review ingestion-cost projection in Sentinel calculator.'
-        } catch { $status='Error'; $reason=$_.Exception.Message }
-    } else { $status='Pending'; $reason='WhatIf' }
-
-    [pscustomobject]@{
-        ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
-        Connector='MicrosoftCopilot'; WorkspaceArmId=$ws.ResourceId
-        Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
-    }
+    throw "Automated Microsoft Copilot connector provisioning is not implemented for $ResourceGroupName/$WorkspaceName. Follow the current portal connector instructions and verify a known CopilotActivity RecordId."
 }
 ```
 
@@ -1242,11 +1222,9 @@ function New-Fsi-SentinelAlertRule-PromptInjection {
 Detects suspected prompt-injection patterns in Microsoft 365 Copilot interactions.
 
 .DESCRIPTION
-Heuristic detection of jailbreak / instruction-override patterns in Copilot prompts.
-Sources: MicrosoftCopilotEvents (where licensed), AppTraces (when AppInsights link is
-enabled per §5.6). Designed as a triage signal — not a definitive classifier. Tuning
-recommended after first 30 days; cross-ref Control 1.24 (Defender AISPM) for richer
-classifier signals.
+Uses emitted per-message jailbreak and per-resource XPIA flags in CopilotActivity.
+Missing flags are unknown coverage, not proof of a negative classification.
+No prompt/response text is fetched or copied into alerts by this example.
 
 .NOTES
 Control:        3.9
@@ -1263,34 +1241,26 @@ Cross-ref:      Control 1.24, Control 2.6, Control 3.4
         [ValidateSet('Informational','Low','Medium','High')][string]$Severity = 'High'
     )
     $kql = @'
-let injectionMarkers = dynamic([
-    "ignore previous", "disregard prior", "system prompt", "you are now",
-    "forget all instructions", "developer mode", "DAN mode", "jailbreak",
-    "BEGIN INJECTION", "</system>", "[[OVERRIDE]]"
-]);
-union isfuzzy=true
-    (MicrosoftCopilotEvents
-        | where TimeGenerated > ago(15m)
-        | extend Prompt = tostring(parse_json(EventData).Prompt)
-        | where Prompt has_any (injectionMarkers)
-        | project TimeGenerated, UserId=AccountUpn, AppName='Microsoft365Copilot', Prompt),
-    (AppTraces
-        | where TimeGenerated > ago(15m)
-        | where Properties has 'AgentPrompt'
-        | extend Prompt = tostring(Properties['AgentPrompt'])
-        | where Prompt has_any (injectionMarkers)
-        | project TimeGenerated, UserId=tostring(Properties['UserId']), AppName=AppRoleName, Prompt)
-| summarize Hits=count(), Examples=make_set(Prompt, 5) by UserId, AppName, bin(TimeGenerated, 5m)
+let interactions = CopilotActivity
+| where TimeGenerated > ago(15m)
+| where RecordType == "CopilotInteraction";
+union
+    (interactions | mv-expand Message = LLMEventData.Messages
+        | where tobool(Message.JailbreakDetected) == true),
+    (interactions | mv-expand Resource = LLMEventData.AccessedResources
+        | where tobool(Resource.XPIADetected) == true)
+| summarize Hits=count(), RecordIds=make_set(RecordId, 5)
+    by UserId=ActorName, AppName=AppHost, AgentId, bin(TimeGenerated, 5m)
 | where Hits > 0
 '@
     _Agt39NewSentinelRule -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName `
         -RuleName 'Prompt Injection Pattern Detected' `
-        -Description 'Heuristic detection of jailbreak / instruction-override markers in Copilot or AI agent prompts. Triage signal; cross-ref Control 1.24 for classifier confirmation.' `
+        -Description 'Emitted jailbreak/XPIA flags in Copilot audit metadata. Missing flags are unknown; cross-ref Control 1.24 for classifier coverage.' `
         -Query $kql -Severity $Severity -QueryFrequency 'PT5M' -QueryPeriod 'PT15M' `
         -Tactics @('InitialAccess','Execution') `
         -Techniques @('T1059','T1565') `
         -EntityMapping @{ Account = @(@{ identifier='Name'; columnName='UserId' }) } `
-        -CustomDetails @{ DetectionType='PromptInjection'; SignalSource='Heuristic' } `
+        -CustomDetails @{ DetectionType='PromptInjection'; SignalSource='AuditMetadata' } `
         -RelatedControl '1.24'
 }
 ```
@@ -2152,10 +2122,10 @@ Cross-ref:      §5 connector helpers
     $connectors = @(
         @{ Kind='AzureActiveDirectory'; Name='Entra'; Tables=@('SigninLogs','AADServicePrincipalSignInLogs'); Required=$true },
         @{ Kind='Office365';            Name='Office365'; Tables=@('OfficeActivity'); Required=$true },
+        @{ Name='MicrosoftCopilot'; Tables=@('CopilotActivity'); Required=$true },
         @{ Kind='PowerPlatform';        Name='PowerPlatform'; Tables=@('PowerPlatformAdminActivity'); Required=$false },
         @{ Kind='MicrosoftThreatProtection'; Name='DefenderXDR'; Tables=@('AlertInfo','AlertEvidence'); Required=$true },
-        @{ Kind='MicrosoftCloudAppSecurity'; Name='DefenderCloudApps'; Tables=@('CloudAppEvents'); Required=$false },
-        @{ Kind='MicrosoftCopilot';     Name='M365Copilot'; Tables=@('MicrosoftCopilotEvents'); Required=$false }
+        @{ Kind='MicrosoftCloudAppSecurity'; Name='DefenderCloudApps'; Tables=@('CloudAppEvents'); Required=$false }
     )
     $rows = foreach ($c in $connectors) {
         $tableProbes = foreach ($t in $c.Tables) {
@@ -2659,4 +2629,4 @@ The following matrix maps every helper / detection / artifact in this playbook t
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector/schema correction; tenant execution not tested)*

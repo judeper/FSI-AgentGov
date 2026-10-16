@@ -46,7 +46,7 @@ CONTROLS = [
     ("1.25","1.25-mime-type-restrictions.md",1,"full",["PPAC_PowerShell"],None),
     ("1.26","1.26-agent-file-upload-and-file-analysis-restrictions.md",1,"partial",["PPAC_REST","Graph_API"],"Provide the approval documentation for each agent with file upload enabled, demonstrating that approval is appropriate to the agent's governance zone."),
     ("1.27","1.27-ai-agent-content-moderation-enforcement.md",1,"full",["PPAC_REST","Graph_API"],None),
-    ("1.28","1.28-policy-based-agent-publishing-restrictions.md",1,"full",["PPAC_PowerShell"],None),
+    ("1.28","1.28-policy-based-agent-publishing-restrictions.md",1,"manual",[],"Provide per-agent evidence of applicable DLP policy scope and enforcement during authoring, publishing, and runtime, including violation details downloaded from Channels > Details > Download where applicable and controlled test results. For Zone 3, provide reviewer disposition of automatic prepublish security scan warnings for No authentication, maker-provided connector/flow credentials, and sharing with everyone. These are warnings, not a configurable security-scan-enablement gate. A Get-DlpPolicy inventory alone does not prove per-agent compliance; this assessment does not automatically verify either requirement."),
     ("1.29","1.29-global-secure-access-network-controls.md",1,"partial",["Graph_API"],"Provide evidence of weekly (Zone 2) or daily (Zone 3) GSA traffic log review, including reviewer names, dates, false positive assessments, and escalation decisions for anomalous blocked requests."),
     # Pillar 2 - Management (26)
     ("2.1","2.1-managed-environments.md",2,"full",["PPAC_PowerShell"],None),
@@ -193,8 +193,8 @@ CHECKS_DB = {
         ("1.27.c","Custom safety messages configured for Zone 3 agents","Get-CopilotStudioAgentConfig","safety_messages_configured",[3]),
     ],
     "1.28": [
-        ("1.28.a","DLP publishing restrictions enforced in agent environments","Get-DlpPolicy","dlp_publishing_restrictions",[2,3]),
-        ("1.28.b","Security scan gate enabled for production publishing","Get-DlpPolicy","security_scan_enabled",[3]),
+        ("1.28.a","Per-agent DLP policy scope and authoring, publishing, and runtime enforcement reviewed (manual evidence required)","","",[2,3],["Manual"]),
+        ("1.28.b","Automatic prepublish security scan warnings reviewed and dispositioned (manual evidence required; not a configurable publishing gate)","","",[3],["Manual"]),
     ],
     "1.29": [
         ("1.29.a","GSA baseline profile linked to Copilot Studio CA policy","Get-MgIdentityConditionalAccessPolicy","gsa_profile_linked",[2,3]),

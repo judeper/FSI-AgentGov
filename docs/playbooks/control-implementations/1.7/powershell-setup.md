@@ -1,12 +1,12 @@
 # Control 1.7 — PowerShell Setup: Comprehensive Audit Logging and Compliance Automation
 
-> **Scope.** This playbook automates the **audit capture and preservation plane** for Control 1.7 across **Microsoft Purview Audit (Standard, Premium, and the 10-Year Audit Log Retention add-on), Microsoft 365 Copilot and agent record types (`CopilotInteraction`, `ConnectedAIAppInteraction`, `AIAppInteraction` (PAYG), `PowerPlatformAdministratorActivity`), Audit pay-as-you-go (PAYG) AI App Interaction enablement, Dataverse per-table auditing for the six Microsoft Copilot Studio entities, the Microsoft Graph audit log API (the strategic forward path as `Search-UnifiedAuditLog` enters maintenance), the Microsoft 365 Substrate content tier reachable through DSPM for AI / eDiscovery Premium / Communication Compliance, and an SEC 17a-4(f)-compatible preservation pipeline into Azure immutable blob storage** in US financial services tenants. It assumes you have already read [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) (referenced below as **BL-§N**) and the parent control specification [`../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
+> **Scope.** This playbook covers the **audit capture and preservation plane** for Control 1.7: Purview Audit Standard/Premium and the 10-Year add-on, Copilot/AI/Power Platform record types, non-Microsoft AI PAYG collection, Dataverse data-change history, supported audit search APIs, content retrieval, and an SEC 17a-4(f)-compatible preservation pipeline into Azure immutable blob storage. `Search-UnifiedAuditLog` remains supported; Graph Audit Search is available at `v1.0`. Read the [PowerShell baseline](../../_shared/powershell-baseline.md) (**BL-§N**) and [parent control](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) first.
 >
-> **What this playbook is.** A reproducible, fail-closed audit-plane harness that (a) pins module / CLI versions; (b) bootstraps **two distinct connections** (Exchange Online and Security & Compliance PowerShell — the same cmdlet name returns different and silently misleading values from the wrong session) plus a Microsoft Graph context for the new Audit Search API and a Power Apps Administration session for Dataverse per-table audit; (c) verifies tenant-level unified audit log ingestion, Audit (Premium) license entitlement, the 10-Year Audit Log Retention add-on, and PAYG opt-in for `AIAppInteraction`; (d) enumerates the four Copilot / agent record types with paginated, large-set, date-windowed search; (e) confirms Dataverse per-entity audit is on for the six Copilot Studio entities (`bot`, `botcomponent`, `botcomponentcollection`, `conversationtranscript`, `aiplugin`, `aipluginauth`) in every applicable environment; (f) verifies a 17a-4(f) preservation pipeline is exporting unified audit results into an attested archive (Azure immutable blob with a *locked* time-based retention policy, or a third-party books-and-records connector); (g) verifies the Sentinel Office 365 connector is ingesting `CopilotInteraction` events end-to-end; and (h) emits a SHA-256-hashed evidence manifest aligned to the Control 3.1 canonical reconciliation schema.
+> **What this playbook is.** A set of audit-plane examples for connection separation, licensing, PAYG evidence, paginated search, approved Dataverse table/column history, preservation export, and SHA-256 evidence manifests. The six-table Dataverse starting inventory is framework-selected, not a Microsoft prerequisite for default-on Copilot Studio authoring collection. The Sentinel check verifies a known audit ID in `CopilotActivity`; connector/rule configuration alone does not prove ingestion. Adapt and test examples before production use.
 >
 > **What this playbook is not.** It is not, by itself, a SEC Rule 17a-4(f)-compliant electronic recordkeeping system. Microsoft 365 Audit (including the 10-year add-on) is **record-CAPTURE operational telemetry**; preservation requires either WORM storage of the books-and-records record set (e.g., Azure immutable blob storage with a time-based retention policy in a *locked* state — Cohasset-attested for SEC 17a-4(f), CFTC 1.31, and FINRA 4511 — see [Microsoft Learn: Immutable storage for Azure blob data](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview)) or the audit-trail alternative under the October 2022 amendments to Rule 17a-4(f) (compliance date 3 May 2023). This harness verifies that the export pipeline exists and is healthy; it does not, by itself, *guarantee* attestation, *eliminate* preservation risk, or replace the Designated Executive Officer (DEO) representation or Designated Third Party (DTP) undertaking required under the audit-trail alternative.
 >
-> **Hedged language reminder.** Output of this harness *supports compliance with* FINRA Rule 4511, FINRA Rule 3110, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-3, SEC Rule 17a-4(b)(4) / 17a-4(f), SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), NIST AI RMF MEASURE 2.7 / GOVERN 1.4, CFTC Rule 1.31, and NYDFS 23 NYCRR 500.06. It does not, by itself, *ensure* a passing examination, *guarantee* completeness of the books-and-records record set, or *eliminate* the risk that a record type is silently re-classified between Audit Standard, Audit Premium, and Audit PAYG between Microsoft releases. Implementation requires that organizations verify Audit Premium licensing, PAYG opt-in scope, and Dataverse audit settings at every change window, and that they treat any preview surface (the Microsoft Graph audit search query API, `agentSignIn`, `MicrosoftServicePrincipalSignInLogs`) as **additive** evidence rather than the sole source of truth.
+> **Hedged language reminder.** Output of this harness *supports compliance with* FINRA Rule 4511, FINRA Rule 3110, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-3, SEC Rule 17a-4(b)(4) / 17a-4(f), SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), NIST AI RMF MEASURE 2.7 / GOVERN 1.4, CFTC Rule 1.31, and NYDFS 23 NYCRR 500.06. It does not, by itself, *ensure* a passing examination, *guarantee* completeness of the books-and-records record set, or *eliminate* the risk that a record type is silently re-classified between Audit Standard, Audit Premium, and Audit PAYG between Microsoft releases. Implementation requires that organizations verify Audit Premium licensing, PAYG opt-in scope, and Dataverse audit settings at every change window, and that they treat any preview surface (agent-specific beta Graph queries) as **additive** evidence rather than the sole source of truth.
 
 | Field | Value |
 |---|---|
@@ -16,6 +16,7 @@
 | PowerShell Edition | 7.4 LTS Core (orchestrator, Graph, Az.Storage); 5.1 Desktop (Power Apps Administration sub-shell for Dataverse audit, JSON-bridged); both Desktop and Core supported for `Connect-ExchangeOnline` and `Connect-IPPSSession` (verify against your CAB-pinned `ExchangeOnlineManagement` version) |
 | Cloud Scope | Commercial |
 | Last UI Verified | April 2026 |
+| Technical claims reviewed | 2026-10-16 against Microsoft Learn; tenant execution not tested |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · `verification-testing.md` (planned) · [`troubleshooting.md`](troubleshooting.md) |
 | Related Controls | [1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) · [1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) · [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) · [2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) · [3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
@@ -32,10 +33,10 @@ A script that ignores this reality produces a **false-clean audit posture** — 
 1. **Wrong-shell trap on `Get-AdminAuditLogConfig`.** Always returns `$false` for `UnifiedAuditLogIngestionEnabled` from the Security & Compliance session. Helpers in §3 hard-fail unless the active session URI matches `outlook.office365.(com|us)`.
 2. **Invalid `-RecordType` returns zero rows silently.** Earlier playbooks shipped `-RecordType PowerPlatformAdminActivity`; that name is **not** in the `AuditLogRecordType` enumeration. Some module versions silently return zero rows for invalid RecordType values. The canonical names include `CopilotInteraction`, `ConnectedAIAppInteraction`, `AIAppInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsApp`, and `PowerBIAudit` — for Copilot Studio agent authoring/admin/lifecycle use `PowerPlatformAdministratorActivity`, and for Copilot Studio end-user usage use `CopilotInteraction`. Validate against the live enum at runtime.
 3. **`Search-UnifiedAuditLog` `-ResultSize` truncation.** Default `-ResultSize 100`; per-call cap **5,000**; per-session ceiling **50,000**. Single-shot calls silently drop records past those limits. Use `-SessionCommand ReturnLargeSet` with a fresh `-SessionId` per date window, and split windows when the session ceiling is approached.
-4. **`Search-UnifiedAuditLog` is in maintenance.** Microsoft has signalled the **Audit Search Graph API** (`/security/auditLog/queries`) as the strategic forward path. `Search-AdminAuditLog` was already deprecated 15 September 2024. New investment should target the Graph API; this playbook ships both paths and labels the legacy one.
+4. **Use supported extraction surfaces.** `Search-UnifiedAuditLog` remains supported. Its documentation recommends the Office 365 Management Activity API for programmatic downloads. Graph Audit Search is also available at `v1.0`; it needs query-specific permissions and explicit completeness checks.
 5. **Audit Premium silently downgrades to Audit Standard.** If a user does not have an Audit (Premium) entitlement, their `CopilotInteraction` records fall back to **180-day retention** regardless of any custom retention policy. License reconciliation (§4) must be tenant-wide before retention claims.
 6. **PAYG record types require explicit opt-in.** `AIAppInteraction` and *some* `ConnectedAIAppInteraction` scenarios (non-Microsoft AI apps surfaced via Connected AI App) fall under [Audit pay-as-you-go billing](https://learn.microsoft.com/en-us/purview/purview-billing-models). Until the PAYG meter is turned on, these records do not flow at all.
-7. **Dataverse per-table audit is environment-scoped.** Tenant-level "Start auditing" enables the *capability*; per-table auditing on the six Copilot Studio entities must be enabled **per environment, per table**. A solution-installed entity in a new environment does not inherit table audit settings from the source environment.
+7. **Dataverse data-change history is environment-scoped.** Environment-level "Start auditing" and the approved table/column audit settings govern data-change history. The six-table starting inventory is a framework choice, not a Microsoft prerequisite for default-on Copilot Studio authoring audit collection. Verify the target environment's settings after solution deployment.
 8. **Single-credential read+write.** Running this harness with the same service principal that *modifies* audit configuration breaks SOX 404 separation of duties — the principal that produces the evidence could be the principal that altered the configuration the evidence describes. Use a separate `agt17-audit-reader` audit-only principal.
 
 **Top false-clean defects unique to audit-plane automation.**
@@ -43,14 +44,14 @@ A script that ignores this reality produces a **false-clean audit posture** — 
 | # | Defect | What it looks like | How this playbook traps it |
 |---|---|---|---|
 | 1 | `Get-AdminAuditLogConfig` from `Connect-IPPSSession` | `UnifiedAuditLogIngestionEnabled = False` regardless of truth | §3 `Assert-FsiExoSession` hard-fails on session URI mismatch |
-| 2 | `Search-UnifiedAuditLog -RecordType PowerPlatformAdminActivity` | Returns zero rows; exit 0 | §7 enum validation against `[Microsoft.Office.CompliancePolicy.PSCmdlets.AuditRecordType]` |
+| 2 | Unsupported `-RecordType PowerPlatformAdminActivity` | Invalid query mistaken for an empty activity set | §7 validates the framework's supported type names and surfaces search errors |
 | 3 | `Search-UnifiedAuditLog` without pagination | Caps at 100 / 5,000 / 50,000 silently | §7 `Search-FsiAuditLogPaged` with `ReturnLargeSet` and date-window splitter |
 | 4 | Custom retention policy without per-user Audit Premium | Records fall to 180 days | §4 `Get-FsiAuditPremiumStatus` cross-reconciles SkuId set |
 | 5 | `AIAppInteraction` queried but PAYG never enabled | Empty result interpreted as "no shadow AI" | §5 `Get-FsiAuditPaygEnablement` reads PAYG opt-in state |
 | 6 | Mailbox audit bypass set on a regulated user | `Search-UnifiedAuditLog` returns no mailbox events for that user | §6 `Get-FsiMailboxAuditBypass` enumerates non-zero bypass associations |
 | 7 | Tenant-level Dataverse audit on, per-table audit off | UAL has Dataverse signal but content lacks before/after values | §9 `Get-FsiCopilotStudioDataverseAudit` walks six entities per environment |
 | 8 | "Audit captured = books-and-records preserved" assumption | 17a-4(f) attestation chain broken | §10 `Test-FsiAuditTo17a4Preservation` verifies immutable container with **locked** time-based policy |
-| 9 | Sentinel connector enabled but no analytics rule on `CopilotInteraction` | Events ingested, never alerted | §11 `Test-FsiAuditToSentinel` verifies connector + rule presence |
+| 9 | Connector configured but known audit record absent | Configuration mistaken for capture evidence | §11 `Test-FsiAuditToSentinel` queries `CopilotActivity` by audit ID; test analytics rules separately |
 | 10 | `Connect-MgGraph` without `-Environment 'Global'` | Audit Search Graph API may return wrong tenant scope | §2 bootstrap asserts the Graph environment is `Global` before proceeding |
 
 **Required shell guard (run this at the top of every Control 1.7 session).**
@@ -82,15 +83,15 @@ Write-Verbose "Control 1.7 shell guard passed: pwsh $($PSVersionTable.PSVersion)
 
 ## §1 — Module, CLI, and permission matrix
 
-**Why this section exists.** Audit-plane evidence is reproducible only when versions are declared and emitted into the SHA-256-hashed manifest (§12). Microsoft ships breaking shape changes across `ExchangeOnlineManagement` minor versions on the audit cmdlet surface, and the Microsoft Graph audit search query API is itself preview-adjacent — pin the SDK version your CAB has approved. See **BL-§1** for the canonical pinning pattern.
+**Why this section exists.** Audit-plane evidence is reproducible only when versions are declared and emitted into the SHA-256-hashed manifest (§12). Pin the SDK/module versions your CAB has approved and verify the returned schema. Graph Audit Search is available at `v1.0`; do not classify the entire API as preview. See **BL-§1** for the canonical pinning pattern.
 
 ### 1.1 Pinned PowerShell modules
 
 | Module | Edition | Approved Pinning Pattern | Purpose |
 |---|---|---|---|
-| `ExchangeOnlineManagement` | Core or Desktop (verify per version) | `Install-Module ExchangeOnlineManagement -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | `Connect-ExchangeOnline` for `Get/Set-AdminAuditLogConfig`, `Get/Set-MailboxAuditBypassAssociation`. **Separate** `Connect-IPPSSession` for compliance cmdlets (`Search-UnifiedAuditLog`, `Get-UnifiedAuditLogRetentionPolicy`, `New-ComplianceCase`, `New-ComplianceSearch`). See [Connect to Exchange Online PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-exchange-online-powershell) and [Connect to Security & Compliance PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell). |
+| `ExchangeOnlineManagement` | Core or Desktop (verify per version) | `Install-Module ExchangeOnlineManagement -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | Use Exchange Online for `Get/Set-AdminAuditLogConfig`, mailbox audit bypass checks, and the [recommended Search-UnifiedAuditLog session](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/search-unifiedauditlog). Use Security & Compliance PowerShell for retention policies and eDiscovery cmdlets. See [Exchange Online connection](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-exchange-online-powershell) and [Security & Compliance connection](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell). |
 | `Microsoft.Graph.Reports` | Core | `Install-Module Microsoft.Graph.Reports -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | `Get-MgAuditLogDirectoryAudit`, `Get-MgAuditLogSignIn` — strategic forward path replacing legacy `Search-AdminAuditLog`. See [Microsoft Graph audit logs](https://learn.microsoft.com/en-us/graph/api/resources/azure-ad-auditlog-overview). |
-| `Microsoft.Graph.Beta.Reports` | Core | Same pattern; **beta** | Audit Search query API (`/security/auditLog/queries`) — preview surface for the new Microsoft 365 audit search experience. See [auditLogQuery resource type (beta)](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery). Treat as additive evidence pending GA. |
+| `Microsoft.Graph.Authentication` (REST access) | Core | Pin the approved SDK version | `Invoke-MgGraphRequest` to `/v1.0/security/auditLog/queries`. See [auditLogQuery](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery?view=graph-rest-1.0); no beta Reports module is required for this REST example. |
 | `Microsoft.Graph.Authentication` | Core | Pinned with the meta module | `Connect-MgGraph -Environment 'Global'` for commercial tenants. |
 | `Microsoft.Graph.Users` / `Microsoft.Graph.Identity.DirectoryManagement` | Core | Pinned with the meta module | License entitlement reconciliation (§4) and tenant SKU enumeration. |
 | `Microsoft.PowerApps.Administration.PowerShell` | **Desktop only** (PS 5.1) per BL-§2 | `Install-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | Enumerate Power Platform environments for §9 Dataverse per-table audit walk. **Silently returns empty arrays under PowerShell 7** — spawn a 5.1 child process. |
@@ -104,7 +105,7 @@ Write-Verbose "Control 1.7 shell guard passed: pwsh $($PSVersionTable.PSVersion)
 |---|---|---|---|
 | Tenant unified audit log status | `View-Only Audit Logs` (Exchange role) | `Audit Logs` (Exchange role); enabling/disabling requires `Organization Configuration` | `Compliance Admin` alone is **not** sufficient to author retention policies — see Microsoft Learn. |
 | Audit search (legacy) | `View-Only Audit Logs` | n/a | Assigned in Exchange admin center role groups. |
-| Audit search (Graph) | `AuditLog.Read.All` (delegated or app) | n/a | Graph application permission requires admin consent; verify `(Get-MgContext).Scopes` after connect. |
+| Audit search (Graph) | `AuditLogsQuery.Read.All` for cross-workload searches, or applicable workload-specific query permission | n/a | `AuditLog.Read.All` covers Entra audit/sign-in access, not Purview audit queries. See [create query permissions](https://learn.microsoft.com/en-us/graph/api/security-auditcoreroot-post-auditlogqueries?view=graph-rest-1.0). |
 | Audit retention policies | `View-Only Audit Logs` | `Organization Configuration` (Exchange) | `Get/New/Set/Remove-UnifiedAuditLogRetentionPolicy`. |
 | Mailbox audit bypass | `View-Only Recipients` | `Recipient Management` | `Get/Set-MailboxAuditBypassAssociation`. |
 | License entitlement | `Directory.Read.All`, `Organization.Read.All` | n/a | `Get-MgSubscribedSku`, `Get-MgUser -Property AssignedLicenses`. |
@@ -137,7 +138,7 @@ function Connect-Agt17Audit {
     }
     if ($PSCmdlet.ShouldProcess('Microsoft Graph','Connect-MgGraph')) {
         Connect-MgGraph -Environment 'Global' -Scopes @(
-            'AuditLog.Read.All','Directory.Read.All','Organization.Read.All','User.Read.All','SecurityEvents.Read.All'
+            'AuditLogsQuery.Read.All','AuditLog.Read.All','Directory.Read.All','Organization.Read.All','User.Read.All','SecurityEvents.Read.All'
         ) -NoWelcome
     }
     if ($PSCmdlet.ShouldProcess('Azure','Connect-AzAccount')) {
@@ -168,7 +169,7 @@ function Connect-Agt17AuditAsApp {
         Connect-MgGraph -Environment 'Global' -ClientId $AppId -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId -NoWelcome
     }
     # Verify granted scopes match requested scopes (false-clean trap)
-    $missing = @('AuditLog.Read.All','Directory.Read.All','Organization.Read.All') |
+    $missing = @('AuditLogsQuery.Read.All','AuditLog.Read.All','Directory.Read.All','Organization.Read.All') |
         Where-Object { $_ -notin (Get-MgContext).Scopes }
     if ($missing) { throw "Granted Graph scopes missing: $($missing -join ', '). Admin consent not granted on this app." }
 }
@@ -454,7 +455,7 @@ function Remove-FsiMailboxAuditBypass {
 
 ## §7 — Copilot / agent record-type queries (legacy + Graph forward path)
 
-**Why this section exists.** The `Search-UnifiedAuditLog` cmdlet is in maintenance — `Search-AdminAuditLog` was already deprecated 15 September 2024 — and Microsoft's strategic forward path is the **Audit Search Graph API** (`/security/auditLog/queries`). New automation should target Graph; this playbook ships both paths and labels the legacy one. See [Microsoft Graph audit logs reference](https://learn.microsoft.com/en-us/graph/api/resources/azure-ad-auditlog-overview) and [auditLogQuery resource type (beta)](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery).
+**Why this section exists.** `Search-UnifiedAuditLog` has a 5,000-per-call / 50,000-per-session ceiling and remains supported. Microsoft recommends the Office 365 Management Activity API for programmatic downloads. The [Graph Audit Search API](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery?view=graph-rest-1.0) is another supported search surface, with its own [throttling and per-query completeness limits](https://learn.microsoft.com/en-us/graph/throttling-limits#security-audit-log-query-service-limits).
 
 ### 7.1 Legacy path: paginated, large-set, date-windowed search
 
@@ -462,52 +463,55 @@ function Remove-FsiMailboxAuditBypass {
 function Search-FsiAuditLogPaged {
     <#
     .SYNOPSIS
-        Paginated Search-UnifiedAuditLog wrapper. Validates RecordType enum, uses ReturnLargeSet with a fresh
-        SessionId per date window, and splits the window when the 50,000 session ceiling is approached.
+        Searches the four framework record types, paging each type/window independently.
+        Splits capped windows and rejects windows too dense to establish completeness.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [datetime]$StartDate,
         [Parameter(Mandatory)] [datetime]$EndDate,
-        [Parameter(Mandatory)] [string[]]$RecordTypes,
+        [Parameter(Mandatory)]
+        [ValidateSet('CopilotInteraction','ConnectedAIAppInteraction','AIAppInteraction','PowerPlatformAdministratorActivity')]
+        [string[]]$RecordTypes,
         [string[]]$UserIds,
         [string[]]$Operations,
-        [int]$PageSize = 5000
+        [ValidateRange(1,5000)] [int]$PageSize = 5000
     )
     Assert-FsiExoSession | Out-Null
-    try {
-        $valid = [Enum]::GetNames([Microsoft.Office.CompliancePolicy.PSCmdlets.AuditRecordType])
-        $invalid = $RecordTypes | Where-Object { $_ -notin $valid }
-        if ($invalid) { throw "Invalid RecordType(s): $($invalid -join ', ')" }
-    } catch [System.Management.Automation.RuntimeException] {
-        Write-Warning "Could not enumerate AuditRecordType statically — proceeding (older module). Verify results > 0 against a known-good event before trusting."
-    }
+    if ($StartDate -ge $EndDate) { throw 'StartDate must precede EndDate.' }
+    $results = [System.Collections.Generic.List[object]]::new()
+    foreach ($recordType in $RecordTypes) {
+        $pending = [System.Collections.Generic.Stack[object]]::new()
+        $pending.Push(@{ Start = $StartDate; End = $EndDate })
+        while ($pending.Count -gt 0) {
+            $range = $pending.Pop()
+            $sessionId = [guid]::NewGuid().ToString()
+            $windowResults = [System.Collections.Generic.List[object]]::new()
+            do {
+                $batch = @(Search-UnifiedAuditLog -StartDate $range.Start -EndDate $range.End `
+                    -RecordType $recordType -UserIds $UserIds -Operations $Operations `
+                    -ResultSize $PageSize -SessionId $sessionId -SessionCommand ReturnLargeSet -ErrorAction Stop)
+                foreach ($row in $batch) { $windowResults.Add($row) }
+            } while ($batch.Count -gt 0 -and $windowResults.Count -lt 49000)
 
-    $results   = New-Object System.Collections.ArrayList
-    $sessionId = [guid]::NewGuid().ToString()
-    $window    = New-TimeSpan -Days 1
-    $cursor    = $StartDate
-
-    while ($cursor -lt $EndDate) {
-        $windowEnd = if ($cursor.Add($window) -lt $EndDate) { $cursor.Add($window) } else { $EndDate }
-        $windowResults = New-Object System.Collections.ArrayList
-        do {
-            $batch = Search-UnifiedAuditLog -StartDate $cursor -EndDate $windowEnd `
-                        -RecordType $RecordTypes -UserIds $UserIds -Operations $Operations `
-                        -ResultSize $PageSize -SessionId $sessionId -SessionCommand ReturnLargeSet
-            if ($batch) { [void]$windowResults.AddRange($batch) }
-        } while ($batch -and $batch.Count -gt 0)
-
-        if ($windowResults.Count -ge 49000) {
-            Write-Warning "Window $cursor..$windowEnd hit session ceiling ($($windowResults.Count)). Halving window and retrying."
-            $window = [TimeSpan]::FromTicks([Math]::Max(1, $window.Ticks / 2))
-            continue
+            if ($windowResults.Count -ge 49000) {
+                $span = $range.End - $range.Start
+                if ($span.TotalSeconds -le 2) {
+                    throw "Cannot establish completeness for $recordType in $($range.Start)..$($range.End)."
+                }
+                $midpoint = $range.Start.AddTicks([long]($span.Ticks / 2))
+                Write-Warning "Splitting capped $recordType window; discarded partial session $sessionId."
+                $pending.Push(@{ Start = $midpoint; End = $range.End })
+                $pending.Push(@{ Start = $range.Start; End = $midpoint })
+                continue
+            }
+            foreach ($row in $windowResults) {
+                if (-not $row.Identity) { throw 'Audit record identity missing; cannot reconcile duplicates.' }
+                $results.Add($row)
+            }
         }
-        [void]$results.AddRange($windowResults)
-        $cursor = $windowEnd
-        $sessionId = [guid]::NewGuid().ToString()
     }
-    return $results
+    $results | Sort-Object Identity -Unique
 }
 
 # Examples — the four Copilot/agent record types
@@ -526,30 +530,40 @@ Get-MgAuditLogDirectoryAudit -Filter "activityDateTime ge $((Get-Date).AddDays(-
 # User sign-in sample only; not complete SP/agent evidence. For SPs use Control 1.2 §8's documented filter and retention boundary.
 Get-MgAuditLogSignIn -Filter "createdDateTime ge $((Get-Date).AddDays(-1).ToString('yyyy-MM-ddTHH:mm:ssZ'))" -Top 100
 
-# Audit Search query API (beta) — strategic forward path for unified audit search
+# Audit Search query API (v1.0); see completeness and throttling caveats below
 $query = @{
     '@odata.type'              = '#microsoft.graph.security.auditLogQuery'
     displayName                = 'Control 1.7 — CopilotInteraction last 24h'
-    filterStartDateTime        = (Get-Date).AddHours(-24).ToString('o')
-    filterEndDateTime          = (Get-Date).ToString('o')
-    recordTypeFilters          = @('copilotInteraction')
-    operationFilters           = @()
+    filterStartDateTime        = [DateTime]::UtcNow.AddHours(-24).ToString('o')
+    filterEndDateTime          = [DateTime]::UtcNow.ToString('o')
+    operationFilters           = @('CopilotInteraction')
 }
 $created = Invoke-MgGraphRequest -Method POST `
-    -Uri 'https://graph.microsoft.com/beta/security/auditLog/queries' `
+    -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' `
     -Body ($query | ConvertTo-Json) -ContentType 'application/json'
 
 # Poll status, then page records
 do {
     Start-Sleep -Seconds 10
-    $state = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/security/auditLog/queries/$($created.id)"
+    $state = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/security/auditLog/queries/$($created.id)"
 } while ($state.status -in 'notStarted','running')
 
-$records = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/security/auditLog/queries/$($created.id)/records?`$top=100"
+if ($state.status -ne 'succeeded') { throw "Audit query ended with status $($state.status)." }
+if (-not $state.Contains('isRecordCountLimitExceeded')) {
+    throw 'Completeness metadata absent; reconcile the result before accepting it.'
+}
+if ($state.isRecordCountLimitExceeded) { throw 'Audit query truncated; split the UTC window and retry.' }
+$records = [System.Collections.Generic.List[object]]::new()
+$next = "https://graph.microsoft.com/v1.0/security/auditLog/queries/$($created.id)/records?`$top=100"
+do {
+    $page = Invoke-MgGraphRequest -Method GET -Uri $next
+    foreach ($record in $page.value) { $records.Add($record) }
+    $next = $page.'@odata.nextLink'
+} while ($next)
 ```
 
-!!! warning "Search-UnifiedAuditLog deprecation status"
-    As of the April 2026 verification window, `Search-UnifiedAuditLog` itself remains supported, but `Search-AdminAuditLog` was deprecated 15 September 2024 and Microsoft's strategic forward path for programmatic audit search is the Audit Search Graph API (beta). New automation should target Graph; treat `Search-UnifiedAuditLog` as legacy for net-new investment, and continue to verify the parity matrix against Microsoft Learn at every change window.
+!!! warning "Successful query does not prove completeness"
+    Graph can return `succeeded` after reaching its per-query record-count limit. Check `isRecordCountLimitExceeded`, exhaust pagination, and split capped windows. Production orchestration must also bound polling and handle HTTP 429 with `Retry-After` or exponential backoff. This example fails visibly rather than silently accepting missing completeness metadata.
 
 ---
 
@@ -578,10 +592,12 @@ if (-not (Get-ComplianceCase -Identity $caseName -ErrorAction SilentlyContinue))
 $custodians = @('jane.doe@contoso.com','john.roe@contoso.com')
 New-ComplianceSearch -Name "$caseName-Search" `
     -ExchangeLocation $custodians `
-    -ContentMatchQuery 'kind:microsoftteams OR itemclass:IPM.SkypeTeams.Message OR itemclass:IPM.Note.Microsoft.Conversation*'
+    -ContentMatchQuery 'ItemClass:IPM.SkypeTeams.Message.Copilot.*'
 ```
 
 > **Hedged note.** This pattern *supports* the content-tier obligations under SEC 17a-4(b)(4) and FINRA Rule 4511 when paired with §10 preservation. It does not, by itself, *guarantee* completeness of the books-and-records record set; verify scope against the Substrate documentation in [Microsoft Learn: Audit logs for Copilot and AI activities](https://learn.microsoft.com/en-us/purview/audit-copilot) at every change window.
+
+The example's item class covers Microsoft 365 Copilot, not every AI application. Use the [current eDiscovery AI item-class table](https://learn.microsoft.com/en-us/purview/edisc-search-copilot-data#data-sources-for-ai-data) for workload-specific searches, or the portal **Item class > Copilot activity** condition for the documented cross-AI scope. Validate known messages before accepting the content export.
 
 ### 8.2 Communication Compliance Copilot policy stub
 
@@ -597,7 +613,7 @@ New-SupervisoryReviewPolicyV2 -Name 'FSI-Copilot-Supervision' `
 
 ## §9 — Dataverse per-table audit on the six Copilot Studio entities (`Get-FsiCopilotStudioDataverseAudit`)
 
-**Why this section exists.** Tenant-level "Start auditing" in the Power Platform Admin Center enables the *capability*; per-table auditing on the six Copilot Studio entities — `bot`, `botcomponent`, `botcomponentcollection`, `conversationtranscript`, `aiplugin`, `aipluginauth` — must be enabled **per environment, per table**. A solution-installed entity in a new environment does **not** inherit table audit settings from the source environment.
+**Why this section exists.** Dataverse environment, table, and column settings govern data-change history. The six tables below are the framework-selected starting scope, not a Microsoft-mandated authoring-audit prerequisite. Confirm supported/installed tables and approved columns in each environment. [Copilot Studio authoring collection is enabled by default](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) and must be tested separately using `PowerPlatformAdministratorActivity` operations.
 
 The Power Apps Administration cmdlets that enumerate environments are **Desktop-only** (BL-§2; §0 trap). Spawn a Windows PowerShell 5.1 child process and bridge the result as JSON.
 
@@ -614,7 +630,7 @@ function Get-FsiCopilotStudioDataverseAudit {
     #>
     [CmdletBinding()]
     [OutputType([pscustomobject])]
-    param()
+    param([Parameter(Mandatory)] [hashtable]$DataverseHeadersByEnvironment)
     try {
         $entities = @('bot','botcomponent','botcomponentcollection','conversationtranscript','aiplugin','aipluginauth')
 
@@ -628,15 +644,20 @@ function Get-FsiCopilotStudioDataverseAudit {
 "@
         $envsJson = & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $child
         $envs = $envsJson | ConvertFrom-Json
+        if (-not $envs) { throw 'No Dataverse environments returned; audit scope is not verified.' }
 
         $rows = foreach ($env in @($envs)) {
+            $headers = $DataverseHeadersByEnvironment[$env.EnvironmentName]
+            if (-not $headers) { throw "Dataverse authorization not supplied for $($env.EnvironmentName)." }
             # Per-environment org-level audit setting
             $orgUri = "$($env.WebApiUrl)/api/data/v9.2/organizations?`$select=isauditenabled,organizationid"
-            $org    = (Invoke-MgGraphRequest -Method GET -Uri $orgUri -ErrorAction SilentlyContinue).value | Select-Object -First 1
+            $org = (Invoke-RestMethod -Method GET -Uri $orgUri -Headers $headers -ErrorAction Stop).value |
+                Select-Object -First 1
+            if (-not $org) { throw "No organization audit configuration returned for $($env.EnvironmentName)." }
             foreach ($e in $entities) {
                 $metaUri = "$($env.WebApiUrl)/api/data/v9.2/EntityDefinitions(LogicalName='$e')?`$select=LogicalName,IsAuditEnabled"
                 try {
-                    $meta = Invoke-MgGraphRequest -Method GET -Uri $metaUri -ErrorAction Stop
+                    $meta = Invoke-RestMethod -Method GET -Uri $metaUri -Headers $headers -ErrorAction Stop
                     [pscustomobject]@{
                         EnvironmentName    = $env.EnvironmentName
                         DisplayName        = $env.DisplayName
@@ -678,23 +699,37 @@ function Get-FsiCopilotStudioDataverseAudit {
 ```powershell
 function Enable-FsiCopilotStudioDataverseAudit {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
-    param([Parameter(Mandatory)] [string]$EnvironmentWebApiUrl)
+    param(
+        [Parameter(Mandatory)] [string]$EnvironmentWebApiUrl,
+        [Parameter(Mandatory)] [hashtable]$DataverseHeaders
+    )
 
     $entities = @('bot','botcomponent','botcomponentcollection','conversationtranscript','aiplugin','aipluginauth')
     foreach ($e in $entities) {
         $metaUri = "$EnvironmentWebApiUrl/api/data/v9.2/EntityDefinitions(LogicalName='$e')"
-        $current = Invoke-MgGraphRequest -Method GET -Uri "$metaUri`?`$select=LogicalName,IsAuditEnabled"
+        $current = Invoke-RestMethod -Method GET -Uri $metaUri `
+            -Headers $DataverseHeaders -ErrorAction Stop
         if ($current.IsAuditEnabled.Value) { Write-Verbose "$e already audited; skipping."; continue }
-        if ($PSCmdlet.ShouldProcess("$EnvironmentWebApiUrl :: $e", 'PATCH IsAuditEnabled=true')) {
-            Invoke-MgGraphRequest -Method PATCH -Uri $metaUri `
-                -Body (@{ IsAuditEnabled = @{ Value = $true; CanBeChanged = $true; ManagedPropertyLogicalName = 'canmodifyauditsettings' } } | ConvertTo-Json -Depth 4) `
+        if (-not $current.IsAuditEnabled.CanBeChanged) { throw "$e auditing cannot be changed." }
+        if ($PSCmdlet.ShouldProcess("$EnvironmentWebApiUrl :: $e", 'PUT EntityDefinition IsAuditEnabled=true + PublishXml')) {
+            $current.IsAuditEnabled.Value = $true
+            $putHeaders = @{} + $DataverseHeaders
+            $putHeaders['MSCRM.MergeLabels'] = 'true'
+            Invoke-RestMethod -Method PUT -Uri $metaUri -Headers $putHeaders -ErrorAction Stop `
+                -Body ($current | ConvertTo-Json -Depth 10) `
                 -ContentType 'application/json'
+            $publishBody = @{ ParameterXml = "<importexportxml><entities><entity>$e</entity></entities></importexportxml>" } | ConvertTo-Json
+            Invoke-RestMethod -Method POST -Uri "$EnvironmentWebApiUrl/api/data/v9.2/PublishXml" `
+                -Headers $DataverseHeaders -Body $publishBody -ContentType 'application/json' -ErrorAction Stop | Out-Null
+            $verified = Invoke-RestMethod -Method GET -Uri "$metaUri`?`$select=LogicalName,IsAuditEnabled" `
+                -Headers $DataverseHeaders -ErrorAction Stop
+            if (-not $verified.IsAuditEnabled.Value) { throw "$e audit enablement was not confirmed." }
         }
     }
 }
 ```
 
-PAC CLI alternative: `pac org settings update --name IsAuditEnabled --value true` per environment.
+Supply environment-specific Dataverse authorization headers through the firm's approved authentication flow; **Graph tokens are not Dataverse tokens**. Do not log or persist bearer values. The read helper takes a map keyed by environment name; the mutation helper takes headers for its one target environment. See [Dataverse authentication](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/authenticate-oauth) and [configure table and column auditing](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/configure#configure-tables-and-columns). The mutation example only changes table metadata: verify environment and column settings separately using the portal walkthrough.
 
 ---
 
@@ -817,42 +852,39 @@ function Test-FsiAuditTo17a4Preservation {
 
 ## §11 — Sentinel forwarding sanity check (`Test-FsiAuditToSentinel`)
 
-**Why this section exists.** Cross-control verification with Control 3.9 (Microsoft Sentinel Integration). The Office 365 connector can be enabled with the connector status reporting healthy while no analytics rule on `CopilotInteraction` exists — events flow into the Log Analytics workspace, and nobody is alerted.
+**Why this section exists.** Connector or analytics-rule presence does not prove ingestion. The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) writes to `CopilotActivity`. Verify a known Purview audit record by `RecordId`; assess analytics rules separately. Inventory other AI/Power Platform destinations independently.
 
 ```powershell
 function Test-FsiAuditToSentinel {
     <#
     .SYNOPSIS
-        Verifies the Sentinel Office 365 connector is enabled AND at least one analytics rule references
-        CopilotInteraction. Cross-references Control 3.9.
+        Verifies a known Purview audit record reached CopilotActivity.
     #>
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     param(
         [Parameter(Mandatory)] [string]$ResourceGroupName,
-        [Parameter(Mandatory)] [string]$WorkspaceName
+        [Parameter(Mandatory)] [string]$WorkspaceName,
+        [Parameter(Mandatory)] [guid]$AuditRecordId
     )
     try {
-        $connector = Get-AzSentinelDataConnector -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -ErrorAction SilentlyContinue |
-            Where-Object { $_.Kind -eq 'Office365' }
-        $rules = Get-AzSentinelAlertRule -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -ErrorAction SilentlyContinue
-        $copilotRule = $rules | Where-Object { $_.Query -match 'CopilotInteraction' }
-
-        $status = if ($connector -and $copilotRule) { 'Clean' }
-                  elseif ($connector) { 'Anomaly' }
-                  else { 'Pending' }
+        $workspace = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName `
+            -Name $WorkspaceName -ErrorAction Stop
+        $query = "CopilotActivity | where RecordId == '$AuditRecordId' | project RecordId, TimeGenerated"
+        $result = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspace.CustomerId `
+            -Query $query -Timespan ([TimeSpan]::FromDays(7)) -ErrorAction Stop
+        if ($result.Error) { throw ($result.Error | Out-String) }
+        $rows = @($result.Results)
 
         [pscustomobject]@{
             ControlId             = '1.7'
             Helper                = 'Test-FsiAuditToSentinel'
-            Status                = $status
-            Office365ConnectorOn  = [bool]$connector
-            CopilotAnalyticsRule  = ($copilotRule | Select-Object -First 1).DisplayName
-            RuleCount             = ($copilotRule | Measure-Object).Count
+            Status                = if ($rows.Count -gt 0) { 'Clean' } else { 'Anomaly' }
+            AuditRecordId         = $AuditRecordId
+            DestinationTable      = 'CopilotActivity'
+            MatchedRows           = $rows.Count
             CapturedAtUtc         = (Get-Date).ToUniversalTime().ToString('o')
-            Note                  = if ($status -eq 'Anomaly') { 'Office 365 connector is enabled and CopilotInteraction events are flowing into the workspace, but no analytics rule references CopilotInteraction — events are ingested but not alerted on. Author a rule per Control 3.9.' }
-                                    elseif ($status -eq 'Pending') { 'Office 365 connector not detected — CopilotInteraction events are not reaching Sentinel. Enable the connector per Control 3.9.' }
-                                    else { 'Connector enabled and at least one analytics rule references CopilotInteraction.' }
+            Note                  = 'Known-record ingestion check only. Verify latency, other record types, and analytics-rule firing separately per Control 3.9.'
         }
     } catch {
         [pscustomobject]@{ ControlId='1.7'; Helper='Test-FsiAuditToSentinel'; Status='Error'; ErrorMessage=$_.Exception.Message; CapturedAtUtc=(Get-Date).ToUniversalTime().ToString('o') }
@@ -906,13 +938,15 @@ Get-FsiAuditCopilotEnablement                     | Save-FsiAuditEvidence -Name 
 Get-FsiAuditPremiumStatus                         | Save-FsiAuditEvidence -Name 'AuditPremiumStatus'
 Get-FsiAuditPaygEnablement -Cloud Commercial      | Save-FsiAuditEvidence -Name 'AuditPaygEnablement'
 Get-FsiMailboxAuditBypass                         | Save-FsiAuditEvidence -Name 'MailboxAuditBypass'
-Get-FsiCopilotStudioDataverseAudit                | Save-FsiAuditEvidence -Name 'CopilotStudioDataverseAudit'
+Get-FsiCopilotStudioDataverseAudit -DataverseHeadersByEnvironment $dataverseHeadersByEnvironment |
+    Save-FsiAuditEvidence -Name 'CopilotStudioDataverseAudit'
 Test-FsiAuditTo17a4Preservation `
     -StorageAccountName 'fsiarchivewormprod' `
     -ContainerName 'audit-1-7'                    | Save-FsiAuditEvidence -Name '17a4PreservationPipeline'
 Test-FsiAuditToSentinel `
     -ResourceGroupName 'rg-sec-prod' `
-    -WorkspaceName 'la-sec-prod'                  | Save-FsiAuditEvidence -Name 'SentinelForwarding'
+    -WorkspaceName 'la-sec-prod' `
+    -AuditRecordId $knownRecentPurviewAuditId     | Save-FsiAuditEvidence -Name 'SentinelForwarding'
 
 Stop-Transcript
 ```
@@ -948,7 +982,7 @@ After the run, copy the `evidence\1.7\` folder into the immutable container veri
 | Mailbox audit bypass review | Monthly + on every regulated-user provisioning event | `Get-FsiMailboxAuditBypass` |
 | Dataverse per-table audit on six Copilot Studio entities | Weekly + after every solution import into a new environment | `Get-FsiCopilotStudioDataverseAudit` |
 | 17a-4(f) preservation pipeline health | Daily | `Test-FsiAuditTo17a4Preservation` |
-| Sentinel forwarding + analytics rule presence | Daily | `Test-FsiAuditToSentinel` |
+| Known-record Sentinel forwarding; separate analytics-rule firing test | Daily | `Test-FsiAuditToSentinel` with a recent known audit ID |
 | Quarterly attestation pack (full evidence set, manifest signed) | Quarterly | All of the above |
 
 ### 14.2 Anti-patterns (do not ship)
@@ -969,4 +1003,4 @@ After the run, copy the `evidence\1.7\` folder into the immutable container veri
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (sign-in sample scope clarification only)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation checked; tenant execution not tested)*

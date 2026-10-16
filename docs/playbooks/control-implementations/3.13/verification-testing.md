@@ -193,7 +193,7 @@ Expected Result: File is present, correctly named, and readable in the records r
 3. Confirm the immutability policy status is "Locked" (Zone 3) by running:
 
 ```powershell
-Get-AzStorageContainerImmutabilityPolicy `
+Get-AzRmStorageContainerImmutabilityPolicy `
     -ResourceGroupName $ResourceGroupName `
     -StorageAccountName $StorageAccountName `
     -ContainerName "agent-inventory-exports" | Select-Object ImmutabilityPeriodSinceCreationInDays, State
@@ -329,4 +329,4 @@ Retain this completed attestation form as a business record. For Zone 3 firms, r
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted cmdlet correction; tenant execution not tested)*
