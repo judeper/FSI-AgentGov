@@ -69,7 +69,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 
 > **SHA-256 manifest spec.** Maintain a single file `INC-<YYYY>-<MMDD>-<seq>/manifest.sha256` at the incident folder root. One line per artifact: `<sha256>  <relative/path/to/artifact>`. Sign the manifest (PGP detached signature `manifest.sha256.asc`, or store under WORM) by SOC lead within 4 h of evidence capture. Any evidence added later requires a new dated manifest line; never edit a prior line.
 >
-> **WORM retention requirement.** All §1.3 artifacts and the final incident report must be retained under **Purview retention labels** with disposition set to **Regulatory Record** (or organization equivalent) for the longer of: (a) 7 years (FINRA 4511 / SEC 17a-4(b) baseline), (b) the period required by the firm's WSPs, or (c) the period required by an active legal hold. Pair Purview retention with **immutable Azure Storage** (`Set-AzStorageContainerImmutabilityPolicy -Period <days>`) for off-platform copies. Operational telemetry alone (Power Platform admin logs, scope-drift monitor logs at default retention) does **not** satisfy 17a-4(f) — pair every 1.14 incident with the WORM-side evidence anchored in Controls 1.7, 1.9, and 1.19.
+> **WORM retention requirement.** All §1.3 artifacts and the final incident report must be retained under **Purview retention labels** with disposition set to **Regulatory Record** (or organization equivalent) for the longer of: (a) 7 years (FINRA 4511 / SEC 17a-4(b) baseline), (b) the period required by the firm's WSPs, or (c) the period required by an active legal hold. Pair Purview retention with **immutable Azure Storage** (`Set-AzRmStorageContainerImmutabilityPolicy -ImmutabilityPeriod <days>`) for off-platform copies. Operational telemetry alone (Power Platform admin logs, scope-drift monitor logs at default retention) does **not** satisfy 17a-4(f) — pair every 1.14 incident with the WORM-side evidence anchored in Controls 1.7, 1.9, and 1.19.
 
 ### §1.4 Compensating controls during remediation
 
@@ -625,4 +625,4 @@ Maintain a rolling 12-month dashboard for the AI Governance Forum:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted cmdlet correction; tenant UI not tested)*

@@ -2,13 +2,15 @@
 
 **Control:** 1.7 — Comprehensive Audit Logging and Compliance
 **Pillar:** Pillar 1 — Security
+**Last Verified:** 2026-10-16
+**Verification basis:** Live Microsoft Learn documentation; no tenant UI, licensing assignment, or end-to-end capture was tested.
 **Audience:** Purview Audit Admin, Purview Compliance Admin, Exchange Online Admin (Organization Configuration role), SOC Analyst, Entra Security Admin, Power Platform Admin, Azure Storage Account Owner, AI Governance Lead, FSI Compliance Officer, General Counsel
 **Companion playbooks:**
 [Portal walkthrough](./portal-walkthrough.md) ·
 [PowerShell setup](./powershell-setup.md) ·
 [Verification & testing](./verification-testing.md)
 
-> **Scope.** This troubleshooting playbook covers operational, evidentiary, and regulatory failure modes for the [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) audit-logging surface — Microsoft 365 Audit (Standard / Premium / 10-Year add-on), the `CopilotInteraction` / `ConnectedAIAppInteraction` / `AIAppInteraction` / `PowerPlatformAdministratorActivity` record types, the PAYG opt-in for non-Microsoft AI events, Dataverse environment-level and per-table audit, the Entra `agentSignIn` and `MicrosoftServicePrincipalSignInLogs` preview surfaces, the unified audit search cmdlet and the strategic Microsoft Graph `security/auditLog/queries` API, Sentinel ingestion via the Office 365 Management Activity API connector, and the downstream WORM / 17a-4(f) preservation tier.
+> **Scope.** This troubleshooting playbook covers operational, evidentiary, and regulatory failure modes for the [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) audit-logging surface — Microsoft 365 Audit (Standard / Premium / 10-Year add-on), the `CopilotInteraction` / `ConnectedAIAppInteraction` / `AIAppInteraction` / `PowerPlatformAdministratorActivity` record types, the PAYG opt-in for non-Microsoft AI events, Dataverse environment-level and per-table audit, Entra agent sign-ins and the separately configured Microsoft service-principal stream, supported PowerShell and Graph Audit Search, Sentinel connector-specific ingestion, and the downstream WORM / 17a-4(f) preservation tier.
 >
 > Every scenario is organized as **Symptom → Likely Cause → Diagnostic → Resolution → What good looks like**. Read [§1 FSI Incident Handling](#1-fsi-incident-handling-read-first) before remediating any production issue — for record-keeping controls the order of operations is *preserve evidence first, remediate second*.
 
@@ -77,7 +79,7 @@ For SEV-1 and confirmed SEV-2, walk this tree before remediating. Do **not** rel
 
 For every SEV-1 (and SEV-2 where reportability is plausible):
 
-1. **Capture the failure state in place.** Run `Test-UnifiedAuditEnabled`, `Get-UnifiedAuditLogRetentionPolicy`, `Get-AzStorageContainerImmutabilityPolicy` (etc.) and save with SHA-256 sidecar **before** changing anything. The defective configuration is the evidence.
+1. **Capture the failure state in place.** Run `Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled` from Exchange Online PowerShell, `Get-UnifiedAuditLogRetentionPolicy` from Security & Compliance PowerShell, and `Get-AzRmStorageContainerImmutabilityPolicy` for Azure storage, and save with SHA-256 sidecar **before** changing anything. The defective configuration is the evidence.
 2. **Capture the operational artifacts** — Sentinel logs, error messages, transcript files. Hash on capture.
 3. **Open a chain-of-custody record** — file, captured-by, captured-at-UTC, hash, hand-off log.
 4. **Preserve any in-flight search jobs** — search jobs persist 30 days; export to immutable storage before they expire.
@@ -102,8 +104,8 @@ Before paging a Microsoft Support escalation, verify:
 3. Search used `-SessionCommand ReturnLargeSet -SessionId` pagination, or migrated to the Graph audit search API
 4. Date window is within retention horizon for that record type / user license
 5. User account running the search holds `Audit Logs` or `View-Only Audit Logs`
-6. Tenant audit ingestion is `True` (`Test-UnifiedAuditEnabled` from EXO)
-7. Custom retention policy explicitly names the record type (default policy excludes Copilot)
+6. Tenant audit ingestion is `True` (`(Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled` from Exchange Online)
+7. Custom retention policy covers the record type, either explicitly or through an all-record-types policy (default policy excludes Copilot)
 8. License entitlement gap report is empty for the user/event in question
 9. PAYG enablement state captured if `AIAppInteraction` involved
 10. Module versions captured and within the CAB-pinned range
@@ -131,7 +133,7 @@ A complete FSI program for AI agent communications **chains all three**: Audit p
 
 **Symptom.** Examiner (FINRA, SEC, OCC, or internal audit) requests the verbatim prompt and the verbatim response for a `CopilotInteraction` event surfaced from `Search-UnifiedAuditLog`. The compliance team exports the audit JSON, opens it, and finds `Messages[].ID`, `Messages[].IsPrompt`, `AgentId`, `ModelTransparencyDetails.ModelProviderName`, `JailbreakDetected`, `XPIADetected` — but no prompt or response body.
 
-**Likely cause.** *Capture-vs-content layer confusion.* The team designed evidence collection assuming `Search-UnifiedAuditLog` would return the chat text. Per [Microsoft Learn — Audit logs for Copilot and AI activities](https://learn.microsoft.com/en-us/purview/audit-copilot) (April 2026 verification window), the `CopilotInteraction` audit record carries interaction **metadata and message IDs only**. The verbatim prompt and response live in the Microsoft 365 Substrate (the per-user Copilot interactions mailbox) and are retrieved through DSPM for AI, eDiscovery (Premium), or Communication Compliance.
+**Likely cause.** *Capture-vs-content layer confusion.* The team designed evidence collection assuming `Search-UnifiedAuditLog` would return the chat text. Per [Microsoft Learn — Audit logs for Copilot and AI applications](https://learn.microsoft.com/en-us/purview/audit-copilot), the `CopilotInteraction` audit record carries interaction **metadata and message IDs only**. Conversation copies are stored in hidden folders in the user's Exchange mailbox and are searchable with eDiscovery; supported DSPM for AI and Communication Compliance scenarios provide content review. These surfaces have separate permissions, collection, and licensing prerequisites; a metadata hit does not establish that content was captured or remains available.
 
 **Diagnostic.**
 
@@ -140,12 +142,19 @@ A complete FSI program for AI agent communications **chains all three**: Audit p
 $rec = Search-UnifiedAuditLog `
   -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
   -RecordType CopilotInteraction -ResultSize 1 -SessionCommand ReturnLargeSet
-($rec.AuditData | ConvertFrom-Json) | Select-Object -Property AgentId, AgentName, `
-  @{n='MessageIDs';e={$_.Messages.ID}}, `
-  @{n='HasPromptText';e={[bool]($_.Messages | Where-Object { $_.PSObject.Properties.Name -contains 'Body' })}}
+if (-not $rec) { throw 'No audit record returned; content coverage is unverified.' }
+$audit = $rec.AuditData | ConvertFrom-Json
+if (-not $audit.CopilotEventData.Messages) {
+  throw 'Expected CopilotEventData.Messages missing; inspect the returned schema.'
+}
+$audit | Select-Object AgentId, AgentName, `
+  @{n='MessageIDs';e={$_.CopilotEventData.Messages.Id}}, `
+  @{n='HasPromptText';e={[bool]($_.CopilotEventData.Messages | Where-Object { $_.PSObject.Properties.Name -contains 'Body' })}}
 
-# Expected: HasPromptText = False — the audit record is metadata only.
+# Expected: message IDs populated; HasPromptText = False.
 ```
+
+The [published raw audit schema](https://learn.microsoft.com/en-us/office/office-365-management-api/copilot-schema) nests `Messages`, `AccessedResources`, and `ModelTransparencyDetails` under `CopilotEventData`. Do not interpret a missing top-level field as proof that the underlying data is absent.
 
 Confirm Substrate-tier retrieval is configured: DSPM for AI is enabled (Control 1.6), Copilot interactions are in scope of an eDiscovery (Premium) hold (Control 1.19), and Communication Compliance has a policy targeting AI-generated communications (Control 1.10).
 
@@ -180,7 +189,7 @@ If all three boxes are unchecked, the firm has a **preservation gap**, regardles
 
 **Resolution.** Choose one of the three preservation paths and stand it up:
 
-1. **Azure immutable blob storage path.** Create a storage account, container, and a time-based retention policy in the **locked** state. Periodically export Substrate content (Copilot interactions) plus the paired audit records to that container. The `Get-AzStorageContainerImmutabilityPolicy` cmdlet should report `State = Locked`. This is the lowest-friction option for Microsoft-stack-aligned firms.
+1. **Azure immutable blob storage path.** Create a storage account, container, and a time-based retention policy in the **locked** state. Periodically export Substrate content (Copilot interactions) plus the paired audit records to that container. The documented [`Get-AzRmStorageContainerImmutabilityPolicy`](https://learn.microsoft.com/en-us/powershell/module/az.storage/get-azrmstoragecontainerimmutabilitypolicy) cmdlet should report `State = Locked`. Validate export completeness separately from policy state.
 2. **Third-party 17a-4-attested archive.** Configure journaling/capture from the M365 Substrate into the chosen vendor (Smarsh / Global Relay / Proofpoint / Mimecast / Bloomberg Vault / Veritas EV.cloud). The vendor maintains its own 17a-4(f) attestation; obtain and file the current attestation letter.
 3. **Audit-trail alternative path.** Document that the system preserves original records and a complete time-stamped audit trail of all modifications and deletions; obtain a Designated Executive Officer (DEO) representation **or** a Designated Third Party (DTP) undertaking; commission and file the independent records-management assessment.
 
@@ -208,8 +217,8 @@ In all three cases, the 10-Year audit retention add-on remains useful as the **a
 Connect-ExchangeOnline
 (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled  # must be True
 
-# 2. Confirm PAYG opt-in via the Microsoft Purview portal
-#    Settings > Audit > Pay-as-you-go > AIAppInteraction = Enabled
+# 2. Confirm PAYG association via the Microsoft Purview portal
+#    Settings > Account details; verify the billed subscription and resource group.
 #    (No first-party PowerShell cmdlet exposes this state at the time of writing —
 #     screenshot the portal state and hash for the evidence binder.)
 
@@ -223,7 +232,7 @@ Search-UnifiedAuditLog -StartDate $start -EndDate (Get-Date) `
   -RecordType AIAppInteraction -ResultSize 10 -SessionCommand ReturnLargeSet
 ```
 
-Verify in the Microsoft Purview portal: **Settings > Audit > Pay-as-you-go billing** for current PAYG enablement scope, and cross-check against the live [Microsoft Purview billing models](https://learn.microsoft.com/en-us/purview/purview-billing-models) page.
+Verify the Azure subscription association at **Settings > Account details**, as documented in [Enable Microsoft Purview pay-as-you-go features](https://learn.microsoft.com/en-us/purview/purview-payg-subscription-based-enablement). Initial enablement requires Entra Global Admin and an active Azure subscription/resource group in the same tenant. Verify the applicable collection policy separately; do not assume a per-record-type toggle exists under Audit settings.
 
 **Resolution.**
 
@@ -241,12 +250,12 @@ Verify in the Microsoft Purview portal: **Settings > Audit > Pay-as-you-go billi
 
 **Symptom.** Finance / IT operations sees inconsistent billing line items for `ConnectedAIAppInteraction` events. Some workloads are included in Audit (Standard) at no incremental cost; others land on the PAYG meter. Admins are unable to predict the cost of enabling a new agent.
 
-**Likely cause.** This is **expected behavior**, not a defect. Per the [Control 1.7 RecordType description](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md#control-description) (verified against Microsoft Learn April 2026):
+**Likely cause.** This is **expected behavior**, not a defect. Per [Microsoft Learn — Audit logs for Copilot and AI applications](https://learn.microsoft.com/en-us/purview/audit-copilot):
 
-- Microsoft-built Microsoft Copilot Studio agents and other Microsoft AI applications surfaced via Connected AI App are **included in Audit (Standard)** at no incremental cost.
+- Microsoft applications, including **custom applications built using Microsoft Copilot Studio and Microsoft Foundry**, are **included in Audit (Standard)**. A custom-built app is not automatically PAYG-billable.
 - **Some** scenarios under the same `ConnectedAIAppInteraction` RecordType — specifically, interactions with **non-Microsoft AI apps** surfaced via Connected AI App — fall under **Audit pay-as-you-go (PAYG) billing** and require explicit PAYG opt-in.
 
-The single RecordType name spans both regimes; the split is by app provenance, not by event shape.
+The single RecordType name spans both regimes; establish the application's platform and collection scenario, not only its developer or record type.
 
 **Diagnostic.** Build a per-app inventory and tag provenance:
 
@@ -258,9 +267,9 @@ $rows = Search-UnifiedAuditLog -StartDate $start -EndDate $end `
 $rows | ForEach-Object {
   $a = $_.AuditData | ConvertFrom-Json
   [pscustomobject]@{
-    AppId    = $a.ApplicationId
-    AppName  = $a.ApplicationDisplayName
-    Provider = $a.ModelTransparencyDetails.ModelProviderName
+    AppId    = $a.AppIdentity
+    AppName  = $a.AgentName
+    Provider = $a.CopilotEventData.ModelTransparencyDetails.ModelProviderName
   }
 } | Group-Object AppId, AppName, Provider | Sort-Object Count -Descending |
   Select-Object Count, Name
@@ -271,7 +280,7 @@ Then, for each AppId, consult the live [Microsoft Purview billing models](https:
 **Resolution.**
 
 1. Treat the Microsoft Learn billing page as the source of truth; link to it from the runbook rather than restating its contents.
-2. Maintain an internal app-provenance register that flags each Connected AI App entry as `Microsoft-built` (free under Audit Standard) or `Non-Microsoft / PAYG-billable`.
+2. Maintain an internal app register recording the platform, collection scenario, and applicable Audit Standard or PAYG treatment. Include custom Copilot Studio and Foundry apps in the documented Microsoft-application exclusion from PAYG.
 3. Before enabling a new Connected AI App, verify its billing classification and update the register.
 4. Reconcile finance billing exports against the register monthly; surface drift as a SEV-3.
 
@@ -283,31 +292,37 @@ Then, for each AppId, consult the live [Microsoft Purview billing models](https:
 
 **Symptom.** Operator follows an older runbook that says "in Entra > Sign-in logs, apply the *Is Agent = Yes* filter chip." The filter is not present in the current UI. Operator cannot confirm whether agent sign-ins are being captured.
 
-**Likely cause.** *Filter affordance naming and placement has shifted across recent Entra UI revisions.* As of the April 2026 verification window, the Entra Sign-in logs page exposes four sign-in **types** (Interactive user / Non-interactive user / Service principal / Managed identity) plus a separate **Agent activity** entry on the Monitoring & health page. A literal "Is Agent = Yes" filter chip on the main Sign-in logs page is not the documented affordance. The earlier label should not be hardcoded into runbooks.
+**Likely cause.** The operator may be using a different sign-in experience or lack access to the required logs. [Microsoft Entra Agent ID logs](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents) explicitly documents **Is Agent = Yes** and **Agent type** filters at **Entra ID > Monitoring & health > Sign-in logs**. Agent sign-ins can appear across all four sign-in types; a separate Agent activity navigation entry is not the documented procedure on that page.
 
 **Diagnostic.**
 
-1. **Microsoft Entra admin center > Identity > Monitoring & health > Sign-in logs** — inspect the available filter chips. Document the current names verbatim.
-2. **Microsoft Entra admin center > Identity > Monitoring & health > Agent activity** — verify the Agent activity log surface is present and capturing events for known agent identities.
-3. If unsure whether `agentSignIn` events are being emitted at the API level, check via diagnostic settings:
+1. Sign in as at least Reports Reader. Open **Entra ID > Monitoring & health > Sign-in logs** and apply **Is Agent = Yes** or an appropriate **Agent type** value.
+2. Inspect the relevant interactive, non-interactive, service-principal, and managed-identity sign-in views. Record the tenant's available filters and a known test sign-in.
+3. To check forwarding, enumerate the configured diagnostic categories:
 
 ```powershell
 # Confirm diagnostic settings for the tenant include sign-in log streams
 Get-AzDiagnosticSetting -ResourceId "/providers/Microsoft.aadiam" |
   Select-Object Name, @{n='Logs';e={ $_.Log | Where-Object Enabled | Select-Object -ExpandProperty Category }}
 # Look for SignInLogs, NonInteractiveUserSignInLogs, ServicePrincipalSignInLogs,
-# ManagedIdentitySignInLogs, MicrosoftServicePrincipalSignInLogs (preview),
-# and any agentSignIn-related categories present in your tenant.
+# ManagedIdentitySignInLogs, MicrosoftServicePrincipalSignInLogs.
+# agentSignIn is an event type, not a documented diagnostic-setting category.
 ```
 
 **Resolution.**
 
 1. Document the **live** filter affordance names from your tenant in the runbook — verbatim, dated, with a screenshot in the audit binder.
-2. Add a calendar reminder to revisit the documented label after each Entra UI revision (Microsoft typically refreshes the Monitoring & health surface several times per year).
-3. Where filter affordances are unstable, prefer **API-side filtering** (Microsoft Graph `signIns` or `agentSignIn` endpoints, or KQL on the ingested log) over UI-side filter chips.
+2. If the documented filters are absent, capture the tenant discrepancy and investigate access and availability rather than declaring that Microsoft removed the filters.
+3. For API verification, use the documented **beta** `/auditLogs/signIns` query, not an invented `/agentSignIn` endpoint:
+
+   ```http
+   GET https://graph.microsoft.com/beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'
+   ```
+
+   Forward the relevant supported sign-in diagnostic categories and verify agent fields in the destination. Do not create a diagnostic setting named `agentSignIn` without a published category.
 4. Cross-reference [Control 1.7 §"Agent Sign-In and Activity Audit Logs"](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md#agent-sign-in-and-activity-audit-logs-preview) for the canonical preview-feature scope.
 
-**What good looks like.** Runbook contains a date-stamped, screenshot-backed entry for the live filter affordance; agent sign-ins are confirmed visible via at least one of (UI filter, Agent activity log, ingested Graph data); the runbook explicitly disavows the historic "Is Agent = Yes" label and includes a "verify after each Entra UI revision" reminder.
+**What good looks like.** Runbook records the documented filters, actual tenant availability, a known agent sign-in, and the forwarding categories/destination. UI or beta Graph evidence demonstrates agent activity; a configured diagnostic setting alone is not proof of capture.
 
 ---
 
@@ -318,7 +333,7 @@ Get-AzDiagnosticSetting -ResourceId "/providers/Microsoft.aadiam" |
 **Likely cause.** Multiple non-exclusive causes, ordered by frequency:
 
 1. **Unified audit ingestion not enabled** — `(Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled` is `False`.
-2. **License gap** — affected users lack a Copilot license, or lack the audit license tier required for the record type.
+2. **Entitlement or collection gap** — verify the specific Copilot product and Audit entitlement. Do not assume every `CopilotInteraction` producer requires the paid Microsoft 365 Copilot add-on.
 3. **Data-availability latency** — Copilot record types can take longer than core workloads to surface (empirical typical latency is 60–90 minutes for core; Copilot, Power Platform, and Dataverse can take longer; allow up to 24 hours for first events).
 4. **Time zone confusion** — `-StartDate`/`-EndDate` parameters are interpreted as UTC; a "yesterday" expressed in a non-UTC zone may bracket an empty window.
 5. **Permission scope mismatch** — service principal (app-only) connections do not always carry the same audit-search rights as a delegated user with the `Audit Logs` role.
@@ -335,16 +350,17 @@ Get-AzDiagnosticSetting -ResourceId "/providers/Microsoft.aadiam" |
 Connect-ExchangeOnline
 (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled
 
-# 3. Confirm role assignment for the operator
-Get-RoleGroupMember "Audit Logs" | Where-Object { $_.PrimarySmtpAddress -eq (whoami) }
+# 3. Inspect effective audit-search role assignments for the operator.
+# Audit Logs is a role, not necessarily a role-group name.
+Get-ManagementRoleAssignment -RoleAssignee 'audit.admin@contoso.com' -GetEffectiveUsers |
+  Where-Object { $_.Role -in @('Audit Logs','View-Only Audit Logs') }
 
 # 4. Confirm at least one user has a Copilot license
 Get-MgUserLicenseDetail -UserId user@contoso.com |
   Where-Object { $_.SkuPartNumber -match 'Copilot' }
 
-# 5. Validate RecordType against the live enumeration
-[Enum]::GetNames([Microsoft.Office.CompliancePolicy.PSCmdlets.AuditRecordType]) |
-  Where-Object { $_ -match 'Copilot' }
+# 5. Inspect the installed cmdlet's accepted RecordType values.
+Get-Help Search-UnifiedAuditLog -Parameter RecordType
 
 # 6. Re-issue the search with explicit UTC and pagination
 $start = [DateTime]::UtcNow.AddDays(-7)
@@ -353,8 +369,8 @@ Search-UnifiedAuditLog -StartDate $start -EndDate $end `
   -RecordType CopilotInteraction `
   -SessionCommand ReturnLargeSet -SessionId "diag-$(Get-Random)" -ResultSize 5000
 
-# 7. Confirm a custom retention policy explicitly names CopilotInteraction
-Get-UnifiedAuditLogRetentionPolicy | Where-Object Enabled |
+# 7. Inspect candidate retention policies, including all-record-types policies
+Get-UnifiedAuditLogRetentionPolicy |
   Sort-Object Priority |
   Select-Object Name, Priority, RecordTypes, RetentionDuration
 ```
@@ -365,10 +381,10 @@ Get-UnifiedAuditLogRetentionPolicy | Where-Object Enabled |
 2. Enable unified audit ingestion if needed; allow up to 60 minutes for configuration propagation and longer for ingestion to begin.
 3. Reconcile licenses and re-run after the propagation window.
 4. Re-issue the query with explicit UTC and paginated `ReturnLargeSet` semantics.
-5. If the date window exceeds 180 days, confirm a custom retention policy that explicitly names `CopilotInteraction` is in effect, and that affected users hold the 10-Year Audit Log Retention add-on.
+5. If the date window exceeds 180 days, confirm a custom retention policy covers `CopilotInteraction` and the user has Audit Premium. The 10-Year Audit Log Retention add-on is needed for durations **beyond one year**, including the 3-, 5-, and 7-year options, not for a one-year policy. See [audit retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies).
 6. If the search will be repeated programmatically, migrate to the Graph audit search API (see Scenario 7).
 
-**What good looks like.** A baseline `CopilotInteraction` query for any 24-hour window in the retention horizon returns rows within the tenant's documented empirical latency ceiling; `Test-UnifiedAuditEnabled` is True from EXO; the operator role and license entitlements are evidenced; the retention policy explicitly covers `CopilotInteraction`.
+**What good looks like.** A known controlled `CopilotInteraction` is returned within the tenant's measured latency window; `(Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled` is True from Exchange Online; the operator role and license entitlements are evidenced. Applicable retention coverage is confirmed by user/operation scope, priority, and record types (explicit or all types), not merely policy-name presence.
 
 ---
 
@@ -376,11 +392,13 @@ Get-UnifiedAuditLogRetentionPolicy | Where-Object Enabled |
 
 **Symptom.** `Search-UnifiedAuditLog` either times out, throws `TooManyRequests` (HTTP 429), or returns at most 5,000 rows per call (or stops at the 50,000 session ceiling) when the operator knows the underlying event volume is much higher.
 
-**Likely cause.** The cmdlet has documented per-call and per-session caps and per-tenant rate limits. The cmdlet itself is also legacy: `Search-AdminAuditLog` was deprecated 15 September 2024, and `Search-UnifiedAuditLog`, while still supported, is no longer the strategic forward path for high-volume programmatic access.
+**Likely cause.** The [supported cmdlet](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/search-unifiedauditlog) has documented per-call and per-session caps. Microsoft recommends the Office 365 Management Activity API for programmatic downloads; the Graph Audit Search API is also available at `v1.0`. Do not infer a maintenance-only or deprecated status for `Search-UnifiedAuditLog` from the retirement of a different cmdlet.
 
 **Resolution.**
 
-1. **Migrate to the Microsoft Graph audit search API.** Use `POST https://graph.microsoft.com/v1.0/security/auditLog/queries` to submit a query, then poll `/queries/{id}` for `status = succeeded`, then page `/queries/{id}/records`. This is the strategic forward path and is built for higher volumes than the cmdlet.
+1. **Use a supported programmatic extraction path.** For Graph, [create an auditLogQuery](https://learn.microsoft.com/en-us/graph/api/security-auditcoreroot-post-auditlogqueries?view=graph-rest-1.0), poll for a terminal status, reject failed/cancelled jobs, then page `/queries/{id}/records` using `@odata.nextLink`. Consent the applicable query permissions (for this cross-workload example, `AuditLogsQuery.Read.All`), not Entra's `AuditLog.Read.All` alone.
+
+   A `succeeded` query can still be truncated. Inspect `isRecordCountLimitExceeded` before accepting completeness; if true, split the window and re-run. If completeness metadata is absent, reconcile counts and document the uncertainty. Honor `Retry-After` on HTTP 429. See [query properties](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery?view=graph-rest-1.0) and [service limits](https://learn.microsoft.com/en-us/graph/throttling-limits#security-audit-log-query-service-limits).
 
    ```powershell
    # Sketch — Graph audit log queries
@@ -389,50 +407,51 @@ Get-UnifiedAuditLogRetentionPolicy | Where-Object Enabled |
      displayName          = 'CopilotInteraction-Q1-2026'
      filterStartDateTime  = '2026-01-01T00:00:00Z'
      filterEndDateTime    = '2026-03-31T23:59:59Z'
-     recordTypeFilters    = @('copilotInteraction')
+     operationFilters     = @('CopilotInteraction')
    } | ConvertTo-Json
    $q = Invoke-MgGraphRequest -Method POST `
      -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' -Body $body
-   # Poll $q.id for status = succeeded, then page records
+   # Poll $q.id to terminal status; reject failed/cancelled or truncated results.
+   # Follow every @odata.nextLink; split/retry any count-limited window.
    ```
 
 2. **Use server-side filtering.** Push `RecordType`, `UserIds`, `Operations`, and time windows into the API call rather than filtering client-side after a wide pull.
 3. **Chunk by `RecordType` × time window.** A 90-day pull across all Copilot record types is more reliable as 90 daily windows × N record types, executed serially with a small delay, than as a single wide call.
 4. **Serialize, do not parallelize.** Aggressive parallel pagination across multiple sessions trips the per-tenant rate limit.
-5. For ad-hoc UI use, prefer the **Audit search (new)** experience in the Microsoft Purview portal, which uses the Graph API under the hood.
+5. For ad-hoc UI use, use **Audit > Search** in the Microsoft Purview portal. Its documented maximum search window is 180 days; export supports up to 50,000 rows for Audit Standard and 1,000,000 for Audit Premium. These are not the PowerShell session limits.
 
-**What good looks like.** All scheduled audit pulls > 30 days or > 10,000 expected rows run via the Graph audit search API with chunked, server-side-filtered queries; the legacy cmdlet is reserved for ad-hoc one-shot diagnostic use; throttling exceptions are absent from steady-state operations.
+**What good looks like.** Scheduled extraction uses an approved supported API with bounded windows, explicit completeness evidence, pagination, and monitored throttling/retry behavior. `Search-UnifiedAuditLog` remains supported; its documented session cap is not proof of deprecation.
 
 ---
 
 ### Scenario 8 — Sentinel not ingesting `CopilotInteraction`
 
-**Symptom.** Microsoft Sentinel workspace is connected to Microsoft 365 via the Office 365 Management Activity API connector, but `OfficeActivity | where RecordType == "CopilotInteraction"` returns no rows in the workspace.
+**Symptom.** Purview has a known Copilot audit event, but a Sentinel query against `OfficeActivity` returns no matching interaction.
 
 **Likely cause.** Common gaps:
 
-1. The Office 365 Management Activity API connector scope does not include the workload that emits `CopilotInteraction` (the connector exposes per-workload toggles — `Exchange`, `SharePoint`, `AzureActiveDirectory`, `General`, etc.).
+1. Wrong connector or table. The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) uses the Office Management API and writes to [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). The Microsoft 365 connector's `OfficeActivity` table is not a universal destination for every Purview record type.
 2. Tenant license tier does not surface the record type to the connector.
 3. Sentinel workspace tier or daily-cap settings are dropping events.
-4. Analytics rule conditions are filtering events out before they land in the alert table (a `where`-clause bug rather than an ingestion bug).
+4. Analytics rule conditions prevent alerts after ingestion. A rule filter does not remove source rows from the destination table.
 5. Connector polling latency is within Microsoft's empirical envelope but exceeds the operator's expectation.
 
 **Diagnostic.**
 
-1. In the Sentinel workspace, **Data connectors > Microsoft 365 (formerly Office 365)** — confirm the connector is **Connected** and that all required workloads are checked.
-2. KQL — confirm any `OfficeActivity` ingestion at all:
+1. In Sentinel **Data connectors**, inspect **Microsoft Copilot** and its configured workspace. Separately inspect Microsoft 365, Dataverse, and any custom connectors used for the other record types.
+2. KQL — confirm Copilot ingestion:
 
    ```kusto
-   OfficeActivity
-   | summarize Count=count() by RecordType, bin(TimeGenerated, 1h)
+   CopilotActivity
    | where TimeGenerated > ago(24h)
+   | summarize Count=count() by RecordType, bin(TimeGenerated, 1h)
    | order by TimeGenerated desc
    ```
 
 3. KQL — confirm Copilot record types specifically:
 
    ```kusto
-   OfficeActivity
+   CopilotActivity
    | where RecordType in ("CopilotInteraction","ConnectedAIAppInteraction",
                           "AIAppInteraction","PowerPlatformAdministratorActivity")
    | summarize Count=count() by RecordType, bin(TimeGenerated, 1h)
@@ -443,41 +462,43 @@ Get-UnifiedAuditLogRetentionPolicy | Where-Object Enabled |
 
 **Resolution.**
 
-1. Re-check connector workload scope; Copilot events flow under specific workloads — verify against the live connector documentation.
+1. Enable or repair the Microsoft Copilot connector for its documented scope. Inventory the actual destination/schema for each other record type; a connector that covers Microsoft 365 and Security Copilot is not proof that all connected/third-party AI or Power Platform admin events flow through it.
 2. Validate license entitlement and PAYG opt-in (Scenario 3) for the affected record types.
 3. Raise the workspace daily cap if events are being dropped; this is a tenant-cost decision that should go through CAB.
 4. Refer to [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for the canonical Sentinel ingestion architecture for AI audit events.
-5. Document the empirical end-to-end latency (audit emit → Sentinel `OfficeActivity`) for the tenant and alert on deviations from that measured ceiling, not on a fabricated SLA.
+5. Document the empirical end-to-end latency (audit emit → Sentinel destination table) for the tenant and alert on deviations from that measured ceiling, not on a fabricated SLA.
 
-**What good looks like.** `OfficeActivity` shows non-zero counts for all four AI record types within the documented empirical latency ceiling; analytics rules fire on test events; daily-cap budget is sized for AI volumes; Control 3.9 cross-reference is reflected in the Sentinel runbook.
+**What good looks like.** A known audit record is correlated by ID into `CopilotActivity`; each other in-scope record type has its own tested connector/table mapping or an explicitly recorded coverage gap. Analytics rules fire on test events, and the ingestion budget and empirical latency are documented.
 
 ---
 
 ### Scenario 9 — Per-table Dataverse audit not enabled on Copilot Studio entities
 
-**Symptom.** Environment-level Dataverse auditing is enabled in the Power Platform Admin Center, but `ConnectedAIAppInteraction` and Dataverse audit reports show no record of Copilot Studio agent admin events (agent created, published, modified, deleted; component changes; collection changes).
+**Symptom.** Dataverse auditing is enabled, but the expected table-change record or Copilot Studio authoring audit event cannot be found.
 
-**Likely cause.** Dataverse audit operates at **two layers** — environment-level (master switch) and per-table (per-entity opt-in). Copilot Studio agent admin events are emitted by the `bot`, `botcomponent`, `botcomponentcollection`, `botversion`, `botpublishhistory`, and `botprocessversion` entities, and per-table audit must be explicitly enabled on each.
+**Likely cause.** Two audit pipelines have been conflated. [Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing) requires environment, table, and relevant column settings for data-change history. [Copilot Studio administrative activity collection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) is enabled by default on all tenants; it is not unlocked by a mandatory six-table Dataverse switch. Search authoring operations such as `BotCreate` and `BotUpdateOperation-BotPublish` under `PowerPlatformAdministratorActivity`, not interaction records under `ConnectedAIAppInteraction`.
 
 **Diagnostic.**
 
 ```powershell
 # Using Microsoft.PowerApps.Administration.PowerShell + Dataverse Web API
 $envUrl = 'https://contoso.crm.dynamics.com'
+# Framework-selected starting set, not a Microsoft-mandated authoring-audit prerequisite.
+# Confirm installed tables, audit support, and required columns per environment.
 $tables = @('bot','botcomponent','botcomponentcollection',
-            'botversion','botpublishhistory','botprocessversion')
+            'conversationtranscript','aiplugin','aipluginauth')
 
 foreach ($t in $tables) {
   $meta = Invoke-RestMethod -Uri "$envUrl/api/data/v9.2/EntityDefinitions(LogicalName='$t')?`$select=LogicalName,IsAuditEnabled" `
     -Headers @{ Authorization = "Bearer $token" }
   [pscustomobject]@{ Table = $t; AuditEnabled = $meta.IsAuditEnabled.Value }
 }
-# Expected: AuditEnabled = True on all six.
+# Expected: each in-scope supported table has AuditEnabled = True.
 ```
 
 **Resolution.**
 
-1. **Portal path.** Power Apps Maker portal > select the environment > Tables > select the table (e.g., `bot`) > Properties > **Advanced options** > under "Rows in this table" check **Audit changes to its data** > Save. Repeat for the six entities listed above.
+1. **Portal path.** Power Apps Maker portal > select the environment > Tables > select the table (e.g., `bot`) > Properties > **Advanced options** > under "Rows in this table" check **Audit changes to its data** > Save. Repeat for the approved, supported table scope and verify column-level auditing. Record unsupported or absent tables explicitly.
 2. **PowerShell / Web API path.** Patch each `EntityDefinition`:
 
    ```powershell
@@ -490,10 +511,10 @@ foreach ($t in $tables) {
    }
    ```
 
-3. Trigger a test admin event (publish a sandbox agent) and confirm a corresponding row appears in the Dataverse audit log and in `Search-UnifiedAuditLog -RecordType ConnectedAIAppInteraction` within the documented latency window.
-4. Note the May 2026 Dataverse change: from May 2026, before/after field values will no longer be included in audit events sent to Microsoft Purview. For field-level change retention plan to retrieve from the Dataverse Web API `auditdetails` endpoint or via Synapse Link audit export.
+3. Test the two pipelines separately: change an audited Dataverse column and retrieve its data-change history; publish a sandbox agent and search `PowerPlatformAdministratorActivity` for `BotUpdateOperation-BotPublish`. Neither result substitutes for the other.
+4. The [May 2026 Dataverse change](https://learn.microsoft.com/en-us/power-platform/important-changes-coming#removal-of-before-and-after-field-change-values-in-audit-events-sent-to-microsoft-purview) removes before/after values from events sent to Purview, not from Dataverse audit history. Retrieve details using [`audits(<id>)/Microsoft.Dynamics.CRM.RetrieveAuditDetails`](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/retrieve-audit-data#retrieve-audit-change-history), or evaluate the separately configured Synapse Link audit export.
 
-**What good looks like.** All six `bot`-family entities show `IsAuditEnabled = True` in every regulated environment; a fresh admin event on a sandbox agent surfaces in `ConnectedAIAppInteraction` within the empirical latency ceiling; the May-2026 Dataverse change is on the migration calendar.
+**What good looks like.** The approved Dataverse table/column inventory is audited where supported; authoring operations are independently visible in Purview; a field-level change can be retrieved from Dataverse despite its omission from the Purview export.
 
 ---
 
@@ -525,48 +546,44 @@ foreach ($t in $tables) {
 
 **Likely cause.** Not a defect — a normal NYDFS examiner request. Most firms have not pre-built the joined query and scramble to assemble it under a regulator clock.
 
-**Resolution.** Pre-build the artifact as a **named saved query** so it can be re-run on demand. Two equivalent paths:
+**Resolution.** Pre-build the artifact as a **named saved query** so it can be re-run on demand. The following paths have different coverage and must be reconciled, not assumed equivalent:
 
 **Path A — Microsoft Graph audit search API**, scheduled monthly, output to immutable blob:
 
 ```powershell
-# Submit a 12-month query covering all four AI record types
+# Sketch: run bounded UTC windows across the required 12-month period.
+# Query all record types, then select the four required types from auditData.
+# A retained 12-month history must already exist; this cannot recover expired data.
 $body = @{
   '@odata.type'       = '#microsoft.graph.security.auditLogQuery'
   displayName         = "NYDFS-500-AI-Audit-$(Get-Date -Format 'yyyyMMdd')"
-  filterStartDateTime = (Get-Date).AddMonths(-12).ToString('o')
-  filterEndDateTime   = (Get-Date).ToString('o')
-  recordTypeFilters   = @(
-    'copilotInteraction',
-    'connectedAIAppInteraction',
-    'aiAppInteraction',
-    'powerPlatformAdministratorActivity'
-  )
+  filterStartDateTime = [DateTime]::UtcNow.AddDays(-30).ToString('o')
+  filterEndDateTime   = [DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json
 $q = Invoke-MgGraphRequest -Method POST `
   -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' -Body $body
-# Poll $q.id, then page /queries/{id}/records, write output as NDJSON,
+# Poll $q.id; reject failed/cancelled or isRecordCountLimitExceeded results.
+# Page every @odata.nextLink, reconcile each required type, write NDJSON,
 # SHA-256 hash, push to Cohasset-attested immutable blob container.
 ```
 
 **Path B — Sentinel workbook** (preferred when Sentinel is the SIEM of record):
 
 ```kusto
-// NYDFS 500 — AI audit join, last 12 months
+// Copilot metadata slice, not a complete cross-source AI audit export
 let lookback = 365d;
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(lookback)
-| where RecordType in ("CopilotInteraction","ConnectedAIAppInteraction",
-                       "AIAppInteraction","PowerPlatformAdministratorActivity")
+| where RecordType == "CopilotInteraction"
 | extend EventDate = bin(TimeGenerated, 1d)
 | summarize EventCount = count(),
-            DistinctUsers = dcount(UserId),
-            DistinctAgents = dcount(tostring(parse_json(AuditData).AgentId))
+            DistinctUsers = dcount(ActorUserId),
+            DistinctAgents = dcount(AgentId)
             by RecordType, EventDate
 | order by EventDate asc, RecordType asc
 ```
 
-Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(f) preservation tier with SHA-256 sidecars. The deliverable handed to the examiner is **three artifacts together**: the joined query result, the chain-of-custody manifest, and the preservation-tier confirmation (immutable-blob policy state, or vendor archive attestation).
+The workbook is a daily aggregate, not a row-level export of all events. Add the independently verified destinations for connected/third-party AI and Power Platform admin activity, and preserve row-level query results separately. Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(f) preservation tier with SHA-256 sidecars. The deliverable handed to the examiner is **three artifacts together**: the joined query result, the chain-of-custody manifest, and the preservation-tier confirmation (immutable-blob policy state, or vendor archive attestation).
 
 **What good looks like.** Saved query / workbook exists, has been run monthly for at least 12 months with outputs in the preservation tier, and can be produced for the examiner within the firm's documented response window. WSPs name the artifact and the responsible role.
 
@@ -583,7 +600,7 @@ Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(
 1. **Enable Records Management retention** ([Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md)) covering the Copilot interactions location, with a retention duration aligned to the applicable regulatory horizon (3 years for SEC 17a-4(b)(4) communications; 5 years for CFTC 1.31; longer per firm policy).
 2. **Apply In-Place Hold / Litigation Hold** to mailboxes of users in scope of regulatory recordkeeping at the moment of separation, **before** the leaver workflow runs the mailbox-delete step. Make this a hard gate in the leaver runbook.
 3. **Sequence the leaver workflow** so retention/hold is verified present before any delete or disable action.
-4. For the immediate incident, the content is not recoverable from the deleted mailbox. Reconstruct what is available from the preservation tier (if exports were running), document the residual gap, and walk the [§1.2 reportability tree](#12-reportability-decision-tree) with General Counsel.
+4. For the immediate incident, do not assume deletion means permanent loss. [Copilot retention documentation](https://learn.microsoft.com/en-us/purview/retention-policies-copilot#when-a-user-leaves-the-organization) states that retained messages remain searchable in an inactive mailbox when retention was applied before deletion. Have the Exchange/eDiscovery team assess inactive-mailbox and soft-deleted-mailbox recovery before concluding content is unavailable. If permanently deleted and not preserved elsewhere, reconstruct what is available from the preservation tier (if exports were running), document the residual gap, and walk the [§1.2 reportability tree](#12-reportability-decision-tree) with General Counsel.
 
 **What good looks like.** Retention policy covering Copilot interactions is in place and verified for all in-scope users; leaver runbook gates mailbox-delete on hold-present check; periodic verification job confirms holds are intact for the regulated population; no `CopilotInteraction` audit row exists for which the content store cannot be retrieved.
 
@@ -597,14 +614,14 @@ Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(
 
 **Resolution.** Walk the examiner through the layered tamper-evidence story:
 
-1. **Service-layer tamper-evidence (Microsoft 365 Audit).** Microsoft 365 Audit is tamper-evident at the service level: no administrator role — including Global Administrator — can edit historical audit records via supported product surfaces. Audit ingestion is a one-way write; the cmdlet surface exposes only **read** and **search** operations against historical records. Reference the current Microsoft Purview Audit documentation for the canonical Microsoft statement.
+1. **Service-layer evidence (Microsoft 365 Audit).** Document supported search/export surfaces, retention, and administrative configuration from the [Audit overview](https://learn.microsoft.com/en-us/purview/audit-solutions-overview). Do not infer cryptographic integrity or immutable-archive attestation merely from read/search access to historical records; validate preservation and access separation independently.
 2. **Disablement-detection layer.** While history cannot be edited, audit ingestion *itself* can in principle be disabled by a tenant admin. Mitigate with an alerting rule that fires if `UnifiedAuditLogIngestionEnabled` flips to `False` (this is itself an auditable configuration change). Wire the alert into the SOC pager.
-3. **Cryptographic / WORM evidence layer.** For regulator-requested cryptographic evidence, supplement with: (a) Sentinel ingestion ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) — the Sentinel workspace is a separate plane from the M365 Audit service, so collusion across both planes would be required to suppress an event; (b) immutable-blob export with a **locked** time-based retention policy (Cohasset-attested for SEC 17a-4(f), CFTC 1.31, FINRA 4511); (c) WORM seal on the export with SHA-256 manifests anchored to a separate identity boundary (different subscription, different RBAC, different break-glass).
+3. **Cryptographic / WORM evidence layer.** For regulator-requested cryptographic evidence, supplement with: (a) verified Sentinel ingestion ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) — a separate copy only after successful delivery, with independent access/retention controls rather than an assumption that suppression requires collusion; (b) immutable-blob export with a **locked** time-based retention policy (Cohasset-attested for SEC 17a-4(f), CFTC 1.31, FINRA 4511); (c) WORM seal on the export with SHA-256 manifests anchored to a separate identity boundary (different subscription, different RBAC, different break-glass).
 4. **Independent validation layer.** Periodic independent control testing per [Control 3.4 — Audit and Compliance Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md), and (for broker-dealers) the independent records-management assessment under the SEC 17a-4(f) audit-trail alternative.
 
 ```powershell
 # Verify the Azure immutable blob policy is locked
-Get-AzStorageContainerImmutabilityPolicy `
+Get-AzRmStorageContainerImmutabilityPolicy `
   -ResourceGroupName 'rg-fsi-audit-vault' `
   -StorageAccountName 'fsiauditvault' -ContainerName 'm365-audit-export' |
   Select-Object State, ImmutabilityPeriodSinceCreationInDays
@@ -621,17 +638,17 @@ Get-AzStorageContainerImmutabilityPolicy `
 |---|---|
 | Equating "10-Year Audit Retention" with SEC 17a-4(f) compliance | Capture is not preservation. The add-on extends operational telemetry retention; it does not constitute a 17a-4(f) electronic recordkeeping system. (Scenario 2.) |
 | Asking the audit log alone for prompt and response text | The `CopilotInteraction` record holds metadata and message IDs only. Verbatim text lives in the Substrate, retrieved via DSPM for AI / eDiscovery / Communication Compliance. (Scenario 1.) |
-| Hardcoding the "Is Agent = Yes" filter chip into a runbook | Entra UI affordance naming has shifted across recent revisions. Document the live label and revisit after each UI revision. (Scenario 5.) |
+| Declaring the "Is Agent = Yes" filter unsupported | Microsoft documents Is Agent and Agent type at Entra ID > Monitoring & health > Sign-in logs. Record tenant discrepancies rather than inventing a replacement path. (Scenario 5.) |
 | Hardcoding the free-vs-PAYG split for `ConnectedAIAppInteraction` | Microsoft has revised the boundary more than once. Link to the live Microsoft Learn billing page; do not restate the split in a static runbook. (Scenario 4.) |
 | `-ErrorAction SilentlyContinue` in audit verification scripts | Hides exactly the failures you're verifying. Always `Stop` or `Continue` with logging. |
-| Assuming the default Audit Premium retention policy covers Copilot record types | It does not — only AAD/Exchange/OneDrive/SharePoint. Always create a custom policy explicitly naming Copilot record types. (Scenario 6.) |
+| Assuming the default Audit Premium retention policy covers Copilot record types | The one-year default covers only the four named workloads. Verify applicable custom policy coverage, including all-record-types policies, user/operation scope, priority, and licensing. (Scenario 6.) |
 | Reading `Get-AdminAuditLogConfig` from Security & Compliance PowerShell | Always returns `False` for `UnifiedAuditLogIngestionEnabled` regardless of true tenant state. Use Exchange Online PowerShell. (Scenario 6.) |
 | Single-shot `Search-UnifiedAuditLog -ResultSize 5000` for high-volume pulls | Caps at 5,000 per call and 50,000 per session. Migrate to the Graph audit search API. (Scenario 7.) |
-| Using `Search-AdminAuditLog` for new automation | Deprecated 15 September 2024. Migrate to `Search-UnifiedAuditLog` (legacy but supported) or the Graph audit search API (strategic). |
+| Treating a successful Graph query as proof of completeness | A query may succeed after reaching its record-count limit. Inspect `isRecordCountLimitExceeded`, split capped windows, and exhaust pagination. (Scenario 7.) |
 | Citing fabricated "15-minute SIEM SLA" or "24-hour audit SLA" | Microsoft does not publish a hard SLA. Examiners will challenge specific numerical claims. Document the empirical ceiling instead. (Scenario 8.) |
 | Downgrading audit licenses on users in regulated populations to optimize cost | Silent retention re-tiering creates evidence gaps and possible disclosure obligations. Hard-gate the downgrade. (Scenario 10.) |
 | Running the leaver workflow before applying retention/hold to the user's Copilot mailbox | Audit row survives, content does not — a worst-case examiner scenario. Sequence hold-before-delete. (Scenario 12.) |
-| Treating `agentSignIn` as GA without verification | Preview surfaces evolve; verify against the live tenant and Microsoft Learn before documenting. |
+| Treating `agentSignIn` as a separate diagnostic category | It is an event type; verify supported sign-in streams and beta Graph agent filters against Microsoft Learn and the tenant. |
 | Stamping `[PASS]` immediately after `Set-AdminAuditLogConfig` | Configuration takes up to 60 minutes to propagate; ingestion takes longer. Re-verify after the propagation window. |
 
 ---
@@ -649,8 +666,24 @@ Get-AzStorageContainerImmutabilityPolicy `
 
 ---
 
+## Documentation Re-Verification Sources
+
+The 2026-10-16 review checked product behavior, API/cmdlet names, permissions, billing prerequisites, retention options, and destination schemas against live Microsoft Learn. It did not verify a tenant, screenshots, licenses assigned to particular users, or regulatory conclusions. Expected test outcomes and framework-selected scopes are implementation criteria, not Microsoft service guarantees.
+
+| Claim family | Primary sources |
+|---|---|
+| Audit record types, message metadata versus content, product/billing scope | [Copilot and AI audit](https://learn.microsoft.com/en-us/purview/audit-copilot), [raw Copilot schema](https://learn.microsoft.com/en-us/office/office-365-management-api/copilot-schema), [Copilot message retention](https://learn.microsoft.com/en-us/purview/retention-policies-copilot) |
+| Enablement, search roles, latency caveats, export limits | [Enable auditing](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable), [Audit search](https://learn.microsoft.com/en-us/purview/audit-search), [supported PowerShell search](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/search-unifiedauditlog) |
+| Audit retention, user licensing, non-user exception | [Audit retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies), [Audit overview](https://learn.microsoft.com/en-us/purview/audit-solutions-overview) |
+| PAYG association and billing | [Enable PAYG](https://learn.microsoft.com/en-us/purview/purview-payg-subscription-based-enablement), [billing models](https://learn.microsoft.com/en-us/purview/purview-billing-models) |
+| Graph query permissions, v1.0, pagination and truncation | [Create query](https://learn.microsoft.com/en-us/graph/api/security-auditcoreroot-post-auditlogqueries?view=graph-rest-1.0), [query resource](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery?view=graph-rest-1.0), [service limits](https://learn.microsoft.com/en-us/graph/throttling-limits#security-audit-log-query-service-limits) |
+| Agent filters, beta sign-in query, first-party service stream | [Entra Agent ID logs](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents), [Microsoft service-principal logs](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-service-principal-table) |
+| Default-on authoring versus Dataverse change history | [Copilot Studio auditing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio), [Dataverse audit settings](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing), [May 2026 field-value change](https://learn.microsoft.com/en-us/power-platform/important-changes-coming#removal-of-before-and-after-field-change-values-in-audit-events-sent-to-microsoft-purview), [retrieve details](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/retrieve-audit-data#retrieve-audit-change-history) |
+| Sentinel connector and normalized schema | [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot), [CopilotActivity columns](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity) |
+| Immutable-storage verification | [Immutable storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview), [read policy cmdlet](https://learn.microsoft.com/en-us/powershell/module/az.storage/get-azrmstoragecontainerimmutabilitypolicy), [lock policy cmdlet](https://learn.microsoft.com/en-us/powershell/module/az.storage/lock-azrmstoragecontainerimmutabilitypolicy) |
+
 [Back to Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation re-verified; tenant UI not tested)*

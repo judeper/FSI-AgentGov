@@ -307,7 +307,7 @@ Write-Host "Container created: $ContainerName"
 $RetentionDays = 2190  # 6 years
 
 # Set immutability policy (UNLOCKED — for testing and review)
-Set-AzStorageContainerImmutabilityPolicy `
+Set-AzRmStorageContainerImmutabilityPolicy `
     -ResourceGroupName $ResourceGroupName `
     -StorageAccountName $StorageAccountName `
     -ContainerName $ContainerName `
@@ -316,11 +316,11 @@ Set-AzStorageContainerImmutabilityPolicy `
 Write-Host "Immutability policy set: $RetentionDays days (UNLOCKED — review before locking)"
 
 # TO LOCK THE POLICY (irreversible — do not run until compliance review is complete):
-# $Policy = Get-AzStorageContainerImmutabilityPolicy `
+# $Policy = Get-AzRmStorageContainerImmutabilityPolicy `
 #     -ResourceGroupName $ResourceGroupName `
 #     -StorageAccountName $StorageAccountName `
 #     -ContainerName $ContainerName
-# Lock-AzStorageContainerImmutabilityPolicy `
+# Lock-AzRmStorageContainerImmutabilityPolicy `
 #     -ResourceGroupName $ResourceGroupName `
 #     -StorageAccountName $StorageAccountName `
 #     -ContainerName $ContainerName `
@@ -463,7 +463,7 @@ Write-Host "Tenant: $($TestResult.value[0].displayName)"
 Disconnect-MgGraph
 
 # Verify WORM storage configuration
-$Policy = Get-AzStorageContainerImmutabilityPolicy `
+$Policy = Get-AzRmStorageContainerImmutabilityPolicy `
     -ResourceGroupName $ResourceGroupName `
     -StorageAccountName $StorageAccountName `
     -ContainerName $ContainerName
@@ -494,4 +494,4 @@ Write-Host "Policy state: $($Policy.State)"  # Should be "Locked" for production
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted cmdlet correction; tenant execution not tested)*

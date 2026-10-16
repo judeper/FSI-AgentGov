@@ -168,13 +168,15 @@ The following queries are referenced repeatedly in §2 runbooks. Save them in yo
 
 **KQL (Microsoft Sentinel / Log Analytics):**
 
+Q-D1 and Q-D3 use the [Microsoft Copilot connector's CopilotActivity schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). Q-D3 normalizes standard `/sites/`, `/teams/`, and `/personal/` resource URLs to site roots; adapt it for subsites or custom managed paths and use the same normalization in the allowlist. Missing resource metadata is unknown coverage, not proof that grounding did not occur. Q-D2 is a separate DLP feed template: verify its connector, operation names, and field mappings before use; it is not a universal CopilotActivity query.
+
 ```kusto
 // Q-D1: All Copilot interactions for a user in a window
-OfficeActivity
+CopilotActivity
 | where TimeGenerated between (datetime(2026-04-05) .. datetime(2026-04-09))
-| where Operation in ("CopilotInteraction", "CopilotChat")
-| where UserId =~ "<UPN>"
-| project TimeGenerated, UserId, Operation, AppHost, ResultStatus, AccessedResources
+| where RecordType == "CopilotInteraction"
+| where ActorName =~ "<UPN>"
+| project TimeGenerated, ActorName, RecordId, AppHost, LLMEventData
 
 // Q-D2: DLP for Copilot policy hits in window
 OfficeActivity
@@ -183,13 +185,17 @@ OfficeActivity
 | summarize Count=count() by PolicyName, RuleName, ActionType, bin(TimeGenerated, 1h)
 
 // Q-D3: Sites returning grounding results outside RSS allowlist
-OfficeActivity
-| where Operation == "CopilotGrounding"
-| extend Site = tostring(parse_json(AccessedResources)[0].Site)
+CopilotActivity
+| where RecordType == "CopilotInteraction"
+| mv-expand Resource = LLMEventData.AccessedResources
+| where isnotempty(tostring(Resource.SiteUrl))
+| extend ResourceUrl = parse_url(tostring(Resource.SiteUrl))
+| extend Site = strcat(tostring(ResourceUrl.Scheme), "://", tostring(ResourceUrl.Host),
+    extract(@"^/(?:sites|teams|personal)/[^/]+", 0, tostring(ResourceUrl.Path)))
 | join kind=leftanti (
     externaldata(Site:string) ["https://<your-allowlist-csv>"] with (format="csv", ignoreFirstRecord=true)
 ) on Site
-| project TimeGenerated, UserId, Site, Operation
+| project TimeGenerated, ActorName, Site, RecordId
 ```
 
 **PowerShell:**
@@ -1089,4 +1095,4 @@ The following 20 anti-patterns are recurring causes of Control 4.7 incidents in 
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit connector/schema correction; tenant execution not tested)*

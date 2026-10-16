@@ -125,7 +125,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.25** | MIME Type Restrictions | Power Platform Premium | Managed Environments; optional Purview DLP |
 | **1.26** | Agent File Upload and File Analysis Restrictions | Power Platform Premium | Copilot Studio per-agent file upload controls; Purview DLP for Zone 2+ |
 | **1.27** | AI Agent Content Moderation Enforcement | Power Platform Premium | Native Copilot Studio content moderation |
-| **1.28** | Policy-Based Agent Publishing Restrictions | Power Platform Premium | Tenant DLP policies; PPAC security scans |
+| **1.28** | Policy-Based Agent Publishing Restrictions | Copilot Studio; implementation-dependent pipeline/approval and Purview entitlements | Tenant data policies; Copilot Studio automatic security warnings; separately configured approval gates |
 | **1.29** | Global Secure Access Network Controls | Microsoft Entra Internet Access | Secure Web and AI Gateway for Copilot Studio agents; requires GSA onboarding and a Dataverse-backed Power Platform environment. See [Secure Web and AI Gateway for agents](https://learn.microsoft.com/en-us/power-platform/admin/security/secure-web-ai-gateway-agents) and **Note B** (GSA prerequisites). |
 
 ---

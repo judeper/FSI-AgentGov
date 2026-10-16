@@ -27,7 +27,7 @@ This walkthrough configures, in order:
 2. A pipelines host environment and pipeline stages (Dev → Test → Prod)
 3. Delegated deployment under a service principal for Zone 3 Prod
 4. A Power Automate approval flow on the `OnApprovalStarted` trigger
-5. The Microsoft Copilot Studio publishing approval workflow as a complementary native gate
+5. An explicit release-intake approval process with restricted production editing
 6. Microsoft 365 Message Center monitoring as input to the change-management process
 
 ---
@@ -85,7 +85,7 @@ In PPAC, open **Deployment > Pipelines > New pipeline**, choose the host environ
 | Zone | Pipeline Required | Stages | Approval Gates | Delegated Deployment |
 |------|-------------------|--------|----------------|----------------------|
 | Zone 1 | No | N/A | N/A | N/A |
-| Zone 2 | Recommended | Dev → Prod (Test optional) | Manager (native or Power Automate) | Optional |
+| Zone 2 | Recommended | Dev → Prod (Test optional) | Manager (configured intake or Power Automate) | Optional |
 | Zone 3 | **Required** | Dev → Test → Prod | Multiple (CAB + Compliance) | **Required on Prod stage** |
 
 ### Stage Configuration Steps (Zone 3)
@@ -127,22 +127,22 @@ Approval gates use the pipelines extensibility events. For a Zone 3 production d
 
 | Trigger | When it fires | Use it for |
 |---------|---------------|------------|
-| `OnPreDeploymentStarted` | Before Solution Checker / pre-deployment validation | Block early on policy violations (e.g., wrong environment group) |
-| `OnApprovalStarted` | When the deployment reaches the approval gate | Capture CAB and Compliance approvals; record approval evidence |
+| `OnPreDeploymentStarted` | When the enabled Pre-deployment Step Required extension starts | Run custom validation/approval and complete or reject the pending step |
+| `OnApprovalStarted` | When the delegated-deployment approval extension starts | Capture CAB and Compliance approvals; record approval evidence |
 
 ### Build the approval flow
 
 1. Open [Power Automate](https://make.powerautomate.com) in the **pipelines host environment**.
 2. Create a new **automated cloud flow**.
-3. Trigger: **Power Platform for Admins (or "Pipelines") — When a deployment is requested (`OnApprovalStarted`)**.
+3. Trigger: Dataverse **When an action is performed**, catalog **Microsoft Dataverse Common**, category **Power Platform Pipelines**, table **(None)**, action **OnApprovalStarted** for delegated deployment. Enable the corresponding stage extension; a generic row-change trigger is not this event.
 4. Add an **Approvals — Start and wait for an approval** action:
    - Approval type: **Approve / Reject — Everyone must approve** (for CAB + Compliance) or **First to respond** for fast paths.
    - Assigned to: CAB distribution list and Compliance Officer (Zone 3); manager (Zone 2).
    - Title: include change ID, source environment, target environment, solution name, version.
    - Details: include change justification and link to the change record.
 5. Branch on the response:
-   - **Approved →** Call the pipelines connector to approve the deployment.
-   - **Rejected →** Call the pipelines connector to reject and send a notification to the requestor.
+   - **Approved →** Execute the documented completion action using the configured delegated identity.
+   - **Rejected →** Execute the rejection action and notify the requestor. For a pre-deployment extension instead, use **UpdatePreDeploymentStepStatus** (20 to complete; 30 to reject).
 6. Add a final action that writes the approval outcome (approver, timestamp, comments) to your audit store (Dataverse table, SharePoint list, or Sentinel via API).
 7. Save and turn the flow **On**.
 
@@ -157,18 +157,18 @@ See [Microsoft Learn: Extend pipelines with Power Automate](https://learn.micros
 
 ---
 
-## Part 7: Enable Copilot Studio Native Publishing Approvals (Zone 2)
+## Part 7: Configure Direct-Publish Approval Evidence (Zone 2)
 
-For Zone 2 agents that publish directly without a pipeline, use the native approval workflow:
+For Zone 2 agents that publish directly without a pipeline, use a configured intake/change-ticket approval process. The [documented Copilot Studio Publish flow](https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels) does not establish a native Publish approval toggle.
 
-1. Open [Copilot Studio](https://copilotstudio.microsoft.com).
-2. Select the agent and open **Settings**.
-3. Navigate to **Security** > **Publish approval** (label may vary).
-4. Toggle **Require approval to publish** to **On**.
-5. Add designated approvers (manager or team lead).
-6. Save.
+1. Record the agent/environment, requested version, justification, and testing evidence in the organization's release intake.
+2. Route the request to the manager or team lead through the configured Power Automate approval flow or change-ticket system.
+3. Retain the decision, approver, timestamp, and request ID.
+4. Restrict direct production editing to authorized release identities per Control 1.1.
+5. Test with a non-admin maker that production publishing cannot bypass the authorized release path.
+6. Correlate the approved request to the actual publication event.
 
-> **Note:** Native publish approval is per-agent and is a complementary gate to pipeline approvals. For Zone 3 agents deployed via pipelines, pipeline approvals are authoritative; native publish approval is not required but may be enabled as a defense-in-depth control.
+> **Note:** Intake approval does not intercept Publish. A post-change Dataverse flow is detective only. For technical pipeline gating, enable the relevant extension and configure the completion/rejection logic; see [Control 1.28's walkthrough](../1.28/portal-walkthrough.md) and [Microsoft pipeline extensions](https://learn.microsoft.com/en-us/power-platform/alm/extend-pipelines).
 
 ---
 
@@ -278,4 +278,4 @@ After completing the configuration, confirm:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (approval guidance checked against Microsoft Learn 2026-10-14; tenant UI capture pending)*

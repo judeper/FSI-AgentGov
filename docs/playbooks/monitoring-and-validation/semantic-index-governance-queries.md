@@ -329,15 +329,16 @@ function Test-AgentGroundingScopeCompliance {
 
 ```kql
 // Track Copilot interactions with SharePoint sources
-// Uses OfficeActivity table with CopilotInteraction RecordType
-OfficeActivity
+// Microsoft Copilot connector destination; validate populated resource fields
+CopilotActivity
 | where TimeGenerated > ago(30d)
 | where RecordType == "CopilotInteraction"
-| extend SourceSiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SourceSiteUrl)
+| mv-expand Resource = LLMEventData.AccessedResources
+| extend SourceSiteUrl = tostring(Resource.SiteUrl)
 | where isnotempty(SourceSiteUrl)
 | summarize
     AccessCount = count(),
-    UniqueUsers = dcount(UserId),
+    UniqueUsers = dcount(ActorUserId),
     LastAccess = max(TimeGenerated)
     by SourceSiteUrl
 | order by AccessCount desc
@@ -349,12 +350,13 @@ OfficeActivity
 ```kql
 // Detect Copilot interactions with sites containing sensitive keywords
 // Note: Site restriction status requires PowerShell lookup (Get-SPOSite)
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType == "CopilotInteraction" or Operation has "Copilot"
-| extend SiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SiteUrl)
+| where RecordType == "CopilotInteraction"
+| mv-expand Resource = LLMEventData.AccessedResources
+| extend SiteUrl = tostring(Resource.SiteUrl)
 | where SiteUrl has_any ("confidential", "restricted", "pii", "financial")
-| project TimeGenerated, UserId, SiteUrl, Operation
+| project TimeGenerated, ActorUserId, SiteUrl, RecordId
 | order by TimeGenerated desc
 ```
 
@@ -384,16 +386,15 @@ OfficeActivity
 
 ```kql
 // Analyze Copilot usage patterns by application
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(30d)
-| where RecordType == "CopilotInteraction" or RecordType == "CopilotForM365Interaction"
-| extend AppName = tostring(parse_json(tostring(AdditionalInfo)).AppName)
+| where RecordType == "CopilotInteraction"
 | summarize
     InteractionCount = count(),
-    UniqueUsers = dcount(UserId),
+    UniqueUsers = dcount(ActorUserId),
     FirstSeen = min(TimeGenerated),
     LastSeen = max(TimeGenerated)
-    by AppName
+    by AppHost
 | order by InteractionCount desc
 ```
 
@@ -401,17 +402,17 @@ OfficeActivity
 
 ```kql
 // Identify users with unusually high Copilot activity
-let baseline = OfficeActivity
+let baseline = CopilotActivity
 | where TimeGenerated > ago(30d) and TimeGenerated < ago(1d)
 | where RecordType has "Copilot"
-| summarize AvgDaily = count() / 30.0 by UserId;
-OfficeActivity
+| summarize AvgDaily = count() / 29.0 by ActorUserId;
+CopilotActivity
 | where TimeGenerated > ago(1d)
 | where RecordType has "Copilot"
-| summarize TodayCount = count() by UserId
-| join kind=inner baseline on UserId
+| summarize TodayCount = count() by ActorUserId
+| join kind=inner baseline on ActorUserId
 | where TodayCount > AvgDaily * 3
-| project UserId, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
+| project ActorUserId, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
 | order by Deviation desc
 ```
 
@@ -420,25 +421,26 @@ OfficeActivity
 ```kql
 // Dashboard query for Copilot activity overview
 // Note: Site restriction counts require PowerShell (Get-SPOSite) - this shows activity metrics only
-let TotalInteractions = OfficeActivity
+let TotalInteractions = CopilotActivity
 | where TimeGenerated > ago(7d)
 | where RecordType has "Copilot"
 | summarize InteractionCount = count();
 
-let UniqueUsers = OfficeActivity
+let UniqueUsers = CopilotActivity
 | where TimeGenerated > ago(7d)
 | where RecordType has "Copilot"
-| summarize UserCount = dcount(UserId);
+| summarize UserCount = dcount(ActorUserId);
 
 let SettingChanges = OfficeActivity
 | where TimeGenerated > ago(7d)
 | where Operation == "SiteCollectionSettingsChanged"
 | summarize ChangeCount = count();
 
-let SensitiveSiteAccess = OfficeActivity
+let SensitiveSiteAccess = CopilotActivity
 | where TimeGenerated > ago(7d)
 | where RecordType has "Copilot"
-| extend SiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SiteUrl)
+| mv-expand Resource = LLMEventData.AccessedResources
+| extend SiteUrl = tostring(Resource.SiteUrl)
 | where SiteUrl has_any ("confidential", "restricted", "pii")
 | summarize SensitiveCount = count();
 
@@ -523,4 +525,4 @@ Write-Host "`nAudit complete. Reports saved to: $reportPath" -ForegroundColor Gr
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted query corrections; tenant execution not tested)*
