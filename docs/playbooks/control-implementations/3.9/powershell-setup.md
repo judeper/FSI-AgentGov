@@ -588,7 +588,7 @@ Daily health check. Returns one row per **AI-relevant table**, each with explici
 | `PowerPlatformAdminActivity` | Maker / env / DLP-policy changes | Power Platform connector |
 | `AlertInfo`, `AlertEvidence` | Defender XDR alerts (M365D unified) | Defender XDR connector |
 | `CloudAppEvents` | Defender for Cloud Apps activity + DLP | Defender for Cloud Apps connector |
-| `MicrosoftCopilotEvents` | Microsoft 365 Copilot prompt + response telemetry (where licensed) | Microsoft 365 Copilot connector |
+| `CopilotActivity` | Copilot audit metadata; not prompt/response body text | Microsoft Copilot connector ([schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity)) |
 
 ```powershell
 function Get-Fsi-SentinelWorkspaceHealth {
@@ -631,7 +631,7 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
         @{ Name='AlertInfo';                     ExpectMin=0;  Required=$false },
         @{ Name='AlertEvidence';                 ExpectMin=0;  Required=$false },
         @{ Name='CloudAppEvents';                ExpectMin=0;  Required=$false },
-        @{ Name='MicrosoftCopilotEvents';        ExpectMin=0;  Required=$false; CopilotConnector=$true }
+        @{ Name='CopilotActivity';               ExpectMin=0;  Required=$false; CopilotConnector=$true }
     )
     foreach ($t in $AdditionalTables) {
         $baseTables += @{ Name=$t; ExpectMin=0; Required=$false }
@@ -1001,7 +1001,7 @@ Cross-ref:      Control 1.7, Control 1.8
 
 ### 5.5 — `Enable-Fsi-MicrosoftCopilotConnector`
 
-The Microsoft 365 Copilot connector ingests prompt + response telemetry to the `MicrosoftCopilotEvents` table. The connector has reached **GA** in the commercial cloud. Costs scale with prompt volume — review the Sentinel ingestion calculator before enabling at scale.
+The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) ingests Copilot audit metadata into `CopilotActivity`. Configure the connector using its documented portal procedure and verify a known source audit ID against `CopilotActivity.RecordId`. The deployment helper below is a tenant-specific ARM sketch, not a verified connector schema; do not execute it without validating the deployed resource kind, API version, and properties. A resource-create response alone is not proof of ingestion.
 
 ```powershell
 function Enable-Fsi-MicrosoftCopilotConnector {
@@ -1010,7 +1010,7 @@ function Enable-Fsi-MicrosoftCopilotConnector {
 Enables Microsoft 365 Copilot Sentinel data connector.
 
 .DESCRIPTION
-Populates the MicrosoftCopilotEvents table with Copilot prompt/response telemetry.
+Tenant-specific deployment sketch for the connector that populates CopilotActivity.
 Costs scale with prompt volume — review the Sentinel ingestion calculator before enabling at scale.
 
 .NOTES
@@ -1242,9 +1242,9 @@ function New-Fsi-SentinelAlertRule-PromptInjection {
 Detects suspected prompt-injection patterns in Microsoft 365 Copilot interactions.
 
 .DESCRIPTION
-Heuristic detection of jailbreak / instruction-override patterns in Copilot prompts.
-Sources: MicrosoftCopilotEvents (where licensed), AppTraces (when AppInsights link is
-enabled per §5.6). Designed as a triage signal — not a definitive classifier. Tuning
+Detection of documented jailbreak flags in Copilot audit metadata, plus heuristic
+matching only in separately approved AppTraces content (when enabled per §5.6).
+Designed as a triage signal — not a definitive classifier. Tuning
 recommended after first 30 days; cross-ref Control 1.24 (Defender AISPM) for richer
 classifier signals.
 
@@ -1269,18 +1269,21 @@ let injectionMarkers = dynamic([
     "BEGIN INJECTION", "</system>", "[[OVERRIDE]]"
 ]);
 union isfuzzy=true
-    (MicrosoftCopilotEvents
+    (CopilotActivity
         | where TimeGenerated > ago(15m)
-        | extend Prompt = tostring(parse_json(EventData).Prompt)
-        | where Prompt has_any (injectionMarkers)
-        | project TimeGenerated, UserId=AccountUpn, AppName='Microsoft365Copilot', Prompt),
+        | where RecordType == 'CopilotInteraction'
+        | mv-expand Message = LLMEventData.Messages
+        | where tobool(Message.JailbreakDetected) == true
+        | project TimeGenerated, UserId=ActorName, AppName='Microsoft365Copilot',
+                  Signal='JailbreakDetected', Example=tostring(Message.ID)),
     (AppTraces
         | where TimeGenerated > ago(15m)
         | where Properties has 'AgentPrompt'
         | extend Prompt = tostring(Properties['AgentPrompt'])
         | where Prompt has_any (injectionMarkers)
-        | project TimeGenerated, UserId=tostring(Properties['UserId']), AppName=AppRoleName, Prompt)
-| summarize Hits=count(), Examples=make_set(Prompt, 5) by UserId, AppName, bin(TimeGenerated, 5m)
+        | project TimeGenerated, UserId=tostring(Properties['UserId']), AppName=AppRoleName,
+                  Signal='ApprovedTraceHeuristic', Example=Prompt)
+| summarize Hits=count(), Examples=make_set(Example, 5), Signals=make_set(Signal) by UserId, AppName, bin(TimeGenerated, 5m)
 | where Hits > 0
 '@
     _Agt39NewSentinelRule -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName `
@@ -2155,7 +2158,7 @@ Cross-ref:      §5 connector helpers
         @{ Kind='PowerPlatform';        Name='PowerPlatform'; Tables=@('PowerPlatformAdminActivity'); Required=$false },
         @{ Kind='MicrosoftThreatProtection'; Name='DefenderXDR'; Tables=@('AlertInfo','AlertEvidence'); Required=$true },
         @{ Kind='MicrosoftCloudAppSecurity'; Name='DefenderCloudApps'; Tables=@('CloudAppEvents'); Required=$false },
-        @{ Kind='MicrosoftCopilot';     Name='M365Copilot'; Tables=@('MicrosoftCopilotEvents'); Required=$false }
+        @{ Kind='MicrosoftCopilot';     Name='M365Copilot'; Tables=@('CopilotActivity'); Required=$false }
     )
     $rows = foreach ($c in $connectors) {
         $tableProbes = foreach ($t in $c.Tables) {

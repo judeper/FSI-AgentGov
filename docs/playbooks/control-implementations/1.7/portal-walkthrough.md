@@ -81,7 +81,7 @@ Control 1.7 owns **operational telemetry capture** for Microsoft 365 Copilot and
 | Verifying / enabling unified audit logging tenant-wide | Capturing the human supervisory review of AI-generated communications ([2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)) |
 | Authoring Audit (Premium) custom retention policies that explicitly include the Copilot record types | Authoring DLP policies that *block* sensitive data in Copilot prompts ([1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) |
 | Enabling PAYG collection for `AIAppInteraction` (non-Microsoft AI apps via network/browser DLP) | Reviewing the prompt and response **body text** of a captured `CopilotInteraction` ([1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md), [1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md), [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)) |
-| Enabling Dataverse environment-level audit and per-table audit on the six Copilot Studio entities | Authoring the Copilot Studio agent sponsorship and lifecycle workflow (Control 1.2) |
+| Enabling Dataverse environment-level audit and per-table audit on the tables selected in the environment's evidence scope | Authoring the Copilot Studio agent sponsorship and lifecycle workflow (Control 1.2) |
 | Configuring Entra `agentSignIn` log forwarding to a Log Analytics workspace | Writing Sentinel KQL detection rules against the forwarded data ([3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) |
 | Configuring Azure immutable blob storage for WORM export of audit artifacts | Drafting the Designated Executive Officer (DEO) representation or Designated Third Party (DTP) undertaking required by the 17a-4(f) audit-trail alternative |
 | Reporting an audit-pipeline gap as a finding | Running the root-cause analysis on that gap ([3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)) |
@@ -107,7 +107,7 @@ Compliance-design implication: the audit log is the **evidence trail and the joi
 | Enable PAYG for `AIAppInteraction` | ✅ Audit > Settings | ⚠️ Some toggles portal-only | PAYG enablement is portal-first |
 | Search and export | ✅ Audit > New search | ✅ `Search-UnifiedAuditLog -SessionCommand ReturnLargeSet` | Portal capped at 180-day window and 50,000 records per session; PowerShell required for larger windows or paginated extraction |
 | Dataverse environment-level audit | ✅ PPAC > Audit and logs | ✅ Power Platform CLI / Dataverse Web API | Portal is the documented path |
-| Per-table audit on Copilot Studio entities | ✅ Maker portal > Tables | ✅ Dataverse Web API | Portal preferred for the six-entity scope |
+| Per-table audit on Copilot Studio entities | ✅ Maker portal > Tables | ✅ Dataverse Web API | Inventory deployed tables and their audit capability; there is no documented universal six-table prerequisite |
 | `agentSignIn` log forwarding | ✅ Entra > Diagnostic settings | ✅ `New-AzDiagnosticSetting` | Portal recommended for first-time enablement |
 | Azure immutable blob policy | ✅ Storage container > Access policy | ✅ `Set-AzStorageContainerImmutabilityPolicy` | Portal for initial creation; PowerShell for the **lock** action (audit-trail-friendly) |
 
@@ -126,7 +126,7 @@ Use the canonical short names from the role catalog. Verify role assignments in 
 | Verify audit ingestion status | Purview Compliance Admin (with `View-Only Audit Logs`) or Entra Global Reader | Run `Get-AdminAuditLogConfig` from Exchange Online PowerShell |
 | Enable unified audit logging | Purview Audit Admin (Exchange `Audit Logs` role) | Tenant-wide — change-managed |
 | Search audit logs | Purview Compliance Admin or holder of `Audit Logs` / `View-Only Audit Logs` | Purview Audit solution |
-| Author / modify audit retention policies | Exchange **Organization Configuration** role | **Purview Compliance Admin alone is NOT sufficient** for retention policy create/modify (per Microsoft Learn) |
+| Author / modify audit retention policies | **Organization Configuration** role in Microsoft Purview | Verify the assignment under **Roles & scopes**; a similarly named Exchange assignment is not evidence of Purview authorization |
 | Enable Dataverse environment audit | Power Platform Admin (or Dynamics 365 Admin) | Per environment |
 | Configure `agentSignIn` diagnostic forwarding | Entra Security Admin | Tenant-wide diagnostic setting |
 | Configure Azure immutable blob storage | Azure Storage Account Owner / Contributor | Subscription-level RBAC |
@@ -246,28 +246,28 @@ The audit record carries metadata only. To retrieve the prompt and response body
 | `AIAppInteraction` for non-Microsoft AI apps (network/browser DLP `AIApp` workload) | ⛔ | ⛔ unless PAYG enabled | ⛔ unless PAYG enabled | ✅ — explicit enablement; 180-day retention; consumption billed against an Azure subscription |
 | Per-user license required at event ingestion time | n/a (universal) | ✅ Yes — without it, retention silently caps at 180 days | ✅ Yes — without the add-on, retention silently caps at 1 year | n/a (PAYG fixed retention) |
 
-**There is no native 3-year, 5-year, 6-year, or 7-year Audit tier.** Use the record-class schedule as the governing rule — 3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it. If the firm wants a capture window beyond 1 year in Microsoft 365 Audit, configure a **10-year** custom retention policy only as a documented capture-window extension / over-retention choice.
+**The current portal supports 3-, 5-, and 7-year durations as well as 10 years; it does not list a 6-year duration.** The [retention-policy documentation](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) requires the 10-Year Audit Log Retention add-on with Microsoft 365 Enterprise E5 for the 3-, 5-, and 7-year options. Use the record-class schedule as the governing rule — 3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it. Select an approved supported capture duration; the add-on's name does not require every policy to retain for 10 years.
 
 ---
 
 ## §5 — Create a Custom Audit Retention Policy
 
 !!! danger "Required role: Organization Configuration"
-    Authoring or modifying audit retention policies requires the Exchange **Organization Configuration** role. The Purview Compliance Admin role alone returns access denied on policy creation. Confirm role assignment before starting this step.
+    Authoring or modifying audit retention policies requires **Organization Configuration in Microsoft Purview**. Confirm assignment under **Roles & scopes** before starting; a role title alone does not establish that this permission was granted.
 
 !!! warning "The default Audit (Premium) retention policy covers only four workloads"
-    The platform default Audit (Premium) retention policy covers **only** `AzureActiveDirectory`, `Exchange`, `OneDrive`, and `SharePoint`. Copilot record types (`CopilotInteraction`, `ConnectedAIAppInteraction`, `PowerPlatformAdministratorActivity`, `AIAppInteraction`) silently fall back to **180 days** unless a custom policy explicitly names them. This is a non-obvious default — verify against [Microsoft Learn: Audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) before you assume otherwise.
+    The platform default one-year Audit (Premium) policy covers `AzureActiveDirectory`, `Exchange`, `OneDrive`, and `SharePoint`. Other workloads normally default to 180 days; an applicable custom policy can override a default, including shortening it. Non-Microsoft AI PAYG records have their separately documented 180-day retention. Verify scope, priority, and effective entitlement against [Microsoft Learn: Audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies).
 
 1. In the Purview portal Audit solution, open **Policies > Create audit retention policy**.
 2. Enter a descriptive **Policy name** that encodes the zone and intent (e.g., `FSI-Zone3-Copilot-10y`, `FSI-Zone2-Copilot-1y`).
-3. Set **Duration** to one of the supported values: `Three Months`, `Six Months`, `Nine Months`, `Twelve Months` (Audit Premium), `Ten Years` (Audit Premium + per-user 10-Year add-on). Apply the firm's record-class schedule — 3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it — and use `Ten Years` only when the firm intentionally extends the Audit capture window beyond 1 year because Microsoft 365 Audit has no native intermediate tier for those record classes.
+3. Set **Duration** using the documented portal options: `7 Days`, `30 Days`, `6 Months`, `9 Months`, `1 Year`, `3 Years`, `5 Years`, `7 Years`, or the licensed `10 Years` option. The 7-/30-day options require Microsoft 365 Enterprise E5; 3-/5-/7-year options require that subscription plus the 10-Year Audit Log Retention add-on. Apply the firm's record-class schedule — 3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it — and document any selected capture-window extension.
 4. Under **Record types**, explicitly add **every** Copilot record type in scope:
     - `CopilotInteraction`
     - `ConnectedAIAppInteraction`
     - `AIAppInteraction` (only if PAYG enabled — note PAYG records cap at 180 days regardless)
     - `PowerPlatformAdministratorActivity`
-    - `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsApp` (as applicable)
-5. Under **Users**, choose **All users** for tenant-wide coverage, or scope to a **license-derived security group** (recommended pattern: scope by license group, not by individual UPN, because license assignments change).
+    - Other supported workload categories as applicable. Not every PowerShell record type is exposed in the portal picker; use the documented Security & Compliance PowerShell policy cmdlets when required and verify the imported parameter enum.
+5. Under **Users**, leave the field blank for all users, or select specific users. If using a license group's membership as the source population, resolve it to users and reconcile membership changes; the documented picker is not a dynamic security-group scope.
 6. Set **Priority** explicitly (1 = highest); document the priority decision in the policy description so the audit binder can explain conflict resolution.
 7. Click **Save**.
 8. Per-organization limit: **50 audit retention policies**. Reserve at least 10 slots for incident-response policies that may be added under examination.
@@ -278,9 +278,9 @@ The audit record carries metadata only. To retrieve the prompt and response body
 
 `AIAppInteraction` (and certain `ConnectedAIAppInteraction` scenarios involving non-Microsoft AI apps surfaced via Connected AI App) are billed under Audit (Premium) **pay-as-you-go** and require explicit enablement. Without enablement, audit search returns **zero rows** for these record types and the firm has no audit evidence for non-Microsoft AI usage — a material gap if employees use non-Microsoft AI assistance from managed endpoints.
 
-1. In the Purview portal, navigate to **Audit > Settings** and locate the AI app interaction PAYG enablement toggle. Verify the current location against [Microsoft Learn: Audit pay-as-you-go billing models](https://learn.microsoft.com/en-us/purview/purview-billing-models) at the time of configuration — the surface has shifted across recent UI revisions.
+1. Follow the current [Purview PAYG enablement procedure](https://learn.microsoft.com/en-us/purview/purview-payg-subscription-based-enablement). For the documented new-customer flow, an **Entra Global Admin** opens **Settings > Account details** (or the **Get Started** ribbon) and associates an active same-tenant Azure subscription and resource group. Verify its service-plan prerequisites and preview status; do not assume an **Audit > Settings** toggle establishes billing.
 2. Confirm the PAYG cost commitment with the Azure subscription Owner; PAYG bills against an Azure subscription, not a per-seat license.
-3. Enable the AI app interaction PAYG charge.
+3. Confirm the required AI audit feature is explicitly enabled using the [current billing/feature guidance](https://learn.microsoft.com/en-us/purview/purview-billing-models), then independently verify the association and a controlled event. Subscription visibility alone is insufficient.
 4. Document the enablement decision in the §1.3 change ticket and capture the confirmation screenshot.
 5. Validate after the next ingestion window:
 
@@ -297,7 +297,7 @@ The audit record carries metadata only. To retrieve the prompt and response body
 
 ## §7 — Dataverse Environment-Level and Per-Table Audit (Power Platform / Copilot Studio)
 
-Required for Copilot Studio agent admin / lifecycle events to surface in `ConnectedAIAppInteraction` and for Fed SR 26-2 (formerly SR 11-7) model-lifecycle reconstruction.
+Dataverse change-history auditing is separate from Copilot Studio's SDK-layer administrative activity logging. Microsoft documents administrative activity collection as enabled by default; enabling a set of Dataverse tables is not a prerequisite for those SDK events. See [Audit Copilot Studio activities in Microsoft Purview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio). Use the environment's selected table and column history as additional evidence for Fed SR 26-2 (formerly SR 11-7) model-lifecycle reconstruction.
 
 ### 7.1 Enable environment-level auditing (per environment)
 
@@ -313,32 +313,30 @@ Required for Copilot Studio agent admin / lifecycle events to surface in `Connec
 7. Capture screenshot for the evidence pack.
 8. **Repeat for every environment in the tenant.** Use the [Audit Compliance Manager](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager) for tenant-wide automation.
 
-### 7.2 Enable tenant-level Dataverse auditing policy
+### 7.2 Enable Dataverse activity logging where supported
 
-1. In PPAC > **Security > Compliance > Auditing**, enable **Turn on Auditing**.
-2. Additionally enable the **User Sign-In** and **Activity** checkboxes to capture sign-in events and entity-level activity across all Dataverse environments.
+In each applicable environment's **Settings > Audit and logs > Audit settings**, configure **Start Auditing**, **Log access**, and **Read logs** as documented in [Manage Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing). Dataverse user-access/activity logs are sent to Purview for production environments only. Record the environment type and licensing prerequisites; do not treat this as a tenant-wide switch that configures every environment. This production-only activity-log boundary does not disable the separate default Copilot Studio SDK administrative event stream in a sandbox.
 
-### 7.3 Enable per-table audit on the six Copilot Studio entities
+### 7.3 Enable per-table audit for the environment's selected tables
 
-Even with environment-level audit enabled, agent-specific changes only surface when per-table audit is enabled on the Copilot Studio entities. The canonical six-entity set is:
+For Dataverse row-change history, both environment-level auditing and the selected table/column auditing must be enabled. The earlier six-entity list was not a Microsoft-documented prerequisite and differed between sibling playbooks. Instead:
 
-1. `bot`
-2. `botcomponent`
-3. `botcomponentcollection`
-4. `botpublishstatus` (or equivalent publish-state entity — verify the live name in your environment)
-5. `botcomponentassociation`
-6. `botactivelearningdialog` (or the current set documented by the audit-compliance-manager solution — verify before relying on the list)
+1. Inventory the tables deployed in each applicable environment, including agent and component tables used by the solution.
+2. Record each selected table's logical name, `IsAuditEnabled` metadata, audit configurability, and the columns whose changes must be captured.
+3. Document missing or non-auditable tables explicitly. Do not substitute a guessed publish-state entity or silently exclude the default environment.
 
-For each of the six entities:
+For each selected, auditable table:
 
 1. From the Power Apps Maker portal (`https://make.powerapps.com`), select the target environment.
 2. Open **Tables** and locate the entity.
 3. Open **Properties** and enable **Audit changes to its data**.
 4. At the column level, confirm which fields generate audit events; enable column audit for any field tracked under the firm's records schedule.
-5. Save and capture screenshot.
+5. Save, publish the customizations, and capture the post-change state. Verify a test row change in Dataverse audit history separately from a Copilot Studio administrative event in Purview. See [Configure auditing](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/configure).
 
 !!! warning "Dataverse before/after field values change — May 2026"
-    Starting May 2026, Dataverse will no longer include before-and-after field change values in audit events sent to Microsoft Purview. Organizations requiring detailed field-level change data for regulatory recordkeeping should retrieve this data directly from the Dataverse Web API (`auditdetails` endpoint) or via Synapse Link audit export. This change may affect SEC 17a-4 / FINRA 4511 programs that rely on Purview audit integration for Dataverse field-level change records. Plan the transition before May 2026 and document the alternate retrieval pipeline in the audit binder.
+    Starting May 2026, Dataverse no longer includes before-and-after field change values in audit events sent to Microsoft Purview ([change notice](https://learn.microsoft.com/en-us/power-platform/important-changes-coming#removal-of-before-and-after-field-change-values-in-audit-events-sent-to-microsoft-purview)). Organizations requiring detailed field-level change data for regulatory recordkeeping should use the documented [native audit-history operations](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/retrieve-audit-data), such as the bound `audits(<auditid>)/Microsoft.Dynamics.CRM.RetrieveAuditDetails` function, not an `auditdetails` entity set. Large old/new values can be truncated at 5KB. This change may affect SEC 17a-4 / FINRA 4511 programs that rely on Purview audit integration for Dataverse field-level change records. Document and test the alternate retrieval pipeline in the audit binder.
+
+    [Synapse audit export](https://learn.microsoft.com/en-us/power-platform/admin/audit-data-azure-synapse-link) is an option only for existing eligible Dataverse organization IDs using Delta Lake profiles: new organization IDs are ineligible beginning October 15, 2026, and existing eligible organizations must transition by December 2027. Future Fabric audit-table support is not a currently available replacement.
 
 ---
 
@@ -413,14 +411,14 @@ The following Entra sign-in fields support agent-specific audit correlation. **`
 
 | Method | Use case |
 |---|---|
-| Microsoft Sentinel — Office 365 connector | Native ingestion to Sentinel; recommended for Zone 2/3. Detection-rule authoring is owned by [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). |
+| Microsoft Sentinel — Microsoft Copilot connector | Native Copilot audit ingestion into `CopilotActivity`, not `OfficeActivity`. Verify the configured workload coverage; do not assume every AI or Power Platform record type uses this table. Detection-rule authoring is owned by [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). See [connector reference](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) and [table schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). |
 | Office 365 Management Activity API | Programmatic export at higher bandwidth (Audit Premium); preferred for high-volume tenants and for non-Sentinel SIEMs |
 | Audit Search Graph API | Modern programmatic search path; supported on both Audit Standard and Audit Premium |
 | Manual export | Ad-hoc investigations; subject to 30-day search-job retention and 50,000-record session ceiling |
 
 **End-to-end ingestion latency:** Microsoft does not publish a hard SLA for audit availability. Empirically, core services (Exchange / SharePoint / OneDrive) typically appear within 60–90 minutes; Power Platform / Copilot Studio / Dataverse can take longer. Sentinel ingestion adds connector-poll latency on top. Treat any 5-minute / 15-minute SLA claim as fabricated unless cited to a specific Microsoft commitment.
 
-**Verification procedure:** generate a known event (e.g., a single `CopilotInteraction` from a test account), record the exact UTC timestamp, and query the SIEM with a tight time window pinned to that timestamp after the documented latency ceiling. Capture the round-trip time and add to the §11 evidence pack as the documented end-to-end latency.
+**Verification procedure:** generate a known event (e.g., a single `CopilotInteraction` from a test account), record the exact UTC timestamp, and retrieve its Purview audit record ID. Match that ID to `CopilotActivity.RecordId`, using `ActorName` and the time window as supporting filters. Record when the matching row first becomes queryable; `TimeGenerated` is the event timestamp, not the observation time. Capture the round-trip time and add to the §11 evidence pack. Prompt text is not a searchable marker in audit metadata.
 
 ---
 
@@ -475,7 +473,7 @@ Capture for every audit-binder refresh (cadence per [Verification & Testing](ver
 3. **Custom retention policies** — JSON export from `Get-UnifiedAuditLogRetentionPolicy | ConvertTo-Json -Depth 10`. Note in the binder that this **does not include** the platform default policy.
 4. **PAYG enablement state** (§6) — confirmation screenshot plus a positive test result for `AIAppInteraction`.
 5. **Per-environment Dataverse audit settings** (§7.1) — screenshot or API export per environment.
-6. **Per-table audit state on the six Copilot Studio entities** (§7.3) — screenshot per entity per environment.
+6. **Per-table audit state for the selected Dataverse tables** (§7.3) — table/column inventory, capability exceptions, and post-change evidence per environment; separate proof of the default Copilot Studio administrative event stream.
 7. **`agentSignIn` and `MicrosoftServicePrincipalSignInLogs` diagnostic settings** (§8) — Entra portal screenshot plus the Log Analytics destination resource ID.
 8. **Sample reconstruction artifact** — for one randomly selected agent, run a reconstruction search ("all `CopilotInteraction` records for `AgentId` X over date range Y–Z"), navigate from the audit hit to the **DSPM for AI** transcript surface (per §3.2), capture both, and bundle with a chain-of-custody manifest.
 9. **Worked examiner example** — the canonical FINRA / SEC examiner question is *"Show me the audit trail and the underlying communications for AI-generated communications to customer X between dates Y and Z."* Maintain a current worked-example file showing: (a) the Purview Audit search filter, (b) the audit CSV export with SHA-256, (c) the DSPM for AI / eDiscovery content extract, and (d) the chain-of-custody manifest tying audit IDs to content IDs.
@@ -524,11 +522,11 @@ All artifacts: SHA-256 hashed at capture time; copied to the §10 immutable blob
 | Configuration | Setting |
 |---|---|
 | Unified audit logging | Enabled |
-| Audit retention policy | Record-class-based: apply the preservation schedule from Control 1.7 (3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it). Because Microsoft 365 Audit has no native 3-year/5-year/6-year tier, firms that need a capture window beyond 1 year typically use a documented `Ten Years` policy as a capture-window extension / over-retention choice. |
+| Audit retention policy | Record-class-based: apply the preservation schedule from Control 1.7 (3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it). Select a documented, licensed duration from §5; 3-/5-/7-year options exist, but a 6-year duration is not listed. Document any capture-window extension separately. |
 | 10-Year Audit Log Retention add-on | Required only for users included in that documented 10-year capture-window scope; reconcile against the §1.2 license matrix on every binder refresh |
 | PAYG `AIAppInteraction` | Required (non-Microsoft AI assumed in scope unless explicitly blocked by [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) |
 | Dataverse environment audit | Enabled, 730-day minimum retention (or **Forever**), all environments |
-| Per-table audit on the six Copilot Studio entities | Required across all environments |
+| Per-table audit for selected, auditable Dataverse tables | Required across applicable environments; record capability exceptions |
 | `agentSignIn` diagnostic forwarding | Required |
 | `MicrosoftServicePrincipalSignInLogs` | Evaluated and documented; enabled where ingestion-cost analysis supports it |
 | Azure immutable blob preservation **OR** 17a-4-attested vendor | **Required** for broker-dealer / FCM / swap dealer / CPO; preservation horizon per the §10 regulatory floor table |
@@ -599,7 +597,7 @@ This walkthrough is designed to support compliance with the following — it doe
 | Hardcoding `Is Agent = Yes` in an Entra sign-in runbook | The filter chip naming has shifted across recent UI revisions | §8.1 — verify the live filter affordance each quarter |
 | Enabling `MicrosoftServicePrincipalSignInLogs` without a cost assessment | High volume can dwarf the rest of the Log Analytics workspace | §8.3 — assess ingestion cost first |
 | Assuming default Audit (Premium) retention covers Copilot record types | Default policy covers only AzureActiveDirectory / Exchange / OneDrive / SharePoint | §5 — explicitly name every Copilot record type in a custom policy |
-| Forgetting to enable per-table audit on the Copilot Studio entities after enabling environment-level audit | Agent admin events do not surface in `ConnectedAIAppInteraction` | §7.3 — six-entity per-table enablement |
+| Forgetting to re-check selected Dataverse table/column auditing | Dataverse row-change history may be missing; this is separate from default SDK administrative activity collection | §7.3 — environment-specific inventory and change-history verification |
 | Relying on a single-shot `Search-UnifiedAuditLog -ResultSize` | Truncates silently past the session ceiling | Use `-SessionCommand ReturnLargeSet -SessionId <guid>` paginated to completion (per [PowerShell Setup](powershell-setup.md)) |
 | Using "ensures compliance" / "guarantees" / "prevents" / "eliminates" in any control narrative | Overclaim — invites finding | Use the hedged-language alternatives in the Hedged-Language Reminder above |
 
@@ -619,7 +617,7 @@ After completing this walkthrough, hand off to [Verification & Testing](verifica
 8. SIEM integration functional with documented end-to-end ingestion latency.
 9. WORM storage **or** audit-trail alternative configured per SEC 17a-4(f).
 10. Dataverse environment-level audit enabled across all environments.
-11. Per-table Dataverse audit enabled on the six Copilot Studio entities.
+11. Per-table and column Dataverse audit verified against the environment-specific inventory, with unsupported tables documented; SDK administrative activity verified separately.
 12. Audit log retention set to a minimum of 180 days per environment.
 13. `agentSignIn` logging enabled / validated for Zone 2 and Zone 3.
 14. Agent-correlation sign-in fields confirmed present in the SIEM ingestion schema.
@@ -638,4 +636,4 @@ For common failure modes (audit-search-returns-zero, retention-silently-falls-ba
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (targeted Microsoft Learn review; no tenant UI test)*

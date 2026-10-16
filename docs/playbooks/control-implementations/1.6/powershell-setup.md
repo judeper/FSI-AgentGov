@@ -162,14 +162,21 @@ do {
     if ($batch) { $all.AddRange($batch) }
 } while ($batch -and $batch.Count -gt 0 -and $all.Count -lt 50000)
 
+if ($all.Count -ge 50000) {
+    throw 'Audit search reached the 50,000-record session ceiling. Split the date window and repeat before treating this export as complete.'
+}
+
 if ($all.Count -eq 0) {
     Write-Warning "Zero CopilotInteraction events in last 7 days. Investigate: license, audit ingestion, scope, content capture."
 }
 
-# Strategic alternative for high-volume tenants — Audit Search Graph API
+# Supported asynchronous alternative — Audit Search Graph API (v1.0)
 # POST https://graph.microsoft.com/v1.0/security/auditLog/queries
-# (auditLogQueries resource — preferred per MS guidance Jan 2025+)
+# Requires AuditLogsQuery.Read.All (or a documented workload-specific query permission).
+# AuditLog.Read.All for Entra directory/sign-in logs is not sufficient.
 ```
+
+See the [Audit Search Graph API](https://learn.microsoft.com/en-us/graph/api/security-auditcoreroot-post-auditlogqueries?view=graph-rest-1.0) and [Control 1.7 PowerShell guidance](../1.7/powershell-setup.md). This is not a claim that `Search-UnifiedAuditLog` is deprecated or in maintenance.
 
 `AuditData` schema reminder: top-level `CopilotEventData` carries `AppHost`, `Contexts[]`, and `AccessedResources[].SensitivityLabelId`. Do **not** project `RiskScore` / `AccessPattern` — those fields are not in the published `CopilotInteraction` schema and will populate `$null`.
 
@@ -244,4 +251,4 @@ try {
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit API documentation correction; tenant UI/runtime not exercised)*

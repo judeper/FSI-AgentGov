@@ -161,13 +161,13 @@ Each runbook below follows the canonical six-block structure: **Symptoms → Roo
 
 **Symptoms.** No Sentinel incidents fire for known-bad activity; Defender XDR shows alerts but Sentinel does not correlate; the Control 1.21 dashboard reports zero adversarial signals over a multi-day window despite Comm Compliance hits or red-team exercises.
 
-**Root cause.** Most commonly: (a) the **Microsoft 365** or **Microsoft Defender XDR** content-hub solution was not installed in the Sentinel workspace; (b) the analytic rule queries the wrong table (e.g., querying `OfficeActivity` for `RecordType == "CopilotInteraction"` works, but a custom rule querying `AzureActivity` or `SecurityAlert` alone misses the Copilot signal); (c) the rule is **enabled but disabled at the data-connector** level (the data connector is in "disconnected" state); (d) workspace retention is shorter than the rule's lookback window.
+**Root cause.** Most commonly: (a) the required Copilot or Defender XDR solution/connector was not configured; (b) the analytic rule queries the wrong table (the native Microsoft Copilot connector writes to [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity), not `OfficeActivity`); (c) the analytic rule is enabled but its connector is disconnected; (d) workspace retention is shorter than the rule's lookback window.
 
 **Diagnostic queries (KQL).**
 
 ```kql
 // Confirm CopilotInteraction events are arriving
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(24h)
 | where RecordType == "CopilotInteraction"
 | summarize Count = count(), LatestEvent = max(TimeGenerated) by bin(TimeGenerated, 1h)
@@ -227,7 +227,7 @@ $results | Group-Object {([datetime]$_.CreationDate).Date} | Select-Object Name,
 
 # Check tenant-wide UAL lag (compare CreationDate to ingestion-observed time in Sentinel)
 # In KQL on the Sentinel workspace:
-# OfficeActivity
+# CopilotActivity
 # | where RecordType == "CopilotInteraction"
 # | extend LagMinutes = datetime_diff('minute', TimeGenerated, todatetime(CreationTime))
 # | summarize p50 = percentile(LagMinutes, 50), p95 = percentile(LagMinutes, 95) by bin(TimeGenerated, 1h)
@@ -416,10 +416,11 @@ SecurityAlert
 | where ProductName has "Microsoft 365 Defender"
 | where AlertName has "Copilot" and Description has "blocked"
 | join kind=inner (
-    OfficeActivity
+    CopilotActivity
     | where RecordType == "CopilotInteraction"
-    | project UserId, ClientIP, AppId, OperationTime = TimeGenerated
+    | project UserId = ActorName, ClientIP = SrcIpAddr, AppId = AppIdentity, OperationTime = TimeGenerated
 ) on $left.CompromisedEntity == $right.UserId
+| where abs(datetime_diff('minute', TimeGenerated, OperationTime)) <= 30
 | project TimeGenerated, AlertName, Description, UserId, AppId
 | summarize Count = count() by UserId, AppId
 | order by Count desc
@@ -452,11 +453,11 @@ SecurityAlert
 
 ```kql
 // Guest-originated CopilotInteraction events
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(30d)
 | where RecordType == "CopilotInteraction"
-| where UserType == "Guest" or UserId contains "#EXT#"
-| summarize Count = count(), Agents = make_set(AppId), LastSeen = max(TimeGenerated) by UserId
+| where ActorName contains "#EXT#"
+| summarize Count = count(), Agents = make_set(AgentId), LastSeen = max(TimeGenerated) by ActorName
 | order by Count desc
 
 // Cross-reference Defender XDR alerts to guest principals
@@ -715,4 +716,4 @@ Maintain a rolling 12-month trend-watch table that the Control 1.21 owner review
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted CopilotActivity schema correction; tenant UI/runtime not exercised)*

@@ -319,7 +319,8 @@ function Test-AgentGroundingScopeCompliance {
 ## KQL Queries (for Microsoft Sentinel / Log Analytics)
 
 !!! warning "Data Source Limitations"
-    KQL queries in Log Analytics use the **OfficeActivity** table for Microsoft 365 audit data.
+    Microsoft 365 audit data uses **OfficeActivity**; the native Microsoft Copilot connector uses
+    [**CopilotActivity**](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity).
     Tables like `CopilotInteraction`, `SharePointAuditLogs`, `SharePointSiteProperties`, and
     `SharePointFileProperties` do not exist in Log Analytics. For site/file property data,
     use PowerShell (`Get-SPOSite`) or Microsoft Graph API, then optionally ingest results
@@ -329,15 +330,16 @@ function Test-AgentGroundingScopeCompliance {
 
 ```kql
 // Track Copilot interactions with SharePoint sources
-// Uses OfficeActivity table with CopilotInteraction RecordType
-OfficeActivity
+// Requires the Microsoft Copilot connector and populated accessed-resource metadata
+CopilotActivity
 | where TimeGenerated > ago(30d)
 | where RecordType == "CopilotInteraction"
-| extend SourceSiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SourceSiteUrl)
+| mv-expand Resource = LLMEventData.AccessedResources
+| extend SourceSiteUrl = tostring(Resource.SiteUrl)
 | where isnotempty(SourceSiteUrl)
 | summarize
     AccessCount = count(),
-    UniqueUsers = dcount(UserId),
+    UniqueUsers = dcount(ActorName),
     LastAccess = max(TimeGenerated)
     by SourceSiteUrl
 | order by AccessCount desc
@@ -349,12 +351,13 @@ OfficeActivity
 ```kql
 // Detect Copilot interactions with sites containing sensitive keywords
 // Note: Site restriction status requires PowerShell lookup (Get-SPOSite)
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType == "CopilotInteraction" or Operation has "Copilot"
-| extend SiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SiteUrl)
+| where RecordType == "CopilotInteraction"
+| mv-expand Resource = LLMEventData.AccessedResources
+| extend SiteUrl = tostring(Resource.SiteUrl)
 | where SiteUrl has_any ("confidential", "restricted", "pii", "financial")
-| project TimeGenerated, UserId, SiteUrl, Operation
+| project TimeGenerated, ActorName, SiteUrl, RecordId
 | order by TimeGenerated desc
 ```
 
@@ -384,16 +387,15 @@ OfficeActivity
 
 ```kql
 // Analyze Copilot usage patterns by application
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(30d)
-| where RecordType == "CopilotInteraction" or RecordType == "CopilotForM365Interaction"
-| extend AppName = tostring(parse_json(tostring(AdditionalInfo)).AppName)
+| where RecordType == "CopilotInteraction"
 | summarize
     InteractionCount = count(),
-    UniqueUsers = dcount(UserId),
+    UniqueUsers = dcount(ActorName),
     FirstSeen = min(TimeGenerated),
     LastSeen = max(TimeGenerated)
-    by AppName
+    by AppHost
 | order by InteractionCount desc
 ```
 
@@ -401,17 +403,17 @@ OfficeActivity
 
 ```kql
 // Identify users with unusually high Copilot activity
-let baseline = OfficeActivity
+let baseline = CopilotActivity
 | where TimeGenerated > ago(30d) and TimeGenerated < ago(1d)
-| where RecordType has "Copilot"
-| summarize AvgDaily = count() / 30.0 by UserId;
-OfficeActivity
+| where RecordType == "CopilotInteraction"
+| summarize AvgDaily = count() / 29.0 by ActorName;
+CopilotActivity
 | where TimeGenerated > ago(1d)
-| where RecordType has "Copilot"
-| summarize TodayCount = count() by UserId
-| join kind=inner baseline on UserId
+| where RecordType == "CopilotInteraction"
+| summarize TodayCount = count() by ActorName
+| join kind=inner baseline on ActorName
 | where TodayCount > AvgDaily * 3
-| project UserId, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
+| project ActorName, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
 | order by Deviation desc
 ```
 
@@ -420,25 +422,26 @@ OfficeActivity
 ```kql
 // Dashboard query for Copilot activity overview
 // Note: Site restriction counts require PowerShell (Get-SPOSite) - this shows activity metrics only
-let TotalInteractions = OfficeActivity
+let TotalInteractions = CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType has "Copilot"
+| where RecordType == "CopilotInteraction"
 | summarize InteractionCount = count();
 
-let UniqueUsers = OfficeActivity
+let UniqueUsers = CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType has "Copilot"
-| summarize UserCount = dcount(UserId);
+| where RecordType == "CopilotInteraction"
+| summarize UserCount = dcount(ActorName);
 
 let SettingChanges = OfficeActivity
 | where TimeGenerated > ago(7d)
 | where Operation == "SiteCollectionSettingsChanged"
 | summarize ChangeCount = count();
 
-let SensitiveSiteAccess = OfficeActivity
+let SensitiveSiteAccess = CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType has "Copilot"
-| extend SiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SiteUrl)
+| where RecordType == "CopilotInteraction"
+| mv-expand Resource = LLMEventData.AccessedResources
+| extend SiteUrl = tostring(Resource.SiteUrl)
 | where SiteUrl has_any ("confidential", "restricted", "pii")
 | summarize SensitiveCount = count();
 
@@ -523,4 +526,4 @@ Write-Host "`nAudit complete. Reports saved to: $reportPath" -ForegroundColor Gr
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted CopilotActivity schema correction; tenant UI/runtime not exercised)*

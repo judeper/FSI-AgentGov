@@ -6,7 +6,7 @@ description: "This reference provides a consolidated taxonomy of audit events re
 !!! warning "Published Operations vs. Conceptual Categories"
     This taxonomy separates **published, searchable audit operations** ([Section 1](#published-searchable-audit-operations)) from **conceptual governance categories** ([Section 2](#conceptual-governance-categories-no-dedicated-microsoft-audit-operation)) that have no dedicated Microsoft audit operation as of June 2026. Build production KQL / `Search-UnifiedAuditLog` queries **only** from operations listed in Section 1. Each operation in Section 1 is cited to a specific Microsoft Learn page. See [Purview Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) for the full catalog.
 
-**Last Updated:** June 2026
+**Last Updated:** October 2026 (targeted CopilotActivity query correction; other taxonomy entries not re-verified)
 **Version:** v1.6.2
 
 ---
@@ -260,26 +260,17 @@ OfficeActivity
 
 ### Query 3: CopilotInteraction Audit for FINRA 3110/4511
 
-Capture Copilot interactions with prompt/response tracking for regulatory record-keeping.
+Capture interaction metadata and message/thread references. Audit records do not contain full prompt/response text; retrieve content through the separately authorized content-evidence path in Control 1.7. The native Microsoft Copilot connector uses [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity).
 
 ```kql
 // FINRA 3110/4511 Copilot Interaction Audit
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(24h)
 | where RecordType == "CopilotInteraction"
-| where Operation == "CopilotInteraction"
 | extend
-    userId = UserId,
-    appHost = tostring(parse_json(AuditData).AppHost),
-    conversationId = tostring(parse_json(AuditData).ConversationId),
-    accessedResources = parse_json(AuditData).AccessedResources
-| mv-expand AccessedResources = accessedResources
-| extend
-    policyDetails = AccessedResources.PolicyDetails
-| summarize
-    ResourceCount = dcount(tostring(AccessedResources)),
-    PolicyBlocked = countif(isnotempty(policyDetails))
-    by TimeGenerated, userId, appHost, conversationId
+    conversationId = tostring(LLMEventData.ThreadId),
+    accessedResources = LLMEventData.AccessedResources
+| project TimeGenerated, RecordId, ActorName, AppHost, conversationId, accessedResources
 | order by TimeGenerated desc
 ```
 

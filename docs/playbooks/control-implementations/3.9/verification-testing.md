@@ -206,7 +206,8 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 | `AADServicePrincipalSignInLogs` | Microsoft Entra ID | **Workload-identity (agent / service principal / managed identity) sign-ins** — distinct from `SigninLogs` |
 | `AADNonInteractiveUserSignInLogs` | Microsoft Entra ID | Refresh-token and silent reauth flows, including Copilot session refresh |
 | `AuditLogs` | Microsoft Entra ID | Directory changes, consent grants, role assignments (consumed by TC-7) |
-| `OfficeActivity` (CopilotInteraction) | Microsoft 365 / Purview UAL | Copilot prompt/response metadata, XPIA / jailbreak signals |
+| `OfficeActivity` | Microsoft 365 | Supported file/mailbox and other configured Microsoft 365 audit workloads |
+| `CopilotActivity` | Microsoft Copilot | Copilot audit metadata; exact source event match via `RecordId`, actor via `ActorName`, nested metadata via `LLMEventData` ([schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity)) |
 | `PowerPlatformAdminActivity` | Power Platform Admin Activity | DLP-policy events, environment changes, agent metadata changes (consumed by TC-6) |
 | `CloudAppEvents` | Defender for Cloud Apps | Runtime threat detections, shadow-app, mass-download (consumed by TC-9) |
 | `AlertInfo`, `AlertEvidence` | Microsoft 365 Defender | XDR alerts, including Defender AI-SPM (Control 1.24) |
@@ -233,6 +234,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
         "AADNonInteractiveUserSignInLogs",    60,
         "AuditLogs",                          60,
         "OfficeActivity",                     90,
+        "CopilotActivity",                    90,
         "PowerPlatformAdminActivity",         120,
         "CloudAppEvents",                     90,
         "AlertInfo",                          60,
@@ -242,7 +244,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
     ];
     union withsource=TableName
         SigninLogs, AADServicePrincipalSignInLogs, AADNonInteractiveUserSignInLogs,
-        AuditLogs, OfficeActivity, PowerPlatformAdminActivity, CloudAppEvents,
+        AuditLogs, OfficeActivity, CopilotActivity, PowerPlatformAdminActivity, CloudAppEvents,
         AlertInfo, AlertEvidence, DeviceEvents, SecurityIncident
     | where TimeGenerated > ago(24h)
     | summarize
@@ -317,7 +319,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 | Rule ID (firm naming) | Detects | Severity | Cascade target |
 |---|---|---|---|
-| `AI-RULE-01` | Prompt-injection / jailbreak signal in `OfficeActivity` (CopilotInteraction) and `CloudAppEvents` | High | Control 2.12 supervisory queue |
+| `AI-RULE-01` | Documented detection flags in `CopilotActivity.LLMEventData` and independently verified `CloudAppEvents` signals | High | Control 2.12 supervisory queue |
 | `AI-RULE-02` | Anomalous connector / MCP server invocation by a workload identity | Medium | Control 2.25 governance console + Control 1.2 registry |
 | `AI-RULE-03` | After-hours privileged-agent sign-in via `AADServicePrincipalSignInLogs` | Medium | SOC Tier-2 + Control 2.12 (if supervisory-relevant) |
 | `AI-RULE-04` | Unexpected DLP policy state change in `PowerPlatformAdminActivity` | High | Power Platform Admin + revert automation (TC-6) |
@@ -1277,4 +1279,4 @@ The verification cycle owner closes the cycle by producing the TC-16 signed bund
 
 For implementation context, see [Portal Walkthrough](./portal-walkthrough.md), [PowerShell Setup](./powershell-setup.md), and [Troubleshooting](./troubleshooting.md). For the upstream control specification, see [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (targeted connector/schema review; no tenant UI test)*

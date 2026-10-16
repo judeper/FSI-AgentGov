@@ -399,7 +399,7 @@ If the firm is in scope of SEC 17a-4(b)(4) / FINRA 4511 recordkeeping for the ag
 **Surface:** Plane 6 (cross-plane correlation)
 
 !!! info "Prefer Content Hub solutions over hand-rolled KQL"
-    Microsoft ships maintained, versioned analytics rules, hunting queries, and workbooks for Copilot and Defender for Cloud through the Sentinel Content Hub. Hand-rolling KQL against `OfficeActivity | where RecordType == "CopilotInteraction"` for prompt-content pattern matching produces low-fidelity results because the prompt body is not in the standard schema (see §6). Use Content Hub for the baseline; layer custom hunting only after the baseline is in place and tuned.
+    Microsoft ships maintained, versioned analytics rules, hunting queries, and workbooks for Copilot and Defender for Cloud through the Sentinel Content Hub. The native Microsoft Copilot connector writes to [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity), not `OfficeActivity`. Prompt-content pattern matching over audit metadata is not a substitute for the separate prompt-content evidence sources (see §6). Use Content Hub for the baseline; layer custom hunting only after the baseline is in place and tuned.
 
 ### 6.1 Install the *Microsoft 365 Copilot* solution
 
@@ -425,20 +425,21 @@ If the firm is in scope of SEC 17a-4(b)(4) / FINRA 4511 recordkeeping for the ag
 
 ### 6.3 Verify end-to-end correlation
 
-1. From the Defender XDR incident raised in §4.3, click **Related** → confirm a Sentinel incident exists with the same incident graph (entities should join across `SecurityAlert`, `SecurityIncident`, `OfficeActivity`).
-2. Run the following hunting query (lives in the Copilot solution as *AI agent activity overview*) to confirm cross-plane joins:
+1. From the Defender XDR incident raised in §4.3, click **Related** → confirm a Sentinel incident exists with the same incident graph (review the entities across `SecurityAlert`, `SecurityIncident`, and `CopilotActivity`).
+2. Adapt the following custom hunting sketch to the tenant's entity mappings. An account match is only a candidate correlation; require a bounded time window and matching event/thread evidence before attributing an interaction to an alert:
     ```kusto
-    let copilotEvents = OfficeActivity
+    let copilotEvents = CopilotActivity
         | where TimeGenerated > ago(24h)
         | where RecordType == "CopilotInteraction"
-        | project TimeGenerated, UserId, AgentId = tostring(parse_json(Item).AgentId), ThreadId = tostring(parse_json(Item).ThreadId);
+        | project InteractionTime = TimeGenerated, UserId = ActorName, AgentId, ThreadId = tostring(LLMEventData.ThreadId);
     let aiAlerts = SecurityAlert
         | where TimeGenerated > ago(24h)
         | where ProviderName in ("MDA", "Microsoft Defender XDR", "Microsoft Defender for Cloud")
         | where AlertName has_any ("jailbreak", "prompt injection", "XPIA", "UPIA");
     aiAlerts
     | join kind=leftouter (copilotEvents) on $left.CompromisedEntity == $right.UserId
-    | project TimeGenerated, AlertName, Severity, ProviderName, UserId, AgentId, ThreadId
+    | where isnull(InteractionTime) or abs(datetime_diff('minute', TimeGenerated, InteractionTime)) <= 30
+    | project TimeGenerated, InteractionTime, AlertName, AlertSeverity, ProviderName, UserId, AgentId, ThreadId
     ```
 3. Capture the query result for the audit pack — this is the cross-plane correlation evidence.
 
@@ -729,4 +730,4 @@ Handoffs:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted CopilotActivity schema correction; tenant UI/runtime not exercised)*
