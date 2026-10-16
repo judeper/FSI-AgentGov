@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** May 2026<br>
+**Last Updated:** October 2026<br>
 **Test Environment:** Pre-production / dedicated test environments per zone<br>
 **Estimated Time:** 45–60 minutes for the full test pass
 
@@ -8,7 +8,7 @@
 
 This playbook defines test cases that confirm policy-based publishing restrictions are operational across Zone 1, Zone 2, and Zone 3. Tests focus on what the platform actually enforces (DLP at runtime and publish time, channel allowlisting, audit capture) and what the organization enforces around the platform (approval gates via Power Automate or Pipelines, change-control documentation).
 
-> **Hedged outcome language:** Each test case lists *expected behavior given current platform behavior as of April 2026*. The Microsoft Copilot Studio publish dialog wording, severity icons, and finding categories evolve; treat the in-product messages as authoritative if they diverge from the wording below.
+> **Verification scope:** Product claims were checked against live Microsoft Learn on 2026-10-14; these tenant tests have not been executed by that documentation review. Publish-dialog labels evolve. DLP errors, automatic security warnings, and configured approval gates are separate signals; record what the tenant actually shows.
 
 ---
 
@@ -29,7 +29,7 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 **Steps:**
 
 1. In a Zone 3 test environment, create a new agent named `T1-DLP-Violation`.
-2. Add a topic that uses the **HTTP** connector (assumed Blocked in Zone 3 per the recommended baseline).
+2. Add a topic with an **HTTP request** node and a test URL; confirm HTTP is Blocked by the policy assigned to this environment.
 3. Save the agent and click **Publish**.
 
 **Expected:**
@@ -40,7 +40,7 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 **Evidence:**
 
 - Screenshot of the pre-publish finding with the connector identified.
-- Export of the assigned DLP policy showing HTTP as Blocked.
+- Export of the assigned DLP policy showing HTTP as Blocked, plus **Channels -> Details -> Download** with DLP violations and Blocked channels sheets.
 
 ---
 
@@ -56,8 +56,8 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 **Expected:**
 
 - [ ] No DLP findings are surfaced.
-- [ ] The publish completes (or is routed into your approval workflow if Test Case 4 is wired up).
-- [ ] A bot create/update event appears in the Purview audit log within 30–60 minutes.
+- [ ] Publication completes after the organization's required approval. A standalone approval flow does not automatically intercept Publish.
+- [ ] The documented `BotUpdateOperation-BotPublish` event can be retrieved in Purview after ingestion; record actual latency rather than assuming a fixed delivery deadline.
 
 ---
 
@@ -67,8 +67,8 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 
 **Steps:**
 
-1. In a Zone 2 test environment, open a compliant agent and go to **Settings → Channels**.
-2. Attempt to enable **Facebook** or **Telegram**.
+1. In a Zone 2 test environment, open a compliant agent and select **Channels** on the top menu.
+2. Confirm the policy blocks **Facebook channel in Copilot Studio** and/or **Direct Line channels in Copilot Studio**, then attempt to configure the corresponding channel.
 
 **Expected:**
 
@@ -77,15 +77,17 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 
 > **Hedge:** Whether the public channel is hidden, disabled, or only blocked at publish time depends on the current Copilot Studio build and the DLP/connector configuration. The verifiable outcome is that the agent cannot reach end users via the prohibited channel.
 
+Telegram is an Azure Bot Service integration, not a documented standalone Copilot Studio Telegram DLP connector. Test its actual integration separately if used; blocking a service connector is not evidence of channel enforcement.
+
 ---
 
 ## Test Case 4 — Approval Gate Triggers (Power Automate Implementation)
 
-**Objective:** Confirm that the surrounding approval flow runs when an agent is created or updated in a Zone 2+ environment.
+**Objective:** Confirm that the organization's explicit release request reaches the configured approval workflow before release.
 
 **Steps:**
 
-1. As a non-admin Agent Author, publish a compliant agent in the Zone 2 environment.
+1. As a non-admin Agent Author, submit a release request through the configured intake form/change ticket for a compliant Zone 2 agent.
 2. Switch to the approver account and check the Approvals app in Microsoft Teams (or email).
 
 **Expected:**
@@ -94,7 +96,7 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 - [ ] Approving the request writes a row to the `Publish Approval Log` Dataverse table (or chosen audit sink) with approver UPN, timestamp, and decision.
 - [ ] Rejecting the request writes the rejection record and notifies the author.
 
-> **Important:** A Power Automate approval flow does not technically block the publish action itself. This test confirms that the approval is *captured*. To confirm the platform-side restriction (the author should not be able to publish at all without approval), pair this test with **Test Case 7** below.
+> **Important:** This test confirms approval capture, not interception of Publish. A `bot` create/update flow is detective and not a documented publish trigger. Use **Test Case 6** to test production role restrictions and the configured pipeline gate; Test Case 7 tests DLP, not approval enforcement.
 
 ---
 
@@ -113,7 +115,9 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 
 - [ ] Stage 1 approval is required before stage 2 is reachable.
 - [ ] Rejection at either stage halts deployment and records the decision.
-- [ ] Both approval records appear in the audit log.
+- [ ] Both decisions appear in the configured approval store/pipeline run history and are correlated to the deployment. Do not expect native Copilot Studio approval events in Purview.
+
+Only a pipeline extension wired to complete/reject its pending stage prevents deployment. An approval initiated after publication cannot undo that publication by itself.
 
 ---
 
@@ -137,25 +141,26 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 
 ---
 
-## Test Case 7 — Update Blocked When DLP Policy Tightens (February 2025 Behavior)
+## Test Case 7 — Update and Runtime Impact When DLP Policy Tightens
 
 **Objective:** Confirm the Microsoft platform behavior that published agents whose connector usage no longer aligns with the assigned DLP policy are blocked from update operations until the violation is resolved.
 
 **Steps:**
 
-1. Publish a compliant agent in a test environment (e.g., agent uses SharePoint, currently Business).
-2. Modify the DLP policy assigned to that environment to move SharePoint to **Blocked**.
+1. Publish a compliant agent in a test environment using a **blockable** connector, such as HTTP, currently allowed.
+2. Move HTTP to **Blocked** in the assigned data policy. Do not use the SharePoint service connector, which is unblockable.
 3. Make a small edit to the agent and click **Publish** to update.
 
 **Expected:**
 
-- [ ] The pre-publish dialog identifies the SharePoint connector as a violation.
+- [ ] Publish/Channels error details identify HTTP and the enforcing policy.
 - [ ] The update is blocked.
-- [ ] The previously published version of the agent remains in place until the violation is resolved (either by editing the agent or by reverting the DLP policy).
+- [ ] Test the published agent in a new end-user session and capture any `DataLossPreventionViolation` error. A blocked update does not imply continued runtime availability.
 
 **Evidence:**
 
 - Screenshots showing the pre-change publish, the DLP change, and the post-change blocked update.
+- Channels violation workbook and runtime result. Restore the test policy/agent and confirm recovery. [Microsoft's troubleshooting guidance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-dlp-troubleshooting) documents exemption removal since March 2025 and published-agent runtime errors.
 
 ---
 
@@ -166,29 +171,29 @@ This playbook defines test cases that confirm policy-based publishing restrictio
 **Steps:**
 
 1. Perform a successful publish, a blocked publish, and a DLP policy change in test environments.
-2. In Purview → Audit, search the previous 24 hours filtered to **PowerPlatformAdmin** and **Dataverse** workloads.
+2. In Purview → Solutions → Audit, search the previous 24 hours for Copilot Studio authoring activities, including `BotUpdateOperation-BotPublish` and `BotCreate`. See [documented events and fields](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio).
 
 **Expected:**
 
-- [ ] Bot create/update events are present with actor UPN, environment, and bot identifier.
-- [ ] DLP policy create/update events are present with actor UPN and policy ID.
-- [ ] Power Automate approval action events (when used) include the approver UPN and decision.
+- [ ] Successful publish events are present; inspect actual Operation, CreationTime, user, ResultStatus, and BotId/BotSchemaName fields where available and correlate to the environment.
+- [ ] Blocked-publish and DLP details are retained from Channels error/workbook evidence; do not require a native Purview "DLP policy violation detected" event.
+- [ ] Approval identity, timestamp, and decision are retained from the configured Power Automate/pipeline store; do not require a Purview "Approve chatbot publishing request" event.
 - [ ] Retention on these events meets your firm's requirement (commonly 7 years for FINRA 4511 / SEC 17a-4 alignment).
 
 ---
 
 ## Test Case 9 — Inventory Script Produces Auditable Evidence
 
-**Objective:** Confirm Script 4 from the [PowerShell Setup](powershell-setup.md) produces a CSV plus SHA-256 hash usable as evidence.
+**Objective:** Confirm the Dataverse inventory export and Script 4 from the [PowerShell Setup](powershell-setup.md) produce reconciled CSV evidence with a SHA-256 hash.
 
 **Steps:**
 
-1. Run `Audit-AgentPublishInventory.ps1` against the test tenant.
-2. Open the produced CSV and the manifest file.
+1. Export the Bots inventory per the PowerShell playbook; reconcile environment coverage and pagination, and record any collection failures.
+2. Run `Hash-AgentInventory.ps1 -CsvPath '<inventory.csv>'` and open the CSV and `.sha256.txt` manifest.
 
 **Expected:**
 
-- [ ] CSV lists the agents discovered with environment, publish status, last modified time, and creator UPN.
+- [ ] CSV includes EnvironmentId, botid, name, and modifiedon; creator identity is resolved where collected. Publication state is reviewed separately, not inferred from active/inactive state.
 - [ ] Manifest file contains `<csvPath>\tSHA256:<hash>` entries for each export.
 - [ ] Recomputing `Get-FileHash -Algorithm SHA256` on the CSV yields the same hash.
 
@@ -204,7 +209,7 @@ After all tests:
 - [ ] A multi-stage approval gate exists for Zone 3 (Test 5).
 - [ ] Solution promotion is the supported path to production for Zone 3 (Test 6).
 - [ ] Published agents whose connector usage drifts out of compliance are blocked from update (Test 7).
-- [ ] Purview captures publish, DLP, and approval events with required retention (Test 8).
+- [ ] Purview publish events, Channels DLP evidence, and configured approval records are retained and correlated (Test 8).
 - [ ] Inventory automation produces hashed evidence files (Test 9).
 
 ---
@@ -226,7 +231,7 @@ Compile the following for the control evidence file:
 
 | Cadence | Activity |
 |---------|----------|
-| Weekly | Run the inventory script (Script 4); review newly published agents and DLP-blocked update attempts in Purview. |
+| Weekly | Refresh the configured Dataverse inventory export and hash it with Script 4; review Purview publish events and separate Channels DLP findings. |
 | Monthly | Review approval workflow metrics (volume, approval rate, mean time to approve). |
 | Quarterly | Audit DLP policy effectiveness; review connector classifications against business and regulatory changes. |
 | Annually | Re-baseline zone-to-policy mappings; review evidence retention against current FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) expectations. |
@@ -254,7 +259,7 @@ I attest that, as of the date above:
    - Zone 2 single-stage (Test 4): [Yes / No]
    - Zone 3 multi-stage (Test 5): [Yes / No]
 5. Zone 3 production deployments use Power Platform Pipelines or ALM Accelerator (Test 6): [Yes / No]
-6. Microsoft Purview audit captures publish, DLP, and approval events with [N]-year retention (Test 8): [Yes / No]
+6. Purview publish events, Channels DLP findings, and workflow approval records are retained in their respective evidence stores for [N] years (Test 8): [Yes / No]
 7. Inventory automation produces hashed evidence files (Test 9): [Yes / No]
 
 **Signature:** ______________________
@@ -267,4 +272,4 @@ I attest that, as of the date above:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (Microsoft Learn review 2026-10-14; tenant tests pending)*

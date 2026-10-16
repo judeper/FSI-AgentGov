@@ -3,6 +3,7 @@
 **Parent control:** [1.13 Sensitive Information Types (SITs) and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
 **Audience:** SOC L1 / DLP analysts, Purview Compliance Admin, Purview Info Protection Admin, Purview Data Security AI Admin, Security Engineering, Compliance & Legal liaisons.
 **Last UI verified:** May 2026 (Microsoft Purview portal — `purview.microsoft.com`).
+**Last Verified:** 2026-10-16 — Microsoft Learn documentation review only; tenant UI not tested.
 **Scope:** Diagnostic, remediation, and incident-handling guidance for Microsoft Purview Sensitive Information Types (built-in, custom regex, EDM, Named Entities), Trainable Classifiers used as SITs, and their consumption by DLP, Auto-labelling, DSPM for AI, Communication Compliance, and Microsoft 365 Copilot / declarative agents.
 
 > **READ §1 FIRST.** A SIT misfire that allows NPI / PCI / PHI / MNPI to flow into a Copilot grounding result, an outbound email, an external SharePoint share, or a third-party agent connector is a **potential reportable incident** under NY DFS 23 NYCRR 500.17(a) (72-hour determination clock), SEC Reg S-P §248.30(a)(4) (≤30-day customer notice where triggered), FINRA Rules 4530 / 3110 / 4511, GLBA 501(b), and (for trainable-classifier model-risk drift) OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7). **Do not** begin tuning, deleting, or republishing the SIT, EDM schema, or trainable classifier until evidence is preserved per §1.3 and Compliance/Legal has issued a reportability determination per §1.2. Reportability is a **Compliance/Legal call, not an engineering call** — this playbook supports that determination; it does not make it.
@@ -50,17 +51,17 @@ Run this tree **before** changing the SIT, regardless of severity. The output is
 Capture all of the following into a single evidence bundle, generate a SHA-256 manifest, and store the bundle in the firm's e-discovery / legal-hold repository. **Do not** modify the SIT or any consuming policy until items 1–10 are captured.
 
 1. SIT identity: `Identity`, `Name`, `Type` (Builtin / Custom / EDM / NamedEntity / TrainableClassifier-as-classifier), `Publisher`, `RulePackId`, `Version`, `WhenChanged` — from `Get-DlpSensitiveInformationType -Identity "<name>" | Format-List *`.
-2. Full SIT XML (custom and EDM): export via `Get-DlpSensitiveInformationTypeRulePackage -Identity "<RulePackId>" | Select -Expand SerializedRulePackage`.
+2. Full SIT definition XML: save the rule package's `SerializedClassificationRuleCollection` bytes with `[System.IO.File]::WriteAllBytes(...)`; preserve EDM schema XML separately from `EdmSchemaXML`. CLIXML/object snapshots are not importable rule-package XML.
 3. EDM schema definition (where applicable): `Get-DlpEdmSchema -Identity "<schema>" | Format-List *` plus the last successful upload manifest hash from EdmUploadAgent logs at `%LOCALAPPDATA%\Microsoft\EdmUploadAgent\Logs\`.
 4. List of every DLP policy and rule consuming the SIT: `Get-DlpComplianceRule | Where-Object { $_.AdvancedRule -match "<sit-name-or-guid>" -or $_.ContentContainsSensitiveInformation -match "<sit-name>" }` and the parent `Get-DlpCompliancePolicy` records.
 5. List of every Auto-label policy / retention policy / Information Protection policy consuming the SIT: `Get-LabelPolicy`, `Get-AutoSensitivityLabelPolicy`, `Get-AutoSensitivityLabelRule`.
-6. Audit evidence window (T-7d → T+1d at minimum): `Search-UnifiedAuditLog -StartDate <T-7d> -EndDate <T+1d> -RecordType ComplianceDLPSharePoint,ComplianceDLPExchange,DLPRuleMatch,CopilotInteraction,AiAppInteraction -ResultSize 5000` exported to CSV and hashed.
+6. Audit evidence window (T-7d → T+1d at minimum): use a bounded `Search-UnifiedAuditLog -StartDate <start> -EndDate <end> -ResultSize 5000` query with documented paging. `-RecordType` accepts one value, not a comma-separated list; operation/activity names are not interchangeable with record-type names.
 7. The exact match (or non-match) sample, redacted: keep the regex/EDM evaluation context (token offsets, surrounding 50 chars **redacted**) — never store raw NPI/PCI/PHI/MNPI in the engineering bundle; the unredacted artefact goes only to Compliance/Legal custody.
-8. `Test-DataClassification -ClassificationNames "<sit-name>" -TestTextFile <redacted-sample.txt>` output (PowerShell), captured as a transcript.
+8. `Test-DataClassification -ClassificationNames "<sit-name>" -TextToClassify (Get-Content .\redacted-sample.txt -Raw)` output, captured as a transcript; confirm redaction has not destroyed the pattern being tested. Use approved synthetic equivalents when necessary.
 9. For Copilot/agent paths: the `CopilotInteraction` audit record(s), agent identity (`AgentId`, `AppId`), invoked plugin/connector list, and the Purview DSPM-for-AI activity record from Activity Explorer.
-10. For Trainable Classifier paths: classifier identity (`Get-DlpClassifier`), last training date, last validation accuracy, current accuracy from the most recent validation run, and the FSI Governance Gate approval ticket reference.
+10. For Trainable Classifier paths: actual portal identity/status (not a guessed `Get-DlpClassifier` command), last training date, baseline/current held-out metrics, and the FSI Governance Gate approval ticket reference.
 11. Tenant context: tenant ID, Purview SKU, and the licence proof for any Premium-gated feature (EDM, Named Entities, Trainable Classifiers, DSPM for AI) — see the parent control's licence matrix.
-12. SHA-256 manifest: `Get-ChildItem <bundle-dir> -Recurse -File | Get-FileHash -Algorithm SHA256 | Export-Csv manifest.csv`. Sign or seal per the firm's evidence-handling policy.
+12. SHA-256 manifest: enumerate payload files, excluding the manifest itself on reruns, then hash/export them. Sign or seal per the firm's evidence-handling policy.
 
 ### 1.4 Compensating Controls During Containment
 
@@ -70,7 +71,7 @@ While the SIT/EDM/classifier is under investigation and **before** any change is
 |----------------------|---------------|-------|-------|
 | Switch the affected DLP rule from **Audit** or **Notify** to **Block** (or **Block with override = false**) for external recipients / external sharing | Exchange, SharePoint, OneDrive, Teams, Endpoint, Copilot location | Purview Compliance Admin | Reduces blast radius without removing the SIT; preserves evidence flow |
 | Add a **broader** SIT (e.g., the OOTB U.S. SSN built-in alongside the failing custom SIT) to the same rule | DLP rule's `ContentContainsSensitiveInformation` | DLP analyst | Accept the higher false-positive rate temporarily; document as a temporary control |
-| Enable the **DLP for Microsoft 365 Copilot** location with a Block action restricting Copilot from grounding on the affected SharePoint sites or labels | Copilot DLP location (control 1.5) | Purview Data Security AI Admin | Cuts the agent-mediated exit path while the SIT is investigated |
+| Configure a separate **sensitivity-label** rule in the **Microsoft 365 Copilot and Copilot Chat** location; test the affected labeled files/emails | Copilot DLP location (control 1.5) | Purview Data Security AI Admin | Not a site-URL exclusion or general agent/connector block; validate coverage |
 | Apply a **temporary sensitivity label** (e.g., `Highly Confidential — Investigation Hold`) to the source content set with encryption + co-author-only | Sensitivity Labels | Purview Info Protection Admin | Stops further egress regardless of SIT match |
 | Restrict the **Trainable Classifier** from the consuming policies (replace with a deterministic SIT) until re-validated | DLP / Auto-label policies | Purview Data Security AI Admin | Fed SR 26-2 (formerly SR 11-7) model-risk hygiene; reverts to deterministic detection |
 | Enable enhanced **Communication Compliance** policy (control 1.10) over the affected user population | Communication Compliance | Purview Communication Compliance Admin | Adds out-of-band detection layer |
@@ -83,7 +84,7 @@ Document every compensating control applied (timestamp, scope, owner, planned re
 - [ ] §1.2 reportability tree run; output handed to Compliance/Legal; ticket reference recorded.
 - [ ] §1.4 compensating controls applied; scope and removal date documented.
 - [ ] SIT type confirmed (Builtin vs. Custom regex vs. EDM vs. Named Entity vs. Trainable Classifier-as-classifier).
-- [ ] SIT confidence level inspected in the Purview portal entity definition — confirmed numeric thresholds are read from this SIT's own definition (Low/Medium/High thresholds are **per-SIT**, not a universal scale).
+- [ ] SIT patterns/evidence inspected; confidence maps ≤65 to Low, 66–75 to Medium, and 76–100 to High. Not every SIT has every level (U.S. Bank Account Number has Medium only).
 - [ ] `Test-DataClassification` run against the redacted sample with the suspect SIT identity; transcript saved.
 - [ ] Every DLP rule consuming the SIT enumerated; rule-mode (Test / Audit / Block) confirmed.
 - [ ] Every Auto-label / retention policy consuming the SIT enumerated.
@@ -103,7 +104,7 @@ The following is illustrative, not a template for any specific firm's playbook.
 - **T+0** — A wealth-management associate runs a Microsoft 365 Copilot prompt: "Summarize the onboarding documents for client X." Copilot grounds on a SharePoint document that contains `123 45 6789` (space-separated U.S. SSN). Copilot returns the SSN in the response. The custom SIT `Custom_US_SSN_v3` was authored to match `\d{3}-\d{2}-\d{4}` and `\d{9}` only; the space-separated form was not in the regex. The OOTB U.S. SSN built-in SIT was **removed** from the consuming DLP rule six months earlier as a "false-positive reduction" change.
 - **T+5 min** — The associate self-reports via the in-product reporting channel. SOC L1 opens an incident; severity provisionally **SEV-1** because (a) NPI and (b) Copilot path.
 - **T+15 min** — §1.3 evidence captured: `CopilotInteraction` audit record, agent identity (Microsoft 365 Copilot — first-party), source SharePoint document URL and label, the custom SIT XML, the consuming DLP rule, and the change-history showing removal of the built-in SIT.
-- **T+30 min** — §1.4 compensating controls applied: built-in U.S. SSN SIT re-added to the consuming DLP rule (Block on external + Audit on Copilot location); the source SharePoint site relabeled to `Highly Confidential — Investigation Hold`; Copilot DLP location updated to exclude the site from grounding.
+- **T+30 min** — §1.4 compensating controls applied: built-in U.S. SSN SIT re-added to the supported outbound rule; affected source files labeled `Highly Confidential — Investigation Hold`; a separate Copilot DLP sensitivity-label rule tested for grounding exclusion. A label alone is not an exclusion switch, and the Copilot location is not site-URL scoped.
 - **T+1 h** — §1.2 reportability tree handed to Compliance/Legal. Outputs: GLBA 501(b) safeguards review opened; Reg S-P 30-day clock noted (determination pending); FINRA 4530 problem-reporting log entry drafted; NY DFS 72-h determination clock started for the licensed NY entity; Pillar 4 AI-incident path opened in parallel.
 - **T+4 h** — Root-cause confirmed: the original false-positive-reduction change was approved without a regression test for separator variants and without retaining the OOTB SIT as a safety net. Trainable-classifier drift not implicated.
 - **T+24 h** — Permanent fix: SIT XML updated to add `\d{3}\s\d{2}\s\d{4}` and `\d{3}\.\d{2}\.\d{4}` patterns; regression test set expanded; OOTB SIT retained as a co-detector; FSI Governance Gate re-approval recorded; change rolled out to Audit mode for 72 h before Block.
@@ -208,8 +209,8 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
   Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.outlook.com/powershell-liveid
   Get-DlpSensitiveInformationType -Identity "Custom_US_SSN_v3" | Format-List Identity,Name,Publisher,RulePackId,Version,WhenChanged
   $rp = Get-DlpSensitiveInformationTypeRulePackage -Identity "<RulePackId-from-above>"
-  $rp.SerializedRulePackage | Out-File .\Custom_US_SSN_v3.xml
-  Test-DataClassification -ClassificationNames "Custom_US_SSN_v3" -TestTextFile .\redacted-positives.txt
+  [System.IO.File]::WriteAllBytes((Join-Path $PWD 'Custom_US_SSN_v3.xml'), $rp.SerializedClassificationRuleCollection)
+  Test-DataClassification -ClassificationNames "Custom_US_SSN_v3" -TextToClassify (Get-Content .\redacted-positives.txt -Raw)
   ```
 - **Diagnostic (portal):** *Information protection → Classifiers → Sensitive info types → Custom_US_SSN_v3 → Test* (paste the redacted positive sample); compare expected vs. actual matches and confidence.
 - **Root causes:** (a) regex omits a separator variant (space, dot, en-dash, tab); (b) regex anchored too tightly (`^`/`$` instead of `\b`); (c) supporting-element / proximity window required by the rule is not satisfied in the sample; (d) confidence threshold on the consuming DLP rule is set above the SIT's per-pattern confidence.
@@ -226,7 +227,7 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
   ```powershell
   Get-DlpSensitiveInformationType -Identity "U.S. Social Security Number (SSN)" | Format-List *
   Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
-    -RecordType ComplianceDLPSharePoint,ComplianceDLPExchange -ResultSize 5000 |
+    -ResultSize 5000 |
     Where-Object { $_.AuditData -match "U.S. Social Security Number" } |
     Export-Csv .\ssn-matches-7d.csv -NoTypeInformation
   ```
@@ -245,10 +246,10 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
   ```powershell
   Get-DlpEdmSchema -Identity "<schema-name>" | Format-List Identity,Name,DataStoreName,WhenChanged
   Get-DlpSensitiveInformationType | Where-Object { $_.Type -eq "ExactDataMatch" } | Format-Table Name,Identity,WhenChanged
-  Test-DataClassification -ClassificationNames "<edm-sit-name>" -TestTextFile .\redacted-edm-positive.txt
+  Test-DataClassification -ClassificationNames "<edm-sit-name>" -TextToClassify (Get-Content .\redacted-edm-positive.txt -Raw)
   ```
 - **Diagnostic (EDM Upload Agent host):** Inspect logs at `%LOCALAPPDATA%\Microsoft\EdmUploadAgent\Logs\` for the most recent upload. Confirm `Get-Item` timestamp, row count, and "upload completed" entry; check for hash-mismatch or schema-validation errors.
-- **Diagnostic (portal):** *Data classification → Exact data matches → \<schema\> → Data sources* — confirm last successful refresh < 24 h and row count matches expectation.
+- **Diagnostic (upload evidence):** Run documented `/GetDataStore` and `/GetSession /DataStoreName <name>` on the EDM Upload Agent host. Capture actual timestamps/status; a schema object or guessed **Active** state is not upload proof.
 - **Root causes:** (a) EDM upload failed silently and stale or empty hash table is in production; (b) source CSV column mapping does not match the schema XML (case, order, primary-element designation); (c) salt rotation occurred without re-upload; (d) record contains characters normalized differently than the upload (whitespace, casing) and the schema does not define a case-insensitive / whitespace-tolerant match; (e) schema's primary element is not present in the test sample; (f) row exceeds current per-row capacity (verify per current Learn).
 - **Remediation:** Re-run upload from a clean source on the EDM Upload Agent host; verify the schema XML matches the CSV; re-confirm primary-element presence; if normalization is the cause, redefine the schema with a case-insensitive primary element and re-upload.
 - **Evidence:** EdmUploadAgent log files (manifest + last upload); schema XML; redacted source row; salt-rotation log; `Test-DataClassification` transcript.
@@ -259,7 +260,7 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 ### F4 — EDM upload exceeds row, column, or refresh-cadence limits
 
 - **Symptom:** EDM upload fails with a schema-size or row-count error; refresh job blocks past its scheduled window.
-- **Diagnostic:** Inspect the EdmUploadAgent log; confirm the schema's `searchable column` count is within the documented limit (≤ 32 searchable columns per current Learn) and the row count is within the per-tenant cap published in Learn (verify the current number — do not hard-code a stale figure).
+- **Diagnostic:** Inspect agent validation/session evidence. The [schema guide](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-create-schema) says up to ten searchable fields in its wizard and five in its manual XML steps; verify the selected workflow. Neither supports 32 searchable columns. The EDM overview documents up to 100 million rows; recheck actual upload validation.
 - **Root causes:** (a) too many searchable columns marked in schema; (b) source dataset grew past published row cap; (c) per-tenant EDM job concurrency reached; (d) salt or encoding mismatch causing entire-file rejection.
 - **Remediation:** Reduce searchable-column count to the minimum business-required (a column is "searchable" only if you intend to detect on it); split the dataset across multiple schemas where business segmentation allows; stagger refresh windows across schemas to avoid concurrency contention; reissue salt and re-upload if encoding mismatch is confirmed.
 - **Evidence:** Schema XML; agent logs; row/column counts before and after; refresh schedule.
@@ -269,13 +270,10 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 ### F5 — Trainable Classifier accuracy drift > 10 pp from baseline
 
 - **Symptom:** A Trainable Classifier consumed by a DLP or Auto-label policy shows accuracy / precision / recall ≥ 10 percentage points below the validation baseline recorded at FSI Governance Gate approval.
-- **Diagnostic (PowerShell):**
-  ```powershell
-  Get-DlpClassifier | Format-Table Identity,Name,Type,Mode,Status,WhenChanged
-  ```
+- **Diagnostic:** Capture the actual portal classifier status and held-out validation evidence; do not assume a `Get-DlpClassifier` cmdlet.
 - **Diagnostic (portal):** *Information protection → Classifiers → Trainable classifiers → \<classifier\> → Performance* — compare the latest validation run to the baseline recorded at gate approval; review prediction-distribution shift.
 - **Root causes:** (a) population/content drift (new business line or document template not represented in training corpus); (b) language or locale shift; (c) re-training with a biased validation set; (d) Microsoft platform model update (rare but possible — capture build/version where surfaced).
-- **Remediation:** Pause use as a Block detector; switch consuming rules to deterministic SIT or to Audit on the classifier; collect a fresh, representative training set; re-train; submit a fresh validation report through the FSI Governance Gate before re-promoting to Block. Document under the firm's MRM (SR 11-7 / OCC Bulletin 2026-13 (formerly OCC 2011-12)) framework.
+- **Remediation:** Pause use as a Block detector; switch consuming rules to a validated deterministic SIT or Audit; build and validate a **new** classifier because published custom classifiers cannot be retrained; submit a fresh validation report through the FSI Governance Gate before re-promoting to Block. Document under the firm's MRM (SR 11-7 / OCC Bulletin 2026-13 (formerly OCC 2011-12)) framework.
 - **Evidence:** Baseline validation report; current validation report; training-corpus version and provenance; gate approval ticket; consumer matrix.
 - **Reportability check:** If the drift caused regulated-data leakage (Audit shows non-matches that should have matched), run §1.2 in full.
 - **Exit criteria:** New validation passes baseline + agreed margin; gate re-approval recorded; consuming rules restored to Block (if applicable) under change control.
@@ -327,7 +325,7 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
   Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled,*Retention*
   # Pull the window
   Search-UnifiedAuditLog -StartDate (Get-Date).AddHours(-2) -EndDate (Get-Date) `
-    -RecordType DLPRuleMatch,ComplianceDLPSharePoint,ComplianceDLPExchange -ResultSize 1000
+    -ResultSize 5000
   ```
 - **Root causes:** (a) Unified Audit Log ingestion disabled on the tenant; (b) audit record type not yet ingested for the workload (some Endpoint DLP and Copilot DLP records have separate ingestion paths); (c) audit retention shorter than the search window (default 180 days for many record types — verify per current Learn and per add-on SKU); (d) E5 / Audit Premium long-term retention required for the lookback period; (e) Office 365 Management API consumer outpacing search index.
 - **Remediation:** Enable UAL ingestion (`Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true`); engage Audit Premium for ≥ 1-year retention on regulated populations; export to SIEM via Office 365 Management API for independent retention; confirm record-type coverage per current Learn.
@@ -341,15 +339,15 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 - **Symptom:** A Microsoft 365 Copilot response contained regulated data the SIT was supposed to gate; the Copilot DLP location was either not configured or set to Audit-only.
 - **Diagnostic (PowerShell):**
   ```powershell
-  Get-DlpCompliancePolicy | Where-Object { $_.CopilotLocation -or $_.MicrosoftCopilotExperiences } |
-    Format-List Name,Mode,*Copilot*
+  Get-DlpCompliancePolicy | Format-List *
+  Get-DlpComplianceRule | Format-List *
   Search-UnifiedAuditLog -StartDate (Get-Date).AddHours(-24) -EndDate (Get-Date) `
-    -RecordType CopilotInteraction,AiAppInteraction -ResultSize 5000 |
+    -ResultSize 5000 |
     Export-Csv .\copilot-window.csv -NoTypeInformation
   ```
-- **Diagnostic (portal):** *Data Loss Prevention → Policies* — confirm a policy with the **Microsoft 365 Copilot** location enabled is present, and that the SIT in question is included in the rule's `ContentContainsSensitiveInformation`. Cross-check **DSPM for AI → Activity Explorer** for the user/window.
-- **Root causes:** (a) Copilot DLP location not enabled in the tenant; (b) policy created but in Audit / Test mode; (c) SIT consumed only by Exchange / SharePoint rules and not by the Copilot-location rule; (d) Copilot DLP scope excludes the user or site.
-- **Remediation:** Enable the Microsoft 365 Copilot DLP location (control 1.5); add the regulated-data SIT to the Copilot rule's content-detection conditions; promote to Block where the data class warrants; confirm scope covers the affected population.
+- **Diagnostic (portal):** In **DLP → Policies**, identify the **Microsoft 365 Copilot and Copilot Chat** policy and initiating-user scope. Distinguish typed-prompt SIT inspection from separate sensitivity-label grounding rules. For current DSPM use **Discover → Activity explorer → AI activities**; record classic/new experience and actual telemetry.
+- **Root causes:** (a) missing/disabled/simulated policy; (b) initiating user excluded; (c) source content unlabeled or label not selected in the separate rule; (d) typed-prompt restriction not rolled out; (e) unsupported file-upload/connector path mistaken for prompt inspection.
+- **Remediation:** Follow portal Step 9: test supported built-in/custom SITs directly in typed prompts, separately test labeled files/emails for grounding exclusion, and validate connector/agent paths independently. Do not scope the Copilot location with site URLs or assume SIT detection alone excludes grounding content.
 - **Evidence:** Policy snapshot before/after; Copilot interaction record(s) (redacted hashes only outside Compliance custody); DSPM for AI activity record; scope diff.
 - **Reportability check:** **Run §1.2 in full.** Any Copilot-mediated regulated-data exposure is presumptively SEV-1 and triggers Pillar 4 AI-incident handling in parallel.
 - **Exit criteria:** Copilot DLP rule blocks the controlled positive in test; consumer matrix updated; FSI Governance Gate re-approval recorded for the SIT-Copilot pairing.
@@ -376,14 +374,14 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 - **Diagnostic (PowerShell):**
   ```powershell
   Search-UnifiedAuditLog -StartDate (Get-Date).AddHours(-24) -EndDate (Get-Date) `
-    -RecordType AiAppInteraction,CopilotInteraction -ResultSize 5000 |
+    -ResultSize 5000 |
     Export-Csv .\agent-window.csv -NoTypeInformation
   # Inventory Power Platform / Copilot Studio agents
   # (Power Platform Admin or PnP modules required)
   ```
 - **Diagnostic (portal):** *Purview → DSPM for AI → Activity Explorer* — filter by app/agent identity; *Power Platform admin centre → Environments → Agents* — confirm agent connector list and data sources; *Entra → Enterprise applications* — confirm the agent's app registration and consented permissions.
 - **Root causes:** (a) agent uses a connector (e.g., Dataverse, Graph, third-party API) that bypasses the SharePoint/Exchange grounding path the DLP rule covers; (b) agent runs under an app identity not in the DLP rule scope; (c) custom agent's grounding source is a regulated dataset not labelled / not covered by the SIT-aware Auto-label policy; (d) agent's plugin/connector token has broader permissions than the agent's user.
-- **Remediation:** Bring the agent under the FSI Governance Gate per the parent control (1.13 §3) and Pillar 4; restrict the agent's data sources via labels and connector DLP; add the agent's identity to the DLP for Copilot rule scope; add Communication Compliance and Insider Risk policies covering the agent's user population; pause the agent if compensating controls are insufficient.
+- **Remediation:** Bring the agent under the FSI Governance Gate per the parent control (1.13 §3) and Pillar 4; validate its actual connector/data path and initiating-user policy scope rather than inserting an agent GUID into a user scope; apply supported connector/data controls and labeled-content exclusion where applicable; add supported Communication Compliance and Insider Risk coverage; pause the agent if compensating controls are insufficient.
 - **Evidence:** Agent identity (`AppId`, `AgentId`); connector inventory; consented permissions; Activity Explorer record; redacted prompt+response hash; agent change history.
 - **Reportability check:** **Run §1.2 in full.** Presumptive SEV-1.
 - **Exit criteria:** Agent restricted; SIT detection confirmed in agent path; FSI Governance Gate re-approval; Pillar 4 IR closure recorded.
@@ -469,7 +467,7 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 
 5. Audit evidence
    - Audit window: <UTC start> to <UTC end>
-   - Record types pulled: ComplianceDLPSharePoint, ComplianceDLPExchange, DLPRuleMatch, CopilotInteraction, AiAppInteraction
+   - Actual RecordType and Operation values observed: <preserve raw AuditData; do not substitute activity labels for record-type enum values>
    - Export: attached as <ual-window.csv> (SHA-256: <hash>)
    - Notable record IDs: <comma-separated IDs — do not include regulated payload>
 
@@ -528,8 +526,8 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 - [Learn about Exact Data Match (EDM)-based SITs](https://learn.microsoft.com/en-us/purview/sit-learn-about-exact-data-match-based-sits)
 - [Get started with EDM](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-based-sits-overview)
 - [Create EDM SIT (unified UX)](https://learn.microsoft.com/en-us/purview/sit-create-edm-sit-unified-ux-schema-rule-package)
-- [Named Entities — learn about](https://learn.microsoft.com/en-us/purview/named-entities-learn)
-- [Trainable classifiers — learn about](https://learn.microsoft.com/en-us/purview/trainable-classifiers-learn-about)
+- [Named Entities — learn about](https://learn.microsoft.com/en-us/purview/sit-named-entities-learn)
+- [Trainable classifiers — learn about](https://learn.microsoft.com/en-us/purview/classifier-learn-about)
 - [DLP for Microsoft 365 Copilot location](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
 - [Data Security Posture Management for AI](https://learn.microsoft.com/en-us/purview/dspm-for-ai)
 - [`Test-DataClassification`](https://learn.microsoft.com/en-us/powershell/module/exchange/test-dataclassification)
@@ -552,4 +550,4 @@ This list is illustrative and is **not** a determination of applicability for an
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — documentation verified; tenant UI not tested*

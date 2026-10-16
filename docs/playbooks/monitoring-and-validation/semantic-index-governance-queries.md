@@ -319,8 +319,7 @@ function Test-AgentGroundingScopeCompliance {
 ## KQL Queries (for Microsoft Sentinel / Log Analytics)
 
 !!! warning "Data Source Limitations"
-    Microsoft 365 audit data uses **OfficeActivity**; the native Microsoft Copilot connector uses
-    [**CopilotActivity**](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity).
+    KQL queries in Log Analytics use the **OfficeActivity** table for Microsoft 365 audit data.
     Tables like `CopilotInteraction`, `SharePointAuditLogs`, `SharePointSiteProperties`, and
     `SharePointFileProperties` do not exist in Log Analytics. For site/file property data,
     use PowerShell (`Get-SPOSite`) or Microsoft Graph API, then optionally ingest results
@@ -330,7 +329,7 @@ function Test-AgentGroundingScopeCompliance {
 
 ```kql
 // Track Copilot interactions with SharePoint sources
-// Requires the Microsoft Copilot connector and populated accessed-resource metadata
+// Microsoft Copilot connector destination; validate populated resource fields
 CopilotActivity
 | where TimeGenerated > ago(30d)
 | where RecordType == "CopilotInteraction"
@@ -339,7 +338,7 @@ CopilotActivity
 | where isnotempty(SourceSiteUrl)
 | summarize
     AccessCount = count(),
-    UniqueUsers = dcount(ActorName),
+    UniqueUsers = dcount(ActorUserId),
     LastAccess = max(TimeGenerated)
     by SourceSiteUrl
 | order by AccessCount desc
@@ -357,7 +356,7 @@ CopilotActivity
 | mv-expand Resource = LLMEventData.AccessedResources
 | extend SiteUrl = tostring(Resource.SiteUrl)
 | where SiteUrl has_any ("confidential", "restricted", "pii", "financial")
-| project TimeGenerated, ActorName, SiteUrl, RecordId
+| project TimeGenerated, ActorUserId, SiteUrl, RecordId
 | order by TimeGenerated desc
 ```
 
@@ -392,7 +391,7 @@ CopilotActivity
 | where RecordType == "CopilotInteraction"
 | summarize
     InteractionCount = count(),
-    UniqueUsers = dcount(ActorName),
+    UniqueUsers = dcount(ActorUserId),
     FirstSeen = min(TimeGenerated),
     LastSeen = max(TimeGenerated)
     by AppHost
@@ -405,15 +404,15 @@ CopilotActivity
 // Identify users with unusually high Copilot activity
 let baseline = CopilotActivity
 | where TimeGenerated > ago(30d) and TimeGenerated < ago(1d)
-| where RecordType == "CopilotInteraction"
-| summarize AvgDaily = count() / 29.0 by ActorName;
+| where RecordType has "Copilot"
+| summarize AvgDaily = count() / 29.0 by ActorUserId;
 CopilotActivity
 | where TimeGenerated > ago(1d)
-| where RecordType == "CopilotInteraction"
-| summarize TodayCount = count() by ActorName
-| join kind=inner baseline on ActorName
+| where RecordType has "Copilot"
+| summarize TodayCount = count() by ActorUserId
+| join kind=inner baseline on ActorUserId
 | where TodayCount > AvgDaily * 3
-| project ActorName, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
+| project ActorUserId, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
 | order by Deviation desc
 ```
 
@@ -424,13 +423,13 @@ CopilotActivity
 // Note: Site restriction counts require PowerShell (Get-SPOSite) - this shows activity metrics only
 let TotalInteractions = CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType == "CopilotInteraction"
+| where RecordType has "Copilot"
 | summarize InteractionCount = count();
 
 let UniqueUsers = CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType == "CopilotInteraction"
-| summarize UserCount = dcount(ActorName);
+| where RecordType has "Copilot"
+| summarize UserCount = dcount(ActorUserId);
 
 let SettingChanges = OfficeActivity
 | where TimeGenerated > ago(7d)
@@ -439,7 +438,7 @@ let SettingChanges = OfficeActivity
 
 let SensitiveSiteAccess = CopilotActivity
 | where TimeGenerated > ago(7d)
-| where RecordType == "CopilotInteraction"
+| where RecordType has "Copilot"
 | mv-expand Resource = LLMEventData.AccessedResources
 | extend SiteUrl = tostring(Resource.SiteUrl)
 | where SiteUrl has_any ("confidential", "restricted", "pii")
@@ -526,4 +525,4 @@ Write-Host "`nAudit complete. Reports saved to: $reportPath" -ForegroundColor Gr
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted CopilotActivity schema correction; tenant UI/runtime not exercised)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted query corrections; tenant execution not tested)*

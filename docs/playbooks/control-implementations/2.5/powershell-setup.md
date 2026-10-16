@@ -956,28 +956,9 @@ function Test-Agt25Implementation {
 
 **Three-signature attestation (developer / validator / supervisor).**
 
-```powershell
-function Add-Agt25Attestation {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [string]$ManifestPath,
-        [Parameter(Mandatory)] [ValidateSet('developer','validator','supervisor')] [string]$Role,
-        [Parameter(Mandatory)] [string]$Upn,
-        [Parameter(Mandatory)] [string]$CertThumbprint
-    )
-    $m = Get-Content $ManifestPath -Raw | ConvertFrom-Json
-    if ($m.attestations.$Role.upn -ine $Upn) {
-        Write-Error "Role $Role is bound to $($m.attestations.$Role.upn); cannot sign as $Upn."
-        exit 2
-    }
-    $cert = Get-Item "Cert:\CurrentUser\My\$CertThumbprint" -ErrorAction Stop
-    $sig = Set-AuthenticodeSignature -FilePath $ManifestPath -Certificate $cert -HashAlgorithm SHA256
-    if ($sig.Status -ne 'Valid') { Write-Error "Signature invalid: $($sig.StatusMessage)"; exit 2 }
-    $m.attestations.$Role.signed_utc = (Get-Date).ToUniversalTime().ToString('o')
-    $m.attestations.$Role.signature  = $sig.SignerCertificate.Thumbprint
-    $m | ConvertTo-Json -Depth 10 | Set-Content -Path $ManifestPath -Encoding utf8
-}
-```
+**Technical correction (documentation review 2026-10-16):** the former `Add-Agt25Attestation` example attempted Authenticode on arbitrary JSON, then rewrote that file. Neither is a valid three-signature implementation. Use a separately validated ceremony that binds each distinct person's identity to the exact immutable artifact digest. A certificate thumbprint stored in JSON is not itself a cryptographic signature.
+
+For supported file-integrity signing, create/sign a version-2 Windows catalog covering finalized artifacts and separately verify its signature, timestamp and file hashes ([Microsoft catalog guidance](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/new-filecatalog)). Keep the catalog outside its hashed folder, and never modify covered files after signing. A file catalog does not replace the three-person approval/attestation workflow; that workflow remains an implementation prerequisite, not an implemented helper in this playbook.
 
 **Fail-closed conditions:**
 
@@ -985,7 +966,7 @@ function Add-Agt25Attestation {
 - Validator UPN equals supervisor UPN where Zone 3 — `exit 2` (cannot self-supervise on enterprise agents).
 - Any artifact referenced by a probe is missing on disk at hash time → `exit 2`.
 - Manifest re-hash after attestation differs from pre-signature hash beyond the attestation block → tamper detected; `exit 2`.
-- `Set-AuthenticodeSignature` returns `HashMismatch` or `NotSigned` → `exit 2`.
+- Catalog signature/timestamp/content verification fails, or a required person's digest-bound attestation is absent → reject the cycle; the removed helper does not implement this gate automatically.
 
 ---
 
@@ -1124,4 +1105,4 @@ A **false-clean** outcome (the harness reports green when the underlying control
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (evidence-signing documentation correction only)*

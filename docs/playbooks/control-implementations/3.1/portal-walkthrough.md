@@ -63,7 +63,7 @@
 
     - **Microsoft 365 Copilot** (E3/E5 + Copilot license) — required for the Microsoft 365 Copilot Hub Inventory surface (Plane 1) and Microsoft Copilot Studio agent metadata surfacing.
     - **Power Platform per-app / per-user / Process licenses** — entitlement metadata flows into the Plane 2 export; **Managed Environments** is required to surface environment-level governance attributes (see [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)).
-    - **Microsoft Entra ID P1** (P2 recommended for PIM-elevated reads of Enterprise App registrations and the emerging Agent Registry blade).
+    - Verify directory-read authorization separately from PIM licensing; current Agent Registry package collection specifically requires Agent 365. Entra ID P1/P2 is not a substitute for that entitlement.
     - **Microsoft Purview Audit (Standard or Premium)** — required for retention of registry-mutation events; Premium is recommended for Zone 3 long-horizon (≥ 1 year) audit retention.
     - **Microsoft Purview Records Management** — required for Preservation Lock on the registry document library when the firm treats the registry export as a SEC 17a-4(f)-format record.
     - **Microsoft Sentinel** (Control 3.9) — required for cross-surface registry-deviation alerting (orphan, dormant, drift).
@@ -113,7 +113,7 @@ No single Microsoft surface returns the complete agent register for an FSI tenan
 |---|---|---|---|---|
 | 1 | **M365 Copilot Hub plane** | `https://admin.microsoft.com → Copilot → Inventory` | M365 Copilot agents, declarative agents, M365 Copilot extensions, Microsoft-provided agents | Hours (ad-hoc capture); some columns refresh on portal navigation |
 | 2 | **Power Platform plane** | `https://admin.powerplatform.microsoft.com → Resources → Copilot agents` (and `Manage → Inventory` legacy view) | Copilot Studio agents (custom and Studio-published declarative), environment-scoped attributes, Maker-side ownership | ~15 minutes inventory refresh; up to 48 h for deletion visibility; PPAC display capped at ~500 agents |
-| 3 | **Entra plane** | `https://entra.microsoft.com → Identity → Applications → Enterprise applications` plus the **Agent Registry** blade (preview) and **App registrations** | App-registered declarative agents, plugin/connector OAuth posture, agent service principal IDs | Minutes for app changes; near-real-time for sign-in telemetry |
+| 3 | **Entra plane** | Enterprise applications, App registrations, and Agent ID identities; distinct from the Microsoft 365 Agent Registry | Directory applications/SPs and identity/blueprint relationships; not a complete agent catalog | Record collection time and reconcile source scope |
 | 4 | **Agent 365 plane** | `https://admin.agent365.microsoft.com` (verify hostname at deploy time) | Cross-cloud agent observability, ownerless-agent queue, governance cards, agent identity → telemetry join | Hours |
 | 5 | **Purview plane** | `https://purview.microsoft.com → Solutions → Data lifecycle management` (and **Records management**) | Retention / Preservation Lock binding for the registry document library, evidence-package retention | Per policy; binding propagates within hours |
 | 6 | **SharePoint plane** | SharePoint Admin → **Connected apps**; SharePoint Admin → **Reports → Data access governance** | SharePoint-grounded agent inventory, Connected App registrations, container ownership | Hours |
@@ -158,7 +158,7 @@ The schema authored here is the **contract** that every other Pillar 3 control c
 | Power Platform Admin — **Resources → Copilot agents** | `admin.powerplatform.microsoft.com → Resources → Copilot agents` | Copilot Studio agents (env-scoped) | GA | Per-agent side panel + CSV export | Power Platform Admin |
 | Power Platform Admin — **Manage → Inventory** (legacy Maker Inventory) | `Manage → Inventory` with `Item type = Agent` filter | Departed-owner cross-check, System Account ownership detection | GA | Per-item view + CSV export | Power Platform Admin |
 | Entra Admin — **Enterprise applications** | `entra.microsoft.com → Identity → Applications → Enterprise applications` | Service principals, app ownership, OAuth permissions | GA | App list + per-app properties + CSV download | Entra Global Reader / Entra App Admin (write) |
-| Entra Admin — **Agent Registry** (preview) | `Identity → Applications → Agent Registry` | Agent-classified app identities, agent ID directory | Preview | Agent-classified app catalog | Entra Agent ID Admin |
+| Microsoft 365 admin — **Agent Registry**; Entra identities separately | `Agents > All Agents > Registry`; documented Agent ID collection for identity records | Package catalog versus identity/blueprint directory; preserve both | Capability-specific support/licensing | Reconcile lifecycle/publisher rows and source identifiers | AI Administrator / Entra Agent ID Admin |
 | Entra Admin — **App registrations** | `Identity → Applications → App registrations` | Developer-side declarative agent registrations | GA | App registration manifest | Entra App Admin |
 | Agent 365 Admin Center | `admin.agent365.microsoft.com` (verify at deploy) | Cross-cloud agent observability, ownerless queue | Preview | Governance cards + export | Agent 365 Admin |
 | Purview compliance portal — **Data lifecycle / Records management** | `purview.microsoft.com → Solutions → Data lifecycle management` | Retention / Preservation Lock for register library | GA | Retention policy + label policy | Purview Records Manager / Purview Compliance Admin |
@@ -216,7 +216,7 @@ Operators must understand how long a portal-side change takes to surface in the 
 | Owner change in Entra (UPN updated, manager-of-record updated) → Plane 1 / Plane 2 owner column | 1–24 hours | 48 hours | Re-open agent detail page |
 | License strip / user soft-delete → orphan signal in Plane 1 / Plane 2 | 1–4 hours | 24 hours | PPAC `Owner = System Account` filter |
 | Entra Enterprise apps refresh (new app installed) | Minutes | 1 hour | Refresh app list |
-| Agent Registry (preview) refresh | Hours | Verify | Re-open blade |
+| Agent Registry / identity reconciliation | Source-dependent; no assumed universal delay | Record collection timestamps and known objects | Reconcile current registry export and directory records |
 | Agent 365 (preview) refresh | Hours | Verify | Re-open blade |
 | Purview retention policy publish → SharePoint library binding | 1–24 hours | 48 hours | Confirm In-place hold indicator on a library item |
 | SharePoint Connected apps inventory update | Hours | 24 hours | Refresh SP admin Connected apps view |
@@ -264,7 +264,7 @@ Use only the framework's canonical role names from `docs/reference/role-catalog.
 | **Power Platform Admin** | PPAC Resources → Copilot agents; Maker Inventory | Plane 2 | PIM-elevated for environment-scoped writes |
 | **Entra Global Reader** | Enterprise apps + Agent Registry read | Plane 3 | Standing |
 | **Entra App Admin** | App registrations write (rare) | Plane 3 | PIM-only |
-| **Entra Agent ID Admin** | Agent Registry blade (preview) write | Plane 3 / Plane 4 boundary | PIM-only |
+| **Entra Agent ID Admin** | Entra identity governance; not a universal Microsoft 365 catalog write role | Plane 3 / Plane 4 boundary | Operation-specific approval and authorization |
 | **Agent 365 Admin** | Agent 365 Admin Center | Plane 4 | PIM-only (preview surface) |
 | **Purview Compliance Admin** | Retention / Records Management linkage | Plane 5 | Standing |
 | **Purview Records Manager** | Preservation Lock for register library (Control 1.9 handoff) | Plane 5 | Standing |
@@ -542,16 +542,16 @@ Click into a Zone 3 agent's enterprise app entry and capture:
 
 ### 5.3 The Agent Registry blade (preview, April 2026)
 
-The Agent Registry is the emerging Entra surface that promotes Entra App Registrations into a first-class **Agent ID** taxonomy. Treat as **additive evidence** while preview; do not retire Plane 1 / Plane 2 procedures based on it.
+**Historical heading retained for existing links; documentation correction verified 2026-10-16, not UI execution.** The current Agent Registry is in the Microsoft 365 admin center at **Agents > All Agents > Registry**. It is not an Entra app-classification/promotion blade. Entra Agent ID is a distinct directory identity/blueprint model. See the [current primary-source ledger](../1.2/powershell-setup.md#documentation-verification-ledger).
 
-1. In `entra.microsoft.com`, navigate to **Identity → Applications → Agent Registry** (preview — verify exact label at deploy time).
-2. The blade enumerates apps that the tenant administrator has classified as **Agent** type.
-3. Capture the agent ID, classification, owners, and any agent-specific governance attributes (Risk band) the blade exposes in your build.
-4. Cross-reference each Agent Registry entry with the Enterprise apps view to confirm no agent-classified app is missing the canonical Owner field.
-5. *Screenshot description: Agent Registry preview blade showing ten classified agents with columns Agent ID, Display name, Classification, Owners, Risk band; the toolbar exposes a "Promote from Enterprise apps" action and a "Demote" action with PIM elevation banner at the top.*
+1. Export current **Agents > All Agents > Registry** records and retain publisher/lifecycle scope and identifiers.
+2. Separately collect `/v1.0/servicePrincipals/microsoft.graph.agentIdentity` with `AgentIdentity.Read.All`, following every next link.
+3. Retain identity `id` / `agentIdentityBlueprintId`, package/manifest/app IDs, and Dataverse bot IDs as different identifiers.
+4. Review relationships and missing governance fields; do not deduplicate by display name or infer that every package has a dedicated app/SP pair.
+5. Capture actual tenant screenshots only during execution. The former fictional Promote/Demote screenshot description is not evidence of a supported action.
 
-!!! warning "Preview status"
-    The Agent Registry is **preview**. Track the rollout and record in the quarterly attestation whether your tenant treats this surface as authoritative or as additive cross-check evidence.
+!!! warning "Capability-specific support"
+    The registry guide still labels package API integration preview while its API reference documents v1.0. Verify both support terms and licensing; a v1.0 route does not settle feature GA, and API success does not prove portal rendering.
 
 ### 5.4 App registrations (developer-side)
 
@@ -1108,7 +1108,7 @@ Symptom-driven diagnosis lives in [Troubleshooting](troubleshooting.md). Most-co
 
 - "Plane 1 export is missing columns visible in the grid" — Troubleshooting §T-01.
 - "Plane 2 grid is capped at 500 rows but the tenant has more agents" — Troubleshooting §T-02.
-- "Plane 3 Agent Registry blade is unavailable in our cloud" — Troubleshooting §T-03.
+- "A required registry or identity collection is unavailable" — record the exact source, permission, entitlement and outcome; use reviewed replacement evidence rather than assuming a historical Entra blade exists.
 - "Stitching produces a high `Owner-mismatch` count" — Troubleshooting §T-04.
 - "Manage Ownerless action returns an error" — Troubleshooting §T-05.
 - "Attestation Owner cannot edit the SharePoint list" — Troubleshooting §T-06.
@@ -1132,7 +1132,7 @@ A complete cycle produces (at least) the following artifacts, all hashed and sto
 | 5 | Plane 2 Maker Inventory export | `3.1-Plane2-MakerInventory-{date}.csv` | §4.5 |
 | 6 | Plane 3 Enterprise apps export | `3.1-Plane3-EnterpriseApps-{date}.csv` | §5.5 |
 | 7 | Plane 3 App registrations export (PowerShell-sourced) | `3.1-Plane3-AppRegistrations-{date}.csv` | sibling PowerShell |
-| 8 | Plane 3 Agent Registry export (where GA) | `3.1-Plane3-AgentRegistry-{date}.csv` | §5.3 |
+| 8 | Current registry and separate identity exports; attach scope/outcome ledger | `3.1-Plane3-AgentRegistry-{date}.csv` (legacy filename; record actual source) | §5.3 |
 | 9 | Plane 4 Agent 365 export (where entitled) | `3.1-Plane4-AgentList-{date}.csv` | §6.4 |
 | 10 | Plane 4 Agent 365 ownerless queue (where entitled) | `3.1-Plane4-Ownerless-{date}.csv` | §6.4 |
 | 11 | Plane 6 Connected Apps export | `3.1-Plane6-ConnectedApps-{date}.csv` | §9.1 |
@@ -1222,10 +1222,10 @@ This playbook depends on or is consumed by the following controls. Implementers 
 - **No single surface is the inventory.** The register of record is the stitched export, signed by the AI Governance Lead, bound to retention.
 - **Owners are humans, not groups.** Every Owner and Backup Owner is a named individual; group ownership is a finding at any zone.
 - **Three signatures, three humans.** Owner, AI Governance Lead, and (Zone 3) Compliance Officer; same human cannot occupy two attestor roles for the same row.
-- **Preview surfaces are additive.** Plane 4 Agent 365 and the Plane 3 Agent Registry blade are cross-check evidence until reaching GA in your tenant.
+- **Discovery evidence has explicit boundaries.** Reconcile current registry packages, Entra identities and environment exports regardless of GA labels; unknown source coverage is not a clean inventory.
 - **Hash everything.** Every exported artifact carries SHA-256 in the cycle manifest; the manifest is the first artifact in any examiner package.
 - **Hedge the language.** "Helps support compliance with" — never "ensures compliance" or "guarantees" or "complete inventory" or "single pane of glass" or "real-time discoverability".
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted registry/identity documentation review only)*

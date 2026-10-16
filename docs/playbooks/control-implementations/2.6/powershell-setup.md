@@ -294,9 +294,9 @@ function Get-FsiAgentInventoryForMRM {
 
     # --- Source 3: Agent 365 Admin Center ---------------------------------
     try {
-            # Agent 365 inventory is exposed via Graph /agents (preview).
-            # TODO: pin to GA endpoint when announced.
-            $a365 = Invoke-MgGraphRequest -Method GET -Uri '/beta/agents?$top=999' -ErrorAction Stop
+            # Package and identity APIs do not supply this model-risk row schema.
+            # A validated cross-plane adapter is required; never report a clean empty result.
+            throw 'ManualEvidenceRequired: reconcile Control 1.2 package/identity/environment evidence and approved model metadata; no generic Graph agents route is documented.'
             foreach ($a in $a365.value) {
                 $reg = $registry[$a.id]
                 $row = [pscustomobject]@{
@@ -885,4 +885,4 @@ For full diagnostic flows, see the companion [Troubleshooting playbook](./troubl
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Agent 365 source contract only; no tenant/UI execution)*

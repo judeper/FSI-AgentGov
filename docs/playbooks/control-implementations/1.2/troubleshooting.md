@@ -9,7 +9,9 @@
 [Verification & testing](./verification-testing.md) ·
 [Sponsorship lifecycle workflows](./sponsorship-lifecycle-workflows.md)
 
-> **Scope.** This troubleshooting playbook covers the seven registration surfaces governed by Control 1.2 — (1) Microsoft Entra App Registrations, (2) Integrated Apps blade in the Microsoft 365 admin center, (3) Power Platform Microsoft Copilot Studio agents (Dataverse `bot` table), (4) Microsoft Graph `/applications` and `/servicePrincipals` (and the preview `/copilot/agents` and `/agents` endpoints), (5) Microsoft 365 Copilot declarative agent manifests, (6) Model Context Protocol (MCP) servers fronted by Entra app registrations, and (7) the Microsoft Agent 365 / Agent Registry preview admin centers. It also covers the cross-cutting OAuth-grant governance plane in Microsoft Defender for Cloud Apps and Conditional Access workload-identity policies.
+**Last Verified:** 2026-10-16 (targeted Microsoft Learn documentation review, not UI/tenant execution). The [PowerShell verification ledger](powershell-setup.md#documentation-verification-ledger) supplies current primary references. Missing evidence is **Unknown / ManualEvidenceRequired**, not a zero-findings PASS.
+
+> **Scope.** This troubleshooting playbook covers the seven registration surfaces governed by Control 1.2 — (1) Microsoft Entra App Registrations, (2) Integrated Apps, (3) Copilot Studio agents (Dataverse `bot`), (4) Graph `/applications`, `/servicePrincipals`, and `/servicePrincipals/microsoft.graph.agentIdentity`, (5) declarative agent manifests, (6) MCP servers fronted by Entra registrations, and (7) the Microsoft 365 Agent Registry and `/copilot/admin/catalog/packages`. It also covers OAuth-grant governance and workload Conditional Access.
 >
 > Use this document when a registration surface has produced a failure, a discrepancy, an orphaned object, an unauthorized grant, or an examiner inquiry. For day-2 operations, use [verification-testing.md](./verification-testing.md). For first-time setup, use [portal-walkthrough.md](./portal-walkthrough.md) and [powershell-setup.md](./powershell-setup.md).
 
@@ -32,7 +34,7 @@
   - [Pillar B — Integrated Apps (M365 Admin) Failures](#pillar-b-integrated-apps-m365-admin-failures)
   - [Pillar C — Power Platform / Copilot Studio Registration Failures](#pillar-c-power-platform-copilot-studio-registration-failures)
   - [Pillar D — Microsoft Graph Application API Failures](#pillar-d-microsoft-graph-application-api-failures)
-  - [Pillar E — Agent 365 / Agent Registry Preview Gaps](#pillar-e-agent-365-agent-registry-preview-gaps)
+  - [Pillar E — Agent 365 / Agent Registry Collection Gaps](#pillar-e-agent-365-agent-registry-collection-gaps)
   - [Pillar F — Defender for Cloud Apps OAuth Governance Failures](#pillar-f-defender-for-cloud-apps-oauth-governance-failures)
   - [Pillar G — Conditional Access Workload-Identity Policy Failures](#pillar-g-conditional-access-workload-identity-policy-failures)
 - [§3. Failure-Mode Runbooks (Detailed)](#3-failure-mode-runbooks-detailed)
@@ -138,7 +140,7 @@ When a registration-plane defect is detected but immediate remediation is not ye
 | Owner departed >30 days | Assign **Sponsor as temporary owner** (not a non-human shared mailbox); record the temporary assignment in the agent register; require backup-owner identification within 14 days | Entra ID app owner + Sponsorship register | New permanent owner attested by Sponsor; backup owner attested |
 | Sponsor attestation lapse | **Freeze** the agent (block sign-in or pause Copilot Studio bot via `statecode = 1` in Dataverse); notify business unit head; require Sponsor re-attestation or Sponsor reassignment | Entra ID + Dataverse `bot` | Sponsor re-attests or new Sponsor designated |
 | Manifest version drift / declarative-agent mismatch | Restrict the agent to **Zone 1** until manifest reconciliation; suppress promotion to Zone 2/3 in the agent register | Microsoft 365 admin center deployment policies; agent register | Manifest reconciled, version pinned, change ticket closed |
-| Preview-API gap (Agent 365 / `/copilot/agents`) | **Manual reconciliation** — capture both the preview-API state and the underlying primary surface (Entra app reg, Dataverse `bot`, Integrated Apps) state; document the discrepancy in the agent register's "known gaps" field | Manual; documented in [verification-testing.md](./verification-testing.md) | Microsoft GA of the preview API; or vendor-confirmed reconciliation |
+| Agent Registry / package / Agent ID collection gap | **Manual reconciliation** — record exact route, API version, permissions, license, failure and underlying source evidence | Manual; documented in [verification-testing.md](./verification-testing.md) | Required collection restored and reconciled, or approved replacement evidence |
 
 ### 1.6 Pre-Escalation Checklist (≥15 items)
 
@@ -408,7 +410,7 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 **Resolution patterns.**
 
 - Re-deploy via Integrated Apps after correcting the underlying SP state. Ordering matters: prefer Integrated Apps as the primary, and only modify the SP in Entra to add governance metadata (owner, tags, notes) — never to mutate scope or permissions.
-- For unending "deployment in progress," check the **deployment job** record via Graph: `GET /admin/microsoft365Apps/installationOptions` and the related deployment beta endpoints.
+- For unending "deployment in progress," preserve portal status, audience, timestamp and support evidence. `/admin/microsoft365Apps/installationOptions` is not a documented package deployment-job record.
 - For greyed-out consent, route the user to request admin consent via the admin consent workflow.
 
 **Watch-outs.**
@@ -452,15 +454,15 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 
 ### Pillar D — Microsoft Graph Application API Failures
 
-**Scope.** Programmatic interactions with the Graph `/applications`, `/servicePrincipals`, `/oauth2PermissionGrants`, `/appRoleAssignments` endpoints, plus the preview `/copilot/agents` and `/agents` endpoints.
+**Scope.** Directory applications/SPs, their grants/app-role assignments, Agent ID (`/servicePrincipals/microsoft.graph.agentIdentity`), and Agent Registry packages (`/copilot/admin/catalog/packages`). The latter two have documented v1.0 routes; package preview/support terms and licensing still require review.
 
 **What can fail.**
 
 - 403 Authorization_RequestDenied — caller lacks the required scope (Application.Read.All vs. Application.ReadWrite.All vs. Application.ReadWrite.OwnedBy).
 - 404 Request_ResourceNotFound — querying `applications/{id}` with the **appId** (a GUID) instead of the **object id** (a different GUID). The two are distinct.
-- Inconsistent results between v1.0 and beta — the beta surface includes properties (e.g., `requestedAccessTokenVersion`, `samlMetadataUrl` for some resource SPs) not in v1.0. Pinning the API version is mandatory; record in E-14.
-- `/copilot/agents` returns 200 with empty `value` array even when bots exist — preview API gap; not all bot types are surfaced; must reconcile against Dataverse `bot`.
-- Throttling (429) — large-tenant inventory queries hit Graph throttling; prefer `$select` to minimize payload, page with `$top=999`, and respect `Retry-After`.
+- Inconsistent schemas — verify each resource's current properties and explicitly select required fields. `requestedAccessTokenVersion` is not a general beta-only indicator. Record actual API versions in E-14.
+- Missing rows — verify entitlement, permission, pagination, source scope, and positive controls; reconcile Dataverse, catalog, and identity exports. An empty result does not prove completeness.
+- Throttling (429) — use documented per-resource page sizes and `$select`, follow opaque `@odata.nextLink` even after an empty page, and honor `Retry-After`. `$top=999` is not universally supported.
 
 **How it surfaces.** Inventory jobs fail; Sentinel "agent count drift" alert fires comparing two consecutive snapshots.
 
@@ -478,23 +480,23 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 
 **Watch-outs.**
 
-- Graph **delta queries** (`$delta`) for `/applications` and `/servicePrincipals` are powerful for inventory reconciliation but have a max state-token lifetime of 30 days. Schedule full reconciliations at least monthly.
+- Graph **delta queries** use `/delta`, not a universal `$delta` parameter. [Directory-object tokens expire after seven days](https://learn.microsoft.com/en-us/graph/delta-query-overview#token-duration). Preserve opaque links and restart full synchronization on expired-token/reset responses.
 
-### Pillar E — Agent 365 / Agent Registry Preview Gaps
+### Pillar E — Agent 365 / Agent Registry Collection Gaps
 
-**Scope.** The Microsoft Agent 365 admin center and the Agent Registry preview surfaces. Both are in active preview as of the document's "Last UI Verified" date — features, endpoints, and UI surfaces are subject to change.
+**Scope.** Agent management in the Microsoft 365 admin center, currently **Agents > All Agents > Registry**. Check each feature/API's support terms rather than treating all Agent 365 administration as preview.
 
 **What can fail.**
 
-- Agent appears in one preview surface but not another — surfaces sync at different cadences and from different upstream stores.
-- Counts shown in the preview admin center diverge from Entra + Dataverse + Integrated Apps reconciliation by a small percentage — under investigation with Microsoft as of writing.
-- Preview UI does not yet expose Sponsor / Backup-Owner / Operator-Context fields — must capture these in the firm agent register; do not rely on the preview UI alone.
+- Missing agents — reconcile collection scope, timestamps, licensing and permissions across sources.
+- Count divergence — one Copilot Studio agent can have Shared by creator and Published by your org rows. Do not merge on display name or assert an undocumented Microsoft investigation.
+- Missing governance fields — supplement them in the firm's register, preserving source IDs; do not assume every field is a native UI column.
 
 **How it surfaces.** Manual reconciliation flag in monthly attestation.
 
-**Diagnostic steps.** Document divergence with screenshot + timestamp; raise a Microsoft Support case referencing the preview SKU.
+**Diagnostic steps.** Preserve exact source/version, export, timestamp, outcome and entitlement. Capture screenshots only during actual tenant execution; escalate unresolved gaps to Microsoft Support.
 
-**Resolution patterns.** Use the firm's agent register as the **system of record** during preview. Treat preview surfaces as **decoration** until GA.
+**Resolution patterns.** Use the reconciled firm register as the **system of record**. Microsoft exports are source evidence with explicit boundaries, not decorative data or automatically complete inventories.
 
 **Watch-outs.** Preview surfaces may be deprecated or rebranded with little notice. Pin the date and version of any screenshot.
 
@@ -522,12 +524,12 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 
 ### Pillar G — Conditional Access Workload-Identity Policy Failures
 
-**Scope.** CA policies targeting **workload identities** (service principals and managed identities) — distinct from CA policies targeting users.
+**Scope.** Traditional workload CA for eligible single-tenant service principals, not managed identities or third-party/multitenant SaaS apps. Agent-specific CA and user-targeted policies require separate token-subject review.
 
 **What can fail.**
 
-- Policy does not apply — workload-identity CA requires Workload Identities Premium licensing; policy silently does nothing if licensing is missing.
-- Policy applies but blocks a legitimate first-party Microsoft service principal — typically because the policy targets "All workload identities" and excludes the wrong assignment.
+- Policy does not apply — inspect supported identity type, object-ID targeting, state, exclusions, resource scope and conditions. Workload ID Premium is required to create/modify policies; existing policies can continue without it.
+- A purported first-party/managed-identity workload CA block — establish the actual token subject and failing control first; do not infer support for excluded identity types from a generic access failure.
 - Policy in report-only mode forever — common operational issue, with the team forgetting to flip to enforced mode.
 - Service principal sign-in succeeds despite policy — policy may be evaluated only on certain authentication flows (typically client-credentials and federated identity); user-impersonation flows are evaluated under user-targeted CA.
 
@@ -536,12 +538,12 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 **Diagnostic steps.**
 
 1. Confirm Workload Identities Premium SKU in Entra → Identity → Licenses.
-2. Inspect the sign-in log for the SP: `Get-MgAuditLogSignIn -Filter "appId eq '<appId>' and signInEventTypes/any(t:t eq 'servicePrincipal')"`. Look at `appliedConditionalAccessPolicies`.
-3. For "policy did not apply," check the policy's assignments — the SP must be in the included set and not in the excluded set.
+2. Inspect retained service-principal sign-in logs, or the documented `Get-MgBetaAuditLogSignIn` SP filter only with approved beta use. Review evaluated policies and actual observation coverage.
+3. Check direct **SP object IDs** in includes/excludes, not app IDs or group membership, and distinguish enabled from disabled/report-only policies.
 
-**Resolution patterns.** Use the **What If** tool in Entra → Conditional Access → What If, in Workload Identity mode. Pilot with a small set of low-risk SPs in report-only before enforced.
+**Resolution patterns.** Pilot with approved eligible SPs in report-only, then validate intended enforcement through a controlled token request and evaluated sign-in evidence. Do not substitute a user What If result for workload enforcement.
 
-**Watch-outs.** Workload-identity CA policies cannot evaluate device, location for some legacy authentication flows, or MFA — they evaluate **named locations**, **risk**, and **filter for applications**. Plan policy logic accordingly.
+**Watch-outs.** Traditional workload CA supports a **Block access** grant, not MFA/device-compliance challenges or a certificate-requirement grant. Review named locations, service-principal risk, resource scope, and all configured conditions before interpreting coverage.
 
 ---
 
@@ -759,13 +761,13 @@ Pin and record every tool version in E-14. Versions current as of the document's
 
 ## §6. Known Issues, Preview Caveats, and Documented Gaps
 
-- **Agent 365 admin center** is in preview; counts and surfaces may diverge from Entra + Dataverse + Integrated Apps reconciliation. Use the firm's agent register as the system of record.
-- **`/copilot/agents` and `/agents` Graph endpoints** are preview; not all bot types are surfaced. Reconcile against Dataverse `bot`.
+- **Support status is capability-specific.** The registry guide marks package integration preview while the API reference documents v1.0. Verify both terms and the Agent 365 license.
+- **Agent ID and packages are different collections.** Preserve identity/blueprint and package/manifest/app IDs separately, then reconcile Dataverse records.
 - **PPAC propagation** for Copilot Studio bots is steady-state ~15 minutes; observed up to 60 minutes in high-tenancy regions. Do not auto-remediate within this window.
 - **Purview Unified Audit Log** application-plane events surface at 60–90 minutes typical latency; allow 24 hours for full coverage.
 - **Defender for Cloud Apps OAuth app** indexing latency for new high-risk apps can be several hours. Pair with Entra admin consent workflow for primary control.
-- **Workload Identities Premium** licensing is required for workload-identity CA policies; without it, policies silently do nothing.
-- **`signInActivity` on application objects** is populated only for service principals that have signed in within the last 30 days; a `null` value is not proof of inactivity.
+- **Workload ID Premium** is required to create/modify traditional workload CA policies; existing policies can continue functioning without it. Licensing does not make unsupported identity types eligible.
+- **Absent sign-in evidence is not inactivity evidence.** Default ordinary Entra sign-in retention is 7 days with Free or 30 days with P1/P2. Record actual observation coverage and retained exports before classifying dormancy.
 
 ## §7. Escalation Contacts and Vendor Support
 
@@ -776,7 +778,7 @@ Pin and record every tool version in E-14. Versions current as of the document's
 ## §8. Cross-References
 
 - [`./portal-walkthrough.md`](./portal-walkthrough.md) — first-time portal configuration for the seven Control 1.2 registration surfaces.
-- [`./powershell-setup.md`](./powershell-setup.md) — automation scripts for registration, attestation, and reconciliation.
+- [`./powershell-setup.md`](./powershell-setup.md) — read-only collection examples; registration changes, sponsor attestations, and final reconciliation are separate procedures.
 - [`./verification-testing.md`](./verification-testing.md) — test cases, evidence collection scripts, and the cross-surface reconciliation matrix referenced in DQ-8.
 - [`./sponsorship-lifecycle-workflows.md`](./sponsorship-lifecycle-workflows.md) — the Sponsor / Owner / Backup Owner attestation workflow referenced in §1.5, Runbook 2, Runbook 7.
 - [`../../incident-and-risk/ai-incident-response-playbook.md`](../../incident-and-risk/ai-incident-response-playbook.md) — overarching AI incident response playbook; the §1 framework here is the registration-plane specialization.
@@ -791,4 +793,4 @@ Pin and record every tool version in E-14. Versions current as of the document's
 - [`../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — Control 3.6 orphaned-agent detection; downstream consumer of DQ-4.
 
 ---
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation review only)*

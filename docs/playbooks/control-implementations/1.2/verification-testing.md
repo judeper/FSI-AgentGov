@@ -6,6 +6,8 @@
 **Scope:** Microsoft 365 Commercial (Global) cloud — the deployment surface for US financial-services customers.
 **Last UI verified:** May 2026
 
+**Last Verified:** 2026-10-16 (technical documentation only; no tenant tests or screenshots). Use the [PowerShell verification ledger](powershell-setup.md#documentation-verification-ledger) for current endpoint, permission, shell, and evidence boundaries. Collection outcomes are not automatic test PASS results.
+
 ---
 
 ## Regulatory hedging notice
@@ -112,6 +114,8 @@ The three signatures **must** be three distinct natural persons. Role collision 
 
 ### 1.2 Hash chain across snapshots
 
+**Implementation boundary (2026-10-16):** the PowerShell exporter writes raw collection files, `manifest.json`, and a separately signed version-2 Windows `.cat`. It does **not** generate the `manifest.sha256`, previous-cycle chain, or three-person signatures specified below. Supply these through the approved attestation workflow; never Authenticode-sign arbitrary JSON or modify a catalog-covered file after signing. Recheck both catalog signature/timestamp and file-content hashes after transfer.
+
 Each cycle's evidence pack contains a `manifest.sha256` file listing one SHA-256 per artifact. The cycle attestation file (`attestation.json`) records:
 
 - `cycleId` — stable identifier for this cycle (e.g., `1.2-2026-04-Z3-COMM`)
@@ -166,16 +170,16 @@ Re-verify SKU and preview availability at cycle start against current Microsoft 
 | Capability | License / entitlement | Used by |
 |---|---|---|
 | Microsoft Entra ID base directory and app registration | Entra ID Free (minimum) | REG-*, OWN-*, PERM-* |
-| Conditional Access policy authoring (incl. workload identities) | Entra ID P1 (workload identity CA in P1; some signal sources require P2) | CA-01, CA-02 |
-| Identity Protection (workload identity risk) | Entra ID P2 | CA-02 |
+| Traditional service-principal Conditional Access policy creation/modification | Microsoft Entra Workload ID Premium; P1/P2 alone is insufficient | CA-01, CA-02 |
+| Risky service-principal API | Microsoft Entra Workload ID Premium | CA-02 |
 | Entra Workload ID Premium (richer SP governance) | Entra Workload ID Premium SKU | CA-01, CA-02, CRED-04 |
 | Entra Identity Governance (access reviews, Lifecycle Workflows) | Entra ID Governance / P2 | OWN-03, OWN-04, SPONSOR-03 |
 | Microsoft Entra PIM (time-bound activation of elevated roles) | Entra ID P2 | PRE-02 |
-| Microsoft 365 Copilot agent surfaces | Microsoft 365 Copilot | REG-01, REG-02 |
+| Microsoft 365 agent-management surfaces | Feature-specific Microsoft 365 / Copilot / Agent 365 entitlement; package API requires Agent 365 | REG-01, REG-02 |
 | Power Platform Copilot Studio admin surface | Power Platform Admin entitlement | REG-01, REG-02 |
 | Purview Audit (UAL) — high-bandwidth retention | E5 Compliance / Purview Audit Premium | CONSENT-04, CRED-03, PERM-02, OWN-03 |
 | Defender for Cloud Apps — App Governance | MDA + App Governance entitlement | PERM-04, CONSENT-02 (enrichment) |
-| Microsoft Agent 365 (where available) | Agent 365 entitlement (rollout-dependent) | REG-01 (additive only) |
+| Agent Registry package API | Agent 365 entitlement and `CopilotPackages.Read.All`; confirm current preview/support terms | REG-01 |
 | Verified Publisher status (for publishing internally-developed agents) | Microsoft Partner / Verified Publisher enrollment | REG-04 |
 | Federated identity credentials (workload identity federation) | Entra (no extra SKU) | CRED-04 |
 | Microsoft Purview Information Protection sensitivity labels (for Sponsor signature on labeled records) | E5 Compliance | Section 1 (Sponsor signature) |
@@ -213,8 +217,11 @@ Where the cycle is executed by an automation principal (recommended for Zone 3),
 | `Policy.Read.ConditionalAccess` | Detailed CA policy read for CA-01 evaluation | Application |
 | `IdentityRiskyServicePrincipal.Read.All` | Workload identity risk read for CA-02 | Application |
 | `RoleManagement.Read.Directory` | Read directory role assignments for PRE-02 | Application |
-| `DelegatedPermissionGrant.Read.All` | Read `/oauth2PermissionGrants` for PERM-02, CONSENT-04 | Application |
-| `AppRoleAssignment.ReadWrite.All` (read-only modes only) | Enumerate app role assignments | Application (read-only) |
+| `Directory.Read.All` (already listed) | Read `/oauth2PermissionGrants` for PERM-02, CONSENT-04 | Application |
+| `Application.Read.All` (already listed) | Enumerate app role assignments; no read-only mode exists for a ReadWrite grant | Application |
+| `ConsentRequest.Read.All` | Read the admin consent request queue independently of its policy | Application |
+| `AgentIdentity.Read.All` | Read `/servicePrincipals/microsoft.graph.agentIdentity` when in scope | Application |
+| `CopilotPackages.Read.All` | Read `/copilot/admin/catalog/packages` when licensed/in scope | Application |
 
 Write permissions are **never** held by the cycle-execution principal. Remediation actions are always performed by a named operator under separate change control.
 
@@ -264,7 +271,7 @@ All PRE gates should pass before any §7 test runs. A PRE failure halts the cycl
 - **How to verify.** Capture tenant SKU report, Entra ID tier, Workload ID Premium activation state, Identity Governance state, and entitlement availability for each surface; if a surface is absent or unavailable, record the compensating manual path.
 - **Evidence.** `pre-03-licensing-and-env.json`
 - **Pass criteria.** All exercised surfaces are entitled and reachable, or a compensating control is documented and tied to the relevant test.
-- **Failure remediation.** Acquire the missing entitlement or formally narrow the cycle scope (e.g., drop CA-02 if Identity Protection P2 is unavailable) with AI Governance Lead sign-off.
+- **Failure remediation.** Acquire the missing entitlement or document the unresolved evidence and compensating review with AI Governance Lead sign-off. Do not mark CA-02 PASS when Workload ID Premium risk evidence is unavailable.
 - **Audit assertion.** "The cycle relied only on features the tenant is entitled to use in the declared cloud."
 
 ### PRE-04 — Tenant baseline capture
@@ -361,7 +368,7 @@ This family verifies that no agent is silently missing from the registration pla
 
 #### 1.2-REG-02 — Shadow agent detection (no Entra identity anchor)
 
-- **Objective.** Confirm that every agent visible in PPAC, Copilot Studio, M365 admin center Copilot Agents, Integrated Apps, or Agent 365 has a corresponding Entra App Registration / service principal / Agent ID anchor — i.e., no shadow agents (Microsoft's official terminology for unregistered agents lacking an Entra Agent ID anchor).
+- **Objective.** Reconcile discovered business agents with the firm's governance register and applicable identity model. A missing dedicated app/SP/Agent ID is not by itself a shadow-agent defect; some agents use shared publisher or connector identities.
 - **Pre-conditions.** REG-01 PASS.
 - **Steps.**
   1. Build the **agent superset** by unioning the agent identifiers from `surface-m365-copilot-agents.csv`, `surface-copilot-studio-agents.csv`, `surface-integrated-apps.csv`, `surface-mcp-servers.csv`, and `surface-agent365.csv` (where available).
@@ -370,13 +377,13 @@ This family verifies that no agent is silently missing from the registration pla
      - The agent's `appId` field (Copilot Studio agents created via "Create agent in Copilot Studio with Entra-backed identity")
      - The agent's `publisherAppId` (partner-built agents in Integrated Apps)
      - The agent's `connectionReferences[].appId` (where the agent has no own identity but references a connector SP)
-     - The agent's Entra Agent ID linkage (where Agent ID preview is exposed)
-  4. Classify the result for each agent: `ANCHORED`, `ANCHORED-VIA-CONNECTOR-ONLY` (the agent itself has no identity but its connectors do), `SHADOW` (no anchor by any path).
+     - The agent's documented Entra Agent ID / blueprint relationship, when used
+  4. Classify identity mapping separately from registration: `ANCHORED`, `ANCHORED-VIA-CONNECTOR-ONLY`, `NO_DEDICATED_IDENTITY_EXPECTED` (reviewed model), or `UNKNOWN_COLLECTION_GAP`. Reserve `SHADOW` for an adjudicated governance-registration gap, not merely an unmatched app ID.
   5. Output `reg-02-shadow-classification.csv` with one row per agent and the classification.
   6. For every `SHADOW` classification, also pull the Agent 365 admin-center "shadow agent" indicator where available and confirm Microsoft's discovery aligns with the cycle's classification.
 - **Expected result.** A complete classification table; ideally zero `SHADOW` rows; any `SHADOW` rows are explicitly enumerated and ticketed.
-- **Pass criteria.** Classification table is complete (every superset agent classified); `SHADOW` count is 0 OR every shadow row has an open remediation ticket assigned to the Agent Owner with a due date inside the zone reconciliation cadence AND a quarantine action (per the Agent 365 shadow-agent registry actions: Quarantine / Investigate / Register) recorded.
-- **Failure remediation.** For each shadow row: (a) classify intent — was it intended to have an identity? (b) if yes, initiate Entra App Registration provisioning per the firm's registration workflow; (c) if no, decommission the agent under Control 3.6 (Orphaned Agent Detection); (d) if uncertain, place into Quarantine via the Agent 365 registry action while sponsor adjudication runs.
+- **Pass criteria.** All required sources and mappings are reviewed; no unresolved `UNKNOWN_COLLECTION_GAP` can produce PASS. Every confirmed registration gap has an assigned remediation ticket and separately approved containment appropriate to the actual surface. Do not assume universal Quarantine / Investigate / Register actions exist for every package or identity type.
+- **Failure remediation.** Establish the actual identity and registration model first. Obtain missing source evidence, register confirmed ungoverned use, and apply supported containment under separate approval. Do not provision an unnecessary app or decommission a valid agent solely because an app-ID join failed.
 - **Evidence.** `reg-02-shadow-classification.csv`, `reg-02-quarantine-actions.csv`, `reg-02-tickets.json`.
 - **Cadence.** Zone 1 quarterly · Zone 2 monthly · Zone 3 weekly.
 - **Owner.** Agent Owner.
@@ -384,12 +391,12 @@ This family verifies that no agent is silently missing from the registration pla
 
 #### 1.2-REG-03 — Cross-registration join integrity (App ↔ SP ↔ Agent ID)
 
-- **Objective.** Confirm that for every Entra App Registration in the home tenant, a corresponding service principal exists; that for every service principal of type `Application` in the home tenant, an `Application` object exists; and that where Entra Agent ID is in use, the Agent ID resolves to a known App + SP pair.
+- **Objective.** Review application/SP relationships and unresolved identities without assuming every business agent is one app/SP pair. Agent IDs are service-principal-derived identities with a separate blueprint relationship; packages and Dataverse bots retain their own identifiers.
 - **Pre-conditions.** REG-01 PASS.
 - **Steps.**
   1. Build the join key `appId` across `surface-entra-apps.json` and `surface-entra-sps.json`. Filter SPs to `servicePrincipalType eq 'Application'` AND `appOwnerOrganizationId eq <home tenant ID>`.
   2. Compute the symmetric difference: `apps-without-sp.csv` (apps in home tenant with no SP) and `sps-without-app.csv` (home-tenant SPs with no application object).
-  3. For Entra Agent ID entries, resolve each Agent ID to its underlying App + SP via the documented Agent ID → App linkage; output `agentid-without-app.csv` for any unresolved.
+  3. For Entra Agent ID entries, collect identity object `id` and `agentIdentityBlueprintId` through the documented Agent ID list API; resolve the blueprint relationship separately. Keep `agentid-without-app.csv` as a legacy filename for unresolved relationships, not proof that every identity needs a dedicated app object.
   4. Compute `reg-03-join-summary.json` with counts and exception list.
 - **Expected result.** All three delta files exist (even if empty); zero rows in each delta file or every row is exception-tracked.
 - **Pass criteria.** `apps-without-sp.csv` row count is 0 OR every row has a documented reason (e.g., "newly created within the last refresh window — re-test after PPAC ~15 min refresh"); `sps-without-app.csv` row count is 0 OR rows are exception-tracked; `agentid-without-app.csv` row count is 0 OR exception-tracked.
@@ -577,16 +584,16 @@ This family verifies that no application authenticates with an expired or unmana
 
 #### 1.2-CRED-01 — No expired client secrets in active use
 
-- **Objective.** Confirm that no application service principal has signed in within the trailing 30 days using a client secret that is now expired (per `passwordCredentials.endDateTime`) or that was already expired at the time of sign-in.
+- **Objective.** Review credential expiry and observed use, distinguishing credentials expired **now** from credentials expired **at the event timestamp**.
 - **Pre-conditions.** REG-01 PASS.
 - **Steps.**
   1. For each application in scope, enumerate `passwordCredentials` and `keyCredentials` via `GET /applications/{id}` and capture `keyId`, `startDateTime`, `endDateTime`, `displayName`.
-  2. Pull SP sign-in logs for the trailing 30 days from Entra Sign-in Logs / `/auditLogs/signIns?$filter=signInEventTypes/any(t:t eq 'servicePrincipal')`.
+  2. Pull SP sign-in logs for the available interval from retained Entra logs, or the documented beta `/auditLogs/signIns` SP filter when preview use is approved. Record the actual retention window and a known-event positive control; requesting 90 days does not extend the default retention.
   3. For each sign-in event, capture the `appId`, `servicePrincipalId`, `authenticationDetails`, and the `keyId` used (where exposed).
-  4. Cross-reference: any sign-in whose `keyId` corresponds to a credential whose `endDateTime` is in the past (relative to the sign-in time or the cycle date) is a finding.
+  4. Correlate the credential identifier only where the log actually exposes it. A credential used before its expiry but expired at the cycle date is a rotation finding, not proof of post-expiry authentication. Missing credential correlation or observation coverage is **NotEvaluable**, not zero expired usage.
   5. Output `cred-01-expired-in-use.csv`.
 - **Expected result.** Zero rows.
-- **Pass criteria.** Expired-in-use count is 0. Any nonzero result is treated as Critical (the platform is allowing post-expiry authentication or the operator has rotated `endDateTime` to mask the lapse).
+- **Pass criteria.** Sufficient correlation/coverage and zero verified post-expiry authentication events; separately disposition current expiry/rotation findings. Investigate apparent contradictions with Microsoft rather than inferring that the platform accepted an expired secret from present-day expiry alone.
 - **Failure remediation.** Immediately rotate the affected credential to a new secret or, preferably, a certificate; revoke the expired secret; record both actions in evidence and in UAL.
 - **Evidence.** `cred-01-expired-in-use.csv`, `cred-01-rotation-actions.json`.
 - **Cadence.** Zone 1 quarterly · Zone 2 monthly · Zone 3 weekly.
@@ -724,16 +731,16 @@ This family verifies that Zone 3 service principals are covered by an SP-targete
 
 #### 1.2-CA-01 — Zone 3 service principals covered by SP-targeted CA policy
 
-- **Objective.** Confirm that every Zone 3 service principal is covered by at least one Conditional Access policy whose `conditions.clientApplications.includeServicePrincipals` either explicitly includes the SP or includes a group / tag the SP belongs to, and whose grant control imposes at least the firm's minimum (typically: location restriction to allowed IP ranges, device compliance where applicable, block on risky sign-in).
-- **Pre-conditions.** REG-01 PASS, PRE-03 PASS (P1 floor confirmed).
+- **Objective.** Confirm protection for eligible Zone 3 single-tenant service principals through directly targeted workload CA. Group/tag membership does not enforce CA for an SP; managed identities and third-party/multitenant SaaS apps are unsupported by this policy type. Record compensating controls for unsupported identities.
+- **Pre-conditions.** REG-01 PASS, PRE-03 PASS (Workload ID Premium and identity eligibility confirmed).
 - **Steps.**
   1. Pull all CA policies: `GET /identity/conditionalAccess/policies`.
   2. Filter to policies that target service principals (workload identity CA).
-  3. For each Zone 3 SP in scope, evaluate whether at least one such policy applies.
+  3. For each eligible Zone 3 SP, compare its **object ID** with `includeServicePrincipals` (including `ServicePrincipalsInMyTenant`) and `excludeServicePrincipals`. Require enabled state, appropriate resource scope and conditions, and evaluated sign-in evidence. Disabled/report-only policies or a match on app/client ID are not enforced coverage.
   4. Output `ca-01-coverage.csv` with `appId`, `spId`, `coveringPolicyIds`, `gapType`.
 - **Expected result.** Every Zone 3 SP is covered by at least one SP-targeted CA policy.
 - **Pass criteria.** Zone 3 coverage rate is 100% OR every uncovered SP has a documented exception with a compensating control (e.g., tenant-level IP restriction, sign-in event monitoring).
-- **Failure remediation.** Add the missing SPs to the existing SP-targeted CA policy or create a new policy targeting the firm's "Zone 3 workload identities" group; verify with a sign-in test from outside the allowed location.
+- **Failure remediation.** Under separate change approval, directly assign eligible SP object IDs to the intended workload policy and verify the resulting evaluation. Workload CA supports **Block access**, not MFA/device compliance or human step-up authentication.
 - **Evidence.** `ca-01-coverage.csv`, `ca-01-policies.json`.
 - **Cadence.** Zone 1 annual · Zone 2 quarterly · Zone 3 monthly.
 - **Owner.** Conditional Access Admin.
@@ -741,12 +748,12 @@ This family verifies that Zone 3 service principals are covered by an SP-targete
 
 #### 1.2-CA-02 — Workload identity sign-in risk policy active
 
-- **Objective.** Confirm that, where Entra ID P2 / Identity Protection workload identity risk is licensed and available in the cloud, a sign-in risk policy is active that blocks or requires step-up for high-risk SP sign-ins.
-- **Pre-conditions.** PRE-03 PASS (P2 confirmed), PRE-06 PASS (cloud parity for Identity Protection).
+- **Objective.** Confirm that a supported workload CA policy blocks eligible SP token requests based on **service principal risk**. This is not a human-user sign-in-risk or MFA step-up policy.
+- **Pre-conditions.** PRE-03 PASS (Workload ID Premium and supported SP scope confirmed).
 - **Steps.**
-  1. Read the workload identity risk policy from Identity Protection.
+  1. Read workload-targeted CA policies and their service-principal risk conditions.
   2. Confirm policy is enabled, scoped to all SPs (or at minimum all Zone 2 / Zone 3 SPs), and grant control blocks high risk.
-  3. Pull `riskyServicePrincipals` for the trailing 90 days; confirm each high-risk SP has a recorded action (blocked, dismissed with reason, remediated).
+  3. Pull the current `riskyServicePrincipals` collection with `IdentityRiskyServicePrincipal.Read.All`; confirm each high-risk SP has a recorded action. This is current risk state, not a 90-day sign-in event history; use retained logs/cycle snapshots for history.
   4. Output `ca-02-risk-policy.json`, `ca-02-risky-sps.csv`.
 - **Expected result.** Policy is active and scoped correctly; risky SPs are being triaged.
 - **Pass criteria.** Policy active AND no risky SP aged > 14 days without action.
@@ -761,7 +768,7 @@ This family verifies that Zone 3 service principals are covered by an SP-targete
 - **Objective.** Confirm that any user, group, or service principal excluded from a SP-targeting CA policy is on a documented exclusion list with a stated rationale and an expiry date, and that no Zone 3 SP is silently excluded.
 - **Pre-conditions.** CA-01 PASS.
 - **Steps.**
-  1. For each CA policy targeting workload identities, capture the exclusion set (`conditions.clientApplications.excludeServicePrincipals`, `conditions.users.excludeGroups`, `conditions.users.excludeUsers`).
+  1. For each CA policy targeting workload identities, capture `conditions.clientApplications.excludeServicePrincipals` by SP object ID. User/group exclusions are not the workload-identity targeting model.
   2. Cross-reference exclusions to the firm's exclusion register.
   3. Identify any Zone 3 SP in any exclusion list.
   4. Output `ca-03-exclusions.csv`.

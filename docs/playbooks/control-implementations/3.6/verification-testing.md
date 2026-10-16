@@ -6,6 +6,8 @@
 **Cloud scope:** Microsoft 365 Commercial (Global) cloud. This framework targets the commercial Microsoft 365 deployment surface for US financial-services customers.
 **Last UI verified:** April 2026
 
+**Upstream contract reviewed 2026-10-16 (documentation only):** accept Control 1.2 evidence only after per-plane status, expected scope, identity mapping and actual activity-retention coverage are reviewed. An unresolved/nonhuman owner is not proof of a deleted human; zero observed sign-ins is not 90-day dormancy; application IDs do not identify every business agent. The [current collection boundary](../1.2/powershell-setup.md#documentation-verification-ledger) requires manual reconciliation and a separate sponsor attestation. A signed file catalog validates files, not source completeness or the human approval chain. No tenant tests were executed in this review.
+
 ---
 
 ## Document Conventions
@@ -1563,4 +1565,4 @@ If any dependency is in WARN or FAIL for the quarter, the 3.6 attestation must d
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (upstream evidence-contract review only)*

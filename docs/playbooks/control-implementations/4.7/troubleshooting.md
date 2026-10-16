@@ -64,7 +64,7 @@ The following 13 artifacts MUST be captured **before** any remediation action th
 | ID | Artifact | Source | Capture Method | Retention |
 |---|---|---|---|---|
 | **E-01** | Unified Audit Log export covering the incident window ±48 hours | Microsoft Purview Audit (Premium) | `Search-UnifiedAuditLog` with `RecordType` filter for `CopilotInteraction`, `SharePointFileOperation`, `MipLabel`, `DLPEndpoint` | 10 years (SEC 17a-4(f)) |
-| **E-02** | Copilot interaction transcripts (prompt + grounding sources + response) | Authorized Purview eDiscovery / DSPM for AI retrieval; use Audit `CopilotInteraction` metadata only to correlate the content, not as the transcript itself | Export to immutable JSON; SHA-256 hash each file | 10 years |
+| **E-02** | Copilot interaction transcripts (prompt + grounding sources + response) | Purview Audit `CopilotInteraction` records, OR Purview eDiscovery (Premium) hold | Export to immutable JSON; SHA-256 hash each file | 10 years |
 | **E-03** | RCD assignment snapshot (per-user license tally + assignment scope) | `Get-MgUser` + `Get-MgUserLicenseDetail` + RCD policy export | PowerShell transcript + CSV with row-level SHA-256 | 7 years |
 | **E-04** | RSS allowlist export at time of incident | SharePoint Online Management Shell: `Get-SPOTenantRestrictedSearchApplicableSites` and `Get-SPOSite \| Where-Object RestrictContentOrgWideSearch -eq $true` | CSV + PowerShell transcript | 7 years |
 | **E-05** | DLP for Copilot policy export (rules, conditions, actions, scope) | Purview Compliance Portal export OR `Get-DlpCompliancePolicy` / `Get-DlpComplianceRule` | XML + JSON; signed by Purview Compliance Admin | 7 years |
@@ -168,13 +168,15 @@ The following queries are referenced repeatedly in §2 runbooks. Save them in yo
 
 **KQL (Microsoft Sentinel / Log Analytics):**
 
+Q-D1 and Q-D3 use the [Microsoft Copilot connector's CopilotActivity schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). Q-D3 normalizes standard `/sites/`, `/teams/`, and `/personal/` resource URLs to site roots; adapt it for subsites or custom managed paths and use the same normalization in the allowlist. Missing resource metadata is unknown coverage, not proof that grounding did not occur. Q-D2 is a separate DLP feed template: verify its connector, operation names, and field mappings before use; it is not a universal CopilotActivity query.
+
 ```kusto
 // Q-D1: All Copilot interactions for a user in a window
 CopilotActivity
 | where TimeGenerated between (datetime(2026-04-05) .. datetime(2026-04-09))
 | where RecordType == "CopilotInteraction"
 | where ActorName =~ "<UPN>"
-| project TimeGenerated, RecordId, ActorName, AppHost, LLMEventData
+| project TimeGenerated, ActorName, RecordId, AppHost, LLMEventData
 
 // Q-D2: DLP for Copilot policy hits in window
 OfficeActivity
@@ -182,19 +184,19 @@ OfficeActivity
 | where Workload == "Copilot"
 | summarize Count=count() by PolicyName, RuleName, ActionType, bin(TimeGenerated, 1h)
 
-// Q-D3: Observed accessed-resource URLs not present in the supplied URL inventory
+// Q-D3: Sites returning grounding results outside RSS allowlist
 CopilotActivity
 | where RecordType == "CopilotInteraction"
 | mv-expand Resource = LLMEventData.AccessedResources
-| extend Site = tostring(Resource.SiteUrl)
-| where isnotempty(Site)
+| where isnotempty(tostring(Resource.SiteUrl))
+| extend ResourceUrl = parse_url(tostring(Resource.SiteUrl))
+| extend Site = strcat(tostring(ResourceUrl.Scheme), "://", tostring(ResourceUrl.Host),
+    extract(@"^/(?:sites|teams|personal)/[^/]+", 0, tostring(ResourceUrl.Path)))
 | join kind=leftanti (
     externaldata(Site:string) ["https://<your-allowlist-csv>"] with (format="csv", ignoreFirstRecord=true)
 ) on Site
-| project TimeGenerated, RecordId, ActorName, Site
+| project TimeGenerated, ActorName, Site, RecordId
 ```
-
-Q-D1/Q-D3 require the native Microsoft Copilot connector and its [CopilotActivity schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). Q-D3 compares exact observed resource URLs; normalize them to approved site identifiers before comparing a site-level RSS allowlist. Missing resource metadata or an unmatched URL alone is not proof of a grounding-policy violation.
 
 **PowerShell:**
 
@@ -1093,4 +1095,4 @@ The following 20 anti-patterns are recurring causes of Control 4.7 incidents in 
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit-evidence correction; tenant UI/runtime not exercised)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit connector/schema correction; tenant execution not tested)*

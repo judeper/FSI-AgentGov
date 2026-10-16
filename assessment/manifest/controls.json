@@ -2916,16 +2916,17 @@
     "pillar": 1,
     "pillar_name": "Security",
     "source_file": "docs/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md",
-    "automation": "full",
-    "collection_methods": [
-      "PPAC_PowerShell"
-    ],
+    "automation": "manual",
+    "collection_methods": [],
     "checks": [
       {
         "check_id": "1.28.a",
-        "description": "DLP publishing restrictions enforced in agent environments",
-        "api_call": "Get-DlpPolicy",
-        "pass_condition": "dlp_publishing_restrictions",
+        "description": "Per-agent DLP policy scope and authoring, publishing, and runtime enforcement reviewed (manual evidence required)",
+        "api_call": "",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           2,
           3
@@ -2933,9 +2934,12 @@
       },
       {
         "check_id": "1.28.b",
-        "description": "Security scan gate enabled for production publishing",
-        "api_call": "Get-DlpPolicy",
-        "pass_condition": "security_scan_enabled",
+        "description": "Automatic prepublish security scan warnings reviewed and dispositioned (manual evidence required; not a configurable publishing gate)",
+        "api_call": "",
+        "pass_condition": "",
+        "collection_methods": [
+          "Manual"
+        ],
         "zone_required": [
           3
         ]
@@ -2943,19 +2947,19 @@
     ],
     "zone_thresholds": {
       "zone1": {
-        "min_checks_passed": 1,
-        "maturity_score": 1
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone2": {
-        "min_checks_passed": 2,
-        "maturity_score": 2
+        "min_checks_passed": 0,
+        "maturity_score": 0
       },
       "zone3": {
-        "min_checks_passed": 2,
-        "maturity_score": 4
+        "min_checks_passed": 0,
+        "maturity_score": 0
       }
     },
-    "manual_question": null,
+    "manual_question": "Provide per-agent evidence of applicable DLP policy scope and enforcement during authoring, publishing, and runtime, including violation details downloaded from Channels > Details > Download where applicable and controlled test results. For Zone 3, provide reviewer disposition of automatic prepublish security scan warnings for No authentication, maker-provided connector/flow credentials, and sharing with everyone. These are warnings, not a configurable security-scan-enablement gate. A Get-DlpPolicy inventory alone does not prove per-agent compliance; this assessment does not automatically verify either requirement.",
     "name": "Policy-Based Agent Publishing Restrictions",
     "zonesApplicable": [
       2,

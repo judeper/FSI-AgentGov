@@ -4,8 +4,9 @@
 
 .DESCRIPTION
     Validates Sentinel workspace existence, enumerates data connectors (Office 365,
-    Microsoft Cloud App Security), and runs a KQL audit query to confirm Copilot
-    interaction audit records exist in the last 7 days.
+    Microsoft Cloud App Security), and queries CopilotActivity for Copilot
+    interaction audit records in the last 7 days. This presence check does not
+    establish coverage of all AI or Power Platform audit sources.
 
     Outputs a structured JSON file (sentinel.json) consumed by the assessment engine.
 
@@ -265,14 +266,14 @@ catch {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 3: KQL Audit Check — Copilot Interaction Records
-# Supports: Control 3.1 (Audit Evidence) — confirm agent audit logs exist
+# Supports: Control 3.1 (Audit Evidence) — observe Copilot interaction record presence
 # ═══════════════════════════════════════════════════════════════════════
 $kqlAuditCheck = $null
 try {
-    Write-Verbose "Section 3: Running KQL audit check for OfficeActivity records for Copilot interactions..."
+    Write-Verbose "Section 3: Running KQL presence check for CopilotActivity records for Copilot interactions..."
 
     if ($workspaceInfo) {
-        $kqlQuery = 'OfficeActivity | where OfficeWorkload == "Copilot" or RecordType == "CopilotInteraction" | where TimeGenerated > ago(7d) | count'
+        $kqlQuery = 'CopilotActivity | where RecordType == "CopilotInteraction" | where TimeGenerated > ago(7d) | count'
 
         $queryResult = Invoke-CollectorOperation -Target $workspaceInfo.WorkspaceId -Action 'Run Copilot interaction KQL audit query' -ScriptBlock {
             Invoke-AzOperationalInsightsQuery `
@@ -303,11 +304,11 @@ try {
             }
 
             if ($recordCount -eq 0) {
-                $warnings.Add("Section 3: No OfficeActivity records for Copilot interactions found in the last 7 days. Verify audit ingestion pipeline.")
+                $warnings.Add("Section 3: No CopilotActivity records for Copilot interactions found in the last 7 days. Review expected activity and connector ingestion; zero records alone do not prove capture failure.")
                 Write-Warning $warnings[-1]
             }
             else {
-                Write-Verbose "  Found $recordCount OfficeActivity record(s) for Copilot interactions in the last 7 days."
+                Write-Verbose "  Found $recordCount CopilotActivity record(s) for Copilot interactions in the last 7 days. This presence check does not establish coverage of all AI or Power Platform audit sources."
             }
         }
         else {

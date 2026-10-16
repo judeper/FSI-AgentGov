@@ -3,7 +3,8 @@
 **Control:** [1.13 Sensitive Information Types (SITs) and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
 **Audience:** M365 administrator (US financial services) configuring Microsoft Purview classification primitives in the unified Purview portal for the first time
 **Last UI Verified:** May 2026 (Microsoft Purview portal IA: **Solutions → Information protection → Classifiers → Sensitive info types**)
-**Estimated time:** 12–24 hours of configuration time excluding (a) EDM hash-agent host stand-up (4–8 hours of platform engineering), (b) trainable classifier training duration (Microsoft does not publish a fixed SLA — allow several hours to multiple days per submission), and (c) DSPM for AI signal-propagation windows (allow up to several hours after a seeded prompt before the insight surfaces).
+**Last Verified:** 2026-10-16 — Microsoft Learn documentation review only; tenant UI not tested.
+**Estimated time:** Firm planning estimate: 12–24 configuration hours, excluding host setup, classifier processing, and data-collection readiness. Do not interpret this estimate or a same-day prompt test as a Microsoft processing SLA; see Steps 5, 8, and 10.
 
 > This playbook provides portal configuration guidance for [Control 1.13](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md). It supports compliance with FINRA Rule 4511 (books and records), FINRA RN 24-09 / Rule 3110 (AI-tool governance), SEC Rules 17a-3 / 17a-4 (broker-dealer records), SEC Regulation S-P (2024 amendments — customer information safeguards and 30-day breach notification), GLBA 501(b) (safeguards rule), SOX 404 (internal controls), PCI-DSS (cardholder data), CFTC Rule 1.31 (swap-dealer recordkeeping), and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model-risk management — applicable when a Trainable Classifier is used as a primary detection control). SITs are a **detection primitive**, not an enforcement layer — by themselves they do not block, redact, retain, or supervise anything. Enforcement is implemented by DLP ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)), DSPM for AI ([Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)), Communication Compliance ([Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)), retention ([Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md)), and eDiscovery ([Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)).
 
@@ -12,9 +13,9 @@
 !!! danger "READ FIRST — SITs do not protect Copilot directly; they feed the policies that do"
     A Sensitive Information Type, by itself, does **not** prevent Microsoft 365 Copilot from grounding on a sensitive document, does **not** redact a prompt, and does **not** create a supervision event. SITs are the **detection primitive** consumed by:
 
-    1. **DLP for Microsoft 365 Copilot** — DLP policies scoped to the Copilot/Copilot Chat location use SIT conditions to **exclude** matched items from Copilot grounding (GA via sensitivity-label-driven exclusion; SIT-content-driven prompt restriction lifecycle varies — verify Preview vs GA at deployment).
+    1. **DLP for Microsoft 365 Copilot** — SIT conditions inspect typed prompts for prompt-processing restriction (preview, rollout dependent) or web-search restriction. Grounding-file/email exclusion uses a separate **Sensitivity labels** condition; SIT prompt conditions do not scan grounding files or uploaded-file contents.
     2. **DSPM for AI** — Surfaces "sensitive data shared with Copilot" telemetry using these SITs.
-    3. **Auto-labeling** — Sensitivity labels driven by SITs can mark items as excluded from Copilot processing (the GA-level integration today).
+    3. **Auto-labeling** — SIT-driven labels can identify source items for a separate Copilot-location DLP exclusion rule. A label alone does not carry an "exclude from Copilot" property.
     4. **Communication Compliance** — Reviews messages containing matched SITs for MNPI / suitability / NPI conditions.
 
     **Before you start work in this playbook:**
@@ -48,12 +49,12 @@ This playbook covers **every** classification primitive Microsoft Purview expose
 | Primitive | Where in Purview portal (Apr 2026) | Portal-only? | Covered in step |
 
 | **Built-in pattern SITs** (SSN, Credit Card, US Bank Account, ABA Routing, ITIN, EIN, CUSIP, etc.) | Solutions → Information protection → Classifiers → **Sensitive info types** | No (read-only — built-ins are Microsoft-published) | Steps 1–2 |
-| **Custom pattern SITs** (regex + keyword + proximity + confidence) | Solutions → Information protection → Classifiers → Sensitive info types → **Create sensitive info type** | No (also `New-DlpSensitiveInformationType` via Security & Compliance PowerShell) | Step 4 |
-| **Keyword dictionaries** | Solutions → Information protection → Classifiers → **Keyword dictionaries** (peer of Sensitive info types, **not** a child of EDM) | No (also PowerShell) | Step 3 |
+| **Custom pattern SITs** (regex + keyword + proximity + confidence) | Information Protection → Classifiers → Sensitive info types → **Create sensitive info type** | No (also XML rule-package cmdlets in Security & Compliance PowerShell) | Step 4 |
+| **Keyword dictionaries** | In a custom SIT pattern, choose a primary/supporting **Keyword dictionary** element | No (also PowerShell) | Step 3 |
 | **Exact Data Match (EDM)** rule package + schema + hash agent | Solutions → Information protection → Classifiers → **Exact data match** (sensitive info types and stores) | **Mixed** — schema and rule-package authoring portal-or-PowerShell; **EdmUploadAgent.exe** is a Windows agent run on a hash-agent host | Step 5 |
 | **Document Fingerprinting** | Solutions → Information protection → Classifiers → Sensitive info types → **Create fingerprint based SIT** | No — both portal (`Create fingerprint based SIT`) and Security & Compliance PowerShell (`New-DlpSensitiveInformationType -FileData`) | Step 6 |
 | **Named Entity Recognition (NER)** SITs (bundled — "All full names", "All physical addresses", country bundles) | Solutions → Information protection → Classifiers → Sensitive info types (filter: Microsoft-published, type **Named entity**) | Read-only discovery (consumed by DLP / labels / DSPM-for-AI) | Step 7 |
-| **Trainable classifiers** — pre-trained (Source code, Resumes, HR, Finance, Legal Affairs, etc.) and **custom** | Solutions → Information protection → Classifiers → **Trainable classifiers** | **Portal-only** for training-set submission and publish lifecycle (status checks via PowerShell) | Step 8 |
+| **Trainable classifiers** — pre-trained and **custom** | Information Protection or Data Loss Prevention → Classifiers → **Trainable classifiers** (record actual breadcrumb) | Documented portal lifecycle; do not assume a classifier-status cmdlet | Step 8 |
 | **DLP for Microsoft 365 Copilot** consumer policy | Solutions → **Data Loss Prevention** → Policies → Create policy → **Custom** template → Location: **Microsoft 365 Copilot and Copilot Chat** | No (also `New-DlpCompliancePolicy` via IPPS) | Step 9 |
 | **DSPM for AI** consumer insight | Solutions → **DSPM for AI** (Microsoft is consolidating the classic AI Hub experience into the unified DSPM experience — verify the in-portal label at deployment) | Mostly portal; PowerShell support is narrow | Step 10 |
 
@@ -64,7 +65,7 @@ This playbook covers **every** classification primitive Microsoft Purview expose
 - Communication Compliance policy authoring that consumes these SITs — see [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md).
 - Retention label and records-management authoring — see [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 
-For PowerShell parity see `docs/playbooks/_shared/powershell-baseline.md` and the sibling [`powershell-setup.md`](powershell-setup.md). Some surfaces in this control are **portal-only** at the time of UI verification (Document Fingerprinting upload, Trainable Classifier seed-set submission, EDM rule-package wizard); the sibling PowerShell playbook covers the parts that automate cleanly (SIT CRUD, dictionary CRUD, EdmUploadAgent run wrappers, validation searches).
+For supported PowerShell parity see the sibling [`powershell-setup.md`](powershell-setup.md). Fingerprint creation supports `New-DlpSensitiveInformationType -FileData`; custom regex SITs use rule-package XML cmdlets. Classifier training/publishing follows the documented portal workflow.
 
 ---
 
@@ -74,15 +75,15 @@ For PowerShell parity see `docs/playbooks/_shared/powershell-baseline.md` and th
 
 | Primitive | Minimum tenant SKU | Per-user SKU required for the **author** | Per-user SKU required for **end-user enforcement** | Notes |
 
-| Built-in pattern SITs | M365 E3 / E5 / Business Premium | None (admin only) | None (consumed by DLP / labels) | Available in every tenant |
-| Custom pattern SITs | M365 E3 / E5 | None (admin only) | None | Authoring is no-cost; the **consumer** policy (DLP, labels) drives the per-user license requirement |
+| Built-in pattern SITs | Verify consuming feature entitlement | Verify task/role entitlement | License users benefiting from the consuming feature | Credential-scanning and advanced SITs have additional requirements |
+| Custom pattern SITs | Verify consuming feature entitlement | Verify task/role entitlement | Consumer policy determines licensing | A visible catalog or tenant SKU alone does not prove entitlement |
 | Keyword dictionaries | M365 E3 / E5 | None | None | Same posture as custom pattern SITs |
-| **EDM** | M365 **E5** / E5 Compliance / E5 Information Protection & Governance / Microsoft Purview Information Protection (standalone) | EDM authoring license attached to the admin's mailbox; the **EDM_DataUploaders** mail-enabled security group is the gate | E5 / E5 Compliance / standalone Information Protection license on every end user whose content the EDM SIT will be evaluated against | The hash agent host itself does not need a per-user license; the **upload identity** must hold the right SKU and be a member of EDM_DataUploaders |
-| Document Fingerprinting | M365 E3 / E5 | None | None | Detection happens in DLP / Exchange transport — Exchange Online required for mail flow |
-| Bundled Named Entity Recognition | M365 **E5** / E5 Compliance | None | E5 / E5 Compliance on the user whose content is evaluated | NER SITs **silently no-op** for users without the required license — document this in your control narrative |
+| **EDM** | Verify advanced classification/consuming-feature entitlement | Schema author permissions; upload user in tenant **EDM_DataUploaders security group** | Verify licenses for benefited users | Not a local group or a requirement to create it specifically as mail-enabled |
+| Document Fingerprinting | E5 entitlement for new/modified fingerprints | Verify author entitlement | Verify consuming feature entitlement | E3 customers cannot create/modify fingerprints after April 2023 |
+| Bundled Named Entity Recognition | Verify advanced-classification entitlement | Verify role | Verify licenses for benefited users | Missing licensing is not a documented guaranteed "silent no-op"; test actual supported workload behavior |
 | Pre-trained Trainable Classifiers | M365 **E5** / E5 Compliance | None | E5 / E5 Compliance | Verify per-classifier availability — Microsoft has retired some pre-trained classifiers |
 | Custom Trainable Classifiers | M365 **E5** / E5 Compliance | E5 / E5 Compliance on the admin authoring the classifier | E5 / E5 Compliance | English-only at the time of UI verification |
-| **DLP for Microsoft 365 Copilot** (location) | M365 **E5** / E5 Compliance **and** Microsoft 365 Copilot license | E5 / E5 Compliance | Microsoft 365 Copilot license + E5 / E5 Compliance | Verify the SIT-driven prompt-restriction lifecycle (Preview vs GA) at deployment |
+| **DLP for Microsoft 365 Copilot and Copilot Chat** | Verify the current Purview service-description row and experience | Verify author entitlement | Verify benefited-user licensing for the selected capability | Copilot Chat does not universally require a paid Microsoft 365 Copilot license; prompt restriction is preview/rollout dependent |
 | **DSPM for AI** | M365 **E5** / E5 Compliance / E5 Information Protection & Governance | None | None additional | Insight surface — actual blocking still happens in DLP / labels |
 
 > Verify against the [Microsoft 365 Compliance & Security licensing comparison](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-365-security-compliance-licensing-guidance) at the time of deployment. Microsoft adjusts SKU bundling on a service-update cadence.
@@ -96,7 +97,7 @@ In the unified Purview portal, role assignments are managed under **Settings →
 | Browse the Sensitive info types catalog (read-only) | **Compliance Data Reader**, **Information Protection Reader**, or any role that contains the *View-Only Sensitive Information Type* RBAC permission | No |
 | Create / edit / delete custom pattern SITs and keyword dictionaries | **Information Protection Admin** *or* **Compliance Administrator** | **Yes** — promote to PIM-eligible (activation required) for production tenants |
 | Create / edit / delete EDM schemas and rule packages | **Information Protection Admin** *or* **Compliance Administrator** | **Yes** |
-| Run **EdmUploadAgent.exe** on the hash-agent host | The Windows service / scheduled-task identity must be a **member of the `EDM_DataUploaders` mail-enabled security group** (created by you in Exchange Online; named exactly `EDM_DataUploaders`) and must hold a tenant credential that can authenticate to the EDM upload endpoint | n/a (group membership) |
+| Run **EdmUploadAgent.exe** on the hash-agent host | Authorized work/school user in the tenant's **EDM_DataUploaders security group**; follow documented user authorization | Not a local host group or an assumed certificate workload identity |
 | Submit a Trainable Classifier seed set / publish a classifier | **Information Protection Admin** | **Yes** |
 | Author a DLP-for-Copilot policy | **Compliance Administrator** *or* **DLP Compliance Management** role group | **Yes** |
 | Validate signal in DSPM for AI | **DSPM for AI Administrator** *or* **Compliance Administrator** | No (read-mostly) |
@@ -123,7 +124,7 @@ EDM is the only primitive that requires you to stand up infrastructure outside M
 | Compute / RAM | Sized to the **row count and width** of the sensitive table; rule of thumb: 8 vCPU / 32 GB RAM handles tables up to several million rows; tables in the tens of millions need additional capacity. against current Microsoft Learn guidance |
 | Storage | The plain-text source CSV is held only transiently on the host **before** hashing; the **hashed** output is what is uploaded. Disk should be encrypted (BitLocker) and access-controlled to the EDM operator group only |
 | Network | Outbound HTTPS to the EDM upload endpoint for the tenant's cloud — `https://*.protection.outlook.com` family (verify exact hostnames per Microsoft Learn) |
-| Identity | A dedicated service account (or workload identity) that is a member of the **`EDM_DataUploaders`** mail-enabled security group (you create this group in Exchange Online with that exact name) and holds the EDM authoring license |
+| Identity | Approved work/school account in the tenant's **EDM_DataUploaders security group**; separate schema-author permissions and feature licensing from upload authorization |
 | Audit | Host event logging shipped to your SIEM ([Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)). The plain-text CSV must never leave this host |
 | Source data flow | A documented, repeatable extraction from the source-of-record (DBMS / data-warehouse) to the host. Document the **field-to-column mapping** and the change-data-capture cadence. Do not pull data into the host interactively from a production DBMS without a change-control ticket |
 
@@ -131,7 +132,7 @@ EDM is the only primitive that requires you to stand up infrastructure outside M
 
 ### 2.5 Synthetic-data and naming-convention prerequisites
 
-- **Test pane data must be synthetic.** Never paste a real SSN, real credit card, real customer name + DOB combination, or any other live PII into the Test pane in any portal. Use generators (e.g., synthetic SSN ranges in the 999-xx-xxxx documentation block; Luhn-valid synthetic PANs from the 4111-1111-1111-1111 family) and store the seed corpus in your Evidence Pack so the same synthetic data is reused across deployments and audits.
+- **Test pane data must be synthetic.** Never use real customer identifiers. Prevalidate approved positives against the actual SIT: never-issued SSNs are not automatic positives, and the credit-card SIT excludes reserved payment test numbers, even if Luhn-valid. Keep separate positive, negative, and boundary samples with hashes.
 - **Naming convention.** All artifacts authored under this control begin with **`FSI-`**. Use the form `FSI-{Pillar}-{Primitive}-{Subject}-{Version}` — for example `FSI-1-SIT-FINRA-CRD-v1`, `FSI-1-EDM-CustomerMaster-v3`, `FSI-1-TC-MNPI-Email-v1`, `FSI-1-DICT-MNPI-Lexicon-v1`, `FSI-1-DOCFP-DealMemoTemplate-v1`. This makes orphan / duplicate / drift detection trivial in a quarterly review.
 - **Source control.** Export every custom SIT, EDM schema, EDM rule package, keyword dictionary, and trainable-classifier metadata file to XML / JSON and commit to a versioned repository (`config/purview/sit/`, `config/purview/edm/`, `config/purview/dictionaries/`, `config/purview/trainable-classifiers/`). The portal is the runtime state; the repo is the design-of-record.
 
@@ -159,11 +160,11 @@ Build the inventory as a CSV in your Evidence Pack (`Control-1.13_{Tenant}_{Clou
 | Built-in SIT | What it detects | Confidence levels offered | FSI obligation it supports | Recommended consumer |
 
 | **U.S. Social Security Number (SSN)** | 9-digit SSN with delimiters or unformatted, with supporting evidence | Low / Medium / High | GLBA 501(b) safeguards; SEC Reg S-P NPI; state breach-notification laws | DLP-for-Copilot (Step 9), sensitivity-label auto-labeling, Communication Compliance |
-| **Credit Card Number** | Luhn-valid 13–19 digit PAN with brand context | Low / Medium / High | PCI-DSS; GLBA NPI | DLP outbound + DLP-for-Copilot |
-| **U.S. Bank Account Number** | 8–17 digit account with supporting evidence (e.g., "account", "acct") | Low / Medium / High | GLBA NPI; FFIEC | DLP-for-Copilot, DSPM for AI |
+| **Credit Card Number** | 14–19 digit supported-brand/Luhn-valid PAN; reserved test numbers excluded | Low / High | PCI-DSS; GLBA NPI | DLP outbound + supported typed-prompt restriction |
+| **U.S. Bank Account Number** | 6–17 consecutive digits plus a bank-account keyword within 300 characters; no checksum or ABA requirement | Medium | GLBA NPI; FFIEC | Supported typed-prompt restriction, DSPM |
 | **ABA Routing Number** | 9-digit routing with checksum + supporting evidence | Low / Medium / High | FFIEC; payment-rail safeguards | DLP outbound, DSPM for AI |
-| **U.S. Individual Taxpayer Identification Number (ITIN)** | 9-digit 9xx-7x/8x-xxxx | Low / Medium / High | GLBA NPI; IRS Pub 1075 (where in scope) | Auto-labeling + DLP-for-Copilot |
-| **U.S. Employer Identification Number (EIN)** | 9-digit XX-XXXXXXX with supporting evidence | Low / Medium | KYC / customer files | DSPM for AI insight only |
+| **U.S. Individual Taxpayer Identification Number (ITIN)** | Nine digits beginning with 9; fourth/fifth digits 50–65, 70–88, 90–92, or 94–99; confidence depends on format/context | Low / Medium / High | GLBA NPI; IRS Pub 1075 (where in scope) | Auto-labeling + supported typed-prompt restriction |
+| **EIN detector (verify inventory; custom if absent)** | Firm-validated identifier pattern/context; do not assume a built-in EIN SIT | Authored patterns only | KYC / customer files | DSPM for AI insight only |
 | **CUSIP Number** | 9-character security identifier | Low / Medium | MNPI / restricted-list signal under FINRA 5280 (front-running), supervision under FINRA 3110 | Communication Compliance, **not** automatic block (false-positive risk on legitimate research) |
 
 > CUSIP is a textbook example of why **detection ≠ enforcement**. A CUSIP appearing in a research analyst's email is normal business; a CUSIP appearing in a personal Outlook draft from a control-room employee is a supervision event. SITs flag the pattern; Communication Compliance ([Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)) judges the **context**.
@@ -218,8 +219,8 @@ config/purview/sit-test-corpus/
 
 **Synthetic-data rules:**
 
-- SSNs in the 999-xx-xxxx, 666-xx-xxxx, or 000-xx-xxxx ranges that the SSA has reserved as never-issued (verify current SSA guidance).
-- PANs from the documented test ranges (4111 1111 1111 1111 family); **do not** reuse a real card.
+- Keep invalid/reserved SSN examples as negative or boundary cases unless the actual detector test establishes otherwise.
+- Reserved payment test PANs are not reliable credit-card SIT positives; use approved synthetic samples prevalidated against the current definition, never a real card.
 - Customer names: synthetic names from a published name-generator dataset; never a real customer name + real DOB combination.
 
 ### 2.3 Tune the consumer, not the SIT
@@ -240,7 +241,7 @@ You almost never edit a Microsoft-published SIT. Instead you tune the **consumer
 
 ## Step 3 — Author keyword dictionaries
 
-**Goal:** Stand up reusable keyword dictionaries (MNPI lexicon, restricted-list issuer names, complaint-detection lexicon) that custom pattern SITs and Communication Compliance policies will consume. Keyword dictionaries are a **separate** Purview artifact from custom SITs — they sit at the same level under **Classifiers** and are referenced **by** SITs.
+**Goal:** Stand up reusable keyword dictionaries (MNPI lexicon, restricted-list issuer names, complaint-detection lexicon) referenced by custom SITs and supported consuming policies. The documented creation workflow is inside a custom SIT's pattern editor, not a required peer **Keyword dictionaries** navigation node. Combined compressed dictionary size is limited to 1 MB per tenant.
 
 **Roles:** Information Protection Admin.
 
@@ -249,13 +250,13 @@ You almost never edit a Microsoft-published SIT. Instead you tune the **consumer
 The portal supports two authoring modes:
 
 - **Inline** — paste the keyword list directly into the wizard. Fastest for short lists (a few dozen terms).
-- **CSV upload** — upload a UTF-16 LE encoded `.csv` (the encoding is non-negotiable for the portal; PowerShell `New-DlpKeywordDictionary` accepts other encodings but the portal upload requires UTF-16 LE). Use this for production dictionaries.
+- **Upload file** — follow the documented Unicode text-file workflow with one term per line. PowerShell examples read that file as bytes; dictionary cmdlet examples explicitly use UTF-16. Do not claim arbitrary encodings are supported.
 
-> Microsoft documents per-dictionary size limits (term count and total bytes). These limits have changed across releases — **verify per release** against `create-a-keyword-dictionary` Microsoft Learn before exporting a multi-thousand-term dictionary from your data lake.
+> The [keyword-dictionary guide](https://learn.microsoft.com/en-us/purview/sit-create-a-keyword-dictionary) documents a combined post-compression tenant limit of **1 MB**. Splitting dictionaries does not avoid it.
 
 ### 3.2 Create the dictionary
 
-1. Solutions → Information protection → Classifiers → **Keyword dictionaries** → **Create dictionary**.
+1. **Information Protection → Classifiers → Sensitive info types → Create sensitive info type → Create pattern → Add a Primary element → Keyword dictionary**. Choose upload, existing dictionary, or manual entry. Dictionaries can also be supporting elements.
 2. Name: follow the convention — `FSI-1-DICT-MNPI-Lexicon-v1`. Keep the version suffix; bump it on any term change (you will reference exact versions in the consumer SIT and the Evidence Pack).
 3. Description: one sentence + the change-control ticket ID + the source-of-record (e.g., "Restricted list issuer names sourced from internal Compliance app `RestrictedList`, refreshed nightly via Logic App `RestrictedList-To-Purview-v2`, ticket `CHG-2026-04-118`").
 4. Choose **Upload from file** and select the UTF-16 LE CSV (one term per line, no header), or paste terms in the inline editor.
@@ -344,7 +345,7 @@ Confidence High:   not authored
 1. Open the saved SIT → **Test**.
 2. Upload `config/purview/sit-test-corpus/finra-crd/must-match-medium.txt` (synthetic CRDs with surrounding "CRD #" and `Form U4` text). Confirm matches at **Medium**.
 3. Upload `must-match-low.txt` (synthetic CRDs with no supporting evidence). Confirm matches at **Low only** — they must not bleed into Medium.
-4. Upload `must-not-match.txt` (a 6-digit invoice number, a 7-digit ticket ID, a phone extension). Confirm zero matches at any confidence level.
+4. Upload `must-not-match.txt` (invoice/ticket numbers and phone extensions). Require no match at the consumer's Medium threshold; a regex-only Low pattern can legitimately match bare lookalike numbers. Reconcile each expected result with the authored patterns.
 5. If any of (2)–(4) fails, return to Section 4.1 — do **not** push the SIT to a consumer policy.
 
 ### 4.4 Internal-account-number example (different pattern shape)
@@ -355,19 +356,19 @@ For an internal account number with a structurally distinguishing prefix and a c
 Name: FSI-1-SIT-InternalAccount-v2
 Primary pattern: \b(ACT|CUS|RET)-\d{8}-[0-9]\b   # prefix + 8 digits + check digit
 Supporting evidence: (none required for High because the primary pattern is itself distinguishing)
-Validator: a custom checksum function (mod-10 over the 8 digits == check digit)
-Confidence High: primary match + checksum passes
+Validator: only a documented, supported validator; custom uploaded functions are unsupported
+Confidence High: only if the authored pattern/evidence and measured results justify it
 Confidence Medium: primary match, checksum not evaluated (legacy systems)
 ```
 
-If your platform team can express the checksum as a regex-only constraint, do so; otherwise author the SIT at Medium and let DLP / labels make the enforcement call.
+Do not represent a nine-digit regex as proof of checksum validity. If checksum validation is a business requirement, establish a supported implementation and test it; assigning confidence does not add checksum logic.
 
 **Verification (Step 4 exit criteria):**
 
 - [ ] Custom SIT authored with `FSI-` naming convention.
 - [ ] Description field contains: purpose, change-ticket ID, owner, **and** the confidence-level justification (especially the "no High because no checksum" reasoning where applicable).
 - [ ] Test-pane runs captured for must-match-Medium, must-match-Low, must-not-match corpora and committed to the Evidence Pack.
-- [ ] SIT XML exported (`Get-DlpSensitiveInformationType -Identity FSI-1-SIT-FINRA-CRD-v1 | Export-Clixml`) and committed to source control.
+- [ ] Actual SIT definition XML exported from its rule package's `SerializedClassificationRuleCollection`; CLIXML is only an object snapshot, not importable definition XML.
 - [ ] No SIT in the tenant carries Confidence = High **without** either a checksum or a structurally distinguishing primary token. (Run a quarterly review against this assertion.)
 
 ---
@@ -382,7 +383,7 @@ EDM is a 9-substep workflow. Skipping a substep is the dominant EDM failure mode
 
 ### 5.1 Substep 1 — Define and version the schema
 
-The schema is an XML document that names the columns of the sensitive table and tags one or more columns as **searchable** (the column EDM looks up against) and the rest as **match** (the columns surfaced in the match payload).
+The schema identifies searchable primary fields and nonsearchable supporting fields; supporting fields are not cleartext return columns. The primary SIT must extract the value before EDM lookup, and the configured supporting values/proximity must also match.
 
 ```xml
 <EdmSchema xmlns="http://schemas.microsoft.com/office/2018/edm">
@@ -398,9 +399,9 @@ The schema is an XML document that names the columns of the sensitive table and 
 
 Constraints (verify per release against `sit-create-edm-sit-unified-ux`):
 
-- The **column count** is capped — historically 32 columns; **verify per release** because Microsoft has adjusted this.
-- The **row count** is capped (historically tens of millions; verify).
-- The **file size** of the source CSV is capped (historically several GB; verify).
+- The [schema guide](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-create-schema) currently says up to **ten searchable fields** in the wizard, but still says **five** in its manual XML steps. Verify the selected workflow; do not use the previous 32-searchable-column claim.
+- The EDM overview documents up to **100 million rows**; check actual schema/upload validation and current requirements.
+- Validate the source file against the actual installed agent/schema; do not infer file-size limits from row limits.
 - At least one column **must** be `searchable="true"`.
 - Column names in the schema **must** match the CSV column headers exactly.
 
@@ -431,29 +432,37 @@ Per Section 2.4. Verify before continuing:
 
 Download EdmUploadAgent.exe from the Microsoft download surface (Microsoft has moved this binary between Download Center and Microsoft 365 Admin Center → Setup → Compliance — verify current location at deployment). Install to `C:\Program Files\Microsoft\EdmUploadAgent\` on the hash-agent host. Confirm the binary version matches the version Microsoft Learn documents for the current EDM service.
 
-### 5.5 Substep 5 — Author the salt
+### 5.5 Substep 5 — Protect hashing outputs and salt
 
-EDM hashes use a **per-rule-package salt** that you author and protect. Generate a high-entropy salt (≥ 64 bytes random) and store it in your platform secret store (Azure Key Vault, HashiCorp Vault). The salt is what prevents an attacker who obtains the uploaded hashes from running a rainbow-table attack to recover the plaintext.
+The [documented Upload Agent](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-hash-upload) automatically adds salt by default. Optional `/Salt <saltvalue>` supplies a custom value; the guide warns that custom-salt users cannot return to the standard agent workflow for that use case. Do not invent a binary-salt parameter contract. Protect `.EdmHash`/`.EdmSalt` outputs and source data under the firm's approved custody controls.
 
-**Salt rotation:** rotate on a documented cadence (annually at minimum; on suspected exposure immediately). Salt rotation **requires a full re-hash and re-upload** of the table — plan the operational window.
+**Salt lifecycle:** any firm-mandated rotation is an operational policy, not a Microsoft annual product requirement. Review the documented custom-salt restrictions and fully rehash/reupload/retest when changing it.
 
 ### 5.6 Substep 6 — Hash and upload
 
 Extract the source data to the host as a UTF-8 CSV with column headers matching the schema. Then:
 
 ```powershell
-# On the hash-agent host, in an elevated PowerShell, signed in as the service identity
+# On the approved Windows host, signed in as the authorized EDM_DataUploaders user
 Set-Location 'C:\Program Files\Microsoft\EdmUploadAgent'
-.\EdmUploadAgent.exe /CreateHash /DataStoreName FSI_CustomerMaster `
+.\EdmUploadAgent.exe /Authorize
+.\EdmUploadAgent.exe /SaveSchema /DataStoreName FSI_CustomerMaster /OutputDir 'D:\edm-staging'
+.\EdmUploadAgent.exe /ValidateData `
+  /DataFile 'D:\edm-staging\customer-master-2026-04-15.csv' `
+  /Schema 'D:\edm-staging\FSI_CustomerMaster.xml'
+.\EdmUploadAgent.exe /CreateHash `
   /DataFile 'D:\edm-staging\customer-master-2026-04-15.csv' `
   /HashLocation 'D:\edm-staging\hashes' `
-  /Salt (Get-Content 'D:\edm-staging\salt.bin' -Encoding Byte)
+  /Schema 'D:\edm-staging\FSI_CustomerMaster.xml'
 
+# Re-run /Authorize if uploading from a separate online upload host or after token expiry
 .\EdmUploadAgent.exe /UploadHash /DataStoreName FSI_CustomerMaster `
-  /HashLocation 'D:\edm-staging\hashes'
+  /HashFile 'D:\edm-staging\hashes\customer-master-2026-04-15.EdmHash'
+.\EdmUploadAgent.exe /GetDataStore
+.\EdmUploadAgent.exe /GetSession /DataStoreName FSI_CustomerMaster
 ```
 
-The agent prompts for tenant credentials (or consumes a workload-identity certificate) — these credentials must belong to the EDM_DataUploaders group member identity. The **plaintext CSV stays on the host**; only the hashed payload is uploaded.
+Use the exact saved schema and generated hash filename from the installed agent. `/Authorize` uses the documented work/school-user flow, not an assumed certificate workload identity. Plaintext is hashed locally; only hashed data is uploaded. Microsoft recommends same-version agents on separate offline hashing and online upload computers for isolation.
 
 ### 5.7 Substep 7 — Daily refresh
 
@@ -463,7 +472,7 @@ Schedule the extract → hash → upload pipeline daily via Windows Task Schedul
 
 1. Open the EDM SIT → **Test**.
 2. Upload a synthetic document containing **one row from the actual hashed dataset** (use a synthetic seed row that you injected into the source table for this purpose — never a real customer row outside a controlled audit).
-3. Confirm Medium / High confidence matches as expected.
+3. After upload and indexing are confirmed, wait an hour before testing (also wait an hour after EDM SIT changes). Confirm the actual **EDM SIT**, not only its primary pattern SIT. Existing files may need separate reclassification.
 4. Upload a document containing a **fabricated row** (same shape, never present in the dataset). Confirm zero matches — this is what proves EDM is doing exact-data-match and not pattern matching.
 
 ### 5.9 Substep 9 — Operational monitoring
@@ -489,7 +498,7 @@ Wire the following to your SIEM / observability stack:
 
 ## Step 6 — Document Fingerprinting
 
-**Goal:** Detect derivatives of a controlled template (deal memo template, restricted-list issuance template, blank patent application form) regardless of the content typed into them. Document Fingerprinting hashes the **structure** of the template; any document whose structure is sufficiently similar produces a match.
+**Goal:** Detect matching template **text**, not visual layout. [Document fingerprinting](https://learn.microsoft.com/en-us/purview/document-fingerprinting) supports configured partial or exact text matching; image-only/password-protected files and files larger than 4 MB are unsupported. Templates require 256–204,800 extracted characters; embedded-document text is not considered.
 
 **Roles:** Information Protection Admin.
 
@@ -513,7 +522,7 @@ Bad candidates:
 1. Solutions → Information protection → Classifiers → Sensitive info types → **Create fingerprint based SIT**.
 2. Name: `FSI-1-DOCFP-DealMemoTemplate-v1`.
 3. Upload the **empty** template `.docx` / `.dotx` / `.pdf`.
-4. The portal computes the fingerprint server-side (this is portal-only — there is no documented PowerShell parity for the upload step).
+4. The portal creates the fingerprint. PowerShell parity is documented with `New-DlpSensitiveInformationType -FileData <template-bytes> -ThresholdConfig ... -IsExact ...`; see the sibling example.
 5. Set a default confidence level (Medium is a reasonable default; consumers can override).
 6. Save.
 
@@ -532,7 +541,7 @@ Bad candidates:
 ---
 ## Step 7 — Discover and consume Named Entity Recognition (NER) SITs
 
-**Goal:** Inventory and selectively consume the bundled NER SITs that Microsoft publishes for unstructured-PII detection (`All Full Names`, `All Physical Addresses`, country bundles such as `All Credentials`). NER is **discovery + consumption only** in the portal — you do not author NER models.
+**Goal:** Inventory supported named-entity SITs such as **All full names**, **All physical addresses**, and **All medical terms and conditions**. Credential scanning is a distinct SIT family, not a named-entity country bundle. Named-entity SITs cannot be edited or copied.
 
 **Roles:** Information Protection Admin (consumption); Compliance Data Reader (discovery).
 
@@ -547,18 +556,18 @@ Examples likely present at deployment (verify per release — Microsoft adds, re
 - **All Full Names** — detects person names across many cultures.
 - **All Physical Addresses** — detects postal addresses.
 - **All Medical Terms And Conditions** — health information (HIPAA where in scope; FSI generally only when administering employee benefits).
-- Country bundles: **All Credential Types**, country-specific identification bundles.
+- Region-specific physical-address SITs; verify each actual definition and language coverage.
 
 ### 7.2 Consume an NER SIT
 
 NER SITs reference **into** DLP rules, sensitivity-label auto-labeling, and DSPM-for-AI insights exactly like pattern SITs:
 
 1. From a DLP rule (or a custom SIT's "supporting evidence" element list): **Add condition → Content contains → Sensitive info types → search for the NER SIT name → Add**.
-2. Pick a confidence level. NER SITs surface confidence levels comparable to pattern SITs but the semantics are model-driven — High does **not** carry the same "checksum-validated" guarantee a pattern SIT's High does. Treat NER High as approximately a pattern SIT Medium for FSI hard-block decisions.
+2. Pick a supported confidence level using the actual definition and measured results. Named-entity SITs use complex dictionary/pattern designs; neither their High nor pattern-SIT High universally means checksum validation. Do not translate NER High to pattern Medium as a product rule.
 
 ### 7.3 Document the residual risk
 
-NER models are statistical. They will produce false positives and false negatives at rates Microsoft does not publish per-classifier. Capture in your Evidence Pack:
+Named-entity detection can have false positives and negatives; validate rather than assuming trainable-model semantics. Capture in your Evidence Pack:
 
 - The list of NER SITs you consume.
 - The downstream consumer policy and the consumed confidence level.
@@ -587,7 +596,7 @@ A trainable classifier consumed in a control surface that supports a recordkeepi
 
 | **MRM intake** | The classifier is registered in the firm's Model Risk Management inventory with an owner, intended use, and a tier rating |
 | **Lifecycle clarity** | Document whether the classifier is **Preview** or **GA** at the time of consumption (Microsoft has Preview-only trainable classifiers — verify per release) |
-| **Language scope** | Trainable classifiers are **English-only** at the time of UI verification. Document the obligation impact: any non-English content is silently uncovered |
+| **Language scope** | Custom classifiers support English only; pretrained support is definition-specific. Record supported languages and unsupported content, without assuming a guaranteed silent no-op |
 | **Out-of-sample validation** | A held-out validation set (not part of the seed corpus) achieves a documented precision and recall acceptable for the intended use; dataset and metrics archived in the Evidence Pack |
 | **Periodic re-validation** | Calendar item to re-run validation at least annually and on every material change to the seed corpus |
 | **Not-the-sole-evidence rule** | A trainable classifier signal is **not the sole evidence** for any SEC 17a-4 / FINRA 4511 retention decision or any FINRA 3110 supervisory determination. Pair with pattern SIT or EDM, or escalate to manual review under [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
@@ -605,11 +614,11 @@ A trainable classifier consumed in a control surface that supports a recordkeepi
 
 1. **Trainable classifiers → Create trainable classifier**.
 2. Name: `FSI-1-TC-MNPI-Email-v1`. Description: intended use, MRM tier, owner, ticket.
-3. **Seed set:** select a SharePoint location containing **50–500** seed documents that exemplify the target class (Microsoft documents 50 as a minimum and recommends materially more for production use; 200–500 is a reasonable FSI starting point). Seed documents must be **representative** — pulled from production communications under a controlled extract, with PII redacted only if redaction does not change the linguistic features the model will learn from. **Document the extract methodology in the seed-set manifest.**
-4. Submit. The portal trains the classifier asynchronously. Training duration is **not** SLA'd by Microsoft — allow several hours to multiple days. Status is visible on the classifier blade and queryable via PowerShell (`Get-Classifier`).
+3. **Seed sets:** provide **50–500 positive** and **150–1,500 negative** text-based documents in separate, dedicated SharePoint folders accessible to the author (not OneDrive or Teams folders). Document provenance and use approved content-handling procedures. Image-only files are unsupported.
+4. Submit and observe the actual portal status. The documented preview workflow describes seed processing within 24 hours or less; this is not a contractual SLA. Do not assume a `Get-Classifier` cmdlet exists.
 5. When training completes, the portal opens a **publish-ready** review workflow. **Do not publish yet.**
 6. **Test (the publish-ready workflow):** review the classifier's predictions against a separate set of documents (the held-out validation set per Governance Gate item 4). The portal records your accept/reject decisions and feeds them back to refine the model. Iterate until precision and recall are acceptable.
-7. **Publish.** Once published, the classifier is selectable in DLP rules, sensitivity-label auto-labeling, Communication Compliance, and DSPM-for-AI policies.
+7. **Publish.** Verify support in each consuming workload. Communication Compliance supports Microsoft-provided classifiers only, not custom classifiers. Published custom classifiers cannot be retrained; replacement requires a new classifier and consumer-binding validation.
 
 ### 8.4 Consume the classifier
 
@@ -626,7 +635,7 @@ Reference exactly like a SIT from any consumer policy. Confidence levels are ret
 
 ## Step 9 — DLP for Microsoft 365 Copilot (consumer policy that uses the SITs)
 
-**Goal:** Author the DLP policy that consumes these SITs to **exclude** sensitive content from Microsoft 365 Copilot grounding (and, where the lifecycle has reached GA, restrict prompts that contain matched SITs). This is the policy that turns SIT detection into the Copilot-grounding control your AI Acceptable Use Policy promises.
+**Goal:** Test two distinct controls: supported SITs in **typed prompt text**, and **sensitivity labels** on grounding files/emails. A source-file SIT match is not itself a Copilot grounding-exclusion condition. Follow the [current Copilot DLP documentation](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about).
 
 **Roles:** Compliance Administrator or DLP Compliance Management role group.
 
@@ -641,31 +650,24 @@ Reference exactly like a SIT from any consumer policy. Confidence levels are ret
 2. Name: `FSI-1-DLP-Copilot-SIT-Exclusion-v1`. Description: purpose, ticket, owner, and the **simulation→audit→enforce** rollout plan with dates.
 3. **Locations:** turn on **Microsoft 365 Copilot and Copilot Chat**. Turn **off** every other location for this policy — keep this policy single-purpose. Cross-location DLP belongs in a separate policy authored under [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
 4. **Policy settings → Rules → Create rule**.
-5. **Conditions → Content contains → Sensitive info types** → add the in-scope SITs from Steps 1–8 at the confidence level each was validated for in the Test pane:
-   - `U.S. Social Security Number` — Medium
-   - `Credit Card Number` — Medium
-   - `U.S. Bank Account Number` — Medium
-   - `FSI-1-EDM-CustomerMaster-SSN-v3` — High
-   - `FSI-1-SIT-FINRA-CRD-v1` — Medium
-   - `FSI-1-DOCFP-DealMemoTemplate-v1` — Medium
-   - `FSI-1-TC-MNPI-Email-v1` — (Governance-Gated; consume only after Step 8 sign-off)
-6. **Actions:** select the action that **prevents the matched item from being processed by Microsoft 365 Copilot**. The portal label for this action has shifted across releases (it has appeared as "Prevent Copilot from processing", "Restrict access to content for Microsoft 365 Copilot", and similar); the GA path today is most reliably driven by **sensitivity-label-driven exclusion** — i.e., the DLP rule applies a label that itself carries the "exclude from Copilot processing" property. **Verify the exact action label and lifecycle (Preview vs GA) at deployment.**
-7. **User notifications and policy tips:** enable a policy tip that names the policy, the action, and the help-desk contact. Required for end-user explainability.
+5. For prompt protection, choose **Content contains → Sensitive information types**, selecting documented built-in/custom SITs validated for typed text. Choose **Prevent Copilot from processing content → Processing prompts** (preview; verify tenant rollout), or the distinct **Performing Web Searches** action. Do not assume EDM, fingerprints, named entities, or trainable classifiers are supported by this condition.
+6. For grounding exclusion, create a **separate rule** with **Content contains → Sensitivity labels** and **Prevent Copilot from processing content**. Apply labels through an independently tested labeling workflow; this rule does not auto-label files. SIT and label conditions cannot coexist in the same rule.
+7. **User notifications and policy tips:** configure supported notifications. To customize the help destination, enable Policy Tips and **Provide a compliance URL for the end user to learn more about your organization's policies**, using a full accessible HTTPS URL. Only the **Learn about access restrictions** link destination changes, not the standard block-message/link text.
 8. **Mode:** start in **Test with notifications** (simulation mode) for at least one full week. Review the simulation report daily. Promote to **Turn on** only after the false-positive rate is acceptable and the help-desk has been briefed.
 
 ### 9.3 Validate the policy
 
-1. As a pilot user, create a test document containing a synthetic SSN and stored in a SharePoint site the user has Copilot access to.
-2. In Microsoft 365 Copilot Chat, prompt: *"Summarize the contents of `<test-doc>`."*
-3. Expected behavior in **Test with notifications**: Copilot responds normally, and a policy-match event surfaces in DLP simulation reports / Activity Explorer / DSPM-for-AI.
-4. Expected behavior after **Turn on**: Copilot declines to ground on the document and surfaces the policy-tip language. The decline event is captured in the Unified Audit Log and DSPM-for-AI.
-5. Capture both behaviours to the Evidence Pack as the before/after artifact for examiner review.
+1. Record the initiating user's inclusion/exclusion, policy/rule IDs, mode, host, and rollout. User scope is valid; do not replace it with an agent GUID or SharePoint URL. Administrative units are unsupported.
+2. Test a prevalidated synthetic SIT **typed directly into the prompt**, with a paired negative. Uploading a file does not test prompt SIT inspection; file contents aren't scanned by that condition.
+3. Separately apply an excluded sensitivity label to a source file that the user otherwise can access, and ask Copilot to summarize it. On enforcement, content is excluded but a citation can remain. This is not universal response redaction.
+4. Capture simulation and turned-on behavior separately. Allow up to four hours for policy updates. In Word/Excel/PowerPoint, reopen the file after mid-session labeling. Supported email exclusion applies to emails sent on/after January 1, 2025, not calendar invites.
+5. If web-search restriction is selected, verify it independently: permitted internal-grounded answers can still occur. Preserve available telemetry without requiring an invented one-to-one UAL/DLP correlation. Copilot Studio connector coverage requires separate tests.
 
 **Verification (Step 9 exit criteria):**
 
 - [ ] DLP-for-Copilot policy authored with the in-scope SITs at validated confidence levels.
 - [ ] Simulation-mode (Test with notifications) report captured for one full week with FP/FN summary.
-- [ ] Production-mode validation captured (synthetic SSN test) demonstrating Copilot grounding-exclusion.
+- [ ] Production prompt-SIT and labeled-grounding tests captured separately, with supported positive/negative controls.
 - [ ] Policy-tip text reviewed and approved by Communications / Legal.
 - [ ] Sensitivity-label-driven exclusion path documented as the GA fallback if SIT-driven prompt restriction is Preview-only in your cloud.
 
@@ -679,7 +681,7 @@ Reference exactly like a SIT from any consumer policy. Confidence levels are ret
 
 ### 10.1 Open DSPM for AI
 
-1. Solutions → **DSPM for AI**. Microsoft is consolidating the older AI Hub experience into the unified DSPM for AI surface — verify the in-portal label at deployment.
+1. Use **Solutions → DSPM** for the [current DSPM experience](https://learn.microsoft.com/en-us/purview/data-security-posture-management-learn-about), then **Discover → Activity explorer → AI activities**. The previous experience remains **DSPM for AI (classic)**. Record which experience is actually used; UI not tested in this review.
 2. Confirm at least one Copilot-interactions data source is wired in ([Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)). If not, complete Control 1.6 before continuing.
 
 ### 10.2 Seed and verify
@@ -687,7 +689,7 @@ Reference exactly like a SIT from any consumer policy. Confidence levels are ret
 1. As a pilot user, perform two synthetic-data prompts in Microsoft 365 Copilot Chat:
    - *"Pull the SSN for customer 12345 from the customer master."* (will / should match the EDM SIT and the SSN built-in SIT).
    - *"Look up CRD 1234567 in our records."* (will / should match the FINRA-CRD custom SIT at Medium confidence).
-2. Wait the propagation window. Microsoft does not document a fixed SLA — allow up to several hours.
+2. For classic DSPM new policies, allow at least 24 hours for data collection, not a maximum delivery SLA. For new DSPM initial setup, Microsoft says allow a day or so. Record actual readiness.
 3. In DSPM for AI, open the **Sensitive data shared with Copilot** insight (the exact label may differ — verify per release). Confirm both interactions surface and that the matched SIT name shown is the `FSI-` artifact you authored, not just the bare built-in `U.S. Social Security Number`.
 4. If the custom SIT does not surface but the built-in does: the custom SIT may not have been picked up by the DSPM for AI signal pipeline. Verify the SIT is **published** (not draft), the confidence level the signal pipeline consumes is at or below your tuning, and re-test after the propagation window. Open a Microsoft support ticket if the custom SIT remains invisible after 24 hours of repeated seeding.
 
@@ -728,7 +730,7 @@ Example: `Control-1.13_5e3b...c2_Commercial_BuiltInSITInventory_20260415-1432-UT
 | `BuiltInSITInventory` | CSV of in-scope built-in SITs, chosen confidence levels, justifications, named consumers | Step 1 |
 | `SITTestRun` | Test-pane input corpus, output JSON, screenshot — one folder per SIT per run | Steps 2, 4, 5, 6 |
 | `KeywordDictionary` | Source CSV (UTF-16 LE), refresh-mechanism description, refresh log | Step 3 |
-| `CustomSITExport` | XML export of every custom pattern SIT (PowerShell `Get-DlpSensitiveInformationType ... | Export-Clixml`) | Step 4 |
+| `CustomSITExport` | Definition XML from `Get-DlpSensitiveInformationTypeRulePackage`'s `SerializedClassificationRuleCollection`; CLIXML is an object snapshot, not authorable SIT XML | Step 4 |
 | `EDMSchema` | Schema XML | Step 5.1 |
 | `EDMRulePackage` | Rule-package XML | Step 5.2 |
 | `EDMHashAgentRunLog` | Per-run record: identity, row count, hash count, upload duration, exit code | Step 5.6, 5.7 |
@@ -750,7 +752,7 @@ Generate the manifest after the pack is otherwise complete:
 
 ```powershell
 $pack = 'D:\evidence\Control-1.13\2026-04-15'
-Get-ChildItem -Path $pack -Recurse -File |
+Get-ChildItem -Path $pack -Recurse -File | Where-Object Name -ne 'manifest.sha256' |
   ForEach-Object {
     "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash, $_.FullName.Substring($pack.Length + 1)
   } | Set-Content -Path (Join-Path $pack 'manifest.sha256') -Encoding ASCII
@@ -787,7 +789,7 @@ These are the failure modes most often surfaced in audit findings against this c
 
 1. **Regex-only SIT at Confidence = High** — primary regex match with no supporting evidence and no checksum, scoped to a hard block. Produces wide false positives and policy-tip fatigue. Authored against the Step 4 anti-pattern call-out.
 2. **Custom SIT without supporting evidence and without proximity tuning** — even at Medium, a bare regex over a 300-character window will FP on adjacent unrelated content. Always pair primary regex with a keyword list **or** dictionary within a justified proximity window.
-3. **EDM hash agent run without salt rotation** — a salt that has never rotated is a salt that an exfiltrating insider can exploit. Annual rotation minimum; rotation procedure documented in the Evidence Pack.
+3. **Unmanaged EDM salt lifecycle** — preserve approved custody and any firm-mandated rotation schedule. Do not call annual rotation a Microsoft requirement or replace the documented autogenerated/custom-salt workflow with an invented binary-salt procedure.
 4. **EDM uploaded against a drifted source schema** — source-system column add/rename happens silently; the next hash run produces a broken SIT that returns zero matches and gives false comfort. Wire the Step 5.9 schema-drift signal.
 5. **Trainable classifier promoted without out-of-sample validation** — relying on the portal's in-training acceptance loop as the sole quality signal. Hold out a separate validation set and archive metrics in the Governance Gate.
 6. **Trainable classifier as sole evidence for a SEC 17a-4 / FINRA 4511 retention decision or a FINRA 3110 supervision determination** — statistical models are augmenting signals; the supporting record must rest on pattern SIT or EDM or human review.
@@ -836,7 +838,7 @@ The "evidence-collector identity must differ from primary" column enforces the 4
     - The DLP-for-Copilot policy was authored at confidence Medium but the source content carried a formatting variation that only matched at Low. Tune the policy down to Low + add a new custom SIT (Step 4) that captures the formatting variation at Medium.
     - The EDM hash run had failed silently for three days (Step 5.9 monitoring gap). Restore the daily run, re-run the validation, and patch the monitoring.
     - The custom SIT was authored without proximity supporting evidence and the source content sat outside the 300-char window. Re-author with a tighter primary or a wider supporting-evidence dictionary (Step 4.1).
-    - The grounding source carried a sensitivity label whose Copilot-exclusion property had been cleared by an unrelated change. Restore the label property under [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
+    - The grounding source's label no longer matched the separate Copilot DLP sensitivity-label rule, or that rule was disabled/mis-scoped. Restore the tested label/rule binding under [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), not a nonexistent label exclusion property.
 5. **Re-test end-to-end** — repeat the Step 9.3 synthetic-SSN validation and the Step 10 DSPM-for-AI validation. Both must pass before the incident is closed.
 6. **Promote evidence** — the corrected SIT export, the new Test-pane runs, the updated DLP-for-Copilot policy export, and the after-state Copilot validation transcript all join the Evidence Pack with the incident ticket reference in their filename.
 7. **Close the loop with MRM and Compliance** — if a trainable classifier was implicated, re-open its Governance Gate (Step 8.1) for a targeted re-validation. If a built-in SIT confidence-level decision is being changed, the Step 1.3 inventory is updated and re-signed by the Compliance Officer.
@@ -847,7 +849,7 @@ The "evidence-collector identity must differ from primary" column enforces the 4
 
 ### Sibling playbooks for Control 1.13
 
-- [`powershell-setup.md`](powershell-setup.md) — PowerShell parity for SIT / dictionary / EDM rule package CRUD, EdmUploadAgent.exe wrappers, classifier status checks, DLP-for-Copilot policy export.
+- [`powershell-setup.md`](powershell-setup.md) — supported SIT/dictionary/EDM/fingerprint examples, classifier portal evidence, and read-only DLP policy export.
 - [`verification-testing.md`](verification-testing.md) — repeatable validation scripts, orphan-artifact sweeps, regression-test corpora, propagation-window measurement.
 - [`troubleshooting.md`](troubleshooting.md) — common failure modes (EDM upload endpoint unreachable, Test-pane returns zero matches, classifier stuck in training, DLP-for-Copilot location not selectable).
 
@@ -875,4 +877,4 @@ The "evidence-collector identity must differ from primary" column enforces the 4
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — documentation verified; tenant UI not tested*

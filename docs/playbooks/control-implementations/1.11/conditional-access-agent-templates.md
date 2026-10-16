@@ -45,7 +45,7 @@ All templates align to the three-zone agent governance model documented in Contr
 | Microsoft-managed agent baseline | Entra Agent ID preview entitlement | CA-WI-003 |
 
 !!! warning "Workload Identities Premium is licensed per service principal"
-    Conditional Access for Workload Identities (CA-WID) requires **Microsoft Entra Workload Identities Premium**, billed per-SP per-month. Without this SKU, `New-MgIdentityConditionalAccessPolicy` calls that target service principals will be **rejected at deployment** (not silently fail). Confirm the SKU is assigned and the count of agent SPs is budgeted before deploying CA-WI-001 / CA-WI-002.
+    **Documentation correction verified 2026-10-16; not tenant execution:** Workload ID Premium is required to create/modify traditional workload CA. Existing policies can continue functioning without it; do not promise a particular HTTP rejection or silent failure. Target eligible single-tenant SP object IDs directly, not app/group IDs. Managed identities and third-party/multitenant SaaS apps are unsupported. Agent-specific CA uses a separate licensing/subject model. See [current Microsoft scope](https://learn.microsoft.com/en-us/entra/identity/conditional-access/workload-identity) and the [control's agent-CA distinction](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md).
 
 ### RBAC roles needed
 
@@ -434,7 +434,7 @@ SigninLogs
 **Control mapping:** Control 1.11 → CI/CD identity governance. Helps support SEC 17a-4 evidentiary integrity for automated change pipelines.
 
 !!! warning "Workload Identities Premium SKU required"
-    CA-WI-001 will **fail at deployment** without Microsoft Entra Workload Identities Premium assigned. Verify SKU before applying. Each targeted SP consumes one license-month.
+    Verify Workload ID Premium entitlement and supported SP scope before creating/modifying CA-WI-001; do not infer runtime enforcement from a particular licensing error or per-SP portal field.
 
 ```json
 {
@@ -507,7 +507,7 @@ SigninLogs
 ```
 
 !!! note "There is no `userType eq 'AgenticUser'` filter"
-    The `conditionalAccessUsers` schema has no `userType` filter, and there is no `AgenticUser` value. Agents are targeted via `clientApplications.includeServicePrincipals` and (recommended for scale) `servicePrincipalFilter` with a custom security attribute rule, **not** through the `users` block. `servicePrincipalRiskLevels` requires Workload Identities Premium and Entra ID Protection coverage of workload identities.
+    These traditional workload templates target eligible SPs through `clientApplications`, not a fabricated `users.userType = AgenticUser` filter. They are not agent-user/blueprint policies. Configure current [agent-specific policies](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) separately for the token subject; do not infer that an SP template covers an agent-user account.
 
 ---
 
@@ -622,7 +622,7 @@ Invoke-MgGraphRequest -Method POST `
 | 3 | **B3.** `builtInControls = ["compliantNetworkLocation"]` | Not a member of the grant-control enum → 400 / silent reject | Use `locations.excludeLocations` + `builtInControls = ["block"]` |
 | 4 | **B4.** `signInFrequency` without `frequencyInterval` | Rejected or coerced to `everyTime` (your value/type ignored) | Always set `frequencyInterval = "timeBased"` (with `value` + `type`) or `"everyTime"` |
 | 5 | **B5a.** Group display name in `includeServicePrincipals` | Schema expects SP object IDs or `"ServicePrincipalsInMyTenant"`; string returns 400 | Enumerate SP `id` values or use `servicePrincipalFilter` with custom security attribute |
-| 6 | **B5b.** Deploying CA-WID without Workload Identities Premium | Deployment fails (or, in some preview windows, policy is created but never evaluated) | Verify SKU before deployment; document per-SP license cost |
+| 6 | **B5b.** Inferring policy enforcement from licensing alone | Existing policies can continue without the SKU; unsupported identities remain unsupported | Verify entitlement for create/modify, then policy state, direct object-ID targeting, exclusions, conditions and evaluated sign-ins |
 | 7 | **B6.** `userType eq 'AgenticUser'` filter | No such filter exists in the CA users schema | Use `clientApplications.servicePrincipalFilter` with a custom security attribute (e.g., `AgentZone`) |
 | 8 | **B7.** Mixing `authenticationStrength` and `builtInControls = ["mfa"]` | Double-MFA semantics; unpredictable when combined with other controls | When `authenticationStrength` is set, do **not** also list `"mfa"` in `builtInControls` |
 | 9 | Promoting a policy from report-only to enabled without ≥7 days of sign-in log validation | Unforeseen `notApplied` patterns lock out legitimate users | Validate against `SigninLogs` for ≥7 days; run What-If for pilot principals + BG simulation |
@@ -647,4 +647,4 @@ Invoke-MgGraphRequest -Method POST `
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted workload-CA documentation correction only)*

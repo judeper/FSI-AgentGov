@@ -371,9 +371,9 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 **Resolution**:
 1. Lock the immutability policy immediately after CCO and Legal review confirms the 6-year retention period is correct:
    ```powershell
-   $Policy = Get-AzStorageContainerImmutabilityPolicy `
+   $Policy = Get-AzRmStorageContainerImmutabilityPolicy `
        -ResourceGroupName $rg -StorageAccountName $sa -ContainerName $container
-   Lock-AzStorageContainerImmutabilityPolicy `
+   Lock-AzRmStorageContainerImmutabilityPolicy `
        -ResourceGroupName $rg -StorageAccountName $sa `
        -ContainerName $container -Etag $Policy.Etag
    ```
@@ -423,4 +423,4 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell and SDK Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted cmdlet correction; tenant execution not tested)*

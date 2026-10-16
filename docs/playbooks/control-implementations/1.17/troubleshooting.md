@@ -15,7 +15,7 @@ This playbook lists the most common issues encountered when deploying and operat
 | USB blocks not firing | Device not in policy scope or USB on allowlist | Adjust scope; check Vendor/Product ID allowlist |
 | Edge inline AI DLP not triggering | Edge for Business location not toggled on policy, or user not signed in to work profile | Enable **Microsoft Edge for Business** on policy; verify work-profile briefcase |
 | Activity Explorer empty | Audit logging off or device not synced | Enable **Always audit file activity for devices**; wait 30 minutes |
-| High false-positive rate | SIT confidence threshold too low | Raise to **High (85)**; add exclusions; tune SITs in Control 1.13 |
+| High false-positive rate | SIT confidence/evidence or scope not validated | Test a supported threshold and recall regression; U.S. Bank Account Number has Medium only. Coordinate with Control 1.13 |
 | GSA network DLP not blocking | Security profile not linked to DLP policy or licensing missing | Link DLP policy in security profile; verify Entra Suite SKU |
 | macOS device fewer enforcement options | macOS feature gap | Use Edge for Business + GSA for macOS coverage |
 | User cannot override (Zone 2) | Override disabled on rule, or no business justification provided | Enable `AllowOverride` on rule; require justification text |
@@ -183,7 +183,7 @@ This playbook lists the most common issues encountered when deploying and operat
 
 ### Likely Cause
 
-- SIT confidence threshold is too low (defaults to 65 / Medium) — over-matches.
+- A low threshold can over-match; 65 maps to **Low**, not Medium. Inspect the actual SIT pattern and consuming policy rather than assuming a universal default.
 - Rule lacks scoping by user group or sensitivity label.
 - Custom SITs from Control 1.13 use overly broad regex patterns.
 
@@ -195,7 +195,7 @@ This playbook lists the most common issues encountered when deploying and operat
 
 ### Fix
 
-- Raise the SIT `confidencelevel` from `Medium` to `High` (85) on the rule.
+- Tune only supported confidence levels after positive/negative regression testing; High is not available on every SIT (for example U.S. Bank Account Number is Medium only). See [Control 1.13](../1.13/verification-testing.md) and its cited definitions.
 - Add **Exceptions** (e.g., `ExceptIfFromMemberOf` for an approved user group, or `ExceptIfRecipientDomainIs` for trusted partners).
 - Coordinate with Control 1.13 owner to tune the underlying custom SIT patterns.
 - Add specific file paths to **File path exclusions** in Endpoint DLP settings (use sparingly — document rationale).

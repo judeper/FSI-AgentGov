@@ -8,12 +8,12 @@ ui_verified: "April 2026 (post-GA)"
 prerequisites:
   - "PowerShell 7.4 Core (Windows, Linux, or macOS)"
   - "Microsoft Graph PowerShell SDK 2.25.0+ (pinned)"
-  - "Microsoft.Graph.Beta 2.25.0+ where Agent 365 cmdlets remain in the beta surface"
-  - "Microsoft 365 E7 ("Frontier Suite") or Microsoft 365 Copilot Business Chat licensing for the operator running discovery"
+  - "Beta modules only for explicitly approved documented operations; module availability is not API availability"
+  - "Agent 365 entitlement for package collection; verify licensing separately for other operations"
   - "Entra Global Reader at minimum; Entra Global Admin via PIM for any mutation"
 scopes_required:
   - "Application.Read.All"
-  - "AppCatalog.Read.All"
+  - "CopilotPackages.Read.All"
   - "Directory.Read.All"
   - "AuditLog.Read.All"
   - "AgentIdentity.Read.All  # if exposed by your tenant; helper degrades gracefully"
@@ -30,6 +30,7 @@ related_controls: ["1.2", "1.11", "2.3", "2.26", "3.1", "3.6", "3.13"]
 
 This playbook automates discovery, attestation, and continuous monitoring for the **Microsoft Agent 365 Admin Center**, the unified governance console that became Generally Available **May 1, 2026**. It mirrors the structural conventions of the sister playbook for Control 2.26 ([Agent Approval Workflow Configuration](../2.26/powershell-setup.md)) and uses the cmdlet prefix `Agt225` for every helper introduced in this file. The Agent 365 Admin Center is Microsoft's GA replacement for the legacy "Copilot Hub" preview; many of its surfaces are still partly portal-only, so this playbook combines Graph reads with documented portal-export fallbacks.
 
+**Targeted documentation correction verified 2026-10-16, not tenant/UI execution:** the automation claim above describes an intended operating model, not a working end-to-end harness. The registry adapter and undocumented approvals/templates/Researcher/mutation adapters below now stop with `ManualEvidenceRequired`; they must not emit clean evidence. Use the [Control 1.2 source ledger](../1.2/powershell-setup.md#documentation-verification-ledger) for current package/identity routes, scope and licensing. Independent feature/date claims elsewhere in this historical playbook were not reverified in this targeted correction.
 
 > **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** FINRA Rule 3110, SEC Rule 17a-4, SOX §404, GLBA Safeguards, OCC Bulletin 2013-29, and Federal Reserve SR 26-2 (formerly SR 11-7). They do **not** "confirm" or "provide" compliance. In particular, FINRA Rule 3110 requires a **registered principal** to bear supervisory responsibility — automated discovery and approval-history extracts described here **do not substitute** for that registered principal's review and sign-off; they provide the evidence the principal then attests to.
 
@@ -41,7 +42,7 @@ Before any helper is dot-sourced, operators must internalize a short list of fai
 
 ### 0.1 The wrong-shell trap
 
-The Microsoft 365 Admin Center surface for Agent 365 is reachable only through the **modern Microsoft Graph SDK on PowerShell 7.4+**. The legacy Windows PowerShell 5.1 host cannot load the pinned `Microsoft.Graph` 2.25 module family because of .NET Framework dependency mismatches, but it **will silently load older 1.x versions if they are present in the user's module path**. Those older modules return empty collections for the new agent surfaces, which the unwary operator then treats as "no agents found, clean tenant."
+Microsoft Graph recommends PowerShell 7+ and supports Windows PowerShell 5.1 with prerequisites; portal access is not restricted to a PowerShell host. This example's 7.4/module checks are deployment-specific policy, not a universal Microsoft support boundary. Unsupported modules do not have a documented guarantee of returning silent empty collections. Keep Power Apps administration in its separately supported Windows PowerShell 5.x host.
 
 Every helper in §2 calls `Assert-Agt225ShellHost` as its first action. The assertion:
 
@@ -54,9 +55,9 @@ Every helper in §2 calls `Assert-Agt225ShellHost` as its first action. The asse
 
 | # | Defect | Symptom | Root cause | Mitigation in this playbook |
 |---|---|---|---|---|
-| 1 | Wrong PowerShell host | `Get-MgAgent*` returns `@()` | PS 5.1 loaded Graph 1.28 alongside 2.25 | `Assert-Agt225ShellHost` (§2.1) |
+| 1 | Deployment host/module mismatch | Collection fails or has an unvalidated contract | Host, module and API support are separate checks | `Assert-Agt225ShellHost` (§2.1) enforces this example's local policy only |
 | 2 | Read-only token used against admin surfaces | `403` swallowed, helper logs `Anomaly` then masks as `Clean` on retry | Caller used delegated `User.Read` only | `Test-Agt225GraphScopes` preflight (§2.3) |
-| 3 | Paged response truncated at 100 | Inventory undercounts agents in tenants with > 100 agents | Operator forgot `-All` on `Invoke-MgGraphRequest` | `Invoke-Agt225PagedQuery` (§11.2) — paging is asserted |
+| 3 | Paged response truncated | Inventory undercounts records | A raw request's next link was not followed | `Invoke-Agt225PagedQuery` (§11.2); do not invent an `-All` parameter for `Invoke-MgGraphRequest` |
 | 4 | Throttled call returned empty body | Helper interprets HTTP 429 with empty JSON as zero agents | No retry/backoff wrapper | `Invoke-Agt225Throttled` (§11.1) |
 | 5 | Beta cmdlet GA-renamed mid-flight | Cmdlet not found, caught by broad `try`, swallowed | Microsoft renamed `*Bot*` → `*Agent*` between preview and GA | `Get-Agt225CmdletAvailability` (§1.3) emits `NotApplicable`, not `Clean` |
 | 6 | Empty result conflated with "no findings" | Helper returns `$null`; downstream evidence pack says "Clean" | Helpers must distinguish `Clean` from `NotApplicable` from `Error` | All helpers return `[pscustomobject]` with explicit `Status` enum |
@@ -99,10 +100,10 @@ Operators in regulated environments must install from an internal repository mir
 | Scope | Required for | Helper | Failure mode if missing |
 |---|---|---|---|
 | `Application.Read.All` | Resolving agent app registrations | `Get-Agt225AgentInventory` | `403` on `/applications` reads |
-| `AppCatalog.Read.All` | Listing tenant-published agents in the catalog | `Get-Agt225AgentInventory` | Catalog rows drop silently — helper emits `Anomaly` |
+| `CopilotPackages.Read.All` | Documented Copilot package API; separate from Teams app catalog | A validated package adapter is still required | Missing scope/entitlement is a collection gap, not zero agents |
 | `Directory.Read.All` | Resolving owner UPNs | `Resolve-Agt225OwnerUpn` | Owner column rendered as `(unresolved)` |
 | `AuditLog.Read.All` | Approval history, lifecycle events | `Get-Agt225ApprovalHistory` | History helper returns `NotApplicable` |
-| `AgentIdentity.Read.All` | New per-agent identity surface (where exposed by tenant) | `Get-Agt225AgentInventory` | Helper degrades to `AppCatalog`-only enumeration and tags `Reason='AgentIdentityScopeUnavailable'` |
+| `AgentIdentity.Read.All` | Typed Agent ID identity collection, distinct from packages | A validated identity adapter is still required | Missing identity evidence remains unresolved; no AppCatalog completeness fallback |
 
 The helper `Test-Agt225GraphScopes` (defined in §2.4) interrogates the live token and returns one row per required scope with a `Granted` boolean; the bootstrap aborts unless all scopes except `AgentIdentity.Read.All` are granted.
 
@@ -219,7 +220,7 @@ function Initialize-Agt225Session {
         [Parameter(Mandatory)] [string] $RunId,
         [string[]] $RequestedScopes = @(
             'Application.Read.All',
-            'AppCatalog.Read.All',
+            'CopilotPackages.Read.All',
             'Directory.Read.All',
             'AuditLog.Read.All',
             'AgentIdentity.Read.All'
@@ -299,7 +300,7 @@ $script:Agt225ThrottleState = @{
 
 ## §3 — Agent Inventory (Verification Criterion #1)
 
-The control's verification criterion #1 requires an export of all tenant-deployed agents with the **ten enumerated fields** from line 52 of the control file. `Get-Agt225AgentInventory` is the canonical helper.
+The control requires a reconciled export with its required governance fields. `Get-Agt225AgentInventory` is an unimplemented adapter, not a canonical inventory: an application-tag filter cannot enumerate all agents or supply approval/template fields. Reconcile current package, typed identity and environment evidence, preserving native identifiers and manual governance fields.
 
 ### 3.1 Get-Agt225AgentInventory
 
@@ -311,49 +312,7 @@ function Get-Agt225AgentInventory {
         [string] $OutputPath = "./evidence/2.25/agent-inventory-$($Session.RunId).json"
     )
 
-    $availability = Get-Agt225CmdletAvailability -CmdletName @(
-        'Get-MgApplication',
-        'Get-MgBetaAppCatalogTeamsApp'
-    )
-    $missing = $availability | Where-Object { -not $_.Available }
-    if ($missing) {
-        return [pscustomobject]@{
-            Status = 'NotApplicable'
-            Reason = "CmdletMissing:$($missing.CmdletName -join ',')"
-            FallbackUri = 'https://admin.microsoft.com/Adminportal/Home#/agents/inventory'
-        }
-    }
-
-    $agents = Invoke-Agt225Throttled {
-        Invoke-Agt225PagedQuery -Uri '/v1.0/applications?$filter=tags/any(t:t eq ''agent365'')'
-    }
-
-    $rows = foreach ($a in $agents) {
-        $owner = Resolve-Agt225OwnerUpn -ObjectId $a.id
-        [pscustomobject]@{
-            AgentId              = $a.id
-            DisplayName          = $a.displayName
-            Publisher            = $a.publisherDomain
-            Platform             = ($a.tags | Where-Object { $_ -match '^platform:' }) -replace '^platform:',''
-            OwnerUpn             = $owner.Upn
-            Status               = $a.signInAudience
-            DeploymentScope      = ($a.tags | Where-Object { $_ -match '^scope:' }) -replace '^scope:',''
-            GovernanceTemplate   = ($a.tags | Where-Object { $_ -match '^template:' }) -replace '^template:',''
-            LastApprovalUtc      = ($a.tags | Where-Object { $_ -match '^lastApproval:' }) -replace '^lastApproval:',''
-            ApproverUpn          = ($a.tags | Where-Object { $_ -match '^approver:' }) -replace '^approver:',''
-        }
-    }
-
-    $result = [pscustomobject]@{
-        Status        = if ($rows.Count -gt 0) { 'Clean' } else { 'Anomaly' }
-        Reason        = if ($rows.Count -gt 0) { '' } else { 'NoAgentsReturned-VerifyFilter' }
-        Count         = $rows.Count
-        Rows          = $rows
-        ExportedAt    = (Get-Date).ToUniversalTime().ToString('o')
-        OutputPath    = $OutputPath
-    }
-    $result | ConvertTo-Json -Depth 8 | Out-File -FilePath $OutputPath -Encoding utf8
-    $result
+    throw 'ManualEvidenceRequired: implement and validate a cross-plane adapter using Control 1.2 evidence before producing a canonical inventory.'
 }
 ```
 
@@ -402,7 +361,7 @@ function Get-Agt225PendingApprovals {
     param([Parameter(Mandatory)] [object] $Session)
 
     $pending = Invoke-Agt225Throttled {
-        Invoke-Agt225PagedQuery -Uri "/beta/agents/approvals?`$filter=status eq 'pending'"
+        throw 'ManualEvidenceRequired: no documented generic Agent 365 approvals collection is established here; use approved portal evidence or a validated feature-specific API.'
     }
     $now = Get-Date
     $rows = foreach ($p in $pending) {
@@ -490,7 +449,7 @@ No mutation is performed by this helper — it produces the manifest that Contro
 
 ## §5 — Governance Templates
 
-The Agent 365 Admin Center introduces "governance templates" — reusable JSON bundles that encode allowed connectors, data-loss-prevention (DLP) policy bindings, sensitivity-label requirements, retention bindings, and escalation contacts. Each agent is bound to exactly one template; unbound agents are an automatic `Anomaly`.
+The framework can define reusable governance-template records for connector, DLP, label, retention and escalation requirements. That organizational model is not proof of a documented generic Agent 365 template API or a product rule binding each agent to exactly one template. The adapter below remains unimplemented.
 
 ### 5.1 Get-Agt225GovernanceTemplate
 
@@ -508,7 +467,7 @@ function Get-Agt225GovernanceTemplate {
     }
 
     $templates = Invoke-Agt225Throttled {
-        Invoke-Agt225PagedQuery -Uri '/beta/agents/governanceTemplates'
+        throw 'ManualEvidenceRequired: supply validated governance-template evidence; no generic Graph template route is established here.'
     }
 
     $rows = foreach ($t in $templates) {
@@ -622,7 +581,7 @@ function Get-Agt225ApprovalHistory {
     )
     $start = (Get-Date).AddDays(-$LookbackDays).ToUniversalTime().ToString('o')
     $approvals = Invoke-Agt225Throttled {
-        Invoke-Agt225PagedQuery -Uri "/beta/agents/approvals?`$filter=resolvedDateTime ge $start"
+        throw 'ManualEvidenceRequired: supply approved approval-history evidence with actual retention coverage and approver identifiers.'
     }
     # Defect #9 mitigation — join to directory audit to recover approver UPN
     $audits = Invoke-Agt225Throttled {
@@ -766,7 +725,7 @@ function Test-Agt225ResearcherComputerUse {
     }
     $register = Get-Content -Raw $ZoneDecisionRegisterPath | ConvertFrom-Json
     $live = Invoke-Agt225Throttled {
-        Invoke-MgGraphRequest -Method GET -Uri '/beta/agents/researcher/computerUsePolicy'
+        throw 'ManualEvidenceRequired: verify the current feature-specific administration contract; no generic Graph computer-use policy route is established here.'
     }
     $rows = foreach ($zone in @('zone1','zone2','zone3')) {
         $declared = $register.$zone
@@ -821,10 +780,7 @@ function Invoke-Agt225BulkTemplateAssignment {
         if ($ConfirmMutation -and $PSCmdlet.ShouldProcess($a.AgentId, "Bind template $($a.TemplateId)")) {
             try {
                 Invoke-Agt225Throttled {
-                    Invoke-MgGraphRequest -Method PATCH `
-                        -Uri "/beta/agents/$($a.AgentId)" `
-                        -Body (@{ governanceTemplateId = $a.TemplateId } | ConvertTo-Json) `
-                        -ContentType 'application/json'
+                    throw 'ManualEvidenceRequired: template mutation adapter is unimplemented; do not PATCH an inferred Agent 365 route.'
                 }
                 $row.Applied      = $true
                 $row.ResultStatus = 'Applied'
@@ -1483,4 +1439,4 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted collection-contract correction only)*

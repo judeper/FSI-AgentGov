@@ -6,7 +6,7 @@ description: "This reference provides a consolidated taxonomy of audit events re
 !!! warning "Published Operations vs. Conceptual Categories"
     This taxonomy separates **published, searchable audit operations** ([Section 1](#published-searchable-audit-operations)) from **conceptual governance categories** ([Section 2](#conceptual-governance-categories-no-dedicated-microsoft-audit-operation)) that have no dedicated Microsoft audit operation as of June 2026. Build production KQL / `Search-UnifiedAuditLog` queries **only** from operations listed in Section 1. Each operation in Section 1 is cited to a specific Microsoft Learn page. See [Purview Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) for the full catalog.
 
-**Last Updated:** October 2026 (targeted CopilotActivity query correction; other taxonomy entries not re-verified)
+**Last Updated:** October 2026 (targeted Copilot connector/schema correction only)
 **Version:** v1.6.2
 
 ---
@@ -211,6 +211,8 @@ The governance categories below were originally presented as searchable operatio
 
 ## KQL Query Pack
 
+**Connector scope correction (2026-10-16):** The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) writes to [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). Query 3 below uses that normalized schema. The other OfficeActivity examples require independently verified local operation/field mappings; OfficeActivity is not a universal copy of the Purview log. Do not deploy those templates or infer missing activity until the relevant source connector and schema have been confirmed.
+
 ### Query 1: Agent 365 Tool Execution Tracking
 
 Track Agent 365 tool executions for change management and supervision evidence.
@@ -260,7 +262,7 @@ OfficeActivity
 
 ### Query 3: CopilotInteraction Audit for FINRA 3110/4511
 
-Capture interaction metadata and message/thread references. Audit records do not contain full prompt/response text; retrieve content through the separately authorized content-evidence path in Control 1.7. The native Microsoft Copilot connector uses [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity).
+Capture Copilot interactions with prompt/response tracking for regulatory record-keeping.
 
 ```kql
 // FINRA 3110/4511 Copilot Interaction Audit
@@ -268,9 +270,14 @@ CopilotActivity
 | where TimeGenerated > ago(24h)
 | where RecordType == "CopilotInteraction"
 | extend
+    userId = ActorUserId,
+    appHost = AppHost,
     conversationId = tostring(LLMEventData.ThreadId),
     accessedResources = LLMEventData.AccessedResources
-| project TimeGenerated, RecordId, ActorName, AppHost, conversationId, accessedResources
+| mv-expand AccessedResources = accessedResources
+| summarize
+    ResourceCount = dcountif(tostring(AccessedResources.Id), isnotempty(tostring(AccessedResources.Id)))
+    by TimeGenerated, userId, appHost, conversationId
 | order by TimeGenerated desc
 ```
 

@@ -116,9 +116,9 @@ Confirm the firm has a current acknowledgement (signed or workflow-recorded) of 
 
 ### PRE-03 - Audit log connector and Sentinel ingestion health
 
-Confirm the Microsoft 365 and Microsoft Copilot connectors (or explicitly mapped equivalent SIEM connectors) are connected, have ingested a known Microsoft 365 event in `OfficeActivity` and a known Copilot event in `CopilotActivity`, and have no unresolved connector-health alerts. `CopilotInteraction` is a record type, not a table. Match the Copilot source audit ID to `CopilotActivity.RecordId` ([table schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity)).
+Confirm the Microsoft 365 and Microsoft Copilot Sentinel connectors (or equivalent SIEM feeds) are connected, with known activity in `OfficeActivity` and a known `CopilotInteraction` event in [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity), respectively. Verify connector health and correlate the Copilot `RecordId` with Purview.
 
-**Pass criteria.** Both controlled events are observed within the firm's approved ingestion window and connector health is verified. Record first-observed UTC times separately from `TimeGenerated` (the event timestamp); a recent event timestamp is not proof of recent ingestion. Set tenant-baselined thresholds under PRE-04 rather than treating 15/30 minutes as Microsoft delivery commitments.
+**Pass criteria.** Last-ingestion timestamp on `OfficeActivity` within 15 minutes and on `CopilotActivity` within 30 minutes are framework test targets, not Microsoft latency commitments. Confirm known events within the approved test window and healthy connectors; a healthy status alone does not prove capture.
 
 **Evidence.** `pre-03-siem.json` with KQL output of last-ingestion times plus connector health.
 
@@ -904,4 +904,4 @@ Each cycle produces an `attestation.json` carrying three distinct-role signature
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit-evidence correction; tenant UI/runtime not exercised)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted ingestion criterion correction; tenant execution not tested)*

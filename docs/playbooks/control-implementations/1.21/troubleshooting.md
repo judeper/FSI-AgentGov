@@ -161,7 +161,7 @@ Each runbook below follows the canonical six-block structure: **Symptoms → Roo
 
 **Symptoms.** No Sentinel incidents fire for known-bad activity; Defender XDR shows alerts but Sentinel does not correlate; the Control 1.21 dashboard reports zero adversarial signals over a multi-day window despite Comm Compliance hits or red-team exercises.
 
-**Root cause.** Most commonly: (a) the required Copilot or Defender XDR solution/connector was not configured; (b) the analytic rule queries the wrong table (the native Microsoft Copilot connector writes to [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity), not `OfficeActivity`); (c) the analytic rule is enabled but its connector is disconnected; (d) workspace retention is shorter than the rule's lookback window.
+**Root cause.** Check the relevant Content Hub solutions and connectors, rule source tables, retention/lookback, and known-event arrival. The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) writes interaction audit records to `CopilotActivity`, not universally to `OfficeActivity`. A rule querying `AzureActivity` or `SecurityAlert` alone does not inspect that interaction feed. Validate Defender alert and Copilot audit paths independently.
 
 **Diagnostic queries (KQL).**
 
@@ -227,7 +227,7 @@ $results | Group-Object {([datetime]$_.CreationDate).Date} | Select-Object Name,
 
 # Check tenant-wide UAL lag (compare CreationDate to ingestion-observed time in Sentinel)
 # In KQL on the Sentinel workspace:
-# CopilotActivity
+# OfficeActivity
 # | where RecordType == "CopilotInteraction"
 # | extend LagMinutes = datetime_diff('minute', TimeGenerated, todatetime(CreationTime))
 # | summarize p50 = percentile(LagMinutes, 50), p95 = percentile(LagMinutes, 95) by bin(TimeGenerated, 1h)
@@ -418,9 +418,8 @@ SecurityAlert
 | join kind=inner (
     CopilotActivity
     | where RecordType == "CopilotInteraction"
-    | project UserId = ActorName, ClientIP = SrcIpAddr, AppId = AppIdentity, OperationTime = TimeGenerated
+    | project UserId=ActorName, ClientIP=SrcIpAddr, AppId=AppIdentity, OperationTime = TimeGenerated
 ) on $left.CompromisedEntity == $right.UserId
-| where abs(datetime_diff('minute', TimeGenerated, OperationTime)) <= 30
 | project TimeGenerated, AlertName, Description, UserId, AppId
 | summarize Count = count() by UserId, AppId
 | order by Count desc
@@ -452,7 +451,7 @@ SecurityAlert
 **Diagnostic queries.**
 
 ```kql
-// Guest-originated CopilotInteraction events
+// Guest-name heuristic only; enrich with directory membership for authoritative classification
 CopilotActivity
 | where TimeGenerated > ago(30d)
 | where RecordType == "CopilotInteraction"
@@ -716,4 +715,4 @@ Maintain a rolling 12-month trend-watch table that the Control 1.21 owner review
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted CopilotActivity schema correction; tenant UI/runtime not exercised)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector correction; tenant UI not tested)*

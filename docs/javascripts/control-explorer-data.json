@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T06:09:39Z",
+  "generatedAt": "2026-10-16T16:09:43Z",
   "count": 79,
   "controls": [
     {
@@ -1827,9 +1827,9 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
-      "objective": "Enforce policy-based restrictions on agent publishing to support compliance with FSI change management and security requirements by blocking publication when DLP violations exist, security scans fail, or approval workflows are not completed based on governance zone classification.",
+      "objective": "Enforce policy-based restrictions on agent publishing to support compliance with FSI change management and security requirements by blocking publication when DLP violations exist and using configured release gates when security findings or approval requirements are unresolved based on governance zone classification.",
       "primaryOwner": "Compliance Officer",
-      "effortLevel": "Low effort",
+      "effortLevel": "Higher effort",
       "primaryPlaybook": {
         "name": "Portal Walkthrough",
         "url": "playbooks/control-implementations/1.28/portal-walkthrough/"
@@ -1859,7 +1859,7 @@
         "Entra Global Admin",
         "Power Platform Admin"
       ],
-      "automation": "Automatable",
+      "automation": "Manual",
       "solutions": [],
       "playbooks": [
         {

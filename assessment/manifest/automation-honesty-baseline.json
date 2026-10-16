@@ -79,12 +79,6 @@
       "checks": 3,
       "reason": "claims full automation but only 0 of 3 checks have a registered evaluator"
     },
-    "1.28": {
-      "automation": "full",
-      "auto_evaluable": 0,
-      "checks": 2,
-      "reason": "claims full automation but only 0 of 2 checks have a registered evaluator"
-    },
     "1.29": {
       "automation": "partial",
       "auto_evaluable": 0,

@@ -46,7 +46,7 @@
 | 10 | A user was disabled or had their refresh tokens revoked, but is still seen accessing Copilot, SharePoint, or a Zone 3 agent for >30 minutes after revocation | [§10](#10-continuous-access-evaluation-not-propagating-revocations) |
 | 11 | A user's sign-in shows `ConditionalAccessStatus = notApplied` or two CA policies producing contradictory results; the audit shows multiple `Source = Microsoft` policies overlapping a custom policy | [§11](#11-conflicting-conditional-access-policies-producing-inconclusive-or-contradictory-results) |
 | 12 | Authentication Strengths blade is not visible under **Entra → Protection → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§12](#12-authentication-strengths-ui-not-visible) |
-| 13 | A managed identity attached to a Logic App or Function App is being denied by a CA Workload Identities policy that was meant to target only third-party SaaS service principals | [§13](#13-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
+| 13 | Managed-identity token failure incorrectly attributed to traditional workload CA; establish the actual failing control | [§13](#13-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
 | 14 | Copilot Studio publish action returns `conditional access required` even though the maker has registered a passkey and signed in successfully ten minutes earlier | [§14](#14-copilot-studio-publish-fails-with-conditional-access-required-despite-registered-passkey) |
 | 15 | An Entra Agent ID preview workload identity for a newly-deployed Copilot Studio agent does not appear in CA Workload Identities policy targeting pickers | [§15](#15-entra-agent-id-preview-service-principals-not-appearing-in-conditional-access-targeting) |
 
@@ -364,7 +364,7 @@ A scheduled batch — Logic App, Function App, Azure Automation runbook, custom 
 2. **The policy targets `All workload identities`** rather than a `Selected` set — see §13 for the related root cause.
 3. **The SP authenticates with a client secret**, and the policy's grant control is now "Block" for client-secret SPs as part of a phishing-resistant migration to certificate-based or federated credentials.
 4. **The SP is missing from the included scope** because the CA Workload Identities policy targets a curated `Approved-WorkloadIdentities` group and the SP was never added (governance gap).
-5. **Workload Identities Premium SKU is not assigned**, so the policy authored successfully but is enforcing inconsistently — see §1.5 of the Pre-Escalation Checklist in the parent control documentation.
+5. **Licensing or targeting assumptions are wrong.** Workload ID Premium is required to create/modify traditional workload CA; existing policies can continue functioning without it. Inspect actual identity eligibility, policy state, SP object-ID targeting, exclusions and evaluated logs before attributing a failure to licensing.
 
 ### Diagnostic Steps
 
@@ -883,13 +883,13 @@ The Authentication Policy Admin opens **Entra → Protection → Authentication 
 
 ### Symptom
 
-A system-assigned or user-assigned managed identity (MI) attached to an Azure resource (App Service, Function App, VM, AKS pod with workload identity federation) fails to acquire a Graph or Azure ARM token after a CA Workload Identities policy is enabled. Logs in `AADManagedIdentitySignInLogs` show `ConditionalAccessStatus = failure`.
+A managed identity attached to an Azure resource cannot acquire or use a token. **Technical correction verified 2026-10-16 (documentation only):** traditional workload CA does not cover managed identities or third-party/multitenant SaaS apps ([Microsoft scope](https://learn.microsoft.com/en-us/entra/identity/conditional-access/workload-identity)). Temporal coincidence with a policy change is not proof that this policy blocked the MI.
 
 ### Likely Cause
 
-1. **Policy scope set to "All workload identities"** rather than "Selected service principals". Managed identities are workload identities; an `All` scope sweeps them in.
-2. **No exclusion group for managed identities** — even with `Selected` scope, MIs may be included if the targeted group dynamically resolves to include them.
-3. **Named-location requirement** — the MI's egress IP (Azure datacenter range) is not on the allow-list.
+1. The actual token subject is not the assumed MI, or a resource authorization/credential/network control is failing.
+2. Evidence was joined to the wrong identity or policy.
+3. The failing operation uses a different policy type, such as an agent-specific or user policy; investigate that subject separately.
 
 ### Diagnostic Steps
 
@@ -903,19 +903,11 @@ AADManagedIdentitySignInLogs
 | order by TimeGenerated desc
 ```
 
-Portal: **Entra → Conditional Access → {policy} → Conditions → Workload identities** — confirm scope.
+Confirm the actual subject, resource, error/correlation IDs, and source log table. The query above is investigative only; absent or unmatched policy fields do not establish CA coverage.
 
 ### Resolution
 
-1. **Re-scope the policy** from `All workload identities` to `Selected service principals` targeting only the curated `Approved-WorkloadIdentities` group. Add a documented exclusion for the `MI-Excluded` group containing managed identities not appropriate to govern via this control.
-
-```powershell
-# -WhatIf — re-scope policy to Selected with exclusion
-$polId = "<policy-guid>"
-Write-Host "WhatIf: would PATCH policy $polId conditions.clientApplications.includeServicePrincipals to ['<approved-wid-group-guid>'] and excludeServicePrincipals to ['<mi-excluded-group-guid>']. Two-admin co-sign required."
-```
-
-2. **For MIs that should be governed**, add to the included group with the SP-owner attestation pattern from §4.
+Do not add group IDs to `includeServicePrincipals`/`excludeServicePrincipals` or attempt to bring MIs into traditional workload CA through group membership. Restore the actual failing control under separate approval. For eligible single-tenant SPs, target **SP object IDs** directly and verify evaluated sign-in evidence.
 
 ### Prevention
 
@@ -1029,4 +1021,4 @@ This troubleshooting playbook intersects the following controls. Consult their d
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted workload-CA documentation correction only)*

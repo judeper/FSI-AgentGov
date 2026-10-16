@@ -99,7 +99,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | Control | Control Name | Required License | Notes |
 |---------|--------------|------------------|-------|
 | **1.1** | Restrict Agent Publishing | Power Platform Premium | Managed Environments required |
-| **1.2** | Agent Registry | Microsoft 365 E3+ | Integrated Apps in M365 Admin |
+| **1.2** | Agent Registry | Feature-specific Microsoft 365 entitlement; Agent 365 for package API | Do not extrapolate Integrated Apps access to every collection plane. See [Control 1.2 sources](../playbooks/control-implementations/1.2/powershell-setup.md#documentation-verification-ledger), documentation reviewed 2026-10-16 |
 | **1.3** | SharePoint Content Governance | Microsoft 365 E3+ | SharePoint included; SAM for advanced |
 | **1.4** | Advanced Connector Policies | Power Platform Premium | Managed Environments + Environment Groups |
 | **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection. **Note:** DLP for Copilot *prompts* is available to all M365 Copilot/Copilot Chat users at no additional cost (any SKU); DLP to restrict Copilot from *processing files/emails* requires E5/Purview Suite |
@@ -108,9 +108,9 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.8** | Runtime Protection | Power Platform Premium + Microsoft Agent 365 (per-user) for AI Agent Inventory and Defender agent security from **July 1, 2026** | Managed Environments feature; Defender for Cloud Apps surfaces AI Agent Inventory during the grace period. **Effective July 1, 2026, AI Agent Inventory and Defender agent security require Microsoft Agent 365** (see **Note A** above). |
 | **1.9** | Data Retention | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
 | **1.10** | Communication Compliance | Microsoft 365 E5 or Microsoft Purview Suite | Purview Communication Compliance |
-| **1.11** | Conditional Access & MFA | Microsoft Entra ID P1 (basic) or P2 (advanced) | P2 for risk-based policies |
+| **1.11** | Conditional Access & MFA | User features: P1/P2; traditional workload CA create/modify: Workload ID Premium; agent CA: E7 or Agent 365 with Entra P1/M365 E3 | Different token subjects and supported identity types require separate [policy/licensing review](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) |
 | **1.12** | Insider Risk | Microsoft 365 E5 or E5 Insider Risk | Purview Insider Risk Management |
-| **1.13** | Sensitive Information Types | Microsoft 365 E5 or Microsoft Purview Suite | Custom SITs require E5 |
+| **1.13** | Sensitive Information Types | Feature-specific Purview entitlement | Custom pattern authoring is not universally E5-only; advanced classification and consuming DLP/label features have distinct benefited-user requirements. See the [Purview service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description) (documentation verified 2026-10-16; no tenant test). |
 | **1.14** | Data Minimization | Power Platform Premium | Environment-level controls |
 | **1.15** | Encryption | Microsoft 365 E3+ | Default encryption included |
 | **1.16** | IRM for Documents | Microsoft 365 E3+ | Azure Information Protection |
@@ -125,7 +125,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.25** | MIME Type Restrictions | Power Platform Premium | Managed Environments; optional Purview DLP |
 | **1.26** | Agent File Upload and File Analysis Restrictions | Power Platform Premium | Copilot Studio per-agent file upload controls; Purview DLP for Zone 2+ |
 | **1.27** | AI Agent Content Moderation Enforcement | Power Platform Premium | Native Copilot Studio content moderation |
-| **1.28** | Policy-Based Agent Publishing Restrictions | Power Platform Premium | Tenant DLP policies; PPAC security scans |
+| **1.28** | Policy-Based Agent Publishing Restrictions | Copilot Studio; implementation-dependent pipeline/approval and Purview entitlements | Tenant data policies; Copilot Studio automatic security warnings; separately configured approval gates |
 | **1.29** | Global Secure Access Network Controls | Microsoft Entra Internet Access | Secure Web and AI Gateway for Copilot Studio agents; requires GSA onboarding and a Dataverse-backed Power Platform environment. See [Secure Web and AI Gateway for agents](https://learn.microsoft.com/en-us/power-platform/admin/security/secure-web-ai-gateway-agents) and **Note B** (GSA prerequisites). |
 
 ---

@@ -5,7 +5,7 @@
 > Companion playbooks (do **not** duplicate content from these — link to them):
 >
 > - [Portal Walkthrough](./portal-walkthrough.md) — registry portal configuration
-> - [PowerShell Setup](./powershell-setup.md) — registry automation
+> - [PowerShell Setup](./powershell-setup.md) — read-only collection examples, not sponsor-signature or lifecycle-mutation automation
 > - [Verification Testing](./verification-testing.md) — registry test cases
 > - [Troubleshooting](./troubleshooting.md) — registry common issues
 >
@@ -34,8 +34,8 @@ This playbook provides:
 7. The **sponsorship evidence pack** specifying every artifact captured per attestation, including SHA-256 hash chaining for tamper-evidence.
 8. **Examiner readiness framing** mapping each artifact to specific regulations.
 
-!!! note "Preview features as of April 2026"
-    Microsoft Entra Agent ID, Agentic User accounts, and Power Platform agent approval centers remain in preview or staged GA in many regions. Lifecycle Workflows for Agentic Users have a narrower task catalog than for human users; several integrations in this playbook depend on custom extensions (Logic Apps or Azure Functions) that organizations must deploy. Verify feature availability in your tenant before implementation.
+!!! note "Documentation dependency reviewed 2026-10-16"
+    Do not carry April 2026 blanket preview assumptions into current operation. Verify each feature's present entitlement and support terms using the [Control 1.2 source ledger](powershell-setup.md#documentation-verification-ledger). Its signed file catalog authenticates collected files, not the three-person sponsor attestation chain, prior-cycle hash chain, lifecycle workflow, or retention configuration specified here. Those remain separate implementation and tenant-test requirements; no UI or workflow execution was performed in this review.
 
 !!! warning "Language and liability"
     This playbook helps meet — and is required for — supervisory expectations across FINRA, SEC, OCC, Federal Reserve, NYDFS, and FTC Safeguards regimes. It does **not** by itself constitute compliance. Implementation requires legal, compliance, and risk review tailored to your firm's business activities and regulatory profile. Organizations should verify every assertion against their own examination history.
@@ -944,4 +944,4 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 
 [Back to Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) · [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (collection/attestation dependency review only)*

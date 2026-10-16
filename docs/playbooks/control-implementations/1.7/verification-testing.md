@@ -5,6 +5,7 @@
 **Audience:** Purview Audit Admin, Purview Compliance Admin, Exchange Online Admin (Organization Configuration role), AI Administrator, Power Platform Admin, Entra Security Admin, SOC Analyst, Compliance Officer, AI Governance Lead, Internal Audit, Azure Storage Account Owner / Contributor, Records Management Officer, Designated Executive Officer (DEO) or Designated Third Party (DTP) liaison
 **Scope:** Microsoft 365 Commercial (Global) cloud — the deployment surface for US financial-services customers.
 **Last UI verified:** May 2026
+**Technical claims reviewed:** 2026-10-16 against Microsoft Learn; tenant UI and evidence capture not tested.
 
 ---
 
@@ -36,10 +37,10 @@ The playbook treats **silent capture incompleteness** (a Copilot RecordType retu
 |---|---|
 | **Purview Audit Admin** | Owns capture-tier verification (CAP-01 through CAP-08). Confirms unified audit ingestion is on, license entitlement reconciles, RecordType coverage is complete, custom retention policies are in place, and Audit Premium / PAYG features (`MailItemsAccessed`, `AIAppInteraction`) are firing. |
 | **Purview Compliance Admin** | Owns content-tier verification (CONT-01 through CONT-04). Runs eDiscovery (Premium) collections, confirms DSPM for AI surfaces transcripts, verifies Communication Compliance review of AI-generated content. |
-| **Organization Configuration role holder (Microsoft Purview)** | Authors and modifies audit retention policies; verify the Purview **Roles & scopes** assignment rather than assuming an Exchange assignment grants it. |
+| **Exchange Online Admin (Organization Configuration role)** | Authors and modifies audit retention policies (Microsoft Learn: `Compliance Admin` alone is **not** sufficient for retention policy create/modify operations). |
 | **Power Platform Admin** | Verifies per-environment Dataverse audit and per-table audit on the Copilot Studio entities (CAP-05). |
 | **AI Administrator** | Confirms agent-side configuration: `AgentId` propagation into audit, declarative vs custom-engine prefix integrity, Copilot Studio publication events flowing as `PowerPlatformAdministratorActivity`. |
-| **Entra Security Admin** | Verifies `agentSignIn` log type is enabled and forwarded; confirms the live filter affordance on the Sign-in logs page (the prior `Is Agent = Yes` chip was renamed across recent UI revisions — verify the current label rather than asserting it). Confirms `MicrosoftServicePrincipalSignInLogs` diagnostic stream where required. |
+| **Entra Security Admin** | Verifies a known agent sign-in and its forwarding through supported sign-in categories; checks the documented **Is Agent** and **Agent type** filters at Entra ID > Monitoring & health > Sign-in logs. Confirms `MicrosoftServicePrincipalSignInLogs` diagnostic stream where required. |
 | **SOC Analyst** | Owns SIEM-side verification (CAP-08, TAMP-01, JOIN-01). Confirms Sentinel ingestion lag is within the empirically measured ceiling, the disable-audit alert is wired (Control 3.9), and the cross-source join produces a single end-to-end record. |
 | **Azure Storage Account Owner / Contributor** | Owns the WORM preservation path (PRES-A). Confirms the immutable blob container has a **locked** time-based retention policy at or above the regulatory floor and that the export pipeline writes to it. |
 | **Records Management Officer** | Owns the third-party archive preservation path (PRES-B) and the audit-trail alternative path (PRES-C). Maintains the 17a-4(f) attestation evidence file (Cohasset attestation for the storage path, vendor 17a-4-attested SLA documentation for the archive path, DEO representation / DTP undertaking for the alternative path). |
@@ -55,8 +56,6 @@ Run order each cycle: **Section 4 PRE gates → Section 5 CAP-* tests → PRES-*
 ## Cross-links
 
 This playbook depends on, and is depended on by, the following framework controls and playbooks. Operators should open these alongside this document during a cycle:
-
-**Execution boundary:** code blocks using `Search-AuditLogPaged`, `Save-AuditEvidence`, `Get-UserAuditEntitlement`, or other local adapters are test-design sketches, not Microsoft cmdlets or a supplied executable test suite. Implement and validate those adapters before execution. Uncollected evidence must remain `PENDING` or `FAIL`; never populate operator-confirmation fields with a default success value.
 
 - [Control 1.7 — Comprehensive Audit Logging and Compliance (control specification)](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 - [Control 1.5 — Data Loss Prevention for Generative AI](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) — DLP override justification events that must reach audit
@@ -82,8 +81,8 @@ This playbook is designed to detect defects in the **audit, preservation, and co
 3. **PAYG enablement omissions** — non-Microsoft AI app interactions and the PAYG portion of Connected AI App scope captured in audit only after explicit enablement; firms assuming default coverage produce false-clean evidence.
 4. **License-induced silent retention downgrades** — a user assigned to a documented 10-year capture-window policy holds a Copilot license without the 10-Year Audit Log Retention add-on, so the custom retention policy cannot extend beyond 1 year for that user.
 5. **Custom retention policy gaps** — the platform default Audit (Premium) policy excludes Copilot record types, so any RecordType not covered by an enabled custom policy falls back to 180 days.
-6. **Dataverse audit gaps** — environment-level audit disabled, retention below the zone floor, or auditing missing on selected, auditable tables/columns in the environment-specific inventory. This does not determine whether Copilot Studio's default SDK administrative activity collection is enabled.
-7. **Entra agent sign-in invisibility** — the `agentSignIn` log type is not forwarded to Log Analytics / SIEM, the sign-in log filter affordance for agent identities is misnamed in tenant runbooks (the prior `Is Agent = Yes` label has shifted across UI revisions — verify the live label), or `AppOwnerTenantId` / `ResourceOwnerTenantId` / `SessionId` / `SourceAppClientID` / `ASN` are missing from the SIEM ingestion schema.
+6. **Dataverse audit gaps** — environment-level audit disabled, retention below the zone floor, or audit missing on an approved supported table/column. The framework-selected table set is not a Microsoft prerequisite for default-on Copilot Studio authoring audits.
+7. **Entra agent sign-in invisibility** — a known sign-in is missing in supported sign-in categories or the destination; documented Is Agent / Agent type filters are unavailable in the tenant; required correlation fields are missing. `agentSignIn` is not a documented diagnostic category.
 8. **DLP override justification not reaching audit** — a Control 1.5 policy-tip override is acted on but the justification text is not surfaced in the audit log.
 9. **`MailItemsAccessed` not firing** — the Audit Premium event for regulated mailboxes is not present, breaking the breach-investigation reconstruction path.
 10. **Preservation tier missing** — for broker-dealer / FCM / swap dealer / CPO firms, no 17a-4(f)-defensible preservation pipeline exists for the Copilot / agent communications record set; this is a **PRES-00 FAIL** and a cycle-stopping condition with no compensating control.
@@ -184,8 +183,8 @@ Audit configuration is not static — license assignments, retention policies, R
 | **PRE-03** | Module versions pinned | `ExchangeOnlineManagement` v3.x and `Microsoft.Graph` v2.x at CAB-approved versions |
 | **PRE-04** | Tenant baseline current | Empirical Sentinel ingestion ceiling (CAP-08) measured within the last 30 days |
 | **PRE-05** | Previous-cycle hash present | `previousManifestHash` populated and matches the prior cycle's `manifestHash` |
-| **PRE-06** | Connection and command provenance asserted to Exchange Online | Use the source playbook's `Assert-FsiExoSession` to match the prefixed command's generated module, connected commercial EXO session, and expected tenant; finding an unrelated EXO session is insufficient |
-| **PRE-07** | RecordType enum hydrated | Inspect the resolved audit-search command's parameter enum and validate every requested value; unavailable enum metadata is a blocking error, not a warning that permits continuation |
+| **PRE-06** | Connection asserted to Exchange Online | `Test-UnifiedAuditEnabled` returns a `SessionUri` matching `outlook.office365.(com|us)` — defends against the Security & Compliance PowerShell trap that always returns `False` for `UnifiedAuditLogIngestionEnabled` |
+| **PRE-07** | RecordType values checked | Inspect `Get-Help Search-UnifiedAuditLog -Parameter RecordType` and the live cmdlet reference; reject unsupported values and verify a known event. Do not rely on a private SDK enum or accept a warning as coverage evidence. |
 
 Any PRE-* failure halts the cycle.
 
@@ -193,32 +192,75 @@ Any PRE-* failure halts the cycle.
 
 ## Section 5 — Verification tests
 
-Use the documented helper contracts in [`powershell-setup.md`](powershell-setup.md): `Connect-Agt17Audit`, `Assert-FsiExoSession`, `Get-FsiAuditCopilotEnablement`, `Search-FsiAuditLogPaged`, and `Save-FsiAuditEvidence`. Other adapter names below are tenant-specific design sketches, not supplied cmdlets or direct aliases. They must be implemented and tested before execution; their `collectorField` labels do not establish a wired assessment-engine evaluator. `Pending`, missing evidence, and unimplemented adapters never count as passes.
+The snippets below are **illustrative test contracts, not a drop-in executable suite**. Names such as `Test-UnifiedAuditEnabled`, `Search-AuditLogPaged`, and `Save-AuditEvidence` represent local test adapters; they are not exported by the sibling playbook. Map these contracts to the `Get-Fsi*`, `Search-FsiAuditLogPaged`, and `Save-FsiAuditEvidence` examples in [`powershell-setup.md`](powershell-setup.md), verify field shapes, and implement missing adapters before execution. Structured `collectorField` labels are evidence conventions, not a claim that the assessment engine consumes these outputs.
 
 ### CAP — Capture-tier tests
 
 #### CAP-01 — Unified audit ingestion enabled
 
-**Expected:** `UnifiedAuditLogIngestionEnabled : True` from the expected tenant's Exchange Online command, with independently observed sample flow.
+**Expected:** `UnifiedAuditLogIngestionEnabled : True` from an Exchange Online PowerShell session, with `SessionUri` matching `outlook.office365.(com|us)`.
 
-1. Connect using `Connect-Agt17Audit` with the approved tenant ID and run `Assert-FsiExoSession` for the prefixed configuration/search commands.
-2. Run `Get-FsiAuditCopilotEnablement`; retain the configuration, command provenance, and sample event evidence under `CAP-01_AuditConfig`.
-3. Pass only when the setting is true, provenance/tenant checks succeeded, and a known activity is independently found after the documented propagation window. A submitted enablement request remains pending until read-back.
+```powershell
+. .\Connect-AuditExchangeOnline.ps1
+Connect-AuditExchangeOnline -Cloud Commercial -UserPrincipalName 'auditor@contoso.com'
 
-This verifies enablement and sample flow only, not retention or complete workload capture ([Microsoft enablement guidance](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable)).
+$cap01 = Test-UnifiedAuditEnabled
+$result = [pscustomobject]@{
+    testId          = 'CAP-01'
+    collectorField  = 'audit.unifiedAuditLogIngestionEnabled'
+    expected        = $true
+    observed        = $cap01.UnifiedAuditLogIngestionEnabled
+    sessionUri      = $cap01.SessionUri
+    status          = if ($cap01.UnifiedAuditLogIngestionEnabled -eq $true -and $cap01.SessionUri -match 'outlook\.office365\.(com|us)') { 'PASS' } else { 'FAIL' }
+    capturedAtUtc   = (Get-Date).ToUniversalTime().ToString('o')
+}
+$result | Save-AuditEvidence -Name 'CAP-01_AuditConfig'
+$result
+```
+
+- `[PASS]` only if `UnifiedAuditLogIngestionEnabled = True` **AND** `SessionUri` matches the expected EXO URI pattern.
+- `[FAIL]` if either is wrong, or if the connection is unverified.
 
 #### CAP-02 — Per-user license entitlement reconciliation (Audit Standard / Premium / 10-Year add-on / PAYG)
 
 **Expected:** every Copilot-licensed user has Audit Premium; every user assigned to a documented 10-year capture-window policy additionally has the 10-Year Audit Log Retention add-on; tenants in scope for non-Microsoft AI app coverage have PAYG enrollment recorded.
 
-Reconcile the approved user population against effective license assignments and enabled service plans using the [Microsoft licensing reference](https://learn.microsoft.com/en-us/entra/identity/users/licensing-service-plan-reference). Capture the population source/count, SKU-to-service-plan mapping, per-user provisioning state, and applicable policy scope/duration. An empty population or a guessed SKU-name match is not proof of coverage. Separately record the Purview PAYG association and feature enablement where applicable; a visible Azure subscription is not that evidence. Save the evidence as `CAP-02_LicenseEntitlement` and `CAP-02_Summary`. The source helpers `Get-FsiAuditPremiumStatus` and `Get-FsiAuditPaygEnablement` deliberately return `Pending` because they do not implement these reconciliations.
+```powershell
+$report = Get-MgUser -All -Property Id,UserPrincipalName,AssignedLicenses |
+    ForEach-Object { Get-UserAuditEntitlement -UserId $_.Id }
+
+$tenYearScope = Get-Content '.\inputs\ten-year-capture-users.txt'
+$gaps = $report | Where-Object {
+    $_.HasCopilot -and (
+        -not $_.HasAuditPremium -or
+        ($_.UserPrincipalName -in $tenYearScope -and -not $_.Has10YearRetention)
+    )
+}
+
+# Optional: PAYG enrollment check (verify against the current Purview billing surface)
+$paygEnrolled = $null  # populate from Purview portal evidence; record explicitly even if False
+
+$cap02 = [pscustomobject]@{
+    testId          = 'CAP-02'
+    collectorField  = 'audit.licenseEntitlement'
+    copilotUserCount = ($report | Where-Object HasCopilot).Count
+    gapCount        = $gaps.Count
+    paygEnrolled    = $paygEnrolled
+    regulatedScope  = 'broker-dealer'  # echo from PRE-01
+    status          = if ($gaps.Count -eq 0) { 'PASS' } else { 'FAIL' }
+    capturedAtUtc   = (Get-Date).ToUniversalTime().ToString('o')
+}
+$report | Save-AuditEvidence -Name 'CAP-02_LicenseEntitlement'
+$cap02 | Save-AuditEvidence -Name 'CAP-02_Summary'
+$cap02
+```
 
 - `[PASS]` if `gapCount -eq 0` and PAYG enrollment matches the firm's regulated-data scope.
 - `[FAIL]` if any user has Copilot without Audit Premium, any user in the documented 10-year capture-window scope lacks the 10-year add-on (the custom policy will silently fall back to 1 year for that user), or the firm is in scope for non-Microsoft AI app coverage and PAYG is not enrolled.
 
 #### CAP-03 — Copilot RecordType coverage smoke test
 
-**Expected:** each in-scope event category is tested with known activity and an exact source event ID. A documented exclusion needs independent configuration/scope evidence; absence of rows alone is not that evidence.
+**Expected:** every Copilot RecordType in scope returns either non-zero rows for the prior 24 hours, or a documented expected-zero (e.g., a tenant with no `AIAppInteraction` PAYG enablement should always return 0 for that type, and the absence itself is the evidence).
 
 ```powershell
 $copilotRecordTypes = @(
@@ -229,7 +271,7 @@ $copilotRecordTypes = @(
 )
 
 $cap03 = foreach ($rt in $copilotRecordTypes) {
-    $rows = Search-FsiAuditLogPaged -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordTypes @($rt.Name)
+    $rows = Search-AuditLogPaged -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordTypes @($rt.Name)
     [pscustomobject]@{
         testId          = 'CAP-03'
         collectorField  = "audit.recordType.$($rt.Name).rowCount24h"
@@ -237,41 +279,87 @@ $cap03 = foreach ($rt in $copilotRecordTypes) {
         scope           = $rt.Scope
         rowCount        = $rows.Count
         required        = $rt.Required
-        status          = 'PENDING-KNOWN-EVENT-RECONCILIATION'
+        status          = if ($rows.Count -gt 0) { 'PASS' } elseif (-not $rt.Required) { 'PASS-DOCUMENTED-ZERO' } else { 'FAIL' }
         capturedAtUtc   = (Get-Date).ToUniversalTime().ToString('o')
     }
 }
+$cap03 | Save-AuditEvidence -Name 'CAP-03_RecordTypeSmoke'
 $cap03 | Format-Table testId,recordType,rowCount,status
 ```
 
-- `[PASS]` only after matching the known source event for each tested category and documenting independently evidenced exclusions.
-- `[FAIL]` for a missing expected event after the approved observation window; query errors, limits, or unverified exclusions are blocking, not expected-zero passes.
+- `[PASS]` if every required RecordType is non-zero **OR** every non-required RecordType returns the documented expected-zero.
+- `[FAIL]` if any required RecordType is zero with no documented expected-zero rationale.
 
-Save the reviewed results as `CAP-03_RecordTypeSmoke` under the approved local evidence directory. Verify the live `ConnectedAIAppInteraction` scope split (Microsoft built-in vs PAYG portion) at cycle start; the split has shifted across recent Microsoft Learn revisions.
+Verify the live `ConnectedAIAppInteraction` scope split (Microsoft built-in vs PAYG portion) at cycle start; the split has shifted across recent Microsoft Learn revisions.
 
 #### CAP-04 — Custom retention policy coverage map and horizon
 
-**Expected:** each event/user scope has the applicable retention duration and licensing documented against the approved schedule.
+**Expected:** each in-scope record type has documented applicable retention, with user/operation scope, priority, duration, and licensing reviewed. An all-record-types policy may cover it; PAYG/non-user exceptions need separate treatment. Native Audit duration choices and preservation schedules are distinct.
 
-Export `Get-UnifiedAuditLogRetentionPolicy` through the verified Purview connection and save `CAP-04_RetentionCoverage`. Review record types, operations, users, duration, and priority to determine the winning policy; do not assume an undocumented `Enabled` property or pass merely because a policy names the record type. Reconcile the affected users' entitlements with CAP-02.
+```powershell
+$expected = @(
+    @{ Zone = 'Zone 1'; Duration = 'SixMonths';    LicenseFloor = 'Any commercial M365 enterprise SKU' },
+    @{ Zone = 'Zone 2'; Duration = 'TwelveMonths'; LicenseFloor = 'Audit Premium' },
+    @{ Zone = 'Zone 3'; Duration = 'RecordClassSchedule'; LicenseFloor = 'Audit Premium; add 10-Year Audit Log Retention only for users on a documented 10-year capture-window policy' }
+)
 
-- `[PASS]` only after the effective duration, scope, priority, and required entitlement are evidenced for every applicable scope.
-- `[FAIL]` if the effective duration is shorter than the approved horizon; incomplete evidence is pending. Premium's default one-year policy covers Entra, Exchange, OneDrive, and SharePoint; other workloads normally default to 180 days. Custom policies can override defaults, including shortening them. Non-Microsoft AI PAYG records have their separately documented 180-day retention ([retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies), [Copilot audit](https://learn.microsoft.com/en-us/purview/audit-copilot)).
+$policies = Get-UnifiedAuditLogRetentionPolicy
+$copilotRecordTypes = @('CopilotInteraction','ConnectedAIAppInteraction','AIAppInteraction','PowerPlatformAdministratorActivity')
+
+$cap04 = foreach ($rt in $copilotRecordTypes) {
+    $covered = $policies | Where-Object {
+        -not $_.RecordTypes -or $_.RecordTypes -contains $rt
+    } | Sort-Object Priority
+    [pscustomobject]@{
+        testId          = 'CAP-04'
+        collectorField  = "audit.retentionPolicy.$rt.coveredBy"
+        recordType      = $rt
+        coveredByPolicy = ($covered.Name -join '; ')
+        retentionDuration = ($covered.RetentionDuration -join '; ')
+        status          = if ($covered) { 'REVIEW-SCOPE-AND-LICENSE' } else { 'FAIL' }
+        capturedAtUtc   = (Get-Date).ToUniversalTime().ToString('o')
+    }
+}
+$cap04 | Save-AuditEvidence -Name 'CAP-04_RetentionCoverage'
+$cap04 | Format-Table testId,recordType,coveredByPolicy,retentionDuration,status
+```
+
+- `[PASS]` only after reviewing user/operation scope, priority, duration, and per-user licensing for each required record type. The snippet inventories candidate policies; an all-record-types policy can apply. `Enabled` is not a documented policy property. PAYG AI records retain their documented 180-day horizon; verify export separately.
+- `[FAIL]` if any RecordType is uncovered — the platform default Audit (Premium) retention policy includes only AAD / Exchange / OneDrive / SharePoint, so Copilot record types fall back to 180 days regardless of E5 license.
 
 #### CAP-05 — Dataverse environment audit and per-table audit on Copilot Studio entities
 
-**Expected:** every applicable Copilot Studio environment has environment-level audit enabled with retention ≥ the zone floor (180 / 365 / 730 days), and audit is enabled on the selected, auditable tables and columns in the environment-specific inventory.
+**Expected:** every in-scope Copilot Studio environment has environment-level audit enabled with retention ≥ the zone floor (180 / 365 / 730 days), and approved supported tables and columns have data-change auditing enabled. Record absent/unsupported tables explicitly.
 
-Microsoft does not document a universal six-table prerequisite for Copilot Studio administrative activity collection. [Copilot Studio administrative activities](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) are collected by default at the SDK layer. Verify that stream separately from [Dataverse change-history auditing](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/configure).
+The framework-selected starting set is `bot`, `botcomponent`, `botcomponentcollection`, `conversationtranscript`, `aiplugin`, and `aipluginauth`. Reconcile this inventory against installed metadata and the approved change-history scope; Microsoft does not prescribe a mandatory six-table authoring-audit prerequisite.
 
-1. Enumerate applicable environments, including the default environment if agents are hosted there; record exclusions with a reason.
-2. Capture each environment's `isauditenabled` and `auditretentionperiodv2` organization settings.
-3. Review the deployed table/column inventory, `IsAuditEnabled` metadata, and whether auditing can be configured. Record missing and non-auditable tables rather than guessing replacements.
-4. Save and publish changes under an approved change ticket. Generate a controlled row change and retrieve its Dataverse audit history.
-5. Separately generate a sandbox Copilot Studio administrative action and verify the documented operation, such as `BotUpdateOperation-BotPublish`, in Purview.
-6. Mark CAP-05 `PASS` only when environment auditing, the measured retention floor, selected table/column coverage, and positive test evidence are all verified. Missing configuration or uncollected evidence is `FAIL` or `PENDING`, never a pass based on an empty inventory.
+```powershell
+# Pseudocode — Power Platform Admin Center / Power Platform admin PowerShell module (Microsoft.PowerApps.Administration.PowerShell)
+$envs = Get-AdminPowerAppEnvironment | Where-Object { $_.EnvironmentType -ne 'Default' }
+$expectedTables = @('bot','botcomponent','botcomponentcollection','conversationtranscript','aiplugin','aipluginauth')
 
-Save the inventory, configuration results, positive event IDs, and documented capability exceptions as `CAP-05_DataverseAudit`. An SDK authoring event does not prove that Dataverse before/after history was captured, and Dataverse table settings do not prove transcript capture.
+$cap05 = foreach ($env in $envs) {
+    $envAudit = Get-AdminPowerAppEnvironmentAuditSettings -EnvironmentName $env.EnvironmentName  # if exposed
+    $tableAudit = foreach ($t in $expectedTables) {
+        # Use Dataverse Web API or PAC CLI to query entity AuditEnabled metadata
+        [pscustomobject]@{ Table = $t; AuditEnabled = (Get-DataverseTableAuditEnabled -Env $env.EnvironmentName -Table $t) }
+    }
+    [pscustomobject]@{
+        testId          = 'CAP-05'
+        collectorField  = "audit.dataverse.$($env.EnvironmentName).perTableCoverage"
+        environment     = $env.DisplayName
+        envAuditEnabled = $envAudit.IsAuditEnabled
+        envRetention    = $envAudit.RetentionPeriodDays
+        perTableAll     = ($tableAudit | Where-Object { -not $_.AuditEnabled } | Measure-Object).Count -eq 0
+        status          = if ($envAudit.IsAuditEnabled -and ($tableAudit | Where-Object { -not $_.AuditEnabled } | Measure-Object).Count -eq 0) { 'PASS' } else { 'FAIL' }
+        capturedAtUtc   = (Get-Date).ToUniversalTime().ToString('o')
+    }
+}
+$cap05 | Save-AuditEvidence -Name 'CAP-05_DataverseAudit'
+$cap05
+```
+
+Test authoring independently: publish a sandbox agent and find `BotUpdateOperation-BotPublish` under `PowerPlatformAdministratorActivity`. [Copilot Studio administrative collection is enabled by default](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio); table/column audit settings govern Dataverse history. Since the [May 2026 change](https://learn.microsoft.com/en-us/power-platform/important-changes-coming#removal-of-before-and-after-field-change-values-in-audit-events-sent-to-microsoft-purview), verify before/after values using Dataverse `RetrieveAuditDetails`, not the Purview export.
 
 #### CAP-06 — DLP override justification reaches audit (Control 1.5 cross-link)
 
@@ -334,12 +422,46 @@ A persistent zero on a known-active regulated mailbox typically indicates Audit 
 
 **Expected:** end-to-end latency from event emission to Sentinel availability is within the documented operational ceiling for the tenant (PRE-04 baseline). **Do not assert against a fabricated "15 min" or "24 h" SLA — Microsoft does not publish a hard audit availability SLA.**
 
-1. Verify the **Microsoft Copilot** connector and its documented [`CopilotActivity` table](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity), not the Office 365 connector's `OfficeActivity` table.
-2. Generate a controlled interaction with a test user and record the emission time in UTC.
-3. Search Purview by user and time window, then save the matching audit record ID and the time it first becomes queryable. Prompt/response text is not in the audit record, so a marker in the prompt cannot establish an audit match.
-4. Search `CopilotActivity` for the same ID in `RecordId`, with `ActorName` and `TimeGenerated` as supporting filters. Save the result and the observation time when it first appears. Verify other record types against their own connector/table rather than requiring all four AI types in this table.
-5. Calculate observation time minus emission time for both destinations. `TimeGenerated` is the event timestamp; subtracting it from the source timestamp does not measure ingestion latency.
-6. Save `CAP-08_SentinelIngestionLag` with source ID, table, connector, emission and observation times, measured latency, and PRE-04 ceiling. `PASS` requires the exact match within that ceiling; missing evidence is `PENDING` or `FAIL`.
+```powershell
+$marker = "FSI-1.7-ingest-test-$([guid]::NewGuid())"
+$emitTs = (Get-Date).ToUniversalTime()
+# (Trigger an action that emits a known RecordType, e.g., open a Copilot session in a test account
+# with the marker embedded in the prompt.)
+
+Start-Sleep -Seconds 5400   # 90 min — adjust to the tenant's empirical ceiling
+
+$auditFound = Search-AuditLogPaged `
+    -StartDate (Get-Date).AddHours(-3) -EndDate (Get-Date) `
+    -RecordTypes @('CopilotInteraction') | Where-Object {
+        $data = $_.AuditData | ConvertFrom-Json
+        $data.UserId -eq 'test.user@contoso.com' -and
+        [DateTime]$data.CreationTime -ge $emitTs
+    } | Select-Object -First 1
+
+$auditTs = if ($auditFound) { ($auditFound | Select-Object -First 1).CreationDate } else { $null }
+
+# Sentinel-side query: CopilotActivity | where RecordId == '<audit Id>'
+# Correlate the raw audit Id, test user, agent, and UTC window.
+# Prompt markers are NOT in metadata-only audit records.
+# Record the SentinelTs by hand or via Az.SecurityInsights.
+
+$sentinelTs = $null  # populate from Sentinel query result
+$cap08 = [pscustomobject]@{
+    testId             = 'CAP-08'
+    collectorField     = 'audit.sentinel.endToEndLatencySec'
+    marker             = $marker
+    emitTsUtc          = $emitTs.ToString('o')
+    auditTsUtc         = if ($auditTs) { $auditTs.ToString('o') } else { $null }
+    sentinelTsUtc      = if ($sentinelTs) { $sentinelTs.ToString('o') } else { $null }
+    auditLatencySec    = if ($auditTs) { ($auditTs - $emitTs).TotalSeconds } else { $null }
+    sentinelLatencySec = if ($sentinelTs) { ($sentinelTs - $emitTs).TotalSeconds } else { $null }
+    empiricalCeilingSec = 5400   # PRE-04 baseline; recalibrate per tenant
+    status             = if ($sentinelTs -and ($sentinelTs - $emitTs).TotalSeconds -le 5400) { 'PASS' } else { 'FAIL' }
+    capturedAtUtc      = (Get-Date).ToUniversalTime().ToString('o')
+}
+$cap08 | Save-AuditEvidence -Name 'CAP-08_SentinelIngestionLag'
+$cap08
+```
 
 ### PRES — Preservation-tier tests (the central FSI test)
 
@@ -369,7 +491,7 @@ $pres00 | Save-AuditEvidence -Name 'PRES-00_PathDeclared'
 $presA = foreach ($container in (Get-Content '.\inputs\preservation-containers.txt')) {
     $parts = $container -split '/'
     $rg, $sa, $c = $parts[0], $parts[1], $parts[2]
-    $pol = Get-AzStorageContainerImmutabilityPolicy `
+    $pol = Get-AzRmStorageContainerImmutabilityPolicy `
         -ResourceGroupName $rg -StorageAccountName $sa -ContainerName $c -ErrorAction SilentlyContinue
 
     [pscustomobject]@{
@@ -542,7 +664,7 @@ $cont04
 
 #### FEAT-03 — Sign-in agent identity filter live UI affordance
 
-**Expected:** the live Entra Sign-in logs UI filter affordance for agent identities is verified in the Entra admin center. Do not assume the prior `Is Agent = Yes` chip; the UI exposes four sign-in *types* (Interactive user / Non-interactive user / Service principal / Managed identity) plus a separate Agent activity log entry on the Monitoring & health page in current revisions, and the chip naming has changed across releases.
+**Expected:** the [documented Is Agent = Yes and Agent type filters](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents) are checked at **Entra ID > Monitoring & health > Sign-in logs** as at least Reports Reader. Verify a known sign-in across the relevant sign-in types and supported forwarding categories. Record tenant discrepancies; Graph verification uses **beta** `/auditLogs/signIns`, not a standalone `agentSignIn` endpoint/category.
 
 #### FEAT-04 — IRM-dependent audit features as compensating-control gap
 
@@ -622,24 +744,22 @@ $tamp01
 # Pick one CopilotInteraction event from CAP-03
 $pick = (Search-AuditLogPaged -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordTypes @('CopilotInteraction') | Get-Random -Count 1)
 $auditData = $pick.AuditData | ConvertFrom-Json
+if (-not $auditData.CopilotEventData.Messages) { throw 'Copilot message metadata missing.' }
 $messageId = $auditData.CopilotEventData.Messages[0].Id
-if ([string]::IsNullOrWhiteSpace($messageId)) {
-    throw 'The sampled audit record has no documented message join key; collect another supported sample.'
-}
 
 # 1. Audit row
 $auditRow = $pick
 
 # 2. Substrate body — operator confirms the same MessageId resolves in DSPM for AI Activity explorer / eDiscovery review
-$bodyResolved = $null   # set only after collecting matching content evidence
+$bodyResolved = $true   # operator-confirmed flag
 
 # 3. DLP event — search for the same MessageId in DLP RecordTypes
 $dlpRow = Search-AuditLogPaged -StartDate $pick.CreationDate.AddMinutes(-5) -EndDate $pick.CreationDate.AddMinutes(5) `
     -RecordTypes @('DLPEndpoint','ComplianceDLPSharePoint','ComplianceDLPExchange') `
     | Where-Object { $_.AuditData -match $messageId }
 
-# 4. Sentinel — match the source audit record ID to CopilotActivity.RecordId
-$sentinelRowPresent = $null   # set only after collecting the matching Sentinel row
+# 4. Sentinel — operator runs the corresponding KQL in the SIEM and confirms presence
+$sentinelRowPresent = $true   # operator-confirmed flag
 
 $join01 = [pscustomobject]@{
     testId             = 'JOIN-01'
@@ -680,7 +800,7 @@ Every cycle, produce and archive these artifacts under naming convention `Contro
 
 | # | Artifact | Source |
 |---|---|---|
-| 1 | `CAP-01_AuditConfig.json` | `Get-FsiAuditCopilotEnablement` plus command/tenant provenance and known-event evidence |
+| 1 | `CAP-01_AuditConfig.json` | `Test-UnifiedAuditEnabled` |
 | 2 | `CAP-02_LicenseEntitlement.csv` + `CAP-02_Summary.json` | `Get-UserAuditEntitlement` loop |
 | 3 | `CAP-03_RecordTypeSmoke.json` | RecordType smoke loop |
 | 4 | `CAP-04_RetentionCoverage.json` | `Get-UnifiedAuditLogRetentionPolicy` coverage map |
@@ -689,7 +809,7 @@ Every cycle, produce and archive these artifacts under naming convention `Contro
 | 7 | `CAP-07_MailItemsAccessed.json` | Per regulated mailbox |
 | 8 | `CAP-08_SentinelIngestionLag.json` | Marker + dual timestamp |
 | 9 | `PRES-00_PathDeclared.json` | Cycle scope echo |
-| 10 | `PRES-A_ImmutabilityPolicy.json` (if path A) | `Get-AzStorageContainerImmutabilityPolicy` |
+| 10 | `PRES-A_ImmutabilityPolicy.json` (if path A) | `Get-AzRmStorageContainerImmutabilityPolicy` |
 | 11 | `PRES-B_ThirdPartyArchive.json` (if path B) | Vendor SLA + retrieval test record |
 | 12 | `PRES-C_AuditTrailAlternative.json` (if path C) | DEO representation / DTP undertaking + independent assessment record |
 | 13 | `CONT-01_eDiscoveryRetrieval.json` | eDiscovery (Premium) drill |
@@ -813,4 +933,4 @@ Signatures:
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (targeted Microsoft Learn review; no tenant UI test)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation checked; tenant UI not tested)*

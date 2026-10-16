@@ -285,10 +285,10 @@ The Standard DLP templates (Financial, Privacy, etc.) **do not surface** the *Mi
 **Rule A — SIT condition (Surface 7, prompt-blocking, preview):**
 
 1. **+ Create rule** → name `Rule-A-SITs-Copilot-Prompts`.
-2. **Conditions → Content contains → Add → Sensitive info types** → select SITs and EDM classifiers from §1.2 (U.S. SSN, U.S. Bank Account Number, ABA Routing Number, custom MNPI EDM, etc.). Record confidence and proximity.
+2. **Conditions → Content contains → Add → Sensitive info types** → select supported built-in/custom SITs (for example SSN or U.S. Bank Account Number) validated for **typed prompt text**. Do not infer EDM, fingerprint, NER, or trainable-classifier support from another DLP location. Uploaded-file contents and grounding files are not scanned by this prompt condition; see [Control 1.13 verification](../1.13/verification-testing.md).
 3. Leave the *Content contains → Sensitivity labels* row empty for this rule.
-4. **Actions:** **Restrict Copilot from processing prompts containing this content** (preview).
-5. Configure policy tips, override-with-justification, and incident report (§4.2 conventions).
+4. **Actions:** **Prevent Copilot from processing content → Processing prompts** (preview; verify rollout). **Performing Web Searches** is a distinct action and can leave internal-grounded answers available.
+5. Configure supported notifications/incident reports; do not assume a generic override-with-business-justification action. A custom compliance URL changes only the help-link destination, not the standard block text. Documentation verified 2026-10-16; tenant UI not tested.
 6. Save the rule.
 
 **Rule B — Sensitivity label condition (Surface 6, grounding-content blocking, GA):**

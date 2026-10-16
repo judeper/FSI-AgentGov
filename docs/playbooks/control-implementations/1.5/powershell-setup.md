@@ -333,7 +333,7 @@ function Get-FsiSensitivityLabelInventory {
 
 ## §8 — SIT / EDM / dictionary authoring (cross-link to Control 1.13)
 
-Read-side: `Get-DataClassification`, `Get-DlpSensitiveInformationType`, `Get-DlpEdmSchema`, `Get-DlpKeywordDictionary`. Mutation: `New-DlpSensitiveInformationType`, `Set-DlpSensitiveInformationType`, `New-DlpEdmSchema`, `Edit-DlpEdmSchema`, `New-DlpKeywordDictionary`, `Set-DlpKeywordDictionary`.
+Read-side: `Get-DataClassification`, `Get-DlpSensitiveInformationType`, `Get-DlpEdmSchema`, `Get-DlpKeywordDictionary`. Custom regex SIT authoring uses rule-package XML cmdlets; `New-DlpSensitiveInformationType` is the fingerprint workflow. EDM schema changes use documented `Set-DlpEdmSchema`, not `Edit-DlpEdmSchema`. Follow Control 1.13's supported examples rather than treating schema existence as upload proof.
 
 EDM is the canonical mechanism for **MNPI watchlists** (deal-codename rotations, restricted-list tickers). The schema and the upload pipeline live in [Control 1.13](../1.13/portal-walkthrough.md); from Control 1.5 the consumption pattern is:
 
@@ -342,11 +342,14 @@ EDM is the canonical mechanism for **MNPI watchlists** (deal-codename rotations,
 $edm   = Get-DlpEdmSchema
 $dicts = Get-DlpKeywordDictionary
 
-$edm | Select-Object Name, IsValid, RowCount, LastUpdatedTime
-$dicts | Select-Object Name, Identity, FileData.Length
+$edm | Format-List *
+$dicts | Format-List *
+# Get-DlpEdmSchema is schema inventory, not an upload/row-count oracle.
+# Capture EDM Upload Agent /GetDataStore and /GetSession separately.
 
 # In a rule definition
 # -ContentContainsSensitiveInformation @(@{ name = '<edmSitGuidMnpiTickers>'; mincount = 1 })
+# Use only a supported consuming location; do not infer Copilot prompt EDM support.
 ```
 
 Authoring an EDM-backed SIT and a dictionary (non-mutating preview):

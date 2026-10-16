@@ -227,7 +227,7 @@ Verify required tables exist in your workspace:
 // List available tables
 search *
 | distinct $table
-| where $table has_any ("PowerPlatform", "Office", "Signin", "AuditLogs")
+| where $table has_any ("PowerPlatform", "Office", "Copilot", "Signin", "AuditLogs")
 | order by $table asc
 ```
 
@@ -237,6 +237,7 @@ Expected tables for full governance coverage:
 |-------|---------|--------------|
 | `PowerPlatformAdminActivity` | Power Platform admin actions | Controls 2.1, 2.2, 3.1 |
 | `OfficeActivity` | Microsoft 365 audit events | Controls 1.7, 3.2 |
+| `CopilotActivity` | Microsoft Copilot connector interaction metadata; verify a known `RecordId` | Controls 1.7, 3.9 |
 | `SigninLogs` | Microsoft Entra ID sign-ins | Control 1.11 |
 | `AuditLogs` | Microsoft Entra ID directory changes | Control 1.18 |
 | `SecurityAlert` | Sentinel alerts | Control 3.9 |
@@ -341,4 +342,4 @@ Before deploying governance scripts to production:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit table inventory correction; tenant execution not tested)*
