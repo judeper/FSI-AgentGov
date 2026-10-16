@@ -189,8 +189,8 @@ This rollout sequence is mandatory for Zone 2 and Zone 3 deployments under Contr
 1. Microsoft Purview portal → Data Loss Prevention → Policies → **+ Create policy** → Custom → name `FSI-Copilot-DLP-ReportOnly`.
 2. Locations → toggle **Microsoft 365 Copilot** ON. Toggle all other locations OFF for now (we are isolating the Copilot signal).
 3. Create at least three rules covering your firm's top-three sensitive data classes (e.g., MNPI, SSN, PCI). For each rule:
-    - Conditions: Sensitive Information Type matches (use your firm's SITs from Control 1.13) **OR** sensitivity label is "Confidential" or above.
-    - Actions: **Audit only**. Do NOT enable block, restrict, or notify actions in Stage 1.
+    - Conditions: Use **separate rules** for supported built-in/custom SITs in typed prompts and sensitivity labels on grounding files/emails; never combine them with OR in one rule. Uploaded-file contents are not scanned by the prompt SIT condition. See [Control 1.13 verification](../1.13/verification-testing.md).
+    - Configure the applicable supported action, then run the **policy in simulation** without notifications for Stage 1; simulation is not grounding/prompt enforcement.
 4. Policy mode → **Run the policy in test mode without notifications**. Confirm. Save.
 5. Wait 72 hours for soak. Then export Activity Explorer events for the policy and review with Compliance.
 
@@ -210,9 +210,9 @@ This rollout sequence is mandatory for Zone 2 and Zone 3 deployments under Contr
 2. Microsoft Purview portal → DLP → Policies → open `FSI-Copilot-DLP-ReportOnly` → **Edit policy**.
 3. Rename to `FSI-Copilot-DLP-Pilot`.
 4. Scope → Restrict to pilot user group (must be a security group or M365 group, not a distribution list).
-5. For each rule, change Action from Audit-only to **Block with override** for sensitivity-label rules and **Block** (no override) for SSN/PCI rules.
-6. User notifications → ON. Use the firm-approved notification text (see [Troubleshooting](troubleshooting.md) §3 for template).
-7. Save. Wait 24 hours. Validate with three test prompts using a pilot user account.
+5. Use **Prevent Copilot from processing content** for the label rule; for the separate typed-prompt SIT rule use **Processing prompts** (preview, verify rollout). Do not assume generic block-with-override or response-redaction semantics.
+6. Configure supported notifications; a custom compliance URL changes the help-link destination, not standard block text.
+7. Save and allow up to four hours for policy updates. Validate typed-prompt positives/negatives separately from labeled grounding files/emails; excluded files can remain as citations. This correction is documentation-verified 2026-10-16; tenant UI not tested.
 8. Stand up the operational runbook: ticket queue, on-call rotation, daily false-positive triage meeting (15 min/day for first two weeks).
 
 **Stage 2 exit criteria:**

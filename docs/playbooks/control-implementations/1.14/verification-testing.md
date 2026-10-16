@@ -106,7 +106,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 1. Run `Get-AdminAuditLogConfig | Select UnifiedAuditLogIngestionEnabled` and confirm `True`.
 2. For each workload above, run `Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) -RecordType {workload} -ResultSize 1` and confirm at least one row is returned.
-3. Page the search using `-SessionId` and `-SessionCommand ReturnLargeSet` to confirm the harness avoids the basic 10,000-row cap (this is the same trap class documented in 1.13 anti-pattern §7.13).
+3. Page with a fixed `-SessionId`, `-SessionCommand ReturnLargeSet`, and integer `-ResultSize` up to 5,000; split the time window at the 50,000-result session limit. Preserve each page and record completeness (the same trap class described in the Control 1.13 anti-patterns).
 
 **Expected.** UAL enabled; each workload returns at least one event in the last 7 days; paged search completes without exceeding the cap.
 
@@ -373,7 +373,7 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 **Objective.** Cross-reference inventory `dataClassification` values against the Control 1.13 SIT catalog so that a "public" classification cannot be applied to a data source that 1.13 has labelled as containing NPI.
 
-**Preconditions.** INV-02 passed; Control 1.13 SIT inventory export.
+**Preconditions.** INV-02 passed; Control 1.13 SIT inventory plus a firm-maintained data-source classification map backed by workload scans. The SIT-definition inventory alone is not a content/data-source detection map, and this repository does not ship the firm's map.
 
 **Steps.**
 

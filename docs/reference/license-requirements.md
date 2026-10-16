@@ -110,7 +110,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.10** | Communication Compliance | Microsoft 365 E5 or Microsoft Purview Suite | Purview Communication Compliance |
 | **1.11** | Conditional Access & MFA | Microsoft Entra ID P1 (basic) or P2 (advanced) | P2 for risk-based policies |
 | **1.12** | Insider Risk | Microsoft 365 E5 or E5 Insider Risk | Purview Insider Risk Management |
-| **1.13** | Sensitive Information Types | Microsoft 365 E5 or Microsoft Purview Suite | Custom SITs require E5 |
+| **1.13** | Sensitive Information Types | Feature-specific Purview entitlement | Custom pattern authoring is not universally E5-only; advanced classification and consuming DLP/label features have distinct benefited-user requirements. See the [Purview service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description) (documentation verified 2026-10-16; no tenant test). |
 | **1.14** | Data Minimization | Power Platform Premium | Environment-level controls |
 | **1.15** | Encryption | Microsoft 365 E3+ | Default encryption included |
 | **1.16** | IRM for Documents | Microsoft 365 E3+ | Azure Information Protection |

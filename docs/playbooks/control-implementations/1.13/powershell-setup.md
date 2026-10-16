@@ -1,5 +1,7 @@
 # Control 1.13 — PowerShell Setup: Sensitive Information Types and Pattern Recognition
 
+**Last Verified:** 2026-10-16 — documentation-only review against Microsoft Learn; no tenant sessions, commands, or UI tests performed.
+
 > **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.13 — *Sensitive Information Types (SITs) and Pattern Recognition*. It covers the six Microsoft Purview detection paths (built-in SITs, custom pattern SITs, named entities, trainable classifiers, Exact Data Match (EDM), and keyword dictionaries) as they apply to AI-agent governance for US financial-services tenants in the Microsoft the Microsoft commercial cloud.
 >
 > **Companion documents.**
@@ -28,10 +30,10 @@ Control 1.13 has *three* PowerShell surfaces that look interchangeable and are n
 
 ### PowerShell edition guard
 
-`ExchangeOnlineManagement` v3.5 supports both Windows PowerShell 5.1 and PowerShell 7.2+. SCC REST cmdlets (the ones returning `*Compliance*`, `*Dlp*`, `*Classifier*`, `*Edm*`, `*SensitiveInformation*`) are REST-based and therefore work on both editions, but several legacy cmdlets still rely on WinRM remoting and only work in 5.1. Standardise on PowerShell 7.4 LTS for new automation and add an explicit edition guard at the top of every script:
+For the pinned `ExchangeOnlineManagement` 3.5.0 examples below, use PowerShell **7.4+** on a supported Windows host, not 7.2. The [current compatibility matrix](https://learn.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2) requires 7.4+ for module 3.5.0–3.9.2 and 7.6+ for 3.10.0+. Windows PowerShell 5.1 is separately supported. IPPS is not currently supported on PowerShell 7 Linux/macOS. Validate the approved module/runtime pair; these illustrative pins do not supersede patch review.
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 
 if ($PSVersionTable.PSEdition -ne 'Core') {
@@ -50,7 +52,7 @@ Every Control 1.13 script begins with the same five preconditions: PowerShell ed
 Save as `Initialize-Agt113Session.ps1` in your shared automation library:
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 #Requires -Modules @{ ModuleName = 'Microsoft.Graph.Authentication'; RequiredVersion = '2.15.0' }
 #Requires -Modules @{ ModuleName = 'Microsoft.Graph.Identity.DirectoryManagement'; RequiredVersion = '2.15.0' }
@@ -112,15 +114,13 @@ function Initialize-Agt113Session {
         Connect-MgGraph -Environment $endpoints.GraphEnvironment -Scopes $graphScopes -NoWelcome
     }
 
-    # 5. Role check via Graph (avoids reliance on the RBAC role group cmdlets).
+    # 5. Direct directory-role inventory only; Purview RBAC is a separate check.
     $me   = Get-MgUser -UserId $AdminUpn -ErrorAction Stop
     $assigns = Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '$($me.Id)'" -ExpandProperty RoleDefinition
     $held = $assigns.RoleDefinition.DisplayName | Sort-Object -Unique
     $hit  = $held | Where-Object { $RequiredRoles -contains $_ }
-    if (-not $hit) {
-        throw "Operator $AdminUpn does not hold any of the required roles: $($RequiredRoles -join ', '). Held: $($held -join ', ')."
-    }
-    Write-Information "Role check OK. Operator holds: $($hit -join ', ')" -InformationAction Continue
+    Write-Information "Direct directory-role inventory: $($held -join ', ')" -InformationAction Continue
+    Write-Warning 'This does not evaluate Purview role groups, group-based grants, PIM activation, or assigned-user feature entitlement. Complete PRE-01 and PRE-04 separately.'
 
     # 6. Tenant SKU check.
     $skus = Get-MgSubscribedSku
@@ -150,10 +150,10 @@ function Initialize-Agt113Session {
 | Read SIT / dictionary / classifier inventory | Compliance Data Administrator | Read-only; preferred for inventory scripts |
 | Author or modify SITs, dictionaries, EDM schemas | Compliance Administrator **or** Information Protection Administrator | Use Information Protection Administrator where the tenant has split duties |
 | Author DLP policies that bind SITs to Copilot / Exchange / SharePoint workloads | Compliance Administrator | Policy cmdlets enforce this server-side |
-| EDM `EdmUploadAgent.exe` data upload | Compliance Administrator + on-host membership of `EDM_DataUploaders` security group | Group membership is enforced by the agent, not by IPPS |
+| EDM `EdmUploadAgent.exe` data upload | Authorized work/school account in the tenant's `EDM_DataUploaders` security group | Not a local host group; schema administration requires separate Purview permissions |
 | Trainable classifier publish | Compliance Administrator + tenant-level FSI governance gate sign-off (§8) | Model-risk governance is procedural, not technical |
 
-Use the canonical short role names (`Purview Compliance Admin`, `Purview Compliance Data Admin`, `Information Protection Admin`) when documenting evidence. The Graph display names (`Compliance Administrator`, etc.) are what the API returns and what the helper above checks.
+Use canonical short role names when documenting evidence. The bootstrap's direct Graph inventory is supplementary, not an authorization oracle for Purview role groups. Tenant SKU presence also does not prove a user is licensed; complete feature-specific PRE-01/PRE-04 before mutation.
 
 ### 1.3 Module pinning
 
@@ -163,10 +163,10 @@ Pin to a known-good version of `ExchangeOnlineManagement` and refuse to run agai
 $wantModule  = 'ExchangeOnlineManagement'
 $wantVersion = [version]'3.5.0'
 $mod = Get-Module -ListAvailable -Name $wantModule |
-       Where-Object { $_.Version -ge $wantVersion } |
+       Where-Object { $_.Version -eq $wantVersion } |
        Sort-Object Version -Descending | Select-Object -First 1
 if (-not $mod) {
-    throw "Required module $wantModule >= $wantVersion not installed. Run: Install-Module $wantModule -RequiredVersion $wantVersion -Scope CurrentUser -Force"
+    throw "Required module $wantModule $wantVersion not installed. Install the approved exact version before proceeding."
 }
 Import-Module $mod.Path -Force
 ```
@@ -194,7 +194,7 @@ PowerShell is authoritative for inventory, idempotent rollout, drift detection, 
 A clean inventory is the foundation of every subsequent operation. Run it before *any* mutation, after *any* mutation, and on a daily schedule into the evidence store. The script is read-only and safe to run with `Compliance Data Administrator`.
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 <#
 .SYNOPSIS
@@ -214,7 +214,7 @@ $out = Join-Path $Session.EvidenceRoot ("inventory-" + $Session.Stamp)
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 
 # 1. Built-in + custom SITs (single-entity definitions).
-$sits = Get-DlpSensitiveInformationType -ResultSize Unlimited |
+$sits = Get-DlpSensitiveInformationType |
         Select-Object Name, Publisher, Type, RulePackId, State, Description,
                       RecommendedConfidence, @{n='LastModified'; e={$_.WhenChangedUTC}}
 $sits | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $out 'sits.json')      -Encoding utf8
@@ -223,11 +223,13 @@ $sits | Export-Csv      -NoTypeInformation -Path (Join-Path $out 'sits.csv')
 # 2. SIT rule packages (XML container — one pack may carry many SITs).
 $packs = Get-DlpSensitiveInformationTypeRulePackage |
          Select-Object Name, Publisher, Version, State, WhenChangedUTC,
-                       @{n='RulePackXmlSize'; e={ ($_.RulePackXml | Measure-Object Length -Sum).Sum }}
+                       @{n='RulePackXmlSize'; e={ $_.SerializedClassificationRuleCollection.Length }}
 $packs | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $out 'sit-rule-packages.json') -Encoding utf8
 foreach ($p in (Get-DlpSensitiveInformationTypeRulePackage)) {
     $safe = ($p.Name -replace '[^\w\-]','_')
-    Set-Content -Path (Join-Path $out "rulepack-$safe.xml") -Value $p.RulePackXml -Encoding utf8
+    [System.IO.File]::WriteAllBytes(
+        (Join-Path $out "rulepack-$safe.xml"), $p.SerializedClassificationRuleCollection
+    )
 }
 
 # 3. Keyword dictionaries.
@@ -239,19 +241,12 @@ $dicts | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $out 'dictionaries.jso
 # 4. EDM schemas.
 $edm = Get-DlpEdmSchema |
        Select-Object Name, Description, State, DataStoreName,
-                     @{n='ColumnCount'; e={ ($_.Schema.EdmSchemaXml -split '<Field ' ).Count - 1 }},
+                     @{n='ColumnCount'; e={ ($_.EdmSchemaXML -split '<Field ' ).Count - 1 }},
                      WhenChangedUTC
 $edm | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $out 'edm.json') -Encoding utf8
 
-# 5. Trainable classifiers — hedge: cmdlet surface still moving. Verify name on Learn.
-try {
-    $cls = Get-Classifier -ErrorAction Stop |
-           Select-Object Name, Description, Mode, PublishDate, WhenChangedUTC
-} catch [System.Management.Automation.CommandNotFoundException] {
-    Write-Warning "Get-Classifier not present in this module build. Skipping classifier inventory."
-    $cls = @()
-}
-$cls | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $out 'classifiers.json') -Encoding utf8
+# 5. Capture classifier inventory in the supported portal workflow (§8).
+# Do not write an empty inventory that could be mistaken for a verified absence.
 
 # 6. DLP policies + rules that reference SITs (consumption side).
 $pols  = Get-DlpCompliancePolicy  | Select-Object Name, Mode, Enabled, EnforcementPlanes, CreatedBy, WhenChangedUTC
@@ -271,14 +266,14 @@ Get-ChildItem $out -File | ForEach-Object {
 Write-Information "Inventory written to $out" -InformationAction Continue
 ```
 
-**Why `-ResultSize Unlimited`.** Without it the SCC cmdlets cap returns at 1,000 objects and the inventory silently truncates. A truncated inventory is the most common cause of "phantom drift" in §12 reconciliation.
+**Parameter and output checks.** `Get-DlpSensitiveInformationType` does not document `-ResultSize`; do not add it generically to every inventory cmdlet. Save raw returned objects before selecting fields, and inspect actual properties rather than interpreting null projected fields as proof of state. Package XML is in `SerializedClassificationRuleCollection`; schema XML is in `EdmSchemaXML`. See [SIT cmdlet](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-dlpsensitiveinformationtype) and [custom SIT export](https://learn.microsoft.com/en-us/purview/sit-create-a-custom-sensitive-information-type-in-scc-powershell).
 
 ## 4. Keyword dictionaries: `New-FsiKeywordDictionary.ps1`
 
 Keyword dictionaries back named-counterparty lists (broker-dealer panels, restricted-list issuers, MNPI deal codenames). The single most common implementation bug is **encoding the term file as UTF-8**. The `-FileData` parameter requires a **UTF-16 (Unicode) byte array** with `\r\n` line terminators. UTF-8 input parses to a corrupt or empty dictionary and silently fails on accented terms (e.g., "Société Générale", "Crédit Agricole", "Banco Bilbao Vizcaya Argentaria").
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 <#
 .SYNOPSIS
@@ -321,7 +316,7 @@ foreach ($t in $clean) { [void]$sb.Append($t); [void]$sb.Append("`r`n") }
 $bytes = [System.Text.Encoding]::Unicode.GetBytes($sb.ToString())
 
 # 3. Before-snapshot for rollback evidence.
-$existing = Get-DlpKeywordDictionary -Identity $Name -ErrorAction SilentlyContinue
+$existing = Get-DlpKeywordDictionary -Name $Name -ErrorAction SilentlyContinue
 $beforePath = Join-Path $Session.EvidenceRoot ("dict-$Name-before-$($Session.Stamp).json")
 $existing | ConvertTo-Json -Depth 6 | Set-Content $beforePath -Encoding utf8
 
@@ -337,7 +332,7 @@ if ($existing) {
 }
 
 # 5. After-snapshot.
-$after = Get-DlpKeywordDictionary -Identity $Name
+$after = Get-DlpKeywordDictionary -Name $Name
 $afterPath = Join-Path $Session.EvidenceRoot ("dict-$Name-after-$($Session.Stamp).json")
 $after | ConvertTo-Json -Depth 6 | Set-Content $afterPath -Encoding utf8
 
@@ -346,9 +341,9 @@ Write-Information ("Dictionary '{0}' now contains {1} terms." -f $Name, $after.K
 
 **Operational notes.**
 
-- The dictionary `Identity` *is* the display name, so renaming a dictionary breaks every DLP rule that references it. Treat the name as immutable once published.
-- Keyword dictionaries support up to ~100,000 terms and ~1 MB compressed; verify the current limit on Microsoft Learn before bulk-loading restricted lists. If the list approaches the cap, consider splitting by asset class (`FSI-Restricted-Issuers-Equities`, `FSI-Restricted-Issuers-Credit`) so individual rules can target only the dictionaries they need.
-- Reference a dictionary inside a custom SIT XML rule package via `<Match idRef="Keyword_Dictionary_GUID" />` where the GUID is `(Get-DlpKeywordDictionary -Identity $Name).Identity`.
+- Dictionary `Identity` is a GUID, distinct from `Name`. Preserve the GUID used by SIT XML references.
+- Keyword dictionaries share a **1 MB post-compression tenant limit**, not 1 MB per dictionary. Splitting dictionaries does not evade the combined limit. See [keyword dictionaries](https://learn.microsoft.com/en-us/purview/sit-create-a-keyword-dictionary).
+- Reference a dictionary using its actual GUID as the XML `idRef`, obtained from `(Get-DlpKeywordDictionary -Name $Name).Identity`; do not use the display name or a `Keyword_Dictionary_` prefix as the identifier.
 
 ## 5. Custom pattern SIT rule package: `New-FsiCustomSitPack.ps1`
 
@@ -356,11 +351,11 @@ This is the highest-leverage and highest-risk operation in 1.13. A *rule package
 
 | Operation | Cmdlet | Notes |
 
-| Create rule package | `New-DlpSensitiveInformationTypeRulePackage -FileData $bytes` | XML must be UTF-8 byte array |
-| Update rule package | `Set-DlpSensitiveInformationTypeRulePackage -Identity <Name> -FileData $bytes` | Bump `RulePack/Version` first |
+| Create rule package | `New-DlpSensitiveInformationTypeRulePackage -FileData $bytes` | Keep XML declaration and actual byte encoding aligned |
+| Update rule package | `Set-DlpSensitiveInformationTypeRulePackage -FileData $bytes` | XML identifies the package; bump `RulePack/Version` first |
 | Remove rule package | `Remove-DlpSensitiveInformationTypeRulePackage -Identity <Name>` | Will fail while any DLP rule binds a SIT it defines |
 
-> **Do not confuse `New-DlpSensitiveInformationType` with `New-DlpSensitiveInformationTypeRulePackage`.** The former is the *document fingerprint* cmdlet (§6) and demands a mandatory `-Fingerprints` parameter. Custom *pattern* SITs (regex, keyword, dictionary, function calls) **only** ship through rule packages.
+> **Do not confuse `New-DlpSensitiveInformationType` with `New-DlpSensitiveInformationTypeRulePackage`.** The former is the document-fingerprint workflow (§6), documented with fingerprint objects or template `-FileData`; custom regex patterns use the rule-package XML workflow.
 
 ### 5.1 Schema rules that the validator enforces
 
@@ -372,11 +367,11 @@ The XML schema is unforgiving. The most common failures, all of which return cry
 4. **Confidence levels (60 / 75 / 85) are tied to `<Pattern confidenceLevel="…">` blocks.** Use three patterns of decreasing strictness so DLP rules can choose a tier.
 5. **`<LocalizedStrings>` is mandatory** and must list each entity by GUID. Missing entries silently truncate the SIT picker in the portal.
 
-### 5.2 Worked example — Contoso 9-digit account number with Luhn validation
+### 5.2 Worked example — Contoso 9-digit account number with contextual evidence
 
 The example below publishes a single SIT named `Contoso-Account-Number` that:
 
-- Matches a 9-digit Contoso account number using `Func_luhn_check` for checksum validation.
+- Matches a nine-digit firm-defined account pattern with contextual evidence; it does not claim an undocumented `Func_luhn_check` validates arbitrary numbers. Microsoft does not support uploading custom functions.
 - Increases confidence when nearby keywords appear (`account`, `acct`, `client id`).
 - Boosts confidence further in MNPI contexts (`merger`, `acquisition`, `material non-public`).
 - **Excludes** known test-data sentinels (`TEST-`, `SAMPLE-`, `XXX-`) so SDLC pipelines do not generate false positives.
@@ -385,7 +380,7 @@ The example below publishes a single SIT named `Contoso-Account-Number` that:
 Save the XML as a here-string in your script — but generate GUIDs **once**, externally, and paste them in:
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
@@ -406,7 +401,7 @@ $kwTestGuid = 'f1f2f3f4-1111-2222-3333-444455556603'
 
 $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
-<RulePackage xmlns="http://schemas.microsoft.com/office/2018/09/contentclassification">
+<RulePackage xmlns="http://schemas.microsoft.com/office/2011/mce">
   <RulePack id="$pkgGuid">
     <Version major="1" minor="0" build="0" revision="0" />
     <Publisher id="11111111-2222-3333-4444-555555555555" />
@@ -423,30 +418,33 @@ $xml = @"
     <!-- ENTITY (consumer of regex + keyword definitions below) -->
     <Entity id="$entityGuid" patternsProximity="300" recommendedConfidence="75">
 
-      <!-- Tier 3 (85) : account number + Luhn + (acct keywords OR MNPI keywords) and NOT test sentinels -->
+      <!-- High (85): account pattern plus contextual evidence, excluding approved sentinels -->
       <Pattern confidenceLevel="85">
         <IdMatch idRef="Regex_Contoso_Account" />
-        <Match idRef="Func_luhn_check" />
         <Any minMatches="1">
           <Match idRef="Keyword_Contoso_Account" />
           <Match idRef="Keyword_Contoso_MNPI" />
         </Any>
-        <ExcludedMatch idRef="Keyword_Contoso_Test" />
+        <Any minMatches="0" maxMatches="0">
+          <Match idRef="Keyword_Contoso_Test" />
+        </Any>
       </Pattern>
 
-      <!-- Tier 2 (75) : account number + Luhn + acct keywords -->
+      <!-- Medium (75): account pattern plus account keywords -->
       <Pattern confidenceLevel="75">
         <IdMatch idRef="Regex_Contoso_Account" />
-        <Match idRef="Func_luhn_check" />
         <Match idRef="Keyword_Contoso_Account" />
-        <ExcludedMatch idRef="Keyword_Contoso_Test" />
+        <Any minMatches="0" maxMatches="0">
+          <Match idRef="Keyword_Contoso_Test" />
+        </Any>
       </Pattern>
 
-      <!-- Tier 1 (60) : account number + Luhn (no keyword corroboration) -->
+      <!-- Low (60): account pattern without corroborating keywords -->
       <Pattern confidenceLevel="60">
         <IdMatch idRef="Regex_Contoso_Account" />
-        <Match idRef="Func_luhn_check" />
-        <ExcludedMatch idRef="Keyword_Contoso_Test" />
+        <Any minMatches="0" maxMatches="0">
+          <Match idRef="Keyword_Contoso_Test" />
+        </Any>
       </Pattern>
     </Entity>
 
@@ -485,26 +483,29 @@ $xml = @"
     <LocalizedStrings>
       <Resource idRef="$entityGuid">
         <Name default="true" langcode="en-us">Contoso Account Number</Name>
-        <Description default="true" langcode="en-us">9-digit Contoso account number, Luhn-validated, with keyword corroboration. Excludes test-data sentinels.</Description>
+        <Description default="true" langcode="en-us">Nine-digit firm-defined account pattern with confidence-specific contextual evidence. Test sentinel exclusions require adversarial validation.</Description>
       </Resource>
     </LocalizedStrings>
   </Rules>
 </RulePackage>
 "@
 
-# Encode XML as UTF-8 byte array (NOT UTF-16 — the XML *prologue* says UTF-16 but the
-# rule-pack upload pipeline expects the file body as bytes and re-parses; the standard
-# practice is UTF-8 here. If you change the prologue to UTF-8, keep encoding aligned.)
+# Encode consistently with the XML UTF-16 declaration.
 $bytes = [System.Text.Encoding]::Unicode.GetBytes($xml)
 
 # Before-snapshot.
-$existing = Get-DlpSensitiveInformationTypeRulePackage -Identity $RulePackName -ErrorAction SilentlyContinue
+$existing = @(Get-DlpSensitiveInformationTypeRulePackage | Where-Object {
+    $_.Name -eq $RulePackName -or $_.Identity -eq $RulePackName
+})
+if ($existing.Count -gt 1) { throw 'Ambiguous rule-package identity.' }
 $beforePath = Join-Path $Session.EvidenceRoot ("sitpack-$RulePackName-before-$($Session.Stamp).xml")
-if ($existing) { Set-Content $beforePath $existing.RulePackXml -Encoding utf8 }
+if ($existing) {
+    [System.IO.File]::WriteAllBytes($beforePath, $existing.SerializedClassificationRuleCollection)
+}
 
 if ($existing) {
     if ($PSCmdlet.ShouldProcess($RulePackName, 'Set-DlpSensitiveInformationTypeRulePackage')) {
-        Set-DlpSensitiveInformationTypeRulePackage -Identity $RulePackName -FileData $bytes
+        Set-DlpSensitiveInformationTypeRulePackage -FileData $bytes
     }
 } else {
     if ($PSCmdlet.ShouldProcess($RulePackName, 'New-DlpSensitiveInformationTypeRulePackage')) {
@@ -514,19 +515,22 @@ if ($existing) {
 
 # After-snapshot.
 $after = Get-DlpSensitiveInformationTypeRulePackage -Identity $RulePackName
-Set-Content (Join-Path $Session.EvidenceRoot "sitpack-$RulePackName-after-$($Session.Stamp).xml") $after.RulePackXml -Encoding utf8
+[System.IO.File]::WriteAllBytes(
+    (Join-Path $Session.EvidenceRoot "sitpack-$RulePackName-after-$($Session.Stamp).xml"),
+    $after.SerializedClassificationRuleCollection
+)
 
 Write-Information "Rule package '$RulePackName' published version $RulePackVersion." -InformationAction Continue
 ```
 
-> **Promote test-data sentinels everywhere.** Every custom SIT a US FSI tenant publishes should carry `<ExcludedMatch>` entries for `TEST-`, `SAMPLE-`, and a tenant-specific UAT prefix. Without them, the *first* failure mode at rollout is an avalanche of false positives from synthetic data in pre-production environments — which trains operators to ignore SIT alerts, defeating Control 1.13's purpose.
+> **Test exclusions adversarially.** The documented rule-package exclusion uses `<Any minMatches="0" maxMatches="0">`, not `<ExcludedMatch>`. Any sentinel-based exclusion can be copied into real content to suppress detection; use only an explicitly approved, validated exception design and retain non-excluded positives. The example is a design sketch, not a tenant-tested deployment.
 
 ## 6. Document fingerprint SITs: `Add-FsiDocumentFingerprintSit.ps1`
 
-Document fingerprinting builds a SIT from the *structural pattern* of a template document — for example, a board-deck template, a credit-memo skeleton, or a Form ADV. The cmdlet is `New-DlpSensitiveInformationType` (singular, no `RulePackage`) and demands `-Fingerprints` as a byte array of one or more template files.
+Document fingerprinting matches a template's **text**, not visual layout. The [documented multi-template example](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-dlpsensitiveinformationtype) creates fingerprint objects with `New-DlpFingerprint` before passing them to `-Fingerprints`; raw template bytes belong to `-FileData`, not that array.
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
@@ -539,14 +543,17 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# 1. Load every template file as bytes.
+# 1. Create fingerprint objects from each template.
 $prints = foreach ($p in $TemplatePaths) {
     if (-not (Test-Path $p)) { throw "Template not found: $p" }
-    [System.IO.File]::ReadAllBytes((Resolve-Path $p))
+    $bytes = [System.IO.File]::ReadAllBytes((Resolve-Path $p).Path)
+    $fingerprint = New-DlpFingerprint -FileData $bytes -Description $Description
+    $fingerprint[0]
 }
 
 # 2. Idempotent upsert.
-$existing = Get-DlpSensitiveInformationType -Identity $Name -ErrorAction SilentlyContinue
+$existing = @(Get-DlpSensitiveInformationType | Where-Object { $_.Name -eq $Name })
+if ($existing.Count -gt 1) { throw 'Ambiguous SIT name.' }
 if ($existing -and $existing.Type -ne 'DocumentFingerprint') {
     throw "SIT '$Name' already exists with type '$($existing.Type)'. Pick a different name."
 }
@@ -571,9 +578,9 @@ Write-Information "Document-fingerprint SIT '$Name' updated. Type: $($after.Type
 
 **Operational caveats.**
 
-- Document fingerprints match on the *invariant* skeleton of a template (boilerplate, table structure, headings). They are noisy when the template is sparse and miss when end users restructure documents heavily. Validate every fingerprint with `Test-DataClassification` (§10) against both true-positive and known-good documents before binding into a DLP rule.
+- Document fingerprints match template text with configured partial/exact thresholds. Use the portal file-upload test for documents; §10's text collector is not a binary-document upload API. Validate positives/negatives and limitations in the [fingerprinting guide](https://learn.microsoft.com/en-us/purview/document-fingerprinting).
 - A single fingerprint SIT can carry *multiple* template files — pass them all in the same `-Fingerprints` array so the SIT votes the union of patterns.
-- Fingerprint SITs do not support per-tier confidence; bind them at `recommendedConfidence` only.
+- Current fingerprint creation supports per-level partial-match percentages (`ThresholdConfig`) and exact matching (`IsExact`); inspect actual configuration rather than assuming one recommended-confidence property defines every threshold.
 
 ## 7. Exact Data Match (EDM): `Initialize-FsiEdm.ps1` + `EdmUploadAgent.exe`
 
@@ -595,18 +602,20 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# Schema XML example: searchable=AccountNumber,SSN; non-searchable but returnable=FullName,Email.
-# Keep ≤ ~32 searchable columns — verify the current cap on Microsoft Learn before authoring.
+# Schema fields identify searchable primary and supporting values, not cleartext return columns.
 $bytes = [System.IO.File]::ReadAllBytes((Resolve-Path $SchemaXmlPath))
 
-$existing = Get-DlpEdmSchema -Identity $SchemaName -ErrorAction SilentlyContinue
+$existing = @(Get-DlpEdmSchema | Where-Object {
+    $_.Name -eq $SchemaName -or $_.Identity -eq $SchemaName
+})
+if ($existing.Count -gt 1) { throw 'Ambiguous EDM schema identity.' }
 if ($existing) {
     if ($PSCmdlet.ShouldProcess($SchemaName, 'Set-DlpEdmSchema')) {
-        Set-DlpEdmSchema -Identity $SchemaName -FileData $bytes
+        Set-DlpEdmSchema -FileData $bytes
     }
 } else {
     if ($PSCmdlet.ShouldProcess($SchemaName, 'New-DlpEdmSchema')) {
-        New-DlpEdmSchema -FileData $bytes -DataStoreName $DataStoreName | Out-Null
+        New-DlpEdmSchema -FileData $bytes | Out-Null
     }
 }
 
@@ -624,28 +633,27 @@ Write-Information "EDM schema '$SchemaName' state: $($after.State). Data store: 
 | Step | Subcommand | Purpose |
 
 | 1 | `EdmUploadAgent.exe /ValidateData /DataFile <csv> /Schema <schema.xml>` | Confirms CSV column count + types match schema |
-| 2 | `EdmUploadAgent.exe /Authorize /TenantId <guid>` | Interactive AAD login; persists refresh token for the agent service identity |
-| 3 | `EdmUploadAgent.exe /CreateHash /DataFile <csv> /Schema <schema.xml> /OutputDir <dir>` | Salts and one-way hashes data locally — cleartext stays on host |
+| 2 | `EdmUploadAgent.exe /Authorize` | Sign in with the work/school user in the EDM_DataUploaders security group |
+| 3 | `EdmUploadAgent.exe /CreateHash /DataFile <csv> /Schema <schema.xml> /HashLocation <dir>` | Creates salted hash output locally |
 | 4 | `EdmUploadAgent.exe /UploadHash /DataStoreName <name> /HashFile <hash>` | Uploads hash store to Purview |
-| 5 | `EdmUploadAgent.exe /SaveSchedule /DataStoreName <name> ...` | Optional: scheduled refresh from a watched directory |
-| 6 | `EdmUploadAgent.exe /GetDataStore /DataStoreName <name>` | Read-back: confirms row counts, last refresh timestamp |
-| 7 | `EdmUploadAgent.exe /RemoveDataStore /DataStoreName <name>` | Removes hash store; required *before* `Remove-DlpEdmSchema` |
+| 5 | Scheduled task following the documented EDM refresh workflow | Firm-defined refresh cadence; no documented `/SaveSchedule` subcommand |
+| 6 | `EdmUploadAgent.exe /GetDataStore` and `/GetSession /DataStoreName <name>` | Read-back data-store update times and upload sessions |
+| 7 | Remove dependent EDM SIT, then remove schema through the supported workflow | Schema deletion also deletes its data store within 24 hours |
 
-Verify upload completion in PowerShell:
+Verify schema export separately from upload completion:
 
 ```powershell
 $schema = Get-DlpEdmSchema -Identity $SchemaName
-if ($schema.State -ne 'Active') {
-    Write-Warning "Schema '$SchemaName' state is '$($schema.State)'. Hash upload may still be in progress."
-}
+Set-Content -Path '.\edm-schema-export.xml' -Value $schema.EdmSchemaXML
+# Capture /GetDataStore and /GetSession on the Upload Agent host, then test detection.
 ```
 
 ### 7.3 Caveats
 
-- **Searchable column cap.** The schema imposes a hard cap on the number of *searchable* columns (currently in the low-30s; verify against current Microsoft Learn before authoring). Plan the schema so the most selective column (`SSN`, `AccountNumber`) is searchable and the rest are returned only as evidence.
-- **Refresh cadence and indexing latency.** Microsoft does not publish a hard SLA for indexing latency between hash upload and DLP detection availability. Do **not** invent one in operational documentation. Plan changes around an empirical 24–48 hour validation window.
+- **Searchable column cap.** The current schema wizard guide says one to ten searchable fields; the same guide's manual XML steps still say five. Verify the chosen workflow; neither supports the previous 32-searchable-column claim. Supporting fields are not cleartext "return columns".
+- **Refresh and test readiness.** Capture upload/indexing completion; test an hour later, and wait at least an hour after EDM SIT changes. Existing files can require reclassification even when direct tests pass. These are documented expectations, not a guaranteed end-to-end SLA.
 - **Hash store data residency.** The cleartext source file never leaves the upload host. Treat the upload host itself as a high-value system: tier-0 admin model, mailbox-less service identity, no inbound SMB, audit-logged file mounts, and a documented destruction process for the source CSV after upload.
-- **Removal order.** `Remove-DlpEdmSchema` will fail while a data store is bound. Always run `EdmUploadAgent.exe /RemoveDataStore` first, then remove the schema.
+- **Removal order.** Remove dependent EDM SITs before deleting a schema. Schema deletion also removes the associated data store within 24 hours. See [schema lifecycle](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-create-schema), [hash/upload commands](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-hash-upload), and [EDM tests](https://learn.microsoft.com/en-us/purview/sit-get-started-exact-data-match-test).
 
 ## 8. Trainable classifiers — FSI governance gate
 
@@ -663,148 +671,48 @@ The framework requires the following sign-offs *before* a trainable classifier i
 
 The control specification (`1.13-sensitive-information-types-sits-and-pattern-recognition.md` §"FSI Governance Gate for Trainable Classifiers") is the authoritative source for sign-off owners.
 
-### 8.2 Cmdlet surface — verify before each change window
+### 8.2 Supported classifier workflow
 
-Microsoft has renamed the trainable-classifier cmdlet surface several times (variants seen include `*-MLClassifier`, `*-Classifier`, and the portal-only `*-TrainableClassifier`). **Do not hard-code the cmdlet name in production runbooks.** Instead:
-
-```powershell
-$candidates = @('Get-Classifier','Get-MLClassifier','Get-TrainableClassifier')
-$cmd = $candidates | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
-if (-not $cmd) {
-    throw "No trainable classifier cmdlet present in this module build. Verify Microsoft Learn and update the runbook."
-}
-$classifiers = & $cmd
-```
-
-For *publishing* a trainable classifier into operational use, **the portal is the supported path**. The PowerShell surface today is best treated as inventory + delete + audit, not authoring. Reference Microsoft Learn for the current article: *Learn about trainable classifiers* and *Get started with trainable classifiers*.
+Use the [documented portal workflow](https://learn.microsoft.com/en-us/purview/classifier-get-started-with), not guessed `Get-Classifier`, `Get-MLClassifier`, or `Get-TrainableClassifier` alternatives. Capture the actual classifier inventory/status in the portal. Custom training uses 50–500 positive and 150–1,500 negative text-based samples in separate SharePoint folders; the author must have access. Custom classifiers support English only; pretrained language coverage varies. Published custom classifiers cannot be retrained: replacement requires a new classifier and revalidated consumer bindings.
 
 ### 8.3 Evidence
 
 Capture, at every change window:
 
-- The classifier list (`& $cmd | ConvertTo-Json -Depth 4`).
+- The actual portal classifier inventory, lifecycle status, supported languages, and validation results.
 - The DLP rule(s) that bind each classifier (filter `Get-DlpComplianceRule` for `AdvancedRule` strings containing the classifier identity).
 - A copy of the model-risk validation report PDF and its SHA-256, written into the evidence pack alongside the technical artefacts.
 
-## 9. DLP for Microsoft 365 Copilot: `New-FsiCopilotDlpPolicy.ps1`
+## 9. DLP for Microsoft 365 Copilot: author and verify the supported policy
 
-A SIT only protects an agent if a DLP policy *binds* it to the Copilot workload. The pattern below mirrors the Microsoft Learn "DLP policy for Copilot" example exactly: workload location is `Applications`, identity is the Copilot location GUID, enforcement plane is `CopilotExperiences`, and the SIT binding is provided as an **AdvancedRule JSON document** to support per-tier confidence and minimum-count tuning.
+Use [portal walkthrough Step 9](portal-walkthrough.md#step-9-dlp-for-microsoft-365-copilot-consumer-policy-that-uses-the-sits) and the [current Microsoft Learn procedure](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about). The former provisioning example's location GUID lookup, `CopilotExperiences` payload, and generic `ExcludeContentProcessing` action were not verified against that procedure and are withdrawn rather than represented as a working script.
 
-> **There is no `-CopilotConfiguration` parameter.** If you see one in older runbooks, delete it — it never shipped. The location array + `EnforcementPlanes` + `AdvancedRule` are the supported surface.
+Create a **Custom** policy with the **Microsoft 365 Copilot and Copilot Chat** location (all other locations are disabled). Verify initiating-user scope and exclusions. Use separate rules for supported built-in/custom SITs in typed prompts and sensitivity labels on grounding files/emails. Prompt processing restriction is preview and tenant-rollout dependent; it does not scan file uploads or grounding files. Label exclusion does not automatically follow from a SIT match or label assignment. Simulation, alerts, and notifications are supported; test the configured behavior rather than assuming a generic educate-only action or automatic agent-identity targeting. Policy updates can take up to four hours.
+
+Capture read-back without a guessed workload filter:
 
 ```powershell
-#Requires -Version 7.2
-#Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
-[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-param(
-    [Parameter(Mandatory)] $Session,
-    [Parameter(Mandatory)] [string] $PolicyName     = 'FSI-Copilot-Block-MNPI',
-    [Parameter(Mandatory)] [string] $RuleName       = 'FSI-Copilot-Block-MNPI-Rule',
-    [Parameter(Mandatory)] [string] $CopilotLocationId,                 # Copilot location GUID (Get-DlpComplianceLocation)
-    [Parameter(Mandatory)] [string[]] $SitNames,                         # SIT display names to bind
-    [int] $MinCount       = 1,
-    [ValidateSet('Low','Medium','High')] [string] $Confidence = 'High'
-)
-
-$ErrorActionPreference = 'Stop'
-
-# 1. Locations array — workload Applications, identity = Copilot location GUID, all tenants.
-$loc = ConvertTo-Json -Depth 6 -Compress @(
-    @{
-        Workload   = 'Applications'
-        Location   = $CopilotLocationId
-        Inclusions = @( @{ Type = 'Tenant'; Identity = 'All' } )
-    }
-)
-
-# 2. Map confidence string → numeric for AdvancedRule.
-$confMap = @{ Low = 60; Medium = 75; High = 85 }
-$confInt = $confMap[$Confidence]
-
-# 3. AdvancedRule JSON — Version 1, Condition with grouped SIT match.
-$sitGroup = $SitNames | ForEach-Object {
-    @{ name = $_; confidencelevel = $Confidence; mincount = $MinCount }
-}
-$advRule = ConvertTo-Json -Depth 10 -Compress @{
-    Version   = '1.0'
-    Condition = @{
-        Operator     = 'And'
-        SubConditions = @(
-            @{
-                ConditionName = 'ContentContainsSensitiveInformation'
-                Value         = @{
-                    groups = @(
-                        @{
-                            name           = 'FSI-MNPI-Group'
-                            operator       = 'Or'
-                            sensitivetypes = $sitGroup
-                        }
-                    )
-                }
-            }
-        )
-    }
-}
-
-# 4. Idempotent policy upsert.
-$existingPolicy = Get-DlpCompliancePolicy -Identity $PolicyName -ErrorAction SilentlyContinue
-if (-not $existingPolicy) {
-    if ($PSCmdlet.ShouldProcess($PolicyName, 'New-DLPCompliancePolicy')) {
-        New-DLPCompliancePolicy -Name $PolicyName `
-            -Locations $loc `
-            -EnforcementPlanes @('CopilotExperiences') `
-            -Mode 'TestWithNotifications' | Out-Null
-    }
-} else {
-    Write-Information "Policy '$PolicyName' already exists. Updating rule only." -InformationAction Continue
-}
-
-# 5. Idempotent rule upsert.
-$existingRule = Get-DlpComplianceRule -Identity $RuleName -ErrorAction SilentlyContinue
-if ($existingRule) {
-    if ($PSCmdlet.ShouldProcess($RuleName, 'Set-DlpComplianceRule')) {
-        Set-DlpComplianceRule -Identity $RuleName `
-            -AdvancedRule $advRule `
-            -RestrictAccess @( @{ setting = 'ExcludeContentProcessing'; value = 'Block' } )
-    }
-} else {
-    if ($PSCmdlet.ShouldProcess($RuleName, 'New-DlpComplianceRule')) {
-        New-DlpComplianceRule -Name $RuleName -Policy $PolicyName `
-            -AdvancedRule $advRule `
-            -RestrictAccess @( @{ setting = 'ExcludeContentProcessing'; value = 'Block' } ) | Out-Null
-    }
-}
-
-$after = @{
-    Policy = Get-DlpCompliancePolicy -Identity $PolicyName
-    Rule   = Get-DlpComplianceRule   -Identity $RuleName
-}
-$after | ConvertTo-Json -Depth 10 |
-    Set-Content (Join-Path $Session.EvidenceRoot "copilot-dlp-$PolicyName-$($Session.Stamp).json") -Encoding utf8
-
-Write-Information "Copilot DLP policy '$PolicyName' / rule '$RuleName' published in TestWithNotifications mode." -InformationAction Continue
+Get-DlpCompliancePolicy | ConvertTo-Json -Depth 30 |
+    Set-Content (Join-Path $Session.EvidenceRoot 'dlp-policies.json') -Encoding utf8
+Get-DlpComplianceRule | ConvertTo-Json -Depth 30 |
+    Set-Content (Join-Path $Session.EvidenceRoot 'dlp-rules.json') -Encoding utf8
 ```
 
-**Operational notes.**
-
-- Always start in `TestWithNotifications` mode. Move to `Enable` only after a documented soak window and after Activity Explorer (§11) shows the expected match rate against test traffic.
-- The `RestrictAccess` setting `ExcludeContentProcessing` = `Block` is what tells Copilot to *exclude* the matching content from its grounding/answer generation. This is the correct lever for "the agent must not surface this content in its answer."
-- For SharePoint grounding scope, this rule complements (does not replace) Control 4.6. See cross-links at §15.
+Reconcile these exports with the actual portal location, scope, mode, and separate rule conditions/actions, then execute `1.13-DLP-01..03` in the [verification playbook](verification-testing.md). Exported configuration alone is not enforcement proof. Copilot Studio connectors require separate coverage testing.
 
 ## 10. `Test-DataClassification` harness
 
-`Test-DataClassification` is the *only* programmatic way to confirm that a SIT actually fires against a given content sample. It accepts the raw bytes of a document or a string, runs the same classification engine the DLP service uses, and returns matches.
+[`Test-DataClassification`](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/test-dataclassification) tests text with `-TextToClassify` (or documented text-extraction input), not raw document bytes through `-DocumentData`/`-DocumentName`. Use the portal upload test for binary documents and test each production workload separately.
 
-> **Critical correctness rule.** The cmdlet returns an object with a `.ClassificationResults` property. Each result has `.SensitiveTypeName`, `.Count`, and `.Confidence`. **There is no `.SensitiveInformation` property.** Code that reads `$result.SensitiveInformation` will silently return `$null` and produce false-clean evidence — the single most damaging bug in 1.13 verification.
+> **Result contract.** Microsoft documents `.ClassificationResults` but does not establish the former harness's `.SensitiveTypeName` projection as a universal schema. Preserve raw results and review the actual sensitive type/count/confidence fields. An empty successful result can be an expected negative; an error or missing envelope is not. The following collector deliberately does not manufacture an automated pass/fail oracle from undocumented fields.
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 <#
 .SYNOPSIS
-    Runs Test-DataClassification against a corpus of fixture files and emits a
-    pass/fail report keyed on expected SIT names. Treats empty ClassificationResults
-    as a hard failure (the historical false-clean failure mode).
+    Captures raw classification results and expectations for synthetic text fixtures.
+    Human review reconciles identity, count, confidence, positives, and negatives.
 #>
 [CmdletBinding()]
 param(
@@ -816,38 +724,30 @@ param(
 $ErrorActionPreference = 'Stop'
 $report = @()
 
-foreach ($file in (Get-ChildItem $FixtureRoot -File)) {
-    $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
-    $resp  = Test-DataClassification -DocumentData $bytes -DocumentName $file.Name
+foreach ($file in (Get-ChildItem $FixtureRoot -File -Filter '*.txt')) {
+    if (-not $Expectations.ContainsKey($file.Name)) {
+        throw "Missing expectation for $($file.Name)."
+    }
+    $resp = Test-DataClassification -TextToClassify (Get-Content $file.FullName -Raw) -ErrorAction Stop
 
     if ($null -eq $resp -or $null -eq $resp.ClassificationResults) {
         throw "Test-DataClassification returned no ClassificationResults for $($file.Name). Aborting (false-clean guard)."
     }
 
-    $matched = @($resp.ClassificationResults | Select-Object -ExpandProperty SensitiveTypeName)
     $expected = @($Expectations[$file.Name])
-
-    $missing  = $expected | Where-Object { $_ -notin $matched }
-    $extra    = $matched  | Where-Object { $_ -notin $expected }
 
     $report += [PSCustomObject]@{
         File      = $file.Name
         Expected  = $expected -join ', '
-        Matched   = $matched  -join ', '
-        Missing   = $missing  -join ', '
-        Extra     = $extra    -join ', '
-        Pass      = (-not $missing)
-        Details   = $resp.ClassificationResults | Select-Object SensitiveTypeName, Count, Confidence
+        Outcome   = 'review-required'
+        Details   = $resp.ClassificationResults
     }
 }
 
 $report | ConvertTo-Json -Depth 6 |
     Set-Content (Join-Path $Session.EvidenceRoot "testclass-$($Session.Stamp).json") -Encoding utf8
-$report | Format-Table File, Expected, Matched, Pass -AutoSize
-
-if ($report | Where-Object { -not $_.Pass }) {
-    throw "Test-DataClassification harness failed for $((($report | Where-Object { -not $_.Pass }).File) -join ', ')."
-}
+$report | Format-Table File, Expected, Outcome -AutoSize
+if (-not $report.Count) { throw 'No text fixtures were evaluated.' }
 ```
 
 **Fixture pack guidance.** Maintain a fixture pack alongside every custom SIT in source control:
@@ -860,10 +760,10 @@ Run the harness on every CI/CD merge against the SIT rule package and archive th
 
 ## 11. Audit and Activity Explorer reconciliation
 
-Every change to a SIT, dictionary, EDM schema, classifier, or DLP rule lands in the Unified Audit Log. Reconciliation against the audit log proves that the change you intended is the change the service recorded — and surfaces drift introduced by other operators between change windows.
+Capture supported, observed administrative audit activity alongside before/after configuration; do not assume every classifier or EDM operation emits a particular UAL event. The command below is a bounded first page, not a completeness proof. For complete windows, use a fixed session ID with `ReturnLargeSet`, preserve raw records, and split windows at the documented 50,000-result session cap.
 
 ```powershell
-#Requires -Version 7.2
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement'; RequiredVersion = '3.5.0' }
 [CmdletBinding()]
 param(
@@ -891,7 +791,7 @@ $events = Search-UnifiedAuditLog -StartDate $start -EndDate $end -Operations $op
 
 $events |
     Select-Object CreationDate, UserIds, Operations,
-                  @{n='Target'; e={ ($_ | ConvertFrom-Json).ObjectId }},
+                  @{n='Target'; e={ ($_.AuditData | ConvertFrom-Json).ObjectId }},
                   AuditData |
     ConvertTo-Json -Depth 6 |
     Set-Content (Join-Path $Session.EvidenceRoot "audit-$($Session.Stamp).json") -Encoding utf8
@@ -899,7 +799,7 @@ $events |
 Write-Information "$($events.Count) audit events captured for the last $LookbackHours h." -InformationAction Continue
 ```
 
-For agent-runtime evidence (which DLP rules actually fired against Copilot prompts/answers), Activity Explorer is the canonical source. Export from the portal or via the Activity Explorer Graph API; PowerShell does not currently expose Activity Explorer as first-class cmdlets in a stable surface.
+For supported runtime activities, use the portal or [`Export-ActivityExplorerData`](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/export-activityexplorerdata). It covers up to 30 days and uses `LastPage`, `Watermark`, and `PageCookie` paging (maximum page size 5,000; cookie valid 120 seconds). Preserve each page; fields differ by activity. Do not assume a generic Graph Activity Explorer API or a one-to-one join with CopilotInteraction.
 
 > Send the audit + Activity Explorer JSON exports into your SIEM (Microsoft Sentinel for tenants on the FSI baseline) so anomaly detection — for example, an after-hours `Remove-DlpComplianceRule` against a Copilot policy — fires automatically. The AI incident-response playbook (`docs/playbooks/incident-and-risk/ai-incident-response-playbook.md`) is the standing on-call runbook.
 
@@ -914,7 +814,7 @@ Every mutating script in this playbook follows the same shape:
 3. `Get-*` again to capture an **after-snapshot**.
 4. Diff before/after into a delta JSON for the change-record.
 
-This pattern means re-running any script in this playbook with identical inputs is a no-op (modulo `WhenChangedUTC` updates).
+This is an upsert pattern, not a guaranteed no-op: compare actual definitions before calling setters and verify read-back. Some setters still mutate timestamps/state with identical inputs.
 
 ### 12.2 Drift detection
 
@@ -949,7 +849,7 @@ To remove cleanly:
 | Rule package | All `DlpComplianceRule`s referencing any SIT in the pack | `Remove-DlpSensitiveInformationTypeRulePackage` |
 | Document fingerprint SIT | All rules referencing it | `Remove-DlpSensitiveInformationType` |
 | Keyword dictionary | All rules and rule-pack `<Match>` references | `Remove-DlpKeywordDictionary` |
-| EDM schema | `EdmUploadAgent.exe /RemoveDataStore` | `Remove-DlpEdmSchema` |
+| EDM schema | Remove dependent EDM SITs through the supported workflow | `Remove-DlpEdmSchema`; associated data store is deleted within 24 hours |
 | DLP policy | All child `DlpComplianceRule`s | `Remove-DLPCompliancePolicy` |
 | Trainable classifier | Rules that reference its identity | Portal removal (cmdlet surface unstable) |
 
@@ -962,20 +862,20 @@ The following patterns appear in the wild and have all caused production inciden
 
 | # | Anti-pattern | Why it fails | Correct pattern |
 
-| 1 | Reading `$result.SensitiveInformation` from `Test-DataClassification` | The property does not exist. Returns `$null` → false-clean evidence. | Read `$result.ClassificationResults` and project `SensitiveTypeName`, `Count`, `Confidence`. |
+| 1 | Guessing a flat classification result schema | Null projections can create false-clean evidence. | Preserve `$result.ClassificationResults`, inspect actual fields, and review positives and negatives. |
 | 2 | UTF-8 encoding for `New-DlpKeywordDictionary -FileData` | The cmdlet requires UTF-16 (Unicode). UTF-8 yields a corrupt or empty dictionary; non-ASCII names ("Société Générale") silently disappear. | `[System.Text.Encoding]::Unicode.GetBytes(...)` with `\r\n` line terminators. |
 | 3 | `<Regex>` or `<Keyword>` placed inside `<Entity>` instead of as siblings inside `<Rules>` | Schema rejects the rule package with an opaque error. | Definitions are siblings of `<Entity>` inside `<Rules>`; `<Entity>` references them via `<IdMatch idRef="…">` / `<Match idRef="…">`. |
 | 4 | Calling `Disconnect-IPPSSession` | The cmdlet does not exist; raises `CommandNotFoundException` and may leave you connected. | Call `Disconnect-ExchangeOnline -Confirm:$false` for both EXO and IPPS REST sessions. |
-| 5 | Creating an EDM schema and treating the SIT as live | Schemas without an uploaded hash store match nothing. | Run `EdmUploadAgent.exe /CreateHash` + `/UploadHash` and confirm `Get-DlpEdmSchema` shows `State = Active`. |
+| 5 | Creating an EDM schema and treating the SIT as live | Schema existence is not upload/indexing proof. | Capture `/GetDataStore`, `/GetSession`, then direct EDM detection after the documented readiness window. |
 | 6 | Identifying built-in SITs by display name in scripts | Built-in SIT display names are localised and have changed between releases. | Use the immutable GUID from `Get-DlpSensitiveInformationType -Identity <guid>`. |
 | 7 | Filtering rule packages by `Publisher` string | Publisher strings have varied across Microsoft releases ("Microsoft Corporation" vs "Microsoft"). Brittle. | Filter on `Publisher` GUID, or just enumerate all and treat the result as the source of truth. |
 | 8 | Inlining `$(New-Guid)` inside a SIT rule package XML heredoc | Every script run produces a different SIT, which breaks DLP rule bindings, history, and rollback. | Generate GUIDs once at design time, paste as constants, and treat as immutable. |
-| 9 | Passing `-CopilotConfiguration` to `New-DLPCompliancePolicy` | The parameter does not exist — historical fabrication. | Use `-Locations` (Applications + Copilot location GUID) + `-EnforcementPlanes @('CopilotExperiences')` + `-AdvancedRule`. |
-| 10 | Documenting an SLA for EDM hash-store indexing or trainable classifier publishing | Microsoft does not publish hard SLAs for these latencies. Inventing one creates a false expectation that downstream supervisory testing depends on. | Plan around a documented empirical 24–48 h validation window and link to Microsoft Learn rather than asserting an SLA. |
+| 9 | Using unverified Copilot DLP provisioning payloads | A plausible parameter/payload is not a supported procedure. | Use §9's documented portal authoring and separate prompt/label tests. |
+| 10 | Turning processing guidance into an SLA | Readiness differs by service and existing-file classification. | Use the documented EDM test-readiness and classifier lifecycle guidance, recording actual observations. |
 | 11 | Hard-coded `admin@contoso.com` in a runbook | Operator identity ends up in the audit log as the wrong principal. | `param([Parameter(Mandatory)] [string] $AdminUpn)`. |
 | 12 | `Write-Host` inside a function | Bypasses the information stream; cannot be redirected to the transcript or evidence pack cleanly. | `Write-Information … -InformationAction Continue` for narration, `Write-Verbose` for diagnostics. |
-| 13 | Skipping `-ResultSize Unlimited` on inventory cmdlets | Silent truncation at 1,000 objects; drift detection misses changes beyond the cap. | Always pass `-ResultSize Unlimited` on `Get-DlpSensitiveInformationType`, `Get-DlpComplianceRule`, `Search-UnifiedAuditLog`. |
-| 14 | Custom SIT without `<ExcludedMatch>` test sentinels | First wave of false positives comes from synthetic data in pre-production environments. Operators learn to ignore SIT alerts. | Every custom SIT excludes `TEST-`, `SAMPLE-`, and a tenant UAT prefix. |
+| 13 | Copying `-ResultSize Unlimited` across unrelated cmdlets | SIT inventory does not document it; UAL accepts an integer maximum of 5,000 per call. | Verify each cmdlet's syntax and paging, then prove completeness. |
+| 14 | Untested sentinel exclusions | Attackers can copy sentinels to suppress real detection; `<ExcludedMatch>` is not the documented syntax. | Validate an approved negative-evidence design with adversarial positives and negatives. |
 
 ## 14. Evidence pack and `Write-FsiEvidence`
 
@@ -992,14 +892,16 @@ function Write-FsiEvidence {
 
     if (-not (Test-Path $EvidenceDir)) { throw "Evidence dir not found: $EvidenceDir" }
 
-    $manifest = Get-ChildItem $EvidenceDir -File -Recurse | ForEach-Object {
+    $manifestPath = Join-Path (Resolve-Path $EvidenceDir).Path 'manifest.json'
+    $manifest = @(Get-ChildItem $EvidenceDir -File -Recurse |
+        Where-Object FullName -ne $manifestPath | ForEach-Object {
         [PSCustomObject]@{
             RelativePath = (Resolve-Path $_.FullName -Relative)
             SHA256       = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
             Bytes        = $_.Length
             ModifiedUtc  = $_.LastWriteTimeUtc
         }
-    }
+    })
 
     $envelope = [PSCustomObject]@{
         ControlId     = $ControlId
@@ -1036,14 +938,14 @@ Stop-Transcript
 
 ## 15. Cross-links
 
-- **Control 1.5 — Identity baseline for agent makers and admins.** SIT authoring requires the privileged-role and Conditional Access posture defined there. `docs/controls/pillar-1-security/1.5-identity-baseline-for-agent-makers-and-admins.md`
-- **Control 1.6 — Sensitivity labels and label policies.** SIT detection drives auto-labelling; labels in turn drive Copilot grounding eligibility. `docs/controls/pillar-1-security/1.6-sensitivity-labels-for-ai-content.md`
-- **Control 1.7 — DLP policy framework.** This playbook publishes SITs; Control 1.7 is the parent for the DLP policy engine that consumes them. `docs/controls/pillar-1-security/1.7-data-loss-prevention-for-ai-interactions.md`
-- **Control 1.10 — Customer Lockbox / data-residency boundary.** Customer Lockbox and data-residency posture are covered in Control 2.1 Managed Environments — see the *Customer Lockbox & Data Residency Posture* sub-section.
+- [Control 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) — consuming policies and label bindings.
+- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — posture and activity evidence.
+- [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — audit collection and retention.
+- [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) — Customer Lockbox and data-residency posture.
 - **Control 4.6 — SharePoint grounding scope governance.** SIT-based DLP rules complement scope governance for what an agent can ground on. `docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
 - **AI Incident Response Playbook.** Standing on-call runbook for SIT/DLP alerts that fire against agent traffic. `docs/playbooks/incident-and-risk/ai-incident-response-playbook.md`
 - **Shared PowerShell baseline.** Module pinning, transcript and evidence helpers. `docs/playbooks/_shared/powershell-baseline.md`
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — documentation verified; tenant UI not tested*

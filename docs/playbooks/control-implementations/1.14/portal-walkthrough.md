@@ -5,6 +5,7 @@
 **Surfaces:** Microsoft Copilot Studio · Power Platform Admin Center (PPAC) · Microsoft Purview portal (DSPM for AI, Audit, DLP, Alert policies, Activity Explorer) · SharePoint Admin Center (SPAC) · Microsoft Entra admin center · Microsoft Sentinel (Zone 3 only)
 **Estimated time:** 8–14 hours initial setup per zone (excluding Control 1.2 inventory build and Control 4.6 SharePoint enforcement); monthly review cadence in Zone 3, quarterly in Zone 2, annual in Zone 1
 **Last UI Verified:** May 2026
+**Last Verified:** 2026-10-16 — documentation-only review of Control 1.13 dependencies; tenant UI not tested.
 
 !!! danger "READ FIRST — boundaries with Controls 1.2, 1.4, 1.13, 1.18, and 4.6"
     This walkthrough governs **per-agent data minimization**: which grounding surfaces an agent may reach (SharePoint libraries, OneDrive, Dataverse tables, Graph connectors, file uploads, image uploads, public web, enterprise URLs, connector references, declarative agents / API plugins), how that scope is approved, and how scope drift is detected.
@@ -33,7 +34,7 @@
 | **Copilot Studio → agent → Settings → Generative AI** | Disable web search for Zone 3 agents handling NPI; review tone, instructions, and orchestration mode for scope-appropriate behavior. | Removes the "anything on the public internet" grounding path from regulated agents. |
 | **PPAC → Security → Data and privacy → Data policy** | Classify the Copilot Studio knowledge connectors and the connectors used as agent actions into Business / Non-Business / Blocked groups; scope policies to environments hosting Zone 2 / Zone 3 agents. | Constrains which connectors an agent may use; complements but does not replace OAuth scope minimization (Control 1.18). |
 | **Purview portal → DSPM for AI → Policies + Activity Explorer** | Enable the recommended one-click DSPM-for-AI policies; review sensitive-interactions activity at the zone cadence; export weekly evidence. | Primary detective surface for sensitive-data interactions with Copilot and agents. |
-| **Purview portal → Data loss prevention → Policies** | Author DLP policies at the **Microsoft 365 Copilot** location with rules tied to sensitivity labels and SITs (Control 1.13). | Runtime enforcement that excludes labeled / SIT-matched content from agent grounding. |
+| **Purview portal → Data loss prevention → Policies** | Use separate Copilot-location rules for typed-prompt SITs and labeled grounding content (Control 1.13). | No automatic source-file SIT exclusion or blanket agent upload/connector coverage. |
 | **Purview portal → Audit → Search** | Discover the canonical Copilot and Power Platform audit operations in your tenant (record types `CopilotInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory`); export evidence. | Forensic and supervisory record (FINRA Rule 4511, FINRA Rule 3110 / RN 24-09). |
 | **Purview portal → Policies → Alert policies** *(or Defender XDR → Email & collaboration → Policies & rules → Alert policy)* | Create alert policies on discovered audit operations. For Zone 3, replace with a Microsoft Sentinel analytic rule sourcing the M365 connector. | Near-real-time scope-drift detection. |
 | **Microsoft Entra admin center → Identity governance → Access reviews** | Run scheduled access reviews on agent identities (Entra Agent ID), connector connections, and SharePoint groups gating knowledge sources. | Periodic recertification (FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12)). |
@@ -153,7 +154,7 @@ Record PIM activations in the change record and include the activation timestamp
 
 | Unified Audit Log (UAL) ingestion confirmed | UAL has been on for ≥ 90 days (or since tenant creation if newer); `CopilotInteraction` and Power Platform record types are emitting. | `Purview → Audit → Search` returns results for `RecordType=CopilotInteraction` over the last 7 days. |
 | Sensitivity labels published | Required for DLP-for-Copilot rule conditions; cross-reference to Control 1.5. | `Purview → Information protection → Labels` shows ≥ 1 published label. |
-| At least one SIT or trainable classifier published | Required for DLP-for-Copilot SIT-condition rules; cross-reference to Control 1.13. | `Purview → Information protection → Classifiers → Sensitive info types` shows ≥ 1 published custom or built-in SIT in active use. |
+| Supported built-in/custom SIT available | Typed-prompt SIT condition supports these types, not an assumed trainable classifier/EDM/fingerprint; cross-reference Control 1.13. | Capture actual definition, feature rollout, and positive/negative test. |
 | Control 1.2 agent registry exists and is current within the last 30 days | Source-of-truth inventory for §2 reconciliation. | Open the registry (SharePoint List or Dataverse table) and confirm last-modified date. |
 | Control 4.6 RCD/RSS posture documented | Required for §4 reconciliation. | Open the Control 4.6 evidence pack; confirm latest DAG snapshot and RCD list. |
 
@@ -559,10 +560,10 @@ Using the test fixtures from §1.4:
 
 ### 6.3 Configure sensitivity-label gating
 
-For Zone 2 and Zone 3 agents, the upload-time label check is enforced through the [Control 1.13 — Sensitive Information Types and Sensitivity Labels](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) infrastructure and the §8 Purview DLP policy targeting the **Microsoft 365 Copilot** location.
+Do not treat §8's Copilot-location policy as an upload-time file scanner. Its SIT condition evaluates typed prompts, not uploaded-file contents. [Control 1.13](../1.13/verification-testing.md) distinguishes this from label-based grounding exclusion. Validate a supported control for the actual Copilot Studio/connector upload path; mark the zone requirement blocked if none is deployed.
 
 1. Verify that the relevant SITs and labels exist in Purview (Control 1.13 §2 SIT inventory).
-2. In §8 below, the DLP policy authored for the Microsoft 365 Copilot location includes a rule that inspects user-supplied content for the SITs and either warns or blocks per the §6.1 row.
+2. Record the actual upload-control product/configuration and verify it independently. Do not infer it from a successful typed-prompt SIT or labeled-grounding test.
 3. For endpoint-level upload control (e.g., blocking upload from an unmanaged device), the [Control 1.17 — Endpoint and Network Controls](../../../controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) endpoint DLP profile is the enforcement point.
 
 ### 6.4 Validation
@@ -647,7 +648,7 @@ Pin a saved query named `q-1.14-scope-drift-baseline` filtered to the agents in 
 
 **Operator:** Purview Compliance Admin
 **Estimated time:** 60–90 minutes for the first policy; 15 minutes per incremental rule
-**Outcome:** A Purview DLP policy named (suggested) `dlp-1.14-copilot-runtime` targets the **Microsoft 365 Copilot and Copilot Chat** location with rules that warn or block based on the SITs and sensitivity labels from Control 1.13; positive- and negative-path validation transcripts captured.
+**Outcome:** A policy at the **Microsoft 365 Copilot and Copilot Chat** location with distinct typed-prompt SIT and labeled-grounding rules, plus independent agent-upload controls. Follow [current Microsoft Learn](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about); no tenant UI test was performed in the 2026-10-16 documentation review.
 
 ### 8.1 Open Purview DLP
 
@@ -665,7 +666,7 @@ Pin a saved query named `q-1.14-scope-drift-baseline` filtered to the agents in 
 
 1. **Name:** `dlp-1.14-copilot-runtime`.
 2. **Description:** `Runtime DLP for Copilot Studio agents and M365 Copilot — Control 1.14`.
-3. **Admin units:** select the relevant admin units (or Full directory if your firm does not use AU scoping).
+3. **Admin units:** administrative-unit scoping is unsupported for this location. Verify initiating-user inclusions/exclusions instead.
 4. Click **Next**.
 
 ### 8.4 Choose the Microsoft 365 Copilot location
@@ -681,30 +682,28 @@ Create one rule per detection bucket. Suggested minimum rules:
 **Rule R1 — Block NPI in prompts:**
 
 - Conditions: Content contains SIT `SIT-1.13-NPI-Aggregate` (or your equivalent NPI SIT).
-- Actions: Restrict access — Block.
-- User notifications: On — surface the policy tip text from Control 1.13 to the end user.
-- User overrides: Off (Zone 3); Allow with business justification (Zone 2).
+- Actions: **Prevent Copilot from processing content → Processing prompts** (preview, verify rollout). A distinct **Performing Web Searches** action restricts web searches, not all internal answers.
+- User notifications: configure supported policy tips; a custom compliance URL changes only the help-link destination, not standard block-message text.
+- User overrides: do not assume a generic allow-with-business-justification action is supported by this prompt restriction.
 - Incident reports: On — notify Purview Compliance Admin and the Compliance Officer mailbox.
 
-**Rule R2 — Warn on Confidential label in prompts:**
+**Rule R2 — Exclude Confidential labeled grounding content:**
 
 - Conditions: Content has sensitivity label `Confidential`.
-- Actions: Restrict access — Notify only.
+- Actions: **Prevent Copilot from processing content**. This condition evaluates supported labeled files/emails, not a label on a prompt string. Test simulation separately from enforcement.
 - User notifications: On.
 
-**Rule R3 — Block Highly Confidential / Regulated label in responses:**
+**Rule R3 — Exclude Highly Confidential / Regulated labeled grounding content:**
 
-- Conditions: Response content has sensitivity label `Highly Confidential` or `Regulated`.
-- Actions: Restrict access — Block (the response is suppressed; the user receives a policy tip).
+- Conditions: **Content contains → Sensitivity labels**, selecting `Highly Confidential` or `Regulated`.
+- Actions: **Prevent Copilot from processing content**. The source content is excluded; this is not universal response redaction, and a citation can remain.
 - Incident reports: On.
 
-**Rule R4 — Block uploads of Confidential-or-higher to Zone 2 / Zone 3 agents:**
+**R4 requirement — Independently protect agent uploads:**
 
-- Conditions: User uploaded content via Copilot Studio agent in environment `<Zone 2 / Zone 3>` AND content has sensitivity label `Confidential` or higher OR contains any SIT from the Control 1.13 NPI bundle.
-- Actions: Restrict access — Block.
-- User notifications: On — refer the user to the §6 file-upload policy text.
+- There is no documented equivalent of the former "user uploaded content via agent in environment" condition in this location. Use §6's separately validated upload controls; do not create an invented Copilot-location rule or claim uploaded-file SIT scanning.
 
-For each rule, click **Save**, then **Next**.
+Keep SIT and label conditions in separate rules. Save supported rules only, then **Next**.
 
 ### 8.6 Test mode then enforce
 
@@ -716,9 +715,9 @@ For each rule, click **Save**, then **Next**.
 ### 8.7 Validation
 
 1. As `svc-scope-pos`, ask the Zone 3 agent a prompt containing a synthetic NPI string (e.g., `SSN 123-45-6789`). Expected: prompt is blocked; user sees the R1 policy tip; incident report fires. Capture as artifact E16-pos.
-2. Ask the Zone 2 agent the same prompt. Expected: per R1 configuration, either block or allow-with-justification; capture transcript.
-3. Have the agent attempt to surface a citation from a `Highly Confidential`-labelled document. Expected: response suppressed by R3; capture as artifact E16-neg.
-4. Upload a Confidential-labelled file to the Zone 2 agent. Expected: blocked by R4; capture transcript.
+2. Test an included and an excluded initiating user, plus a paired synthetic negative. Record actual scope and supported experience; agent identity is not a replacement for user scope.
+3. Ask for content from a labeled grounding file/email: verify content exclusion, not citation absence or universal response suppression. Reopen Word/Excel/PowerPoint files after mid-session labeling; supported email exclusion starts with emails sent January 1, 2025 and excludes calendar invites.
+4. Test the independent §6 upload control; a prompt-SIT pass is not upload protection. Allow up to four hours for policy updates and preserve actual runtime evidence.
 
 ### 8.8 Common pitfalls in §8
 
@@ -1099,4 +1098,4 @@ That playbook indexes symptoms to the section in this walkthrough that owns the 
 
 ---
 
-*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; §1.1 Copilot Studio capacity path sourced from Microsoft Learn September 2026; portal UI not reverified in September 2026)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review — Control 1.13 dependencies documentation-verified; tenant UI not tested*

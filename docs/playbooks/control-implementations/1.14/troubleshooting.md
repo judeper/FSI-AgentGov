@@ -83,7 +83,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 | Over-privileged service account on agent identity | Rotate credential; remove offending role / API permission assignments; re-bind agent to a least-privilege identity (Control 1.18); document the gap window for books-and-records | 2 h |
 | Audit gap for `AppPermissionGranted` / `CopilotInteraction` (Control 1.7 ingestion broken) | Pause Zone-3 agent activations; cross-reference SharePoint audit, Graph sign-in logs, and Entra audit as fallback evidence sources | 30 min |
 | Public web grounding still active on Zone 3 NPI agent | Disable in Copilot Studio per-agent setting; if propagation lags, set Maker / environment policy to disable web grounding tenant-wide for Zone 3 environments | 15 min |
-| File/image upload bypassing zone policy | Disable file/image upload on the agent; raise DLP-for-Copilot rule severity to Block; restrict by sensitivity label and SIT (Controls 1.13, 1.17) | 30 min |
+| File/image upload bypassing zone policy | Disable the affected upload path; independently validate a supported upload control (Controls 1.13, 1.17). Copilot-location prompt SIT conditions do not scan uploaded-file contents | 30 min |
 
 > **Segregation of duties (SoD) — critical.** The agent owner / Maker MUST NOT be the sole approver for Zone 3 scope expansion or quarterly access review sign-off. This is a structural SoD violation under FINRA 3110 supervision principles and the OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) "effective challenge" requirement. Required reviewer set: AI Governance Lead **plus** a business-line compliance officer (Zone 3) or manager (Zone 2). If your current review process allows owner-only sign-off, treat that as a control deficiency and document compensating review in the incident record.
 
@@ -136,7 +136,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 
 **Step 5 — root cause.** Knowledge source was scoped to the entire site at agent creation (Maker chose "all of organization" default in Copilot Studio); quarterly access review was overdue by 47 days; agent owner was the only approver on file. Three failure modes intersect: §2.2 (entire-site scope), §2.7 (scope-drift detector silent), and the §1.4 SoD note (owner-only approval).
 
-**Step 6 — remediation.** Re-scope knowledge source to the specific approved folder (Control 4.6 Restricted Content Discovery exclusion); add the under-scoped library to the Connector DLP block list (Control 1.4); deploy a SIT-based DLP-for-Copilot rule to detect customer-account-number patterns (Controls 1.13, 1.5); rotate the agent owner's environment-Maker assignment; require an independent reviewer for the next quarterly review.
+**Step 6 — remediation.** Re-scope knowledge source to the specific approved folder (Control 4.6 Restricted Content Discovery exclusion); add the under-scoped library to the Connector DLP block list (Control 1.4); test supported account-number SITs in typed prompts separately from a sensitivity-label rule on grounding files/emails (Controls 1.13, 1.5). A source-file SIT match alone does not establish grounding exclusion; rotate the agent owner's environment-Maker assignment; require an independent reviewer for the next quarterly review.
 
 **Step 7 — regulator notifications.** SEC Reg S-P §248.30(a)(4) customer-notification draft prepared by Privacy + Legal; NY DFS 500.17 72 h clock measured from determination at 15:02 → DFS notification due by 15:02 on day-3. FINRA 4530(b) evaluation: not yet a "specified event" but flagged for re-evaluation if a customer complaint files.
 
@@ -259,7 +259,7 @@ Get-DlpComplianceRule | Where-Object { $_.ParentPolicyName -eq '<PolicyName>' } 
   Select-Object Name, Mode, BlockAccess, NotifyUser, ContentContainsSensitiveInformation
 ```
 
-**Remediation.** Disable upload at the per-agent setting where Zone policy requires; switch the DLP-for-Copilot rule to `Block`; expand SIT coverage (Control 1.13) to include the unsupported format via OCR-enabled SITs or pre-upload Purview scan. Update Maker policy to disallow upload on new Zone 2/3 agents.
+**Remediation.** Disable the affected upload path where zone policy requires; verify supported detection/enforcement for the actual format and connector. Copilot-location prompt SIT restriction does not scan uploaded-file contents and is not a substitute for a validated upload control (Control 1.13). Update maker policy and test new Zone 2/3 agents.
 
 **Validation.** Attempt an upload of a file matching a SIT; expect Block + DSPM activity row + audit `DlpRuleMatch`.
 
