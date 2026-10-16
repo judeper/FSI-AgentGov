@@ -2,7 +2,8 @@
 
 **Control:** [1.5 Data Loss Prevention and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
 **Pillar:** 1 — Security & Identity
-**Last UI Verified:** May 2026 (Microsoft Purview portal `purview.microsoft.com`, Power Platform Admin Center `admin.powerplatform.microsoft.com`, Microsoft 365 admin center)
+**Last Verified:** 2026-10-16 — Microsoft Learn documentation review of verification dependencies; no tenant execution or screenshots<br>
+**Last UI Verified:** Historical May 2026 entry; not reverified in this review (Microsoft Purview portal `purview.microsoft.com`, Power Platform Admin Center `admin.powerplatform.microsoft.com`, Microsoft 365 admin center)
 **Audience:** M365 administrator at a US financial services firm (bank, broker-dealer, insurance carrier, investment adviser, credit union)
 **Cloud coverage:** Commercial (Global)
 **Estimated time:** 8–14 hours initial buildout (covers all 13 DLP surfaces); 2–3 hours per surface refresh thereafter; pilot validation windows excluded
@@ -27,8 +28,8 @@
     | 7 | Microsoft 365 Copilot & Copilot Chat — block prompts by SIT (preview) | Same location, separate rule (§7) |
     | 8 | Power Platform connector classification (Microsoft Copilot Studio agents) | PPAC `Security > Data and privacy > Data policy` (§8) |
     | 9 | Power Platform HTTP endpoint filtering (preview) | PPAC connector configuration (§8) |
-    | 10 | Edge for Business — unmanaged AI (preview) — ChatGPT, Gemini, DeepSeek, Copilot consumer | Purview Endpoint DLP browser/site restrictions + Edge configuration policy (§9) |
-    | 11 | Network DLP for unmanaged AI (preview) | Purview Endpoint DLP **Network activity** rules (§9) |
+    | 10 | Edge for Business — unmanaged AI | Purview **Inline web traffic → Edge for Business**, with automatic Edge/Intune activation (§9); distinct from Endpoint DLP |
+    | 11 | Network data security | Purview **Inline web traffic → Network and non-Microsoft secure browsers**, plus Security Store integration (§9) |
     | 12 | Defender for Cloud Apps file policies (non-Microsoft SaaS) | Defender for Cloud Apps `Policies > File policies` (§10) |
     | 13a | Power BI / Fabric workspaces | Purview DLP location `Fabric and Power BI workspaces` (§11) |
     | 13b | On-premises file shares / on-prem SharePoint | Purview Information Protection scanner (§12) |
@@ -67,7 +68,7 @@ Confirm **every** item below before starting. A missed prerequisite causes a dow
 |---|---|
 | Purview DLP for Exchange/SharePoint/OneDrive/Teams/Devices/Fabric | Microsoft 365 E5 / E5 Compliance / Microsoft Purview Suite per monitored user — verify against [Purview DLP licensing guidance](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance) |
 | Endpoint DLP (Devices location) | E5 Compliance entitlement; device onboarding via Defender for Endpoint **or** Purview standalone onboarding |
-| Microsoft 365 Copilot DLP location (block by label, GA; block by SIT, preview) | Microsoft 365 Copilot per-user license for users in scope |
+| Microsoft 365 Copilot DLP location (block by label, GA; block by SIT, preview) | Prompt DLP is available to all Copilot/Copilot Chat users; restricting processing of files/emails requires eligible E5/Purview entitlement. Verify access to the Copilot experience separately. See [Purview service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description). |
 | Sensitivity labels (file/email + container) | Included with E3+; encryption requires Azure Information Protection P1/P2 entitlement |
 | Double Key Encryption (DKE) — NYDFS 500.15 / state regulator scenarios | DKE service deployed by the institution; cross-link [Control 1.15](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) |
 | Adaptive Protection (DLP risk-tiered enforcement) | Insider Risk Management entitlement (E5 Compliance / Purview Suite) — **Commercial only**; see §13 |
@@ -109,8 +110,8 @@ Use canonical short names from `docs/reference/role-catalog.md`. Avoid Entra Glo
 !!! danger "Plan validation windows around propagation"
     - **Purview DLP for the Microsoft 365 Copilot and Copilot Chat location:** changes can take **up to 4 hours** to take effect. Treat earlier "no match" results as inconclusive, not as failure.
     - **Purview DLP for SharePoint / OneDrive / Exchange / Teams / Devices:** typically minutes to ~1 hour for new policies; up to several hours for rule changes on large content stores.
-    - **Power Platform data policies:** allow ~1–2 hours for connector-classification changes to propagate to runtime; HTTP endpoint filtering may take additional time.
-    - **Sensitivity labels:** publishing a label policy can take **up to 24 hours** to surface in Office clients.
+    - **Power Platform data policies:** most changes enforce within an hour, but full enforcement can take **24 hours**. Static endpoint-filter rules are documented as enforced immediately on save; dynamic runtime endpoints are excluded. See [policy latency](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention) and [endpoint filtering](https://learn.microsoft.com/en-us/power-platform/admin/connector-endpoint-filtering).
+    - **Sensitivity labels:** allow up to 24 hours for publication changes to replicate; client refresh can take additional time.
     - **Auto-labeling:** initial simulation can take hours to days depending on corpus size.
     - **Defender for Cloud Apps file policies:** initial scan can take hours to days depending on connected app inventory.
 
@@ -274,7 +275,7 @@ The Standard DLP templates (Financial, Privacy, etc.) **do not surface** the *Mi
 2. **Custom → Custom policy → Next**.
 3. Name: `FSI-Copilot-DLP-Baseline`. Description references this control + ticket.
 4. Admin scope: **tenant**. Do **not** select a Restricted Administrative Unit (the Copilot location does not support AUs).
-5. **Locations** → enable **Microsoft 365 Copilot and Copilot Chat**. Scope to the user/group population from your agent inventory.
+5. **Locations** → enable **Microsoft 365 Copilot and Copilot Chat**. All other locations in this policy are disabled when Copilot is selected. Scope to the user/group population from your agent inventory.
 6. **Next** to the rule editor.
 
 ### 6.3 Same-rule restriction — author **two separate rules** in the same policy
@@ -306,13 +307,15 @@ The Standard DLP templates (Financial, Privacy, etc.) **do not surface** the *Mi
 !!! warning "Block-by-label scope"
     The *Prevent Copilot from processing the content* action applies only to:
 
-    - Files in **SharePoint Online** and **OneDrive for Business**
+    - Supported labeled files stored in **SharePoint Online** and **OneDrive for Business**, and labeled files actively open in supported Office experiences
     - **Emails sent on or after January 1, 2025** (Exchange Online)
     - **Calendar invites are NOT supported**
-    - Items still appear in **citations with a link** even when content is not summarized into the response
+    - Items can still appear in **citations with a link** even when content is not summarized into the response
     - **Files uploaded directly into a Copilot prompt are NOT scanned by this DLP location**
 
     Communicate these boundaries to stakeholders so the control is not assumed to be broader than its documented scope.
+
+    Encryption is not a prerequisite for label-based DLP. Test with a user who has normal file access so an authorization denial is not mistaken for a DLP block. In Word, Excel, and PowerPoint, reopen the file after a label change because evaluation occurs at file open. Source: [Copilot DLP](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about).
 
 ### 6.5 Mode and propagation
 
@@ -349,7 +352,7 @@ In the **Connectors** tab, classify each connector. Connectors classified Busine
 | Custom Website / Direct Line custom channel | Non-Business | Blocked | **Blocked** |
 | Social-media channels (Facebook, WhatsApp) | Blocked | Blocked | **Blocked** |
 
-> The connector catalog is maintained by Microsoft and grows over time. Refer to the **live PPAC list** for current inventory rather than relying on a static count. Save and allow ~1–2 hours for propagation.
+> The connector catalog is maintained by Microsoft and grows over time. Refer to the **live PPAC list** for current inventory rather than relying on a static count. Most data-policy changes enforce within an hour; allow up to 24 hours for full enforcement.
 
 ### 7.3 Surface 9 — HTTP endpoint filtering (preview)
 
@@ -357,8 +360,8 @@ In the **Connectors** tab, classify each connector. Connectors classified Busine
     Connector endpoint filtering is in **preview** as of April 2026. Verify rollout in your tenant before relying on it as a sole Zone 3 control. Reference: [Connector endpoint filtering (Learn)](https://learn.microsoft.com/en-us/power-platform/admin/connector-endpoint-filtering).
 
 1. In the data policy, locate **HTTP with Microsoft Entra ID** in the Business group.
-2. Open the connector configuration → **Endpoint filtering** (or **Connector configurations** depending on UI revision).
-3. Choose **Allow list** (Zone 3 default) or **Block list** (Zone 1–2).
+2. On **Prebuilt Connectors**, verify **Endpoint configurable = Yes**, then **Configure connector → Connector endpoints**.
+3. Configure ordered **Allow/Deny** patterns, ending with `*` **Deny** for an allow-list posture. A new policy defaults to `*` **Allow**.
 4. Add URL patterns (substitute your own approved domains; the patterns below are illustrative):
 
     ```
@@ -379,7 +382,7 @@ In the **Connectors** tab, classify each connector. Connectors classified Busine
     https://*.file-sharing.example.com/*   # Consumer file sharing
     ```
 
-5. Save and allow ~1–2 hours for propagation.
+5. Save and test a static allowed URL and a static denied URL. Endpoint rules are documented as enforced immediately on save, but do not cover environment variables, custom inputs, dynamically bound runtime endpoints, or the HTTP with Entra ID **Get web resource** action. Do not treat this preview filter as a general runtime egress firewall.
 6. Document allowed endpoints in change control ([Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)) and obtain dual approval (Power Platform Admin + AI Governance Lead) for Zone 3 per [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md).
 
 ### 7.4 PAYG implications for non-Microsoft channels
@@ -392,25 +395,29 @@ When Copilot Studio agents publish to **non-Microsoft channels**, Microsoft's bi
 
 ---
 
-## §9 — Surfaces 10 & 11: Edge for Business unmanaged AI (preview) and Network DLP for unmanaged AI (preview)
+## §9 — Surfaces 10 & 11: Edge for Business unmanaged AI and Network data security
 
 These two surfaces address the FSI-critical exfiltration path of users pasting customer data into **consumer AI sites** (ChatGPT, Gemini, DeepSeek, Copilot consumer, Claude.ai, etc.).
 
-### 8.1 Surface 10 — Edge for Business unmanaged-AI inline protection (preview)
+### 8.1 Surface 10 — Edge for Business unmanaged-AI inline protection
 
-1. Push the **Edge for Business configuration policy** via Intune (this is a configuration policy, not a browser extension). Document the Intune policy ID and assignment scope.
-2. For Chrome / Firefox (Windows-only), push the **Microsoft Purview browser extension** via Intune to in-scope devices.
-3. Purview portal → **Settings → Endpoint DLP settings → Browser and domain restrictions to sensitive data** → add consumer AI hostnames (`chat.openai.com`, `chatgpt.com`, `gemini.google.com`, `deepseek.com`, `copilot.microsoft.com` consumer surface, `claude.ai`, etc.) to **Sensitive service domains** or **Unallowed sites** depending on your zone posture.
-4. In your Endpoint DLP rules (§6), add an action targeting **Browser activities → Upload to a restricted website** for matches on FSI SITs, EDM, or labels.
-5. Configure policy tips with required justification on user override; route override telemetry to Purview Audit and Sentinel as in §4.2.
+1. Verify [browser DLP prerequisites](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn): Intune-managed Windows 10/11, supported Edge for Business versions, Purview PAYG, and the required Edge/Intune administration permissions. Endpoint onboarding is not required for this browser plane.
+2. Purview **Data Loss Prevention → Policies → Create policy → Inline web traffic → Custom → Custom policy**.
+3. Add cloud apps through **Adaptive app scopes → All unmanaged AI apps** or choose supported apps. Set the approved user/group scope; the catalog scope includes only supported browser apps.
+4. Choose **Edge for Business** as the enforcement plane. Add the intended SIT conditions and **Restrict browser and network activities**, selecting text/file upload **Block** or the supported audit behavior.
+5. Save in simulation, verify automatic Edge/Intune policy activation, then perform a controlled enforcement test. A sync error means protection is not active. These policies apply across work, personal, and InPrivate profiles on supported managed devices; B2B guests are excluded.
 
-### 8.2 Surface 11 — Network DLP for unmanaged AI (preview)
+This is not Endpoint DLP's restricted-service-domain configuration. Chrome extensions do not turn Chrome or Firefox into this Edge enforcement plane; review the documented unprotected-browser restrictions and overlap precedence. See the [official browser deployment procedure](https://learn.microsoft.com/en-us/purview/dlp-create-policy-block-to-ai-via-edge).
 
-1. Purview portal → **Data Loss Prevention → Policies → + Create policy → Custom → Custom policy**.
+### 8.2 Surface 11 — Network data security for unmanaged AI
+
+1. Purview **Data Loss Prevention → Security Store**: integrate a supported SASE/secure-browser provider and verify its permissions, routing, and licensing. For Entra Global Secure Access, configure its TLS inspection and content policy; non-Microsoft integrations require Purview PAYG.
 2. Name: `FSI-Network-DLP-UnmanagedAI`.
-3. Enable the **Devices** location and, in the rule, add **Network activities** conditions targeting **Send to unallowed network destination** matched by hostname or IP for the consumer AI services in 10.1.
-4. **Actions:** Block (Zone 3) or Audit + warn (Zone 1–2).
-5. **Mode:** Test with notifications → simulation pass → enforce.
+3. Create a Purview DLP **Inline web traffic → Custom** policy, add the intended unmanaged cloud apps/adaptive app scope, and enable **Network and non-Microsoft secure browsers**.
+4. Configure **Restrict browser and network activities** for supported text/file activities with **Block** or **Audit only**; do not invent a generic warn/override action.
+5. Validate provider distribution (allow up to 24 hours initially), scope, positive/negative samples, and enforcement-plane **network** activity. Guest users and provider-specific protocol/content limitations remain gaps.
+
+See [network data security](https://learn.microsoft.com/en-us/purview/dlp-network-data-security-learn) and its [deployment procedure](https://learn.microsoft.com/en-us/purview/dlp-create-policy-ai-network-data-security). This is not a **Devices** location or Defender Network Protection rule.
 
 > **Audit destination:** Endpoint DLP and unmanaged-AI DLP records flow through Purview Audit (Standard). Note that some non-Microsoft AI app interactions captured under the audit operation `AIAppInteraction` are **PAYG-only** (Audit Premium PAYG) — see [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for the audit-tier distinction.
 
@@ -418,7 +425,7 @@ These two surfaces address the FSI-critical exfiltration path of users pasting c
 
 ## §10 — Surface 12: Defender for Cloud Apps file policies (non-Microsoft SaaS)
 
-For sanctioned non-Microsoft SaaS (ServiceNow, Workday, Salesforce, Box, Dropbox Business, etc.), Purview DLP does not have native locations. Use **Defender for Cloud Apps file policies**:
+For existing supported connected-app deployments, review **Defender for Cloud Apps legacy file policies**. File policies retire on **January 6, 2027**: plan [migration to Purview](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview) rather than assuming a new deployment has an indefinite lifetime. Connected-app and governance-action support varies.
 
 1. Sign in to the Defender portal (`security.microsoft.com`).
 2. **Cloud Apps → Policies → Policy management → + Create policy → File policy**.
@@ -438,8 +445,8 @@ Sensitive data exfiltration via embedded reports, dataset exports, and semantic 
 
 1. Purview portal → **Data Loss Prevention → Policies → + Create policy → Custom → Custom policy**.
 2. Name: `FSI-Fabric-PowerBI-DLP`.
-3. **Locations → Fabric and Power BI workspaces** — scope to **Premium** capacities containing sensitive datasets (DLP for Fabric/Power BI typically requires a Premium-class capacity; verify entitlement against current Microsoft Learn).
-4. Author rules referencing FSI SITs, EDM classifiers, and sensitivity labels (Confidential, Highly Confidential).
+3. **Locations → Fabric and Power BI workspaces** — scope to workspaces hosted in **Fabric or Premium capacities**; verify current entitlement and metered evaluation costs.
+4. Author rules using supported SITs and sensitivity labels. EDM, trainable classifiers, credential classifiers, and named entities are not supported. Verify supported item/storage modes; semantic models using DirectQuery/live connections and service-principal-owned or initiated evaluation paths have limitations. See [Fabric DLP](https://learn.microsoft.com/en-us/purview/dlp-powerbi-get-started).
 5. **Actions:** notify dataset owner; generate alert; route to incident report mailbox.
 6. **Mode:** Test → simulation pass → enforce.
 
@@ -451,7 +458,7 @@ For pre-existing on-prem repositories (file shares, on-prem SharePoint Server) w
 
 1. Purview portal → **Information Protection → Scanners** (or under **Settings**, depending on UI revision).
 2. Provision an **AIP/Information Protection scanner** instance on a Windows Server with line-of-sight to the repository and an Azure-registered service principal.
-3. Configure the scanner to use the **published label policies** from §3 and any **auto-labeling policies** from §3.4.
+3. Configure the scanner's content scan jobs, repositories, published sensitivity labels, and label automatic-classification conditions. Service-side SharePoint/OneDrive/Exchange auto-labeling policies from §3.4 do not target the on-premises scanner.
 4. Run **Discovery mode** first to enumerate sensitive content; then **Enforce** to apply labels and (optionally) protection.
 5. Reference: [Microsoft Purview Information Protection scanner](https://learn.microsoft.com/en-us/purview/deploy-scanner).
 
@@ -492,7 +499,7 @@ A "policy created" screenshot is **not** evidence the rule fires. Generate a kno
     - Upload a synthetic-PII file to OneDrive → expect §4 match.
     - Send a Teams message containing a synthetic ABA routing number → expect §5 match.
     - Attempt to copy a labeled file to a USB drive on an onboarded Windows endpoint → expect §6 match.
-    - Attempt to paste a synthetic SSN into `chat.openai.com` from an onboarded device → expect §9 match.
+    - Submit classifier-validated synthetic text to a supported AI app through the configured browser/network enforcement plane → expect §9 match; Endpoint onboarding alone is insufficient.
     - Upload a labeled file to a connected Box/Dropbox Business app → expect §10 match.
 
 ### 13.2 Confirm in DLP Alerts
@@ -548,6 +555,8 @@ DLP telemetry feeds the **determination** that starts both clocks; it does not, 
 
 **Zone 3 must complete a documented simulation pass before "Turn it on right away" for every surface.**
 
+**Capability boundary:** the zone table describes organizational requirements, not uniform native actions. Browser/network inline DLP supports its documented audit/block actions, not a generic warn/override action. Fabric DLP supports policy tips/alerts and supported access restriction (preview); a blanket export-block requirement needs separately validated controls. The browser/network overview pages above no longer label the whole capability preview; assess any specifically preview subfeature separately. See [browser DLP](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn), [network data security](https://learn.microsoft.com/en-us/purview/dlp-network-data-security-learn), and [Fabric DLP](https://learn.microsoft.com/en-us/purview/dlp-powerbi-get-started).
+
 ---
 
 ## §16 — Evidence pack
@@ -569,7 +578,7 @@ Control-1.5_{TenantId}_{Cloud}_{Surface#}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ex
 | Auto-labeling policy locations | `Get-AutoSensitivityLabelPolicy` | JSON | On change |
 | Power Platform data-policy export | `Get-DlpPolicy` (PowerApps PowerShell) | JSON | On change |
 | Endpoint device onboarding inventory | Purview → Device onboarding | CSV | Weekly |
-| Browser coverage report (Edge config + Purview extension) | Intune | CSV | Weekly |
+| Browser coverage report (supported Edge/Intune devices, activation state, policy scope) | Intune + Purview Inline web traffic | CSV / captured configuration | Weekly |
 | Defender for Cloud Apps file-policy export | DfCA portal | JSON | On change |
 | Fabric / Power BI DLP policy export | Purview → DLP | JSON | On change |
 | Information Protection scanner inventory | Scanner console / Purview | CSV | Monthly |
@@ -592,12 +601,12 @@ Use this as the §14 sign-off checklist before any Zone 3 enforcement decision.
 5. [ ] **Surface 7** (Copilot block-by-SIT, preview) — Rule A authored separately from Rule B (same-rule restriction respected); preview status documented in Zone 3 caveat.
 6. [ ] **Surface 8** (PP connector classification) — Live PPAC connector list reviewed; HTTP Webhook and Custom Website channels Blocked in Zone 3.
 7. [ ] **Surface 9** (PP HTTP endpoint filtering, preview) — Allow-list mode for Zone 3 with documented endpoint inventory and dual approval; preview status recorded.
-8. [ ] **Surface 10** (Edge unmanaged AI, preview) — Edge configuration policy and Purview browser extension deployed via Intune; consumer AI hostnames listed in Sensitive service domains.
-9. [ ] **Surface 11** (Network DLP unmanaged AI, preview) — Network activities rule created and tested.
+8. [ ] **Surface 10** (Edge unmanaged AI) — Inline web traffic policy targets supported apps; automatic Edge/Intune activation is healthy on supported managed Windows devices; browser-plane enforcement tested.
+9. [ ] **Surface 11** (Network data security) — Security Store provider integration and Inline web traffic policy are healthy; provider licensing and network-plane enforcement tested.
 10. [ ] **Surface 12** (Defender for Cloud Apps) — File policies created on connected apps; in Audit only → enforcement after simulation.
 11. [ ] **Surface 13a** (Fabric / Power BI) — DLP policy enabled on Premium capacities; rule-match alerts route to dataset owners.
 12. [ ] **Surface 13b** (On-prem scanner) — Information Protection scanner deployed; Discovery completed; Enforce mode where in scope.
-13. [ ] **Sensitivity labels** exist **and at least one label policy is published** (`Get-LabelPolicy` returns expected policy with `Mode = Enable`); DKE evaluated for NYDFS 500.15 scenarios.
+13. [ ] **Sensitivity labels** exist **and at least one label policy is published** (export policy scope and confirm labels reach a target user's client; a `Mode` assumption is not a publication test); DKE evaluated for NYDFS 500.15 scenarios.
 14. [ ] **Auto-labeling**, where used, is scoped to SPO / OneDrive / Exchange only (no "AI interactions" location exists).
 15. [ ] **Conditional Access** session controls evaluated for label-restricted access (e.g., block download of Highly Confidential from unmanaged devices).
 16. [ ] **Policy tips** with required justification on user override are configured; override telemetry routes to Purview Audit and Sentinel; supervisors review per [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
@@ -619,7 +628,7 @@ Use this as the §14 sign-off checklist before any Zone 3 enforcement decision.
 | Verified within 1 hour of saving the Copilot policy | "No matches" — assumed failure | Wait the **full ≥ 4-hour** propagation window before drawing conclusions |
 | Devices not onboarded | Endpoint DLP rules silently produce zero matches | Onboard devices via §6.1; confirm **Active** status |
 | Default Teams policy left at credit-card-only | SSNs, ABA routing, MNPI in Teams chat not detected | Extend policy per §5 |
-| Edge config policy missing for Chrome/Firefox users | §9 unmanaged-AI events missing for those users | Push Purview browser extension via Intune |
+| Assuming a Purview extension gives Chrome/Firefox the Edge inline plane | §9 unmanaged-AI protection absent | Verify the documented unprotected-browser restrictions or supported network/secure-browser integration; an extension is not this Edge plane |
 | Auto-labeling expected to label Copilot prompts | No labels appear on prompts | Confirm label-based DLP relies on labels **already present** on SPO/OneDrive/Exchange items at prompt time |
 | Container label assumed to label files inside | Files inside the Group/Team/Site remain unlabeled | Apply file/email label policy or auto-labeling separately |
 | Override telemetry not flowing to Sentinel | Supervisor review queue empty | Verify Purview Audit → Sentinel connector ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) |
@@ -665,4 +674,4 @@ Use this as the §14 sign-off checklist before any Zone 3 enforcement decision.
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Microsoft Learn review; no tenant UI verification)*

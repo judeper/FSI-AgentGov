@@ -129,7 +129,7 @@ Incident triage is only as reliable as the upstream signals that feed Defender X
 
 | Source | Owner | Readiness check |
 |--------|-------|-----------------|
-| Unified Audit Log (UAL) | Purview Compliance Admin | Last ingestion timestamp ≤ 30 minutes; no ingestion-lag banner on **Purview → Audit** landing page |
+| Unified Audit Log (UAL) | Purview Compliance Admin | Verify ingestion enabled from Exchange Online and correlate a known positive event. Core-service events typically take 60–90 minutes; Microsoft commits to no maximum. An idle tenant need not have a recent DLP record. See [audit search](https://learn.microsoft.com/en-us/purview/audit-log-search) (documentation checked 2026-10-16; no tenant test). |
 | Entra sign-in logs | Entra Security Admin | Last record ≤ 5 minutes; risky-user list refreshed |
 | Defender for Cloud Apps activity log | SOC Analyst | Connector status **Healthy**; activity count within ±10% of 7-day baseline |
 | Power Platform admin analytics | Power Platform Admin | Last export ≤ 7 days; agent inventory matches Control 1.2 registry within ±2% |

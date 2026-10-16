@@ -1,6 +1,8 @@
 # Troubleshooting: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** May 2026
+**Last Updated:** October 2026
+
+> **Control 1.5 dependency checked 2026-10-16 (documentation only):** Defender for Cloud Apps file policies retire **January 6, 2027**. Verify supported connected-app coverage and migrate legacy policies to [Purview DLP or auto-labeling](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview). No tenant/UI test was performed.
 
 ## Common Issues
 
@@ -11,7 +13,7 @@
 | Allowlist silently overrides blocklist | When `allowedmimetypes` is set, only that list is honored | Confirm allowlist is complete; do not rely on blocklist as a fallback once allowlist is active |
 | Zone template application fails | Insufficient permissions or environment locked | Verify Power Platform Admin role; check environment state |
 | DLP policy not triggering on file uploads | DLP policy not scoped to Power Platform or connector | Review DLP policy scope in Microsoft Purview portal |
-| Defender for Cloud Apps file policy not flagging spoofed MIME | API connector not enabled for the target SaaS app, or scan not yet completed | Verify connector status in Defender XDR → Cloud apps → Connected apps; allow up to 15 min for near-real-time scan |
+| Defender for Cloud Apps file policy not flagging spoofed MIME | API connector not enabled for a supported target SaaS app, or scan not yet completed | Verify connector/policy status and actual scan latency; do not assume a 15-minute completion guarantee. Plan migration before January 6, 2027. |
 | Sentinel query returns no results | Diagnostic settings not configured or data latency | Enable Power Platform admin activity connector in Sentinel |
 | FsiMimeControl module import errors | Module not found or PowerShell version mismatch | Import module from repository path and verify PowerShell 7.0+ |
 | Microsoft Copilot Studio per-agent toggle reverts after save | Stale browser session or maker without environment-level rights | Clear session, re-authenticate as AI Administrator or environment maker |

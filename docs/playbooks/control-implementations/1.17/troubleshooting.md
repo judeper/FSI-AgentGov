@@ -8,16 +8,18 @@ This playbook lists the most common issues encountered when deploying and operat
 
 ## Quick Reference Table
 
+**Control 1.5 dependency reviewed 2026-10-16:** [browser DLP](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn) and [network data security](https://learn.microsoft.com/en-us/purview/dlp-network-data-security-learn) use distinct enforcement planes from Endpoint DLP. The inline rows below are documentation corrections, not tenant/UI tests.
+
 | Issue | Likely Cause | Quick Fix |
 |---|---|---|
 | Device not visible in Purview | Onboarding incomplete or duplicate Defender enrollment | Re-deploy onboarding package via Intune; verify only one MDE tenant |
 | Policy created but nothing enforced | Policy in **Disable** or **TestWithoutNotifications** mode | Set `-Mode Enable` after pilot |
 | USB blocks not firing | Device not in policy scope or USB on allowlist | Adjust scope; check Vendor/Product ID allowlist |
-| Edge inline AI DLP not triggering | Edge for Business location not toggled on policy, or user not signed in to work profile | Enable **Microsoft Edge for Business** on policy; verify work-profile briefcase |
-| Activity Explorer empty | Audit logging off or device not synced | Enable **Always audit file activity for devices**; wait 30 minutes |
+| Edge unmanaged-AI inline DLP not triggering | Wrong enforcement plane, unsupported device/browser, or failed activation | Check Purview **Inline web traffic → Edge for Business**, supported Intune-managed Windows/Edge, policy scope and automatic activation. This scenario can cover personal/InPrivate profiles; Endpoint onboarding alone is not its prerequisite. |
+| Activity Explorer empty | No known event, activity auditing off, or device not synced | Verify the configured activity and device synchronization with a known positive; do not treat 30 minutes as a universal completion bound. |
 | High false-positive rate | SIT confidence/evidence or scope not validated | Test a supported threshold and recall regression; U.S. Bank Account Number has Medium only. Coordinate with Control 1.13 |
-| GSA network DLP not blocking | Security profile not linked to DLP policy or licensing missing | Link DLP policy in security profile; verify Entra Suite SKU |
-| macOS device fewer enforcement options | macOS feature gap | Use Edge for Business + GSA for macOS coverage |
+| GSA network DLP not blocking | Integration, network policy, TLS inspection or licensing missing | Verify the Purview **Security Store** integration, **Inline web traffic → Network and non-Microsoft secure browsers** policy, GSA prerequisites and eligible Purview plus Entra Internet Access entitlement. |
+| macOS device fewer enforcement options | macOS feature gap | Verify documented Endpoint DLP/macOS activity support separately. Do not assume the Intune-managed Windows Edge unmanaged-app plane or an Entra-joined GSA scenario supplies equivalent macOS coverage. |
 | User cannot override (Zone 2) | Override disabled on rule, or no business justification provided | Enable `AllowOverride` on rule; require justification text |
 | Recall still indexes sensitive content | DLP for Recall not enabled or device not Copilot+ | Enable in Endpoint DLP settings; confirm Copilot+ hardware |
 
@@ -121,25 +123,25 @@ This playbook lists the most common issues encountered when deploying and operat
 
 ### Likely Cause
 
-- The DLP policy does not have **Microsoft Edge for Business** enabled in the **Locations** step.
-- The user is not signed in to the **work profile** in Edge — inline DLP requires the briefcase indicator.
+- A Devices policy was mistaken for the separate **Inline web traffic → Edge for Business** policy.
+- The supported Intune-managed Windows/Edge prerequisites or automatic activation are not satisfied; unmanaged-app coverage is not limited to the work profile.
 - The Edge channel is older than the minimum supported version (verify on [Microsoft Learn](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn)).
 - The destination domain is not yet in Microsoft's curated GenAI list and no custom service domain rule is configured.
 
 ### Diagnostic Steps
 
-1. In the policy, confirm **Locations > Microsoft Edge for Business** is **On**.
-2. In Edge, click the profile icon — confirm the **Work** profile (briefcase icon) is selected.
+1. Confirm the **Inline web traffic** policy uses **Edge for Business** enforcement and covers the tested supported cloud app.
+2. Check automatic activation, Intune management, supported Windows/Edge version and the tested profile.
 3. Check Edge version: `edge://version`. Compare against the supported minimum.
-4. Open `edge://policy/` and confirm the `EnterpriseModeSiteList` and DLP-related policies are pushed.
-5. For unrecognized AI services, add the domain to **Endpoint DLP settings > Service domains** and reference it in the rule action.
+4. Inspect actual Edge/Intune policy synchronization; `EnterpriseModeSiteList` is not proof of DLP activation.
+5. Verify the app is supported by this inline plane. Endpoint restricted-service domains are a separate mechanism, not an automatic extension of inline app support.
 
 ### Fix
 
-- Toggle the Edge for Business location on and re-publish the policy.
-- Switch the user to the work profile, or enforce profile selection via Intune browser policy.
+- Correct the browser enforcement plane and resolve activation errors.
+- Apply the prerequisites for the actual managed-app or unmanaged-app scenario; do not assume their profile/device requirements are interchangeable.
 - Update Edge to current channel via Intune update rings.
-- Add custom AI service domains to the service domain group and re-publish.
+- Verify supported app coverage and test both positive and negative synthetic cases.
 
 ---
 
@@ -211,24 +213,24 @@ This playbook lists the most common issues encountered when deploying and operat
 
 ### Likely Cause
 
-- DLP policy is not linked under the GSA security profile.
+- The Purview Security Store integration or network-plane policy is missing or inactive.
 - Security profile is not assigned via Conditional Access to the test user.
 - GSA traffic forwarding profile does not include the AI service URLs.
-- Tenant lacks **Microsoft Entra Suite** or **Global Secure Access standalone** licensing.
+- Tenant lacks eligible Purview entitlement plus Entra Internet Access (or the documented bundle).
 
 ### Diagnostic Steps
 
-1. In **Entra > Global Secure Access > Secure > Security profiles**, open the profile and confirm **Linked policies** lists the Endpoint DLP policy by name.
+1. Verify Purview **Security Store** integration and **Inline web traffic → Network and non-Microsoft secure browsers** policy; do not look for an Endpoint DLP policy linked as network content enforcement.
 2. In **Entra > Conditional Access**, confirm a policy assigns the security profile to the test user/group.
-3. On the device, run `Get-GlobalSecureAccessClientStatus` (when available) or check the GSA client diagnostic logs.
+3. Inspect supported GSA client diagnostic logs, traffic forwarding, TLS inspection and content policy; do not assume an undocumented `Get-GlobalSecureAccessClientStatus` cmdlet.
 4. Confirm SKU eligibility under **Entra > Billing > Licenses**.
 
 ### Fix
 
-- Link the DLP policy to the security profile.
+- Complete the supported network integration and content-policy setup, then test its actual network enforcement plane.
 - Apply the security profile via a Conditional Access policy targeting the test user/group.
 - Update the traffic forwarding profile to include the AI service URLs.
-- Acquire Entra Suite or GSA standalone licensing.
+- Verify eligible Purview plus Entra Internet Access entitlement; follow the [current integration procedure](https://learn.microsoft.com/en-us/purview/dlp-create-policy-ai-network-data-security).
 
 ---
 
@@ -245,8 +247,8 @@ This playbook lists the most common issues encountered when deploying and operat
 
 ### Fix
 
-- Use **Edge for Business inline AI DLP** as the primary AI prompt enforcement layer on macOS — it has full feature parity with Windows.
-- Use **Global Secure Access network DLP** to cover macOS network paths.
+- Do not claim macOS parity with the Intune-managed Windows Edge unmanaged-app scenario.
+- Validate an explicitly supported network/secure-browser integration before claiming macOS coverage; the documented GSA scenario requires an Entra-joined device.
 - For removable media, use **Intune Endpoint security > Attack surface reduction > Device control** with macOS-specific configuration profiles.
 - Document macOS coverage gaps in your supervisory procedures (FINRA Rule 3110(b)).
 
@@ -326,12 +328,12 @@ Re-test from the affected user account.
 
 | Limitation | Impact | Mitigation |
 |---|---|---|
-| macOS feature subset | Fewer rule actions available | Compensate with Edge for Business + GSA |
+| macOS feature subset | Fewer rule actions available | Validate supported OS/app/activity controls; do not assume Windows browser/network integration parity |
 | Browser scope (DLP for Cloud Apps) | Inline AI DLP on third-party browsers limited | Block Chrome/Firefox in Zone 3 via **Unallowed browsers**; require Edge for Business |
 | JIT cache size | Large bursts of offline activity may exceed cache | Sync devices regularly; set fallback action to **Block** in Zone 3 |
 | Mobile (iOS/Android) | Endpoint DLP does not cover mobile | Use **Mobile Application Management (MAM)** policies under Control 1.6 |
 | VM / VDI nuances | Some non-persistent VMs may not retain DLP sensor state | Test on the specific VDI image; consider per-session enrollment |
-| GSA licensing | Network DLP requires Entra Suite or GSA standalone | Plan Zone 3 budget accordingly; or accept endpoint-only coverage with documented residual risk |
+| GSA licensing | GSA integration requires eligible Purview plus Entra Internet Access entitlement (or the documented bundle) | Verify both entitlements and supported integration; Endpoint DLP does not prove network-plane coverage |
 
 ---
 

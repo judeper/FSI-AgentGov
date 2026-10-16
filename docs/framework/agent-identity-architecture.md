@@ -356,7 +356,7 @@ Agent 365 represents a strategic architectural shift from per-platform governanc
 | **Discovery** | Manual scripts across PPAC, M365 Admin Center, Azure Portal, SharePoint Admin Center | Automatic aggregation from all agent platforms |
 | **Metadata** | Basic (name, owner, environment) | Rich (usage analytics, risk scores, compliance status, data sources, approval history) |
 | **Audit Trail** | Separate logs per platform; manual consolidation for examinations | Unified activity log in Application Insights; single export for regulatory reporting |
-| **Policy Enforcement** | DLP policies applied separately in each platform; inconsistent coverage | Cross-platform DLP enforcement via Purview; uniform policies across all agent types |
+| **Policy Enforcement** | DLP policies applied separately in each platform; inconsistent coverage | Coordinate Purview content DLP and Power Platform connector data policies; they remain separate enforcement planes with workload-specific scope |
 | **Compliance Reporting** | Custom PowerShell scripts to aggregate data from multiple sources | Pre-built dashboards; Graph API export; automated compliance monitoring |
 | **Security Visibility** | Per-platform threat detection; manual correlation of security events | Centralized security posture dashboard with real-time policy violations and risk scores |
 | **Lifecycle Management** | Per-platform approval workflows; no standardized promotion gates | Standardized promotion gates and approval workflows across agent types |
@@ -916,7 +916,7 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 
 | Control | Current Approach | Agent 365 Approach |
 |---------|------------------|-------------------|
-| **[1.5 DLP and Sensitivity Labels](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)** | Per-platform DLP policies (PPAC for Copilot Studio, M365 for Agent Builder); inconsistent coverage | Cross-platform DLP enforcement via Purview integration with Agent 365; single policy definition applied uniformly |
+| **[1.5 DLP and Sensitivity Labels](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)** | Per-platform DLP policies (PPAC for Copilot Studio, M365 for Agent Builder); inconsistent coverage | Coordinated coverage, not one universal policy: verify Purview content rules and Power Platform connector policies independently |
 | **[1.7 Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)** | Separate logs per platform; manual consolidation for regulatory examinations | Unified activity logs in Application Insights via Agent 365 Observability; single export for eDiscovery |
 | **[1.8 Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)** | Per-platform threat detection (Defender for Cloud Apps for PPAC, Microsoft Defender for Cloud for Microsoft Foundry) | Centralized security posture dashboard in Agent 365 with real-time policy violation visibility and integrated Defender threat detection |
 | **[2.1 Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md)** | Power Platform Managed Environments (PPAC); limited to Copilot Studio agents | Agent 365 lifecycle management with promotion gates and approval workflows across all agent types |
@@ -924,6 +924,8 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 | **[3.1 Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)** | Manual inventory consolidation from multiple platforms; reconciliation required | Agent 365 unified registry removes the need for manual consolidation; single source of truth with real-time sync |
 
 ### Low Impact Controls (Minor References)
+
+**DLP dependency reviewed 2026-10-16:** [Purview Copilot DLP](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about) and [Copilot Studio data policies](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-data-loss-prevention) describe distinct scopes. An agent registry or unified view is not evidence that one policy governs every content and connector path. Documentation review only; no tenant validation.
 
 | Control | Forward Reference Note |
 |---------|------------------------|

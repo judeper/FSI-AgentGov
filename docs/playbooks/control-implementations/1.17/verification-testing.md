@@ -92,17 +92,18 @@ Before running any test:
 
 | Step | Action | Expected Result |
 |---|---|---|
-| 5.1 | Open Microsoft Edge for Business, signed in with the Entra work account. | Browser shows the work-profile briefcase indicator. |
+| 5.1 | Confirm supported Intune-managed Windows/Edge, browser-plane policy and successful automatic activation. | Correct scope and prerequisites confirmed; unmanaged-app coverage is not limited to the work profile. |
 | 5.2 | Navigate to `https://chatgpt.com` (or `https://gemini.google.com`). | Page loads. |
-| 5.3 | Paste contents of `SSN-test.txt` into the prompt box and press send. | Zone 1: audit; Zone 2: block with override; Zone 3: block + (if configured) redirect link to Microsoft 365 Copilot. |
+| 5.3 | Paste classifier-validated synthetic text and submit. | The configured supported audit/block action occurs; do not assume inline override or redirect. |
 | 5.4 | Attempt to upload `CC-test.txt` via the AI service's file upload control. | Same per-zone result. |
 | 5.5 | Repeat steps 5.2–5.4 in **Chrome** or **Firefox** (Zone 3 only). | Browser is on the **Unallowed browsers** list — sensitive content access is blocked at the file level when SIT match is detected. |
 
 **Auditor evidence:**
 
 - Screenshot: Edge inline DLP policy tip on AI prompt submission
-- Screenshot: Redirect-to-Copilot dialog (if configured)
-- Activity Explorer entry with `Application: Microsoft Edge` and AI service URL
+- Activity Explorer entry identifying the **browser** enforcement plane and tested app/activity
+
+**Dependency checked 2026-10-16:** [browser DLP prerequisites](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn) and [deployment](https://learn.microsoft.com/en-us/purview/dlp-create-policy-block-to-ai-via-edge). Documentation only; the steps above are not recorded tenant results.
 
 ---
 
@@ -110,14 +111,14 @@ Before running any test:
 
 | Step | Action | Expected Result |
 |---|---|---|
-| 6.1 | Confirm Global Secure Access client is installed and connected on the test device. | Client shows **Connected** status in the system tray. |
-| 6.2 | Use a non-Edge browser or a CLI tool (e.g., `curl https://chat.openai.com/...`) to submit sensitive content through the GSA tunnel. | GSA security profile intercepts and applies DLP action per zone. |
+| 6.1 | Confirm supported Entra-joined device, GSA connection, TLS inspection, Purview Security Store integration and network-plane policy. | All integration prerequisites, not just client connection, are validated. |
+| 6.2 | Submit classifier-validated synthetic text/file content to a supported test app through the inspected network path. | The configured network-plane audit/block action occurs; no guessed CLI URL or uninspected path substitutes for this test. |
 | 6.3 | Disable Edge for Business inline DLP temporarily on a test policy (or use an unmanaged browser) and confirm GSA still enforces. | Network-level enforcement holds without browser-level dependency. |
 
 **Auditor evidence:**
 
 - Screenshot: GSA client connection status
-- Defender XDR > Investigation & response > Activity log entry showing GSA-sourced DLP event
+- Purview Activity Explorer evidence identifying the **network** enforcement plane and actual supported request. See [network deployment](https://learn.microsoft.com/en-us/purview/dlp-create-policy-ai-network-data-security) (documentation checked 2026-10-16; no tenant test).
 
 ---
 

@@ -20,10 +20,13 @@
 - Power Platform DLP classifies connectors correctly
 - Purview DLP covers Copilot interactions
 - Sensitivity labels match FSI classification scheme
-- Label policies auto-apply to regulated content
+- Label publishing policies make labels available to the intended users; capture automatic labeling configuration and results separately where configured
+- For browser and network DLP, capture the configured enforcement plane, required integration, activation state, and positive/negative test evidence separately from Endpoint DLP
 - Capture from pre-production environment when possible
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
+
+**Last Verified:** 2026-10-16 (documentation review only; portal paths and screenshots require tenant verification).
 
 ---
 

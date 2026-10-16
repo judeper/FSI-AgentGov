@@ -1,6 +1,8 @@
 # Troubleshooting: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** May 2026
+**Last Updated:** October 2026
+
+> **Control 1.5 dependency checked 2026-10-16 (documentation only):** Defender for Cloud Apps file policies retire **January 6, 2027**. Connected-app scans are not proof of synchronous scanning for direct agent uploads or a universal per-agent size limit. Validate supported app/condition/action coverage and migrate to [Purview DLP or auto-labeling](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview). No tenant/UI test was performed.
 **Audience:** M365 administrators, Microsoft Copilot Studio agent authors, SOC analysts
 
 This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H3)**. For each symptom, work through the resolution steps in order; each step is independently safe to skip if it does not apply.
@@ -182,7 +184,7 @@ This is documented Microsoft platform behaviour, not a configuration error.
 
 1. Open *PPAC → Environments → \[Environment\] → Settings → Auditing* and confirm auditing is enabled
 2. Confirm Microsoft Purview Audit (Standard or Premium) is enabled at the tenant level
-3. Test by uploading a knowledge file and querying *Purview → Audit → Search* for the activity within 30 minutes
+3. Generate a known supported audit event and query *Purview → Audit → Search* for its actual operation/time/user. Core-service records typically take 60–90 minutes, with no guaranteed maximum; an upload need not emit the assumed event. See [audit search](https://learn.microsoft.com/en-us/purview/audit-log-search).
 
 ---
 
@@ -247,7 +249,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 |------------|--------|------------|
 | Maker-uploaded knowledge files with encryption (sensitivity labels or password protection) are not supported | Files marked Confidential/Highly Confidential or password-protected appear "Ready" but silently fail to serve knowledge responses (per Microsoft Learn) | Apply labels below the encrypted threshold; use unencrypted test files for knowledge upload testing; audit knowledge source files for encrypted content before upload |
 | File Upload toggle is per-agent (no bulk UI) | Each agent must be configured individually in the portal | Use the PowerShell mutation script (Script 3) for bulk operations |
-| Microsoft platform file size limits cannot be lowered per agent in the portal | Maker-uploaded knowledge files can be up to 512 MB | Enforce reductions via Defender for Cloud Apps file policies (Zone 3) |
+| Microsoft platform file size limits cannot be lowered per agent in the portal | Maker-uploaded knowledge files can be up to 512 MB | Validate an actual supported enforcement point; a legacy connected-app file policy is not a universal per-agent upload-size control. |
 | Dataverse environment settings are largely tenant-managed | Environment-level fine-grained access requires Dataverse security role configuration | Apply retention and access policies at the Purview / PPAC tier |
 | Sensitivity-label inheritance flows from source files | Cannot apply labels at the agent level after upload | Enforce labeling at source via auto-labeling policies |
 | Toggle changes may require agent republish | Settings may not take effect until republish completes | Republish the agent after every Security setting change |

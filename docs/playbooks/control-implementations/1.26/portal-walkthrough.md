@@ -1,6 +1,8 @@
 # Portal Walkthrough: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** May 2026
+**Last Updated:** October 2026
+
+> **Control 1.5 dependency checked 2026-10-16 (documentation only):** Defender for Cloud Apps file policies retire **January 6, 2027**. Verify a supported connected-app repository, not assumed Dataverse/Power Platform file-policy coverage, and plan migration to [Purview DLP or auto-labeling](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview). This does not establish synchronous scanning of arbitrary direct agent uploads. No tenant/UI test was performed.
 **Portals:** Microsoft Copilot Studio, Power Platform Admin Center (PPAC), Microsoft Purview, Microsoft Defender XDR (Zone 3)
 **Estimated Time:** 20–40 minutes per agent (Zone 3 includes DLP and content-scanning verification)
 
@@ -98,17 +100,17 @@
 
 ### Step 7: Verify DLP Policy Coverage (Zone 2+)
 
-1. Open [Microsoft Purview](https://purview.microsoft.com) → **Data Loss Prevention** → **Policies**
-2. Confirm a DLP policy exists that covers the **Power Platform** location and is scoped to the agent's environment
-3. Confirm the policy is in **Enforce** mode (not Test or Off)
-4. For Zone 3, confirm the policy includes the FSI-relevant Sensitive Information Types (US SSN, US Bank Account Number, Credit Card Number, ITIN, MNPI patterns) and configures **Block** action with override prohibited
+1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com) and review the data policies that apply to the agent's environment. These are Power Platform connector policies, not a **Power Platform** location in Purview DLP.
+2. Review **Business**, **Non-business**, and **Blocked** classifications for the agent's knowledge sources, tools, and channels. For maker-uploaded local knowledge files, review **Knowledge source with documents in Copilot Studio**; SharePoint/OneDrive knowledge sources use a separate connector. See [Configure data policies for agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-data-loss-prevention).
+3. Test allowed and blocked resources in the scoped environment and retain the resulting enforcement evidence. Connector classification does not establish SIT inspection of arbitrary file contents or end-user uploads.
+4. Separately review [Microsoft Purview DLP](https://learn.microsoft.com/en-us/purview/dlp-policy-reference#locations) for each supported workload that stores or processes the test content. For Zone 3, retain the requirement for FSI-relevant Sensitive Information Types (US SSN, US Bank Account Number, Credit Card Number, ITIN, MNPI patterns), **Block** action, and override prohibited; verify the actual workload supports the required classifier/action and that the policy is enabled rather than in simulation. If an upload path lacks supported content inspection, record the coverage gap instead of treating a connector policy as evidence that this requirement is met.
 
 ### Step 8: Configure Defender for Cloud Apps Content Scanning (Zone 3)
 
 > **Required for Zone 3.** PPAC and per-agent allowlists inspect declared file extensions and MIME headers; magic-byte (true content type) inspection requires Defender for Cloud Apps. See Control 1.25 portal walkthrough Step 7 for the parallel environment-level pattern; this step targets files associated with the agent's Dataverse environment.
 
 1. Open [Microsoft Defender XDR portal](https://security.microsoft.com) → **Cloud apps** → **Policies** → **Policy management** → **File policy**
-2. Create a file policy scoped to the Dataverse / Power Platform location associated with the agent's environment
+2. Select a supported connected app that actually stores the files being tested. Do not assume Dataverse / Power Platform is a Defender for Cloud Apps file-policy location.
 3. Add filter: **MIME type (true type) does not equal** the approved per-agent allowlist
 4. Governance actions: **Quarantine** + Notify file owner + Notify SOC distribution list
 5. Create a **High** severity alert; forward to Microsoft Sentinel

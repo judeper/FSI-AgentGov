@@ -87,7 +87,7 @@ Copilot Studio admin reads, Power Automate approval-history reads, and Agent Fra
 | 0.2 | Read-only token used against audit surfaces | `403` swallowed, helper logs `Anomaly` then masks as `Clean` on retry | Operator ran without Compliance Administrator PIM elevation | `Test-Sup212GraphScopes` (§3.4) preflights scope grants |
 | 0.3 | Paged audit response truncated at 100 | Reviewer-decision count undercounts in active quarters | Operator forgot `-All` on `Invoke-MgGraphRequest` | `Invoke-Sup212PagedQuery` (§3.5) paginates and asserts `@odata.count` |
 | 0.4 | Throttled call returned empty body | Helper interprets HTTP 429 with empty JSON as zero decisions | No retry/backoff wrapper | `Invoke-Sup212Throttled` (§3.6) |
-| 0.5 | Purview audit 30-minute ingestion lag | Recent HITL decisions appear missing | Unified audit log has up to a 30-minute (sometimes longer) ingestion delay | `Get-Sup212ReviewerDecisionAudit` (§5) accepts `-LookbackBufferMinutes` (default 45) and refuses to run against a `-End` within the buffer unless `-AcceptIngestionLag` is set |
+| 0.5 | Purview audit ingestion delay | Recent HITL decisions appear missing | Core-service records typically take 60–90 minutes; Microsoft commits to no maximum, so a 30-minute upper bound is incorrect | `Get-Sup212ReviewerDecisionAudit` (§5) has a configurable lookback buffer; its default 45 minutes is a local heuristic, not a Microsoft completeness commitment. Validate against a known event and extend the buffer as needed. See [audit search](https://learn.microsoft.com/en-us/purview/audit-log-search) (documentation checked 2026-10-16; no tenant test). |
 | 0.6 | Power Automate approval history filtered by owner | Approvals initiated under a service-principal owner are invisible | Default `Get-AdminFlowApproval` scope is tenant-user-visible only | `Get-Sup212PowerAutomateApprovalHistory` (§4.4) iterates all environments with `-AdminMode` and emits `Anomaly` if any environment returns `403` rather than silently skipping |
 | 0.7 | Reviewer UPN null in audit row | Decision row written before approver context resolved; renders as `(unknown)` | Race in M365 audit ingestion when approval auto-completes | `Get-Sup212ReviewerDecisionAudit` joins `Get-MgAuditLogDirectoryAudit` and emits `Anomaly` (never `Clean`) when UPN is null |
 | 0.8 | Agent Framework request ID unmatched | Evidence export completes with zero rows for active flows | Operator queried the wrong workflow identifier or event stream | `Export-Sup212AgentFrameworkEvidence` (§6.3) cross-references the Agent Framework run manifest and emits `Anomaly` if request count is zero but run activity is non-zero |
@@ -2084,5 +2084,4 @@ See [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
 
