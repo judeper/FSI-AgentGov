@@ -69,7 +69,7 @@ The following exact official URLs were fetched during the check. Search queries 
 - The live preservation article contains inconsistent historical rollout dates (April/June/September 2025). Current options/default/precedence are clear; this review does not independently establish the historical rollout timeline or retrofit match timestamps.
 - **Regulatory boundary:** pre-existing retention periods and legal wording were preserved as instructed, not legally revalidated. For example, the cadence and retention paragraphs contain differing records-schedule examples; Compliance/Legal owns reconciliation. The technical archival caveat must not be read as a legal opinion.
 - **Trade-off:** independent transport and source-specific tests cost more than one sample/one queue count. Not doing them risks reporting untested sources or probabilistic classifier misses as control health.
-- **Screenshot checklist flag:** `docs\images\1.10\EXPECTED.md` still has generic Alerts/Review paths and lacks the privacy/preservation/source screenshots now required by the verification catalog. It was inspected, not edited: `docs\images` is outside the delegated content-edit charter, and no UI was executed. `docs\images\2.12\EXPECTED.md` was also enumerated; its generic CC policy capture does not impose a corrected technical contract.
+- **Screenshot checklist gap closed (authorized local follow-up):** `docs\images\1.10\EXPECTED.md` now follows the corrected per-policy Pending/review, privacy, global/per-policy preservation and source-specific evidence instructions. It separates probabilistic classifier results from transport controls and directs binaries/evidence to local `maintainers-local\tenant-evidence\1.10\` storage. This is a checklist-text correction only: no tenant/UI execution, screenshots or renewed UI-verification date. `docs\images\2.12\EXPECTED.md` remains unchanged; its generic CC policy capture does not impose a corrected technical contract.
 
 ## Downstream enumeration and classification
 
@@ -83,6 +83,7 @@ Method: enumerate tracked text, classify every hit, then search again for the co
 | `docs\playbooks\control-implementations\1.10\portal-walkthrough.md` | Matching setup, privacy, billing, OCR, preservation, transport and audit instructions. |
 | `docs\playbooks\control-implementations\1.10\powershell-setup.md` | Matching session/role/output caveats and complete-query collector handling; legacy sections not certified as modern CC authoring. |
 | `docs\playbooks\control-implementations\1.10\troubleshooting.md` | Matching diagnostic, pause, encryption, export, preservation and timing corrections. |
+| `docs\images\1.10\EXPECTED.md` | Explicitly authorized follow-up: align screenshot checklist with corrected navigation, privacy/preservation/source evidence and local-only storage; no binary captures or tenant/UI verification. |
 | `docs\controls\pillar-1-security\1.10-communication-compliance-monitoring.md` | Repeated product claims; retained required control structure and regulatory sections. |
 | `docs\playbooks\control-implementations\1.7\verification-testing.md` | CONT-03 fabricated-pass removal and actual evidence handoff. |
 | `docs\playbooks\control-implementations\1.12\verification-testing.md` | TC-16 CC investigator/reviewer authorization only. |
@@ -115,7 +116,7 @@ Brace lists below explicitly enumerate members under the concrete path prefix; t
 | `docs\framework\{agentic-capability-drivers,solutions-integration}.md` | Maturity and solution integration references only. |
 | `docs\reference\{assessment-coverage,cco-quick-reference,microsoft-learn-urls,pattern-coverage,portal-paths-quick-reference,power-platform-sspm-control-mapping,regulatory-mappings,role-catalog}.md` | Coverage counts, watchlist URL, catalog/role aliases, navigation and regulatory maps unchanged; none asserts the corrected specialized test contract. Generated coverage checked rather than hand-edited. |
 | `docs\downloads\index.md`; `docs\llms.txt`; `docs\start-here.md` | Download/discovery/entry-point references unchanged. |
-| `docs\images\{1.10,2.12}\EXPECTED.md` | Inspected; scope/UI limitations and the 1.10 checklist follow-up are explicitly flagged above. No screenshots or unsupported UI verification date. |
+| `docs\images\2.12\EXPECTED.md` | Inspected; generic CC policy capture unchanged. No screenshots or unsupported UI verification date. The 1.10 checklist is now in the changed-artifact inventory. |
 | `assessment\manifest\{controls.json,generate_manifest.py,frontier-readiness.json}`; `assessment\data\solutions-lock.json` | Control IDs, manual evidence/routing metadata and solution mapping remain valid; no scoring/manifest implementation changes authorized or required. |
 | `scripts\{test_control_110_playbook_guards.py,generate_excel_templates.py,update_excel_templates.py}`; `scripts\config\monitoring-config.yaml` | Guard tests and catalog/watch mappings unchanged; regression tests run. No script edits. |
 | `mkdocs.yml`; `tests\e2e\fixtures\render-expectations.json` | Existing navigation and diagram expectations are unaffected; no new diagram/asset or nav destination. |
@@ -198,6 +199,36 @@ Before content edits, the four mandatory commands ran in the required order and 
 | `pwsh -NoProfile -File .\_821_validate_snippets.ps1` | Passed: 19 PowerShell documentation blocks parsed; local mocked collector tests covered empty/header-only CSV and `[]` JSON, deduplication, query errors, and 50,000-result fail-closed behavior. No tenant connection. Disposable harness removed afterward. |
 | `git diff --check` | Passed. |
 
-No full CI, browser/e2e suite, live message/classifier drill, license check, billing provisioning, or tenant UI check is claimed. There are no validation blockers; tenant-dependent unknowns and the out-of-charter screenshot checklist are explicitly retained rather than hidden behind a PASS.
+No full CI, browser/e2e suite, live message/classifier drill, license check, billing provisioning, or tenant UI check is claimed. There are no validation blockers from the original implementation; tenant-dependent unknowns remain explicit rather than hidden behind a PASS. The previously out-of-charter screenshot checklist gap is closed by the authorized text-only follow-up described above.
 
 **Local harness rerun caveat:** the first final mock rerun failed its empty-CSV assertion because the disposable fixture directory retained outputs from the earlier successful run, so its wildcard selected two header-only files. After removing only that task-created fixture directory, all four scenarios and 42 regression tests passed. This was fixture isolation, not a tenant run or a hidden product-test failure.
+
+## Authorized checklist completion follow-up — 2026-10-16
+
+Boundary: **“ONLY local operations”**, **“update this checklist text (no binary images)”**, **“do not re-audit the whole objective”**, and **“no tenant/UI verification claims.”** This follow-up changes only `docs\images\1.10\EXPECTED.md` and this report, after local commit `3ec87da3814a71df039747adc72016ca39991ce4`. The initial working tree was clean. No remote, identity, credential, browser, tenant or nested-agent operations were performed.
+
+The existing corrected 1.10 portal and verification guides supplied the exact navigation/control labels; the PowerShell and troubleshooting guides supplied export/query boundaries. No uncertain new portal label was introduced or separately asserted as live-verified. The checklist now uses one filename convention, policy-specific Pending/review paths, privacy and global/per-policy preservation captures, per-source locations and interaction evidence, and local-only evidence storage. Regulatory wording/mappings in the implementation documents remain untouched.
+
+**Adversarial checks and assumptions:**
+
+- **Strong:** the checklist matches the authorized corrected guides, not the obsolete generic Alerts/Review sequence. **Failure if left unchanged:** administrators collect the wrong evidence or infer coverage from a dashboard.
+- **Moderate, still untested:** a particular tenant exposes those documented controls and each source actually ingests. The checklist requires observed labels, source-specific positive controls and unresolved-gap recording; it does not turn documentation alignment into a tenant PASS.
+- **Rejected:** classifier samples are deterministic, selected locations prove onboarding, screenshots replace complete audit exports, or local hashes establish immutable storage. Extra captures cost effort and can expose sensitive content; approved test populations, anonymization and authorization remain necessary.
+- **Coverage blind spot:** site/link checks do not establish tenant correctness or complete checklist coverage. A separate local relative-link check resolved all four checklist links successfully; actual screenshots, licensing, PAYG, preservation settings and message/classifier tests remain unexecuted.
+
+The mandatory site validations ran in the exact order below after the checklist edits. All commands exited 0:
+
+| Exact command | Actual result |
+|---|---|
+| `mkdocs build --strict` | Passed; documentation built in 206.73 seconds. Material emitted its upstream MkDocs 2.0 advisory banner; no MkDocs build warning/error was reported. |
+| `python scripts\verify_build_output.py site` | Passed; index, reference/control HTML and search asset verified. |
+| `python scripts\verify_meta_tags.py site` | Passed; all 8 required tags on 3 sampled pages. |
+| `python scripts\verify_doc_links.py site --json _broken-links.json` | Passed; 697 pages, no broken internal links. |
+| `python scripts\verify_language_rules.py` | Passed; 780 Markdown files scanned, no prohibited language. Existing Tier 2 exceptions were reported, not new violations. |
+| `python scripts\verify_commercial_scope.py` | Passed; 674 forward-facing files scanned, no scope violations. |
+| `python scripts\verify_xref_graph.py` | Passed; 538 files / 6,184 references, no broken IDs or mislabeled references. |
+| `python scripts\verify_controls.py` | Passed; 79 controls, required structure/footer, four standard playbooks per control and documentation anchors. |
+| `python -m pytest scripts\test_control_110_playbook_guards.py -q` | Passed; 42 tests. |
+| `git diff --check` | Passed. |
+
+Only the task-created `_broken-links.json` is removed. The build-generated `docs\version.json` SHA/timestamp-only change is restored to its initially clean tracked state; no unrelated edits or existing local evidence are discarded. Generated site assets remain local. This follow-up does not rerun or newly claim the original full technical re-verification, snippet harness or tenant tests.
