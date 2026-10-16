@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** May 2026<br>
+**Last Updated:** October 2026<br>
 **Support Level:** L2 / L3 (Power Platform and Microsoft Copilot Studio admins)
 
 ## Overview
@@ -29,14 +29,15 @@ This playbook addresses the issues most often encountered when implementing or o
 ```powershell
 # Identify which DLP policies cover the target environment.
 $envId = '<environment-id>'
-Get-DlpPolicy | Where-Object { $_.Environments -contains $envId } |
-    Select-Object DisplayName, PolicyName, LastModifiedTime
+Get-DlpPolicy -ErrorAction Stop | ConvertTo-Json -Depth 100
+# Inspect actual scope/environment IDs in the response and reconcile in PPAC.
+# Do not assume Environments is a flat list or ignore all-environment/exclusion scopes.
 ```
 
 In the portal:
 
 1. Power Platform Admin Center → Security → Data and privacy → Data policy → open the policy → review **Prebuilt connectors** classification.
-2. In Copilot Studio, open the agent and review the **Topics** and **Settings → Channels** for the named connector.
+2. In Copilot Studio, review **Topics** and **Channels** (top menu). Download the Channels error workbook; identify the exact policy/connector from its DLP violations and Blocked channels sheets.
 
 ### Resolution Options
 
@@ -51,22 +52,22 @@ In the portal:
 
 ---
 
-## Issue 2 — Update to a Published Agent Is Blocked (February 2025 Behavior)
+## Issue 2 — Published Agent Update or Runtime Is Blocked
 
 ### Symptoms
 
 - A previously published agent cannot be updated; the publish action surfaces a DLP finding.
-- The previously published version of the agent continues to serve users.
+- The published agent can also fail for end users with `DataLossPreventionViolation`; continued runtime availability is not assured.
 
 ### Likely Causes
 
 - DLP policy tightening after publish (for example, a connector moved from Business to Blocked).
-- Microsoft removed the "Soft-Enabled" DLP exemption in February 2025; published agents are now subject to DLP at update time, not just at first publish.
+- [Microsoft documents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-dlp-troubleshooting) removal of agent exemptions since March 2025 and enforcement for published agents at runtime as well as publication.
 
 ### Diagnostics
 
-- Compare DLP policy `LastModifiedTime` to the agent's `LastModifiedTime` to confirm the policy changed after publish.
-- Confirm via Purview audit (workload `PowerPlatformAdmin`) which actor changed the DLP policy and when.
+- Compare the saved policy's modification information in PPAC with the actual agent publish history.
+- Download the Channels violation workbook and correlate policy ID, connector, environment, and timestamps. Review policy-change audit evidence where available, separately from the publish event.
 
 ### Resolution Options
 
@@ -91,37 +92,29 @@ In the portal:
 
 - The DLP policy is not actually assigned to the environment (assignment was scoped incorrectly).
 - The connector or channel is in **Non-Business** rather than **Blocked**.
-- The environment's policy assignment was recently changed and the cache has not refreshed (rare; typically resolves within minutes).
-- The agent uses a custom connector that the DLP policy does not classify (custom connectors require explicit Default behavior = Block).
+- The policy change has not yet taken effect; confirm the saved scope and actual behavior rather than assuming a fixed propagation delay.
+- The tenant policy's final custom connector `*` rule is still Ignore instead of Blocked, or another ordered rule classifies the host differently.
 
 ### Diagnostics
 
 ```powershell
 # Confirm policy → environment binding.
-Get-DlpPolicy | ForEach-Object {
-    $p = $_
-    $p.Environments | ForEach-Object {
-        [pscustomobject]@{
-            PolicyDisplayName = $p.DisplayName
-            EnvironmentId     = $_
-        }
-    }
-} | Where-Object EnvironmentId -eq '<environment-id>'
+Get-DlpPolicy -ErrorAction Stop | ConvertTo-Json -Depth 100
 ```
 
-In the portal, confirm Security → Data and privacy → Data policy → [Policy] → **Scope** lists the expected environment.
+In the portal, confirm the saved **Scope / Applied to** includes the target environment. Tenant-wide and exclusion scopes must be evaluated too; filtering only a flat Environments list misses those policies.
 
 ### Resolution Options
 
 - Add the environment to the correct zone DLP policy.
 - Move the offending connector from Non-Business to Blocked.
-- Set Custom connectors → Default behavior to **Block** in the policy.
-- Disable the prohibited channel in **Settings → Channels** as a defense-in-depth control.
+- In a tenant policy's Custom connectors rules, classify approved host patterns and set the final `*` rule to **Blocked**. Environment policies classify custom connectors individually.
+- Block the exact Copilot Studio channel connector in DLP and verify **Channels** displays the restriction. Facebook service connectors are not the Facebook channel policy surface; website access uses **Direct Line channels in Copilot Studio**.
 
 ### Prevention
 
 - Use explicit environment selection (not "Add all environments") and review scope monthly.
-- Avoid the Non-Business group for Zone 2+ policies; the recommended pattern is Business + Blocked only.
+- Minimize Non-business where appropriate, but record unblockable connectors. Non-business is not a universal deny group, and SharePoint cannot be moved to Blocked.
 
 ---
 
@@ -129,18 +122,18 @@ In the portal, confirm Security → Data and privacy → Data policy → [Policy
 
 ### Symptoms
 
-- The author publishes in a Zone 2+ environment and the publish completes without any approval being requested.
+- A configured release request produces no approval, or an author publishes directly without using the intake/pipeline process.
 
 ### Likely Causes
 
-- The Power Automate flow that watches the Dataverse `bot` table is disabled, scoped to the wrong environment, or filtering on the wrong condition.
+- The explicit intake or pipeline-extension flow is disabled or configured for the wrong trigger/stage. A `bot` row-change flow does not intercept native Publish.
 - The author has the Power Platform Admin role and is exempted from the surrounding approval flow by design.
 - The flow's connection reference uses an account that no longer has access to the Dataverse environment.
 
 ### Diagnostics
 
 - Open Power Automate → My flows; confirm the approval flow status is **On**.
-- Open the flow's run history and confirm runs are appearing for recent agent publishes.
+- Open the flow's run history and confirm runs for the actual release requests. For pipeline gates, check the configured extension and `OnPreDeploymentStarted` / `OnApprovalStarted` action.
 - Confirm the trigger's environment scope matches the environment where the publish happened.
 - Confirm the connection references are healthy (no broken connections).
 
@@ -149,6 +142,7 @@ In the portal, confirm Security → Data and privacy → Data policy → [Policy
 - Re-enable or repair the flow.
 - If the trigger filter excludes admin accounts deliberately, document this in the control evidence; otherwise, broaden the filter.
 - Repair connection references and re-test.
+- For bypassed intake, restrict direct production editing and test with a non-admin author; for pipelines, confirm the flow completes/rejects the pending stage through the documented status action.
 
 ### Prevention
 
@@ -248,16 +242,16 @@ $PSVersionTable.PSVersion       # Should be 5.1.x
 
 ---
 
-## Issue 8 — DLP Policy Cmdlet Names Do Not Resolve
+## Issue 8 — DLP Policy Cmdlet or Parameter Does Not Resolve
 
 ### Symptoms
 
-- `New-DlpPolicy` (or the older `New-AdminDlpPolicy`) is not recognized as the name of a cmdlet.
+- A DLP command is unavailable, or `Set-DlpPolicy -ConnectorGroups` fails parameter binding.
 
 ### Likely Causes
 
 - The `Microsoft.PowerApps.Administration.PowerShell` module is not installed or not imported in the current session.
-- The pinned module version predates the rename of the DLP cmdlets (older versions used the `Admin`-prefixed names; current Microsoft Learn documents the non-prefixed names).
+- The example assumes an undocumented command, alias, or parameter. Current Learn documents `Set-DlpPolicy -PolicyName -UpdatedPolicy`, not `-ConnectorGroups`; reviewed sources do not establish `Add-PowerAppEnvironmentToPolicy` or `Get-AdminPowerAppChatbot`.
 
 ### Diagnostics
 
@@ -269,7 +263,8 @@ Get-Command -Module Microsoft.PowerApps.Administration.PowerShell -Name *Dlp*
 ### Resolution Options
 
 - Install or import the module per the [PowerShell Setup](powershell-setup.md) playbook.
-- If your pinned version exposes only `*-AdminDlpPolicy`, use those names consistently. If it exposes both, prefer the non-prefixed names per current Microsoft Learn guidance and use them consistently across your scripts.
+- Check `Get-Help New-DlpPolicy -Full` and `Get-Help Set-DlpPolicy -Full`; use a complete approved definition per the updated PowerShell playbook. Do not assume older commands are aliases.
+- Use the documented Dataverse Bots inventory approach rather than substituting an unverified chatbot cmdlet. Stop on collection failures; an empty result is not evidence of compliance.
 
 ### Prevention
 
@@ -285,20 +280,21 @@ Get-Command -Module Microsoft.PowerApps.Administration.PowerShell -Name *Dlp*
 
 ### Likely Causes
 
-- Events have not yet been ingested (Purview audit ingestion typically lags 30–60 minutes).
+- Events have not yet been ingested; record the activity time and allow for ingestion latency.
 - The audit search filter is too narrow (wrong workload or date range).
 - Auditing was disabled in the tenant or for the relevant workload.
 
 ### Diagnostics
 
-- Wait at least 60 minutes after the activity before re-searching.
+- Re-search after allowing for ingestion latency; do not treat a fixed 60-minute window as a delivery guarantee.
 - Broaden the search to `All workloads` to confirm ingestion is happening for other activity.
 - Confirm Purview Audit (Standard) is enabled for the tenant.
 
 ### Resolution Options
 
 - Re-enable auditing if disabled.
-- Use the **PowerPlatformAdmin** and **Dataverse** workload filters specifically when looking for agent publish events.
+- Filter the Activities list for Copilot Studio's documented **BotUpdateOperation-BotPublish** event. See [Audit Copilot Studio activities](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio).
+- Do not search for invented native DLP-violation/approval event names. Use Channels workbooks for DLP and configured Power Automate/pipeline records for approvals; preserve and correlate them separately.
 - For Zone 3 evidence, use Audit (Premium) where available to extend retention beyond the default 180 days.
 
 ### Prevention
@@ -321,4 +317,4 @@ If an issue is not resolved by the steps above:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (Microsoft Learn review 2026-10-14; tenant UI capture pending)*

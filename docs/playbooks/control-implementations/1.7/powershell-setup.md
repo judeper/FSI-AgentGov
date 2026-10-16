@@ -707,14 +707,20 @@ function Enable-FsiCopilotStudioDataverseAudit {
     $entities = @('bot','botcomponent','botcomponentcollection','conversationtranscript','aiplugin','aipluginauth')
     foreach ($e in $entities) {
         $metaUri = "$EnvironmentWebApiUrl/api/data/v9.2/EntityDefinitions(LogicalName='$e')"
-        $current = Invoke-RestMethod -Method GET -Uri "$metaUri`?`$select=LogicalName,IsAuditEnabled" `
+        $current = Invoke-RestMethod -Method GET -Uri $metaUri `
             -Headers $DataverseHeaders -ErrorAction Stop
         if ($current.IsAuditEnabled.Value) { Write-Verbose "$e already audited; skipping."; continue }
         if (-not $current.IsAuditEnabled.CanBeChanged) { throw "$e auditing cannot be changed." }
-        if ($PSCmdlet.ShouldProcess("$EnvironmentWebApiUrl :: $e", 'PATCH IsAuditEnabled=true')) {
-            Invoke-RestMethod -Method PUT -Uri $metaUri -Headers $DataverseHeaders -ErrorAction Stop `
-                -Body (@{ IsAuditEnabled = @{ Value = $true; CanBeChanged = $true; ManagedPropertyLogicalName = 'canmodifyauditsettings' } } | ConvertTo-Json -Depth 4) `
+        if ($PSCmdlet.ShouldProcess("$EnvironmentWebApiUrl :: $e", 'PUT EntityDefinition IsAuditEnabled=true + PublishXml')) {
+            $current.IsAuditEnabled.Value = $true
+            $putHeaders = @{} + $DataverseHeaders
+            $putHeaders['MSCRM.MergeLabels'] = 'true'
+            Invoke-RestMethod -Method PUT -Uri $metaUri -Headers $putHeaders -ErrorAction Stop `
+                -Body ($current | ConvertTo-Json -Depth 10) `
                 -ContentType 'application/json'
+            $publishBody = @{ ParameterXml = "<importexportxml><entities><entity>$e</entity></entities></importexportxml>" } | ConvertTo-Json
+            Invoke-RestMethod -Method POST -Uri "$EnvironmentWebApiUrl/api/data/v9.2/PublishXml" `
+                -Headers $DataverseHeaders -Body $publishBody -ContentType 'application/json' -ErrorAction Stop | Out-Null
             $verified = Invoke-RestMethod -Method GET -Uri "$metaUri`?`$select=LogicalName,IsAuditEnabled" `
                 -Headers $DataverseHeaders -ErrorAction Stop
             if (-not $verified.IsAuditEnabled.Value) { throw "$e audit enablement was not confirmed." }

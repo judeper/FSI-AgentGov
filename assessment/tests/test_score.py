@@ -321,6 +321,50 @@ class TestControl112ManualGate:
         assert ctrl["evaluator_state"] == "manual_only"
 
 
+class TestControl128ManualReview:
+    """Policy inventories and scan flags cannot establish per-agent compliance."""
+
+    @pytest.mark.parametrize("zone", [1, 2, 3])
+    @pytest.mark.parametrize("has_inventory", [False, True])
+    def test_control_1_28_remains_manual(self, zone: int, has_inventory: bool):
+        score = pytest.importorskip("score")
+        controls = json.loads(
+            (ASSESSMENT_ROOT / "manifest" / "controls.json").read_text(encoding="utf-8")
+        )
+        control = next(c for c in controls if c["id"] == "1.28")
+        assert control["automation"] == "manual"
+        assert control["collection_methods"] == []
+        assert {c["check_id"] for c in control["checks"]} == {"1.28.a", "1.28.b"}
+        assert control["manual_question"]
+        assert "Get-DlpPolicy inventory alone does not prove" in control["manual_question"]
+        for check in control["checks"]:
+            assert check["collection_methods"] == ["Manual"]
+            assert check["pass_condition"] == ""
+            assert check["api_call"] == ""
+        for threshold in control["zone_thresholds"].values():
+            assert threshold == {"min_checks_passed": 0, "maturity_score": 0}
+
+        collected = {}
+        if has_inventory:
+            collected["ppac"] = {
+                "dlp_policies": [{"PolicyName": "Production DLP", "Enabled": True}],
+                "dlp_publishing_restrictions": True,
+                "security_scan_enabled": True,
+            }
+        result = score.score_control(control, collected, zone, "2026-10-14T00:00:00Z")
+        assert result["needs_manual"] is True
+        assert result["evaluator_state"] == "manual_only"
+        assert result["evaluator_state_breakdown"]["manual_only"] == 2
+        assert result["checks_passed"] == 0
+        assert result["maturity_score"] == 0
+        assert all(check["passed"] is None for check in result["checks"])
+        assert all(check["evaluator_state"] == "manual_only" for check in result["checks"])
+        for evidence in result["evidence"].values():
+            assert evidence["result"] == "unknown"
+            assert evidence["source"] is None
+            assert "Manual attestation required" in evidence["value"]
+
+
 class TestControl115ManualGate:
     """Control 1.15 cannot claim unsupported tenant-level TLS/at-rest automation."""
 
