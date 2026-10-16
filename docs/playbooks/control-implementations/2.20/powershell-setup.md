@@ -378,7 +378,7 @@ $kql = @"
 let s = datetime($($WindowStartUtc.ToString('o')));
 let e = datetime($($WindowEndUtc.ToString('o')));
 union isfuzzy=true
-    (OfficeActivity | where TimeGenerated between (s .. e) | where RecordType == 'CopilotInteraction' | where AppHost == 'CopilotStudio' | project ts=TimeGenerated, plane='Audit', AgentId=tostring(AgentId), CorrelationId, EventName=Operation),
+    (CopilotActivity | where TimeGenerated between (s .. e) | where RecordType == 'CopilotInteraction' | project ts=TimeGenerated, plane='Audit', AgentId=tostring(AgentId), CorrelationId=RecordId, EventName=RecordType),
     (SecurityAlert | where TimeGenerated between (s .. e) | where ProductName in ('Microsoft Defender for Cloud','Microsoft 365 Defender') | where AlertName has_any ('Prompt Shield','PromptShield','Jailbreak','XPIA','UPIA','Indirect prompt') | project ts=TimeGenerated, plane='Defender', AgentId='', CorrelationId=SystemAlertId, EventName=AlertName)
 | where AgentId == '$AgentId' or AgentId == ''
 | summarize events=count() by plane, EventName
@@ -497,4 +497,4 @@ if ($findings | Where-Object severity -in 'Critical','High') { exit 1 } else { e
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [Portal Walkthrough](portal-walkthrough.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted query correction; tenant execution not tested)*

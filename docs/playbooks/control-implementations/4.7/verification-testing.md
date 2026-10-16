@@ -116,9 +116,9 @@ Confirm the firm has a current acknowledgement (signed or workflow-recorded) of 
 
 ### PRE-03 - Audit log connector and Sentinel ingestion health
 
-Confirm the Microsoft 365 -> Microsoft Sentinel connector (or equivalent SIEM connector) is connected, has ingested at least one `OfficeActivity` and one `CopilotInteraction` record in the last 60 minutes, and that the Sentinel data-connector page reports zero unresolved health alerts for the M365 connector family.
+Confirm the Microsoft 365 and Microsoft Copilot Sentinel connectors (or equivalent SIEM feeds) are connected, with known activity in `OfficeActivity` and a known `CopilotInteraction` event in [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity), respectively. Verify connector health and correlate the Copilot `RecordId` with Purview.
 
-**Pass criteria.** Last-ingestion timestamp on `OfficeActivity` table within 15 minutes; on `CopilotInteraction` within 30 minutes; data-connector health is `Healthy`.
+**Pass criteria.** Last-ingestion timestamp on `OfficeActivity` within 15 minutes and on `CopilotActivity` within 30 minutes are framework test targets, not Microsoft latency commitments. Confirm known events within the approved test window and healthy connectors; a healthy status alone does not prove capture.
 
 **Evidence.** `pre-03-siem.json` with KQL output of last-ingestion times plus connector health.
 
@@ -904,4 +904,4 @@ Each cycle produces an `attestation.json` carrying three distinct-role signature
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted ingestion criterion correction; tenant execution not tested)*

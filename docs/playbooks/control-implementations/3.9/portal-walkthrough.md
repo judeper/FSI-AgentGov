@@ -124,7 +124,7 @@ Use the canonical role names from the [role catalog](../../../reference/role-cat
 | **Sentinel Admin** (Microsoft Sentinel Contributor + Log Analytics Contributor on the workspace resource group) | Workspace creation, connector enablement, analytics-rule authoring, workbook publishing, Logic App linkage | Azure RBAC on the Sentinel resource group | PIM-eligible, max 8h activation, justification + ticket required |
 | **SOC Analyst** (Microsoft Sentinel Responder) | Incident triage, comments, status updates, playbook on-demand triggers | Azure RBAC on the Sentinel resource group | PIM-eligible, max 8h |
 | **Entra Security Admin** | Enabling diagnostic settings on Entra ID, including the workload-identity sign-in tables | Entra ID role | PIM-eligible, max 4h |
-| **Purview Compliance Admin** | Verifying upstream Purview audit-log enablement (feeds OfficeActivity / CopilotInteraction) | Purview role group | PIM-eligible, max 8h |
+| **Purview Compliance Admin** | Verifying upstream Purview audit-log enablement (feeds OfficeActivity / CopilotActivity through their respective connectors) | Purview role group | PIM-eligible, max 8h |
 | **AI Governance Lead** | Approves analytics-rule thresholds; signs off on §9 evidence packet | Microsoft Entra group + RACI documented in [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Standing assignment; sign-off via change ticket |
 | **Power Platform Admin** | Enables Power Platform admin-activity logging and Copilot Studio diagnostics export | Power Platform admin role | PIM-eligible, max 8h |
 | **Compliance Officer** | Reviews retention configuration in §7; co-signs the §9 evidence packet quarterly | Standing role | Standing |
@@ -233,15 +233,15 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 This section enables the seven data connectors that feed every analytics rule, workbook, and Logic App in this walkthrough. Each subsection follows the same pattern: portal navigation, connector enablement, table verification, and ingestion sanity check.
 
 !!! warning "Order matters"
-    Enable connectors **in the order presented** (3.1 → 3.7). The Entra connector (3.2) must precede the analytics rules in §3 because the agent-identity tables it produces are queried by every workload-identity rule. The Microsoft 365 connector (3.1) must precede the Copilot connector (3.5) because CopilotInteraction enrichment depends on OfficeActivity user-context resolution.
+    Enable each rule's source connectors before enabling that rule. The Microsoft 365 connector feeds `OfficeActivity`; the Microsoft Copilot connector feeds `CopilotActivity`. Do not assume the latter requires an OfficeActivity enrichment dependency.
 
-### 3.1 Microsoft 365 connector (OfficeActivity, including CopilotInteraction)
+### 3.1 Microsoft 365 connector (OfficeActivity)
 
-The M365 connector ingests the unified Purview audit log into the `OfficeActivity` table, which includes the `CopilotInteraction` record type for Microsoft 365 Copilot interactions across Word, Excel, PowerPoint, Outlook, Teams, and the BizChat surface.
+The Microsoft 365 connector supplies supported Exchange, SharePoint, and Teams audit activity to `OfficeActivity`. Use the separate [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) and `CopilotActivity` for Copilot interaction auditing; `OfficeActivity` is not a universal mirror of every Purview record type.
 
 1. Defender portal → **Microsoft Sentinel** → **Configuration** → **Data connectors**.
 2. Search for **Microsoft 365** (formerly Office 365). Select the connector and click **Open connector page**.
-3. In the **Configuration** section, enable telemetry for **Exchange**, **SharePoint**, **Teams**, and **General** (the General record type carries CopilotInteraction).
+3. In **Configuration**, select the supported Exchange, SharePoint, and Teams feeds needed by the firm's rules. Do not look for a General toggle as a Copilot ingestion prerequisite.
 4. Click **Apply Changes**.
 5. Wait 15–30 minutes, then run the following KQL in **Logs**:
 
@@ -252,7 +252,7 @@ The M365 connector ingests the unified Purview audit log into the `OfficeActivit
     | order by Count desc
     ```
 
-    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md#tc-02-power-platform-admin-activity-connector-connected-but-no-rows).
+    Expected: known Exchange/SharePoint/Teams activity appears. Test Copilot independently using §2.5; no Copilot rows in OfficeActivity is not itself a connector failure.
 
 [Screenshot anchor: ]
 
@@ -344,22 +344,21 @@ The Defender for Cloud Apps (MDA) connector writes to `CloudAppEvents` and is th
 
 ### 2.5 Microsoft Copilot connector (Defender portal)
 
-The Microsoft Copilot connector (GA in commercial cloud at the time of writing) provides richer Copilot signals than what is available via OfficeActivity alone — including XPIA flags, prompt-shield outcomes, and sensitivity-label propagation.
+The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) uses the Office Management API to collect supported Microsoft 365 Copilot and Security Copilot audit activity into [`CopilotActivity`](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/copilotactivity). Confirm supported cloud, licensing, and available fields before deploying rules.
 
 1. Defender portal → **Microsoft Sentinel** → **Configuration** → **Data connectors** → search **Microsoft Copilot** → **Open connector page**.
-2. Click **Connect**. Authorize the connector with the Sentinel Admin credentials.
+2. Follow the connector's current configuration steps. The documented tenant permission prerequisite is Security Administrator or Global Administrator, in addition to the workspace permissions needed to configure Sentinel.
 3. Click **Apply Changes**.
 4. Verify (table name and schema may evolve — check the connector page for current table reference):
 
     ```kql
-    OfficeActivity
+    CopilotActivity
     | where RecordType == "CopilotInteraction"
     | where TimeGenerated > ago(1h)
-    | extend XPIAFlag = tostring(parse_json(CopilotEventData).XPIAFlag)
-    | summarize Total = count(), XPIAFlagged = countif(isnotempty(XPIAFlag)) by bin(TimeGenerated, 15m)
+    | summarize Total = count() by bin(TimeGenerated, 15m)
     ```
 
-    Expected: non-zero `Total` for an active tenant; `XPIAFlagged` may be zero in normal operation and is expected to be rare.
+    Expected: a known controlled interaction arrives within the empirically measured latency window. Match its `RecordId` to Purview. Missing nested detection fields are unknown, not proof of a negative classifier result.
 
 [Screenshot anchor: ]
 
@@ -458,17 +457,13 @@ For each rule below, use this navigation:
 
 ```kql
 let lookback = 30m;
-OfficeActivity
+CopilotActivity
 | where TimeGenerated > ago(lookback)
 | where RecordType == "CopilotInteraction"
-| extend EventData = parse_json(CopilotEventData)
-| extend XPIAFlag = tostring(EventData.XPIAFlag)
-| extend PromptShieldOutcome = tostring(EventData.PromptShieldOutcome)
-| where isnotempty(XPIAFlag) or PromptShieldOutcome in ("Blocked", "Flagged")
-| extend AgentId = tostring(EventData.AgentId), 
-         ConversationId = tostring(EventData.ConversationId),
-         Account = UserId
-| project TimeGenerated, Account, AgentId, ConversationId, XPIAFlag, PromptShieldOutcome, ClientIP
+| mv-expand Resource = LLMEventData.AccessedResources
+| where tobool(Resource.XPIADetected) == true
+| project TimeGenerated, ActorName, ActorUserId, AgentId, RecordId, SrcIpAddr,
+          ResourceId = tostring(Resource.ID)
 ```
 
 !!! info "Detection caveat"
@@ -885,7 +880,7 @@ This section configures retention per table to support the audit-trail expectati
 
 | Table | Interactive | Archive | Total | Rationale |
 |-------|-------------|---------|-------|-----------|
-| `OfficeActivity` (incl. CopilotInteraction) | 180 days | up to 12 years | up to ~12 years | NYDFS 500.06 + audit-trail floor; **but see books-and-records boundary below** |
+| `OfficeActivity` / `CopilotActivity` (separate feeds) | 180 days | up to 12 years | up to ~12 years | NYDFS 500.06 + audit-trail floor; **but see books-and-records boundary below** |
 | `AADServicePrincipalSignInLogs` | 180 days | 7 years | 7 years | Agent identity audit trail; aligns with FINRA recordkeeping floor for related access logs |
 | `SigninLogs`, `AADNonInteractiveUserSignInLogs` | 90 days | 2 years | 2 years | Operational; books-and-records authority routes to Purview |
 | `AuditLogs` (Entra) | 180 days | 7 years | 7 years | Directory-change audit trail; high regulatory value |
@@ -1108,4 +1103,4 @@ Detailed verification procedures (KQL probes, dry-run injection tests, evidence-
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector/schema correction; tenant UI not tested)*

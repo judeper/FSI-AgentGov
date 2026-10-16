@@ -73,7 +73,7 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 |-----------------|---------------|-------|
 | 1.2 Agent Registry | Partial | Visible in M365 Admin Center only |
 | 1.5 DLP/Sensitivity Labels | Full | Tenant-wide policies apply |
-| 1.7 Audit Logging | Full | Logged via OfficeActivity |
+| 1.7 Audit Logging | Full | Purview audit; supported Sentinel Copilot interactions use the Microsoft Copilot connector and `CopilotActivity`, not a universal OfficeActivity feed |
 | 2.1 Managed Environments | N/A | Not in Power Platform |
 | 2.3 Change Management | N/A | Managed by Microsoft |
 | 3.1 Agent Inventory | Full | Visible in M365 Admin Center |
@@ -367,4 +367,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit connector correction; tenant UI not tested)*
