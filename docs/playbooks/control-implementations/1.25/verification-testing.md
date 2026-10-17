@@ -1,6 +1,8 @@
 # Verification & Testing: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** May 2026
+**Last Updated:** October 2026
+
+> **Control 1.5 dependency checked 2026-10-16 (documentation only):** legacy Defender for Cloud Apps file-policy evidence below applies only to supported connected apps before **January 6, 2027** retirement. Capture a migration plan and separately test the replacement [Purview DLP/auto-labeling policy](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview); legacy policy existence does not prove synchronous agent-upload enforcement. No tenant/UI test was performed.
 
 ## Manual Verification Steps
 

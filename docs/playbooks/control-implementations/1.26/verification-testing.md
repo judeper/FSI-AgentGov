@@ -1,6 +1,8 @@
 # Verification & Testing: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** May 2026
+**Last Updated:** October 2026
+
+> **Control 1.5 dependency checked 2026-10-16 (documentation only):** the legacy Defender for Cloud Apps true-MIME test applies only to a supported connected-app repository, not an assumed direct-upload intercept. File policies retire **January 6, 2027**; test the replacement [Purview DLP/auto-labeling policy](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview) separately and retain migration evidence. No tenant/UI test was performed.
 **Audience:** M365 administrators, AI Governance Lead, internal/external auditors
 
 This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / When / Then preconditions, an evidence-collection checklist, an attestation template, and a SHA-256-anchored auditor pack layout that supports SEC 17a-4(f) and FINRA 4511 preservation expectations.

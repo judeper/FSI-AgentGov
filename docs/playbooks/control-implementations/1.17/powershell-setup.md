@@ -17,7 +17,7 @@
 | Configure rule actions (block, audit, override) | ✅ Full | Via `New-/Set-DlpComplianceRule` parameters |
 | Manage Endpoint DLP **global settings** (restricted apps, USB groups, service domains) | ⚠️ Partial / portal-preferred | Cmdlet support is limited and changing; the Purview portal is the supported path |
 | Onboard / inventory devices | ❌ None (DLP cmdlets) | Use Defender for Endpoint Graph API or Intune endpoint security policy |
-| Edge for Business inline AI DLP toggles | ❌ None (DLP cmdlets) | Portal-only for the location toggle; rule actions configurable via cmdlets once location is enabled |
+| Edge for Business inline AI DLP | Review portal activation and policy scope | Separate Inline web traffic browser plane; see manual steps below, not a Devices-policy location toggle |
 | Global Secure Access security profiles | ❌ None (DLP cmdlets) | Use Microsoft Graph (`Microsoft.Graph.NetworkAccess`) |
 
 PowerShell is best used to **create policies idempotently, export evidence, and validate state**. UI configuration remains required for global Endpoint DLP settings.
@@ -382,7 +382,7 @@ These configuration items **must** be performed in the portal (see [Portal Walkt
 3. **Service domain groups** (allow/block lists for cloud and AI services) — `Purview > Endpoint DLP settings > Service domains`
 4. **Browser and domain restrictions** (unallowed browsers) — `Purview > Endpoint DLP settings > Browser and domain restrictions to sensitive data`
 5. **Just-in-time protection** toggle and fallback action — `Purview > Endpoint DLP settings > Just-in-time protection`
-6. **Edge for Business location** toggle on each DLP policy — `Purview > DLP > Policies > <policy> > Locations`
+6. **Browser enforcement** — separate `Purview > DLP > Policies > Inline web traffic > Edge for Business` policy and automatic activation; not a Devices-policy location toggle. Dependency checked 2026-10-16 against [browser deployment](https://learn.microsoft.com/en-us/purview/dlp-create-policy-block-to-ai-via-edge), documentation only.
 7. **Global Secure Access security profiles** — `Microsoft Entra > Global Secure Access > Secure > Security profiles`
 8. **Defender for Endpoint device onboarding** — `Microsoft Intune > Endpoint security > Endpoint detection and response`
 

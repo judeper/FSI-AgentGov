@@ -137,32 +137,29 @@ Apply per-activity actions on the rule's **Audit or restrict activities on devic
 
 ## Step 5 — Enable Edge for Business Inline AI DLP
 
-1. Edit the policy from Step 3.
-2. On the **Locations** page, toggle **Microsoft Edge for Business** to **On**.
-3. Add the rule action **Audit or restrict activities in Microsoft Edge for Business** with sub-activities:
-   - **Submit prompts to a generative AI service**: Block (Zone 3), Block with override (Zone 2), Audit (Zone 1)
-   - **Upload files to a generative AI service**: Block (Zone 3), Block with override (Zone 2), Audit (Zone 1)
-   - **Paste sensitive content into a generative AI service**: as above
-4. Optionally enable **Redirect users to Microsoft 365 Copilot** when blocking (Zone 3) to channel users to the sanctioned tenant-protected experience.
-5. Save the policy.
+1. Create a separate Purview **DLP → Policies → Inline web traffic → Custom** policy; do not edit a Devices policy as though it were the browser plane.
+2. Select supported cloud apps or **All unmanaged AI apps**, then **Edge for Business** enforcement.
+3. Configure supported conditions and **Restrict browser and network activities** for text/file uploads with the documented audit/block action.
+4. Validate simulation and automatic activation before enforcement; failed Edge/Intune synchronization means protection is not active.
+5. Test the configured app/profile/activity; do not assume a generic override or redirect-to-Copilot action.
 
-!!! tip "Edge for Business does not require device onboarding"
-    Inline DLP in Edge for Business operates on any device where the user signs in with their Entra work account, including unmanaged BYOD. This provides coverage before Defender for Endpoint deployment is complete.
+!!! tip "Endpoint onboarding and browser prerequisites are different"
+    The unmanaged-app browser scenario does not require Endpoint DLP onboarding, but does require supported **Intune-managed Windows 10/11**, supported Edge, permissions and pay-as-you-go. It can cover work/personal/InPrivate profiles; it is not arbitrary unmanaged BYOD or macOS coverage. Managed-app scenarios have different prerequisites.
+
+**Dependency checked 2026-10-16 (documentation only):** [browser DLP](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn) and [deployment procedure](https://learn.microsoft.com/en-us/purview/dlp-create-policy-block-to-ai-via-edge). The zone tables express organizational requirements, not extra native inline actions.
 
 ---
 
 ## Step 6 — Configure Network DLP via Global Secure Access (Zone 2 Recommended, Zone 3 Required)
 
-1. Sign in to **Microsoft Entra admin center** (`https://entra.microsoft.com`).
-2. Navigate to **Global Secure Access** → **Secure** → **Security profiles**.
-3. Click **+ Create profile**, name it `FSI-AI-DLP-Profile`, set priority appropriately (lower number = higher priority).
-4. Add **Web content filtering policies** that route traffic to unmanaged AI services through the inspection engine.
-5. Link the DLP policy created in Step 3 under **Linked policies**.
-6. Assign the security profile to user groups via **Conditional Access** policy under **Identity > Protection > Conditional Access**.
-7. Validate with the Global Secure Access client installed on a test device.
+1. Open Purview **DLP → Security Store** and configure the supported Global Secure Access integration.
+2. Complete the documented GSA prerequisites, including supported Entra-joined device, traffic forwarding and TLS inspection/content policy.
+3. Create an **Inline web traffic** policy with **Network and non-Microsoft secure browsers** enforcement; it is not the Endpoint DLP policy from Step 3.
+4. Select the supported app/condition and audit/block action and validate the integration end to end.
+5. Allow up to 24 hours initially; subsequent request telemetry can take up to 30 minutes.
 
 !!! warning "Licensing dependency"
-    Global Secure Access network DLP requires **Microsoft Entra Suite** or the **Global Secure Access standalone** SKU. Verify entitlement before enabling for production.
+    The GSA integration requires eligible **Purview E5-equivalent entitlement plus Entra Internet Access** (or the documented bundle); Entra licensing alone is insufficient. GSA integration does not require Purview pay-as-you-go setup, unlike non-Microsoft SASE/secure-browser integrations. Sources checked 2026-10-16: [network data security](https://learn.microsoft.com/en-us/purview/dlp-network-data-security-learn) and [deployment](https://learn.microsoft.com/en-us/purview/dlp-create-policy-ai-network-data-security). No tenant/UI execution.
 
 ---
 

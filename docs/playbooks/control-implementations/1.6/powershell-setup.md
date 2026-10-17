@@ -120,7 +120,7 @@ $dlp = Get-DlpCompliancePolicy | ForEach-Object {
         Name      = $_.Name
         Mode      = $_.Mode      # Enable | TestWithNotifications | TestWithoutNotifications | Disable | PendingDeletion
         Workloads = ($_.Workload -split ',') -join '|'
-        TouchesCopilot = ($_.Workload -match 'MicrosoftCopilotExperiences|Copilot')
+        TouchesCopilot = ($_.EnforcementPlanes -contains 'CopilotExperiences')
         RuleCount = ($rules | Measure-Object).Count
     }
 }
@@ -139,6 +139,8 @@ $ret = Get-RetentionCompliancePolicy | ForEach-Object {
 }
 $ret | Export-Csv (Join-Path $EvidencePath 'retention-policies.csv') -NoTypeInformation -Encoding UTF8
 ```
+
+**Verification dependency reviewed 2026-10-16:** identify Copilot scope from policy-level `EnforcementPlanes` and inspect `Locations`, not a workload-name substring. Inventory is not proof of enforcement; pair it with [Control 1.5 verification](../1.5/verification-testing.md). Source: [New-DlpCompliancePolicy](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy). No tenant execution was performed.
 
 ---
 

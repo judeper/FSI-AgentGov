@@ -160,14 +160,16 @@ Confirm that the synthetic test fixture corpus (the canary documents, canary ide
 
 Microsoft 365 Copilot evidence has documented service-side latency that must be respected to avoid false negatives. The validator (Section 6) refuses to assert pass on a test whose evidence falls inside the noise-window for that signal.
 
+**Control 1.5 dependency reviewed 2026-10-16:** audit/DLP rows below distinguish local measurement/buffers from Microsoft commitments. Sources: [audit search](https://learn.microsoft.com/en-us/purview/audit-log-search), [Copilot DLP](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about), and [Endpoint DLP](https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about). Documentation only; no tenant measurements were taken.
+
 | Signal | Typical service-side latency | Validator wait-window before asserting | Tenant-specific override |
 |---|---|---|---|
-| `CopilotInteraction` UAL record | 30-60 minutes | PRE-04 p95 plus 30 minutes | If PRE-04 p95 > 60 min, raise FIND-LATENCY |
-| `LabelApplied` UAL record | 5-30 minutes | PRE-04 p95 plus 15 minutes | n/a |
-| `DlpRuleMatch` for Copilot policy location | 10-45 minutes | PRE-04 p95 plus 20 minutes | n/a |
+| `CopilotInteraction` UAL record | Measure a known event; core services typically 60–90 minutes, no guaranteed maximum | PRE-04 p95 plus 30 minutes (local buffer, not a service SLA) | Investigate deviation from the measured baseline; a fixed 60-minute ceiling is not a Microsoft commitment |
+| Label-change UAL record | Measure the actual operation emitted by the label change; no universal 5–30-minute bound | PRE-04 p95 plus 15 minutes (local buffer) | n/a |
+| Copilot DLP policy-match activity | Verify the actual workload-specific activity/schema; do not assume `DlpRuleMatch` or a 10–45-minute bound | PRE-04 p95 plus 20 minutes (local buffer) | Correlate with the controlled DLP test |
 | Restricted SharePoint Search effective change | Up to 24 hours | 26 hours after `Set-SPOTenantRestrictedSearchMode` | Document any sub-24h change as exception |
 | Sensitivity-label policy distribution | 1-24 hours | 26 hours after `Set-LabelPolicy` | n/a |
-| Endpoint DLP policy distribution to managed device | 30-90 minutes after device check-in | 4 hours after policy publish AND device check-in observed | n/a |
+| Endpoint DLP policy distribution to managed device | Confirm actual policy synchronization; no universal 30–90-minute bound | 4 hours is a local observation point AND device check-in must be observed | Investigate device synchronization rather than asserting a service maximum |
 | Multi-geo PDL change | Up to 72 hours for full propagation | 76 hours after `Set-SPOSiteDataLocation` | n/a |
 | Retention policy effective on new Copilot Pages | 1-7 days | 8 days after publish for new-content claim | n/a |
 | Sentinel analytic rule fire | Near-real-time, max 5 minutes after source ingestion | PRE-03 connector latency plus 10 minutes | n/a |

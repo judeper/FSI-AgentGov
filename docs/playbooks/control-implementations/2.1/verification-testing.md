@@ -564,25 +564,20 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
         Out-File (Join-Path $script:EvidenceRoot "tc05-sharing-limits-$($script:RunId).json") -Encoding utf8
     ```
 
-2. Confirm DLP coverage for standalone cloud flows by referencing the Control 1.5 evidence pack''s most recent run:
+2. Confirm DLP coverage for standalone cloud flows by reviewing the Control 1.5 evidence pack's most recent operator-run results. Dependency reviewed 2026-10-16: [Control 1.5 testing](../1.5/verification-testing.md) defines `TestId`/`Status` and does not supply a `15-DLP-COVERAGE` collector or an automatic `PASS` feed. Missing evidence must not silently pass.
 
     ```powershell
-    $dlpRef = Get-Content $env:ME21_CTRL15_LATEST | ConvertFrom-Json
-    $dlpRef | Where-Object { $_.test_case -eq '15-DLP-COVERAGE' -and $_.status -ne 'PASS' } |
-        ForEach-Object {
-            [pscustomobject]@{
-                EnvironmentId = $_.subject_id
-                Status        = 'WARN'
-                Reason        = 'TC-5 cannot pass because Control 1.5 most-recent run reports DLP gap for standalone cloud flows in this environment'
-                XRef          = '../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md'
-            }
-        }
+    $dlpRef = Get-Content $env:ME21_CTRL15_LATEST -Raw -ErrorAction Stop | ConvertFrom-Json
+    $dlpRef | Format-List *
+    # Operator: verify current environment IDs, connector scope, policy mode,
+    # positive/negative flow tests and Status = Clean for each required scope.
+    # Empty, missing, stale, Pending or unrelated results cannot satisfy TC-5.
     ```
 
 #### Expected
 
 - All Z2/Z3 environments have `Compliant*` flags `$true`.
-- The most recent Control 1.5 evidence pack reports `PASS` for DLP coverage of every Z2/Z3 environment.
+- The most recent Control 1.5 evidence pack contains explicit `Clean` results and scope/flow-test evidence for every Z2/Z3 environment; inventory alone is insufficient.
 
 #### Evidence Capture
 

@@ -2,6 +2,7 @@
 
 **Control:** [1.5 Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
 **Pillar:** Pillar 1 — Security
+**Last Verified:** 2026-10-16 — Microsoft Learn review of verification dependencies; no tenant execution or screenshots
 **Audience:** Purview Compliance Admin, Purview Info Protection Admin, Power Platform Admin, AI Administrator, Purview Data Security AI Admin, Entra Security Admin, AI Governance Lead, FSI Compliance Officer
 **Companion playbooks:**
 [Portal walkthrough](./portal-walkthrough.md) ·
@@ -113,10 +114,10 @@ Apply one or more while the rule is being repaired. Document in the incident tic
 5. [ ] Confirmed the rule does **not** combine SIT + sensitivity-label conditions in the same rule for the Copilot location (Purview rejects this; if it saved, verify the split)
 6. [ ] Sensitivity-label state captured — published-to scope, applied to item vs container only, container-inheritance state
 7. [ ] SIT readiness validated (Control 1.13) — SIT exists, pattern matches the test data, confidence and minimum count not over-tight
-8. [ ] Audit ingestion verified from an **EXO** session (`Get-AdminAuditLogConfig`) — not from IPPS, which can return a stale value
+8. [ ] Audit ingestion verified from an **EXO** session (`Get-AdminAuditLogConfig`) — IPPS reports `UnifiedAuditLogIngestionEnabled = False` even when enabled
 9. [ ] Audit query used a valid `RecordType` (`ComplianceDLPSharePoint`, `ComplianceDLPExchange`, `DlpEndpoint`, `CopilotInteraction`) — not `DLP`
 10. [ ] Propagation window honored — ≥ 4 hours since the last rule save (Microsoft-documented for the Copilot location)
-11. [ ] Administrative-unit scope ruled out — the Copilot DLP location does not support AUs; an AU-scoped admin's rule silently never applies
+11. [ ] Administrative-unit scope ruled out — the Copilot DLP location does not support AUs; use a permitted tenant-scoped administrator rather than assuming silent enforcement behavior
 12. [ ] Power Platform DLP state captured for any Copilot Studio surface (`Get-DlpPolicy`, environment scope, connector classification)
 14. [ ] Endpoint DLP device-onboarding state verified for any Endpoint surface (Defender for Endpoint or standalone Purview onboarding)
 15. [ ] Last known-good evidence pack timestamp (Control 1.7) recorded
@@ -157,7 +158,7 @@ Control 1.5 owns the **DLP enforcement plane**. The other two columns reference 
 | Scoping a Copilot DLP rule to a Restricted Administrative Unit | Copilot DLP location does not support AUs — the rule silently never applies | Author with a tenant-scoped Compliance Admin |
 | Assuming **Adaptive Protection** is at parity across all commercial Purview features | Dynamic risk-based DLP depends on IRM policies being active and connected | Verify IRM policy and Adaptive Protection wiring per Control 1.12 before building DLP rules conditioned on risk tier |
 | Trusting the citation list as evidence the file was "blocked" | The Prevent-Copilot-from-processing-content action stops summarization, but the item still appears in citations with a click-through link | Combine with site / library access controls (Control 1.3); do not rely on the DLP action alone |
-| Using `Get-AdminAuditLogConfig` from `Connect-IPPSSession` to verify audit ingestion | IPPS can return a cached / stale value | Always run from `Connect-ExchangeOnline` |
+| Using `Get-AdminAuditLogConfig` from `Connect-IPPSSession` to verify audit ingestion | Its ingestion property reports `False` even when enabled | Always run from `Connect-ExchangeOnline`; see [audit search](https://learn.microsoft.com/en-us/purview/audit-log-search) |
 
 ---
 
@@ -165,7 +166,7 @@ Control 1.5 owns the **DLP enforcement plane**. The other two columns reference 
 
 > Format: **Symptom → Likely cause → Diagnostic (PowerShell + portal path) → Resolution → What good looks like (exit criteria)**.
 >
-> All snippets below assume connection helpers from [`powershell-setup.md`](./powershell-setup.md) — specifically `Connect-Purview-IPPS`, `Connect-Purview-EXO`, `Connect-PowerPlatform`, and `Get-EvidenceStamp`. Do not redefine them inline.
+> The old helper names `Connect-Purview-IPPS`, `Connect-Purview-EXO`, `Connect-PowerPlatform`, and `Get-EvidenceStamp` are not supplied by the companion playbook. Use the actual documented commands shown below. Capture UTC timestamps explicitly. A connection failure is an error, not empty evidence.
 
 ---
 
@@ -179,31 +180,29 @@ A user pasted (or Copilot summarized) regulated content; an audit row exists for
 2. The triggering rule references a label or SIT that is not actually applied on the source item.
 3. The policy is in `TestWithoutNotifications` / `TestWithNotifications` ("Test / Simulation"), not `Enable` ("Turn it on").
 4. Less than ~4 hours have elapsed since the last rule save (Microsoft Learn documents propagation as **up to 4 hours** for the Copilot location).
-5. Author was a Restricted-Administrative-Unit-scoped admin (the Copilot location does not support AUs; the rule silently never applies).
+5. Author was a Restricted-Administrative-Unit-scoped admin (the Copilot location does not support AUs; verify permissions rather than assuming the rule silently applies or fails).
 6. Audit query used an invalid `RecordType` and the rule did fire — see Scenario 11.
 
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS                                      # helper from powershell-setup.md
+Connect-IPPSSession
 $pol  = Get-DlpCompliancePolicy -Identity '<policy>'
 $rule = Get-DlpComplianceRule  -Policy   '<policy>'
 
 # (a) Custom template + Copilot location present?
 $pol  | Select-Object Name, Mode, Workload, CreatedBy,
-                     @{N='HasCopilotLocation';E={ $_.Workload -match 'Copilot' }}
+                     Locations, EnforcementPlanes
 
 # (b) Rule mode flip — when was the policy last saved / enabled?
 $pol  | Select-Object Name, Mode, WhenChangedUTC, LastModifiedTime
 
 # (c) Conditions — SIT and label must be in *separate* rules
-$rule | Select-Object Name, Disabled, Priority,
-                     ContentContainsSensitiveInformation, ContentMatchesLabel,
-                     BlockAccess, NotifyUser
+$rule | Format-List *
 
 # (d) Author identity — Restricted-AU admin?
-Get-RoleGroupMember -Identity 'Compliance Administrator' |
-    Where-Object Name -eq $pol.CreatedBy
+# Review the author's actual role assignments and administrative-unit scope
+# in the appropriate identity/Purview role configuration.
 ```
 
 **Diagnostic — portal**
@@ -211,7 +210,7 @@ Get-RoleGroupMember -Identity 'Compliance Administrator' |
 - Purview → **Solutions → Data Loss Prevention → Policies → [policy] → Edit policy → Locations** — confirm `Microsoft 365 Copilot and Copilot Chat` is checked.
 - Same wizard → **Policy mode** — confirm "Turn it on" (not "Run in simulation mode" or "Keep it off").
 - Purview → **DLP → Alerts** — filter by policy name and the failing UTC window.
-- Purview → **Audit** → search `ComplianceDLPSharePoint`, `ComplianceDLPExchange`, or `CopilotInteraction` for the test event.
+- Purview DLP Activity Explorer/Alerts — correlate policy/rule/user/time with the controlled test. A `CopilotInteraction` or SharePoint/Exchange event by itself does not prove a Copilot DLP restriction.
 
 **Resolution**
 
@@ -222,8 +221,8 @@ Get-RoleGroupMember -Identity 'Compliance Administrator' |
 
 **What good looks like**
 
-- `Get-DlpCompliancePolicy` returns `Mode = Enable` and the workload string contains the Copilot location.
-- A deterministic activation test (named test user, known prompt, UTC-stamped, run **after** T+4h from the last save) produces a `ComplianceDLPSharePoint` / `CopilotInteraction` audit row with `PolicyMatched = true` and the expected rule name.
+- `Get-DlpCompliancePolicy` returns `Mode = Enable`; `Locations` includes the Copilot application location and policy-level `EnforcementPlanes` includes `CopilotExperiences`. See [current policy authoring](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy).
+- A deterministic activation test (named test user, classifier-validated synthetic prompt and negative control, UTC-stamped, run after propagation) demonstrates the configured action and correlates with actual DLP activity. Do not assume a `PolicyMatched` field or a fixed audit record type.
 - Verification evidence is sealed per Control 1.7 with a SHA-256 manifest.
 
 ... see Verification Criterion 6 of the Control 1.5 doc for the exit gate.
@@ -251,7 +250,7 @@ Get-MgDeviceManagementManagedDevice -Filter "operatingSystem eq 'macOS'" |
     Select-Object DeviceName, OSVersion, ComplianceState, LastSyncDateTime, UserPrincipalName
 
 # (b) User in scope?
-Connect-Purview-IPPS
+Connect-IPPSSession
 $rule = Get-DlpComplianceRule -Policy '<endpoint-policy>'
 $rule | Select-Object Name, IncludedUserGroups, ExcludedUserGroups
 
@@ -289,39 +288,38 @@ A rule intended to block paste-into-ChatGPT / Gemini / DeepSeek / consumer-Copil
 
 **Likely causes**
 
-1. The user is signed into Edge with a personal account, not **Edge for Business**.
-2. The preview-feature enablement flag for Network DLP / unmanaged-AI is not turned on at the tenant level.
-3. The rule scope does not include the relevant unmanaged-AI category or domain.
-4. Web-content-collection (browser-side telemetry) is not configured, so the rule has nothing to evaluate.
+1. Browser DLP, Endpoint DLP, and network data security were conflated. Each has its own deployment and enforcement path.
+2. Browser automatic activation failed, or the device is not supported/intune-managed for the unmanaged-app scenario. Policies apply across Edge profiles on supported managed devices; a personal profile is not by itself an exclusion.
+3. The rule scope omits the app, user, activity, or applicable catalog entry.
+4. The network integration is absent, routing/TLS inspection is incorrect, or provider-specific support/entitlement is missing. An optional collection policy is not an enforcement prerequisite.
 
 **Diagnostic — portal**
 
-- Purview → **Settings → Endpoint DLP settings → Browser and domain restrictions to sensitive data** — confirm the unmanaged-AI category is enabled and the target domains appear.
-- Purview → **DLP → Policies → [policy] → Locations → Devices → Network and web activities** — confirm the rule includes the relevant browser activity.
-- Edge → `edge://management` on the endpoint — confirm the profile shows **Managed by your organization** and is signed in with the corporate account.
-- Purview → **DSPM for AI → Activity Explorer** (Control 1.6) — filter by **Unmanaged AI app** to confirm the platform is collecting events at all.
+- Purview **DLP → Policies → [Inline web traffic policy]** — confirm **Edge for Business** or **Network and non-Microsoft secure browsers** enforcement, user/app scope, conditions, and text/file activity actions.
+- For browser DLP, check automatic Edge/Intune activation and supported managed Windows/Edge versions. A sync error means protection is not active.
+- For network data security, verify **DLP → Security Store** integration and provider routing/configuration.
+- In Activity Explorer, filter **enforcement plane = browser** or **network** as applicable and correlate the known synthetic event, not arbitrary recent activity.
 
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS
-Get-PolicyConfig | Select-Object EndpointDlpBrowserRestrictionList,
-                                  EndpointDlpUnallowedBrowsers,
-                                  WebContentCollectionEnabled
+Connect-IPPSSession
+Get-DlpCompliancePolicy | Format-List Name, Mode, Locations, EnforcementPlanes
 ```
 
 **Resolution**
 
-- Force Edge for Business sign-in via Conditional Access (require compliant device + corporate identity for AI domains).
-- Enable the unmanaged-AI / Network DLP preview flag at the tenant level (verify against Microsoft Learn and Message Center; preview features can change without notice).
-- Add the missing domains or categories to the rule scope.
-- Enable **Web content collection** for the in-scope device groups so the rule has telemetry to act on.
-- Wait the 4-hour propagation window and re-test with a non-corporate-data string first to validate the path before testing with sensitive data.
+- Repair the applicable browser activation or network-provider integration; do not look for an undocumented generic preview switch.
+- Correct app/user/activity scope and verify billing/entitlement for the chosen integration.
+- Retest with a classifier-validated synthetic positive sample and a negative control. A benign string with no matching condition should not be expected to block.
+- Apply the integration-specific activation window, not Copilot's four-hour policy window to every plane. Network integration can take 24 hours initially; later request telemetry can take 30 minutes.
 
 **What good looks like**
 
-- A test paste of a benign canary string into the unmanaged-AI site is blocked (or warned) and produces a `DlpEndpoint` audit row with `BrowserName = Edge` and the unmanaged-AI category.
-- The DSPM for AI Activity Explorer shows the same event under **Unmanaged AI app**.
+- A matching synthetic sample produces the configured block/audit result, while the negative control behaves as intended.
+- Activity Explorer shows the actual browser/network enforcement plane. Do not demand an Endpoint DLP record for a different plane.
+
+Sources: [browser DLP](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn), [browser deployment](https://learn.microsoft.com/en-us/purview/dlp-create-policy-block-to-ai-via-edge), and [network data security](https://learn.microsoft.com/en-us/purview/dlp-network-data-security-learn).
 
 ... see Control 1.5 §"Edge for Business — unmanaged AI (preview)" and Control 1.6 detection plane.
 
@@ -335,13 +333,13 @@ A tenant-level Power Platform data policy classifies the **HTTP Webhook** connec
 
 1. **Tenant vs environment DLP precedence** — environment-scope policies and tenant policies stack; an environment-scope policy with `Business / Non-Business` classification can still allow the connector if no policy actually places it in `Blocked` for that environment.
 2. The tenant policy uses `All environments except…` and the affected environment is in the `except` list.
-3. The environment is a **managed environment** with a separate policy that overrides the tenant default.
-4. The default-environment behavior — `Add-PowerAppsAccount`-scoped policies and the Default environment have specific override rules; verify against [Power Platform DLP precedence](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention).
+3. The policy scope, resource exemption, or propagation state has been misread. Managed Environments do not introduce a less restrictive policy override.
+4. Multiple applicable policies must all be satisfied; an environment policy cannot relax a tenant policy. Verify the actual scope and exemptions using [Power Platform data policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention).
 
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-PowerPlatform                                # PS 5.1 helper from powershell-setup.md
+Add-PowerAppsAccount                                 # supported Windows PowerShell host
 
 # (a) All policies and their environment scope
 Get-DlpPolicy | Select-Object DisplayName, EnvironmentType, CreatedTime,
@@ -367,7 +365,7 @@ foreach ($p in Get-DlpPolicy) {
 
 **Resolution**
 
-- Move the `HTTP Webhook` connector to **Blocked** in **every** policy that targets the affected environment.
+- Verify a blocking policy actually targets the environment/resource; one applicable block is sufficient. Do not change every policy merely to duplicate an effective block.
 - Replace `All environments except…` patterns with explicit environment lists in Zone 3 — see Control 2.1.
 - For Managed Environments, configure the environment-scope policy explicitly; do not rely on tenant defaults.
 - Re-test maker experience: in Copilot Studio in the affected environment, attempt to add `HTTP Webhook` and confirm the connector is greyed out with the policy name shown.
@@ -398,7 +396,7 @@ A Highly Confidential document was returned (or summarized) by Copilot. Investig
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS
+Connect-IPPSSession
 
 # (a) Label scope — Files/Email vs Sites/Groups
 Get-Label | Select-Object DisplayName, ContentType, IsValid,
@@ -431,7 +429,7 @@ Get-AutoSensitivityLabelPolicy | Select-Object Name, Mode, ApplySensitivityLabel
 **What good looks like**
 
 - The affected file shows the expected sensitivity label in SPO (`File → Sensitivity` column).
-- A Copilot prompt that previously returned the content now returns "Some content was withheld due to organizational policy" (or equivalent) and a `ComplianceDLPSharePoint` audit row records the block.
+- A Copilot prompt no longer uses the labeled file's canary content under the configured DLP rule, although citations can remain. Correlate actual DLP activity; do not assume a SharePoint event records Copilot suppression.
 - Auto-labeling coverage report shows the SPO site at ≥ 95% labeled.
 - Reg S-P notification analysis is complete and recorded in the incident ticket regardless of outcome.
 
@@ -452,7 +450,7 @@ A user clicked "Override" on a DLP policy tip but the audit row contains no just
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS
+Connect-IPPSSession
 
 Get-DlpComplianceRule -Policy '<policy>' |
     Select-Object Name,
@@ -462,7 +460,7 @@ Get-DlpComplianceRule -Policy '<policy>' |
                   IncidentReportContent
 
 # Confirm audit ingestion (run from EXO, not IPPS)
-Connect-Purview-EXO
+Connect-ExchangeOnline
 Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
                                         AdminAuditLogEnabled
 ```
@@ -470,7 +468,7 @@ Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
 **Diagnostic — portal**
 
 - Purview → DLP → policy → rule → **User notifications → Allow overrides** — confirm `Require a business justification to override` is checked.
-- Purview → **Audit** — search for `ComplianceDLPSharePoint` / `ComplianceDLPExchange` in the suspect window; expand the event JSON and locate `UserJustification` / `OverrideReasons`.
+- Purview → **Audit** — for SharePoint/OneDrive overrides, search `DlpRuleUndo` and inspect `ExceptionInfo.Reason = Override` and `ExceptionInfo.Justification`. Other workloads have distinct schemas. See the [DLP audit schema](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema).
 
 **Resolution**
 
@@ -481,7 +479,7 @@ Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
 **What good looks like**
 
 - `Get-DlpComplianceRule` shows `NotifyAllowOverride` containing `WithJustification`.
-- A test override produces an audit event with non-empty `UserJustification`.
+- A SharePoint/OneDrive test override produces a `DlpRuleUndo` event with non-empty `ExceptionInfo.Justification`.
 - The same event appears in Sentinel within the connector's documented latency window.
 
 ... see Control 3.9 — Sentinel forwarding and analytics.
@@ -490,7 +488,7 @@ Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
 
 ### Scenario 7 — EDM detection not matching real customer account numbers
 
-An Exact Data Match (EDM) SIT built from the firm's customer-master file is not matching real account numbers in test prompts.
+An Exact Data Match (EDM) SIT is not matching the controlled test corpus in a consuming location that supports EDM. Use synthetic/test-store records, not customer data. Copilot typed-prompt DLP supports built-in/custom SITs, not an assumed EDM prompt path; validate EDM in a supported file/email/endpoint location instead. See [Copilot DLP](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about) and [Control 1.13 testing](../1.13/verification-testing.md).
 
 **Likely causes**
 
@@ -504,7 +502,7 @@ An Exact Data Match (EDM) SIT built from the firm's customer-master file is not 
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS
+Connect-IPPSSession
 
 # (a) EDM schema and data store state
 Get-DlpEdmSchema    | Select-Object Name, State, CreationTime, LastModifiedTime
@@ -534,7 +532,7 @@ $rule | Select-Object Name, ContentContainsSensitiveInformation
 
 - Purview EDM portal shows `State = Indexed` and a `Last refreshed` timestamp inside the agreed refresh SLA.
 - The Purview SIT **Test** view returns a hit on a known-good account number from the source file.
-- A controlled DLP test prompt produces a `ComplianceDLP*` audit row referencing the EDM SIT with the expected confidence value.
+- A controlled synthetic file/email test in a supported EDM location produces the configured match and corresponding activity with the expected classifier/confidence.
 
 ... see Control 1.13 — Sensitive Information Types and pattern recognition.
 
@@ -586,15 +584,16 @@ A new policy was run in `TestWithoutNotifications` for two weeks with zero hits;
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS
+Connect-IPPSSession
 
 # (a) Compare current rule to the simulation snapshot (kept in evidence per §1.3)
 $current = Get-DlpComplianceRule -Policy '<policy>'
 $snapshot = Get-Content '.\evidence\1.5\rules_<sim-timestamp>.json' | ConvertFrom-Json
 
-Compare-Object $current $snapshot -Property Name, Disabled, Priority,
-              ContentContainsSensitiveInformation, ContentMatchesLabel,
-              IncludedUserGroups, ExcludedUserGroups, BlockAccess
+# Export complete objects; nested advanced conditions/actions require semantic
+# comparison with the saved configuration, not selected legacy property names.
+$current | ConvertTo-Json -Depth 100
+$snapshot | ConvertTo-Json -Depth 100
 
 # (b) DLP detail report for the first hour of enforcement
 Get-DlpDetailReport -StartDate (Get-Date).AddHours(-1) -EndDate (Get-Date) |
@@ -629,21 +628,14 @@ A `ComplianceDLPSharePoint` event is visible in the Purview Audit search but the
 
 **Likely causes**
 
-1. The Sentinel **Office 365** connector scope does not include the relevant workload (SharePoint / Exchange / Teams) or does not include `Audit.General`, where some DLP records land.
+1. The configured ingestion path does not retrieve the DLP feed. Do not assume the Office 365 connector ingests the separate Management Activity API `DLP.All` content type into `OfficeActivity`.
 2. **UEBA mapping** — UEBA enrichment expects fields that the DLP record schema does not populate; the analytics rule's `where` clause filters the event out.
 3. The analytics rule conditions reference a `RecordType` enum value that does not match the ingested string (case, hyphenation).
 4. Latency — the connector ingestion latency window was shorter than the test interval. Verify against the connector's documented SLA.
 
-**Diagnostic — KQL (Sentinel)**
+**Diagnostic — ingestion contract**
 
-```kql
-OfficeActivity
-| where TimeGenerated between (ago(2h) .. now())
-| where RecordType in ("ComplianceDLPSharePoint","ComplianceDLPExchange","DlpEndpoint")
-| summarize count() by RecordType, Operation, bin(TimeGenerated, 5m)
-```
-
-If the query returns zero with rows present in Purview Audit, the gap is at the connector. If it returns rows but the analytics rule did not trigger, the gap is in the rule logic.
+Identify the actual data source, content type, destination table, ingestion transformations, and configured credentials/permissions. If the firm uses the [Office 365 Management Activity API](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-reference), verify its `DLP.All` subscription and required DLP-sensitive-data permissions. Search the actual destination table for the known event ID and UTC window; do not invent an `OfficeActivity` schema for a custom DLP ingestion path.
 
 **Diagnostic — Sentinel portal**
 
@@ -652,14 +644,14 @@ If the query returns zero with rows present in Purview Audit, the gap is at the 
 
 **Resolution**
 
-- Add the missing workload to the Office 365 connector and wait the documented backfill window (typically minutes to hours; verify against Microsoft Learn for the current SLA).
+- Repair the chosen DLP ingestion path and verify forward delivery with a new event. Do not assume enabling an Office 365 workload supplies DLP events or historical backfill.
 - Adjust the analytics rule to match the actual `RecordType` string emitted by the connector.
 - Where UEBA enrichment is required, confirm the upstream identity records are also being ingested.
 - Validate end-to-end with a controlled test event and document the latency.
 
 **What good looks like**
 
-- A controlled DLP test event appears in `OfficeActivity` within the connector's documented latency window.
+- A controlled DLP test event appears in the configured destination table with matching event/policy/user identifiers and measured latency.
 - The analytics rule fires on the test event and produces an incident with the expected severity and entities.
 - The end-to-end latency (Purview Audit → Sentinel → incident) is recorded in the connector's runbook.
 
@@ -680,7 +672,7 @@ A rule using the built-in **U.S. Bank Account Number** SIT (or another generic 9
 **Diagnostic — PowerShell**
 
 ```powershell
-Connect-Purview-IPPS
+Connect-IPPSSession
 
 $rule = Get-DlpComplianceRule -Policy '<policy>'
 $rule | Select-Object Name,
@@ -696,7 +688,7 @@ Get-DlpDetailReport -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) |
 
 - Replace the generic SIT with an **EDM SIT** built from the firm's real customer-account list (Scenario 8 covers EDM mechanics; refer Control 1.13).
 - Raise the confidence threshold on the existing SIT (e.g., from `Low` to `High`) and require a corroborating keyword via a proximity dictionary.
-- Combine SIT with a sensitivity-label condition in a **separate rule** (remember: Copilot location does not allow SIT + label in the same rule — see §3) so that only files already labeled Confidential are scanned for the SIT.
+- Keep Copilot SIT and label conditions in separate rules; independent rules do not form a logical AND that limits SIT scanning to labeled files. For typed prompts, use supported built-in/custom SITs rather than assuming EDM support. Validate each rule's actual scope and action.
 - Re-validate via simulation before advancing to enforcement (Scenario 10).
 
 **What good looks like**
@@ -766,4 +758,4 @@ A FINRA, SEC, OCC, Fed, NYDFS, or state examiner identifies that a specific surf
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation reviewed; tenant UI and examples not executed)*

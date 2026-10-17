@@ -1,6 +1,8 @@
 # Portal Walkthrough: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** May 2026
+**Last Updated:** October 2026
+
+> **Control 1.5 dependency checked 2026-10-16 (documentation only):** Defender for Cloud Apps file policies retire **January 6, 2027**. Treat the legacy steps/checklist below as interim only, verify supported connected-app coverage, and plan migration to [Purview DLP or auto-labeling](https://learn.microsoft.com/en-us/defender-cloud-apps/migrate-file-policies-to-purview). A connected-app file scan does not establish synchronous inspection of arbitrary direct agent uploads. No tenant/UI test was performed.
 **Portals:** Power Platform Admin Center (PPAC), Microsoft Copilot Studio, Microsoft Defender for Cloud Apps, SharePoint Admin Center
 **Estimated Time:** 30-45 minutes (full Zone 3 walkthrough including per-agent and Defender for Cloud Apps configuration)
 
@@ -101,6 +103,8 @@
 > **User-input limits to communicate to agent owners (Microsoft Learn, April 2026):** PDFs uploaded by users at runtime are limited to **<40 pages**; TXT/CSV to **<180 KB**; images to **15 MB** (4 MB on Direct Line). Files configured as **knowledge sources** by makers may be up to **512 MB**, with **500 files per agent** for local uploads and **1,000 files per agent** for SharePoint/OneDrive sources (GA August 2025). Executable, audio, and video formats are not supported as knowledge sources and need not appear in the agent allowlist.
 
 ### Step 7: Configure Defender for Cloud Apps File Policy (Zone 3 Magic-Byte Inspection)
+
+Use this legacy procedure only for a supported connected app before retirement; validate the replacement's actual file-type conditions and governance actions rather than assuming one-to-one migration.
 
 > **Required for Zone 3.** PPAC and per-agent settings inspect the *declared* file extension and MIME header. A file renamed `invoice.pdf` whose magic bytes are `MZ` (Windows executable) will pass PPAC checks. Defender for Cloud Apps (formerly MCAS) provides the true-content-type inspection layer.
 

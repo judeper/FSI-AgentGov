@@ -319,14 +319,12 @@ Get-LabelPolicy |
   Select-Object Name, Labels, ScopedLabels,
     @{n='UsersIncluded';e={$_.ExchangeLocation, $_.ModernGroupLocation, $_.SharePointLocation}}
 
-Get-DlpComplianceRule -Identity '<RuleName>' |
-  Select-Object Name, Mode, BlockAccess, NotifyUser,
-    ContentContainsSensitiveInformation, ContentContainsSensitivityLabel
+Get-DlpComplianceRule -Identity '<RuleName>' -ErrorAction Stop | Format-List *
 ```
 
-**Remediation.** Update endpoint MIP client; publish the label to the affected user / group; enable container-label inheritance per Microsoft Learn (`sensitivity-labels-teams-groups-sites`); split combined SIT + label rules where the location requires it; switch rule from TestWithNotifications to Block. Pair with Control 1.5 (DLP for Microsoft 365 Copilot) and Control 1.13 (SITs) for end-to-end coverage.
+**Remediation.** Update endpoint MIP client; publish the label to the affected user / group; verify the item's own label (files do not inherit a container label); split combined SIT + label conditions where the location requires it; configure the intended rule action and enable the policy after simulation. Do not assume a top-level `ContentContainsSensitivityLabel` property: inspect complete conditions/actions. Pair with Control 1.5 and Control 1.13. Documentation dependency checked 2026-10-16 against [container-label boundaries](https://learn.microsoft.com/en-us/purview/sensitivity-labels-teams-groups-sites) and [current rule parameters](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancerule); no tenant execution.
 
-**Validation.** Reproduce with a labeled test document; expect Block + audit `DlpRuleMatch` + DSPM Activity Explorer entry.
+**Validation.** Reproduce with a labeled test document and negative control; verify the configured action and actual workload-specific DLP activity. A generic DSPM interaction or assumed audit operation is not proof of a DLP block.
 
 **Evidence.** §1.3 items 3, 9, 11.
 
