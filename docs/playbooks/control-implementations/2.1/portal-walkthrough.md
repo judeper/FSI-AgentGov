@@ -43,7 +43,7 @@
     | Pipeline targets with Managed Environment status enabled | PPAC → Environments (filter: pipeline target) → Enable Managed Environment | No ungoverned promotion targets in the ALM topology |
     | Agent 365 governance integration for agents shared from Copilot Studio | M365 admin center → Agent 365 → Pending Requests / Governance | Tenant-level visibility, approval, and blocking for Copilot-surfaced agents |
     | Maker / approver / admin separation via security group assignment | Entra → Groups; PPAC → Environments → {env} → Settings → Users + permissions | SoD pre-conditions enforced for the environment |
-    | Inactive resource view feeding orphan detection | PPAC → Environments → {env} → Analytics → Inactive resources | Orphan candidates routed to Control 3.6 |
+    | Inactive resource evidence feeding orphan detection | PPAC → Actions recommendations and the Managed Environments weekly email digest; reconcile with environment inventory | Orphan candidates routed to Control 3.6 |
 
     **This walkthrough is NOT for:**
 
@@ -92,7 +92,7 @@
     | Pipeline targets with Managed Environment status enabled | PPAC → Environments (filter: pipeline target) → Enable Managed Environment | No ungoverned promotion targets in the ALM topology |
     | Agent 365 governance integration for agents shared from Copilot Studio | M365 admin center → Agent 365 → Pending Requests / Governance | Tenant-level visibility, approval, and blocking for Copilot-surfaced agents |
     | Maker / approver / admin separation via security group assignment | Entra → Groups; PPAC → Environments → {env} → Settings → Users + permissions | SoD pre-conditions enforced for the environment |
-    | Inactive resource view feeding orphan detection | PPAC → Environments → {env} → Analytics → Inactive resources | Orphan candidates routed to Control 3.6 |
+    | Inactive resource evidence feeding orphan detection | PPAC → Actions recommendations and the Managed Environments weekly email digest; reconcile with environment inventory | Orphan candidates routed to Control 3.6 |
 
     **This walkthrough is NOT for:**
 
@@ -219,7 +219,7 @@ Do not proceed past this section unless **all** of the following are true:
 
 1. From the Microsoft 365 admin center launcher, click **Show all → Power Platform**, or browse directly to the cloud-appropriate URL from the §0 table.
 2. Verify the upper-right tenant indicator displays the tenant primary domain captured in §0.1. **If the wrong tenant is loaded, sign out — do not "switch directory" mid-session**, because cached blade state can cause configuration to apply to the wrong tenant. This has been observed in support cases and is the single most common Managed Environments mis-target incident.
-3. Confirm the left-rail blade list contains: **Environments**, **Analytics**, **Resources**, **Help + support**, **Policies**, **Settings**.
+3. Confirm the current feature-area navigation: **Actions**, **Manage**, **Security**, **Copilot**, **Monitor**, **Deployment**, **Licensing**, and **Support**. Environment administration is under **Manage → Environments**; do not use the former left-rail layout as a verification criterion.
 
 ### 1.2 License-consumption precheck
 
@@ -918,7 +918,7 @@ No human should hold more than one of these personas for the same environment in
    - `pp-{env-shortname}-makers`
    - `pp-{env-shortname}-approvers`
    - `pp-{env-shortname}-admins`
-2. Configure Entra **Identity Governance → Access reviews** to review each group quarterly. Reviewer = AI Governance Lead.
+2. Configure Entra **ID Governance → Access Reviews** to review each group quarterly. Reviewer = AI Governance Lead.
 3. **PPAC → Environments → {env} → Settings → Users + permissions → Users**: assign the `pp-{env-shortname}-makers` group with the **Environment Maker** Dataverse security role.
 4. Assign the `pp-{env-shortname}-admins` group at the tenant level only via PIM activation of the Power Platform Admin role; do **not** add to per-environment Dataverse roles.
 5. Approver group is assigned in the Pipelines configuration (separate surface; see [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)).
@@ -935,21 +935,21 @@ No human should hold more than one of these personas for the same environment in
 
 ### 17.1 What the inactive resource view shows
 
-The **Inactive resources** blade lists Power Platform resources (apps, flows, custom connectors, agents) that have not been used within a configurable inactivity window (default 90 days). It is the primary input feed for [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+Use available **Actions** recommendations and the [Managed Environments weekly email digest](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-usage-insights), which identifies inactive apps and flows. The former environment **Analytics → Inactive resources** blade, its claimed agent/custom-connector coverage, and a configurable 90-day switch are unconfirmed in the reviewed documentation. Reconcile these signals with inventory before feeding [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 
 ### 17.2 Configure
 
-1. **PPAC → Environments → {env} → Analytics → Inactive resources**.
-2. Set the **Inactivity window** to **90 days** (illustrative default — align to the firm's WSP).
-3. Schedule the **Inactive resources** export to run weekly with output to a named SharePoint Online document library owned by the AI Governance Lead.
+1. Review applicable **PPAC → Actions** recommendations. For digest inclusion, open **Manage → Environments → [managed environment] → Edit Managed Environments → Usage insights**.
+2. Select **Include insights for this environment in the weekly email digest** and confirm tenant-level analytics is enabled. The digest is delivered by email, not by an environment Analytics dashboard.
+3. Preserve the digest and a separately collected inventory in a named SharePoint Online document library owned by the AI Governance Lead. Apply the firm's inactivity window in the inventory process; do not assume a native scheduled **Inactive resources** export.
 
 ### 17.3 Routing to Control 3.6
 
-The Pipeline Governance Cleanup solution (referenced in §14.3) and the orphan-detection workflow ([Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)) consume the weekly inactive-resources export. Each candidate resource is enriched with: maker UPN (if still in the directory), last-modified timestamp, sharing scope, and connection inventory; routed to the maker for "use, transfer, or decommission" decision; and timed-out to decommission after the firm's documented response window.
+The Pipeline Governance Cleanup solution (referenced in §14.3) and the orphan-detection workflow ([Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)) require a weekly inventory-derived export; do not assume a native inactive-resources export supplies their contract. Each candidate resource is enriched with: maker UPN (if still in the directory), last-modified timestamp, sharing scope, and connection inventory; routed to the maker for "use, transfer, or decommission" decision; and timed-out to decommission after the firm's documented response window.
 
 ### 17.4 Verification
 
-- [ ] Inactive resources blade shows the configured window.
+- [ ] Digest inclusion is configured and the actual inactivity criteria used by the inventory process are recorded.
 - [ ] Weekly export is landing in the named SharePoint library.
 - [ ] Control 3.6 workflow consumes the export and produces decision-aged reporting for the AI Governance Lead.
 

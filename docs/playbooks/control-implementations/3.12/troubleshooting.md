@@ -104,7 +104,7 @@ This playbook provides solutions to common issues encountered when implementing 
 
 6. **Check Run Quota**
    - Power Automate has daily run limits based on license
-   - Navigate to Admin center → Analytics → Flows
+   - Navigate to Power Platform admin center → Manage → Products → Power Automate for the documented usage reports
    - If quota exceeded, flow will not trigger until quota resets
 
 ### Prevention

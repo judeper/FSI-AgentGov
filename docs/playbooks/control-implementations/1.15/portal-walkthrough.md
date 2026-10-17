@@ -153,7 +153,7 @@ DKE is a **separate** technology from Customer Key. It encrypts files with a lab
 
 ### Step 3.2: Create a DKE-enabled sensitivity label
 
-1. Purview portal → **Information Protection** → **Labels** → **Create a label**.
+1. Purview portal → **Information Protection** → **Sensitivity labels** → **Create a label**.
 2. Name it (e.g., `Highly Confidential / MNPI (DKE)`); set scope to **Files & emails**.
 3. **Encryption:** Configure → **Configure encryption settings**.
 4. Under **Configure encryption**, set encryption type to **Double Key Encryption** and supply your DKE service endpoint URL (for example, `https://dke.fsi-corp.example/<keyname>`; placeholder — replace with your tenant).

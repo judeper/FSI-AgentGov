@@ -169,7 +169,7 @@ Refresh the DR environment on a schedule that keeps it within the RPO window —
 
 Entra app registrations, service principals, federated credentials, and Entra Agent IDs are **tenant-global** — they are not bound to a Power Platform region and survive a single-region outage without re-registration. Validation focuses on confirming that the DR environment can authenticate **using** them.
 
-**Portal path:** Microsoft Entra admin center → **Identity** → **Applications** → **App registrations**
+**Portal path:** Microsoft Entra admin center → **Entra ID** → **App registrations**
 
 1. For each app registration or Agent ID used by an in-scope agent, confirm:
    - The application is **multi-tenant or single-tenant** consistent with the primary

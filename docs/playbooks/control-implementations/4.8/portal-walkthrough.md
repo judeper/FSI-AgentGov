@@ -66,7 +66,7 @@ For each knowledge source, confirm:
 
 ### 2.1 — Access Site Permissions
 
-1. Navigate to **SharePoint Admin Center** → [https://admin.microsoft.com/sharepoint](https://admin.microsoft.com/sharepoint)
+1. Navigate to **SharePoint Admin Center** → [Microsoft's tenant-routing link](https://go.microsoft.com/fwlink/?linkid=2185219)
 2. Select **Sites** → **Active sites**
 3. Locate the site containing the agent knowledge source
 4. Select the site name → **Permissions** tab

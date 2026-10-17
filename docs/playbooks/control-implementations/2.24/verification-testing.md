@@ -1,5 +1,8 @@
 # Verification & Testing — Control 2.24: Agent Feature Enablement and Restriction Governance
 
+!!! warning "Verification boundary — unconfirmed capability-panel assumptions"
+    The [portal walkthrough's documentation-gap notice](portal-walkthrough.md) applies to every test or evidence item below that assumes a universal **Agents & connectors** capability-card panel. Current [Agents → Settings documentation](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings) is not evidence that all those per-capability toggles exist. Mark affected tests **blocked/unverified** until a current feature-specific Microsoft procedure and tenant test establish the actual surface; do not substitute Agent Registry screenshots or advance UI-verification dates.
+
 > **Examiner-defensible evidence package** for Control 2.24. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, the Federal Reserve (Fed SR 26-2 (formerly SR 11-7)), the CFTC, and internal audit that every Microsoft 365 Copilot, Microsoft Copilot Studio, and declarative-agent capability — across the tenant Copilot hub, environment-level controls, agent-level settings, MCP connectors, and Agent Framework feature flags — is enumerated in a documented feature catalog, allow-listed by zone, gated by change management (forward and reverse), DLP-enforced where the runtime supports it, and re-assessed quarterly.
 >
 > **Scope:** All Microsoft 365 Copilot, Copilot Studio, and declarative-agent capabilities reachable in the tenant under examination, across **all** governance zones (Zone 1 / 2 / 3) and **all** Power Platform environments. Includes the **AI Administrator** controls in the Microsoft 365 admin center (per the v1.3.3 control patch), the Copilot governance page in the Power Platform admin center, environment-level feature toggles, agent-level tool selections, MCP connector enablement, and Agent Framework feature flags.
@@ -1322,4 +1325,3 @@ Trend charts of each metric across rolling four quarters are included in the qua
 
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-

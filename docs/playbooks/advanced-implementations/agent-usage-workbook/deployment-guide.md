@@ -91,7 +91,7 @@ New-AzRoleAssignment -ObjectId "<object-id>" `
 
 This RBAC model directly addresses the separation-of-duties gap documented in Control 2.8:
 
-- **Problem:** The PPAC Analytics tab requires Power Platform Admin or Environment Admin roles to access agent usage data.
+- **Problem:** Native PPAC reports have product-specific access prerequisites. Current operational metrics are under **Monitor > Products > Copilot Studio**, not a universal Analytics tab; verify the [documented prerequisites](https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio) for that surface.
 - **Solution:** The Application Insights workbook provides equivalent visibility using Azure RBAC (`Monitoring Reader`), which carries no Power Platform administrative privileges.
 - **Regulatory alignment:** Supports SOX 302/404 separation of duties; aids FINRA 3110 supervisory review requirements.
 
@@ -262,7 +262,7 @@ This workbook directly addresses a governance gap for organizations subject to s
 
 | Aspect | Detail |
 |--------|--------|
-| **Gap** | PPAC Analytics tab requires Power Platform Admin or Environment Admin roles |
+| **Gap** | Native PPAC reporting access is surface-specific; a legacy Analytics-tab role assumption is not an access test |
 | **Impact** | Production operators cannot access usage data without elevated privileges that may violate separation-of-duties policies |
 | **Solution** | Application Insights workbook provides equivalent visibility using Azure RBAC (`Monitoring Reader`) |
 | **Regulatory alignment** | Supports SOX 302/404 separation of duties; aids FINRA 3110 supervisory review |

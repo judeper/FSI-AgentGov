@@ -35,7 +35,7 @@
 ## Step 2 — Create an IRM-Enabled Sensitivity Label
 
 1. Open the [Microsoft Purview portal](https://purview.microsoft.com).
-2. Navigate to **Solutions** → **Information Protection** → **Labels**.
+2. Navigate to **Solutions** → **Information Protection** → **Sensitivity labels**.
 3. Select **Create a label** and provide:
     - **Display name:** `FSI Confidential — IRM` (or per your taxonomy)
     - **Description for users:** "Confidential firm content. Do not redistribute. Access is logged."
@@ -66,7 +66,7 @@
 
 ## Step 3 — Enable IRM for SharePoint at the Tenant Level
 
-1. Open the [SharePoint Admin Center](https://admin.microsoft.com/sharepoint).
+1. Open the [SharePoint Admin Center](https://go.microsoft.com/fwlink/?linkid=2185219).
 2. Navigate to **Policies** → **Access control** → **Information Rights Management (IRM)**.
 3. Select **Use the IRM service specified in your configuration** and **Save**.
 4. Wait up to 1 hour for tenant propagation before enabling IRM on individual libraries.

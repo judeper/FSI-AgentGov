@@ -59,7 +59,7 @@ For scheduled (unattended) exports, you must register an Entra application with 
 
 **1.2.1** Navigate to Entra Admin Center: `https://entra.microsoft.com`
 
-**1.2.2** Go to: Applications > App registrations > New registration
+**1.2.2** Go to: Entra ID > App registrations > New registration
 
 **1.2.3** Configure the registration:
 - **Name**: `FSI-AgentGov-InventoryExport`

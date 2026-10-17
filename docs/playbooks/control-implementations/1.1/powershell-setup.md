@@ -124,7 +124,7 @@ if ($PSCmdlet.ShouldProcess($EnvironmentName, "Assign 'Environment Maker' to gro
     Configure this as **supplementary canvas-app hygiene** for tenants that also use canvas apps. The actual agent-publishing levers are:
 
     - **Copilot Studio data policies** (per environment / environment group / tenant)
-    - **M365 Admin Center** agent block (instance-level — see Portal Walkthrough Step 9)
+    - **M365 Admin Center** agent-level Block action (host coverage varies by agent type — see Portal Walkthrough Step 9)
     - **Managed Environment** agent-sharing limits (see Portal Walkthrough Step 4)
     - **Tenant Copilot Studio authors** setting (see Portal Walkthrough Step 3, Layer A)
 
@@ -210,7 +210,7 @@ if ($settings.disableShareWithEveryone -eq $true) {
     - Dataverse-backed environments: assign Environment Maker / Copilot Author via PPAC > Settings > Users + permissions > Security roles
     - Managed Environment agent-sharing limits (Portal Walkthrough Step 4)
     - Copilot Studio per-agent authentication (Portal Walkthrough Step 6)
-    - M365 Admin Center instance-level Block actions (Portal Walkthrough Step 9)
+    - M365 Admin Center agent-level Block actions (Portal Walkthrough Step 9); verify each intended host
     - Tenant Copilot Studio authors setting (Portal Walkthrough Step 3, Layer A)
     - Approval workflow / release gates (Portal Walkthrough Step 5)
 

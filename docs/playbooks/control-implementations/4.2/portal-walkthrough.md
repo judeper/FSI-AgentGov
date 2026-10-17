@@ -102,9 +102,9 @@ Repeat with a separate policy targeting `General` / unlabeled team sites at a lo
 
 ## Step 4 — Pair with Entra Access Reviews on underlying groups
 
-**Portal path:** Microsoft Entra Admin Center → **Identity governance** → **Access reviews**
+**Portal path:** Microsoft Entra Admin Center → **ID Governance** → **Access Reviews**
 
-1. In [Microsoft Entra Admin Center](https://entra.microsoft.com), open **Identity governance** → **Access reviews** → **+ New access review**.
+1. In [Microsoft Entra Admin Center](https://entra.microsoft.com), open **ID Governance** → **Access Reviews** → **+ New access review**.
 2. **Select what to review:**
    - **Teams + Groups** → **Select Teams + groups**
    - Choose the Microsoft 365 Groups that back the in-scope SharePoint sites (one access review can target multiple groups)
@@ -126,7 +126,7 @@ Repeat with a separate policy targeting `General` / unlabeled team sites at a lo
 
 ## Step 5 — Review AI agent service principals (Sites.Selected)
 
-**Portal path:** Microsoft Entra Admin Center → **Identity governance** → **Access reviews** → **+ New access review**
+**Portal path:** Microsoft Entra Admin Center → **ID Governance** → **Access Reviews** → **+ New access review**
 
 1. Create a separate access review scoped to **Service principals assigned to applications** for any AI agent app registration that holds **Sites.Selected** Graph permission.
 2. Reviewers: the **AI Governance Lead** plus the registered application owner.

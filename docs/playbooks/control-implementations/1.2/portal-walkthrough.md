@@ -4,7 +4,7 @@
 **Pillar:** 1 — Security & Identity
 **Last UI Verified:** May 2026
 
-**Last Verified:** 2026-10-16 (targeted documentation review; no tenant/UI execution or screenshots). Current Microsoft guidance places the agent registry at **Agents > All Agents > Registry**, not the historical **Copilot > Agents** path used below. Agent administration is capability-specific: do not treat the entire Agent 365 surface as preview or assume Copilot licensing unlocks every feature. The package API requires Agent 365; traditional workload CA creation/modification and risky-SP APIs require Workload ID Premium. Follow the [current source and implementation boundaries](powershell-setup.md#documentation-verification-ledger).
+**Last Verified:** 2026-10-16 (targeted documentation review; no tenant/UI execution or screenshots). Current Microsoft guidance places the agent registry at **Agents > All Agents > Registry**; the registry instructions below use that path. Agent administration is capability-specific: do not treat the entire Agent 365 surface as preview or assume Copilot licensing unlocks every feature. The package API requires Agent 365; traditional workload CA creation/modification and risky-SP APIs require Workload ID Premium. Follow the [current source and implementation boundaries](powershell-setup.md#documentation-verification-ledger).
 **Estimated Time:** 6–10 hours initial buildout; 60–90 min per agent registration thereafter
 **Audience:** Entra App Admin, AI Administrator, Power Platform Admin, Compliance Officer, Agent Sponsor
 **Prerequisites:** Control 1.1 (Conditional Access for Agents) implemented; sponsor eligibility groups provisioned per `sponsorship-lifecycle-workflows.md`; Microsoft 365 E5 + Microsoft Entra ID P2 + Defender for Cloud Apps + Purview Audit (Premium) tenant licensing.
@@ -89,12 +89,12 @@ A US financial services tenant typically exposes seven distinct surfaces where a
 
 | # | Surface | Portal path | What gets registered here | Primary admin role |
 |---|---------|-------------|---------------------------|-------------------|
-| 1 | **Entra App Registrations** | `entra.microsoft.com` → Applications → App registrations | Custom-built apps and confidential clients with API permissions | Entra App Admin |
-| 2 | **Entra Enterprise Applications** (incl. Agent ID surface) | `entra.microsoft.com` → Applications → Enterprise applications | Service principals (the tenant-side projection of every app), gallery apps, and the Agent ID surface for Copilot agents | Entra App Admin / Entra Agent ID Admin |
+| 1 | **Entra App Registrations** | `entra.microsoft.com` → Entra ID → App registrations | Custom-built apps and confidential clients with API permissions | Entra App Admin |
+| 2 | **Entra Enterprise Applications** (incl. Agent ID surface) | `entra.microsoft.com` → Entra ID → Enterprise apps | Service principals (the tenant-side projection of every app), gallery apps, and the Agent ID surface for Copilot agents | Entra App Admin / Entra Agent ID Admin |
 | 3 | **M365 Integrated Apps** | `admin.microsoft.com` → Settings → Integrated apps | Third-party Microsoft 365 add-ins, Teams apps, Outlook add-ins; Deploy / Block / Pending request queue | AI Administrator |
 | 4 | **M365 Agent Registry** | `admin.microsoft.com` → Agents → All Agents → Registry | Microsoft, external partner-built, Shared by creator, and Published by your org records | AI Administrator |
-| 5 | **Power Platform Admin Center → Copilot Agents** | `admin.powerplatform.microsoft.com` → Resources → Copilot agents | Copilot Studio agents per environment | Power Platform Admin |
-| 6 | **Power Platform Connectors approval queue** | `admin.powerplatform.microsoft.com` → Data → Custom connectors / Connector requests | Custom connectors and certified-connector requests | Power Platform Admin |
+| 5 | **Power Platform Admin Center → Agent inventory** | `admin.powerplatform.microsoft.com` → Manage → Copilot Studio (or Manage → Inventory) | Copilot Studio and Microsoft 365 Copilot Agent Builder agents; apply environment scope | Power Platform Admin |
+| 6 | **Power Platform Connectors approval queue (unconfirmed shortcut)** | No current PPAC **Data → Custom connectors / Connector requests** queue was established; maker **Data → Connections** is not that queue | Custom connectors and certified-connector requests | Power Platform Admin |
 | 7 | **Defender for Cloud Apps — OAuth App Governance** | `security.microsoft.com` → Cloud apps → OAuth apps | OAuth-consented third-party apps discovered post-consent | Entra Security Admin |
 
 !!! tip "The eighth-surface trap"
@@ -168,7 +168,7 @@ Before you register a single agent, complete these gates. Each gate has a portal
 1. Open `entra.microsoft.com` → **Groups → All groups**.
 2. Search for `sg-agent-sponsors-zone1`, `sg-agent-sponsors-zone2`, `sg-agent-sponsors-zone3`.
 3. Confirm each group exists, is **Assigned** type (not Dynamic), and has **Privileged Access Group** management enabled.
-4. Confirm membership is non-empty and is governed by an active **Identity Governance access package** (visible under Identity Governance → Access packages).
+4. Confirm membership is non-empty and is governed by an active **Identity Governance access package** (visible under ID Governance → Entitlement management → Access package).
 
    *Screenshot description: Three group result rows showing names sg-agent-sponsors-zone1/2/3 with Type=Security and Membership type=Assigned. Privileged Access management toggle visible as Enabled in group properties pane.*
 
@@ -203,7 +203,7 @@ This is the foundation surface. Every callable agent identity except first-party
 ### 3.1 Create the App Registration
 
 1. Sign in to `entra.microsoft.com` as **Entra App Admin** (least-privilege; do not use Global Admin).
-2. Navigate **Applications → App registrations → + New registration**.
+2. Navigate **Entra ID → App registrations → + New registration**.
 3. Populate:
    - **Name**: `<env>-<bu>-<purpose>-<seq>` per §1 field 2 (e.g., `prod-wealth-clientonboarding-001`).
    - **Supported account types**: Always **Accounts in this organizational directory only (Single tenant)** for FSI workloads. Multi-tenant should be rejected at this gate unless the Compliance Officer has signed an exception memo (rare — applies only to vendor-hosted SaaS that genuinely requires it).
@@ -291,7 +291,7 @@ Every app registration created in §3 produces a tenant-side **service principal
 
 ### 4.1 Verify the Service Principal Was Created
 
-1. Navigate `entra.microsoft.com` → **Applications → Enterprise applications → All applications**.
+1. Navigate `entra.microsoft.com` → **Entra ID → Enterprise apps → All applications**.
 2. Filter **Application type = All applications**, **Application visibility = All**, search by display name.
 3. Confirm the SP exists with status **Enabled**.
 4. Click the SP → **Properties**.
@@ -320,7 +320,7 @@ The custom security attributes from §3.3 attach to the **app registration objec
 
 For tenants on the GA Agent ID surface (Commercial):
 
-1. Navigate `entra.microsoft.com` → **Applications → Enterprise applications**.
+1. Navigate `entra.microsoft.com` → **Entra ID → Enterprise apps**.
 2. Filter **Application type = Microsoft Copilot agents** (or in some tenant builds: **Agent ID**).
 3. The list shows every Copilot Studio agent, declarative agent, and custom Copilot agent that has been created in the tenant — each materialized as an Entra Agent ID with its own Object ID.
 4. Click any agent → **Overview**. Note the **Agent type**, **Created by**, **Created date**, and (if surfaced in your tenant build) the **Sponsor** and **Owner** fields.
@@ -335,7 +335,7 @@ For tenants on the GA Agent ID surface (Commercial):
 
 This is a sister activity to §12; capture it now while you have the SP open.
 
-1. Open `entra.microsoft.com` → **Protection → Conditional Access → Policies**.
+1. Open `entra.microsoft.com` → **Entra ID → Conditional Access → Policies**.
 2. Confirm a policy named `CAP-AGENTS-Workload-Identities-AllAgents` (or your tenant's equivalent) is active and includes the new SP in scope.
 3. If the SP is not yet in scope, do **not** edit the global policy — instead add the SP to the security group `sg-workload-identities-governed` which is the policy's assignment target. (Group-based CA assignment is auditable; per-SP assignment is not.)
 4. Verify in Conditional Access → **What If** by entering the SP's Object ID.
@@ -366,7 +366,7 @@ This surface governs **third-party Microsoft 365 add-ins, Teams apps, and Outloo
 
 Before processing any app, set the tenant-level consent posture.
 
-1. Open `entra.microsoft.com` → **Identity → Applications → Enterprise applications → Consent and permissions → User consent settings**.
+1. Open `entra.microsoft.com` → **Entra ID → Enterprise apps → Consent and permissions → User consent settings**.
 2. Set **User consent for applications** to **Do not allow user consent** (preferred for FSI) or **Allow user consent for apps from verified publishers, for selected permissions** (acceptable for tenants with mature low-risk-scope catalog).
 3. Set **Group owner consent for apps accessing data** to **Do not allow group owner consent**.
 4. Save.
@@ -416,7 +416,7 @@ This surface registers **first-party Copilot agents** — declarative agents aut
 ### 6.1 Open the Agents Blade
 
 1. Sign in to `admin.microsoft.com` as **AI Administrator**.
-2. Navigate **Copilot → Agents**. (In some tenant builds the path is **Copilot → Settings → Agents**.)
+2. Navigate **Agents → All agents → Registry**.
 3. The page lists every agent the tenant has surfaced, with columns for Name, Type, Owner, Created, Status.
 
 ### 6.2 Configure Tenant-Level Agent Defaults
@@ -465,16 +465,14 @@ This surface registers **Copilot Studio agents per environment** and the **custo
 1. Sign in to `admin.powerplatform.microsoft.com` as **Power Platform Admin**.
 2. Confirm the tenant home page renders the environment list. If you see only a single Default environment, your environment topology is the largest single risk in your Power Platform footprint — see Control 1.4 portal walkthrough §2 to remediate before continuing.
 
-### 7.2 Resources → Copilot Agents View
+### 7.2 Manage → Copilot Studio inventory
 
-1. Navigate **Resources → Copilot agents**.
-2. Use environment filter to walk each environment in turn (Default, Production-Wealth, Production-Capital-Markets, etc.).
-3. For each environment:
-   - Sort by **Modified date descending**.
-   - For each agent: click → confirm **Created by**, **Modified by**, **Published** status, **Authentication** mode (preferred: **Authenticate manually** with explicit Entra app, never **No authentication** for Zone 2/3).
-   - Confirm the agent's **Topics → Generative actions** list matches what's documented in the registry. Generative actions are the highest-risk Copilot Studio feature — they invoke connectors with model-decided arguments and are an out-of-band path that bypasses topic-level supervision.
-
-   *Screenshot description: Power Platform admin center → Resources → Copilot agents view filtered to Production-Wealth environment showing seven agents with Owner column populated and three rows highlighted as Published.*
+1. Navigate **Manage → Copilot Studio**, or **Manage → Inventory**, following the [current inventory procedure](https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory).
+2. Apply the full environment name to review each environment in turn. The inventory includes Copilot Studio and Microsoft 365 Copilot Agent Builder agents; it excludes classic chatbots, which have a separate **Manage → Copilot Studio → Classic chatbots** entry.
+3. Capture the actual available inventory columns and resource details (**Overview**, **Connectors**, **Usage**). Agent **Modified on** and **Last modified by** do not work; do not sort by them or interpret a dash as inactivity.
+4. Obtain authentication, authoring, and tool configuration separately from the selected agent's supported Copilot Studio experience. Confirm **Authentication** mode (preferred: **Authenticate manually** with explicit Entra app, never **No authentication** for Zone 2/3). Do not assume all authoring properties appear in a PPAC side panel.
+5. Confirm the agent's **Tools** list matches what's documented in the registry. Generative actions are the highest-risk Copilot Studio feature — they invoke connectors with model-decided arguments and are an out-of-band path that bypasses topic-level supervision.
+6. Capture the actual filtered grid, selected environment, timestamp, and available ownership/status evidence; do not manufacture the formerly illustrated seven-agent/three-published screenshot.
 
 ### 7.3 Environments → Settings → Generative AI Settings (Per Environment)
 
@@ -489,6 +487,9 @@ For each environment hosting Zone 2 or Zone 3 agents:
 3. Save and screenshot per environment.
 
 ### 7.4 Connectors Approval Workflow
+
+!!! warning "Unconfirmed legacy queue"
+    The PPAC **Data → Custom connectors / Connector requests** queue and native approval/sharing controls below were not established by the reviewed Microsoft documentation. Treat queue-dependent steps and evidence as **blocked/unverified** until a current feature-specific procedure is supplied. Maker **Data → Connections** and inventory connector visibility do not establish a tenant-wide approval queue.
 
 1. **Data → Custom connectors** (per environment) and **Data → Connector requests** (tenant-wide queue).
 2. For each pending custom connector:
@@ -649,7 +650,7 @@ The accumulation of stale service principals, expired credentials, and orphaned 
 
 ### 10.1 Quarterly SP Inventory and Triage
 
-1. From the Entra portal: **Applications → Enterprise applications → All applications**.
+1. From the Entra portal: **Entra ID → Enterprise apps → All applications**.
 2. Add columns: **Application ID**, **Object ID**, **Created on**, **Sign-in Activity (preview)**, **Owner count**.
 3. Export the full list (Download button).
 4. Open in Excel / Power Query. Triage rows:
@@ -671,7 +672,7 @@ The accumulation of stale service principals, expired credentials, and orphaned 
 ### 10.3 Managed Identity Hygiene
 
 1. Managed Identities are minted from Azure subscriptions and projected as service principals into the home tenant.
-2. **Applications → Enterprise applications → All applications → Filter Application type = Managed Identities**.
+2. **Entra ID → Enterprise apps → All applications → Filter Application type = Managed Identities**.
 3. For each MI:
    - Confirm the source Azure resource still exists. Use the MI Object ID to query `Get-AzResource` (PowerShell) — if the source resource is gone, the MI is orphaned and must be deleted.
    - Confirm the MI's Graph permissions match the registered scope. MIs frequently accumulate permissions during incident response and never have them removed.
@@ -712,7 +713,7 @@ The end-to-end sponsorship lifecycle (eligibility, attestation, departure detect
 
 When an incident references an audit event with `appId = <guid>` and you need to identify the sponsor in under five minutes:
 
-1. Open `entra.microsoft.com` → **Applications → Enterprise applications → All applications**.
+1. Open `entra.microsoft.com` → **Entra ID → Enterprise apps → All applications**.
 2. Search by Application ID.
 3. Click the SP → **Custom security attributes**.
 4. Read the `AgentSponsor` value.
@@ -752,7 +753,7 @@ This is the runtime gate that prevents a stolen credential from being usable out
 
 ### 12.2 Create the Baseline Workload Identity Policy
 
-1. **Protection → Conditional Access → Policies → + New policy**.
+1. **Entra ID → Conditional Access → Policies → + New policy**.
 2. Name: `CAP-AGENTS-Workload-Identities-Baseline`.
 3. **Assignments → Workload identities → Single identities or all service principals**: Select **Service principals → Include security group `sg-workload-identities-governed`**.
 4. **Cloud apps or actions → Cloud apps → Include All cloud apps**.
@@ -784,7 +785,7 @@ For workload identities that perform high-risk operations (HVT actions in 1.23 s
 ### 12.5 Operate the Policy
 
 1. Add new agent SPs to `sg-workload-identities-governed` at registration time (§4.5). Group-based assignment is the audit-friendly pattern; per-SP assignment in CA is not.
-2. Review CA workload identity sign-in failures weekly via **Monitoring → Sign-in logs → Service principal sign-ins → Status = Failure**. Failures here often indicate either a misregistered agent or an attempted credential abuse — both warrant investigation.
+2. Review CA workload identity sign-in failures weekly via **Entra ID → Monitoring & health → Sign-in logs → Service principal sign-ins → Status = Failure**. Failures here often indicate either a misregistered agent or an attempted credential abuse — both warrant investigation.
 
 ---
 

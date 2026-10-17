@@ -1,5 +1,8 @@
 # Portal Walkthrough — Control 2.24: Agent Feature Enablement and Restriction Governance
 
+!!! warning "Documentation gap — legacy capability panel (2026-10-16)"
+    Current Microsoft documentation verifies **Microsoft 365 admin center → Agents → Settings** for its [documented agent settings](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings), and **Agents → All agents → Registry** for inventory. It does **not** substantiate the universal **Copilot → Settings → Agents & connectors** panel with all capability cards assumed below. Those legacy panel paths, card names, toggle-dependent tests, and screenshot expectations are **unconfirmed**, not executable verified instructions. Do not rename them to Registry, infer an entitlement failure from a missing card, or certify their evidence checklists. First establish the current feature-specific Microsoft procedure and applicable scope; this documentation review did not test the tenant UI.
+
 !!! danger "READ FIRST — Scope and Sibling Routing"
     **This playbook configures feature-level governance for Microsoft 365 Copilot, Microsoft Copilot Studio, declarative agents, Microsoft Agent Framework, and MCP-connector tools** across the **Microsoft 365 Copilot admin center**, the **Power Platform admin center Copilot hub**, **PPAC environment features**, **Copilot Studio per-agent settings**, the **feature catalog** (Dataverse or SharePoint), and **Purview / DLP** enforcement surfaces required to satisfy Verification Criteria 1–10 of [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md).
 

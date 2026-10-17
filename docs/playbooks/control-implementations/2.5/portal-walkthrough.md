@@ -50,7 +50,7 @@ This section sets the boundary of what this walkthrough covers, distinguishes Co
     - **Plane 2** — Copilot Studio **Agent Evaluation** (repeatable batch evaluation, version comparison)
     - **Plane 3** — **Azure AI Foundry Evaluation** (quantitative quality + safety evaluator runs)
     - **Plane 4** — **PyRIT** adversarial campaigns (jailbreak, prompt injection, indirect attack, misuse)
-    - **Plane 5** — Post-deployment **Copilot Studio Analytics → Quality** monitoring with re-validation triggers
+    - **Plane 5** — Post-deployment **Copilot Studio Monitor → Effectiveness** monitoring with re-validation triggers
 - **Microsoft 365 Agents Toolkit (ATK)** local sideload and manifest validation for declarative agents
 - **Power Platform Solution Checker** as a static-analysis promotion gate
 - **Power Platform Pipelines / Managed Environments** stage approvals and Fed SR 26-2 (formerly SR 11-7) segregation-of-duties enforcement
@@ -86,7 +86,7 @@ This section sets the boundary of what this walkthrough covers, distinguishes Co
 | **Plane 2 — Agent Evaluation** | Curated test sets, batch run, version comparison, regression scoring | Pre-promotion, Dev → Test | Copilot Studio Agent Author + AI Governance Lead | **No** — supports promotion but not independent validation |
 | **Plane 3 — Foundry Evaluation** | Quantitative quality (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) and safety (Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes) | Independent validation, Test environment | Model Risk Manager (validator role; ≠ author) | **Yes** — load-bearing for Zone 3 |
 | **Plane 4 — PyRIT** | Orchestrated adversarial probing: jailbreak, prompt injection, indirect attack, RAG poisoning, tool misuse, exfiltration attempts | Independent validation, Test environment | Model Risk Manager + AI Red Team | **Yes** — required for Zone 3, recommended for Zone 2 |
-| **Plane 5 — Analytics → Quality** | Production telemetry: abandonment, escalation, deflection, satisfaction, latency, drift trends | Post-deployment, Production environment | Agent Owner + Compliance Officer (Zone 3) | **No** — monitoring telemetry, not pre-deployment evidence |
+| **Plane 5 — Monitor → Effectiveness** | Production telemetry: abandonment, escalation, deflection, satisfaction, latency, drift trends | Post-deployment, Production environment | Agent Owner + Compliance Officer (Zone 3) | **No** — monitoring telemetry, not pre-deployment evidence |
 
 ### 0.4 Portal-vs-shell decision matrix (April 2026)
 
@@ -103,7 +103,7 @@ Use this table to decide which surface is the correct one. The criterion is **ar
 | Solution-level static analysis | Power Apps maker → solution → **…** → **Solution checker** → **Run** | Pipelines stage approval (downstream of Checker; cannot substitute) |
 | Stage promotion (Dev → Test → Prod) with approval | Power Platform Admin Center (`admin.powerplatform.microsoft.com`) → **Pipelines** → pipeline → **Deployment stages** | Manual solution export/import (no approval audit, no SoD enforcement) |
 | Declarative-agent manifest lint + local sideload | **Microsoft 365 Agents Toolkit** in VS Code or `m365 atk validate` / `m365 atk preview` CLI | Test Pane (does not parse the declarative-agent manifest) |
-| Production-side conversation telemetry, drift, satisfaction | Copilot Studio → agent → **Analytics** → **Quality** tab; Microsoft Purview **DSPM for AI** for prompt/response inspection | Test Pane / Foundry (pre-deployment surfaces only) |
+| Production-side conversation telemetry, drift, satisfaction | Copilot Studio → agent → **Monitor** → **Effectiveness** section; Microsoft Purview **DSPM for AI** for prompt/response inspection | Test Pane / Foundry (pre-deployment surfaces only) |
 | Durable evidence retention (books-and-records grade) | Microsoft Purview **Audit (Premium)** + **eDiscovery (Premium)** + retention-policy-bound SharePoint library | Personal OneDrive, Teams chat, local laptop folder |
 
 **Inline references for §0 click-paths:**
@@ -141,7 +141,7 @@ Every validation activity in this playbook produces an artifact in a different s
 | Azure AI Foundry — Risk & Safety Evaluators | Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes | Independent Validator (Plane 3) | GA | Evaluation run + scorecard JSON |
 | PyRIT (open source) | Orchestrated adversarial probing | Independent Validator + AI Red Team (Plane 4) | OSS, no SLA | PyRIT YAML + JSONL results |
 | Microsoft 365 Agents Toolkit (CLI + VS Code) | Declarative-agent manifest validate / preview / sideload | Developer | GA | Local validation log + sideload bundle |
-| Copilot Studio Analytics → Quality | Production telemetry: abandonment, escalation, deflection, satisfaction | Operations + Compliance Officer (Plane 5) | GA | Analytics export (CSV/JSON), Quality dashboard snapshot |
+| Copilot Studio Monitor → Effectiveness | Production telemetry: conversation outcomes, reactions, satisfaction | Operations + Compliance Officer (Plane 5) | Verify individual metric availability | Available CSV exports and actual Monitor section snapshot |
 | Microsoft Purview DSPM for AI | Production prompt/response capture, sensitive-data interactions | Compliance + Operations | GA | DSPM report |
 | Microsoft Purview Audit (Standard/Premium) | Durable retention of approval, evaluation, promotion events | Purview Audit Admin | GA | Audit log query export |
 
@@ -663,23 +663,18 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 
 ---
 
-## §8. Plane 5 — Post-deployment monitoring (Copilot Studio Analytics → Quality)
+## §8. Plane 5 — Post-deployment monitoring (Copilot Studio Monitor → Effectiveness)
 
 Plane 5 is the **production-side closing leg** of the validation lifecycle. It is monitoring telemetry, not pre-deployment evidence. Its job is to detect drift, surface rotted edge cases, and trigger re-validation when production behavior diverges from the validated baseline.
 
 ### 8.1 Click-path
 
-1. Copilot Studio → agent → **Analytics** (left nav).
-2. Default tab is **Overview**. Switch to the **Quality** tab (label may vary by rollout — verify in your tenant).
-3. The Quality dashboard surfaces:
-    - **Abandonment rate** — sessions where the user closed before resolution
-    - **Escalation rate** — sessions handed to a human or to another channel
-    - **Deflection rate** — sessions resolved without human intervention (the inverse of escalation; track separately to avoid misreporting ROI)
-    - **Customer satisfaction** — explicit thumbs up/down feedback widget responses
-    - **Latency** — p50 / p95 / p99 response times
-    - **Topic coverage** — distribution of triggered topics
+1. For an agent in the documented **standard harness** experience, open **Monitor** on the top menu bar.
+2. Review **Effectiveness** for **Conversation outcomes**, **Reactions**, and **Customer satisfaction**. Use **See details** to inspect the supported breakdowns.
+3. Review **Use** for themes, generated answer rate and quality, tool use, and knowledge source use. Consult [Microsoft's current monitoring procedure](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness) for available metrics.
+4. Calculate additional firm-defined KPIs from the appropriate exports or Application Insights telemetry; do not assume a **Quality** tab, percentile-latency tiles, or a **Compare to baseline** switch exists on this page.
 
-*Screenshot description: Copilot Studio Analytics Quality tab showing four KPI tiles (Abandonment 7%, Escalation 12%, Satisfaction 4.1/5, p95 latency 2.4s), a 30-day trend chart, and a topic distribution bar chart at the bottom. A "Compare to baseline" toggle is visible in the header.*
+**Evidence to capture:** the actual Monitor sections, selected date range, available outcome breakdowns and satisfaction results. Record custom KPI calculations separately; illustrative KPI values are not tenant evidence.
 
 ### 8.2 KPI interpretation for FSI
 
@@ -733,7 +728,7 @@ To grant read-only analytics access:
 1. Sign in as the **agent owner**.
 2. Open Copilot Studio → the agent → **three-dots (...)** menu (top-right of the agent header) → **Share**.
 3. In the Share dialog, search for the named individual reviewer.
-4. Set the role to **Analytics viewer**. This grants read-only access to the agent's Analytics page (Overview, Quality, Sessions, CSAT, Topics) without conferring permission to modify topics, knowledge, actions, or publish settings.
+4. Set the role to **Analytics viewer**. This grants read-only analytics access without conferring permission to modify topics, knowledge, actions, or publish settings. Open **Monitor** in the current standard experience; the sharing article still calls this the **Analytics** page. Do not expect a native **Quality** tab from that wording.
 5. (Optional, recommended for §8.4 hand-off) Also assign **Bot Transcript Viewer** to the same individual to expose conversation transcripts referenced from flagged Analytics rows.
 6. Save.
 
@@ -752,7 +747,7 @@ To grant read-only analytics access:
 
 Copilot Studio Analytics provides **seven core areas** for reviewing and improving conversational agent effectiveness (updated May 2026; previously six areas). Plane 5 monitoring should include a periodic sweep of the **Analyze effectiveness** page to detect gaps across all seven areas.
 
-**Portal path:** Copilot Studio → agent → **Analytics** → navigate to the effectiveness analysis section (exact tab label may vary by release wave — anchor on page title and consult [Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness)).
+**Portal path:** Copilot Studio → agent → **Monitor** → **Effectiveness** / **Use** sections in the standard harness experience; consult [Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness).
 
 The seven core areas are:
 

@@ -29,7 +29,7 @@
 
 1. Verify the user is NOT in the authorized security group:
    ```
-   Entra Admin Center > Identity > Groups > [FSI-Agent-Makers-*] > Members
+   Entra Admin Center > Entra ID > Groups > [FSI-Agent-Makers-*] > Members
    ```
 
 2. Check if the user has Environment Maker role directly assigned (non-Dataverse environments only):
@@ -127,7 +127,7 @@ Failure modes commonly seen in regulated tenants that do not fit the table above
 
 ### Via Portal (Entra ID)
 
-1. Navigate to **Identity** > **Groups** > Select FSI-Agent-Makers group
+1. Navigate to **Entra ID** > **Groups** > Select FSI-Agent-Makers group
 2. Verify correct members are listed
 3. Check no unauthorized users have access
 

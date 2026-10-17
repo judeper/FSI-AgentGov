@@ -51,7 +51,7 @@
 
 ## Step 2: Configure SharePoint Records Library for Report Archive
 
-**Portal Path:** [SharePoint Admin Center](https://admin.microsoft.com/sharepoint) > **Active sites** > **+ Create**
+**Portal Path:** [SharePoint Admin Center](https://go.microsoft.com/fwlink/?linkid=2185219) > **Sites** > **Active sites** > **Create**
 
 1. Sign in as **SharePoint Admin** (creation) or delegate to **SharePoint Site Owner** (configuration).
 2. Create a new **Communication site** named `AI-Compliance-Reports` with privacy set to **Private**.

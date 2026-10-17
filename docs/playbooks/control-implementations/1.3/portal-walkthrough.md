@@ -22,7 +22,7 @@
 
 ## Step 1 — Configure tenant-level sharing (SharePoint admin center)
 
-**Path:** [SharePoint admin center](https://admin.microsoft.com/sharepoint) → **Policies** → **Sharing**
+**Path:** [SharePoint admin center](https://go.microsoft.com/fwlink/?linkid=2185219) → **Policies** → **Sharing**
 
 1. Set **External sharing** sliders:
     - **SharePoint:** `Only people in your organization` (Zone 3 default) or `Existing guests` (Zone 2 with sanctioned partners).
@@ -65,7 +65,7 @@
 
 ## Step 3 — Apply container sensitivity labels (Microsoft Purview)
 
-**Path:** [Microsoft Purview](https://purview.microsoft.com) → **Information Protection** → **Labels** → select label → **Edit label**
+**Path:** [Microsoft Purview](https://purview.microsoft.com) → **Information Protection** → **Sensitivity labels** → select label → **Edit label**
 
 1. Confirm at least one container-scoped label exists per zone tier — for example `Internal`, `Confidential-FSI`, `Highly Confidential — MNPI`.
 2. For each label, on the **Define protection settings for groups and sites** step, configure:
@@ -184,7 +184,7 @@ Use this only as a temporary safeguard while remediation of broader oversharing 
 
 ## Step 10 — Access reviews on owning M365 groups (Entra)
 
-**Path:** [Microsoft Entra admin center](https://entra.microsoft.com) → **Identity Governance** → **Access reviews** → **+ New access review**
+**Path:** [Microsoft Entra admin center](https://entra.microsoft.com) → **ID Governance** → **Access Reviews** → **+ New access review**
 
 1. **Resource type:** `Teams + Groups` → select **specific groups** → add the M365 groups backing the agent grounding sites in scope.
 2. **Reviewers:**

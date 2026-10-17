@@ -52,7 +52,7 @@
 |---|---------|-----------------|------------------------|
 | 0 | Pre-flight prerequisites and triage | All portals | VC-1 (roles, licenses, scope) |
 | 1 | Signal #1 — Agent 365 Ownerless Agents card | Microsoft 365 admin center → Agents → Overview | VC-3 |
-| 2 | Signal #2 — Entra Lifecycle Workflows leaver cascade | Entra admin center → Identity Governance → Lifecycle Workflows | VC-3, VC-4 |
+| 2 | Signal #2 — Entra Lifecycle Workflows leaver cascade | Entra admin center → ID Governance → Lifecycle workflows | VC-3, VC-4 |
 | 3 | Signal #3 — PPAC maker-departed | Power Platform admin center → Resources → Power Apps | VC-3 |
 | 4 | Signal #4 — PPAC environment-owner-departed | PPAC → Environments | VC-3 |
 | 5 | Signal #5 — SharePoint Copilot agent author-disabled | SharePoint admin center → Content services → Copilot agents | VC-3 |
@@ -94,7 +94,7 @@ Every role used in this walkthrough must be activated through **Microsoft Entra 
 ### 0.2 License and feature verification
 
 1. In the **Microsoft 365 admin center**, confirm the tenant has an active Copilot license and that **Agent 365 admin center** is enrolled (visible under **Settings → Org settings → Services**).
-2. In **Microsoft Entra admin center**, confirm **ID Governance** SKU coverage at **Identity Governance → Overview**.
+2. In **Microsoft Entra admin center**, review the **ID Governance** area, but verify SKU coverage separately from the Microsoft 365 license inventory; visibility of a navigation area is not an entitlement test.
 3. In **Power Platform admin center**, confirm **Admin analytics** is enabled at **Tenant → Analytics settings**.
 4. In **Defender XDR**, confirm **Cloud Apps** is provisioned and the **Cloud App Catalog** loads with a non-zero discovered-app count.
 
@@ -208,7 +208,7 @@ When an agent's **sponsor** (the registered human accountable party from Control
 ### 2.1 Navigation
 
 1. Sign in to the **Microsoft Entra admin center** at [https://entra.microsoft.com](https://entra.microsoft.com) with **Entra Identity Governance Admin** activated.
-2. Navigate to **Identity Governance → Lifecycle Workflows**.
+2. Navigate to **ID Governance → Lifecycle workflows**.
 3. Select the **Workflows** tab and locate the leaver workflow configured under 2.26 (commonly named `Leaver - Agent Sponsor Cascade` or similar).
 
 [Screenshot anchor: `docs/images/3.6/EXPECTED.md#2-1-lifecycle-workflows`]
@@ -262,7 +262,7 @@ Power Platform **makers** are the low-code builders who authored Copilot Studio 
 
 1. Sign in to the **Power Platform admin center** at [https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com) with **Power Platform Admin** activated.
 2. In the left nav, select **Resources → Power Apps** (for canvas / model-driven / Copilot Studio agents surfaced as apps).
-3. Alternatively select **Resources → Copilot agents** or **Resources → Chatbots** for the Copilot Studio–specific list (UI naming varies by rollout).
+3. Select **Manage → Copilot Studio** for the agent-specific inventory; classic chatbots have the separate **Manage → Copilot Studio → Classic chatbots** entry. The [current inventory documentation](https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory) does not describe either as **Resources → Copilot agents / Chatbots**. Use **Download** for the entire CSV inventory; agent **Modified on** / **Last modified by** do not work, so obtain inactivity evidence separately.
 
 [Screenshot anchor: `docs/images/3.6/EXPECTED.md#3-1-ppac-resources-power-apps`]
 

@@ -194,7 +194,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
     $report | Export-Csv -Path (Join-Path $script:EvidenceRoot 'TC-1-userRegistrationDetails.csv') -NoTypeInformation
     ```
 
-3. Cross-validate against the Entra portal: **Microsoft Entra admin center → Protection → Authentication methods → User registration details**. Filter the blade by each privileged role and visually confirm the `phishResistantRegistered` count matches the CSV.
+3. Cross-validate against **Microsoft Entra admin center → Entra ID → Authentication methods → Activity → Registration** and the user-registration details. Reconcile the registered methods for the privileged users identified in the CSV; do not assume the portal exposes a privileged-role filter or a `phishResistantRegistered` column.
 4. For any user whose `phishResistantRegistered` is `False`, capture the user's UPN, the role(s) they hold, and the registration detail row.
 
 #### Expected Result
@@ -756,7 +756,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 #### Setup
 
 1. Confirm a CA policy `CA-AuthContext-PIM-Activation-PhishResistant` is **Enabled** binding **Authentication Context = c1** (or the firm's chosen context value) to the **Phishing-resistant MFA** Authentication Strength.
-2. Confirm each in-scope PIM-eligible role's activation settings reference the same Authentication Context value (Entra Identity Governance → PIM → Microsoft Entra roles → Settings → activation requires authentication context `c1`).
+2. Confirm each in-scope PIM-eligible role's activation settings reference the same Authentication Context value (Entra → ID Governance → Privileged Identity Management → Microsoft Entra roles → Settings → activation requires authentication context `c1`).
 3. Provision a canary user `ca111-canary-tc10@<tenant>` PIM-eligible for AI Administrator. The canary holds **both** SMS and a hardware FIDO2 key registered (the test depends on the canary having a weaker option to attempt).
 
 #### Steps

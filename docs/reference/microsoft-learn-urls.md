@@ -437,7 +437,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Microsoft Purview Portal | https://purview.microsoft.com | DLP, audit, retention, insider risk |
 | Microsoft Entra Admin Center | https://entra.microsoft.com | Conditional access, MFA, roles |
 | Microsoft 365 Admin Center | https://admin.microsoft.com | Users, licenses, integrated apps |
-| SharePoint Admin Center | https://admin.microsoft.com/sharepoint | SharePoint governance |
+| SharePoint Admin Center | https://go.microsoft.com/fwlink/?linkid=2185219 | SharePoint governance |
 | Copilot Studio | https://copilotstudio.microsoft.com | Agent development and management |
 | Microsoft Defender Portal | https://security.microsoft.com | Security monitoring and incident response |
 | Azure Portal | https://portal.azure.com | Azure services, Sentinel, Key Vault |

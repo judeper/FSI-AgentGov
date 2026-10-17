@@ -123,7 +123,7 @@ Use this playbook when implementing Control 1.22 for a Zone 2 (recommended) or Z
 
 ## Step 6 — Align SharePoint Sites with Segment Coverage
 
-1. Open the [SharePoint admin center](https://admin.microsoft.com/sharepoint).
+1. Open the [SharePoint admin center](https://go.microsoft.com/fwlink/?linkid=2185219).
 2. **Sites** → **Active sites**. Filter to sites used as agent knowledge sources or storing regulated content.
 3. For each in-scope site, open the site's **Settings** → **More settings** → **Information barriers**.
 4. Assign a **site segment** corresponding to the owning business unit (e.g., a research SharePoint site → `IB-Research`).

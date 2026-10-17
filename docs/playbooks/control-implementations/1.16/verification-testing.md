@@ -16,7 +16,7 @@
 
 ### Test 2 — IRM-Enabled Sensitivity Label is Published
 
-1. Open the [Microsoft Purview portal](https://purview.microsoft.com) → **Information Protection** → **Labels**.
+1. Open the [Microsoft Purview portal](https://purview.microsoft.com) → **Information Protection** → **Sensitivity labels**.
 2. Open the FSI IRM-enabled label (e.g., `FSI Confidential — IRM`).
 3. **Expected:** Encryption is configured with **Assign permissions now**, the agent service identity is present at **Viewer**, and the label appears in at least one **active** label policy targeted at the consuming user populations.
 

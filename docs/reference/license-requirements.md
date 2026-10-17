@@ -266,9 +266,9 @@ To verify current license assignments:
 2. Navigate to **Manage** > **Environments**
 3. Select an environment to view license type
 
-### Entra Admin Center
-1. Sign in to https://entra.microsoft.com
-2. Navigate to **Identity** > **Users** > Select user > **Licenses**
+### Per-user license assignment (Microsoft 365 Admin Center)
+1. Sign in to https://admin.microsoft.com
+2. Navigate to **Users** > **Active users** > Select user > **Licenses and Apps**, following [Microsoft's assignment procedure](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/assign-licenses-to-users)
 3. Review assigned licenses
 
 ---

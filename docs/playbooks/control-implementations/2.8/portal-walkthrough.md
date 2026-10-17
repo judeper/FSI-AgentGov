@@ -25,7 +25,7 @@
 ## Step 1 — Create role-assignable security groups (Entra Admin Center)
 
 1. Open the [Microsoft Entra Admin Center](https://entra.microsoft.com).
-2. Browse to **Identity → Groups → All groups → New group**.
+2. Browse to **Entra ID → Groups → All groups → New group**.
 3. Create the five governance groups below. For any group that will hold or be granted a **directory role**, set **Microsoft Entra roles can be assigned to the group** to **Yes** at creation (this cannot be changed later).
 
 | Group name | Description | Type | Membership | Role-assignable | Owner |
@@ -71,7 +71,7 @@
 
 ## Step 4 — Configure PIM for Roles (Entra Admin Center)
 
-1. **Identity governance → Privileged Identity Management → Microsoft Entra roles → Roles**.
+1. **ID Governance → Privileged Identity Management → Microsoft Entra roles → Roles**.
 2. For each of the following roles, open **Settings** and apply the Zone 3 configuration:
 
 | Role | Max activation | MFA | Justification | Approval | Approvers |
@@ -88,7 +88,7 @@
 
 ## Step 5 — Configure PIM for Groups (Entra Admin Center)
 
-1. **Identity governance → Privileged Identity Management → Groups → Discover groups** → onboard `SG-Agent-Approvers`, `SG-Agent-ReleaseManagers`, and `SG-Agent-PlatformAdmins`.
+1. **ID Governance → Privileged Identity Management → Groups → Discover groups** → onboard `SG-Agent-Approvers`, `SG-Agent-ReleaseManagers`, and `SG-Agent-PlatformAdmins`.
 2. For each onboarded group, open **Settings → Member** and set:
    - Activation max: **4 hours** (Approvers, Release Managers); **1 hour** (Platform Admins)
    - MFA on activation: **Required**
@@ -102,7 +102,7 @@
 
 ## Step 6 — Configure Access Reviews (Entra Identity Governance)
 
-1. **Identity governance → Access reviews → New access review**.
+1. **ID Governance → Access Reviews → New access review**.
 2. Configure a **per-zone** review schedule:
 
 | Review name | Scope | Frequency | Duration | Reviewers | Auto-apply | If reviewer doesn't respond |
@@ -134,7 +134,7 @@
 
 ## Step 8 — Conditional Access and CAE for the privileged path
 
-1. **Entra Admin Center → Protection → Conditional Access → Policies → New policy**.
+1. **Entra Admin Center → Entra ID → Conditional Access → Policies → New policy**.
 2. Create policy **CA-Agent-Privileged-Path**:
    - **Users**: `SG-Agent-Approvers`, `SG-Agent-ReleaseManagers`, `SG-Agent-PlatformAdmins`
    - **Target resources**: Microsoft Admin Portals, Power Platform admin app (`a8f7a65c-f5ba-4859-b2d6-df772c264e9d`), Microsoft Graph PowerShell, Copilot Studio

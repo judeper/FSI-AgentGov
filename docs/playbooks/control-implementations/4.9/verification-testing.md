@@ -46,7 +46,7 @@ Before running verification tests, prepare the following:
 
 ## Test 1: Embedded File Agent Inventory Completeness
 
-**Criterion:** All agents with embedded files identified via M365 Admin Center "Embedded files" filter.
+**Criterion:** All agents with embedded files identified via M365 Admin Center **Data source → Embedded knowledge**. References below to the "embedded files filter" mean this current Registry filter.
 **Expected Result:** 100% of agents using embedded file knowledge sources appear in the filter results.
 **Evidence Type:** Screenshot of filtered agent list; reconciliation with known agent count.
 
@@ -54,8 +54,8 @@ Before running verification tests, prepare the following:
 
 **Step 1.1 — Apply the Embedded Files Filter**
 
-1. Navigate to: **M365 Admin Center › Copilot › Agents › All Agents**
-2. Apply the **"Embedded files"** filter.
+1. Navigate to: **M365 Admin Center › Agents › All agents › Registry**
+2. Apply **Data source → Embedded knowledge**.
 3. Take a screenshot of the filtered results showing all agents in the list.
 4. Record the total count of agents shown.
 
@@ -363,7 +363,7 @@ Flag any records with:
 
 **Step 7.1 — Verify Policy Configuration**
 
-1. Navigate to: **Microsoft Purview › Information Protection › Label policies**
+1. Navigate to: **Microsoft Purview › Solutions › Information Protection › Publishing policies**
 2. Identify the default label policy.
 3. Confirm a default document label is configured (see Portal Walkthrough Section 6).
 4. Screenshot the policy settings.
@@ -373,7 +373,7 @@ Flag any records with:
 1. Create a test agent or use an isolated test agent.
 2. Upload an unclassified test document (no sensitivity label applied to the file).
 3. After upload, wait up to 24 hours (or at least 30 minutes) for label policy propagation.
-4. Navigate to: **M365 Admin Center › Copilot › Agents › [Test Agent] › Overview tab**
+4. Navigate to: **M365 Admin Center › Agents › All agents › Registry › [Test Agent] › Overview tab**
 5. Verify the Sensitivity label field shows the expected default label.
 6. Screenshot the result.
 

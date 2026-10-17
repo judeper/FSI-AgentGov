@@ -78,7 +78,7 @@ A control 1.3 implementation is operating as intended when **all** of the follow
 
 ### Test 9 — Access review cycle
 
-1. Entra admin center → **Identity Governance** → **Access reviews** → **Reviews**.
+1. Entra admin center → **ID Governance** → **Access Reviews** → **Reviews**.
 2. Filter to the reviews created for agent grounding M365 groups.
 3. **Expected:** most recent instance status is `Completed` within the documented cadence; auto-apply executed for Zone 3; per-decision justifications captured.
 

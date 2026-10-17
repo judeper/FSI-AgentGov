@@ -129,7 +129,7 @@ This is documented Microsoft platform behaviour, not a configuration error.
 
 ### Cause: Sensitivity labels not published to relevant users
 
-1. Open *Microsoft Purview → Information Protection → Label policies*
+1. Open *Microsoft Purview → Information Protection → Publishing policies*
 2. Confirm the labels are published to the user(s) uploading the files
 3. Users without label policies will upload unlabeled files even when labels exist in the tenant
 

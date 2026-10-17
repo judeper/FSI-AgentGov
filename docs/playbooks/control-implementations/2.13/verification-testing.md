@@ -25,7 +25,7 @@ Before executing test cases, confirm the following pre-gates are met:
 | PRE-01 | SharePoint Admin role assigned to test operator | Entra ID role assignments |
 | PRE-02 | Purview Records Manager role assigned | Entra ID role assignments |
 | PRE-03 | AI Governance SharePoint site provisioned | Navigate to site URL |
-| PRE-04 | Retention labels created and published | Purview portal > Data lifecycle management > Labels |
+| PRE-04 | Retention labels created and published | Purview portal > Solutions > Records Management > File plan; Policies > Label policies |
 | PRE-05 | Zone classification documented for agents under test | Control 2.2 zone register |
 | PRE-06 | Evidence directory created at `C:\fsi-evidence\2.13` | PowerShell: `Test-Path C:\fsi-evidence\2.13` |
 
@@ -70,7 +70,7 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify Purview retention labels exist with correct retention periods per the SEC 17a-4 record-type matrix |
 | **Zone Applicability** | Zone 2 (standard labels), Zone 3 (+ regulatory record labels) |
 | **Preconditions** | PRE-02, PRE-04 |
-| **Steps** | 1. Open **Purview portal** > **Data lifecycle management** > **Microsoft 365** > **Labels**<br>2. Search for labels beginning with `FSI-Agent`<br>3. For each label, verify:<br>   - Name matches expected naming convention<br>   - Retention period matches specification (1095 days = 3yr, 2190 = 6yr, 2555 = 7yr, 1825 = 5yr)<br>   - Retention action is correct (KeepAndDelete or Delete)<br>   - Record type is correct (Item, Record, or Regulatory record) |
+| **Steps** | 1. Open **Purview portal** > **Solutions** > **Records Management** > **File plan**<br>2. Search for labels beginning with `FSI-Agent`<br>3. For each label, verify:<br>   - Name matches expected naming convention<br>   - Retention period matches specification (1095 days = 3yr, 2190 = 6yr, 2555 = 7yr, 1825 = 5yr)<br>   - Retention action is correct (KeepAndDelete or Delete)<br>   - Record type is correct (Item, Record, or Regulatory record) |
 | **Expected Result** | Zone 2: at least 5 labels (Communications-3Year, BooksRecords-6Year, Governance-6Year, Supervision-6Year, Configuration-6Year). Zone 3: add RegRecord-7Year, CFTC-5Year, ModelRisk-6Year |
 | **Pass Criteria** | All expected labels present with correct retention periods and record types |
 | **Fail Criteria** | Any expected label missing, or retention period does not match specification |
@@ -85,7 +85,7 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify retention label policies are published to the AI Governance SharePoint site and are in active (enabled) state |
 | **Zone Applicability** | Zone 2, Zone 3 |
 | **Preconditions** | PRE-02, TC-2.13-003 passed |
-| **Steps** | 1. Open **Purview portal** > **Data lifecycle management** > **Microsoft 365** > **Label policies**<br>2. Locate the FSI-AI-Governance-Retention policies<br>3. Verify each policy is **Enabled** (not in simulation mode)<br>4. Verify the **SharePoint location** includes the AI Governance site URL<br>5. For Zone 3: verify separate Zone 3 regulatory record policy exists |
+| **Steps** | 1. Open **Purview portal** > **Solutions** > **Records Management** > **Policies** > **Label policies**<br>2. Locate the FSI-AI-Governance-Retention policies<br>3. Verify each policy is **Enabled** (not in simulation mode)<br>4. Verify the **SharePoint location** includes the AI Governance site URL<br>5. For Zone 3: verify separate Zone 3 regulatory record policy exists |
 | **Expected Result** | At least one active retention policy targets the AI Governance site with all required labels |
 | **Pass Criteria** | Policy status = Enabled, SharePoint location includes AI Governance site |
 | **Fail Criteria** | Policy missing, disabled, or not targeting the correct SharePoint site |

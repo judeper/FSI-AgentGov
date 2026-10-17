@@ -16,7 +16,7 @@
     | Configuring **generative-answers guardrails** (content sources, moderation, citation enforcement) | Copilot Studio → Generative AI → Knowledge + Moderation | Grounded outputs with enforced citation and topic boundaries |
     | Wiring **Microsoft Agent Framework HITL** (`RequestPort`, `request_info()`, checkpoints with pending requests) | Agent Framework SDK + application-surface integration | Auditable pause / resume with reviewer-attributed decisions |
     | Building the **Power Automate supervisory review queue** (SLA, risk-based routing, reviewer identity) | Power Automate → Cloud flows → Approvals | Examiner-ready queue with per-item audit trail |
-    | Configuring **Entra ID Governance sponsor attestation** (quarterly access review for Z3 agents) | Entra → Identity Governance → Access reviews | Quarterly sponsor attestation evidence |
+    | Configuring **Entra ID Governance sponsor attestation** (quarterly access review for Z3 agents) | Entra → ID Governance → Access Reviews | Quarterly sponsor attestation evidence |
     | Operating the **Rule 2210 classification** workflow (Correspondence / Retail / Institutional) | Copilot Studio metadata + approval flow | Per-template classification with principal pre-use approval where required |
     | Operating the **Rule 3120 annual testing** workflow (design, operating, exception) | Purview + firm test repository | Signed annual testing report |
     | Capturing per-session evidence (screenshots, exports, reviewer-decision audit trail) | SharePoint retention labels / Purview / WORM archive | 6-year retention aligned to SEC 17a-4 |
@@ -601,7 +601,7 @@ Quarterly sponsor attestation for Zone 3 agents is required by the FINRA 2026 ov
 ### 6.1 Scope the attestation
 
 1. Open [`https://entra.microsoft.com`](https://entra.microsoft.com) as an **Entra Identity Governance Admin**.
-2. Navigate to **Identity Governance → Access reviews → + New access review**.
+2. Navigate to **ID Governance → Access Reviews → + New access review**.
 3. Configure:
     - **Review type**: `Teams + Groups` (if agents are modeled as groups) or `Applications` if agents are modeled as enterprise applications. Use the pattern established by Control 2.26.
     - **Scope**: the security group or access package that contains the Zone 3 agent identities for the regulated entity.
@@ -630,7 +630,7 @@ Quarterly sponsor attestation for Zone 3 agents is required by the FINRA 2026 ov
 !!! example "Examiner Evidence Box — Sponsor Attestation"
     | Element | Value |
     |---|---|
-    | Access review definition | Entra → Identity Governance → Access reviews → `Z3 Agent Sponsor Attestation — {YYYY-Q#}` |
+    | Access review definition | Entra → ID Governance → Access Reviews → `Z3 Agent Sponsor Attestation — {YYYY-Q#}` |
     | Results CSV | `SharePoint/Compliance/Supervision/2.12/attestations/{YYYY-Q#}-sponsor-attestation.csv` |
     | Signed quarterly report | `SharePoint/Compliance/Supervision/2.12/attestations/{YYYY-Q#}-sponsor-attestation-report.pdf` |
     | Retention | 6 years (SEC 17a-4) |

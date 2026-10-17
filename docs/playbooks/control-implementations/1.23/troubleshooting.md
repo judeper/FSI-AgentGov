@@ -26,7 +26,7 @@ This playbook indexes the most common failures observed when deploying step-up a
 
 **Diagnostics:**
 
-- **Entra → Monitoring → Sign-in logs** for the user — open the relevant entry, **Authentication Details** tab. Check whether `Authentication context` is populated.
+- **Entra → Entra ID → Monitoring & health → Sign-in logs** for the user — open the relevant entry, **Authentication Details** tab. Check whether `Authentication context` is populated.
 - **Conditional Access → Policies → `FSI-StepUp-c<N>-*` → Policy details** — confirm **State = On**, not Report-only.
 - **Conditional Access → What If** — replay the user, app, and authentication context.
 
@@ -148,9 +148,9 @@ This playbook indexes the most common failures observed when deploying step-up a
 
 **Resolution:**
 
-1. **Entra → Protection → Authentication methods → Policies** — confirm the FIDO2 method is enabled and the user is in the included scope.
+1. **Entra → Entra ID → Security → Authentication methods → Policies → Passkey (FIDO2)** — confirm the method is enabled and the user is in the included scope.
 2. Re-open the custom strength definition and confirm FIDO2 is selected with the correct AAGUID restrictions if any are configured.
-3. If the strength requires certificate-based authentication, confirm the certificate authority is registered under **Entra → Protection → Authentication methods → Certificate-based authentication**.
+3. If the strength requires certificate-based authentication, verify the trusted PKI under **Entra ID → Identity Secure Score → Public key infrastructure**, then the CBA policy under **Entra ID → Authentication methods → Certificate-based authentication**, following [Microsoft's setup procedure](https://learn.microsoft.com/en-us/entra/identity/authentication/how-to-certificate-based-authentication).
 
 ---
 

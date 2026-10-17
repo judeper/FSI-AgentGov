@@ -125,7 +125,7 @@ Use canonical short names from `docs/reference/role-catalog.md`. Avoid Entra Glo
 ### 2.1 Create labels (Purview portal)
 
 1. Sign in to your tenant cloud's Purview portal.
-2. Navigate **Solutions → Information Protection → Labels**.
+2. Navigate **Solutions → Information Protection → Sensitivity labels**.
 3. Select **+ Create a label**.
 4. Define the FSI taxonomy — illustrative only; substitute your scheme:
 
@@ -143,7 +143,7 @@ Use canonical short names from `docs/reference/role-catalog.md`. Avoid Entra Glo
 
 ### 2.2 Publish at least one label policy
 
-1. **Information Protection → Label policies → + Publish labels**.
+1. **Information Protection → Publishing policies → + Publish labels**.
 2. Select the labels created in 4.1.
 3. Scope to the users and groups who create or handle content (and to agent owners and compliance reviewers).
 4. Configure **default label**, **mandatory labeling** (Zone 3), and **require justification on label change to lower classification**.
@@ -170,7 +170,7 @@ Reference: [Apply a sensitivity label automatically (Learn)](https://learn.micro
 
 ### 2.5 Conditional Access session controls for label-restricted access
 
-Entra Conditional Access can enforce label-restricted access — for example, **block download of Highly Confidential** from unmanaged devices, or require a compliant device to open a Confidential file. Configure these in the Entra portal under **Protection → Conditional Access**, scoped to the SharePoint cloud app with session controls enforcing app-enforced restrictions.
+Entra Conditional Access can enforce label-restricted access — for example, **block download of Highly Confidential** from unmanaged devices, or require a compliant device to open a Confidential file. Configure these in the Entra portal under **Entra ID → Conditional Access**, scoped to the SharePoint cloud app with session controls enforcing app-enforced restrictions.
 
 Cross-links: [Control 1.20 — Network isolation / private connectivity](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) and [Control 1.21 — Adversarial input logging](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md).
 

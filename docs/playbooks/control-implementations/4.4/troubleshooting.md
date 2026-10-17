@@ -62,13 +62,13 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/SiteName' |
     Select-Object Url, SensitivityLabel, SharingCapability
 ```
 
-If a label is applied, inspect the label's site & group settings in **Microsoft Purview** > **Information protection** > **Labels**. The label's external-sharing setting and the site's `SharingCapability` must be reconciled — see [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
+If a label is applied, inspect the label's site & group settings in **Microsoft Purview** > **Information Protection** > **Sensitivity labels**. The label's external-sharing setting and the site's `SharingCapability` must be reconciled — see [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
 
 ### 3. Conditional Access conflicts
 
 Symptoms: guest can be invited, but cannot sign in or is repeatedly prompted for MFA the home tenant cannot satisfy.
 
-1. Open **Microsoft Entra admin center** > **Protection** > **Conditional Access** > **Sign-in logs**.
+1. Open **Microsoft Entra admin center** > **Entra ID** > **Monitoring & health** > **Sign-in logs**.
 2. Filter on the guest's UPN (e.g., `user_partner.com#EXT#@contoso.onmicrosoft.com`).
 3. Inspect the failed sign-in's **Conditional Access** tab for the policy that produced the block.
 4. Cross-check whether **cross-tenant access settings** in **External Identities** trust the guest's home tenant for MFA / device claims; if not, the guest cannot satisfy the requirement no matter how they authenticate.

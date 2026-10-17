@@ -42,7 +42,7 @@ Record the matrix in your governance documentation (Control 2.13) and version it
 The **Knowledge Admin** Entra role grants the minimum permissions needed to manage Viva Learning content sources without granting tenant-wide admin rights.
 
 1. Sign in to the [Microsoft Entra admin center](https://entra.microsoft.com) as an **Entra Privileged Role Admin** or **Entra Global Admin**.
-2. Navigate to **Identity > Roles & admins > Roles & admins**.
+2. Navigate to **Identity > Roles & admins**.
 3. Search for **Knowledge Admin** and select the role.
 4. Choose **Add assignments** and assign the role to the staff who will manage Viva Learning content sources.
 5. For regulated tenants, prefer **eligible** assignments via Entra PIM with a documented activation justification (Control 1.x — privileged access governance).

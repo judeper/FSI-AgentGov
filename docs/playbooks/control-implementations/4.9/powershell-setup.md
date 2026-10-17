@@ -690,7 +690,7 @@ function Test-DefaultSensitivityLabelPolicy {
         if (-not $defaultLabelConfigured) {
             Write-Host "`nWARNING: No default sensitivity label policy configured for documents." -ForegroundColor Red
             Write-Host "Unlabeled files uploaded to agent containers will not receive automatic labels." -ForegroundColor Red
-            Write-Host "Action: Configure a default label in Microsoft Purview › Information Protection › Label policies." -ForegroundColor Yellow
+            Write-Host "Action: Review the default-label setting in Microsoft Purview › Solutions › Information Protection › Publishing policies." -ForegroundColor Yellow
         }
 
         return $defaultLabelConfigured

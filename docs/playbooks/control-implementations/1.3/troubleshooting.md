@@ -81,7 +81,7 @@
     ```
 2. Check the user's effective permissions:
     - SharePoint admin center → site → **Site permissions** → **Check permissions** for the user.
-3. Check the container label's protection settings in Purview → **Information protection** → **Labels** → select label → **Edit** → Site & group settings.
+3. Check the container label's protection settings in Purview → **Information Protection** → **Sensitivity labels** → select label → **Edit** → Site & group settings.
 4. Check Entra sign-in logs for the user / service principal to identify any Conditional Access block.
 
 ### Fix
@@ -105,7 +105,7 @@
 4. The label is not configured for **Groups & sites** scope.
 
 ### Diagnostic steps
-1. In Purview → **Information protection** → **Label policies**, confirm the policy that publishes the label includes the admin user's account in its scope.
+1. In Purview → **Information Protection** → **Publishing policies**, confirm the policy that publishes the label includes the admin user's account in its scope.
 2. Check the label scope in Purview → **Labels** → open label → confirm `Groups & sites` is enabled.
 3. Inspect the site:
     ```powershell
@@ -203,7 +203,7 @@ RCD suppresses sites from **organization-wide** search and Copilot grounding for
 4. Mail-flow rules (Exchange Online transport rules) are quarantining `noreply@accesscontrol.windows.net` notifications.
 
 ### Diagnostic steps
-1. Entra admin center → **Identity Governance** → **Access reviews** → **Reviews** → open the instance → **History** tab — review the per-user notification status.
+1. Entra admin center → **ID Governance** → **Access Reviews** → **Reviews** → open the instance → **History** tab — review the per-user notification status.
 2. Confirm reviewer licensing:
     ```powershell
     Get-MgUser -UserId $ReviewerUpn -Property AssignedLicenses, MailEnabled, UserType
@@ -223,7 +223,7 @@ RCD suppresses sites from **organization-wide** search and Copilot grounding for
 1. SharePoint admin center → **Policies** → **Sharing** — verify tenant baseline.
 2. SharePoint admin center → **Active sites** → select site → **Settings** flyout — verify Sensitivity, RAC, RCD.
 3. Microsoft Purview → **Data Loss Prevention** → confirm `FSI-DLP-SharePoint-AgentGrounding` is in `Enforce`.
-4. Microsoft Entra → **Identity Governance** → **Access reviews** — confirm cycle status.
+4. Microsoft Entra → **ID Governance** → **Access Reviews** — confirm cycle status.
 
 ### Via PowerShell
 ```powershell

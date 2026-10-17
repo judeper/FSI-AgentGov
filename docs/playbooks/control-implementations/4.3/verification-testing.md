@@ -20,7 +20,7 @@
 
 ### Step 3: Verify Retention Labels and Policies (Microsoft Purview)
 
-1. In Microsoft Purview, open **Data Lifecycle Management > Labels** and confirm each FSI label is **Published**.
+1. In Microsoft Purview, open **Data Lifecycle Management > Retention labels** (or **Records Management > File plan** for record labels), then check **Policies > Label policies** to confirm each FSI label is published.
 2. Open **Policies** and confirm each policy has `Enabled = True`, `DistributionStatus = Success`, and the expected `SharePointLocation`.
 3. For policies in SEC 17a-4(f) scope, confirm `RestrictiveRetention = True` (Preservation Lock applied).
 

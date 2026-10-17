@@ -74,7 +74,7 @@
 
 **Likely cause #1: Scope not consented.** Application permission `ServiceMessage.Read.All` requires Entra Global Admin consent. Delegated permission requires the signed-in user to hold a role that includes Service Health read (e.g., **Service Support Administrator**, **Global Reader**, or **Global Administrator**).
 
-**Resolution:** In Microsoft Entra admin center > **Applications > Enterprise applications > [your app]**, confirm `ServiceMessage.Read.All` is granted with admin consent.
+**Resolution:** In Microsoft Entra admin center > **Entra ID > Enterprise apps > [your app]**, confirm `ServiceMessage.Read.All` is granted with admin consent.
 
 **Likely cause #2: Filter is too restrictive.** A `lastModifiedDateTime` window that is too short returns nothing.
 

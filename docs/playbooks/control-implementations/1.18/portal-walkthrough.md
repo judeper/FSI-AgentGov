@@ -61,7 +61,7 @@
 > **Licensing prerequisite:** PIM and PIM-for-Groups require **Microsoft Entra ID P2** for every assigned and eligible user. Without P2, eligibility-based assignments will not appear.
 
 1. Open [Microsoft Entra Admin Center](https://entra.microsoft.com)
-2. Navigate to **Identity governance** > **Privileged Identity Management**
+2. Navigate to **ID Governance** > **Privileged Identity Management**
 3. **For directory roles** (Power Platform Admin, AI Administrator): select **Microsoft Entra roles** > **Roles** > target role > **Settings**
 4. **For environment / Dataverse access** (recommended pattern): select **Groups** > add `SG-PowerPlatform-Admins-Prod` > **Settings** > **Member** role
 5. Configure activation settings:
@@ -84,7 +84,7 @@
 ### Step 6: Set Up Access Reviews
 
 1. Open Microsoft Entra Admin Center
-2. Navigate to **Identity governance** > **Access reviews**
+2. Navigate to **ID Governance** > **Access Reviews**
 3. Create review for each security group:
    - Frequency: Quarterly (Zone 2/3), Annual (Zone 1)
    - Reviewers: Group owners

@@ -150,7 +150,7 @@ Repeat the pattern for **Storage**, **Azure SQL** (sub-resource `sqlServer`), an
 
 ## Step 6 — Reconcile with Conditional Access (Control 1.11)
 
-1. Open the [Microsoft Entra admin center](https://entra.microsoft.com) → **Protection → Conditional Access → Named locations**.
+1. Open the [Microsoft Entra admin center](https://entra.microsoft.com) → **Entra ID → Conditional Access → Named locations**.
 2. Confirm the same egress CIDRs used in Step 1 are represented as **Trusted IPs** named locations.
 3. If a Conditional Access policy gates Power Platform access by named location, ensure its IP set **matches or is a subset** of the IP firewall allowlist. Mismatches cause confusing user-facing errors that look like sign-in failures but are network rejections (or vice versa).
 

@@ -40,7 +40,7 @@ Both failure modes are first-class FAIL conditions. The playbook is structured s
 | **Inventory Owner** | Owns the cycle, runs the discovery exports, assembles the reconciliation evidence pack, and signs as **Preparer** in the three-signature chain. |
 | **AI Governance Lead** | Reviews the cycle outputs against governance policy, validates the reconciliation deltas, and signs as **Validator**. |
 | **Compliance Officer** | Reviews the evidence pack from a supervisory and regulatory-readiness perspective and signs as **Compliance**. |
-| **Power Platform Admin** | Confirms PPAC inventory exports are complete, the 500-agent display ceiling has been bypassed via Resource Graph or PowerShell, and the 15-minute refresh cycle is accounted for. |
+| **Power Platform Admin** | Confirms the complete PPAC inventory Download is preserved, not just loaded rows; reconciles source coverage and the documented refresh cycle. |
 | **AI Administrator** | Confirms Microsoft 365 admin center Copilot agent inventory exports are complete and reconciles declarative, shared, and Microsoft-provided agents. |
 | **Entra Agent ID Admin** | Confirms Entra Agent ID directory enumeration is complete and that AgentID-to-Entra-identity joins resolve. |
 | **Internal Audit** | Uses the evidence pack and three-signature attestation chain as the testable artifact for SOX-style and FINRA-supervision walkthroughs and the basis for the quarterly examiner-style audit (Section 9). |
@@ -78,7 +78,7 @@ This playbook is designed to detect defects in the **inventory program**, not in
 5. **Metadata drift without re-attestation** — the agent's connectors, knowledge sources, model, or DLP scope changed at the platform layer with no corresponding re-attestation in the inventory.
 6. **DLP scoping gaps** — Zone 2 / Zone 3 agents with no recorded DLP policy mapping or with a DLP policy that no longer exists in Purview.
 7. **Regulatory-scope under-tagging** — agents that touch FINRA Communications surfaces, SOX ICFR processes, or GLBA-covered data but are not tagged into those supervisory inventories.
-8. **PPAC display-ceiling silent truncation** — tenants with more than 500 agents whose evidence pack relies on the portal view rather than Azure Resource Graph or PowerShell enumeration.
+8. **PPAC grid-versus-inventory mismatch** — evidence packs that treat loaded on-screen rows as complete instead of preserving the entire inventory Download or a verified complete programmatic collection.
 9. **Refresh-window blind spots** — agents created or modified within the trailing 15 minutes that are missing from a snapshot taken before the platform refresh completed.
 10. **Tamper-prone evidence** — inventory snapshots stored without SHA-256 manifests, signature chain, or immutable retention.
 11. **Reconciliation theater** — reconciliation reports that show 100% match because the comparison set was filtered to only the agents already in the system of record, not the full discovery superset.
@@ -271,8 +271,8 @@ This family verifies that no agent is silently missing from the system of record
 - **Objective.** Confirm that the cycle enumerated every Microsoft discovery surface that can host or register an agent in the tenant.
 - **Pre-conditions.** PRE-01, PRE-03, PRE-05, PRE-06, PRE-07 PASS.
 - **Steps.**
-  1. Export the Microsoft 365 admin center Copilot inventory from **admin.microsoft.com → Copilot → Agents** and save as `surface-m365.csv` with capture timestamp.
-  2. Export the Power Platform admin center inventory from **PPAC → Manage → Inventory** and save as `surface-ppac.csv`. If the tenant exceeds 500 agents, fall back to the Azure Resource Graph query in §3 of Control 3.1 and record the fallback in evidence.
+  1. From **admin.microsoft.com → Agents → All agents → Registry**, use **Export to Excel**. Preserve the original and save a CSV reconciliation copy as `surface-m365.csv` with capture timestamp.
+  2. Select **Download** from **PPAC → Manage → Inventory** and preserve the entire inventory CSV as `surface-ppac.csv`. Record the source population, cloud, and independently derived agent/environment scope; do not apply a guessed 500-agent export cap.
   3. Enumerate the Entra Agent ID directory using Microsoft Graph (or the manual fallback where Graph enumeration is unavailable) and save as `surface-entra.csv`.
   4. Where available in the declared cloud, export the Microsoft Agent 365 admin-center surface as `surface-agent365.csv`. Treat as **additive** only; treat as additive only where not yet GA.
   5. Pull a Purview Audit (UAL) export of `AgentCreated`, `AgentUpdated`, `AgentDeleted` events for the trailing reconciliation window and save as `surface-ual.csv`. UAL is the audit-trail surface, not a primary discovery surface, but absence of UAL records for an agent that appears in another surface is itself a finding.
@@ -322,16 +322,16 @@ This family verifies that no agent is silently missing from the system of record
 
 #### 3.1-COMP-04 — PPAC display-ceiling and large-tenant enumeration
 
-- **Objective.** Confirm that tenants whose agent population exceeds the 500-agent PPAC display ceiling do not silently truncate the inventory through reliance on the portal view.
+- **Objective.** Confirm that loaded on-screen rows are not mistaken for the complete Power Platform inventory.
 - **Pre-conditions.** COMP-01 PASS.
 - **Steps.**
-  1. Compare the PPAC portal-visible agent count to the Azure Resource Graph and PowerShell (`Get-AdminPowerApp` filtered to `appType -eq "Agent"`) enumerations of the same tenant.
-  2. If portal count ≥ 500 or within 10% of 500, the cycle MUST use the Resource Graph or PowerShell enumeration as the authoritative PPAC surface and record the fallback in `comp-04-ppac-ceiling.json`.
-  3. Hash the Resource Graph / PowerShell output and store in `manifest.sha256`.
-- **Expected result.** A documented decision on whether the portal export is sufficient or the fallback is required, with hashed evidence either way.
-- **Pass criteria.** Portal export is used only if the count is materially below the ceiling; fallback enumeration is used and hashed if at/near the ceiling. Reliance on the portal view at/near ceiling without fallback is FAIL.
-- **Failure remediation.** Re-execute COMP-01 step 2 with the Resource Graph or PowerShell enumeration; restart COMP-02 from the new PPAC surface.
-- **Evidence.** `comp-04-ppac-ceiling.json`, `surface-ppac-arg.csv` or `surface-ppac-ps.csv`.
+  1. Preserve the complete inventory **Download**, which Microsoft documents as including the entire inventory, not only loaded rows. Reconcile actual resource types and environment scope against an independent, appropriately scoped agent collection.
+  2. Record completeness and source gaps in `comp-04-ppac-ceiling.json` (retained evidence filename, not a claim of a native ceiling). `Get-AdminPowerApp` with a guessed Agent appType is not Copilot Studio agent enumeration.
+  3. Hash the original CSV and any programmatic comparison output; store hashes in `manifest.sha256`.
+- **Expected result.** Complete source data and any coverage differences are documented with hashed evidence.
+- **Pass criteria.** Complete Download or verified complete source-specific enumeration is retained and reconciled; reliance on loaded grid rows alone is FAIL.
+- **Failure remediation.** Re-execute COMP-01 step 2 using the full Download or a verified complete inventory interface; restart COMP-02 from the corrected source.
+- **Evidence.** `comp-04-ppac-ceiling.json`, `surface-ppac.csv`, plus `surface-ppac-arg.csv` or `surface-ppac-ps.csv` if used.
 - **Cadence.** Zone 1 quarterly · Zone 2 monthly · Zone 3 weekly.
 - **Owner.** Power Platform Admin.
 - **Zone applicability.** All zones with > 250 agents; advisory below.

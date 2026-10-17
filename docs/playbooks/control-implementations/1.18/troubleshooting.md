@@ -186,7 +186,7 @@ This playbook covers operational issues commonly encountered when implementing o
 
 **Diagnostic steps**
 
-1. In Entra > Identity governance > Access reviews > [review] > **Settings**, confirm the **Reviewers** field is populated.
+1. In Entra > ID Governance > Access Reviews > [review] > **Settings**, confirm the **Reviewers** field is populated.
 2. Confirm group owners exist on the target group; "Group owners" as reviewer fails silently when no owner is set.
 
 **Resolution**

@@ -339,14 +339,14 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 
 **Likely root causes:**
 - Analytics ingestion lag (typical lag is hours, can extend during platform incidents).
-- The agent's telemetry collection setting is off, or a recent publish reset it.
+- The operator is following an obsolete navigation shortcut or lacks the required analytics access.
 - Drift baseline was computed on a small or unrepresentative window.
 - A change in user population (e.g., rollout to a new business unit) shifts the input distribution legitimately, triggering drift alerts that are real but not defective.
 - Time-zone mismatch between dashboard (tenant default) and exported CSV (UTC).
 
 **Diagnostic steps:**
 1. Check Microsoft 365 service health and Power Platform admin announcements for ingestion incidents.
-2. Verify analytics is enabled on the agent: Copilot Studio → Settings → Analytics.
+2. Open the agent → **Monitor** in the current standard experience and verify analytics access per the [sharing procedure](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots). The current [effectiveness article](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness) describes **Effectiveness** and **Use**; do not diagnose a missing **Quality** tab as a disabled telemetry switch or invent **Settings → Analytics** as its remedy. Custom drift thresholds and baseline calculations are separate from the native page.
 3. Re-baseline drift using a representative window (typically 14–30 days of post-deployment traffic).
 4. Reconcile UI vs CSV by normalizing time zones.
 

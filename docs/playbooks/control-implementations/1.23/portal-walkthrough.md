@@ -24,7 +24,7 @@
 ## Step 1 — Create Authentication Contexts (`c1`–`c5`)
 
 1. Open the [Microsoft Entra admin center](https://entra.microsoft.com).
-2. Navigate to **Protection → Conditional Access → Authentication contexts**.
+2. Navigate to **Entra ID → Conditional Access → Authentication contexts**.
 3. Select **+ New authentication context** and create the following five entries. **Publish to apps** must be checked or downstream services (Microsoft Copilot Studio flows, Graph, SharePoint, Purview) cannot request the context.
 
 | ID  | Display name             | Description                                | Publish to apps |
@@ -41,7 +41,7 @@
 
 ## Step 2 — Create the Phishing-Resistant Authentication Strength
 
-1. Navigate to **Protection → Authentication methods → Authentication strengths**.
+1. Navigate to **Entra ID → Authentication methods → Authentication strengths**.
 2. Confirm the built-in **Phishing-resistant MFA** strength exists (it includes FIDO2, Windows Hello for Business, and certificate-based authentication).
 3. For Zone 3 critical operations, optionally create a custom strength named `FSI-Critical-Operations` that includes only:
     - FIDO2 security key
@@ -57,7 +57,7 @@
 
 For each authentication context, create a Conditional Access policy. Use the table below for the per-context settings.
 
-1. Navigate to **Protection → Conditional Access → Policies → + New policy**.
+1. Navigate to **Entra ID → Conditional Access → Policies → + New policy**.
 2. Repeat once per row in the table:
 
 | Policy name                       | Auth context | Authentication Strength            | Sign-in frequency | Device requirement (Zone 3)       |
@@ -83,7 +83,7 @@ For each policy:
 
 These policies fire even when no authentication context is invoked, providing defense-in-depth against compromised sessions used to drive an agent.
 
-1. Navigate to **Protection → Conditional Access → Policies → + New policy**.
+1. Navigate to **Entra ID → Conditional Access → Policies → + New policy**.
 2. Create `FSI-StepUp-SignInRisk-Medium`:
     - **Conditions → Sign-in risk** = *Medium and above*
     - **Grant** = Require authentication strength → **Phishing-resistant MFA**
@@ -100,7 +100,7 @@ These policies fire even when no authentication context is invoked, providing de
 
 For each role in the agent governance scope, tighten PIM activation settings so administrative actions on agents inherit a step-up posture.
 
-1. Navigate to **Identity governance → Privileged Identity Management → Microsoft Entra roles → Roles**.
+1. Navigate to **ID Governance → Privileged Identity Management → Microsoft Entra roles → Roles**.
 2. For each role in the table below, select the role → **Role settings → Edit**:
 
 | Role (canonical name)                  | Approval required | Justification | MFA on activation                         | Max activation |
@@ -122,7 +122,7 @@ Authentication contexts only enforce when an action requests them. Work with Pow
 | Surface                          | Where to configure                                                                 | Recommended context |
 |----------------------------------|------------------------------------------------------------------------------------|---------------------|
 | SharePoint Online sensitive sites| SharePoint admin center → Sites → Site → Authentication context (per-site mapping) | c2 or c5            |
-| Purview sensitivity labels       | Purview portal → Information Protection → Labels → Auto-labeling settings          | c2                  |
+| Purview sensitivity labels       | Purview portal → Information Protection → Sensitivity labels; verify the applicable auto-labeling procedure separately | c2                  |
 | Copilot Studio sensitive flows   | Topic action → Run a Power Automate flow → flow requires CAE-aware connector       | c1, c2, c3 as appropriate |
 | Custom connectors                | Connector definition → security → enforce auth context via Graph                   | c3                  |
 | Power Automate cloud flows       | Trigger or action → Conditional Access enforcement (preview features)              | c1, c4              |
@@ -131,7 +131,7 @@ Authentication contexts only enforce when an action requests them. Work with Pow
 
 ## Step 7 — Configure Monitoring and Alerts
 
-1. Navigate to **Microsoft Entra → Monitoring → Diagnostic settings** and confirm sign-in logs (interactive, non-interactive, service principal) are streamed to Log Analytics or Sentinel.
+1. Navigate to **Microsoft Entra → Entra ID → Monitoring & health → Diagnostic settings** and confirm sign-in logs (interactive, non-interactive, service principal) are streamed to Log Analytics or Sentinel.
 2. In Sentinel or Defender XDR, create the following analytics rules (see [PowerShell Setup](powershell-setup.md) for KQL):
     - **Step-up failure spike** — `>5` failures within 10 minutes for the same user
     - **Conditional Access policy disabled** — alerts on any of the `FSI-StepUp-*` policies transitioning to `Off` or `Report-only` after enforcement

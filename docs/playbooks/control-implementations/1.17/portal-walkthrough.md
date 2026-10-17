@@ -52,7 +52,7 @@
 
 ## Step 2 — Configure Global Endpoint DLP Settings
 
-1. In **Microsoft Purview**, navigate to **Solutions** → **Data Loss Prevention** → **Endpoint DLP settings**.
+1. In **Microsoft Purview**, navigate to **Solutions** → **Data loss prevention** → **Overview** → **Data loss prevention settings** → **Endpoint settings**. Some procedures in [Microsoft's settings article](https://learn.microsoft.com/en-us/purview/dlp-configure-endpoint-settings) still use the name **Endpoint DLP settings**.
 2. Configure each settings group below before authoring policies; these are tenant-wide and apply to all Endpoint DLP policies.
 
 ### File path exclusions
@@ -158,7 +158,7 @@ Apply per-activity actions on the rule's **Audit or restrict activities on devic
 3. Click **+ Create profile**, name it `FSI-AI-DLP-Profile`, set priority appropriately (lower number = higher priority).
 4. Add **Web content filtering policies** that route traffic to unmanaged AI services through the inspection engine.
 5. Link the DLP policy created in Step 3 under **Linked policies**.
-6. Assign the security profile to user groups via **Conditional Access** policy under **Identity > Protection > Conditional Access**.
+6. Assign the security profile to user groups via **Conditional Access** policy under **Entra ID > Conditional Access**.
 7. Validate with the Global Secure Access client installed on a test device.
 
 !!! warning "Licensing dependency"

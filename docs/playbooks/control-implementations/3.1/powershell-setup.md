@@ -528,10 +528,10 @@ if (`$drift.Count) { Write-Warning "Unknown appType values seen: `$((`$drift | S
     $records = Get-Content $outFile -Raw | ConvertFrom-Json
     Write-Verbose "CopilotStudio leg returned $($records.Count) records"
 
-    # Cross-check with pac CLI for any environment that returned >=500 agents
+    # Bulk-review heuristic, not a native PPAC inventory or export limit.
     foreach ($envGroup in ($records | Group-Object EnvironmentId)) {
         if ($envGroup.Count -ge 500) {
-            Write-Warning "Environment $($envGroup.Name) returned $($envGroup.Count) records — at or above the PPAC display cap. Cross-check with 'pac copilot list --environment $($envGroup.Name)' and reconcile any deltas manually."
+            Write-Warning "Environment $($envGroup.Name) returned $($envGroup.Count) records. Reconcile this bulk collection against the complete PPAC inventory Download and source coverage; 500 is a review threshold, not a native display/export cap."
         }
     }
 

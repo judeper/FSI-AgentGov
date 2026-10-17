@@ -333,7 +333,7 @@ Output is a written report filed in the firm's compliance review repository, cro
 
 ### 7.2 Enable Lifecycle Workflows
 
-**Portal path:** Microsoft Entra admin center → **Identity Governance** → **Lifecycle Workflows**
+**Portal path:** Microsoft Entra admin center → **ID Governance** → **Lifecycle workflows**
 
 1. Sign in as Entra Identity Governance Admin.
 2. Navigate to **Lifecycle Workflows** → **Workflow settings**.

@@ -43,7 +43,7 @@ The playbook treats all three failure categories as first-class conditions. **Si
 | **Entra Application Admin** | Executes Graph-based enumeration of `/applications`, `/servicePrincipals`, `/oauth2PermissionGrants`, `/appRoleAssignments`, owners, and credentials. |
 | **Entra Identity Governance Admin** | Confirms access reviews / Lifecycle Workflows for application owners; attests the ownerless-app remediation queue. |
 | **Power Platform Admin** | Confirms PPAC and Microsoft Copilot Studio agent enumeration is complete, the publisher tenant ID is recorded, and connection / connector references map cleanly to registered service principals. |
-| **AI Administrator** | Confirms Microsoft 365 admin center → Copilot → Agents and Integrated Apps inventory is enumerated; reconciles declarative agents and partner-built agents to their underlying Entra app objects. |
+| **AI Administrator** | Confirms Microsoft 365 admin center → Agents → All agents → Registry and Integrated Apps inventory is enumerated; reconciles declarative agents and partner-built agents to their underlying Entra app objects. |
 | **Purview Compliance Admin** | Pulls UAL events for `Add application`, `Add app role assignment grant to user`, `Consent to application`, `Update application — Certificates and secrets management`, `Add owner to application`, etc.; verifies records are immutable. |
 | **Entra Global Admin** | Activated through Entra PIM, time-bound, never standing. Used only where a non-elevated role cannot complete the action. |
 | **Internal Audit** | Uses the evidence pack and three-signature chain as the testable artifact for SOX-style and FINRA-supervision walkthroughs and runs the quarterly examiner-style audit (Section 10). |
@@ -196,7 +196,7 @@ Re-verify SKU and preview availability at cycle start against current Microsoft 
 | Entra Identity Governance Admin | Access-review and Lifecycle Workflows attestation; OWN-04 ownerless-app remediation queue |
 | Entra Cloud Application Admin (where the broader Application Admin is too privileged) | Lower-privilege execution of OWN-* tasks |
 | Power Platform Admin | PPAC + Copilot Studio enumeration |
-| AI Administrator | M365 admin center → Copilot → Agents and Integrated Apps enumeration |
+| AI Administrator | M365 admin center → Agents → All agents → Registry and Integrated Apps enumeration |
 | Purview Compliance Admin | UAL searches; consent-workflow audit |
 | Entra Global Reader | Read-only attestation review |
 | Entra Global Admin | Tenant-wide irreversible operations only; activated through Entra PIM, time-bound, never standing |
@@ -352,7 +352,7 @@ This family verifies that no agent is silently missing from the registration pla
   2. Enumerate Entra Service Principals: `GET /servicePrincipals?$select=id,appId,displayName,servicePrincipalType,accountEnabled,appOwnerOrganizationId,tags,signInAudience`. Save as `surface-entra-sps.json`.
   3. Enumerate Entra Agent IDs (where preview / GA): pull the Agent ID directory listing; save as `surface-entra-agentids.json`. If unavailable, record the absence and fall back to the App + SP join as the identity anchor.
   4. Export Integrated Apps from **Microsoft 365 admin center → Settings → Integrated apps**: save as `surface-integrated-apps.csv` with capture timestamp.
-  5. Export Microsoft 365 admin center → Copilot → Agents inventory: save as `surface-m365-copilot-agents.csv`.
+  5. From Microsoft 365 admin center → Agents → All agents → Registry, use **Export to Excel**. Preserve the original export and save a CSV copy as `surface-m365-copilot-agents.csv` for reconciliation.
   6. Export Power Platform Copilot Studio agents by querying each Dataverse environment `bot` table (`GET {orgUrl}/api/data/v9.2/bots?...`): save bot rows as `surface-copilot-studio-agents.csv` and per-environment collection status as `surface-copilot-studio-status.csv`. Do **not** use `Get-AdminPowerApp` / `Get-AdminBot` row counts as bot inventory evidence.
   7. Enumerate MCP server registrations (Entra App Registrations tagged as MCP per the firm's tagging convention, or via the firm's MCP registration register): save as `surface-mcp-servers.csv`.
   8. Where available, export the Microsoft Agent 365 admin-center surface as `surface-agent365.csv`. Treat as **additive** only; absence does not FAIL this test but should be noted.

@@ -115,7 +115,7 @@ DLP policy was scoped at **security-group** level. Service principals authentica
 ### Fix
 1. Reauthor the classic DLP policy to scope at **environment** level (`Add multiple environments`) covering the regulated environment.
 2. Use **Environment Groups** (Control 2.2) so the policy applies consistently as new environments are added to the group.
-3. Audit service-principal connections quarterly: PPAC > **Data** > **Connections** > filter by `Created by = Service Principal`.
+3. Audit service-principal connections quarterly. For environment-selected connection review, use **Power Apps maker portal** (`https://make.powerapps.com`) > **Data** > **Connections**, not PPAC. Reconcile ownership against the inventory collected for that environment; [Microsoft's connection procedure](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/add-manage-connections) does not document a tenant-wide `Created by = Service Principal` filter.
 
 ---
 
@@ -132,7 +132,7 @@ The maker can still invoke a disallowed action (e.g., SharePoint **Delete file**
 ### Fix
 1. Re-publish the rule after every action-toggle change.
 2. Inspect the action tag in ACP — `Internal` and `Deprecated` actions are explicitly tagged; turn them off individually if not already.
-3. Inventory existing connections: PPAC > **Data** > **Connections**; remove or replace connections that predate the policy if they are exercising the disallowed action.
+3. Inventory existing connections in **Power Apps maker portal** > **Data** > **Connections**, with the intended environment selected; remove or replace connections that predate the policy if they are exercising the disallowed action. Do not treat a maker's visible list as a complete tenant-wide inventory.
 4. Validate via Test Scenario C in the verification playbook.
 
 ---
