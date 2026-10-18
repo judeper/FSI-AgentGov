@@ -20,7 +20,6 @@ scopes_required:
   - "SecurityIncident.ReadWrite.All  # mutation surfaces only"
   - "SecurityActions.ReadWrite.All"
   - "SecurityEvents.Read.All"
-  - "InsiderRiskManagement.Read.All"
   - "InformationProtectionPolicy.Read"
   - "eDiscovery.Read.All"
   - "eDiscovery.ReadWrite.All  # legal hold mutation only"
@@ -197,10 +196,10 @@ Two least-privilege profiles are defined — read-only investigation (most opera
 
 | Operation | Graph scopes (delegated) | Graph scopes (app-only) |
 |-----------|--------------------------|--------------------------|
-| Incident detection / read-only investigation | `SecurityIncident.Read.All`, `SecurityEvents.Read.All`, `InsiderRiskManagement.Read.All`, `AuditLog.Read.All`, `ServiceHealth.Read.All` | Same |
+| Incident detection / read-only investigation | `SecurityIncident.Read.All`, `SecurityEvents.Read.All`, `AuditLog.Read.All`, `ServiceHealth.Read.All` | Same |
 | Incident mutation (status, classification, comment) | `SecurityIncident.ReadWrite.All`, `SecurityActions.ReadWrite.All` | `SecurityIncident.ReadWrite.All` (preferred), fall back only with documented justification |
 | Legal hold (eDiscovery Premium) | `eDiscovery.Read.All` (read), `eDiscovery.ReadWrite.All` (mutation) | Same — app-only requires Compliance Admin role on the service principal |
-| IRM case helpers | `InsiderRiskManagement.Read.All` | Beta-only; verify per-tenant availability via §1.3 |
+| IRM case evidence | Manual Purview case review with the appropriate IRM role | No documented Graph case-inventory permission established; §6 remains Pending |
 | Service Health correlation | `ServiceHealth.Read.All` | Same |
 | Information Protection labels in evidence pack | `InformationProtectionPolicy.Read` | Same |
 
@@ -209,7 +208,6 @@ $Fsi34Scopes = @{
     Read     = @(
         'SecurityIncident.Read.All',
         'SecurityEvents.Read.All',
-        'InsiderRiskManagement.Read.All',
         'AuditLog.Read.All',
         'ServiceHealth.Read.All',
         'InformationProtectionPolicy.Read'
@@ -264,7 +262,7 @@ When a required cmdlet is unavailable, the calling helper emits `Status='NotAppl
 | Activity | Canonical role | PIM elevation? | Notes |
 |----------|----------------|----------------|-------|
 | Read incident inventory | Entra Global Reader + Sentinel Reader | No | Sufficient for §4 read helpers |
-| Read IRM cases | Purview Insider Risk Investigator | No | Plus `InsiderRiskManagement.Read.All` scope |
+| Read IRM cases | Purview Insider Risk Investigator | No | Manual portal evidence; no assumed Graph scope |
 | Mutate incidents (status/classify/comment) | Entra Security Admin | **Yes — PIM-bound, 4h window** | Requires `ChangeTicketId` |
 | Deploy Sentinel Logic Apps playbooks | Logic Apps Contributor + Sentinel Contributor on the workspace RG | **Yes — PIM-bound, 8h window** | Requires `ChangeTicketId` and CAB approval |
 | Suspend a Power Platform agent | Power Platform Admin | **Yes — PIM-bound, 1h window** | Mutation; cross-reference [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) workload-identity policy |
@@ -276,7 +274,7 @@ Canonical role names: **Entra Security Admin**, **Entra Global Reader**, **Purvi
 
 ### 1.5 — Preview-surface gating preflight
 
-A subset of Control 3.4 surfaces remain in **public preview** at this verification date — most notably the Graph beta `informationProtection/threatAssessmentRequests` feed used by the Service Health correlation helper, and the IRM-case-to-incident lineage join used by `Get-Fsi-IRMCase`. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Fsi34Session`. Without that switch, helpers that touch preview surfaces return `Status='NotApplicable'`, `Reason='PreviewSurfaceNotEnabled'` rather than failing or, worse, returning a synthetic clean.
+A subset of Control 3.4 surfaces are presented here as **public preview**, including the Graph beta `informationProtection/threatAssessmentRequests` feed used by the Service Health correlation helper. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Fsi34Session`. This historical preview classification was not re-verified in the scoped Control 1.12 review. **The IRM case helpers are different:** their Graph endpoint is unverified, and they always remain **Pending** regardless of preview opt-in. A preview switch does not establish a supported API.
 
 ```powershell
 function Test-Fsi34PreviewGating {
@@ -1345,7 +1343,7 @@ After deploying a Logic App, you must bind it to an automation rule that fires i
 
 ## §6 — Insider Risk Management case helpers
 
-Purview Insider Risk Management cases (cross-reference [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)) are a parallel detection plane to Defender XDR / Sentinel — they originate from policy matches against user activity rather than from network/endpoint signals — and they often produce the **first** indication that an AI agent has been misused by an internal actor (prompt-injection exfiltration, hallucinated-customer-comm exposure, runaway-agent exfil-on-stale-context). The IRM beta surface in Microsoft Graph exposes case metadata; the case-evidence helper extracts the case content and emits it to the same SHA-256 manifest format §4 produces.
+**Technical correction, 2026-10-18:** the former Graph beta IRM case endpoint and `InsiderRiskManagement.Read.All` permission were not established by current official documentation. Collect case evidence manually through Purview under the appropriate IRM role, following [Control 1.12 PowerShell Setup](../1.12/powershell-setup.md). The helper below explicitly returns **Pending** instead of calling an assumed endpoint. [Shared IRM alerts/incidents in Defender](https://learn.microsoft.com/en-us/defender-xdr/irm-investigate-alerts-defender) do not establish Graph access to Purview case inventory or content.
 
 ### 6.1 — `Get-Fsi-IRMCase`
 
@@ -1353,14 +1351,14 @@ Purview Insider Risk Management cases (cross-reference [Control 1.12](../../../c
 function Get-Fsi-IRMCase {
 <#
 .SYNOPSIS
-    Returns the structured Purview Insider Risk Management case payload via Graph beta.
+    Marks IRM case collection as requiring manual Purview evidence.
 .PARAMETER CaseId
     The IRM case GUID.
 .OUTPUTS
     [pscustomobject] @{ Status; Case; Alerts; Reason }
 .NOTES
-    Control: 3.4 (cross-reference Control 1.12). Last UI verified: April 2026. Beta surface —
-    helper returns NotApplicable where IRM Graph beta is not yet GA.
+    Control: 3.4 (cross-reference Control 1.12). Technical review: 2026-10-18.
+    No service call is made; case evidence requires manual collection and review.
 #>
     [CmdletBinding()]
     param(
@@ -1368,27 +1366,8 @@ function Get-Fsi-IRMCase {
         [Parameter(Mandatory)] $SessionContext
     )
     $meta = Get-RunMetadata -SessionContext $SessionContext -Helper 'Get-Fsi-IRMCase'
-    if (-not $SessionContext.PreviewDecision.AllowPreviewSurfaces) {
-        return [pscustomobject]@{ Status='NotApplicable'; Case=$null; Alerts=@(); Meta=$meta; Reason='PreviewSurfaceNotEnabled: pass -AllowPreviewSurfaces on Initialize-Fsi34Session.' }
-    }
-    if (-not $SessionContext.PreviewDecision.AllowPreviewSurfaces) {
-        return [pscustomobject]@{ Status='NotApplicable'; Case=$null; Alerts=@(); Meta=$meta; Reason='PreviewSurfaceNotEnabled: pass -AllowPreviewSurfaces on Initialize-Fsi34Session.' }
-    }
-    try {
-        $uri = "https://graph.microsoft.com/beta/security/cases/insiderRiskCases/$CaseId"
-        $case = Invoke-Fsi34Throttled -ScriptBlock { Invoke-MgGraphRequest -Method GET -Uri $using:uri }
-        $alertsUri = "$uri/alerts"
-        $alerts = Invoke-Fsi34Throttled -ScriptBlock { Invoke-MgGraphRequest -Method GET -Uri $using:alertsUri }
-        return [pscustomobject]@{
-            Status = 'Clean'
-            Case   = $case
-            Alerts = $alerts.value
-            Meta   = $meta
-            Reason = ''
-        }
-    } catch {
-        return [pscustomobject]@{ Status='Error'; Case=$null; Alerts=@(); Meta=$meta; Reason="IRMCaseReadException: $($_.Exception.Message)" }
-    }
+    Write-Warning "Manual IRM case evidence required for case $CaseId; Graph case inventory is not verified."
+    return [pscustomobject]@{ Status='Pending'; Case=$null; Alerts=@(); Meta=$meta; Reason='ManualVerificationRequired: collect and review Purview case evidence.' }
 }
 ```
 
@@ -1398,9 +1377,9 @@ function Get-Fsi-IRMCase {
 function Export-Fsi-IRMCaseEvidence {
 <#
 .SYNOPSIS
-    Exports IRM case content to a SHA-256-manifested local bundle.
+    Reports that manual IRM case evidence is required; no case bundle is emitted.
 .NOTES
-    Control: 3.4 (cross-reference Control 1.12). Last UI verified: April 2026.
+    Control: 3.4 (cross-reference Control 1.12). Technical correction: 2026-10-18.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
     param(
@@ -1409,19 +1388,8 @@ function Export-Fsi-IRMCaseEvidence {
         [Parameter(Mandatory)] $SessionContext
     )
     $meta = Get-RunMetadata -SessionContext $SessionContext -Helper 'Export-Fsi-IRMCaseEvidence'
-    New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
     $case = Get-Fsi-IRMCase -CaseId $CaseId -SessionContext $SessionContext
-    if ($case.Status -ne 'Clean') {
-        return [pscustomobject]@{ Status=$case.Status; OutputDir=$OutputDir; ManifestPath=''; ArtifactCount=0; Meta=$meta; Reason=$case.Reason }
-    }
-    $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
-    $jsonPath = Join-Path $OutputDir "irm-case-$CaseId-$ts.json"
-    $case | ConvertTo-Json -Depth 30 | Set-Content -Path $jsonPath -Encoding UTF8
-    $hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
-    $manifest = @{ meta=$meta; artifacts=@(@{ file=(Split-Path $jsonPath -Leaf); sha256=$hash; bytes=(Get-Item $jsonPath).Length; source='Graph/beta/insiderRiskCases'; generated_utc=$ts }) }
-    $manifestPath = Join-Path $OutputDir 'manifest.json'
-    $manifest | ConvertTo-Json -Depth 10 | Set-Content -Path $manifestPath -Encoding UTF8
-    [pscustomobject]@{ Status='Clean'; OutputDir=$OutputDir; ManifestPath=$manifestPath; ArtifactCount=1; Meta=$meta; Reason='' }
+    return [pscustomobject]@{ Status=$case.Status; OutputDir=$OutputDir; ManifestPath=''; ArtifactCount=0; Meta=$meta; Reason=$case.Reason }
 }
 ```
 
