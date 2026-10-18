@@ -959,7 +959,7 @@ After the run, copy the `evidence\1.7\` folder into the immutable container veri
 
 | Control | Why it cross-cuts 1.7 |
 |---|---|
-| [1.5 — DLP and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP policy match events surface in the same UAL; correlate `RecordType=DLP.SharePoint` etc. with `CopilotInteraction`. |
+| [1.5 — DLP and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Search the separate `ComplianceDLPSharePoint` record stream for SharePoint/OneDrive DLP events and correlate by workload, user, UTC window, policy and rule with `CopilotInteraction` evidence; do not assume one feed contains both. |
 | [1.6 — DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | Content-tier viewer for `CopilotInteraction` transcripts (§8). |
 | [1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | FINRA Rule 3110 supervisory review of AI-generated communications (§8). |
 | [1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | Legal hold and collection of Copilot transcripts via Premium eDiscovery (§8). |

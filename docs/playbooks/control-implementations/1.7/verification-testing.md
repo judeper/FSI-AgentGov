@@ -366,35 +366,52 @@ Test authoring independently: publish a sandbox agent and find `BotUpdateOperati
 **Expected:** a controlled SharePoint/OneDrive DLP override produces `DlpRuleUndo` with `ExceptionInfo.Reason = Override` and the marker in `ExceptionInfo.Justification`. Do not assume Copilot processing restrictions support override or that this file event automatically joins to `CopilotInteraction`. Dependency checked 2026-10-16 against the [DLP audit schema](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema) and [Copilot DLP](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about); documentation only, no tenant execution.
 
 ```powershell
-# Trigger: from a test account, override a supported SharePoint/OneDrive
-# policy tip using a classifier-validated synthetic file.
-# Override the tip with a deterministic marker string, e.g.:
-$marker = "FSI-1.7-DLP-override-test-$([guid]::NewGuid())"
-# (Operator action in the file experience; record marker in the test log.)
+function Get-FsiDlpOverrideEvidence {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [ValidateNotNullOrEmpty()] [string]$Marker,
+        [Parameter(Mandatory)] [datetimeoffset]$TriggeredAtUtc,
+        [Parameter(Mandatory)] [datetimeoffset]$ObservationDeadlineUtc,
+        [datetimeoffset]$AsOfUtc = [datetimeoffset]::UtcNow
+    )
 
-Start-Sleep -Seconds 5400   # local observation point, not a maximum ingestion SLA
-
-$dlpRows = Search-AuditLogPaged `
-    -StartDate (Get-Date).AddHours(-3) -EndDate (Get-Date) `
-    -RecordTypes @('ComplianceDLPSharePoint') `
-    | Where-Object {
-        $event = $_.AuditData | ConvertFrom-Json
-        $event.Operation -eq 'DlpRuleUndo' -and
-        $event.ExceptionInfo.Reason -eq 'Override' -and
-        $event.ExceptionInfo.Justification -eq $marker
+    if ($ObservationDeadlineUtc -le $TriggeredAtUtc -or $AsOfUtc -lt $TriggeredAtUtc) {
+        throw 'Use the confirmed trigger time and a later, firm-approved observation deadline.'
     }
+    $rows = @(Search-AuditLogPaged `
+        -StartDate $TriggeredAtUtc.UtcDateTime -EndDate $AsOfUtc.UtcDateTime `
+        -RecordTypes @('ComplianceDLPSharePoint') -ErrorAction Stop)
+    $dlpRows = @(foreach ($row in $rows) {
+        $event = $row.AuditData | ConvertFrom-Json -ErrorAction Stop
+        if ($event.Operation -ne 'DlpRuleUndo') { continue }
+        $exception = $event.ExceptionInfo
+        if ($exception -is [string]) {
+            $exception = $exception | ConvertFrom-Json -ErrorAction Stop
+        }
+        if ($null -eq $exception) { continue }
+        if ($exception.Reason -eq 'Override' -and $exception.Justification -eq $Marker) {
+            $row
+        }
+    })
 
-$cap06 = [pscustomobject]@{
-    testId          = 'CAP-06'
-    collectorField  = 'audit.dlp.overrideJustificationCaptured'
-    marker          = $marker
-    rowsFound       = $dlpRows.Count
-    status          = if ($dlpRows.Count -gt 0) { 'PASS' } else { 'PENDING' }
-    capturedAtUtc   = (Get-Date).ToUniversalTime().ToString('o')
+    [pscustomobject]@{
+        testId          = 'CAP-06'
+        collectorField  = 'audit.dlp.overrideJustificationCaptured'
+        marker          = $Marker
+        triggeredAtUtc  = $TriggeredAtUtc.UtcDateTime.ToString('o')
+        deadlineUtc     = $ObservationDeadlineUtc.UtcDateTime.ToString('o')
+        rowsFound       = $dlpRows.Count
+        status          = if ($dlpRows.Count -gt 0) { 'PASS' }
+                          elseif ($AsOfUtc -ge $ObservationDeadlineUtc) { 'FAIL' }
+                          else { 'PENDING' }
+        capturedAtUtc   = $AsOfUtc.UtcDateTime.ToString('o')
+    }
 }
-$cap06 | Save-AuditEvidence -Name 'CAP-06_DLPOverrideJustification'
-$cap06
 ```
+
+Before the controlled override, choose a unique marker. Retain that exact justification, the confirmed trigger UTC, the file/policy/user identifiers, and a **firm-approved observation deadline** in the test record. Invoke `Get-FsiDlpOverrideEvidence` with those retained values on every run, then pass its result to `Save-AuditEvidence -Name 'CAP-06_DLPOverrideJustification'`. Never generate a replacement marker or move the deadline when rechecking the same event.
+
+The audit schema declares `ExceptionInfo` as a serialized string; decode it after `AuditData` (the helper also accepts an already-decoded object). Query/parse errors must halt collection as **Error**, not count as negative evidence. The paged collector must complete the full retained window; split windows beyond its documented query limit. Before the local deadline an absent event is `PENDING`; at/after it, absence is `FAIL` and requires investigation. This deadline is an organizational escalation threshold, **not** a Microsoft ingestion SLA. Also apply Control 1.5's two-consecutive-run escalation; a failed/unknown trigger must be investigated rather than certified as a missing emitted event.
 
 #### CAP-07 — `MailItemsAccessed` firing for regulated mailboxes (Audit Premium)
 

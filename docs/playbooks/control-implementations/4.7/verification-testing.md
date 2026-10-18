@@ -262,9 +262,9 @@ Each test uses the 7-field format: **Test ID** / **Trigger** / **Steps** / **Exp
 
 - **Test ID:** DLP-02
 - **Trigger:** Weekly
-- **Steps:** (1) Pull the prior 7 days of `DlpRuleMatch` events for Copilot location. (2) Cross-reference against the user-submitted false-positive override events (where users invoked override-with-business-justification). (3) Compute false-positive ratio per rule. (4) Compare against PRE-04 baseline plus 2-sigma; rules outside band are candidates for tuning. Tuning changes flow through normal change-control (PRE-06).
+- **Steps:** (1) Pull complete prior-7-day Copilot-location DLP match evidence. (2) Cross-reference with separately submitted and reviewed false-positive reports; do not assume Copilot processing restrictions expose a native override-with-justification action. (3) Compute the adjudicated false-positive ratio per rule. (4) Compare against PRE-04 baseline plus 2-sigma; rules outside band are candidates for tuning. Tuning changes flow through normal change-control (PRE-06).
 - **Expected:** Per-rule false-positive ratio inside PRE-04 baseline plus 2-sigma; any rule outside band has an open tuning ticket.
-- **Evidence:** `dlp-02-fp-ratio.json` with `{ruleId, fireCount, overrideCount, fpRatio, baselineRatio, baselineSigma, ticketRef}`.
+- **Evidence:** `dlp-02-fp-ratio.json` with `{ruleId, fireCount, reviewedReportCount, confirmedFalsePositiveCount, fpRatio, baselineRatio, baselineSigma, ticketRef}`.
 - **Failure mode:** Untuned rules generate alert fatigue; users normalise overrides; legitimate matches are dismissed alongside false positives.
 - **Owner:** DLP Engineering Lead.
 
@@ -272,7 +272,7 @@ Each test uses the 7-field format: **Test ID** / **Trigger** / **Steps** / **Exp
 
 - **Test ID:** DLP-03
 - **Trigger:** Monthly; sample drawn quarterly for compliance review
-- **Steps:** (1) Pull the prior month's user overrides on Copilot DLP rules. (2) Stratify by user, by rule, and by data classification of the matched prompt. (3) Sample 50 overrides; reviewer reads the user-supplied justification and rates legitimacy on a 3-point scale (legitimate / questionable / improper). (4) Aggregate verdict; questionable and improper drive user coaching; improper drives potential FINRA 3110 finding.
+- **Steps:** (1) For the prior month, inventory the actual override-capable workload rules and separately approved Copilot exception requests. Copilot processing restrictions do not imply a native override action. For supported SharePoint/OneDrive overrides, query `DlpRuleUndo`, decode `AuditData` and string-valued `ExceptionInfo`, and retain the workload/event identity. (2) Stratify the applicable records by user, rule and classification. (3) Sample 50 records where available; reviewer reads the justification and rates legitimacy on a 3-point scale (legitimate / questionable / improper). (4) Aggregate verdict; questionable and improper drive user coaching; improper drives potential FINRA 3110 finding. If the workload offers no overrides, record `NotApplicable` for native override sampling rather than passing a zero-row sample.
 - **Expected:** Less than 5 percent improper overrides; less than 15 percent questionable; per-user override count inside PRE-04 baseline plus 2-sigma.
 - **Evidence:** `dlp-03-overrides.json` with `{eventId, user, ruleId, justification, classification, verdict, action}`.
 - **Failure mode:** Override pattern reveals systemic policy gap or training need; left undetected, becomes a supervisory finding.

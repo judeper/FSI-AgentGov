@@ -55,12 +55,12 @@
 2. Attempt to add a file knowledge source with an unsupported format (e.g., `.exe`, `.zip`, `.mp4`)
 3. **EXPECTED:** Copilot Studio rejects the upload with an unsupported-format message. Supported knowledge formats per Microsoft Learn (April 2026): `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, `.html`, `.json`, `.yaml`, and selected others (executable/audio/video formats are not supported).
 
-### Test 8: Verify DLP Policy Generating Alerts (Zone 2+)
+### Test 8: Verify the Actual Enforcement and Telemetry Path (Zone 2+)
 
-1. Navigate to Microsoft Purview portal → **Data Loss Prevention** → **Activity explorer**
-2. Filter for Power Platform file upload events
-3. Verify DLP policy matches are logged for blocked file type attempts
-4. **EXPECTED:** DLP alerts are generated when users attempt to upload restricted file types in Zone 2 and Zone 3 environments
+1. Record the environment/agent upload path and observe its blocked-file response directly.
+2. Identify which product emits telemetry for that path. A PPAC extension/MIME rejection is not automatically a Purview DLP policy match.
+3. Separately test any supported Purview content-inspection workload with classifier-validated synthetic content; correlate its configured match/alert evidence to a unique marker and UTC time.
+4. **EXPECTED:** Rejection evidence identifies the actual boundary. Content-inspection evidence identifies its separate supported workload; an unsupported agent-upload inspection path remains a documented gap, not a passing DLP test.
 
 ### Test 9: Verify Sentinel Queries Returning Data (Zone 3)
 
@@ -81,7 +81,7 @@
 | TC-1.25-04 | Blocked file upload rejected at PPAC boundary | Upload of `.exe` file returns error | |
 | TC-1.25-05 | Per-agent File Upload toggle documented | Screenshot evidence captured per production agent | |
 | TC-1.25-06 | Per-agent allowed file types follow least-privilege | Allowed list ⊆ environment allowlist; each entry justified | |
-| TC-1.25-07 | DLP alert on blocked upload (Zone 2+) | DLP policy match logged in Activity explorer | |
+| TC-1.25-07 | Upload enforcement and telemetry boundaries (Zone 2+) | Actual rejection evidenced; separate supported DLP test and unsupported-path gaps recorded | |
 | TC-1.25-08 | Defender for Cloud Apps magic-byte detection (Zone 3) | Renamed `.exe`-as-`.pdf` quarantined and alerted | |
 | TC-1.25-09 | Copilot Studio knowledge-source rejection of unsupported format | Upload of `.exe`/`.zip`/`.mp4` rejected by Copilot Studio | |
 | TC-1.25-10 | Sentinel data for blocked uploads (Zone 3) | KQL query returns blocked upload events | |
@@ -99,7 +99,7 @@
 - [ ] Screenshot: Copilot Studio per-agent **File Upload** toggle state (per production agent, Zone 2/3)
 - [ ] Screenshot: Copilot Studio per-agent **Allowed file types** list with documented business justification
 - [ ] Screenshot: Defender for Cloud Apps file policy showing **Enabled** state and quarantine action (Zone 3)
-- [ ] Screenshot: DLP Activity explorer showing blocked upload event (Zone 2+)
+- [ ] Actual upload-rejection evidence plus separate supported-workload DLP telemetry and direct-upload gap disposition (Zone 2+)
 - [ ] Export: `Test-FsiMimeCompliance` JSON output per environment with SHA-256 evidence hash
 - [ ] Export: Sentinel query results for blocked uploads (Zone 3)
 - [ ] Export: Environment MIME configuration report (`Get-FsiMimeConfig` JSON output)
@@ -127,7 +127,7 @@ I attest that:
    - Allowed MIME types allowlist configured for Zone 3: [Yes/No]
 3. File upload restrictions were tested and validated:
    - Blocked file types are rejected on upload: [Yes/No]
-   - DLP policies are generating alerts for Zone 2+: [Yes/No]
+   - Supported-workload DLP enforcement and configured alerts tested separately from MIME rejection; unsupported direct-upload inspection gaps recorded: [Yes/No]
 4. Compliance validation was run using Test-FsiMimeCompliance:
    - Environments compliant: [Count] of [Total]
    - Environments with findings: [Count]

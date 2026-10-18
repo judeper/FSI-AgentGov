@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
+- **Control 1.5 technical re-verification (#823).** Corrected DLP licensing, policy/control-plane boundaries, supported classifiers/actions, propagation and evidence procedures against live Microsoft Learn. Propagated connected-app and response-label boundaries to dependent playbooks. CAP-06 now retains the original override marker/window, decodes serialized exception data, and escalates overdue absence; the audit wrapper emits and verifies actual evidence hashes/manifests. Documentation and offline tests only; no tenant/UI execution or regulatory reinterpretation.
 - **Control 1.10 documentation re-verification (#821).** Rechecked Communication Compliance product claims against live Microsoft Learn on 2026-10-16. Corrected detection/processing/audit timing, non-M365 AI billing scope, classifier test assumptions, privacy/preservation evidence, role boundaries, and dependent review/evidence procedures. This was documentation-only verification; no live tenant or UI tests were executed.
 
 ### Added

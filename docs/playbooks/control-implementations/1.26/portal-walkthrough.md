@@ -96,7 +96,7 @@
 4. Confirm the response displays a shield icon showing the **Highly Confidential** label (the highest label among cited content in that response)
 5. Capture screenshot evidence of the response-level label shield and store under `maintainers-local/tenant-evidence/1.26/` (gitignored)
 
-> **Caveat:** The documented behavior is per-response shield display of the highest label among content **cited in that response** — not an agent-level inherited property. If the shield does not appear, verify Purview auto-labeling policies cover the Dataverse environment (the label must be present on the source file at the time of upload). See the [Troubleshooting](troubleshooting.md) playbook.
+> **Caveat:** The documented behavior is per-response shield display of the highest label among content **cited in that response** — not an agent-level inherited property. If the shield does not appear, verify the source file's label and supported source/response behavior; do not assume Dataverse is a Purview auto-labeling policy location. See the [Troubleshooting](troubleshooting.md) playbook.
 
 ### Step 7: Verify DLP Policy Coverage (Zone 2+)
 
@@ -107,7 +107,7 @@
 
 ### Step 8: Configure Defender for Cloud Apps Content Scanning (Zone 3)
 
-> **Required for Zone 3.** PPAC and per-agent allowlists inspect declared file extensions and MIME headers; magic-byte (true content type) inspection requires Defender for Cloud Apps. See Control 1.25 portal walkthrough Step 7 for the parallel environment-level pattern; this step targets files associated with the agent's Dataverse environment.
+> **Required for Zone 3.** Validate true-content-type inspection separately from declared extension/MIME settings. The connected-app pattern in Control 1.25 Step 7 applies only to supported repositories, not assumed Dataverse coverage or interception of direct agent uploads. Record an unsupported inspection path as a coverage gap with an approved compensating control; do not mark it protected based on an unrelated file policy.
 
 1. Open [Microsoft Defender XDR portal](https://security.microsoft.com) → **Cloud apps** → **Policies** → **Policy management** → **File policy**
 2. Select a supported connected app that actually stores the files being tested. Do not assume Dataverse / Power Platform is a Defender for Cloud Apps file-policy location.

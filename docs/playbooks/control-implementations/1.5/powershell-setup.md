@@ -135,11 +135,11 @@ function Initialize-FsiDlpSession {
 
 | # | Helper | Purpose | Returns `Status` |
 |---|---|---|---|
-| 1 | `Get-FsiDlpCoverage` (§4) | Inventory supported Purview location properties; separately review other planes | `Pending` if locations present; otherwise `Anomaly`; never enforcement proof |
+| 1 | `Get-FsiDlpCoverage` (§4) | Inventory supported Purview location properties; separately review other planes | `Pending`; inventory gaps alone are not enforcement findings |
 | 2 | `Get-FsiCopilotDlpPolicies` (§5) | Export Copilot policies/rules for manual condition/action review | `Pending`; inventory is not enforcement proof |
 | 3 | `Test-FsiPolicyTipOverrideSettings` (§6) | Inspect explicitly selected override-capable policies; then test capture | `Pending` / `Anomaly`; excludes Copilot processing restrictions |
 | 4 | `Get-FsiSensitivityLabelInventory` (§7) | Export labels and label policies from IPPS for assignment/client review | `Pending`; inventory is not publication proof |
-| 5 | `Get-FsiAdaptiveProtectionStatus` (§10) | Detect Adaptive Protection rollout state | `Clean` / `NotApplicable` / `Pending` |
+| 5 | `Get-FsiAdaptiveProtectionStatus` (§10) | Record the need for portal validation of Adaptive Protection | `Pending`; does not verify rollout or rule scope |
 
 Auxiliary (non-status-bearing) utilities introduced inline: `ConvertTo-FsiUiLabel` (§9), `Get-FsiDlpAuditEvents` (§11), `Invoke-FsiControl15Audit` (§13).
 
@@ -149,7 +149,7 @@ Auxiliary (non-status-bearing) utilities introduced inline: `ConvertTo-FsiUiLabe
 
 The 13 enforcement surfaces tracked by Control 1.5 (the on-prem AIP scanner is recognised in the control doc but is portal-only and out of PS scope):
 
-1. SharePoint sites · 2. OneDrive accounts · 3. Exchange email · 4. Teams chat & channel · 5. Devices (Endpoint DLP) · 6. Copilot — block by sensitivity label (GA) · 7. Copilot — block by SIT (preview) · 8. Power Platform connector classification · 9. Power Platform HTTP endpoint filtering (preview) · 10. Edge for Business unmanaged AI (preview) · 11. Network DLP for unmanaged AI (preview, portal-only) · 12. Defender for Cloud Apps · 13. Power BI / Fabric workspaces.
+1. SharePoint sites · 2. OneDrive accounts · 3. Exchange email · 4. Teams chat & channel · 5. Devices (Endpoint DLP) · 6. Copilot — block by sensitivity label (GA) · 7. Copilot — block by SIT (preview) · 8. Power Platform connector classification · 9. Power Platform HTTP endpoint filtering (preview) · 10. Edge for Business unmanaged AI · 11. Network data security for unmanaged AI (portal evidence) · 12. Defender for Cloud Apps · 13. Power BI / Fabric workspaces. Check preview status per subfeature, not for the entire browser/network plane.
 
 **Cmdlet inventory (Purview plane).** `Get-DlpCompliancePolicy`, `Get-DlpComplianceRule`, `New-DlpCompliancePolicy`, `Set-DlpCompliancePolicy`, `New-DlpComplianceRule`, `Set-DlpComplianceRule`, `Remove-DlpCompliancePolicy`. Note: DLP policies use the **`Mode`** parameter (`Enable | TestWithNotifications | TestWithoutNotifications | Disable | PendingDeletion`) — there is no `Enabled` Boolean.
 
@@ -499,14 +499,16 @@ For the Sentinel forwarding pipeline (M365 connector, custom log table, KQL dete
 | 7 | Copilot — block by SIT (preview) | Configuration inventory | `Get-FsiCopilotDlpPolicies` | Preview; verify Processing prompts action and tenant rollout |
 | 8 | Power Platform connector classification | Configuration inventory (PS 5.1) | `Get-FsiPowerPlatformDlpInventory` | Compare module return shape/default connector gaps with portal |
 | 9 | Power Platform HTTP endpoint filtering (preview) | Configuration inventory (PS 5.1) | `Get-PowerAppDlpPolicyConnectorConfigurations` | Static designer-known endpoints only; dynamic endpoints and HTTP with Entra ID Get web resource are excluded |
-| 10 | Edge for Business unmanaged AI (preview) | Partial | `Get-DlpCompliancePolicy` (when surfaced) | Preview; portal evidence required |
-| 11 | Network DLP for unmanaged AI (preview) | **None** | n/a | Portal-only; capture screenshot evidence |
+| 10 | Edge for Business unmanaged AI | Partial | `Get-DlpCompliancePolicy` (when surfaced) | Verify current subfeature availability and capture portal/enforcement evidence |
+| 11 | Network data security for unmanaged AI | **None** | n/a | Capture integration-specific portal/enforcement evidence; check preview status per subfeature |
 | 12 | Defender for Cloud Apps legacy file policies | Portal review | Defender Cloud Apps policy management | File policies retire January 6, 2027; plan migration to Purview |
 | 13 | Power BI / Fabric workspaces | Configuration inventory | `.PowerBIDlpLocation` | Verify supported capacity, item, classifier and match separately |
 
 ---
 
 ## §13 — Wrapper orchestration with transcript & evidence manifest
+
+Load the canonical `Write-FsiEvidence` from the [shared baseline §4](../../_shared/powershell-baseline.md) in a **versioned module** before invoking this example; its `script_version` field depends on `MyInvocation.MyCommand.Module.Version`. A missing or broken writer is an error, not permission to omit integrity evidence. Use a new output directory for each run. Local hashes prove integrity only; separately validate the archive's required retention/immutability configuration.
 
 ```powershell
 function Invoke-FsiControl15Audit {
@@ -518,8 +520,18 @@ function Invoke-FsiControl15Audit {
         [string]$EvidencePath = (Join-Path $PWD ('control-15-' + (Get-Date -Format 'yyyyMMdd-HHmmss')))
     )
 
-    New-Item -ItemType Directory -Path $EvidencePath -Force | Out-Null
-    Start-Transcript -Path (Join-Path $EvidencePath 'transcript.log') -Append | Out-Null
+    $ErrorActionPreference = 'Stop'
+    $writer = Get-Command Write-FsiEvidence -CommandType Function -ErrorAction Stop
+    if ($null -eq $writer.Module -or $null -eq $writer.Module.Version) {
+        throw 'Load the shared-baseline Write-FsiEvidence in a versioned module.'
+    }
+    if (Test-Path -LiteralPath $EvidencePath) {
+        throw 'Choose a new evidence directory; do not mix or overwrite audit runs.'
+    }
+    New-Item -ItemType Directory -Path $EvidencePath | Out-Null
+    $EvidencePath = (Resolve-Path -LiteralPath $EvidencePath).Path
+    $artifactPaths = @()
+    Start-Transcript -Path (Join-Path $EvidencePath 'transcript.log') | Out-Null
 
     try {
         $session = Initialize-FsiDlpSession -Cloud $Cloud -TenantId $TenantId -UserPrincipalName $UserPrincipalName
@@ -542,20 +554,44 @@ function Invoke-FsiControl15Audit {
         }
 
         foreach ($k in $results.Keys) {
-            $results[$k] | ConvertTo-Json -Depth 8 | Out-File (Join-Path $EvidencePath "$k.json") -Encoding UTF8
+            $artifactPaths += Write-FsiEvidence -Object $results[$k] -Name $k -EvidencePath $EvidencePath
         }
 
-        # Hash + manifest (baseline-conformant)
-        # Load and invoke the shared-baseline Write-FsiEvidence helper using its
-        # documented parameters for each artifact; no directory-signing API is assumed.
-
-        $rollup = $results.GetEnumerator() | ForEach-Object {
-            [pscustomobject]@{ Section = $_.Key; Status = ($_.Value | Select-Object -First 1 -ExpandProperty Status -ErrorAction SilentlyContinue) }
-        }
-        $rollup
+        $rollup = @($results.GetEnumerator() | ForEach-Object {
+            [pscustomobject]@{ Section = $_.Key; Status = $_.Value.Status }
+        })
+        $rollup | Format-Table -AutoSize | Out-String |
+            Set-Content -LiteralPath (Join-Path $EvidencePath 'summary.txt') -Encoding UTF8
     } finally {
         Stop-Transcript | Out-Null
     }
+
+    $manifestPath = Join-Path $EvidencePath 'manifest.json'
+    $manifest = @(Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json)
+    foreach ($name in @('summary.txt', 'transcript.log')) {
+        $path = Join-Path $EvidencePath $name
+        $artifactPaths += $path
+        $manifest += [pscustomobject]@{
+            file = $name
+            sha256 = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+            bytes = (Get-Item -LiteralPath $path).Length
+            generated_utc = [datetime]::UtcNow.ToString('o')
+            script_version = $writer.Module.Version.ToString()
+        }
+    }
+    $manifest | ConvertTo-Json -Depth 5 |
+        Set-Content -LiteralPath $manifestPath -Encoding UTF8
+    $verified = @(Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json)
+    if ($verified.Count -ne $artifactPaths.Count) { throw 'Evidence manifest count mismatch.' }
+    foreach ($path in $artifactPaths) {
+        $entry = @($verified | Where-Object { $_.file -eq (Split-Path $path -Leaf) })
+        if ($entry.Count -ne 1 -or
+            $entry[0].sha256 -ne (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -or
+            $entry[0].bytes -ne (Get-Item -LiteralPath $path).Length) {
+            throw "Missing or invalid evidence manifest entry: $path"
+        }
+    }
+    $rollup
 }
 ```
 
@@ -574,7 +610,7 @@ function Invoke-FsiControl15Audit {
 | Treating `Mode = 'Disable'` policies as active | They emit no enforcement | Filter on `Mode -eq 'Enable'` (§4) |
 | Running Power Apps Admin cmdlets from `pwsh` 7.x | Cmdlets are Desktop-only; silently no-op or error | `Assert-FsiDesktopPowerShell` (§1) |
 
-**Cross-references.** [1.6 DSPM for AI](../1.6/portal-walkthrough.md) consumes label + SIT signals from this control. [1.10 Communication Compliance](../1.10/portal-walkthrough.md) and [2.12 Supervision](../2.12/portal-walkthrough.md) consume DLP-rule-match signals to drive reviewer queues. [1.12 IRM](../1.12/portal-walkthrough.md) and [1.15 DKE/encryption](../1.15/portal-walkthrough.md) provide the rights-management substrate for label-based blocking. [1.13 SITs/EDM](../1.13/portal-walkthrough.md) owns classifier authoring. [3.4 Incident reporting](../3.4/portal-walkthrough.md) and [3.9 Sentinel forwarding](../3.9/portal-walkthrough.md) own downstream telemetry.
+**Cross-references.** [1.6 DSPM for AI](../1.6/portal-walkthrough.md) consumes label + SIT signals from this control. [1.10 Communication Compliance](../1.10/portal-walkthrough.md) evaluates scoped communications; it does not automatically create a review item from a DLP override. Independently configure and test the firm's event-to-review integration under [2.12 Supervision](../2.12/portal-walkthrough.md). [1.12 IRM](../1.12/portal-walkthrough.md) and [1.15 DKE/encryption](../1.15/portal-walkthrough.md) provide the rights-management substrate for label-based blocking. [1.13 SITs/EDM](../1.13/portal-walkthrough.md) owns classifier authoring. [3.4 Incident reporting](../3.4/portal-walkthrough.md) and [3.9 Sentinel forwarding](../3.9/portal-walkthrough.md) own downstream telemetry.
 
 ---
 

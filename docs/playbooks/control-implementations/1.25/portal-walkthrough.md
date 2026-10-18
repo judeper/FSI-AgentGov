@@ -106,7 +106,7 @@
 
 Use this legacy procedure only for a supported connected app before retirement; validate the replacement's actual file-type conditions and governance actions rather than assuming one-to-one migration.
 
-> **Required for Zone 3.** PPAC and per-agent settings inspect the *declared* file extension and MIME header. A file renamed `invoice.pdf` whose magic bytes are `MZ` (Windows executable) will pass PPAC checks. Defender for Cloud Apps (formerly MCAS) provides the true-content-type inspection layer.
+> **Required for Zone 3.** Validate true-content-type inspection separately from declared extension/MIME settings; an allowlisted name/header is not proof of safe content. Defender for Cloud Apps file policies can inspect supported connected-app repositories, not arbitrary direct agent uploads. Record any unsupported upload-path inspection gap and an approved compensating control; this step does not establish universal interception.
 
 1. Open [Microsoft Defender XDR portal](https://security.microsoft.com) → **Cloud apps** → **Policies** → **Policy management** → **File policy**
 2. **Create policy** → **File policy**

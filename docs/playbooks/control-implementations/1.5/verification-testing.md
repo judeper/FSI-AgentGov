@@ -6,7 +6,7 @@
 | **Pillar** | Pillar 1 — Security |
 | **Audience** | Purview Compliance Admin · Purview DLP Admin · Power Platform Admin · Defender Admin · Sentinel Engineer · FINRA-registered Supervisor · Internal Audit · External Examiner |
 | **Cloud** | Commercial (Global) |
-| **Last Verified:** | 2026-10-16 — Microsoft Learn documentation review; no tenant execution or UI/screenshot verification |
+| **Last Verified:** | 2026-10-18 — Microsoft Learn documentation review; no tenant execution or UI/screenshot verification |
 | **Last UI verified** | Historical April 2026 entry; not reverified in this review |
 | **Verifier output contract** | `[pscustomobject]` with `TestId`, `Status ∈ {Clean, Anomaly, Pending, NotApplicable, Error}`, `Evidence`, `Notes`, `TimestampUtc` |
 
@@ -381,18 +381,18 @@ Document (do not test) the known unsupported scenarios per the Control 1.5 spec:
 
 **Procedure.**
 1. Configure a low-risk test rule with policy-tip override allowed and required justification.
-2. Test user triggers a synthetic match (T-SYNTH-01 variant) and overrides with justification text.
+2. Test user triggers a synthetic match (T-SYNTH-01 variant) and overrides with a unique justification marker. Retain the confirmed trigger UTC, marker, user/file/policy identifiers, and firm-approved observation deadline unchanged across reruns; see [Control 1.7 CAP-06](../1.7/verification-testing.md#cap-06-dlp-override-justification-reaches-audit-control-15-cross-link).
 3. After allowing for audit ingestion and the firm's integration latency, verify:
-   - For SharePoint/OneDrive overrides, UAL has a `DlpRuleUndo` event with `ExceptionInfo.Reason = Override` and non-empty `ExceptionInfo.Justification`.
+   - For SharePoint/OneDrive overrides, UAL has a `DlpRuleUndo` event with `ExceptionInfo.Reason = Override` and the retained marker in `ExceptionInfo.Justification`. Decode `AuditData`, then deserialize `ExceptionInfo` when it is a JSON string; do not assume it is already a nested object.
    - The configured Sentinel ingestion path contains that same event. Do not assume the Office 365 connector imports the separate `DLP.All` feed into `OfficeActivity`.
    - The firm's explicitly configured supervisor workflow (per Control 2.12) shows a queued review item linking to the event; Communication Compliance is not an automatic DLP override queue.
 4. Capture screenshots / API responses as evidence.
 
-**Status.** Any broken link in the chain → `Anomaly`. `Pending` if within UAL ingestion lag.
+**Status.** Any broken link in the chain → `Anomaly`. Absence before the retained observation deadline is `Pending`; at/after that deadline it is `Anomaly`, not perpetually `Pending`. Also apply the two-consecutive-run escalation in Section 6. A failed query, incomplete query window, malformed payload, or unconfirmed trigger is `Error` requiring investigation, not evidence that a known emitted event was lost. These are local escalation rules, not a Microsoft ingestion SLA.
 
 #### T-OVERRIDE-02 — Override telemetry sweep
 
-For a SharePoint/OneDrive override, use `Search-UnifiedAuditLog -StartDate <start-utc> -EndDate <end-utc> -RecordType ComplianceDLPSharePoint -Operations DlpRuleUndo -ResultSize 5000`, parse `AuditData`, and inspect `ExceptionInfo`. `-RecordType` accepts one value, not a comma-separated list. Search other workload-specific override schemas separately; use paging/time slices for result completeness, not a single 5,000-row count. See [cmdlet reference](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) and [DLP schema](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema). Spot-check 5 randomly-sampled override events for justification text quality. Empty / boilerplate justifications → `Anomaly` and route to supervisor.
+For a SharePoint/OneDrive override, use `Search-UnifiedAuditLog -StartDate <start-utc> -EndDate <end-utc> -RecordType ComplianceDLPSharePoint -Operations DlpRuleUndo -ResultSize 5000`, parse `AuditData`, deserialize `ExceptionInfo` if it is a JSON string, and inspect its reason/justification. `-RecordType` accepts one value, not a comma-separated list. Search other workload-specific override schemas separately; use paging/time slices for result completeness, not a single 5,000-row count. See [cmdlet reference](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) and [DLP schema](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema). Spot-check 5 randomly-sampled override events for justification text quality. Empty / boilerplate justifications → `Anomaly` and route to supervisor.
 
 ---
 

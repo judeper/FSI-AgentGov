@@ -117,17 +117,17 @@ This is documented Microsoft platform behaviour, not a configuration error.
 
 ## Symptom: Sensitivity Labels Not Displayed in Agent Responses for Uploaded Knowledge Files
 
-### Cause: Auto-labeling policy does not cover the Dataverse location
+### Cause: Source or response path is not supported by the label-display feature
 
-1. Open *Microsoft Purview → Information Protection → Auto-labeling policies*
-2. Confirm a policy is in scope that covers the Dataverse environment where the agent's knowledge files are stored
-3. If the Dataverse location is not enumerated, create or update the policy and allow up to **24 hours** for propagation
+1. Check the current [sensitivity-label response documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio) for the supported source and agent configuration.
+2. Verify the label on content in that supported source and confirm the response actually cites it. A runtime attachment or Dataverse-stored upload is not proof of supported label propagation.
+3. Do not create a Purview auto-labeling policy with an assumed Dataverse location. Test labeling in a supported repository separately from the response shield.
 
-### Cause: Source file was not labeled before upload
+### Cause: Source content is unlabeled or is not cited
 
-1. Sensitivity label display in responses relies on labels already present on the file at the time of upload
-2. Open the source location and confirm the file carries an explicit sensitivity label
-3. For runtime-uploaded files, encourage end users to apply labels in the originating application before upload
+1. Inspect the source item's current sensitivity label and the response citations.
+2. Confirm the source is available to the test user and agent through the documented supported knowledge path.
+3. Retest with labeled synthetic content in that path; record an unsupported upload path as a coverage gap rather than an inherited agent label.
 
 ### Cause: Sensitivity labels not published to relevant users
 
@@ -135,7 +135,7 @@ This is documented Microsoft platform behaviour, not a configuration error.
 2. Confirm the labels are published to the user(s) uploading the files
 3. Users without label policies will upload unlabeled files even when labels exist in the tenant
 
-**Portal path:** *Microsoft Purview → Information Protection → Auto-labeling policies → \[Policy\] → Locations*
+**Evidence path:** Source-item label evidence plus the Copilot Studio response and its citations; inspect label publication separately in Microsoft Purview.
 
 > **Note (preview feature):** Sensitivity label display in agent responses is a preview feature per Microsoft Learn. The documented behaviour is a per-response shield displaying the highest label of cited content — not an agent-level inherited property. Verify current GA status at [View sensitivity labels in agent responses](https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio) before relying on this for Regulated-zone attestation.
 
@@ -143,15 +143,11 @@ This is documented Microsoft platform behaviour, not a configuration error.
 
 ## Symptom: DLP Policy Not Triggering on Uploaded Content
 
-### Cause: DLP policy not in Enforce mode
+### Cause: Wrong enforcement plane or unsupported upload path
 
-1. Open *Microsoft Purview → Data Loss Prevention → Policies → \[Policy\]*
-2. Confirm the policy is **Enforce** (not **Test** or **Off**)
-
-### Cause: Policy scope excludes the agent's environment
-
-1. Open the policy and confirm the **Power Platform** location is included
-2. Confirm the environment is not excluded by environment-group filter
+1. Identify the actual workload and policy. Power Platform data policies govern connectors and supported agent capabilities; they are not a universal Purview SIT scanner for runtime files.
+2. For a supported Purview repository/workload, verify that policy's location, conditions, enforcement mode, and configured alert behavior.
+3. Test that repository separately from the agent's direct-upload path. If the latter has no documented content-inspection control, retain the default-deny upload decision or obtain an approved compensating control; do not mark the gap as passing.
 
 ### Cause: Sensitive Information Type (SIT) does not match the test data
 
@@ -160,9 +156,9 @@ This is documented Microsoft platform behaviour, not a configuration error.
 
 ### Cause: Reporting latency
 
-1. DLP Activity Explorer can lag by several hours
-2. Wait up to **24 hours** before declaring a failure
-3. Check Microsoft Sentinel mirror tables (if configured) for faster signal
+1. Record the workload-specific telemetry source, test marker, UTC action time, and a firm-defined observation deadline.
+2. Search the complete retained window and preserve query errors. Before the deadline, missing evidence is pending; at the deadline, unresolved evidence fails the test and requires escalation.
+3. A Sentinel mirror may be queried if configured, but is not assumed faster or a substitute for proving enforcement on the actual upload path.
 
 ---
 
@@ -251,7 +247,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 | File Upload toggle is per-agent (no bulk UI) | Each agent must be configured individually in the portal | Use the PowerShell mutation script (Script 3) for bulk operations |
 | Microsoft platform file size limits cannot be lowered per agent in the portal | Maker-uploaded knowledge files can be up to 512 MB | Validate an actual supported enforcement point; a legacy connected-app file policy is not a universal per-agent upload-size control. |
 | Dataverse environment settings are largely tenant-managed | Environment-level fine-grained access requires Dataverse security role configuration | Apply retention and access policies at the Purview / PPAC tier |
-| Sensitivity-label inheritance flows from source files | Cannot apply labels at the agent level after upload | Enforce labeling at source via auto-labeling policies |
+| Response-level label display is not agent-level inheritance | The shield reflects the highest label among content cited in that response; it does not label the agent | Verify supported source-file labeling and the actual response shield; do not infer agent-level protection |
 | Toggle changes may require agent republish | Settings may not take effect until republish completes | Republish the agent after every Security setting change |
 | Propagation delay up to 15 minutes | Recent toggle changes may not be enforced immediately | Wait 15 minutes before declaring a regression |
 | Defender for Cloud Apps file policies are near-real-time, not synchronous | Files may be briefly accessible before quarantine completes | Pair with PPAC environment-level blocks (Control 1.25) for fail-fast at the edge |

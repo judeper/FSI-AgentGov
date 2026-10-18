@@ -129,7 +129,7 @@ Before running any test:
 | 7.1 | Disconnect the test device from all networks (disable Wi-Fi and unplug Ethernet). | Device is offline. |
 | 7.2 | Wait 5 minutes (allows JIT cache to engage). | — |
 | 7.3 | Attempt USB copy of `SSN-test.txt`. | Action is blocked / audited per the **Just-in-time protection** fallback action. |
-| 7.4 | Reconnect the network. | Cached audit events sync to Activity Explorer within 30 minutes. |
+| 7.4 | Reconnect the network; record UTC reconnection time and the firm's observation deadline. | Correlate the cached event to the offline test marker and actual timestamp. Record observed delay; unresolved evidence at the deadline fails verification. Thirty minutes is not a Microsoft delivery guarantee. |
 
 **Auditor evidence:**
 

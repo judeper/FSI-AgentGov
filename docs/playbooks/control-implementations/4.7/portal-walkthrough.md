@@ -304,14 +304,14 @@ DLP for Microsoft 365 Copilot is a **distinct DLP location** in the Purview port
 
 1. Microsoft Purview portal → Data Loss Prevention → Policies → **+ Create policy**.
 2. Choose **Custom** → name `FSI-Copilot-DLP-Production`.
-3. Locations → toggle **Microsoft 365 Copilot** ON. Leave other locations OFF unless you specifically want this policy to span (most firms keep Copilot policies isolated for clarity of telemetry).
+3. Locations → select **Microsoft 365 Copilot and Copilot Chat**. Other locations are disabled for this policy; do not treat it as a multi-workload policy.
 4. **Advanced DLP rules** → **+ Create rule** → for each protected data class:
     - Name the rule descriptively (e.g., `Block-Prompt-MNPI`).
     - **Conditions** — pick from:
         - Content contains sensitive info type (e.g., Material Non-Public Information SIT)
         - Content has sensitivity label (e.g., "Highly Confidential")
-        - Content matches trainable classifier
-    - **Actions** — Block, Block with override, or Audit only. Combine with **User notifications** (custom text per Compliance).
+    - Use separate rules for supported built-in/custom SITs in typed prompts and sensitivity labels on grounding files/emails. Trainable classifiers and EDM are not supported by the Copilot prompt SIT condition.
+    - **Actions** — **Prevent Copilot from processing content** for the label rule; **Processing prompts** (preview, verify rollout) or the distinct **Performing Web Searches** action for the SIT rule. Do not assume generic block-with-override or configurable replacement response text.
 5. Set **Policy mode** to test-mode for the report-only stage; switch to active mode for pilot/production.
 6. Save.
 
@@ -319,9 +319,9 @@ DLP for Microsoft 365 Copilot is a **distinct DLP location** in the Purview port
 
 **Prompt-side example:** A user types "Please draft an email to [client] referencing the planned acquisition of [target] before the press release." The prompt itself contains MNPI. A prompt-side rule keyed to your MNPI SIT blocks the prompt before submission and notifies the user.
 
-**Response-side example:** A user asks "Summarize my recent meetings about Project Atlas." Copilot grounds on a meeting recap that contains MNPI. A response-side rule keyed to the MNPI SIT or label modifies the response to omit the MNPI content and surfaces a notification.
+**Grounding-file example:** A user requests a summary of a labeled file or supported email. A sensitivity-label rule can prevent Copilot from processing that item; it is not a generic response-side SIT redaction rule. The item may still appear in citations, and direct access permissions remain separate.
 
-**Operational reality:** Response-side enforcement has been observed to have a **higher false-positive rate** than prompt-side. Plan to spend the first two weeks of pilot tuning response-side rules. Maintain a lower SIT confidence threshold (e.g., 75%) for prompt-side and a higher threshold (e.g., 85%) for response-side to balance signal and noise.
+**Operational validation:** Measure false positives separately for typed-prompt SIT rules and grounding-label rules using classifier-validated synthetic positives/negatives. Do not invent a universal response-side confidence threshold or error rate. Verify [supported conditions, actions and exclusions](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about) before promotion.
 
 ### 5.4 Combining DLP with Sensitivity Labels — order of evaluation
 

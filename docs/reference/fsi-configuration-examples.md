@@ -52,20 +52,24 @@ A regional retail bank deploys a customer service agent to handle account inquir
 
 #### Control 1.5: DLP and Sensitivity Labels
 
-**DLP Policy Configuration:**
-```
-Policy Name: FSI-CustomerService-DLP
-Locations: Copilot Studio, SharePoint, OneDrive, Exchange
-Conditions:
-  - Detect: SSN, Bank Account Number, Credit Card Number, Driver's License
-  - Confidence: High (85%+)
-Actions:
-  - Block external sharing
-  - Encrypt content
-  - Notify Compliance Officer
-  - Log to audit
+**DLP Policy Configuration (separate enforcement planes):**
+```text
+Purview repository policies:
+  - Scope supported SharePoint, OneDrive and Exchange locations
+  - Match supported classifiers and configure each workload's supported actions
+  - Test actual enforcement and configured notifications/telemetry per workload
+Purview Microsoft 365 Copilot policy (separate custom policy):
+  - Enable only the Microsoft 365 Copilot and Copilot Chat location
+  - Separate label-based file exclusion from SIT-based prompt blocking (preview)
+  - Test the documented supported app, input and rule conditions
+Power Platform data policies:
+  - Scope environments and govern connector groups and supported capabilities
+  - Configure supported endpoint filtering separately where required
+  - Do not treat connector policies as a universal prompt/response SIT scanner
 Exceptions: None for Zone 3
 ```
+
+No one policy combines these locations and actions. Test actual workload support; unsupported upload or response-inspection paths require an approved compensating control rather than an assumed Purview scan.
 
 **Sensitivity Labels:**
 | Label | Apply To | Protection |

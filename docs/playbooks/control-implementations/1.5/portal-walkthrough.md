@@ -546,7 +546,7 @@ DLP telemetry feeds the **determination** that starts both clocks; it does not, 
 | 8 PP connector classification | Block social channels | Block HTTP Webhook; classify SharePoint / Custom Website channels Non-Business | Allow-list only; block all unauthenticated connectors; dual approval per change |
 | 9 PP HTTP endpoint filtering (preview) | Block-list mode | Allow-list or block-list per agent | **Allow-list only** |
 | 10 Edge unmanaged AI (preview) | Audit + warn | Block uploads of FSI SIT matches | Block all consumer AI hostnames or block uploads of any labeled content |
-| 11 Network DLP unmanaged AI (preview) | Audit | Block on Confidential+ | Block on any FSI SIT or label match |
+| 11 Network DLP unmanaged AI (verify current tenant availability) | Audit | Block using supported classifiers | Block using supported classifiers; record separate network-plane evidence |
 | 12 Defender for Cloud Apps file policies | Audit on connected apps | Quarantine on label match | Quarantine + remove external collaborators; notify owner |
 | 13a Fabric / Power BI | Optional | Notify dataset owner on SIT match | Block export; notify owner; alert |
 | 13b On-prem scanner | Optional | Discovery mode | Discovery + enforce labels and protection |
@@ -604,7 +604,7 @@ Use this as the §14 sign-off checklist before any Zone 3 enforcement decision.
 8. [ ] **Surface 10** (Edge unmanaged AI) — Inline web traffic policy targets supported apps; automatic Edge/Intune activation is healthy on supported managed Windows devices; browser-plane enforcement tested.
 9. [ ] **Surface 11** (Network data security) — Security Store provider integration and Inline web traffic policy are healthy; provider licensing and network-plane enforcement tested.
 10. [ ] **Surface 12** (Defender for Cloud Apps) — File policies created on connected apps; in Audit only → enforcement after simulation.
-11. [ ] **Surface 13a** (Fabric / Power BI) — DLP policy enabled on Premium capacities; rule-match alerts route to dataset owners.
+11. [ ] **Surface 13a** (Fabric / Power BI) — DLP policy enabled on supported Fabric or Premium capacities; verify supported item/classifier coverage and rule-match notifications to the configured owners.
 12. [ ] **Surface 13b** (On-prem scanner) — Information Protection scanner deployed; Discovery completed; Enforce mode where in scope.
 13. [ ] **Sensitivity labels** exist **and at least one label policy is published** (export policy scope and confirm labels reach a target user's client; a `Mode` assumption is not a publication test); DKE evaluated for NYDFS 500.15 scenarios.
 14. [ ] **Auto-labeling**, where used, is scoped to SPO / OneDrive / Exchange only (no "AI interactions" location exists).

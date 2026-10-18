@@ -156,21 +156,21 @@ This playbook lists the most common issues encountered when deploying and operat
 
 - **Always audit file activity for devices** is disabled.
 - Device cannot reach the Microsoft 365 audit ingestion endpoint (firewall, proxy).
-- Audit log search has not finished indexing (events typically appear in 15–30 minutes; rarely longer).
+- Audit or Activity Explorer ingestion has not completed; do not assume the two surfaces share a fixed 15–30 minute delivery bound.
 - Test user lacks the **Audit Reader** or **View-Only DLP Compliance Management** role to see the events.
 
 ### Diagnostic Steps
 
 1. In **Purview > Endpoint DLP settings > Always audit file activity for devices**, confirm the toggle is **On**.
 2. On the device, validate egress to required Microsoft 365 endpoints per the [Microsoft 365 URLs and IP ranges list](https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges).
-3. In **Purview > Audit > Search**, search for the test user and date range; if events appear here but not in Activity Explorer, the issue is RBAC.
+3. In **Purview > Audit > Search**, search for the test user and full retained test window; if events appear here but not in Activity Explorer, investigate each surface's ingestion, filters, and RBAC rather than assuming an RBAC-only cause.
 4. Check role assignments at **Purview > Roles & scopes > Permissions**.
 
 ### Fix
 
 - Enable the audit toggle.
 - Open required firewall / proxy egress for Defender for Endpoint and Purview.
-- Wait the full 30-minute ingestion window before declaring failure.
+- Record the marker, UTC action time, measured ingestion, and a firm-defined observation deadline. Missing evidence is pending only before that deadline; unresolved evidence at the deadline fails verification and requires escalation.
 - Grant the investigating user **Compliance Administrator** or **View-Only Compliance Management** role.
 
 ---

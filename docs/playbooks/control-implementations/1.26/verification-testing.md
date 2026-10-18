@@ -37,27 +37,27 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 
 ### TC-1.26-04 — Sensitivity Label Display in Responses (Preview Feature)
 
-- **Given:** An agent with **File Upload = On**, Purview sensitivity labels published for the tenant, and Purview auto-labeling policies covering the Dataverse environment
-- **When:** The reviewer uploads two test files as maker-uploaded knowledge: `confidential.pdf` (label: Confidential) and `highly-confidential.pdf` (label: Highly Confidential), then sends a test query that causes the agent to cite both files in its response
+- **Given:** An agent using a knowledge source supported by the current [response-label documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio), with labeled synthetic source content available to the test user
+- **When:** The reviewer queries content labeled Confidential and Highly Confidential through that supported knowledge path and obtains a response citing both source items
 - **Then:** The agent response displays a shield icon showing **Highly Confidential** (the highest sensitivity label of cited content in that response)
-- **Pass Criteria:** Per-response label shield is observed showing the most-restrictive label of cited content (this is a preview feature per Microsoft Learn — verify GA status before treating as Regulated-zone attestation evidence); allow up to 24 hours for new labeling policies
-- **Evidence:** Screenshot of agent response showing the sensitivity label shield; Purview Activity Explorer entries for the uploads
+- **Pass Criteria:** Per-response label shield is observed showing the most-restrictive label of cited content (preview; verify current status). This is not agent-level inheritance or proof that runtime/Dataverse uploads support the same behavior.
+- **Evidence:** Source identity and label evidence, actual citations, and screenshot of the response shield; unsupported upload paths recorded separately as coverage gaps
 
 ### TC-1.26-05 — DLP Policy Triggered on Sensitive Content (Zone 2+)
 
-- **Given:** A Zone 2 or Zone 3 agent with File Upload = On and a DLP policy in **Enforce** mode that includes US SSN as a Sensitive Information Type
-- **When:** The reviewer uploads a synthetic test file containing 5+ formatted but non-real US SSNs (use `123-45-6789` style — never use real SSNs)
-- **Then:** A DLP policy match is logged in *Purview → Data Loss Prevention → Activity explorer* and an alert is generated
-- **Pass Criteria:** DLP match recorded within 24 hours; SOC alert delivered per configured channel
-- **Evidence:** Activity Explorer screenshot; alert email/ticket reference
+- **Given:** A Zone 2 or Zone 3 workflow with a documented, supported content-inspection workload and an enforced policy matching classifier-validated synthetic data; record the exact repository/upload path and configured alert behavior
+- **When:** The reviewer submits the fixture through that supported path and records a unique test marker, UTC time, and firm-defined observation deadline
+- **Then:** Verify the actual enforcement action and workload-specific match/alert evidence. Power Platform connector policies alone do not demonstrate SIT inspection of an agent's runtime uploads.
+- **Pass Criteria:** Enforcement and configured telemetry are correlated to the test by the observation deadline. An unsupported direct-upload path is a coverage gap requiring default deny or an approved compensating control, not a passing repository test.
+- **Evidence:** Policy/location/path identity, observed enforcement, correlated match and configured alert evidence, and separate disposition of unsupported agent-upload paths
 
 ### TC-1.26-06 — Magic-Byte Inspection Blocks Renamed Executable (Zone 3)
 
-- **Given:** A Zone 3 agent with Defender for Cloud Apps file policy configured for true-MIME inspection
-- **When:** The reviewer uploads a Windows executable renamed `invoice.pdf` (magic bytes `MZ`, declared MIME `application/pdf`)
-- **Then:** Defender for Cloud Apps quarantines the file and notifies the SOC distribution list
-- **Pass Criteria:** Quarantine action recorded; file removed from the agent's Dataverse storage; alert raised
-- **Evidence:** Defender XDR alert detail; Dataverse storage listing showing file absent or in quarantine state
+- **Given:** A Zone 3 workflow with a supported connected-app repository and Defender for Cloud Apps file policy configured for true-MIME inspection, before file-policy retirement
+- **When:** The reviewer places an approved synthetic renamed-file fixture in that supported repository
+- **Then:** Verify the configured inspection, governance action and SOC notification in that repository
+- **Pass Criteria:** Repository-specific action and alert recorded. This does not prove synchronous direct-upload interception or removal from Dataverse. An unsupported agent upload path is a coverage gap requiring an approved compensating control, not a passing file-policy test.
+- **Evidence:** Connected-app/repository identity, file-policy match and governance/alert evidence, migration plan, and separately tested replacement coverage
 
 ### TC-1.26-07 — Per-Agent Inventory Accuracy (No Drift)
 
@@ -101,8 +101,8 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 | TC-1.26-02 | Upload blocked when toggle off | All | No file accepted | |
 | TC-1.26-03 | Per-agent allowlist enforced | 2, 3 | Disallowed types rejected | |
 | TC-1.26-04 | Sensitivity label display in responses (preview) | All | Response shield shows most-restrictive label | |
-| TC-1.26-05 | DLP policy triggered | 2, 3 | DLP match logged + alert | |
-| TC-1.26-06 | Magic-byte inspection blocks renamed exe | 3 | Quarantined + alert | |
+| TC-1.26-05 | Supported-path content inspection | 2, 3 | Actual enforcement and configured telemetry; unsupported direct-upload gap not passed | |
+| TC-1.26-06 | Supported-repository true-type inspection | 3 | Repository action/alert; unsupported upload-path gaps recorded, not passed | |
 | TC-1.26-07 | Inventory accuracy | All | Zero drift | |
 | TC-1.26-08 | Dataverse retention policy active | 2, 3 | Policy in scope | |
 | TC-1.26-09 | Toggle change logged + attributable | All | Logged in 24h | |
@@ -119,9 +119,9 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 - [ ] PowerShell session transcripts (`transcript-*.log`) for every script run
 - [ ] Screenshot: per-agent File Upload toggle state (one per production agent — store under `maintainers-local/tenant-evidence/1.26/`, gitignored)
 - [ ] Screenshot: agent rejecting an upload when toggle off (TC-1.26-02)
-- [ ] Screenshot: agent with inherited Highly Confidential label (TC-1.26-04)
-- [ ] Screenshot: Purview DLP Activity Explorer match (TC-1.26-05)
-- [ ] Screenshot: Defender XDR quarantine alert for renamed executable (TC-1.26-06)
+- [ ] Screenshot: response shield showing the highest label among cited source content, not an inherited agent label (TC-1.26-04)
+- [ ] Supported-path enforcement and correlated workload-specific telemetry, plus separate direct-upload gap disposition (TC-1.26-05)
+- [ ] Supported-repository inspection/action/alert evidence and separate agent-upload coverage-gap disposition (TC-1.26-06)
 - [ ] Export: Dataverse environment security roles and retention policy configuration
 - [ ] Approval records (ticket / record IDs) for every Zone 2/3 agent with File Upload enabled
 - [ ] `manifest.json` indexing all artifacts by SHA-256 (canonical pattern per PowerShell baseline §4)
@@ -191,8 +191,8 @@ I attest that, for the reporting period above:
    - Zone 3 agents reviewed: [Count] — [Count] enabled under formal risk assessment; [Count] disabled (default deny)
 2. Per-agent allowed-file-type allowlists were verified for least-privilege configuration on every Zone 2+ agent with File Upload = On
 3. Sensitivity-label response shield display was tested for every Zone 2+ agent with File Upload = On (preview feature — verify GA status before treating as Regulated-zone attestation evidence)
-4. DLP policies in Enforce mode covered every Zone 2+ environment hosting file-upload-enabled agents
-5. Defender for Cloud Apps true-MIME content inspection was active for every Zone 3 agent
+4. Supported content-inspection paths were tested separately from Power Platform connector policies; unsupported direct-upload paths and compensating controls are listed in the exception register
+5. True-MIME inspection was verified only for documented supported repositories; no universal direct-upload intercept is asserted, and legacy Defender for Cloud Apps file-policy retirement is tracked
 6. Dataverse environment security roles and Purview retention policies were verified for environments hosting agent knowledge files
 7. Periodic review cadence was met: Zone 1 quarterly, Zone 2 monthly, Zone 3 weekly
 8. Evidence was collected, hashed (SHA-256), and indexed in `manifest.json` per the FSI PowerShell Authoring Baseline §4

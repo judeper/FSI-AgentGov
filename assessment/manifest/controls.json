@@ -1668,7 +1668,7 @@
     },
     "facilitatorNotes": {
       "ask": "Share your most recent SSL Labs reports for public tenant endpoints and the PowerShell output from Get-M365DataAtRestEncryptionPolicy and Get-DataEncryptionPolicy — what is the PolicyState for each active DEP, and are both Key Vault key URIs resolving?",
-      "followUp": "For Zone 2/3: confirm purge protection and soft delete are enabled on each Key Vault (Get-AzKeyVault); check PPAC environment Encryption panel for CMK status; for Zone 3, open Purview sensitivity labels to confirm DKE encryption type is configured and show the revocation runbook with its dated non-production rehearsal record. Important: Customer Key, Power Platform CMK, and DKE protect content at the storage layer only — they do not propagate encryption into Microsoft 365 Copilot or Copilot Studio grounding/output paths. Sensitivity labels (Control 1.5/1.16) are the only supported AI-app encryption path; confirm that agent grounding sources are mapped to DEP-covered workloads separately from label coverage.",
+      "followUp": "For Zone 2/3: confirm purge protection and soft delete are enabled on each Key Vault (Get-AzKeyVault); check PPAC environment Encryption panel for CMK status; for Zone 3, open Purview sensitivity labels to confirm DKE encryption type is configured and show the revocation runbook with its dated non-production rehearsal record. Customer Key and Power Platform CMK protect their supported data-at-rest workloads; they are not DLP or output-labeling controls. DKE is file-level protection that Microsoft 365 Copilot cannot access, not merely storage-layer encryption. Ordinary label encryption permits Copilot processing when the user has VIEW and EXTRACT rights; a supported Copilot DLP label rule is a separate restriction. Verify the actual source, user rights, and product path rather than asserting one universal AI-app encryption mechanism.",
       "timeBudgetMinutes": 20
     },
     "solutions": []
@@ -1827,7 +1827,7 @@
       6
     ],
     "pattern_critical": [],
-    "yesBar": "Devices onboarded via Defender for Endpoint with Endpoint DLP blocking restricted apps, USB/removable media, personal cloud uploads, and Edge for Business AI-paste rules for unmanaged AI.",
+    "yesBar": "Devices onboarded via Defender for Endpoint with Endpoint DLP blocking restricted apps, USB/removable media, and personal cloud uploads; separately deployed Edge for Business browser DLP rules validated for unmanaged AI on supported Windows devices.",
     "partialBar": "Endpoint DLP enabled but coverage limited to USB or restricted apps, with no browser-based DLP for unmanaged AI.",
     "noBar": "No Endpoint DLP; sensitive data may be copied to USB, personal cloud, or pasted into unmanaged AI sites without detection.",
     "verifyIn": [],
@@ -1847,7 +1847,7 @@
       "other": null
     },
     "facilitatorNotes": {
-      "ask": "Are Windows/macOS endpoints onboarded with Endpoint DLP policies including Edge for Business browser controls for unmanaged AI apps?",
+      "ask": "Are Windows/macOS endpoints onboarded with Endpoint DLP policies, and are the separate Edge for Business browser DLP controls deployed and tested on supported Windows devices for unmanaged AI apps?",
       "followUp": "Open Microsoft Purview > Data Loss Prevention > Endpoint DLP settings and verify device onboarding count.",
       "timeBudgetMinutes": 6
     },
@@ -2704,7 +2704,7 @@
       },
       {
         "check_id": "1.26.b",
-        "description": "Sensitivity label inheritance configured for uploaded files",
+        "description": "Source sensitivity labels inventoried; supported per-response shield requires manual verification, not agent-level label inheritance",
         "api_call": "Get-MgSiteDriveItem",
         "pass_condition": "label_inheritance_configured",
         "zone_required": [

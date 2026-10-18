@@ -321,7 +321,7 @@ Get-DlpCompliancePolicy | Format-List Name, Mode, Locations, EnforcementPlanes
 
 Sources: [browser DLP](https://learn.microsoft.com/en-us/purview/dlp-browser-dlp-learn), [browser deployment](https://learn.microsoft.com/en-us/purview/dlp-create-policy-block-to-ai-via-edge), and [network data security](https://learn.microsoft.com/en-us/purview/dlp-network-data-security-learn).
 
-... see Control 1.5 §"Edge for Business — unmanaged AI (preview)" and Control 1.6 detection plane.
+... see Control 1.5 §"Edge for Business — unmanaged AI" (separate browser/network deployment and licensing prerequisites) and Control 1.6 detection plane.
 
 ---
 
@@ -468,13 +468,14 @@ Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
 **Diagnostic — portal**
 
 - Purview → DLP → policy → rule → **User notifications → Allow overrides** — confirm `Require a business justification to override` is checked.
-- Purview → **Audit** — for SharePoint/OneDrive overrides, search `DlpRuleUndo` and inspect `ExceptionInfo.Reason = Override` and `ExceptionInfo.Justification`. Other workloads have distinct schemas. See the [DLP audit schema](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema).
+- Purview → **Audit** — for SharePoint/OneDrive overrides, search `DlpRuleUndo` and inspect `ExceptionInfo.Reason = Override` and `ExceptionInfo.Justification`. Decode `AuditData`, then deserialize a string-valued `ExceptionInfo` before reading its fields. Other workloads have distinct schemas. See the [DLP audit schema](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-schema).
 
 **Resolution**
 
 - Update the rule: `Set-DlpComplianceRule -Identity '<rule>' -NotifyAllowOverride 'WithJustification'`. Re-save and wait the propagation window.
 - Confirm `UnifiedAuditLogIngestionEnabled = True` from an **EXO** session (IPPS can return a stale value — see §3 anti-pattern).
-- Confirm the Sentinel Office 365 connector includes the relevant workload — refer Control 3.9.
+- Verify the configured DLP ingestion path to Sentinel — refer Control 3.9. Do not assume the Office 365 connector imports the separate `DLP.All` feed into `OfficeActivity`.
+- Recheck the same confirmed trigger UTC and unique marker through its retained, firm-approved observation deadline using [CAP-06](../1.7/verification-testing.md#cap-06-dlp-override-justification-reaches-audit-control-15-cross-link). Escalate missing evidence at the deadline or after two consecutive `Pending` runs; do not reset the test identity/window on retry. Query/parse failure is `Error`, not proof of missing telemetry.
 
 **What good looks like**
 

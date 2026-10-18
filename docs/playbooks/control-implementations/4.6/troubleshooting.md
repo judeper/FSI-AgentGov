@@ -105,13 +105,15 @@ Apply as many as are operationally feasible without destroying evidence. Documen
 
 ---
 
+> **Technical boundary for the incident examples above (documentation checked 2026-10-18):** Copilot SIT rules inspect supported prompt text (preview), not arbitrary grounding files or generated responses. Labeled-file exclusion uses a separate Copilot DLP sensitivity-label rule; close and reopen Office files after the policy takes effect before retesting. Ordinary label encryption alone does not exclude content when the user has VIEW and EXTRACT rights; DKE-protected files are not accessible to Microsoft 365 Copilot. Copilot Studio connector and endpoint policies are separate planes. This product boundary does not change the reportability criteria or Legal-owned determinations above.
+
 ## §2 — Decision matrix (symptom → likely cause → diagnostic → action → owner)
 
 This matrix covers the dominant grounding-scope failure modes (F1–F15). Use it as a triage map before opening a Microsoft Support case.
 
 | # | Symptom (what the user / admin sees) | Likely cause(s) | Deterministic diagnostic | Action | Owner |
 |---|---|---|---|---|---|
-| F1 | RCD applied; content still surfaces in **in-app Copilot** (Word / Excel / PowerPoint / Outlook sidecar) | Scope confusion — RCD governs enterprise grounding / Business Chat; in-app Copilot operates on the open document inside the Office app | Reproduce in **Business Chat** (cleared cache) vs in-app Copilot; if only in-app, F1 is in scope | Educate users; tighten **DLP-for-Copilot** (Control 1.5) on the SIT / sensitivity label so the in-app surface is blocked at runtime; apply sensitivity-label encryption to prevent open-document Copilot grounding | AI Governance Lead + Purview Compliance Admin |
+| F1 | RCD applied; content still surfaces in **in-app Copilot** (Word / Excel / PowerPoint / Outlook sidecar) | Scope confusion — RCD governs enterprise grounding / Business Chat; in-app Copilot operates on the open document inside the Office app | Reproduce in **Business Chat** vs the supported in-app surface after the DLP policy takes effect and the file is closed/reopened; inspect label and actual user rights | Configure a separate supported **Copilot DLP label rule** (Control 1.5) for labeled-file exclusion; SIT prompt rules do not scan grounding files. Ordinary label encryption with VIEW/EXTRACT rights is not an exclusion control | AI Governance Lead + Purview Compliance Admin |
 | F2 | RSS allowed-list change not in effect after the change was made | Index rebuild / propagation pending — verify the documented Microsoft Learn propagation window at the time of operation (historically observed at 24–48 h; verify current) | Note change UTC; compare to documented window; re-test after the window | Wait the documented window; re-test; do not escalate before window elapses unless a SEV-1 disclosure has occurred | SharePoint Admin |
 | F3 | RCD enabled; tenant has **no Microsoft 365 Copilot license assigned** → control silently no-op | Admin believes the control is enforcing; in fact nothing is being grounded by Copilot at all because no user can invoke it | `Get-MgSubscribedSku | Where SkuPartNumber -like '*COPILOT*' | Select SkuPartNumber, ConsumedUnits, PrepaidUnits` | Document the no-op state; either license at least one user or remove the false PASS from the control evidence pack; do not assert RCD effectiveness without at least one Copilot-licensed user | Entra Global Admin + AI Governance Lead |
 | F4 | DLP blocks the SharePoint connector; maker still ingests the site by adding a **direct URL** in a Copilot Studio knowledge source | Connector-block ≠ URL-block; need both enforcement vectors | Inventory Copilot Studio knowledge sources per environment; cross-check URLs against the sanctioned connector list | Block at both layers: connector DLP + URL pattern policy; freeze publishes (Control 2.1) until inventory is clean | Power Platform Admin + Purview Compliance Admin |
@@ -207,9 +209,9 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/legal-drafts' |
 # If only in-app reproduces, F1 is in scope
 ```
 
-**Fix.** Educate users on the surface distinction. Apply sensitivity-label encryption to the document so in-app Copilot cannot operate on it (Microsoft documents that encryption is the enforcement plane for in-app open-document grounding). Tighten DLP-for-Copilot (Control 1.5) on the SIT / label.
+**Fix.** Educate users on the surface distinction. Configure a supported Copilot DLP sensitivity-label rule for labeled-file exclusion (Control 1.5), separately from any SIT prompt rule. Ordinary label encryption still permits processing when the user has VIEW and EXTRACT rights; DKE excludes Copilot access and is not a generic substitute for the label rule.
 
-**Verification.** Re-test in-app with an encrypted document from the site; Copilot should be blocked at the runtime DLP layer or by encryption.
+**Verification.** After the policy takes effect, close and reopen the labeled Office file, then retest the supported in-app and chat paths. Preserve the label, user rights, rule identity, observed exclusion and workload-specific telemetry. Do not pass solely because a document is encrypted or a SIT prompt test blocked.
 
 **Learn.**
 - https://learn.microsoft.com/sharepoint/restricted-content-discovery

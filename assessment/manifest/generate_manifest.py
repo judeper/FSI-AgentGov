@@ -185,7 +185,7 @@ CHECKS_DB = {
     ],
     "1.26": [
         ("1.26.a","File upload toggle state per agent is zone-appropriate","Get-CopilotStudioAgentConfig","file_upload_zone_appropriate",[2,3]),
-        ("1.26.b","Sensitivity label inheritance configured for uploaded files","Get-MgSiteDriveItem","label_inheritance_configured",[3]),
+        ("1.26.b","Source sensitivity labels inventoried; supported per-response shield requires manual verification, not agent-level label inheritance","Get-MgSiteDriveItem","label_inheritance_configured",[3]),
     ],
     "1.27": [
         ("1.27.a","Content moderation level set per agent","Get-CopilotStudioAgentConfig","moderation_level_set",[1,2,3]),
