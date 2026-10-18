@@ -3,6 +3,7 @@
 **Control:** [1.12 Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)
 **Audience:** M365 administrator (US financial services)
 **Last UI Verified:** May 2026
+**Last Verified:** 2026-10-18 (downstream technical corrections; no live portal verification)
 **Estimated Time:** 8–16 hours (excludes analytics processing windows of up to 48 hours, HR connector first-ingest cycle, and pilot validation)
 
 > This playbook provides portal configuration guidance for [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA Regulatory Notice 24-09 (Gen AI guidance for AI agent supervision), GLBA 501(b) (safeguards), SOX 404 (internal controls), SEC Rule 17a-4 (record retention — see boundary note), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 §500.17(a). Insider Risk Management (IRM) is a **detect / investigate / act** surface. By itself it does not satisfy any single regulatory obligation — durable records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's Written Supervisory Procedures (WSP) and the FSI Incident Handling section of the Control 1.12 troubleshooting playbook.
@@ -41,7 +42,7 @@
     Organizations should verify that each of the above controls is in scope, owned, and producing evidence **before** treating the IRM control as complete. An IRM deployment that lacks these adjacent controls is a **partial** supervisory program, not a complete one.
 
 !!! info "Forensic Evidence is not a books-and-records plane"
-    The Forensic Evidence capability captures short visual clips of in-scope user activity on opted-in Windows 10/11 Enterprise endpoints with the Microsoft Purview Client installed. It is **pay-as-you-go (PAYG)**, **dual-authorization** (Investigator submits → Approver approves), and **automatically deletes captured clips 120 days after capture** unless they are exported.
+    The Forensic Evidence capability captures visual activity on supported, onboarded Windows 10/11 Enterprise endpoints with the Microsoft Purview Client installed. It uses a **capacity add-on** and **dual authorization** (unrestricted Admin requests → independent Approver approves); Investigators view captures. Plan required downloads before the capture-based 120-day deletion boundary. The overview also warns of earlier deletion at preview end; the management article contains conflicting capture/ingestion and post-expiry export wording, so do not rely on post-expiry recovery.
 
     Forensic Evidence clips are **working investigative artifacts** held in a service-managed transient store. They are **not** records under SEC 17a-4(f) / FINRA 4511. If a clip is required to be preserved beyond the working investigation:
 
@@ -61,7 +62,7 @@ Implementation requires that prerequisites and roles are in place **before** the
 2. **Assign IRM role groups with Separation of Duties** — Step 2. Populate the six canonical role groups (Insider Risk Management Admins, Analysts, Investigators, Auditors, Approvers, and the catch-all). **Approvers must be distinct from Investigators** for Forensic Evidence dual-authorization. Internal Audit (Auditors) must be distinct from Admins and Investigators.
 3. **Configure Settings — policy indicators, priority user groups, intelligent detections, pseudonymization** — Step 3. Indicators must be enabled at the tenant level **before** any template that consumes them will produce signal.
 4. **Deploy upstream prerequisites — HR connector, Microsoft Defender for Endpoint, Microsoft Defender for Cloud Apps, browser extension** — Prerequisites #4–#7 and Step 4. Each missing prerequisite is a silent-failure mode for the templates that depend on it.
-5. **Create one pilot policy** — Step 5. Choose a single template aligned to a high-value FSI priority population (e.g., *Data theft by departing users* or *Data leaks by priority users — trading desk*). Start in **Test mode** for the documented validation window, then promote to Production.
+5. **Create one pilot policy** — Step 5. Choose a template aligned to a high-value FSI priority population and validate trigger, indicators, scope, and actual results. Do not assume a generic IRM Test/Production switch; downstream DLP/Conditional Access enforcement modes are separate.
 6. **Validate end-to-end with a deterministic seed-and-assert** — Step 8. Generate a known seed activity from a named test user, wait the documented Microsoft Learn processing window, and assert both the **alert appears** and the **audit-log rows are written**. Do not treat "no error on save" as PASS.
 7. **Define escalation paths to Legal, HR, SOC, eDiscovery, Records, and Incident Response** — Step 9. Document the cadence in your WSP (Microsoft does not publish IRM SLAs). Cross-reference [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) for SEV-1/2 escalation, [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) for cross-border evidence handling, and [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for SOC integration.
 
@@ -87,7 +88,7 @@ Per-user licensing is **required for every monitored user** (every user whose ac
 
 | Capability | Additional billing requirement |
 
-| Forensic Evidence | **Pay-as-you-go (PAYG)** linked to an Azure subscription (organizational storage trial available — verify current trial size on Microsoft Learn at deployment) |
+| Forensic Evidence | Capacity add-on: 100 GB/month ingestion units, no unused-capacity carryover; conditional 20 GB trial on the legacy commerce platform only. See [capacity and billing](https://learn.microsoft.com/en-us/purview/insider-risk-management-forensic-evidence-manage) |
 | Selected detection indicators flagged "PAYG" in Settings → Policy indicators | **PAYG** linked to an Azure subscription |
 | Triage Agent | Verify capacity / consumption prerequisites on Microsoft Learn at deployment (subject to change) |
 
@@ -97,7 +98,7 @@ Verify entitlement against the [current Microsoft 365 service description](https
 
 IRM policies and analytics scans **require** the Unified Audit Log (UAL). If UAL is off, policies appear to create successfully but produce no signal and no scoring — a silent supervisory-system gap and the **most common silent-failure mode** for this control.
 
-UAL has been on by default in all new Microsoft 365 tenants since 2023, but verify state explicitly. Detect first; only mutate if disabled.
+Auditing is on by default for many subscriptions, but Microsoft documents exceptions including SMB licenses and unmanaged enterprise trials. Verify state explicitly. Detect first; only mutate if disabled.
 
 **Detect from Exchange Online PowerShell**:
 
@@ -143,20 +144,19 @@ The **Microsoft 365 HR connector** (CSV upload + scheduled ingestion) — **not*
 - *Security policy violations* — departing-users variant
 - Any policy that uses the **Resignation date** or **Last working date** as the triggering event
 
-**Required CSV fields (minimum, per Microsoft Learn `import-hr-data`):**
+**Required mapped resignation data (per Microsoft Learn `import-hr-data`; source column names are examples, not fixed headers):**
 
 | Field | Purpose |
 
-| `EmployeeID` | Source-of-truth employee identifier from HRIS |
 | `UserPrincipalName` | Maps the HRIS employee to the Entra identity |
-| `ResignationDate` | Triggers the departing-user scoring window |
-| `LastWorkingDate` | Closes the scoring window |
+| `ResignationDate` | Official resignation/termination/notice date, represented as ISO 8601 date/time |
+| `LastWorkingDate` | Last workday; no more than six months before or one year after upload |
 
 Optional fields support performance reviews, role / job-level changes, and personal data (used by *Risky users* templates). Refer to [Import HR data](https://learn.microsoft.com/en-us/purview/import-hr-data) for the full schema.
 
 Configure the connector under **Microsoft Purview portal → Settings (gear icon, upper-right) → Data connectors → HR data → Add connector**, then schedule the CSV ingest job (HRIS export → SFTP / blob → connector). The Microsoft 365 HR connector is a separate Microsoft Entra app registration; capture the application ID and the schedule cadence in evidence.
 
-> **Silent-failure trap:** if the HR connector is configured but the CSV is empty or the date format is wrong (the connector expects ISO 8601 `YYYY-MM-DD`), the departing-user policy will **score nobody**. Validate with a known synthetic resignation row before relying on the connector.
+> **Ingestion check:** validate the mapped UPN and ISO 8601 **date/time** values, not an assumed date-only `YYYY-MM-DD` schema. Limit each CSV ingestion to 500 records and inspect the upload status. Use an approved synthetic row before relying on the connector. Template-specific alternatives include Entra account deletion for departing users and Communication Compliance for risky users.
 
 ### 5. Microsoft Defender for Endpoint integration (required for security-violation templates)
 
@@ -174,8 +174,8 @@ Without MDE, the *Security policy violations* template can be created but will p
 
 The *Data theft by departing users* template is **a single template**. Cloud-app coverage (Box, Dropbox, Google Drive, Amazon S3, Azure) is supplied by **Microsoft Defender for Cloud Apps** app connectors — not by separate IRM templates.
 
-!!! warning "Defender for Cloud Apps June 2025 migration to dynamic threat detection"
-    In June 2025 Microsoft began migrating Defender for Cloud Apps anomaly-detection content from a static rule set to a **dynamic, model-driven threat-detection engine** with revised UEBA scoring. As part of that migration, several legacy detections were **renamed, consolidated, or disabled**, and some indicator names exposed to IRM through the MDCA connector also changed. Organizations should verify the current detection inventory in **Defender XDR → Settings → Cloud apps → Anomaly detection policies** before mapping MDCA-sourced indicators to IRM, and after each Microsoft service update. A legacy IRM policy that references a renamed or disabled MDCA detection will silently produce no signal. See also [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for the broader UEBA correlation surface that complements IRM scoring.
+!!! warning "Distinguish Cloud Apps anomalies from cloud-storage indicators"
+    The live [IRM indicator reference](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-policy-indicators) documents Defender for Cloud Apps signals and separate cloud-storage indicators. The previous assertion of a June 2025 migration requiring IRM remapping was not substantiated by the reviewed official sources. Verify actual detections, app-connector health, and supported indicators; do not invent a migration date, replacement mapping, or permission expansion.
 
 For departing-user scoring against non-Microsoft 365 cloud storage:
 
@@ -245,7 +245,7 @@ If opting in, all of the following must be in place:
 - **Microsoft Purview Client** installed on the in-scope device
 - **Windows 10 or Windows 11 Enterprise** (other editions / OS unsupported)
 - Device is **onboarded to Microsoft Purview**
-- **Pay-as-you-go (PAYG)** billing linked to an Azure subscription (organizational storage trial available — verify trial size on Learn)
+- **Forensic evidence capacity add-on** or eligible, unexhausted legacy-platform trial; verify monthly ingestion capacity separately from indicator PAYG
 - **Insider Risk Management Approvers** role group populated and **distinct** from Investigators (Step 2 below)
 - **Privacy / Legal sign-off** on state-law notice posture (CT, DE, NY, and any other applicable jurisdictions; collective-bargaining notice if applicable)
 
@@ -287,7 +287,7 @@ If your firm's policy requires non-pseudonymized review (rare; typically only fo
    - Business justification (Compliance / HR / Legal sign-off)
    - Effective date and expected duration
    - Population of users / investigators who will see non-pseudonymized identities
-   - UAL row for the configuration change (search for the IRM settings update)
+   - Independent **Insider risk audit log** export for the configuration change
 4. Re-enable pseudonymization at the documented end date
 
 The opt-out is **a privileged action and must be auditable** — an undocumented opt-out is a privacy / SOX 404 finding. The Insider Risk Management Auditors role group should review unmask events on a documented cadence (monthly is a defensible baseline).
@@ -296,7 +296,7 @@ The opt-out is **a privileged action and must be auditable** — an undocumented
 
 ## Step 2 — Configure role groups (six canonical IRM role groups)
 
-> **Portal navigation (verify before each session — it has changed):** Microsoft Purview portal → **Settings** (gear, upper-right) → **Roles & scopes** → **Permissions** → **Microsoft Purview solutions** → **Insider Risk Management** → **Role groups**.
+> **Documented portal navigation:** Microsoft Purview → **Settings → Roles and groups → Role groups**. Select the named Purview role group; an Entra directory role or similarly named Entra group is not equivalent.
 
 ### Canonical role group inventory
 
@@ -304,14 +304,14 @@ There are **six** Insider Risk Management role groups (per Microsoft Learn `insi
 
 | Role group (canonical name) | Configure policies, settings, role groups, priority groups, indicators | Triage and review alerts (no content view) | Investigate cases / view content (subject to pseudonymization) | Submit Forensic Evidence capture requests | **Approve** Forensic Evidence capture requests | View IRM audit logs (admin actions, settings changes, unmask events) |
 
-| **Insider Risk Management** (catch-all) | Yes | Yes | Yes | Yes | No (Approver role group is required for approval) | Limited |
-| **Insider Risk Management Admins** | Yes | No | No | No | No | No |
+| **Insider Risk Management** (catch-all) | Yes | Yes | Yes | Yes | Yes | Yes |
+| **Insider Risk Management Admins** | Yes (membership changes require role-management permissions) | No | No | Yes (unrestricted) | No | No |
 | **Insider Risk Management Analysts** | No | Yes | No | No | No | No |
-| **Insider Risk Management Investigators** | No | Yes | Yes | Yes | No | No |
+| **Insider Risk Management Investigators** | No | Yes | Yes | No | No | No |
 | **Insider Risk Management Auditors** | No | No | No | No | No | Yes |
 | **Insider Risk Management Approvers** | No | No | No | No | **Yes (required for Forensic Evidence dual-auth)** | No |
 
-> **Approvers must be distinct from Investigators.** Forensic Evidence uses a **dual-authorization** model: Investigator submits the capture request; Approver approves it. Assigning the same user to both role groups breaks dual-auth and is a control deficiency. Capture role-group membership monthly and on every change.
+> **Requester/approver separation:** per [IRM permissions](https://learn.microsoft.com/en-us/purview/insider-risk-management-permissions), Admins submit requests, Approvers approve, and Investigators view captures. Also preserve the firm's Investigator/Approver separation. The catch-all has all three capabilities; group names alone do not prove distinct humans or self-approval prevention. AU-scoped members cannot perform the listed forensic tasks.
 
 > **Alert action role prerequisites (per Microsoft Learn `insider-risk-management-activities`):**
 > - **Dismiss alerts:** requires membership in the **Insider Risk Management**, **Insider Risk Management Analysts**, or **Insider Risk Management Investigators** role group.
@@ -336,7 +336,7 @@ Map your firm's compliance / Legal / Internal Audit roles to the six specific ro
 
 | IRM Compliance Lead / WSP owner | Insider Risk Management Admins | Policy & settings authority; no alert content visibility (separation of duties) |
 | Tier-1 supervisory analyst | Insider Risk Management Analysts | Triage and review alerts; no file/email content access |
-| Senior Compliance investigator (FINRA-registered principal where applicable) | Insider Risk Management Investigators | Investigate cases, view content under pseudonymization, submit Forensic Evidence requests |
+| Senior Compliance investigator (FINRA-registered principal where applicable) | Insider Risk Management Investigators | Investigate cases, view content and forensic captures; ask an authorized Admin to submit capture requests |
 | Internal Audit / SOX assurance | Insider Risk Management Auditors | Independent review of admin actions, settings changes, and unmask events. **Must not** also be Admin or Investigator |
 | Compliance / Privacy Approver (separate from Investigator team) | Insider Risk Management Approvers | Approve Forensic Evidence capture requests under dual-auth |
 
@@ -498,16 +498,16 @@ If you completed Prerequisite #4 above, the connector exists. This step covers o
 3. Confirm row count > 0 on the most recent run
 
 4. If the row count is 0 (and your HRIS export is non-empty), the most likely causes are:
-   - CSV header mismatch (`EmployeeID` vs `Employee_ID`)
-   - Date format mismatch (must be ISO 8601 `YYYY-MM-DD`)
+   - Source column no longer matches the configured UPN/scenario/date mapping
+   - Invalid ISO 8601 date/time or last-working date outside supported upload bounds
    - SFTP / blob credential expiry on the upstream HRIS export
-   - File-size limit exceeded (chunk the export if needed)
+   - More than 500 records in one CSV ingestion (split into smaller uploads)
 
 ### 4.2 Validate end-to-end with a synthetic resignation row
 
 Validate the connector end-to-end by inserting a **synthetic resignation row** into the HRIS export pipeline:
 
-1. Identify a named test user (a non-production identity) and assign a `ResignationDate` (today + 1 day) and a `LastWorkingDate` (today + 30 days)
+1. Identify an approved non-production user and supply mapped UPN, `ResignationDate`, and `LastWorkingDate` ISO 8601 date/time values appropriate to the intended trigger window
 2. Push the synthetic CSV row through the normal HRIS → connector pipeline
 3. Wait for the connector's next scheduled run (or trigger manually)
 4. Confirm the test user appears in the relevant IRM context (Activity Explorer, departing-user policy scope) within the documented window
@@ -541,10 +541,10 @@ The HR connector ingests employee personal data (employment status, performance 
 | **Security policy violations (risky users)** | Conditional | Requires MDE + HR risky-user signals |
 | **Risky AI usage** | Yes | Requires browser extension (Edge / Chrome) on Windows; feeds Adaptive Protection where available |
 | **Risky browser usage (preview)** | Conditional | Verify lifecycle (Preview vs GA) on Learn at deployment; requires browser extension |
-| **Forensic evidence** | Conditional | Separate paired policy; opt-in; PAYG; dual-auth; 120-day clip lifecycle (Step 7 below) |
+| **Forensic evidence** | Conditional | Separate forensic policy plus approved per-user request; capacity add-on; Admin/Approver authorization; capture-based deletion/preview caveat (Step 7) |
 | **Patient data misuse (HIPAA)** | **Out of scope for FSI** | Document the explicit exclusion in your control evidence |
 
-> **Risky Agents is applied by default for all organizations** when IRM is configured, per Microsoft Learn. Do **not** select it from the **Create policy** wizard — it is not surfaced there. Verify the default-apply behavior, the scope (Microsoft 365 Copilot agents, Copilot Studio agents, Microsoft Foundry agents), and the lifecycle (Preview vs GA) on Learn at deployment. Risky Agents flags signals such as: risky prompts sent to agents, agents emitting responses with sensitive content, agents accessing sensitive or priority SharePoint sites, agents sharing SharePoint files externally, and agent activity above an established baseline.
+> [**Risky Agents (preview)**](https://learn.microsoft.com/en-us/purview/insider-risk-management-monitoring-agents) is available by default after setup for supported licenses. Supported hosts are Copilot Studio, Microsoft Foundry, and P4AI SDK agents; do not require coverage for every agent in the inventory. Agent alerts do not support administrative units, so scoped analysts cannot see them. Guest interactions expose sensitive-information indicators, not full prompt/response content. Verify actual telemetry, not policy existence alone.
 
 > **Quick policies vs templates.** The IRM home page surfaces "quick policy" launch tiles with friendly labels (e.g., "Data theft from Microsoft 365 apps by users leaving your organization"). These tiles are convenience launchers — the underlying template is the canonical Learn name (e.g., *Data theft by departing users*). When documenting policy inventory, **use the canonical template name**, not the tile label.
 
@@ -666,11 +666,9 @@ If the default policy is not visible in the Alerts dashboard within the analytic
 
 For FSI tenants, **explicitly document** that the *Patient data misuse* (HIPAA) template is out of scope and not configured. Auditors should not have to reverse-engineer the absence of HIPAA templates in a financial-services control inventory.
 
-### Test mode vs production mode
+### Policy readiness versus downstream enforcement mode
 
-> **Critical silent-failure mode:** policies in **Test mode** **do not produce alerts**. Per Microsoft Learn, Test mode allows you to validate policy logic against historical activity without surfacing alerts to the Alerts dashboard. **Promote to production** at the end of the documented validation window, otherwise the policy "exists" but generates no supervisory signal.
-
-For each policy in your inventory, capture the current mode (Test / Production), the date of the last mode change, the change ticket reference, and the rationale.
+Capture the actual IRM policy status, trigger, indicators, thresholds, and scope. Do not assume a generic DLP-style IRM Test/Production switch. **Adaptive Protection quick setup** creates downstream DLP policies in test mode and Conditional Access policies in report-only; validate and explicitly enable enforcement through their respective supported management surfaces.
 
 ### Policy naming convention (use a strict convention)
 
@@ -719,8 +717,8 @@ Policy names cannot be edited after creation in the same surface — name carefu
    - As an Insider Risk Management Investigator, open the alert
    - Create a case (record the case ID and UTC timestamp)
    - Exercise content preview where in scope (verify the capability lifecycle on Learn at deployment)
-   - Where Forensic Evidence is opted-in: submit a capture request, have the Approver approve it, confirm the clip is captured (use a non-production endpoint for this test), and verify the 120-day auto-delete clock starts
-7. **Verify audit-log rows** in the Unified Audit Log (Microsoft Purview Audit search):
+   - Where Forensic Evidence is opted-in: have an unrestricted Admin request capture, an independent Approver approve it, and an Investigator verify actual captured activity on a supported non-production endpoint. Record capture time separately from approval time.
+7. **Export the independent Insider risk audit log** for administrator actions:
 
 ```text
 Activities to filter for (verify exact operation names against current Learn at the time of search):
@@ -734,21 +732,12 @@ Date range: UTC window covering activity + processing window + investigator acti
 Users: test user, test investigator, test approver (where in scope)
 ```
 
-Or via PowerShell (read-only audit search):
-
-```powershell
-Connect-IPPSSession   #.AddDays(-3) -EndDate (Get-Date) `
-    -RecordType 'InsiderRiskManagement' `
-    -ResultSize 5000 |
-    Export-Csv -NoTypeInformation -Path ".\evidence\1.12-validation-$(Get-Date -Format 'yyyyMMddTHHmmssZ').csv"
-```
-
-> Verify the `RecordType` value against the current `Search-UnifiedAuditLog` documentation; Microsoft has occasionally introduced more specific RecordTypes for IRM sub-surfaces. If the broad RecordType returns no rows, fall back to `-Operations` filtering by the specific IRM operation names.
+Use **Insider risk audit log → Export** with an Auditor or catch-all member. The log is always enabled, retains data for 180 days, and displays local times; preserve timezone and normalize UTC separately. It is not the UAL. For alert delivery, use **Export alerts**, documented `SecurityComplianceAlerts` records filtered to `InsiderRiskManagement`, or the dedicated Sentinel IRM connector. See [audit log](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log) and [alert sharing](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-share-data).
 
 8. **Capture evidence** with SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §4:
    - Screenshot of the alert in the IRM workspace (with anonymized usernames if pseudonymization is on; capture both anonymized and admin-resolved view if your firm requires it)
    - Case record export
-   - CSV export of the UAL search
+   - CSV export of the independent IRM audit log; supplemental workload UAL evidence where applicable
    - Forensic Evidence capture-request audit row (where in scope)
    - SHA-256 sidecar for each artifact
 
@@ -806,16 +795,16 @@ The **Triage Agent** is a Security Copilot–powered IRM agent that automates fi
 
 | Microsoft Security Copilot license / capacity | Required. Triage Agent consumes **Security Compute Units (SCUs)** from the firm's Security Copilot capacity pool. Plan SCU sizing against expected alert volume |
 | Billing model | **Pay-as-you-go (PAYG)** linked to an Azure subscription, in addition to the IRM per-user license |
-| Saved authorization / configuration refresh cadence | Triage Agent saved-authorization and configuration must be **refreshed every 90 days**. Schedule a recurring CAB ticket and capture the refresh in evidence — an expired authorization silently disables the agent |
+| Saved authorization refresh cadence | The [get-started guide](https://learn.microsoft.com/en-us/purview/copilot-in-purview-triage-irm-agent-get-started) documents user-context authentication lasting **90 days**, then stopping until configuration is manually saved again. This is not an alert reassessment interval; verify identity mode because the overview also describes a dedicated agent-identity option |
 | Human-in-the-loop | Triage Agent recommendations must be **reviewable and overridable** by Analysts / Investigators. Capture the override-rate metric monthly as a Triage Agent quality signal |
-| Audit | Triage Agent actions emit UAL rows. Include Triage Agent operations in the Auditors role group's monthly review |
+| Audit | Preserve actual agent run/analysis history and independent IRM audit evidence; do not require undocumented Triage Agent UAL operation names |
 
-**Configuration entry point:** Microsoft Purview portal → **Insider Risk Management → Settings → Triage Agent** (verify exact navigation on Microsoft Learn at deployment).
+**Configuration entry point:** follow the current [Triage Agent get-started guide](https://learn.microsoft.com/en-us/purview/copilot-in-purview-triage-irm-agent-get-started); record the actual agent configuration and identity rather than assuming a legacy Settings page.
 
 **Recommended FSI rollout for Triage Agent:**
 
 1. Capture Model Risk Management sign-off ([Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)) **before** enabling
-2. Enable in **shadow mode** (recommendations visible to Analysts but not auto-applied) for at least one full quarter
+2. Run a **firm-defined shadow evaluation** for at least one full quarter; this is a review procedure, not an asserted native product mode
 3. Measure agreement-rate, override-rate, and false-clear rate against human Analyst baseline
 4. Promote to assistive mode only after MRM and supervisory committee review of the shadow-mode metrics
 5. Refresh saved authorization and configuration **every 90 days**; capture the refresh in the change ticket and the evidence pack
@@ -858,7 +847,7 @@ IRM is a **detect / investigate / act** surface. Durable, tamper-resistant reten
 ## Anti-patterns
 
 The following are common configuration mistakes that produce silent failures, false-clean evidence, or audit findings. Avoid all of them.
-2. **Leaving policies in Test mode.** Test-mode policies **do not produce alerts**. Promote to Production at the end of the validation window and capture evidence of the mode change.
+2. **Confusing IRM detection with downstream enforcement modes.** Validate actual IRM policy results; separately review quick-setup DLP test mode and Conditional Access report-only status before enabling enforcement.
 3. **Treating IRM as a records-retention vault.** IRM alerts, cases, and Forensic Evidence clips are working investigative artifacts — Forensic Evidence clips auto-delete after 120 days. Use [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for SEC 17a-4(f) / FINRA 4511 retention.
 4. **Configuring Forensic Evidence with the same user in Investigators and Approvers.** Breaks dual-authorization. **Approvers must be distinct from Investigators.**
 5. **Using the wrong (singular / synonym) role-group names.** Audit-log queries match the canonical plural names (`Insider Risk Management Investigators`, not `IRM Investigator`). Wrong names produce empty queries and false-clean evidence.
@@ -870,7 +859,7 @@ The following are common configuration mistakes that produce silent failures, fa
 11. **Creating a Risky AI usage policy without deploying the browser extension via Intune.** Produces no signal.
 12. **Creating a priority user group without defining who can view it.** The group exists but no IRM member can see its alerts. Define the viewer assignment at creation.
 13. **Disabling pseudonymization without an audit trail.** Privileged action; must be auditable. The Insider Risk Management Auditors role group reviews unmask events.
-14. **Adding users to Insider Risk Management Investigators casually.** Investigators see content (subject to pseudonymization), can submit Forensic Evidence capture requests, and can drive case escalation. Treat each addition as a privileged elevation with HR / Legal sign-off.
+14. **Adding users to Insider Risk Management Investigators casually.** Investigators can access sensitive investigation content and forensic captures; an unrestricted Admin submits capture requests. Treat each addition as a privileged elevation with the firm's HR / Legal sign-off.
 15. **Combining Investigators and Auditors in the same person.** Auditors review investigator and admin actions — independence is required.
 16. **Documenting fabricated SLA toggles** (e.g., "48-hour Low/Medium triage, 4-hour High/Critical triage") **as portal settings**. Microsoft does not publish IRM SLAs. Cadence is firm-defined and tracked in your WSP / case-management tool, not in IRM settings.
 17. **Configuring Adaptive Protection bindings without validating the threshold-trigger end-to-end.** A bound DLP / DLM / CA policy that does not actually fire when a user crosses Elevated is a silent failure.
@@ -894,7 +883,7 @@ Control-1.12_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}.sha256
 | Artifact | Source | Format | Frequency |
 
 | License entitlement snapshot for monitored users (E5 / E5 Compliance / IRM standalone / Purview Suite) | Graph `Get-MgUserLicenseDetail` | JSON | Quarterly |
-| PAYG billing state (subscription, usage, organizational storage trial state for Forensic Evidence) | Purview Usage center | CSV | Monthly |
+| Indicator/Triage Agent PAYG state and separate forensic capacity entitlement/usage | Relevant billing surface; Forensic evidence capacity page | CSV or captured portal evidence | Monthly |
 | Unified Audit Log status (`Get-AdminAuditLogConfig`) | Exchange Online PowerShell | JSON | Monthly + on change |
 | Role-group membership (six IRM role groups) | Purview portal export + Graph | CSV + JSON | Monthly + on change |
 | Approvers ≠ Investigators set-difference report | Computed from role-group export | CSV | Monthly + on change |
@@ -908,7 +897,7 @@ Control-1.12_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}.sha256
 | Microsoft Defender for Cloud Apps connector inventory (Box, Dropbox, Google Drive, Amazon S3, Azure) | Defender for Cloud Apps export | JSON | Monthly + on change |
 | Browser extension deployment status (Intune assignment, in-scope Windows population coverage) | Intune export | CSV | Monthly + on change |
 | Policy inventory (template, name, mode, scope, priority-content, indicators, triggering event, reviewer / Approver assignment, AU scope, last validation timestamp) | Purview Policies page export | JSON + CSV | Weekly |
-| Test mode → Production mode change log | Change tickets + UAL | CSV | On change |
+| Actual IRM policy changes and separate downstream DLP/CA enforcement changes | Change tickets + independent IRM audit export / relevant downstream workload evidence | CSV | On change |
 | Adaptive Protection configuration (risk-level thresholds, DLP / DLM / CA bindings) | Purview portal export | JSON | On change |
 | Adaptive Protection threshold-trigger validation log | Test execution log | Log + CSV | Per validation |
 | Forensic Evidence configuration (opt-in state, device onboarding, capture options, Approver list, state-law notice posture, Privacy/Legal sign-off) | Purview portal export + change ticket | JSON + PDF | On change |
@@ -956,4 +945,4 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (live UI not tested)*

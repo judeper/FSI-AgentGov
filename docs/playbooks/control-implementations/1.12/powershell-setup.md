@@ -2,9 +2,9 @@
 
 > **Scope.** This playbook automates the **insider-risk detection and adaptive-protection plane** for Control 1.12 across **Microsoft Purview Insider Risk Management (IRM), Adaptive Protection, the Microsoft 365 HR data connector, Defender for Endpoint / Defender for Cloud Apps signal sources, DLP rule integration with risk tiers, custom indicators for AI-agent abuse, and alert routing into Sentinel and supervisory queues** in US financial services tenants. It assumes you have already read [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) (referenced below as **BL-§N**) and the parent control specification [`../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md`](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md).
 >
-> **What this playbook is.** A reproducible, reproducible harness that (a) pins module versions and verifies cmdlet surface; (b) bootstraps a certificate-authenticated, audit-only IRM reader principal that is distinct from the IRM Admin / Investigator / Approver principals; (c) enumerates IRM policy templates, deployed policies, scope, and tenant configuration; (d) audits Adaptive Protection enablement and the DLP rules that consume IRM risk tiers (Elevated / Moderate / Minor); (e) verifies HR connector freshness and signal-source coverage (Defender for Endpoint, Defender for Cloud Apps, audit feeds, browser extension where applicable); (f) emits custom-indicator inventory for AI-agent abuse signals (excessive prompt rate, MNPI grounding queries, off-hours bursts) per Control 1.5 / 1.6 telemetry contracts; and (g) writes evidence with SHA-256 manifests for the quarterly attestation pack.
+> **What this playbook is.** A local evidence-harness example combining supported workload commands with manual Purview exports. Policy/configuration review, HR upload health, MDE/Cloud Apps/browser signal coverage, custom-indicator enrollment, and positive-control alert routing require the specified portal evidence; the helpers must not report those manual checks as automatically passed. Graph security permissions do not grant Purview role-group membership or prove IRM endpoint availability.
 >
-> **What this playbook is not.** It is not a substitute for the firm's Written Supervisory Procedures (FINRA Rule 3110), HR investigation workflows, legal-hold decisions, or supervisory review by a registered principal. It does not, by itself, configure or enable Forensic Evidence — that capability requires dual-authorization (Investigator request + Approver consent) executed in the Purview portal per [Control 1.12 § Forensic Evidence](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It does not retain books-and-records artifacts; durable retention is the responsibility of [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
+> **What this playbook is not.** It is not a substitute for the firm's Written Supervisory Procedures (FINRA Rule 3110), HR investigation workflows, legal-hold decisions, or supervisory review by a registered principal. It does not, by itself, configure or enable Forensic Evidence — that capability requires an unrestricted Admin's request and an independent Approver's decision in addition to the forensic policy; Investigators view captures. Follow the Purview workflow per [Control 1.12 § Forensic Evidence](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It does not retain books-and-records artifacts; durable retention is the responsibility of [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 >
 >
 > **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 3110 / 4511, FINRA RN 25-07 (RFC, contextual only), SEC Rule 17a-3 / 17a-4, SEC Regulation S-P (2024 amendments), GLBA 501(b), SOX 302/404, NYDFS 23 NYCRR §500.06 / §500.16 / §500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), and FFIEC IT Examination Handbook expectations. It does not, by itself, *ensure* a passing examination, *guarantee* that every insider event is detected, *prevent* exfiltration, or *eliminate* false negatives in ML-driven scoring. Implementation requires that organizations verify endpoint availability, module pinning, HR connector accuracy, and signal-source coverage at every change window, and that they treat any preview surface (Risky Agents, Risky AI usage, Triage Agent) as **additive** evidence rather than a complete substitute for human supervisory review.
@@ -16,6 +16,7 @@
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (orchestrator); 5.1 Desktop available for any Windows-only legacy fallback |
 | Last UI Verified | April 2026 |
+| Last Verified | 2026-10-18 (documentation corrections; no script or tenant execution) |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
 | Related Controls | [1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) · [1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) · [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) · [2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) · [3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
@@ -53,7 +54,7 @@ Write-Verbose "Control 1.12 shell guard passed: pwsh $($PSVersionTable.PSVersion
 
 ## §1 — Module, CLI, and permission matrix
 
-**Why this section exists.** IRM cmdlet surface is split across **ExchangeOnlineManagement** (compliance / Purview cmdlets reached via `Connect-IPPSSession`) and **Microsoft.Graph.Security** (the preferred Graph surface for IRM alerts and cases as it migrates). Pin both, and pin the Graph sub-modules explicitly — Microsoft ships breaking shape changes across `Microsoft.Graph` minor versions on the security and identity-governance endpoints.
+**Why this section exists.** ExchangeOnlineManagement provides Exchange Online and Security & Compliance sessions; use the correct session for each command. Microsoft.Graph.Security commands are not a general IRM policy, HR connector, or administrator-audit API. Module examples below are firm-controlled pins, not a claim that these historical versions were executed during this documentation review.
 
 ### 1.1 Pinned PowerShell modules
 
@@ -309,8 +310,7 @@ function Get-FsiAdaptiveProtectionStatus {
 function Get-FsiIrmHrConnectorState {
 <#
 .SYNOPSIS
-    Reports last-sync time, record count, and lag for the Microsoft 365 HR data connector that
-    feeds IRM departing-user / risky-user / priority-user templates.
+    Marks HR connector verification pending until portal upload evidence is reviewed.
 .PARAMETER MaxLagHours
     Firm-defined maximum acceptable lag from the upstream HRIS export. Default 26h (one day plus
     cushion). Document the chosen value in your WSP.
@@ -323,49 +323,13 @@ function Get-FsiIrmHrConnectorState {
     $gate = Get-FsiIrmCloudGate
     if ($gate) { return $gate }
 
-    try {
-        # Microsoft Graph dataConnectors surface — preferred (commercial)
-        $connectors = Invoke-MgGraphRequest -Method GET `
-            -Uri 'v1.0/security/dataConnectors' -ErrorAction Stop
-        $hr = $connectors.value | Where-Object { $_.connectorType -eq 'humanResources' -or $_.displayName -match 'HR' }
-
-        if (-not $hr) {
-            return [pscustomobject]@{
-                Status     = 'Anomaly'
-                Cloud      = $script:FsiCloud
-                Rationale  = 'No HR data connector found. Departing-user / risky-user templates will not produce signal.'
-                CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
-            }
-        }
-
-        $rows = foreach ($c in $hr) {
-            $lastSync = if ($c.lastSyncDateTime) { [datetime]$c.lastSyncDateTime } else { $null }
-            $lagH     = if ($lastSync) { [math]::Round(((Get-Date).ToUniversalTime() - $lastSync.ToUniversalTime()).TotalHours, 1) } else { $null }
-            [pscustomobject]@{
-                Name         = $c.displayName
-                State        = $c.state
-                LastSyncUtc  = $lastSync
-                LagHours     = $lagH
-                RecordCount  = $c.recordCount
-                ExceedsLag   = ($lagH -ne $null -and $lagH -gt $MaxLagHours)
-            }
-        }
-
-        $status = if ($rows | Where-Object { $_.ExceedsLag -or $_.State -ne 'enabled' }) { 'Anomaly' } else { 'Clean' }
-
-        return [pscustomobject]@{
-            Status      = $status
-            Cloud       = $script:FsiCloud
-            MaxLagHours = $MaxLagHours
-            Connectors  = $rows
-            CheckedUtc  = (Get-Date).ToUniversalTime().ToString('o')
-        }
-    } catch {
-        return [pscustomobject]@{
-            Status = 'Error'; Cloud = $script:FsiCloud
-            Error  = $_.Exception.Message
-            CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
-        }
+    Write-Warning 'Manual HR upload-status review required; no supported Graph connector-health endpoint is asserted.'
+    return [pscustomobject]@{
+        Status = 'Pending'; Cloud = $script:FsiCloud
+        AutomationSupported = $false; MaxLagHours = $MaxLagHours
+        ManualVerificationRequired = $true
+        Rationale = 'Review Settings > Data connectors > HR: mappings, upload result, record count, and firm-defined freshness.'
+        CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
     }
 }
 ```
@@ -389,40 +353,19 @@ function Get-FsiIrmSignalCoverage {
     if ($gate) { return $gate }
 
     try {
-        # 1. Unified Audit Log — most common silent failure (per Control 1.12 Key Configuration Points)
+        # Requires the separate Connect-ExchangeOnline session described in section 9.
         $admin = Get-AdminAuditLogConfig -ErrorAction Stop
         $ualOn = [bool]$admin.UnifiedAuditLogIngestionEnabled
 
-        # 2. Defender for Endpoint integration (read via Graph security)
-        $mdeOn = $false
-        try {
-            $secAlerts = Invoke-MgGraphRequest -Method GET `
-                -Uri "v1.0/security/alerts_v2?`$top=1&`$filter=serviceSource eq 'microsoftDefenderForEndpoint'" `
-                -ErrorAction Stop
-            $mdeOn = [bool]$secAlerts.value
-        } catch { $mdeOn = $false }
-
-        # 3. Defender for Cloud Apps connectors
-        $mdcaConnectors = @()
-        try {
-            $resp = Invoke-MgGraphRequest -Method GET `
-                -Uri 'v1.0/security/dataConnectors' -ErrorAction Stop
-            $mdcaConnectors = @($resp.value | Where-Object { $_.connectorType -match 'cloudApp|Box|Dropbox|GoogleDrive|S3' })
-        } catch { }
-
-        # 4. Browser-dependent template verification is manual (portal evidence)
         $browserDependentTemplates = @('Risky AI usage', 'Risky browser usage')
-        $status = if (-not $ualOn) { 'Anomaly' }
-                  elseif (-not $mdeOn) { 'Pending' }
-                  elseif ($mdcaConnectors.Count -eq 0) { 'Pending' }
-                  else { 'Clean' }
+        $status = if (-not $ualOn) { 'Anomaly' } else { 'Pending' }
+        Write-Warning 'MDE sharing, Cloud Apps integrations, and browser coverage require manual positive-control evidence.'
 
         return [pscustomobject]@{
             Status                     = $status
             Cloud                      = $script:FsiCloud
             UnifiedAuditLogEnabled     = $ualOn
-            MdeIntegrated              = $mdeOn
-            McasConnectorCount         = $mdcaConnectors.Count
+            AutomationSupported        = $false
             BrowserDependentTemplates  = $browserDependentTemplates
             ManualVerificationRequired = $true
             Notes                      = if (-not $ualOn) {
@@ -452,9 +395,8 @@ function Get-FsiIrmSignalCoverage {
 function Test-FsiIrmAlertRouting {
 <#
 .SYNOPSIS
-    Verifies that IRM alerts surface in the Unified Audit Log (Control 1.7) and reach Microsoft
-    Sentinel via the Office 365 connector (Control 3.9), and that they route into the supervisory
-    review queue defined under Control 2.12.
+    Requires positive-control reconciliation of IRM Export alerts and the dedicated
+    Sentinel IRM connector. It does not attest routing from generic UAL events.
 .PARAMETER WorkspaceId
     Microsoft Sentinel Log Analytics workspace ID for the connected SIEM.
 .PARAMETER LookbackDays
@@ -470,47 +412,18 @@ function Test-FsiIrmAlertRouting {
     $gate = Get-FsiIrmCloudGate
     if ($gate) { return $gate }
 
-    try {
-        $start = (Get-Date).AddDays(-$LookbackDays)
-        $end   = Get-Date
-
-        # 1. UAL surface — IRM events appear under RecordType "InsiderRiskManagement"
-        $ualEvents = Search-UnifiedAuditLog -StartDate $start -EndDate $end `
-            -RecordType InsiderRiskManagement -ResultSize 100 -ErrorAction SilentlyContinue
-
-        # 2. Sentinel surface — query the Office 365 / IRM table
-        # Caller is expected to have Az.OperationalInsights connected.
-        $sentinelHits = $null
-        try {
-            $kql = "OfficeActivity | where TimeGenerated > ago(${LookbackDays}d) | where RecordType == 'InsiderRiskManagement' | summarize c=count()"
-            $sentinelHits = Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $kql -ErrorAction Stop
-        } catch { }
-
-        $status = if ($ualEvents -and $sentinelHits.Results.c -gt 0) { 'Clean' }
-                  elseif ($ualEvents -and -not $sentinelHits)        { 'Anomaly' }
-                  elseif (-not $ualEvents)                            { 'Pending' }   # could simply be a quiet window
-                  else                                                { 'Anomaly' }
-
-        return [pscustomobject]@{
-            Status               = $status
-            Cloud                = $script:FsiCloud
-            UalEventCount        = ($ualEvents | Measure-Object).Count
-            SentinelEventCount   = if ($sentinelHits) { [int]$sentinelHits.Results.c } else { $null }
-            LookbackDays         = $LookbackDays
-            SupervisoryQueueRef  = 'Control 2.12 — Supervisory Review queue (verify routing in Comm Compliance UI)'
-            CheckedUtc           = (Get-Date).ToUniversalTime().ToString('o')
-        }
-    } catch {
-        return [pscustomobject]@{
-            Status = 'Error'; Cloud = $script:FsiCloud
-            Error  = $_.Exception.Message
-            CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
-        }
+    Write-Warning 'Alert routing is not automatically verified. Reconcile a known alert ID in the dedicated connector destination.'
+    return [pscustomobject]@{
+        Status = 'Pending'; Cloud = $script:FsiCloud
+        AutomationSupported = $false; ManualVerificationRequired = $true
+        WorkspaceId = $WorkspaceId; LookbackDays = $LookbackDays
+        Rationale = 'Enable Export alerts; reconcile actual IRM alert IDs with SecurityAlert and downstream review tickets.'
+        CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
     }
 }
 ```
 
-> A `Pending` result during a quiet detection window is normal. Re-run after a known synthetic event injection (see [`verification-testing.md`](verification-testing.md)) before relying on this output for an attestation.
+> These helpers deliberately return `Pending` for unsupported automated checks. Complete the manual evidence gates in [`verification-testing.md`](verification-testing.md); do not count `Pending` as a passed routing or connector check. See [HR connector](https://learn.microsoft.com/en-us/purview/import-hr-data) and [IRM alert export](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-share-data). The independent administrator audit log is a separate evidence plane.
 
 ---
 
@@ -659,7 +572,7 @@ Recommended evidence bundle for each change:
 **Adaptive Protection enablement** (separate from any single policy — tenant-level toggle):
 
 ```powershell
-Connect-IPPSSession -ShowBanner:$false
+Connect-ExchangeOnline -ShowBanner:$false
 $audit = Get-AdminAuditLogConfig -ErrorAction Stop
 $audit | Select-Object UnifiedAuditLogIngestionEnabled, AdminAuditLogAgeLimit
 # Perform Adaptive Protection toggle in Purview portal (Settings -> Insider Risk -> Adaptive Protection),
@@ -670,7 +583,7 @@ $audit | Select-Object UnifiedAuditLogIngestionEnabled, AdminAuditLogAgeLimit
 
 ## §10 — DLP rule integration with risk tiers (Adaptive Protection escalation)
 
-Adaptive Protection escalates DLP rule actions based on the user's calculated IRM risk tier — **Elevated** > **Moderate** > **Minor**. The `Set-DlpComplianceRule -IRMSettings` parameter wires a DLP rule into the tier system.
+Adaptive Protection can use a user's IRM risk level — **Elevated**, **Moderate**, or **Minor** — as a DLP rule condition. The documented [`Set-DlpComplianceRule -SharedByIRMUserRisk`](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-dlpcompliancerule) parameter takes the level's GUID, not its display label. This condition does not itself configure actions, enable enforcement, or enable Adaptive Protection. Review existing conditions before replacing this multi-valued condition.
 
 ```powershell
 function Set-FsiDlpRuleForRiskTier {
@@ -695,7 +608,12 @@ function Set-FsiDlpRuleForRiskTier {
     $rule | ConvertTo-Json -Depth 10 | Set-Content "$EvidencePath\dlp-rule-before-$RuleName-$ts.json"
 
     if ($PSCmdlet.ShouldProcess($RuleName, "Bind to AdaptiveProtection RiskLevel=$RiskLevel")) {
-        Set-DlpComplianceRule -Identity $RuleName -AdaptiveProtectionRiskLevel $RiskLevel
+        $riskIds = @{
+            Elevated = 'FCB9FA93-6269-4ACF-A756-832E79B36A2A'
+            Moderate = '797C4446-5C73-484F-8E58-0CCA08D6DF6C'
+            Minor    = '75A4318B-94A2-4323-BA42-2CA6DB29AAFE'
+        }
+        Set-DlpComplianceRule -Identity $RuleName -SharedByIRMUserRisk $riskIds[$RiskLevel] -ErrorAction Stop
     }
 
     Get-DlpComplianceRule -Identity $RuleName |
@@ -703,7 +621,7 @@ function Set-FsiDlpRuleForRiskTier {
 }
 ```
 
-> The `-AdaptiveProtectionRiskLevel` parameter name is verified against the April 2026 cmdlet surface but Microsoft has renamed adaptive-protection-related DLP parameters at least twice; verify `Get-Command Set-DlpComplianceRule -Syntax` output before each change window and reconcile against the parent control file.
+> Reviewed against current Microsoft Learn on 2026-10-18; not executed in a tenant. Preserve the before/after snapshots and validate supported syntax in the approved change window. Quick-setup DLP starts in test mode; enabling a condition is not proof of enforcement.
 
 ---
 
@@ -791,4 +709,4 @@ Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $res
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (live UI not tested)*

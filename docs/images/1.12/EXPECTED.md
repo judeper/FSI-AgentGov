@@ -9,7 +9,7 @@
 | `03-purview-insider-risk-create-policy.png` | Purview | Policies → Create | Policy creation wizard |
 | `04-purview-insider-risk-indicators.png` | Purview | Policy → Indicators | Risk indicators selection |
 | `05-purview-insider-risk-settings.png` | Purview | Insider risk → Settings | Global settings configuration |
-| `06-purview-insider-risk-connectors.png` | Purview | Settings → Connectors | HR and other data connectors |
+| `06-purview-insider-risk-connectors.png` | Purview | Settings → Data connectors → HR | Actual HR upload status and mapped data; applicable only when HR is the chosen trigger |
 | `07-purview-insider-risk-alerts.png` | Purview | Alerts | Alert queue and triage |
 | `08-purview-insider-risk-cases.png` | Purview | Cases | Case management view |
 
@@ -17,11 +17,12 @@
 
 - Policies include AI/agent usage patterns
 - Indicators cover data exfiltration via agents
-- HR connector configured for departure scenarios
+- HR mapping/upload verified where used; Entra account deletion is an alternative departing-user trigger
 - Alert workflow routes to appropriate teams
 - Capture from pre-production environment when possible
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
+- Documentation path checked against [Microsoft Learn HR connector guidance](https://learn.microsoft.com/en-us/purview/import-hr-data) on 2026-10-18; no screenshots or live UI were verified in this review
 
 ---
 
