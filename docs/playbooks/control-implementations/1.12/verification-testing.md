@@ -848,7 +848,7 @@ OCC Bulletin 2026-13 (formerly OCC 2011-12) (dynamic risk response) · GLBA 501(
 #### Setup
 
 - Communication Compliance (CC) supervises communications under FINRA 3110 and the firm's WSP.
-- Operator: Purview Compliance Admin.
+- Operator: Purview Compliance Admin for policy configuration, plus an authorized **Communication Compliance Investigator** (or umbrella Communication Compliance member) assigned as a reviewer for CC content access. CC Admins permissions alone do not grant investigation. Resolve pseudonymized identities only through the approved privacy process and verify AU scope. This TC-16 role clarification was documentation-checked on 2026-10-16; no live correlation was executed and other tests were not re-verified.
 
 #### Steps
 

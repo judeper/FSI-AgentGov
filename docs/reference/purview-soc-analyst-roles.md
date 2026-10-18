@@ -26,7 +26,7 @@ For canonical role naming conventions, see the [Administrator Role Catalog](role
 | View sensitivity labels and label analytics | Information Protection Reader | Purview portal → Role groups | Read-only access to label definitions, policies, and analytics dashboards |
 | Search audit logs (Copilot usage, DLP events, agent activity) | Purview Audit Reader | Purview portal → Role groups | Provides search access to Unified Audit Log; does not grant audit configuration rights |
 | View Insider Risk alerts (SOC triage) | Insider Risk Management Analyst | Purview portal → Role groups | Optional — assign only if SOC is responsible for Insider Risk alert triage |
-| View Communication Compliance policy violations | Communication Compliance Analyst | Purview portal → Role groups | Optional — assign only if SOC is responsible for communication supervision triage |
+| View Communication Compliance policy violations | Communication Compliance Analysts | Purview portal → Role groups **and per-policy reviewer assignment** | Optional — assign only if SOC is responsible for communication supervision triage; verify AU scope. Role-group membership alone does not authorize policy-item access |
 
 ---
 
@@ -62,7 +62,7 @@ Assign only when the SOC team is responsible for these workloads:
 | Role Group | When to Assign |
 |------------|----------------|
 | Insider Risk Management Analyst | SOC performs Insider Risk alert triage |
-| Communication Compliance Analyst | SOC performs communication supervision triage |
+| Communication Compliance Analysts | SOC performs communication supervision triage and is assigned as a reviewer on the relevant policy |
 
 ---
 
