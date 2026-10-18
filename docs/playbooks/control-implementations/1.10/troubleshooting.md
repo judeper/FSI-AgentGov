@@ -49,7 +49,7 @@ A common audit finding in FSI is _"the policy was modified before the failing-st
 2. **Role-group snapshot** for: `Communication Compliance`, `Communication Compliance Admins`, `Communication Compliance Analysts`, `Communication Compliance Investigators`, `Communication Compliance Viewers`. Capture membership, AU restriction state, and effective permissions at UTC of capture.
 3. **Per-policy reviewer assignment snapshot** for every in-scope policy, including the **User-reported messages** policy (where a reviewer mis-assignment is the most common privacy violation in FSI — see §3).
 4. **Pending-queue screenshot** for the affected policy — full page, with the alert count, sample alerts, and timestamp visible.
-5. **Privacy / pseudonymization settings screenshot** — Communication Compliance > Settings > Privacy. Capture the pseudonymization state and the identity that last toggled it.
+5. **Privacy / pseudonymization settings screenshot** — **Settings (upper-right) → Communication Compliance → Privacy**. Capture the pseudonymization state and corroborate the identity that last changed it using attributable change evidence; do not assume the settings page displays that identity.
 6. **Audit-search export** from a verified supported cloud connection (`Connect-ExchangeOnline` or IPPS where available). Learn does not document CC audit results as exclusive to either endpoint. Use `SupervisionRuleMatch`, lifecycle operations (`Discovery`), and `SupervisoryReviewTag` (`AeD`); paginate, split windows at the 50,000-result session cap, and correlate raw payloads rather than assuming the audit actor equals the sender. Allow separate audit visibility time.
 7. **Classifier model version** — for any classifier-based policy, record the classifier and (where surfaced) the model version that was active at the time of the suspect window. A classifier model bump after the fact invalidates the prior baseline.
 8. **Feature availability confirmation** — verify against current Microsoft Learn that the in-scope features are available and enabled in the tenant.
@@ -74,7 +74,7 @@ Apply one or more of the following while CC is degraded; document the compensati
 
 1. [ ] Tenant ID confirmed
 2. [ ] **Audit ingestion** verified `True` from an **EXO** session (`Get-AdminAuditLogConfig`) — the IPPS value can be cached / stale
-3. [ ] **License entitlement** verified for every reviewer and every in-scope user (E5 / E5 Compliance / Purview Suite as applicable; per-user M365 Copilot license verified for Copilot-scoped policies via `Get-MgUserLicenseDetail`)
+3. [ ] **License entitlement** reconciled for every reviewer and every in-scope user against the current service-description matrix, including Office 365 E5 and qualifying add-on/base-plan paths; verify source-specific Copilot rights rather than inferring them from the template name. Follow [license entitlement verification](verification-testing.md#21-license-entitlement) and retain actual `Get-MgUserLicenseDetail` output.
 4. [ ] **Reviewer Exchange Online mailbox** present for every reviewer (a reviewer without an EXO mailbox cannot receive notifications and may not be able to open message bodies)
 5. [ ] **Per-policy reviewer assigned** for every in-scope policy (role-group membership alone is not sufficient — see §4 Symptom 12)
 6. [ ] **Policy enabled** and within its effective scope (locations, direction, user scope, conditions, review percentage)
@@ -179,7 +179,7 @@ The single most common cause of misdirected investigation in FSI is reaching for
 
 | Likely cause | Diagnostic | Fix |
 |---|---|---|
-| Policy was built from a **non-Copilot template** (e.g., `Inappropriate content`) — that template's location is Teams + Viva Engage, not Copilot. The CC `Other AI apps` category is browser-detected via Defender for Cloud Apps catalog and is unrelated to the M365 Copilot scope | Confirm template used and locations selected on the policy | Create a new policy from `Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions`; do not retrofit a Teams template |
+| Policy was built from a **non-Copilot template** (e.g., `Inappropriate content`) without adding the required AI locations. That template does not add Copilot coverage automatically; **Other AI apps** is a distinct browser-detected category, not Microsoft 365 Copilot | Inspect actual locations, conditions, source onboarding, and source-specific positive controls, not just the original template | Use the dedicated Copilot interactions template for a new policy, or edit an existing policy's **Choose locations to detect communications** page to add the required AI locations and appropriate conditions. Reconcile source-specific licensing/PAYG and test ingestion; adding a location does not prove coverage |
 | User license does not include M365 Copilot | `Get-MgUserLicenseDetail` | Assign Copilot license; document gap |
 | PAYG enabled for non-M365 AI but the user's M365 Copilot interactions are routed to a Copilot Studio Copilot (which is a non-M365 AI source) | Cross-reference the agent surface against Learn's `Microsoft Copilot experiences` vs `Enterprise AI apps` vs `Other AI apps` definitions | Confirm the source category; add the correct policy template (Copilot Studio Copilots fall under non-M365 AI sources and require PAYG) |
 

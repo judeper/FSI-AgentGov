@@ -329,7 +329,7 @@ For every template below:
 
 ### Policy C — Copilot interactions (the AI-monitoring template)
 
-> **Use this template for AI prompt/response supervision.** Do not attempt to retrofit Inappropriate content or Inappropriate text to Copilot — those templates do not include the Copilot location and they do not auto-configure the AI-specific safety classifiers.
+> **Use this template as the starting point for a new Copilot policy.** Inappropriate content and Inappropriate text do not add Copilot locations or AI-specific safety classifiers automatically. Learn also permits editing an existing policy to add AI locations; explicitly configure the required conditions and verify each source rather than treating the original template as proof of coverage.
 
 | Property | Template-locked value |
 |---|---|
@@ -338,7 +338,7 @@ For every template below:
 | Default review percentage | 100% |
 | Conditions | **Prompt Shields** + **Protected material** classifiers (auto-configured) |
 
-The full template name in the portal is **"Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions"**.
+The policy-template reference names this **"Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions"**; the AI-specific guide uses **"Detect Microsoft Copilot interactions"**. Record the caption actually displayed in your tenant. These documentation names are not a claim of live portal verification.
 
 **Tunable in Customize policy:** Reviewer set, scoped users, additional classifiers / SITs / keywords, review percentage.
 

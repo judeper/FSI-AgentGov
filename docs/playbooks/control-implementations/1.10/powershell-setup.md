@@ -43,7 +43,7 @@ Every Control 1.10 PowerShell session **must** start with the same five steps:
 2. Open a Security & Compliance PowerShell session.
 3. Connect to **IPPS** (Security & Compliance) for policy/rule reads; CC audit search is not documented as IPPS-only.
 4. Verify the caller is a member of `Communication Compliance Admins` (and optionally `Communication Compliance Investigators` for evidence collection runs).
-5. Verify the tenant has the licensing required for Communication Compliance (Microsoft 365 E5 / E5 Compliance / Insider Risk Management add-on).
+5. Reconcile base Communication Compliance and source-specific entitlements against the current service-description matrix, including required base plans for add-ons; see [license entitlement verification](verification-testing.md#21-license-entitlement). The policy query below does not perform that reconciliation.
 
 The helper below is a single drop-in pre-flight. Save it as `Initialize-Cc110Session.ps1` in your evidence-collection module.
 
@@ -112,8 +112,7 @@ function Initialize-Cc110Session {
         throw "Caller $callerUpn is not a member of '$RequiredRoleGroup'. Communication Compliance cmdlets will fail or return partial results."
     }
 
-    # 5. License surface check (informational — CC requires E5/E5 Compliance/IRM add-on)
-    # Licensing detail belongs in Control 2.1; here we only flag the CC service plan.
+    # 5. Policy inventory check; license reconciliation is a separate pre-flight step.
     $ccPolicies = Get-SupervisoryReviewPolicyV2 -ErrorAction Stop
     if ($null -eq $ccPolicies) {
         Write-Warning "No policies returned. Reconcile expected portal inventory and effective permissions; this query is not a licensing test."

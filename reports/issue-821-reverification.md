@@ -232,3 +232,57 @@ The mandatory site validations ran in the exact order below after the checklist 
 | `git diff --check` | Passed. |
 
 Only the task-created `_broken-links.json` is removed. The build-generated `docs\version.json` SHA/timestamp-only change is restored to its initially clean tracked state; no unrelated edits or existing local evidence are discarded. Generated site assets remain local. This follow-up does not rerun or newly claim the original full technical re-verification, snippet harness or tenant tests.
+
+## Owner-authorized PR review and correction — 2026-10-18
+
+The owner authorized review and correction of `judeper/FSI-AgentGov#1811`, followed by a separate merge decision. This section records that later review; the local-only implementation restrictions and historical results above describe the original worker, not new claims about this follow-up. No tenant, browser, deployment, policy, licensing, billing, or role changes were performed. Regulatory wording and mappings remain outside this technical review.
+
+The full 14-file PR diff and originating OceanSquad issue 821 were reviewed. Live official Microsoft Learn references above were checked for licensing, AI locations/billing, policy templates and timing, permissions/reviewer assignment, privacy, preservation, remediation, exports/auditing, and the relevant read cmdlets. The policy, configuration, AI, permissions, channel, investigation, reporting, and licensing articles support the original corrections. Remaining unsupported field/decryption/global-settings audit contracts and conflicting historical preservation dates stay explicit unknowns, not fabricated guarantees.
+
+| Review finding | Disposition / propagation |
+|---|---|
+| The base CC row in `docs\reference\license-requirements.md` omitted Office 365 E5 and the qualifying Insider Risk Management add-on, contradicting the corrected verification playbook and the service-description matrix. | Include those entitlement paths and required base-plan prerequisites. Preserve the separate Copilot-for-M365 analysis and non-M365 AI PAYG requirements. This addresses the inline PR review finding. |
+| The PowerShell pre-flight list repeated an incomplete licensing list, and its comment called a policy inventory read a licensing/service-plan check. | Link the canonical entitlement verification and describe the query as inventory only. No executable snippet statement changes in this follow-up. |
+| Troubleshooting retained the obsolete privacy breadcrumb and implied the settings page exposes the last actor. | Align with **Settings (upper-right) → Communication Compliance → Privacy**, and require separately attributable change evidence. Do not invent an audit payload or UI field. |
+| Troubleshooting's licensing checklist repeated an incomplete list; its Copilot remedy and the portal guide forbade adding Copilot to an existing policy. | Link the source-specific entitlement procedure and explicitly permit the AI guide's existing-policy location edit. Configure conditions, reconcile onboarding/licensing/PAYG, and run source-specific positive controls rather than assuming location selection proves coverage. |
+| The live policy-template article uses the longer Copilot template caption while the AI-specific guide uses the shorter caption. | Preserve both documented captions and require recording the actual tenant label; remove the claim that this review observed a particular live portal caption. |
+
+**Downstream review:** the original enumerated changed/unchanged tables above remain the full dependency inventory. This follow-up changes the licensing reference and three 1.10 companion playbooks, plus this report. The corrected verification guide, control overview, screenshot checklist, 1.7/1.12/1.21 verification excerpts, configuration example, SOC role reference and changelog were reviewed and need no additional technical propagation. Historical source-monitor payloads, regulatory mappings/wording, unrelated controls and the 2.12 screenshot checklist remain unchanged for the reasons already recorded. Existing generators are used; generated catalogs are not hand-edited.
+
+**Verification boundary:** local build/static checks and offline mocked documentation snippets do not establish effective tenant entitlements, permissions, ingestion, classifier behavior, audit completeness, UI availability or successful immutable archival. No screenshot or tenant verification date is renewed. Publication of review evidence does not itself authorize merge.
+
+### Owner-review validation results
+
+The following commands ran after the technical corrections. The first four ran in the required order; every listed command exited 0.
+
+| Exact command | Actual result |
+|---|---|
+| `python -m mkdocs build --strict` | Passed; 301.72 seconds, no MkDocs warnings/errors. Material emitted its upstream advisory banner, not a build failure. |
+| `python scripts\verify_build_output.py site` | Passed; expected built HTML and search asset present. |
+| `python scripts\verify_meta_tags.py site` | Passed; all 8 required tags on 3 sampled pages. |
+| `python scripts\verify_doc_links.py site --json <session-files>\pr1811-broken-links.json` | Passed; 697 pages, no broken internal links. |
+| `python scripts\verify_controls.py` | Passed. |
+| `python scripts\verify_xref_graph.py` | Passed. |
+| `python scripts\check_manifest_doc_drift.py --check` | Passed. |
+| `python scripts\check_explorer_data_drift.py --check` | Passed. |
+| `python scripts\check_change_radar_data_drift.py --check` | Passed. |
+| `python scripts\check_faq_jsonld_drift.py --check` | Passed. |
+| `python scripts\generate_coverage_matrix.py --check` | Passed. |
+| `python scripts\verify_language_rules.py` | Passed. |
+| `python scripts\verify_commercial_scope.py` | Passed. |
+| `python scripts\verify_learn_urls_count.py --check` | Passed. |
+| `python scripts\verify_version_stamps.py --check` | Passed. |
+| `python scripts\verify_prose_counts.py --check` | Passed. |
+| `python scripts\verify_solutions_docs.py --check` | Passed. |
+| `python scripts\verify_regulatory_naming.py --check` | Passed. |
+| `python assessment\manifest\generate_manifest.py --check` | Passed. |
+| `python scripts\check_automation_honesty.py --check` | Passed. |
+| `python -m pytest scripts\test_control_110_playbook_guards.py -q` | Passed; 42 tests. |
+| `pwsh -NoProfile -File <session-files>\pr1811-offline-check.ps1` | Passed; 19 PowerShell documentation blocks parsed. Five local mocked collector scenarios: empty/header-only CSV and `[]` JSON, deduplication through query exhaustion, query error, missing identity, and 50,000-row fail-closed behavior. Verified output hashes; no tenant connection or mutation. |
+| `python scripts\gen_explorer_data.py` | Passed; generated output equal to HEAD after excluding `generatedAt`. Timestamp-only churn discarded, not hand-edited. |
+| `python scripts\compile_researcher_package.py` | Passed; refreshed four ignored local researcher-package artifacts. No tracked content-graph generator exists. |
+| `git diff --check` | Passed. |
+
+An additional UTF-8-aware local comparison confirmed that the control's **Regulatory Requirements** and the SOC reference's **Regulatory Alignment** sections are unchanged from the PR base. The owner follow-up changes no executable PowerShell snippet statements. The original full diff was separately reviewed for the regulatory boundary; this two-section comparison is not a claim that every legal statement was automatically identified or legally revalidated.
+
+Two disposable validation-fixture issues were corrected transparently: the initial missing-identity mock never exhausted its stream, so the documented collector correctly failed at its session cap instead; the corrected fixture returned an empty page and exercised the intended missing-identity guard. A first text-comparison attempt decoded Git output using the Windows default encoding; explicitly decoding UTF-8 removed that false discrepancy. Neither required a product-code change. Only this review's generated timestamp/build-identity noise in `docs\version.json` and `docs\javascripts\control-explorer-data.json` is discarded from the initially clean worktree.
