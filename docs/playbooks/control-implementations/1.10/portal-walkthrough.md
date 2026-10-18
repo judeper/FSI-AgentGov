@@ -3,6 +3,7 @@
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Audience:** M365 administrator (US financial services)
 **Last UI Verified:** May 2026
+**Technical documentation check:** 2026-10-16 — targeted corrections only; no live tenant/UI execution
 **Cloud coverage:** Commercial (Global)
 **Estimated Time:** 4–8 hours (excludes Teams/Exchange processing windows and pilot validation)
 
@@ -21,7 +22,7 @@
     | Search across mailboxes for legal hold / production | eDiscovery — [Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
     | Block content from being sent or shared with AI | DLP — [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
 
-    Encrypted / rights-protected messages: Communication Compliance scans the **decrypted content** that the service can resolve through indexing. Messages whose content the service cannot resolve (third-party encryption, BYOK with restrictive policies) will not surface meaningful matches — route those to Microsoft Purview Message Encryption / IRM.
+    Encrypted / rights-protected messages: do not assume delivery, indexing, or an encryption label establishes CC content access. Test each required encryption mode against an identical unencrypted keyword positive control; record supported-configuration evidence and coverage gaps. See [1.10-OME-01](verification-testing.md#110-ome-01-encrypted-message-handling-boundary).
 
 ---
 
@@ -89,7 +90,7 @@ For reviewers with on-premises mailboxes (hybrid Exchange tenants), migrate the 
 
 ### 4. Pay-as-you-go (PAYG) billing — required for non-M365 AI scope
 
-Any policy whose **Locations** include **Enterprise AI apps**, **Other AI apps**, or non-Microsoft 365 generative AI data (Copilot in Fabric, Microsoft Security Copilot, connected external AI applications, Microsoft Copilot Studio non-M365 content) requires **Microsoft Purview pay-as-you-go (PAYG) billing** linked to an Azure subscription. The **Microsoft Copilot experiences** location (M365 Copilot and Copilot Chat) does **not** require PAYG.
+Any policy analyzing non-Microsoft 365 AI data (including Copilot in Fabric, Microsoft Security Copilot, Copilot Studio, connected/cloud AI apps) requires **Microsoft Purview pay-as-you-go (PAYG) billing**, including sources under **Microsoft Copilot experiences**. Only Microsoft 365 Copilot data is exempt from PAYG for this detection; the location label alone does not establish exemption.
 
 PAYG is **not** required for **OCR processing** on policy attachments — Communication Compliance has its own built-in OCR (see Step 5).
 
@@ -150,7 +151,7 @@ If your firm's policy requires non-pseudonymized review (rare; typically only fo
    - Business justification (Compliance / HR / Legal sign-off)
    - Effective date and expected duration
    - Population of investigators who will see non-pseudonymized identities
-   - Audit-log row for the configuration change (search the UAL for the `Set-` activity on the CC privacy setting)
+   - Actual configuration audit event and raw payload, where available. Learn does not specify a `Set-` operation or `SupervisionPolicyUpdated`/`Pseudonym*` field contract for global privacy changes; an empty search is not proof of no change. Retain before/after settings and the signed register.
 
 Re-enable pseudonymization at the documented end date. The opt-out is **a privileged action and must be auditable**.
 
@@ -328,7 +329,7 @@ For every template below:
 
 ### Policy C — Copilot interactions (the AI-monitoring template)
 
-> **Use this template for AI prompt/response supervision.** Do not attempt to retrofit Inappropriate content or Inappropriate text to Copilot — those templates do not include the Copilot location and they do not auto-configure the AI-specific safety classifiers.
+> **Use this template as the starting point for a new Copilot policy.** Inappropriate content and Inappropriate text do not add Copilot locations or AI-specific safety classifiers automatically. Learn also permits editing an existing policy to add AI locations; explicitly configure the required conditions and verify each source rather than treating the original template as proof of coverage.
 
 | Property | Template-locked value |
 |---|---|
@@ -337,7 +338,7 @@ For every template below:
 | Default review percentage | 100% |
 | Conditions | **Prompt Shields** + **Protected material** classifiers (auto-configured) |
 
-The full template name in the portal is **"Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions"**.
+The policy-template reference names this **"Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions"**; the AI-specific guide uses **"Detect Microsoft Copilot interactions"**. Record the caption actually displayed in your tenant. These documentation names are not a claim of live portal verification.
 
 **Tunable in Customize policy:** Reviewer set, scoped users, additional classifiers / SITs / keywords, review percentage.
 
@@ -348,7 +349,7 @@ The full template name in the portal is **"Detect Microsoft 365 Copilot and Micr
 - Review percentage: keep at **100%** (Copilot interactions are a new-and-evolving supervisory surface; sample only after a documented period of stable false-positive rates)
 - Optional add-ons in Customize policy: custom SITs created under Control 1.13 (e.g., MNPI indicators), custom keyword dictionaries (e.g., "guaranteed return", "risk-free", "inside information"), and Microsoft trainable classifiers as needed
 
-> For monitoring of **non-Microsoft AI applications** (Enterprise AI apps, Other AI apps, ChatGPT Enterprise via connectors, Copilot in Fabric, Microsoft Security Copilot), create a **Custom policy** (templates are locked to specific locations) and ensure **PAYG billing is enabled** (Prerequisites #4). Without PAYG, those locations either do not appear or produce zero matches.
+> For broader generative-AI coverage, Learn permits editing an existing policy's **Choose locations to detect communications** page to add **Microsoft Copilot experiences**, **Enterprise AI apps**, or **Other AI apps**. A custom policy is also an option. Fabric and Security Copilot are Microsoft experiences, not non-Microsoft apps; all non-M365 AI data requires PAYG. Onboard and positively test each required source independently; selecting a location is not proof of ingestion.
 
 ### Policy D — Sensitive information
 
@@ -416,13 +417,13 @@ The full template name in the portal is **"Detect Microsoft 365 Copilot and Micr
 
 ### Custom policy (the only free-form path)
 
-If your scenario does not fit any template (e.g., Copilot Studio agents on the Other AI apps location, custom SIT-only detection across non-template-supported location combinations), use **Custom policy**. The Custom policy wizard exposes every location, every direction, every condition, and the OCR checkbox without template constraints.
+If your scenario does not fit a template, use **Custom policy** and verify the available location/condition combinations in the tenant. Copilot Studio belongs to **Microsoft Copilot experiences**, not automatically Other AI apps. Classifier and OCR restrictions still apply; a custom policy does not remove product limitations.
 
 When using Custom policy, document the rationale in the policy description field — auditors should not have to reverse-engineer why a non-template path was chosen.
 
 ### Policy Match Preservation (PMP) — set per policy
 
-> **Policy Match Preservation is NOT the records-retention mechanism for SEC 17a-4 / FINRA 4511.** PMP controls how long the **policy-match metadata** (the matched copy held inside the SupervisoryReview store) is preserved for the supervisory review workflow. For regulatory records retention of the **underlying communications** under SEC 17a-4(f) WORM, use Microsoft Purview retention policies — see [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
+> **Policy Match Preservation is NOT the records-retention mechanism for SEC 17a-4 / FINRA 4511.** PMP controls how long the **copy of a matched message** is preserved for review, not just its metadata. For regulatory records retention of the **underlying communications** under SEC 17a-4(f) WORM, use Microsoft Purview retention policies — see [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 
 PMP options (effective **2025-06-01** per current Microsoft Learn): **1 month**, **6 months**, **1 year (default)**, **7 years**.
 
@@ -431,6 +432,8 @@ For each policy:
 1. Open **Customize policy** during creation, or **Edit policy** afterward
 2. Set **Policy match preservation** based on supervisory needs. Recommended FSI default: **1 year** (the default), with explicit documentation that the 7-year SEC 17a-4 retention is implemented under Control 1.9 retention policies, **not** under PMP
 3. Document the choice in the change ticket
+
+The actual policy control is **Name and describe your policy → Preserve policy matches**. **Global Setting** is valid inheritance; record the global period from **Settings → Communication Compliance → Policy Match Preservation** and any override. Changes apply prospectively; they do not recover expired copies or automatically extend older matches.
 
 ### Per-policy alert volume / routing — what is configurable
 
@@ -461,7 +464,7 @@ If your firm's WSP requires a 24-hour analyst SLA and a 48-hour investigator SLA
 
 - OCR extracts printed and handwritten text from embedded or attached images (**.jpg/.jpeg, .png, .bmp, .tiff**, sized **100 KB to 4 MB**) in email and Microsoft Teams chat messages, and feeds it through the **same conditions** configured on the policy. OCR of images embedded inside document files is **not** supported.
 - OCR uses Communication Compliance's **built-in** Azure AI scanning and **does not require PAYG billing** (unlike the separate tenant-level Purview OCR preview used by DLP / IRM / auto-labeling)
-- OCR processing typically takes approximately **1 hour** to take effect after enablement on a policy — early no-match results are inconclusive, not negative
+- Learn lists **24-hour** email/Teams OCR detection and up to **48 hours** for detected images to appear with alerts; distinguish these from the hourly policy scan
 - OCR does not translate; it does not classify image content (use Inappropriate images for image classification); it does not OCR text inside encrypted attachments the service cannot resolve
 
 Document in your evidence pack: which policies have OCR enabled and the expected processing window.
@@ -476,21 +479,24 @@ Document in your evidence pack: which policies have OCR enabled and the expected
 
 1. **Identify a named test user** scoped to the policy. The user must be in the policy's scoped distribution group and (if AU-scoped) in the AU
 2. **Identify a named test reviewer** assigned to the policy with an Exchange Online mailbox
-3. **At a recorded UTC timestamp**, have the test user send a message that is **certain** to match the policy. Examples:
+3. **At a recorded UTC timestamp**, first use a separately identified 100% keyword/no-condition transport control, then evaluate classifiers against approved samples. The following classifier examples are hypotheses, not guaranteed triggers:
    - Inappropriate text: a test message containing a clear targeted-harassment classifier hit, sent from the test user's Exchange/Teams/Viva Engage to another internal user
    - Regulatory compliance: a test message containing a documented regulatory-collusion classifier phrase
    - Copilot interactions: a test prompt from M365 Copilot containing a Prompt Shields trigger
    - Sensitive information: a test message containing a clearly synthetic SSN that matches the policy's SIT
 4. Record:
    - Sender UPN, recipient UPN
-   - UTC send time (`Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ'`)
+   - UTC send time (`Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ'` in PowerShell 7)
    - Channel (Exchange / Teams chat / Teams channel / Viva Engage / Copilot)
    - Expected matched condition
 5. **Wait the documented Learn processing window:**
    - **Email (Exchange Online):** approximately **24 hours**
-   - **Teams chats, Viva Engage, third-party platforms:** approximately **48 hours**
-   - **Copilot interactions:** allow at least 24 hours; extend to 48 hours if no result by 24 hours
-   - **OCR-driven matches:** add ~1 hour beyond the channel processing window
+   - **Teams chats:** up to **48 hours** channel processing; body detection table lists **1 hour**
+   - **Viva Engage:** **1 hour** body detection; attachments up to **24 hours**
+   - **Third-party connector imports:** **24–48 hours**, depending on import frequency
+   - **Microsoft 365 Copilot / Copilot Chat:** **1 hour** body detection; no universal 24-hour queue ceiling is asserted
+   - **OCR:** **24 hours** detection; detected images may take up to **48 hours** to become available with alerts
+   - **Audit evidence:** observe separately; CC reports guidance allows up to **48 hours** before events are visible in policies. These figures are not end-to-end SLAs; see [verification §3](verification-testing.md#3-documented-processing-windows-not-slas).
 6. **Verify in the Pending queue:** open the policy → **Pending** tab → filter by user and the UTC window → confirm the alert appears with the matched condition
 7. **Verify reviewer can take action:** as the test reviewer, open the alert and exercise **Resolve** and **Tag** (do not exercise **Remove** in production tests; use a non-production tenant for that). Record the reviewer UPN, action, and UTC timestamp
 8. **Verify audit-log rows** in the Unified Audit Log (Microsoft Purview Audit search):
@@ -513,7 +519,7 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-3) -EndDate (Get-Date) `
     Export-Csv -NoTypeInformation -Path ".\evidence\1.10-validation-$(Get-Date -Format 'yyyyMMddTHHmmssZ').csv"
 ```
 
-Both rows must be present. If the **Pending** alert appears but `SupervisionRuleMatch` is missing from UAL, the audit log was not active at send time (regression — re-verify Prerequisites #2).
+Correlate both rows to the actual policy/message/reviewer after the audit observation window. A missing row can also reflect query filtering, permissions, truncation, or latency; it does not alone prove auditing was off. The bounded snippet is diagnostic only; final evidence requires [paged queries](powershell-setup.md#51-paged-unified-audit-log-collector-for-cc-operations), completed-query metadata, and raw-payload correlation rather than an assumed audit actor equal to the sender.
 
 9. **Capture evidence:**
    - Screenshot of the alert in the Pending queue (with anonymized usernames if pseudonymization is on; capture both the anonymized and admin-resolved view if your firm requires it)
@@ -598,8 +604,8 @@ The following are common configuration mistakes that produce silent failures, fa
 8. **Disabling pseudonymization without an audit trail.** The opt-out is a privileged action and must be auditable. An undocumented opt-out is an SOX 404 / privacy finding.
 9. **Adding users to Communication Compliance Investigators casually.** Investigators see non-pseudonymized identities and can download messages. Treat each addition as a privileged elevation with HR/Legal sign-off.
 10. **Configuring AUs and adaptive scopes together on CC.** Not supported. Pick one scoping model.
-11. **Treating Policy Match Preservation as records retention.** PMP retains the **policy-match metadata** in the supervisory store, not the underlying communications under SEC 17a-4(f) WORM. Records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
-12. **Assuming OCR is automatic.** OCR is a **checkbox on the policy Conditions page**, requires at least one text-type condition to enable, and takes ~1 hour to take effect. It uses CC's built-in OCR and does **not** require PAYG.
+11. **Treating Policy Match Preservation as records retention.** PMP retains the **copy of a matched message** for its effective preservation period, not just metadata, and not the underlying communications under SEC 17a-4(f) WORM. Records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
+12. **Assuming OCR is automatic or immediate.** Enable CC's built-in OCR per policy with supported conditions. Email/Teams OCR detection is listed as 24 hours and detected images may take up to 48 hours to appear with alerts. This is not the separate tenant-level Purview OCR setting.
 13. **Validating by "I created the policy and it didn't error."** Validation requires a **seeded test message** + the documented Learn processing window + verification of both the Pending queue entry and the `SupervisionRuleMatch` / `SupervisoryReviewTag` audit rows.
 14. **Including non-M365 AI locations without PAYG.** Locations either do not appear in the wizard or silently produce zero matches.
 15. **Documenting fabricated SLA toggles** ("24h analyst, 48h investigator") as portal settings. They are organizational SLAs, tracked outside CC.
@@ -655,4 +661,4 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation check only; no live UI execution)*

@@ -613,21 +613,11 @@ $cont02
 
 #### CONT-03 — Communication Compliance can review AI-generated messages (Control 1.10 cross-link)
 
-**Expected:** an active Communication Compliance policy with AI-generated message scope returns reviewable items in the policy's queue, and the reviewer can take a supervisory action (acknowledge, escalate, resolve).
+**Expected:** an active Communication Compliance policy with AI-generated message scope returns a correlated test item, and an authorized assigned reviewer can tag, escalate, or resolve it.
 
-```powershell
-$cont03 = [pscustomobject]@{
-    testId             = 'CONT-03'
-    collectorField     = 'content.communicationCompliance.queueActive'
-    policyName         = 'CC-AI-Generated-Communications'
-    queueDepth         = 47
-    reviewerActionTaken = $true   # operator acknowledges one item in the cycle
-    status             = if ($queueDepth -ge 0 -and $reviewerActionTaken) { 'PASS' } else { 'FAIL' }
-    capturedAtUtc      = (Get-Date).ToUniversalTime().ToString('o')
-}
-$cont03 | Save-AuditEvidence -Name 'CONT-03_CommComplianceReview'
-$cont03
-```
+Run [Control 1.10's source-specific transport test](../1.10/verification-testing.md#110-cop-01-copilot-template-policy-active-and-scoped-to-all-three-ai-categories) and [reviewer-action test](../1.10/verification-testing.md#110-inv-01-investigation-and-remediation-workflow). Record the actual policy ID, match/message ID, source, send/detection/action UTCs, matched condition, reviewer authorization, action, and completed audit-query references in `CONT-03_CommComplianceReview.json`; archive it with `Save-AuditEvidence` only after populating observed values.
+
+An empty queue, a nonnegative queue count, or a hard-coded `reviewerActionTaken = $true` is not a positive oracle. Do not manufacture queue depth or a PASS from example data. Missing matches/actions, truncated queries, or incomplete observation windows remain **inconclusive**, not PASS. CC Admins alone cannot investigate content; classifier bodies are not guaranteed triggers. This paragraph was documentation-checked on 2026-10-16; no live drill was executed and other tests on this page were not re-verified.
 
 #### CONT-04 — Worked examiner reconstruction example
 
