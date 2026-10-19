@@ -11,6 +11,8 @@
 
 **Last Verified:** 2026-10-16 (targeted Microsoft Learn documentation review, not UI/tenant execution). The [PowerShell verification ledger](powershell-setup.md#documentation-verification-ledger) supplies current primary references. Missing evidence is **Unknown / ManualEvidenceRequired**, not a zero-findings PASS.
 
+**Sponsorship dependency reviewed 2026-10-18:** use the [sponsorship verification ledger](sponsorship-lifecycle-workflows.md#documentation-verification-ledger) before diagnosing custom quarterly approvals or departure cascades. The peer collector does not deploy those processes. A native email-task success is not a sponsor signature, a register status is not source containment, and a missing custom table / flow is an implementation gap rather than evidence of zero overdue attestations.
+
 > **Scope.** This troubleshooting playbook covers the seven registration surfaces governed by Control 1.2 — (1) Microsoft Entra App Registrations, (2) Integrated Apps, (3) Copilot Studio agents (Dataverse `bot`), (4) Graph `/applications`, `/servicePrincipals`, and `/servicePrincipals/microsoft.graph.agentIdentity`, (5) declarative agent manifests, (6) MCP servers fronted by Entra registrations, and (7) the Microsoft 365 Agent Registry and `/copilot/admin/catalog/packages`. It also covers OAuth-grant governance and workload Conditional Access.
 >
 > Use this document when a registration surface has produced a failure, a discrepancy, an orphaned object, an unauthorized grant, or an examiner inquiry. For day-2 operations, use [verification-testing.md](./verification-testing.md). For first-time setup, use [portal-walkthrough.md](./portal-walkthrough.md) and [powershell-setup.md](./powershell-setup.md).

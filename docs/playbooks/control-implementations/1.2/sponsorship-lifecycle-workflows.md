@@ -1,6 +1,11 @@
 # Sponsorship Lifecycle Workflows
 
-> Supplemental playbook for [Control 1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md). This document specifies the **human accountability layer** that wraps every Microsoft 365 AI agent: the named sponsors, owners, backup owners, and compliance reviewers who carry regulatory responsibility for the agent across its lifecycle, and the Microsoft Entra ID Governance / Power Platform automation that makes that accountability machine-enforceable.
+**Last Verified:** 2026-10-18 (live Microsoft Learn technical documentation review; no tenant execution, UI verification, or screenshots).
+
+!!! important "Native capabilities versus custom implementation"
+    This playbook defines an organizational sponsorship process, not a deployable automation package. Microsoft documents native **human sponsor mover/leaver tasks**; quarterly approvals, zone-aware cascades, evidence signatures, and cross-platform containment require separately implemented and tested orchestration. The [verification ledger](#documentation-verification-ledger) records the technical corrections and primary sources. Regulatory mappings and compliance wording were not re-evaluated.
+
+> Supplemental playbook for [Control 1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md). This document specifies the **human accountability layer** that wraps every Microsoft 365 AI agent: the named sponsors, owners, backup owners, and compliance reviewers who carry regulatory responsibility for the agent across its lifecycle, and the native capabilities / custom implementation requirements for operationalizing that accountability.
 >
 > Companion playbooks (do **not** duplicate content from these — link to them):
 >
@@ -14,14 +19,14 @@
 > - [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — authoritative lifecycle state machine
 > - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — sponsor signature capture and retention
 > - [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — sponsor approval correspondence supervision
-> - [Control 2.1 implementation playbooks](../2.1/portal-walkthrough.md) — DSPM for AI alerting that escalates to sponsors
+> - [Control 1.6 implementation playbooks](../1.6/portal-walkthrough.md) — DSPM for AI alerting that escalates to sponsors
 > - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) — sponsor on-call obligations during incidents
 
 ---
 
 ## 1. Overview
 
-Human sponsorship is a foundational requirement for Agentic Users in Microsoft Entra ID and a core supervisory expectation under FINRA Rule 3110, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). An AI agent without a named, attested, currently employed sponsor is — for examination purposes — an **unsupervised system**, and the residual risk of unsupervised automation in a regulated FSI environment is the central concern this playbook addresses.
+Human sponsorship is a foundational requirement for Microsoft Entra agent identities and blueprints and a core supervisory expectation under FINRA Rule 3110, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). An AI agent without a named, attested, currently employed sponsor is — for examination purposes — an **unsupervised system**, and the residual risk of unsupervised automation in a regulated FSI environment is the central concern this playbook addresses.
 
 This playbook provides:
 
@@ -30,11 +35,11 @@ This playbook provides:
 3. **Zone-differentiated sponsorship requirements** (Z1 informal, Z2 sponsor + backup mandatory, Z3 dual sponsor + backup + compliance).
 4. **Attestation cadence** (quarterly sponsor signature, annual external compliance review) with a working calendar.
 5. The **departed sponsor / owner cascade workflow** including manager-hierarchy fallback, AI Governance Lead escalation, and the emergency Decommissioned transition.
-6. **Approval workflow integration** unifying Entra admin consent, Entra agent approval, and Power Platform agent approval into a single signature flow.
+6. **Approval workflow integration requirements** correlating distinct native approval actions with a separate business attestation; no universal approval API or automatic signature flow is supplied.
 7. The **sponsorship evidence pack** specifying every artifact captured per attestation, including SHA-256 hash chaining for tamper-evidence.
 8. **Examiner readiness framing** mapping each artifact to specific regulations.
 
-!!! note "Documentation dependency reviewed 2026-10-16"
+!!! note "Collection dependency reviewed 2026-10-18"
     Do not carry April 2026 blanket preview assumptions into current operation. Verify each feature's present entitlement and support terms using the [Control 1.2 source ledger](powershell-setup.md#documentation-verification-ledger). Its signed file catalog authenticates collected files, not the three-person sponsor attestation chain, prior-cycle hash chain, lifecycle workflow, or retention configuration specified here. Those remain separate implementation and tenant-test requirements; no UI or workflow execution was performed in this review.
 
 !!! warning "Language and liability"
@@ -49,7 +54,7 @@ Sponsorship is the artifact examiners look for first when evaluating AI agent go
 | Regulation | Expectation | How sponsorship supports it |
 |---|---|---|
 | **FINRA Rule 3110** (Supervision) | Written supervisory procedures with named supervisors | Agent Sponsor is the named supervisor of record for the agent's business use; quarterly attestation produces the written evidence |
-| **FINRA Rule 4511** (Books and Records) | Preservation of supervisory records in non-erasable, non-rewriteable form | Sponsorship evidence pack (Section 12) captures attestation in WORM-eligible form |
+| **FINRA Rule 4511** (Books and Records) | Preservation of supervisory records in non-erasable, non-rewriteable form | Sponsorship evidence pack (Section 11) captures attestation in WORM-eligible form |
 | **FINRA RN 24-09 / Rule 3110** (Generative AI) | Member firms remain responsible for compliance regardless of AI use; supervisory framework must address gen-AI specifically | Sponsor attestation explicitly references gen-AI risk categories (hallucination, inappropriate disclosure, unauthorized advice) |
 | **SEC Rule 17a-4(b)(4)** | Retention of supervisory communications | Sponsor approval correspondence supervised under [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) and retained 7 years |
 | **SOX §302/§404** | Officer certification of internal controls; ICFR effectiveness | Compliance Reviewer sign-off feeds quarterly ICFR attestation packages for any Z3 agent touching financial reporting |
@@ -66,7 +71,7 @@ Sponsorship is the artifact examiners look for first when evaluating AI agent go
 
 ## 3. Sponsorship Role Definitions
 
-The framework defines **four** sponsorship roles. Every agent — regardless of zone — must have at minimum an Agent Owner. Higher zones layer on Sponsor, Backup Owner, and Compliance Reviewer.
+The framework defines **four** sponsorship roles. Every agent — regardless of zone — must have at minimum an Agent Owner. Higher zones layer on Sponsor, Backup Owner, and Compliance Reviewer. These business roles are distinct from native directory relationships. Zone 1 owner-self-sponsorship does not waive the native sponsor requirement when creating an Entra agent identity or blueprint; an optional agent user has different relationship rules. See [agent owners, sponsors, and managers](https://learn.microsoft.com/en-us/entra/agent-id/agent-owners-sponsors-managers).
 
 ### 3.1 Agent Sponsor (Business Accountability)
 
@@ -113,11 +118,13 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 | Z2 | Identified individual or shared mailbox-backed team alias mapped to ≥2 named technical staff | Required: Microsoft Copilot Studio Maker fundamentals; Acceptable Use |
 | Z3 | Named individual technical lead with backup | Required: Copilot Studio Maker fundamentals; FSI Agent Governance certification; tabletop incident response participation in last 12 months |
 
+An eligibility group or team alias is governance metadata, not a native agent identity owner assignment. Assign supported named user owners separately and verify backup coverage; the security groups in Section 7.3 do not grant native ownership or sponsorship.
+
 **Duties.**
 
 1. Build, configure, and maintain the agent in Microsoft 365 Admin Center, Copilot Studio, Power Platform, or Agent 365.
 2. Operate the agent within the scope authorized by the Sponsor.
-3. Triage and respond to alerts from [Control 2.1](../2.1/portal-walkthrough.md) (DSPM for AI), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), and Defender XDR within the Zone SLA.
+3. Triage and respond to alerts from [Control 1.6](../1.6/portal-walkthrough.md) (DSPM for AI), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), and Defender XDR within the Zone SLA.
 4. Maintain Control 3.1 inventory metadata (data sources, connectors, sensitivity, business owner).
 5. Execute the technical work authorized by the Sponsor's quarterly attestation (e.g., decommission, scope change).
 6. Co-sign material configuration changes with the Sponsor.
@@ -160,6 +167,8 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 
 **Required role / seniority.** Designated officer within the Compliance department holding the **Purview Compliance Admin** or **Purview Compliance Reader** Entra role plus written delegated authority from the Chief Compliance Officer.
 
+This is the framework's organizational role policy, not a Microsoft requirement for responding to an approval. Grant product administration / evidence access separately using least privilege.
+
 **Duties.**
 
 1. Sign off on initial Z3 agent risk assessment (In Review → Approved transition).
@@ -191,7 +200,9 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 
 ## 4. Zone-Specific Sponsorship Requirements
 
-This expands the registry-level zone matrix from Control 1.2 with sponsorship-specific rules. All sponsor / owner identities are persisted as Entra ID extension attributes on the Agentic User and mirrored to the Control 3.1 Dataverse inventory.
+The timers and automatic transitions below are **organizational policy requirements for custom orchestration**, not native Microsoft defaults. Microsoft workflow availability or a successful notification does not demonstrate that these policies are implemented.
+
+This expands the registry-level zone matrix from Control 1.2 with sponsorship-specific rules. Store sponsor / owner assignments in the Control 3.1 governance register and reconcile them with the supported relationships on each source identity. Not every agent has an agent user account. The `extension_*` names in this playbook are **logical custom-field aliases**, not built-in Microsoft Graph properties; record the registered extension names and supported object types before implementing directory write-back.
 
 | Requirement | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise) |
 |---|---|---|---|
@@ -217,7 +228,7 @@ This expands the registry-level zone matrix from Control 1.2 with sponsorship-sp
 
 ## 5. Lifecycle Integration
 
-This section binds sponsorship signatures to the [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) lifecycle state machine. Each transition has a required signature set, a captured evidence artifact, and a hash-chained audit record (Section 12).
+This section binds sponsorship signatures to the [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) lifecycle state machine. Each transition has a required signature set, a captured evidence artifact, and a hash-chained audit record (Section 11).
 
 ### 5.1 State Machine Overview
 
@@ -263,7 +274,7 @@ Non-material changes (UI copy, prompt refinements within registered topics, mino
 
 ### 5.4 Lifecycle Workflow Implementation
 
-The technical Entra Lifecycle Workflows that drive the state transitions appear in Sections 7–9. The state attribute is persisted on the Agentic User as `extension_LifecycleState` and mirrored to the Control 3.1 Dataverse table `agt_AgentInventory.statecode`.
+Sections 7–9 distinguish native Entra Lifecycle Workflows from the custom orchestration needed to drive these state transitions. `extension_LifecycleState` and `agt_AgentInventory` are proposed custom schema names, not provisioned Microsoft features. Map the six governance states to a dedicated custom lifecycle column; do not assume Dataverse `statecode` exposes these six values. A register update does not itself activate, suspend, or decommission a source agent.
 
 ---
 
@@ -276,7 +287,7 @@ The technical Entra Lifecycle Workflows that drive the state transitions appear 
 | **Daily** | Automated DSPM for AI alert review | Agent Owner (or Backup) | Alert disposition log |
 | **Weekly (Z3)** | Activity summary review | Agent Owner; Sponsor receives digest | Sponsor digest acknowledgment |
 | **Monthly (Z2)** | Activity summary review | Agent Owner; Sponsor receives digest | Sponsor digest acknowledgment |
-| **Quarterly** | Sponsor attestation (Q1: Apr 15 / Q2: Jul 15 / Q3: Oct 15 / Q4: Jan 15) | Sponsor sign; Owner + Backup Owner co-acknowledge; Compliance Reviewer co-sign for Z3 | Signed attestation artifact (Section 12) |
+| **Quarterly** | Sponsor attestation (Q1: Apr 15 / Q2: Jul 15 / Q3: Oct 15 / Q4: Jan 15) | Sponsor sign; Owner + Backup Owner co-acknowledge; Compliance Reviewer co-sign for Z3 | Signed attestation artifact (Section 11) |
 | **Semi-annual** | Backup Owner reachability test | AI Governance team | Test result log |
 | **Annual** | External compliance review — Z3 100%, Z2 ≥10% sample | Compliance Reviewer; independent of Sponsor and Owner | Written review report retained 7 years |
 | **Annual** | Sponsor and Owner training refresh | Learning & Development | Completion records |
@@ -287,11 +298,11 @@ The technical Entra Lifecycle Workflows that drive the state transitions appear 
 
 The quarterly attestation is the workhorse evidence artifact examiners request first. It must be:
 
-1. **Initiated** automatically by the `FSI-Quarterly-Sponsor-Attestation` workflow (Section 7.2) on the cycle date.
-2. **Reviewed** by the Sponsor against the auto-generated activity pack (last 90 days of agent activity, alerts, material changes, NPPI exposure summary).
+1. **Initiated** by the separately implemented custom quarterly process (Section 8) on the cycle date; no such service is deployed by enabling Lifecycle Workflows.
+2. **Reviewed** by the Sponsor against an activity pack with demonstrated collection coverage (last 90 days of agent activity, alerts, material changes, NPPI exposure summary). Export/retention must already cover that interval; missing evidence is an exception, not no activity.
 3. **Signed** within 14 calendar days of initiation. Late attestations escalate per Section 9.
 4. **Co-signed** by Compliance Reviewer for Z3 within 7 additional days.
-5. **Archived** to the WORM-eligible store under Control 1.7 retention rules with SHA-256 chain (Section 12).
+5. **Archived** to the WORM-eligible store under Control 1.7 retention rules with SHA-256 chain (Section 11).
 
 ### 6.3 Annual External Review
 
@@ -312,22 +323,23 @@ Output is a written report filed in the firm's compliance review repository, cro
 
 | Requirement | Source |
 |---|---|
-| Microsoft Entra ID Governance (P2 / Governance SKU) | Required for Lifecycle Workflows and Access Reviews |
-| Microsoft Entra Verified ID (optional but recommended for Z3) | Cryptographic sponsor signature (Section 12) |
+| Microsoft Entra ID Governance or Microsoft Entra Suite | Employee Lifecycle Workflows; Entra ID P2 alone is not sufficient. Basic access reviews have separate P2 eligibility; confirm the specific review feature |
+| Microsoft 365 E7, or Microsoft Agent 365 paired with at least Entra P1 or Microsoft 365 E3 | Current agent sponsorship-task entitlement; verify the scenario-specific [agent sponsor task prerequisites](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) and [licensing matrix](https://learn.microsoft.com/en-us/entra/id-governance/licensing-fundamentals) |
+| Microsoft Entra Verified ID (optional custom credential design) | Credential issuance/presentation does not itself sign the evidence pack as the human Sponsor (Section 11.3) |
 | Lifecycle Workflows enabled in tenant | Entra admin center → Identity Governance |
-| Power Platform admin center with approval centers enabled | Power Platform admin |
-| Microsoft Purview Audit (Standard or Premium) | Sponsor approval audit trail |
-| Microsoft Sentinel or Defender XDR with custom log table | Long-term sponsor signature retention and KQL query |
+| Approved Power Automate / Logic Apps implementation and its connector entitlements | Custom scheduling, approvals, escalations, and evidence export; no generic PPAC approval-center switch is assumed |
+| Microsoft Purview Audit (Standard or Premium), with applicable audited workloads | Collect available workload events; separately export custom approval decisions and signatures |
+| Log Analytics workspace and ingestion configuration; Microsoft Sentinel if analytics rules are used | Custom approval / inventory telemetry and KQL; Defender XDR alone does not provision a workspace table or archive |
 | Agent inventory metadata schema (Control 3.1) deployed | `agt_AgentInventory` Dataverse table with sponsor / owner / backup columns |
 | Sponsor eligibility security groups | Created per Section 7.3 |
 | AI Governance Lead role designated | Named individual with email + Teams reachability |
 
 **Required Entra roles** (from [role catalog](../../../reference/role-catalog.md)):
 
-- **Entra Identity Governance Admin** — to create and manage Lifecycle Workflows.
+- **Lifecycle Workflows Administrator** (Microsoft built-in role; map the framework's Entra Identity Governance Admin responsibility to this role) — to create and manage Lifecycle Workflows.
 - **Entra Agent ID Admin** — to manage Agentic User attributes.
 - **Power Platform Admin** — to configure agent approval workflows.
-- **Purview Compliance Admin** — to scope attestation correspondence under Control 1.10.
+- **Purview Compliance Admin** — to scope attestation correspondence under Control 1.10; not a prerequisite merely to respond to a business approval.
 - **AI Administrator** — to manage Copilot agent governance settings.
 - **Entra Privileged Role Admin** — to configure PIM-eligible escalation for AI Governance Lead.
 
@@ -335,13 +347,25 @@ Output is a written report filed in the firm's compliance review repository, cro
 
 **Portal path:** Microsoft Entra admin center → **Identity Governance** → **Lifecycle Workflows**
 
-1. Sign in as Entra Identity Governance Admin.
+1. Sign in with at least the Lifecycle Workflows Administrator role.
 2. Navigate to **Lifecycle Workflows** → **Workflow settings**.
-3. Confirm "Email notifications" sender is `lifecycle-noreply@<your-tenant>` (or your branded sender).
-4. Set **Workflow processing schedule** to every 1 hour (default 3 — recommend tighter for FSI).
-5. Enable **Access reviews integration** so attestation tasks can chain to access review packages.
+3. Configure a verified sender domain and optional company branding through the documented [email settings](https://learn.microsoft.com/en-us/entra/id-governance/customize-workflow-email). Inspect a delivered message before setting mail-flow exceptions; do not assume a tenant-specific `lifecycle-noreply` sender exists.
+4. Set the tenant workflow schedule to the approved interval (1–24 hours; default 3 hours). This is evaluation frequency, not a quarterly recurrence trigger.
+5. Configure any access review separately. There is no assumed **Access reviews integration** switch that turns email tasks into attestation or review packages.
 
-*Screenshot description: Entra admin center Lifecycle Workflows landing page with three workflows visible (FSI-Quarterly-Sponsor-Attestation, FSI-Sponsor-Departure-Cascade, FSI-Owner-Departure-Cascade), each showing "Enabled" status pill and last run timestamp.*
+*Evidence instruction: capture the actual native human leaver workflow, supported task configuration, schedule, and run details. Capture the custom quarterly attestation service separately. The `FSI-*` process names in this playbook are not preinstalled portal templates; no screenshot or tenant execution was produced in this documentation review.*
+
+The [native sponsorship tasks](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) apply to **mover and leaver workflows for the human sponsor**:
+
+| Task | Supported effect |
+|---|---|
+| Send email to manager about sponsorship changes | Notifies the moved/departing employee's manager about sponsored agent identities |
+| Send email to co-sponsors about sponsor changes | Notifies other sponsors about the employee's move/departure |
+| Transfer agent identity sponsorships to manager | Adds the employee's configured manager as sponsor and removes the employee from sponsored agent identities; requires a populated manager |
+
+Include the intended tasks in an enabled workflow with the appropriate trigger, subject scope, and scheduling state. Do not assume a default-on transfer in an unconfigured tenant. The native transfer does not implement eligibility-aware multi-hop fallback, reviewer acceptance, backup-owner promotion, or zone grace periods. The current task guide does not label these three tasks preview; adjacent features must be checked separately.
+
+For custom integration, Lifecycle Workflows supports registered extensions invoking compatible **consumption-based Azure Logic Apps**. The built-in **Run a custom task extension** task references the registered extension; a placeholder extension name is not a `taskDefinitionId`. Launch-and-continue success is not approval completion. The documented [callback wait](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-customtaskextensioncallbackconfiguration?view=graph-rest-1.0) is **30 minutes to 3 hours**, so multi-day approvals need separate durable orchestration. Resolve task-definition metadata against the current [task catalog](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-tasks) before implementation; examples in the task-arguments documentation have differing extension IDs and are not tenant-tested deployment artifacts here.
 
 ### 7.3 Create Sponsor and Owner Eligibility Groups
 
@@ -370,70 +394,39 @@ foreach ($g in $groups) {
 
 Membership of `sg-agent-sponsors-zone3` and `sg-compliance-reviewers` should be governed by **Entra Identity Governance access reviews** on a quarterly cadence. See [Microsoft Learn — Access reviews](https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview).
 
+These assigned security groups are **eligibility / review scope only**. They are not valid substitutes for native individual owners or universally valid native agent identity sponsor groups; follow the object-specific [relationship restrictions](https://learn.microsoft.com/en-us/entra/agent-id/agent-owners-sponsors-managers).
+
 ---
 
 ## 8. Periodic Attestation Workflows
 
 ### 8.1 Zone 2 Quarterly Sponsor Attestation Workflow
 
-**Portal path:** Lifecycle Workflows → **+ New workflow** → Custom workflow.
+**Implementation boundary:** this is a custom recurring approval process, not a deployable Lifecycle Workflows definition. Use a separately approved scheduled orchestration that reads the governance register. The process names below are organizational identifiers, not Microsoft templates or task IDs.
 
 | Setting | Value |
 |---|---|
 | Name | `FSI-Z2-Quarterly-Sponsor-Attestation` |
-| Description | Quarterly Sponsor signature for Z2 agents (90-day cadence) |
-| Category | Custom |
-| Trigger | Time-based, every 90 days from `extension_LastAttestationDate` |
-| Scope | `(user.userType eq 'AgenticUser') and (user.extension_GovernanceZone eq 'Zone2')` |
+| Description | Quarterly Sponsor signature for Z2 agents (calendar dates in Section 6) |
+| Execution platform | Tenant-implemented scheduler and approval workflow |
+| Trigger | Quarterly calendar in Section 6; select due records from the governance register |
+| Scope | Registered Zone 2 agents, joined to their source identity IDs and named human reviewers |
 
 **Tasks (in order):**
 
 | # | Task | Configuration summary |
 |---|---|---|
-| 1 | Generate activity pack | Custom extension → Logic App posts last 90 days summary to SharePoint |
+| 1 | Generate activity pack | Custom service collects the covered interval and publishes the summary / collection gaps to supported storage |
 | 2 | Send email to Sponsor | Subject: `ACTION REQUIRED: Quarterly attestation — {{displayName}}` |
 | 3 | Send email to Owner + Backup Owner | Co-signature notification |
 | 4 | Request approval (Sponsor) | Single-stage; 14-day deadline; escalate to Sponsor's manager at day 10 |
 | 5 | Update `extension_LastAttestationDate` | On approval |
-| 6 | Capture signature artifact | Custom extension → write to evidence pack (Section 12) |
+| 6 | Capture signature artifact | Separate signature/evidence service → evidence pack (Section 11) |
 | 7 | On rejection / non-response | Trigger cascade — see Section 9 |
 
-```powershell
-# Create the Z2 quarterly attestation workflow
-$z2Workflow = @{
-    displayName = "FSI-Z2-Quarterly-Sponsor-Attestation"
-    description = "Quarterly Sponsor attestation for Zone 2 agents"
-    isEnabled = $true
-    isSchedulingEnabled = $true
-    category = "custom"
-    executionConditions = @{
-        "@odata.type" = "#microsoft.graph.identityGovernance.triggerAndScopeBasedConditions"
-        scope = @{
-            "@odata.type" = "#microsoft.graph.identityGovernance.ruleBasedSubjectSet"
-            rule = "(user.userType eq 'AgenticUser') and (user.extension_GovernanceZone eq 'Zone2')"
-        }
-        trigger = @{
-            "@odata.type" = "#microsoft.graph.identityGovernance.timeBasedAttributeTrigger"
-            timeBasedAttribute = "extension_LastAttestationDate"
-            offsetInDays = 90
-        }
-    }
-    tasks = @(
-        @{ taskDefinitionId = "<generate-activity-pack-extension>";    displayName = "Generate activity pack" },
-        @{ taskDefinitionId = "aab41899-9972-422a-9a53-f4bb8b36b8ae";  displayName = "Notify Sponsor"; arguments = @(
-              @{ name = "emailSubject"; value = "ACTION REQUIRED: Quarterly attestation — {{displayName}}" }
-              @{ name = "emailRecipients"; value = "{{manager}}" }) },
-        @{ taskDefinitionId = "22085229-5809-45e8-97fd-270d28d66910";  displayName = "Request Sponsor attestation"; arguments = @(
-              @{ name = "approvers"; value = "{{manager}}" }
-              @{ name = "escalationRecipients"; value = "sg-ai-governance-leads" }
-              @{ name = "escalationAfterDays"; value = "10" }) },
-        @{ taskDefinitionId = "<update-attestation-date-extension>";   displayName = "Update last attestation date" },
-        @{ taskDefinitionId = "<capture-signature-extension>";         displayName = "Capture signature artifact" }
-    )
-}
+The former Graph creation example is withdrawn: `category = "custom"` is not a documented workflow category; the stable date trigger does not accept `extension_LastAttestationDate`; and `userType eq 'AgenticUser'` is invalid. The task ID formerly labeled "Request Sponsor attestation" identifies **Add user to groups**, not an approval task. Notification IDs/arguments and extension invocation were also not valid deployment definitions. See the [workflow schema](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-workflow?view=graph-rest-1.0), [date-trigger schema](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-timebasedattributetrigger?view=graph-rest-1.0), and [task catalog](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-tasks).
 
-New-MgIdentityGovernanceLifecycleWorkflow -BodyParameter $z2Workflow
-```
+Before automation is accepted, supply the actual flow definition, approved permissions, explicit rejection/timeout handling, and evidence of a complete approval cycle. An enabled workflow or an email notification is not proof of attestation.
 
 ### 8.2 Zone 3 Quarterly Attestation with Dual Sign-Off
 
@@ -443,29 +436,11 @@ The Z3 workflow extends Z2 with:
 - Tighter escalation (7-day Sponsor SLA, 7-day Compliance SLA).
 - Auto-trigger of Section 9.4 emergency cascade if either stage rejects or both stages lapse 7 days past escalation.
 
-```powershell
-# Z3 dual-stage attestation tasks (replaces tasks 4-5 in Section 8.1)
-$z3DualStage = @(
-    @{ taskDefinitionId = "22085229-5809-45e8-97fd-270d28d66910"
-       displayName = "Stage 1 — Sponsor attestation"
-       arguments = @(
-           @{ name = "approvers"; value = "{{manager}}" }
-           @{ name = "escalationRecipients"; value = "sg-ai-governance-leads" }
-           @{ name = "escalationAfterDays"; value = "7" }
-       ) },
-    @{ taskDefinitionId = "22085229-5809-45e8-97fd-270d28d66910"
-       displayName = "Stage 2 — Compliance Reviewer co-sign"
-       arguments = @(
-           @{ name = "approvers"; value = "sg-compliance-reviewers" }
-           @{ name = "escalationRecipients"; value = "sg-ai-governance-leads" }
-           @{ name = "escalationAfterDays"; value = "7" }
-       ) }
-)
-```
+Implement these stages in the approved custom approval service. Resolve the actual named reviewers and preserve each decision separately; membership in `sg-compliance-reviewers` does not itself produce a co-signature. No built-in Lifecycle Workflows approval task or deployable Z3 flow is supplied here.
 
 ### 8.3 Backup Owner Reachability Test (Semi-Annual)
 
-Workflow `FSI-Backup-Owner-Reachability` runs every 180 days. It sends a low-friction confirmation request to every Backup Owner of record. Non-response triggers a Sponsor notification and a 14-day window to designate a replacement Backup Owner before the agent moves to Deprecated.
+The proposed custom process `FSI-Backup-Owner-Reachability` runs twice per calendar year on dates defined in the firm's operating calendar. It sends a confirmation request to every Backup Owner of record. Non-response requires a Sponsor notification and a 14-day window to designate a replacement Backup Owner before the agent moves to Deprecated. No native recurring workflow or automated transition is deployed by this document.
 
 ---
 
@@ -502,56 +477,17 @@ This is the highest-impact workflow in the playbook. A departed Sponsor or Owner
 
 ### 9.2 Owner Departure Workflow
 
-```powershell
-$ownerDeparture = @{
-    displayName = "FSI-Owner-Departure-Cascade"
-    description = "Cascade reassignment when an Agent Owner departs"
-    isEnabled = $true
-    category = "leaver"
-    executionConditions = @{
-        "@odata.type" = "#microsoft.graph.identityGovernance.triggerAndScopeBasedConditions"
-        scope = @{
-            "@odata.type" = "#microsoft.graph.identityGovernance.ruleBasedSubjectSet"
-            rule = "(user.memberOf any (group.displayName eq 'sg-agent-owners'))"
-        }
-        trigger = @{
-            "@odata.type" = "#microsoft.graph.identityGovernance.groupBasedTrigger"
-            triggerAttribute = "accountEnabled"
-            changeType = "delete"
-        }
-    }
-    tasks = @(
-        @{ taskDefinitionId = "<find-owned-agents-extension>";       displayName = "Find owned agents" },
-        @{ taskDefinitionId = "<promote-backup-owner-extension>";    displayName = "Promote Backup Owner to Owner" },
-        @{ taskDefinitionId = "aab41899-9972-422a-9a53-f4bb8b36b8ae"; displayName = "Notify Sponsor — designate new Backup within 5 BD" },
-        @{ taskDefinitionId = "<start-reassignment-timer-extension>"; displayName = "Start reassignment timer (per zone)" }
-    )
-}
-```
+`FSI-Owner-Departure-Cascade` is a custom process requirement. Join the departing **human** owner's approved personnel signal to the inventory, identify affected agents and backups, obtain the required reassignment authorization, and verify the actual source ownership after mutation. The former `groupBasedTrigger` example conflated group removal with an `accountEnabled` change and is not a supported deployment definition. Do not infer a departure event, successor acceptance, or successful ownership update from group membership alone.
 
 ### 9.3 Sponsor Departure Workflow
 
-The Sponsor departure workflow follows the same pattern as 9.2 but the cascade promotes the **Sponsor's manager** (resolved via Entra `manager` attribute) to interim Sponsor and notifies the AI Governance Lead. For Z3 agents, the workflow simultaneously notifies the Compliance Reviewer and opens a `FSI-Z3-Sponsor-Vacant` access review against the agent. Cascade completes only when:
+The proposed custom cascade follows 9.2 and considers the **Sponsor's manager** (resolved via the Entra `manager` relationship) as an interim Sponsor under the eligibility rules in 9.5. It notifies the AI Governance Lead and, for Z3, the Compliance Reviewer. A proposed `FSI-Z3-Sponsor-Vacant` review needs either an explicitly supported access-review resource/assignment scope or a custom business-review record; naming it does not create an Entra review of an arbitrary inventory row. Cascade completes only when:
 
 1. A new Sponsor is named and accepts (recorded as approval artifact).
 2. The new Sponsor signs an out-of-cycle attestation within the grace period.
-3. The agent's `extension_SponsorId` is updated and audit log entry written.
+3. The native agent identity sponsor relationship, any separately required agent-user relationship, and the custom inventory mapping are updated and independently read back. Updating `extension_SponsorId` alone does not assign native sponsorship.
 
-```powershell
-$sponsorDeparture = @{
-    displayName = "FSI-Sponsor-Departure-Cascade"
-    description = "Cascade Sponsor reassignment with manager-hierarchy fallback"
-    isEnabled = $true
-    category = "leaver"
-    tasks = @(
-        @{ taskDefinitionId = "<find-sponsored-agents-extension>";     displayName = "Find sponsored agents" },
-        @{ taskDefinitionId = "<resolve-manager-extension>";           displayName = "Resolve departing Sponsor's manager" },
-        @{ taskDefinitionId = "<notify-interim-sponsor-extension>";    displayName = "Notify interim Sponsor + AI Governance Lead" },
-        @{ taskDefinitionId = "<open-z3-access-review-extension>";     displayName = "Open Z3 vacant-Sponsor access review (Z3 only)" },
-        @{ taskDefinitionId = "<start-zone-grace-timer-extension>";    displayName = "Start zone-specific grace timer" }
-    )
-}
-```
+The manager-hierarchy fallback, reviewer acceptance, out-of-cycle attestation, zone timer, and inventory write-back are custom steps. A notification to the departing sponsor's manager does not assign that manager as a sponsor. Record the native task result and the independently verified sponsorship change as different evidence artifacts.
 
 ### 9.4 Emergency Decommissioned Transition
 
@@ -560,35 +496,21 @@ Triggered when:
 - Grace period expires without a successor Sponsor or Owner.
 - Compliance Reviewer issues a regulatory veto.
 - AI Governance Lead determines the agent represents an unmitigated risk.
-- DSPM for AI ([Control 2.1](../2.1/portal-walkthrough.md)) raises a Severity 1 alert for which no Owner can be reached.
+- DSPM for AI ([Control 1.6](../1.6/portal-walkthrough.md)) produces an alert triaged as Severity 1 under the firm's incident process and no Owner can be reached.
 
-**Behavior.** The workflow:
+**Required custom behavior.** An approved containment implementation must perform and verify each applicable action; this list is not delivered by a built-in emergency workflow:
 
-1. Sets `extension_LifecycleState = "Decommissioned"` on the Agentic User.
-2. Disables the Agentic User account (`accountEnabled = false`).
+1. Records `Decommissioned` in the custom governance lifecycle column and its registered mappings.
+2. Performs supported containment on the actual agent identity and, if present, its separate agent user account; verifies each result independently.
 3. Removes group memberships that grant data access.
 4. Removes the agent from active Copilot Studio / Power Platform / Agent 365 environments (preserves the artifact for forensic review per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)).
 5. Files an emergency-cascade record with the [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) intake queue.
 6. Notifies AI Governance Lead, on-call Compliance, Sponsor's chain of command, and Security Operations.
 
-```powershell
-$emergencyDecom = @{
-    displayName = "FSI-Emergency-Decommission"
-    description = "Emergency Decommissioned transition for unrecoverable cases"
-    isEnabled = $true
-    category = "custom"
-    tasks = @(
-        @{ taskDefinitionId = "<set-state-decommissioned-extension>";   displayName = "Set lifecycle state to Decommissioned" },
-        @{ taskDefinitionId = "1dfdfcc7-52fa-4c2e-bf3a-e3919cc12950";   displayName = "Disable Agentic User account" },
-        @{ taskDefinitionId = "<remove-data-access-groups-extension>";  displayName = "Remove data-access group memberships" },
-        @{ taskDefinitionId = "<file-incident-record-extension>";       displayName = "File emergency cascade record" },
-        @{ taskDefinitionId = "aab41899-9972-422a-9a53-f4bb8b36b8ae";   displayName = "Notify AI Governance Lead + Compliance + SecOps" }
-    )
-}
-```
+Use the documented control for each source identity and publishing surface. Disabling a human workflow subject is not equivalent to disabling an agent identity or its paired agent user; changing the governance register is not runtime containment. Preserve source-specific action results, post-action read-backs, incident references, and any failures. Do not delete forensic artifacts or claim that one directory mutation retires an agent across all environments.
 
 !!! warning "Emergency cascade is reversible only via re-onboarding"
-    Once an agent is in Decommissioned state, restoration requires returning it to Draft and walking the full lifecycle again, including a new In Review → Approved gate with fresh signatures. This is intentional and supports the supervisory expectation that an agent without a current responsible party cannot resume operation without renewed risk acceptance.
+    This is a **framework process rule**, not a native irreversibility guarantee. Once an agent is in Decommissioned state, restoration requires returning it to Draft and walking the full lifecycle again, including a new In Review → Approved gate with fresh signatures. This is intentional and supports the supervisory expectation that an agent without a current responsible party cannot resume operation without renewed risk acceptance.
 
 ### 9.5 Manager Hierarchy Fallback
 
@@ -606,26 +528,26 @@ The cascade resolves successor identities via Entra `manager` chain with these r
 
 ## 10. Approval Workflow Integration
 
-This section unifies three otherwise-disjoint Microsoft approval surfaces into a **single Sponsor signature flow** with one audit trail.
+This section defines a **custom business-approval correlation design**, not one native approval transaction. Record Sponsor decisions separately from native administrative approvals and actual enforcement. Some Microsoft 365 agent publishing experiences already include permission/consent review; a custom card must not bypass those role and permission boundaries.
 
 ### 10.1 The Three Approval Surfaces
 
 | Surface | What it gates | Native admin |
 |---|---|---|
-| **Entra Admin Consent Workflow** | App registration permission grants consumed by an agent's connected app | Entra App Admin / Global Admin |
-| **Entra Agent Approval Workflow** (Agentic User governance) | Creation, scope changes, decommission of an Agentic User | Entra Agent ID Admin |
-| **Power Platform Agent Approval** (Copilot Studio / Power Apps) | Publishing, sharing, or environment-promoting Copilot Studio agents | Power Platform Admin / Environment Admin |
+| **Entra admin consent workflow** | Requests for application permissions requiring admin consent | Designated reviewer with the appropriate administrative role; Graph reads requests but cannot approve/deny them |
+| **Entra agent identity administration / access-package approvals** | Documented identity lifecycle actions and supported entitlement requests | Agent ID / entitlement administrators and authorized sponsors, as applicable; no universal agent-change approval API is established here |
+| **Copilot Studio publishing and Microsoft 365 agent requests** | Distinct authoring/publishing and organization publication/deployment actions | Authorized maker / administrator for the selected surface; not a universal Power Platform approval-center webhook |
 
-By default these emit independent approval requests with independent audit trails. The unified flow funnels all three to a single approval record signed by the Sponsor.
+Correlate business decisions with the specific native request IDs and results. A Sponsor response can authorize the organization's next step, but does not grant platform privileges or automatically complete native consent, publication, or deployment.
 
 ### 10.2 Unified Flow Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────┐
 │  Trigger source (any of):                                  │
-│  • Entra admin consent request raised                      │
-│  • Agentic User scope change requested                     │
-│  • Copilot Studio publish requested                        │
+│  • Validated native request / reviewed intake record        │
+│  • Custom agent change request in governance register       │
+│  • Selected publication / deployment request                │
 └───────────────┬────────────────────────────────────────────┘
                 │
                 ▼
@@ -640,34 +562,27 @@ By default these emit independent approval requests with independent audit trail
                 ▼
 ┌────────────────────────────────────────────────────────────┐
 │  Sponsor approves once →                                   │
-│  • Approves the originating Entra / Agent / PP request     │
-│  • Writes signature artifact to evidence pack              │
-│  • Updates Control 3.1 inventory                           │
+│  • Records business approval (not native authorization)     │
+│  • Routes native actions to authorized administrators      │
+│  • Tracks enforcement and evidence completion separately   │
 │  • Notifies Owner + Backup + (Z3) Compliance Reviewer      │
 └────────────────────────────────────────────────────────────┘
 ```
 
 ### 10.3 Implementation Outline
 
-1. **Power Automate cloud flow** `flow-fsi-unified-agent-approval` triggers on:
-    - Microsoft Graph subscription to `directory/auditLogs` for `ConsentToApplication` events scoped to the agent app pattern.
-    - Dataverse trigger on `agt_AgentApprovalRequest` table.
-    - Power Platform Connector Approval Center webhook.
-2. The flow looks up the agent in `agt_AgentInventory` (Control 3.1) to resolve current Sponsor, Backup Owner, and Compliance Reviewer.
-3. The flow posts a **single Adaptive Card** to the Sponsor with all change details and a single Approve/Reject action.
-4. On Sponsor approval, the flow writes back to:
-    - The Entra admin consent request (via Microsoft Graph `appConsentRequests` API).
-    - The Agent ID change request (via Microsoft Graph identity governance API).
-    - The Power Platform request (via Power Platform admin API).
-    - The signature artifact store (Section 12).
-5. For Z3, the same flow chains a second Adaptive Card to the Compliance Reviewer.
+1. Provision the custom request table and select a documented intake mechanism for the chosen platform. `agt_AgentApprovalRequest` is a proposed Dataverse table, not a built-in queue. Do **not** subscribe to `directory/auditLogs`: directory audit logs are not a documented [Graph change-notification resource](https://learn.microsoft.com/en-us/graph/change-notifications-overview). An audit event about an executed grant is not a pre-action approval request.
+2. Resolve the actual agent identity and business reviewers from the governance register. A [Power Automate Approvals](https://learn.microsoft.com/en-us/connectors/approvals/) action can collect a decision and responder data; it does not automatically produce a cryptographic signature over the evidence pack.
+3. Record the business approval, then route native actions to authorized operators. Microsoft explicitly states that [Graph cannot approve or deny admin consent requests](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/review-admin-consent-requests). Do not replace this limitation with a direct permission grant disguised as approval.
+4. Use the actual [Microsoft 365 agent requests experience](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-requests) or the documented operation for the selected Copilot Studio / deployment surface. No generic Agent ID change-request API, Power Platform agent-approval-center webhook, or universal write-back operation is established by this playbook. [Connector action control](https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control) is data policy, not this approval mechanism.
+5. For Z3, collect the separate Compliance Reviewer decision. Track business approval, native approval, source enforcement, and evidence publication as distinct states, with timeout/rejection handling and independent read-backs.
 
 !!! tip "Why unify"
     Examiners ask "show me the supervisor's approval" — singular. A unified flow lets you produce one signed artifact per change rather than three correlated artifacts. This matches the FINRA Rule 3110 expectation that supervision is a documented decision, not a series of disjoint clicks.
 
 ### 10.4 Configuration Reference
 
-Detailed Power Automate flow JSON, Adaptive Card schema, and Microsoft Graph API call examples live in [PowerShell Setup](./powershell-setup.md). This playbook owns the policy, signatures, and evidence semantics; the technical scaffolding lives in the peer playbooks.
+The [PowerShell Setup](./powershell-setup.md) playbook supplies read-only registration collection and a signed file catalog. It does **not** supply deployable approval flows, Adaptive Card schemas, sponsor signatures, lifecycle mutations, or the evidence-pack helpers described here. Those are separate implementation prerequisites and must not be inferred from a successful collection run.
 
 ---
 
@@ -679,14 +594,14 @@ Every attestation, every cascade execution, and every emergency decommission pro
 
 | Artifact | Format | Source | Required for |
 |---|---|---|---|
-| Attestation request record | JSON | Lifecycle Workflows audit | All quarterly attestations |
-| Sponsor signature | JWS or Entra Verified ID VC (Z3) | Approval action | All quarterly attestations |
-| Compliance Reviewer co-signature (Z3) | JWS or Verified ID VC | Approval action | Z3 attestations and material changes |
+| Attestation request record | JSON | Deployed custom approval service; native workflow correlation where applicable | All quarterly attestations |
+| Sponsor signature | Organization-defined, identity-bound signature format | Separately implemented signing service; not automatic Approvals / Verified ID output | All quarterly attestations |
+| Compliance Reviewer co-signature (Z3) | Organization-defined, identity-bound signature format | Separately implemented signing service | Z3 attestations and material changes |
 | Activity pack snapshot | PDF + raw JSON | Generated by Section 8.1 task 1 | All quarterly attestations |
 | DSPM alert summary (last 90d) | CSV | DSPM for AI export | Z2 + Z3 attestations |
 | Communication Compliance disposition (last 90d) | CSV | Control 1.10 export | Z3 attestations and any agent under supervised-comms scope |
 | Material change log (last 90d) | CSV | Control 3.1 inventory diff | All attestations |
-| Approval timestamp chain | JSON | Lifecycle Workflows + Power Automate | All attestations |
+| Approval timestamp chain | JSON | Deployed business approval service, correlated with native run records | All attestations |
 | Audit trail correlation IDs | JSON | Purview Audit + Sentinel custom table | All attestations |
 | SHA-256 hash of pack contents | Text file `pack.sha256` | Computed at pack close | All attestations |
 | SHA-256 of previous pack (chain) | Text file `previous.sha256` | Read from previous pack | All attestations after the first |
@@ -695,59 +610,19 @@ Every attestation, every cascade execution, and every emergency decommission pro
 
 Each pack contains the SHA-256 of the prior pack for the same agent, producing a per-agent hash chain that supports SEC 17a-4(f) WORM-equivalent verification:
 
-```powershell
-# Generate sponsorship evidence pack with hash chain
-function New-SponsorshipEvidencePack {
-    param(
-        [Parameter(Mandatory)] [string] $AgentId,
-        [Parameter(Mandatory)] [string] $AttestationCycle,   # e.g. "2026-Q2"
-        [Parameter(Mandatory)] [string] $PackOutputPath
-    )
+**Implementation prerequisite:** no `Export-AttestationRecord`, `Export-SponsorSignature`, `Get-PreviousPackHash`, or `Publish-EvidencePackToWorm` implementation is supplied by the peer collection playbook. The former function was illustrative, not an executable evidence pipeline, and is withdrawn.
 
-    $packDir = Join-Path $PackOutputPath "$AgentId-$AttestationCycle"
-    New-Item -ItemType Directory -Path $packDir -Force | Out-Null
-
-    # 1. Collect artifacts (placeholder calls — implementations live in powershell-setup.md)
-    Export-AttestationRecord       -AgentId $AgentId -Cycle $AttestationCycle -OutFile (Join-Path $packDir "attestation.json")
-    Export-SponsorSignature        -AgentId $AgentId -Cycle $AttestationCycle -OutFile (Join-Path $packDir "sponsor-signature.jws")
-    Export-ActivityPack            -AgentId $AgentId -DaysBack 90             -OutFile (Join-Path $packDir "activity-pack.pdf")
-    Export-DspmAlertSummary        -AgentId $AgentId -DaysBack 90             -OutFile (Join-Path $packDir "dspm-alerts.csv")
-    Export-MaterialChangeLog       -AgentId $AgentId -DaysBack 90             -OutFile (Join-Path $packDir "material-changes.csv")
-    Export-ApprovalTimestampChain  -AgentId $AgentId -Cycle $AttestationCycle -OutFile (Join-Path $packDir "timestamps.json")
-
-    # 2. Read previous pack hash if present
-    $prevHashFile = Get-PreviousPackHash -AgentId $AgentId
-    if ($prevHashFile) {
-        Copy-Item $prevHashFile -Destination (Join-Path $packDir "previous.sha256")
-    }
-
-    # 3. Compute pack hash over sorted file list
-    $files = Get-ChildItem $packDir -File | Sort-Object Name
-    $sha256 = [System.Security.Cryptography.SHA256]::Create()
-    $stream = New-Object System.IO.MemoryStream
-    foreach ($f in $files) {
-        $bytes = [System.IO.File]::ReadAllBytes($f.FullName)
-        $stream.Write($bytes, 0, $bytes.Length)
-    }
-    $stream.Position = 0
-    $hash = [BitConverter]::ToString($sha256.ComputeHash($stream)).Replace("-","").ToLower()
-    Set-Content -Path (Join-Path $packDir "pack.sha256") -Value $hash
-
-    # 4. Write to WORM-eligible store (Purview Records Management with retention label)
-    Publish-EvidencePackToWorm -PackPath $packDir -RetentionLabel "FSI-Agent-Sponsorship-7yr"
-
-    return $hash
-}
-```
+The approved pack builder must hash an unambiguous manifest of relative filenames, file sizes, and SHA-256 digests; include the agent ID, cycle ID, and previous pack digest in the signed attestation. Concatenating file bytes without names or boundaries is not a sufficient manifest. Reject missing required artifacts and unexpected files, and independently test verification after transfer. A hash chain is tamper evidence, not a retention setting or a signature identifying the human approver. Apply and verify the actual destination's retention / record settings separately.
 
 ### 11.3 Cryptographic Sponsor Signatures (Recommended for Z3)
 
-For Z3 agents, the framework recommends Microsoft Entra Verified ID-issued **AgentSponsorAttestation** verifiable credentials rather than plain audit-log entries. The Verified ID issuance flow:
+For Z3 agents, use a separately specified identity-bound signing solution. **AgentSponsorAttestation** is a proposed custom credential design, not a Microsoft template or a deployed signing service.
 
-1. The Sponsor authenticates with Entra ID using a phishing-resistant method (FIDO2 or Windows Hello for Business).
-2. The Verified ID issuer (configured under your tenant) issues a credential containing: `agentId`, `cycleId`, `sponsorObjectId`, `attestationStatement`, `issuedAt`, `expiresAt = issuedAt + 100 days`.
-3. The credential is captured into the evidence pack as `sponsor-signature.jws`.
-4. Verification at examination time uses the Entra Verified ID verifier API or the open `did:web` resolver — the artifact does not require Microsoft to be reachable to validate.
+1. Enforce and record any required phishing-resistant authentication in the attestation application separately; Verified ID issuance does not prove that FIDO2 or Windows Hello for Business was used.
+2. In [Verified ID](https://learn.microsoft.com/en-us/entra/verified-id/decentralized-identifier-overview), the **issuer signs the credential** and the holder can sign a presentation. Neither automatically proves that the human Sponsor signed an approval statement or pack digest. Define subject/holder binding, the exact signed statement and digest, nonce/replay controls, and trusted time.
+3. The [issuance API](https://learn.microsoft.com/en-us/entra/verified-id/issuance-request-api) does not promise an archival `sponsor-signature.jws` response. Claims/validity require a configured credential contract. The [presentation API](https://learn.microsoft.com/en-us/entra/verified-id/presentation-request-api) returns verification results; its optional receipt is for debugging, not a stable long-term signature format.
+4. The hosted verifier and [revocation checks](https://learn.microsoft.com/en-us/entra/verified-id/how-to-issuer-revoke) have online dependencies. A `did:web` resolver retrieves trust material; it is not a complete offline credential verifier. Open-standard verification may avoid Microsoft's hosted verifier, but this playbook does not establish offline archival verification.
+5. Test key rotation, domain/DID loss, credential expiry, revocation-at-decision evidence, and preservation of trust material over the required archive lifetime. A proposed 100-day credential lifetime does not establish multi-year verifiability.
 
 See [Microsoft Learn — Entra Verified ID](https://learn.microsoft.com/en-us/entra/verified-id/decentralized-identifier-overview) and the framework's [identity architecture](../../../framework/agent-identity-architecture.md).
 
@@ -764,108 +639,37 @@ See [Microsoft Learn — Entra Verified ID](https://learn.microsoft.com/en-us/en
 
 Retention is implemented via Purview Records Management labels published under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
 
+**Technical implementation boundary:** apply and verify the chosen record controls in supported storage. An ordinary retention label permits behavior different from a locked record or regulatory record; naming a label does not make content immutable. Labels do not protect arbitrary Dataverse rows, local files, or Log Analytics tables. Define file preservation, native Lifecycle Workflows history export (the portal offers up to 30 days), Purview audit retention, and Log Analytics analytics/long-term retention separately. A seven-/ten-year policy target neither configures these services nor recovers expired data. See [Records Management](https://learn.microsoft.com/en-us/purview/records-management), [Audit](https://learn.microsoft.com/en-us/purview/audit-solutions-overview), and [Log Analytics retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure).
+
 ---
 
 ## 12. Verification, Reporting, and KQL
 
 ### 12.1 Quarterly Compliance Report
 
-```powershell
-function Get-SponsorshipAttestationReport {
-    [CmdletBinding()]
-    param(
-        [int] $DaysBack = 95,
-        [ValidateSet("Zone1","Zone2","Zone3","All")] [string] $Zone = "All"
-    )
+The former `Get-SponsorshipAttestationReport` example is withdrawn: it used the invalid `userType eq 'AgenticUser'` filter, unregistered extension aliases, and an optional agent-user population as if it were the complete inventory. The documented agent-user collection is [`/users/microsoft.graph.agentUser`](https://learn.microsoft.com/en-us/graph/api/agentuser-list?view=graph-rest-1.0); agent identities and platform agent records must be reconciled separately.
 
-    $filter = "userType eq 'AgenticUser'"
-    if ($Zone -ne "All") { $filter += " and extension_GovernanceZone eq '$Zone'" }
-
-    $agents = Get-MgUser -Filter $filter -All -ConsistencyLevel eventual -CountVariable c
-
-    foreach ($a in $agents) {
-        $ext = (Get-MgUser -UserId $a.Id -Property "extension_LastAttestationDate,extension_SponsorId,extension_BackupOwnerId,extension_ComplianceReviewerId,extension_GovernanceZone,extension_LifecycleState").AdditionalProperties
-
-        $required = switch ($ext.extension_GovernanceZone) {
-            "Zone3" { 90 }
-            "Zone2" { 90 }
-            default { 365 }
-        }
-
-        $lastAttest = if ($ext.extension_LastAttestationDate) { [datetime]$ext.extension_LastAttestationDate } else { [datetime]"1900-01-01" }
-        $daysSince  = ((Get-Date) - $lastAttest).Days
-
-        [pscustomobject]@{
-            AgentId             = $a.Id
-            AgentName           = $a.DisplayName
-            Zone                = $ext.extension_GovernanceZone
-            LifecycleState      = $ext.extension_LifecycleState
-            SponsorId           = $ext.extension_SponsorId
-            BackupOwnerId       = $ext.extension_BackupOwnerId
-            ComplianceReviewer  = $ext.extension_ComplianceReviewerId
-            LastAttestation     = $lastAttest
-            DaysSinceAttest     = $daysSince
-            RequiredCadenceDays = $required
-            Overdue             = ($daysSince -gt $required)
-            HasBackup           = [bool]$ext.extension_BackupOwnerId
-            Z3CompletelyStaffed = ($ext.extension_GovernanceZone -ne "Zone3") -or ($ext.extension_SponsorId -and $ext.extension_BackupOwnerId -and $ext.extension_ComplianceReviewerId)
-        }
-    }
-}
-
-# Examiner-ready dashboard CSV
-Get-SponsorshipAttestationReport |
-    Sort-Object Overdue, Zone -Descending |
-    Export-Csv "SponsorshipReport-$(Get-Date -Format yyyy-MM-dd).csv" -NoTypeInformation
-```
+A deployed report must read the authoritative inventory and output agent/source IDs, zone, policy state, actual source enforcement state, current named role assignments, required cycle/due date, approval references, evidence-pack verification, and observation freshness. Missing/invalid dates, unresolved people, missing native sponsorship, or absent telemetry must be explicit **Unknown / ManualEvidenceRequired**, not a synthetic old date or zero overdue rows. Check employment, eligibility, acceptance, separation of duties, and both Z3 Sponsors; populated strings alone are not staffing proof. Apply the calendar and grace rules explicitly rather than substituting a fixed 90-day offset.
 
 ### 12.2 KQL — Attestation Audit Trail
 
-```kql
-// Sponsor + Compliance attestation events for the current quarter
-AuditLogs
-| where TimeGenerated > startofday(ago(120d))
-| where Category == "LifecycleWorkflows"
-| where OperationName has_any ("FSI-Z2-Quarterly-Sponsor-Attestation",
-                              "FSI-Z3-Quarterly-Sponsor-Attestation",
-                              "FSI-Sponsor-Departure-Cascade",
-                              "FSI-Owner-Departure-Cascade",
-                              "FSI-Emergency-Decommission")
-| extend agentId    = tostring(TargetResources[0].id),
-         agentName  = tostring(TargetResources[0].displayName),
-         actorId    = tostring(InitiatedBy.user.id),
-         actorUpn   = tostring(InitiatedBy.user.userPrincipalName),
-         outcome    = tostring(Result),
-         workflowId = tostring(AdditionalDetails[0].value)
-| project TimeGenerated, OperationName, agentId, agentName, actorUpn, outcome, workflowId, CorrelationId
-| order by TimeGenerated desc
-```
+The former query is withdrawn. [Lifecycle Workflows auditing](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-audits) documents **Other**, **TaskManagement**, and **WorkflowManagement** categories, not the asserted `Category == "LifecycleWorkflows"` contract. A workflow display name is not necessarily `OperationName`; the first target/detail is not necessarily an agent/workflow ID; an initiating application is not the human approver.
+
+Before writing a production query, configure [Entra diagnostic export](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/howto-integrate-activity-logs-with-azure-monitor-logs), inspect actual operations, target types, actors, and named details in the [`AuditLogs` schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs), and test against known native task events. Correlate those events with independently exported business-approval records. A 90-/120-day query requires prior ingestion and sufficient queryable retention; the 30-day native history cannot supply it retrospectively.
 
 ### 12.3 KQL — Overdue Attestations Alert
 
-```kql
-// Agents whose last attestation is past the zone cadence by >7 days
-let now = now();
-AgentInventory_CL                                 // Control 3.1 mirrored table
-| where LifecycleState_s == "Active"
-| extend cadenceDays = case(GovernanceZone_s == "Zone3", 90,
-                            GovernanceZone_s == "Zone2", 90,
-                            365)
-| extend daysSince = datetime_diff('day', now, todatetime(LastAttestationDate_t))
-| where daysSince > cadenceDays + 7
-| project AgentId_g, AgentName_s, GovernanceZone_s, SponsorUpn_s, LastAttestationDate_t, daysSince, cadenceDays
-| order by daysSince desc
-```
+`AgentInventory_CL` is a proposed custom table, not a Microsoft-provided Control 3.1 feed. Implement its exact schema, authorized ingestion/DCR transformation, freshness heartbeat, and retention before publishing a query. The [Logs Ingestion API prerequisites](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview) include an existing destination table and matching data collection configuration.
 
-This KQL feeds a Sentinel scheduled analytics rule that creates an incident routed to AI Governance Lead and the agent's Sponsor.
+Use the same due-date/grace policy as the report. Alert separately on missing/stale ingestion, missing dates, invalid relationships, and overdue approvals; an empty result set is not a clean attestation. After known-event query tests, separately configure a [Sentinel scheduled analytics rule](https://learn.microsoft.com/en-us/azure/sentinel/detect-threats-custom) and notification automation. No incident rule or Sponsor routing is deployed by this playbook.
 
 ### 12.4 Verification Checklist
 
-1. Each Active agent has a populated `extension_SponsorId` (Z2/Z3) and `extension_BackupOwnerId` (Z2/Z3).
-2. Each Z3 Active agent has a populated `extension_ComplianceReviewerId`.
-3. `extension_LastAttestationDate` is within cadence + 14-day grace.
-4. Lifecycle Workflows `FSI-Quarterly-Sponsor-Attestation`, `FSI-Sponsor-Departure-Cascade`, `FSI-Owner-Departure-Cascade`, `FSI-Emergency-Decommission`, `FSI-Backup-Owner-Reachability` exist and report `IsEnabled = true`.
-5. Last 90 days contain at least one successful workflow run per Active Z2/Z3 agent.
+1. Each Active agent has the supported native sponsorship and source ownership required for its object type, reconciled with actual registered inventory mappings for Sponsor / Backup Owner. Populated logical `extension_*` aliases are insufficient.
+2. Each Z3 Active agent has named eligible Sponsors and a Compliance Reviewer, with actual assignments, acceptance, and role separation verified.
+3. The custom attestation record is within the approved calendar and zone/stage deadline in Sections 6 and 8; do not substitute one universal 14-day timer for all stages.
+4. Record the actual native mover/leaver workflow IDs, versions, subject scopes, enabled/scheduling state, and selected task definitions. Verify the custom quarterly, reachability, cascade, and containment processes separately; matching `FSI-*` display names do not prove implementation.
+5. Reconcile every expected approval cycle with completed named reviewer decisions and preserved artifacts. Reconcile each departure with native task outcomes, accepted reassignment, and source read-backs. Export history before expiry; an enabled or completed workflow alone is not PASS.
 6. Sponsorship evidence pack count = expected count (per cycle × per agent).
 7. SHA-256 chain validates end-to-end for sampled agents.
 8. No agent in Active state has an Owner whose Entra account is disabled.
@@ -880,16 +684,16 @@ Detailed test cases live in [Verification Testing](./verification-testing.md).
 
 | Symptom | Likely cause | Resolution |
 |---|---|---|
-| Workflow shows `IsEnabled = true` but never runs | Scope filter does not match any user | Verify `extension_GovernanceZone` and `userType` populated on Agentic Users |
-| Sponsor not receiving email | Sponsor's mailbox routes via on-prem; Lifecycle email sender blocked | Allow-list `lifecycle-noreply@<tenant>` in Exchange Online transport rules ([Exchange Online Admin](../../../reference/role-catalog.md)) |
-| Approval action received but signature artifact missing | Custom extension Logic App returned non-200 | Inspect Logic App run history; verify managed identity has `Group.Read.All` and `User.Read.All` |
-| Cascade promoted Backup Owner but inventory not updated | Dataverse write-back step lacks Power Platform connection auth | Refresh service principal credentials in `flow-fsi-unified-agent-approval` |
-| Z3 attestation stuck at Compliance stage | Compliance Reviewer group is empty or members lack Purview Compliance Admin role | Populate `sg-compliance-reviewers`; verify role assignments |
-| Emergency Decommission did not disable account | `User.ReadWrite.All` consent missing on workflow service principal | Re-consent via [admin consent workflow](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
-| Hash chain breaks at cycle N | Pack N–1 missing or modified after publication | Investigate Records Management retention label drift; restore from immutable archive |
-| Manager-hierarchy fallback walks past 3 hops | No Sponsor-eligible manager in chain (rare in flat orgs) | AI Governance Lead assumes interim Sponsor automatically — confirm escalation alert delivered |
-| Sponsor departure not detected | Trigger fires on group membership delete; user's accountEnabled may flip first | Add secondary trigger on `user.accountEnabled` change to `false` |
-| Workflow run history shows ContinueOnError swallowing failures | Default false but may have been changed | Audit each task's `ContinueOnError`; for sponsorship workflows, all signature tasks must be `false` |
+| Workflow enabled but never runs | Scheduling, trigger, or subject scope is wrong | Check enabled **and** scheduling state and documented [execution conditions](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-execution-conditions). Never set `userType` to `AgenticUser` |
+| Sponsor not receiving email | Recipient resolution, sender-domain configuration, or mail flow | Inspect the actual task configuration and delivered headers with the Exchange Online Admin; do not allow-list an assumed sender |
+| Approval received but signature missing | Signing/evidence step absent or failed | Inspect the deployed approval, signing, callback, and publication steps independently; read-only directory permissions do not generate signatures |
+| Source reassignment and inventory disagree | Custom synchronization absent or failed | Identify the actual connection/error and compare before/after source relationships; do not refresh credentials without a diagnosed authentication failure |
+| Compliance stage stuck | Reviewer assignment or custom flow failure | Resolve named recipients and inspect approval/run state. Purview administrator privilege is not required merely to answer an approval |
+| Emergency containment incomplete | Wrong target, permissions, or missing surface-specific action | Identify the exact identity/resource and documented least-privilege operation; verify each source read-back rather than granting blanket permissions |
+| Hash chain breaks | Missing/modified files, manifest defect, wrong predecessor, or publication failure | Preserve the discrepant artifacts and investigate. Verify any archive and record settings independently before recovery |
+| Manager fallback cannot find eligible successor | Custom fallback exhausted or not implemented | Route explicitly to the AI Governance Lead; native direct-manager transfer does not perform the three-hop policy |
+| Sponsor departure not detected | Authoritative HR signal or configured trigger/scope missing | Test the documented human leaver trigger and ingestion freshness; account disablement and group removal are distinct signals |
+| Failures hidden by workflow completion | `continueOnError` or launch-and-continue masks downstream failure | Set and inspect `continueOnError` explicitly; require completed approval/evidence and source results independently of native run status |
 
 Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and the [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) for cascade-driven incident response.
 
@@ -903,7 +707,7 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 - [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
-- [Control 2.1 implementation playbooks](../2.1/portal-walkthrough.md)
+- [Control 1.6 implementation playbooks](../1.6/portal-walkthrough.md)
 - [Agent Identity Architecture](../../../framework/agent-identity-architecture.md)
 - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md)
 
@@ -914,13 +718,13 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - [Verification Testing](./verification-testing.md)
 - [Troubleshooting](./troubleshooting.md)
 
-### Microsoft Learn (verified April 2026)
+### Microsoft Learn
 
 - [Microsoft Entra Identity Governance — Lifecycle Workflows overview](https://learn.microsoft.com/en-us/entra/id-governance/what-are-lifecycle-workflows)
 - [Microsoft Entra Identity Governance — Access reviews](https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview)
 - [Microsoft Entra ID Governance — Custom workflow tasks](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-extensibility)
 - [Microsoft Entra Verified ID — Overview](https://learn.microsoft.com/en-us/entra/verified-id/decentralized-identifier-overview)
-- [Microsoft Entra Agent ID — Overview](https://learn.microsoft.com/en-us/entra/agent-id/what-is-agent-id-platform) *(preview)*
+- [Microsoft Entra Agent ID — Overview](https://learn.microsoft.com/en-us/entra/agent-id/what-is-agent-id-platform)
 - [Power Platform — Connector action control and consent](https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control)
 - [Microsoft Purview — Records Management and retention labels](https://learn.microsoft.com/en-us/purview/records-management)
 - [Microsoft Purview — Audit (Standard and Premium)](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
@@ -940,8 +744,74 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on model risk management
 - NIST AI Risk Management Framework — GOVERN 1.4 and GOVERN 1.6
 
+## Documentation verification ledger
+
+**Verified 2026-10-18 against live official Microsoft documentation.** This was a technical source review, not a compliance determination, UI verification, deployment, or tenant test. The prior April 2026 source stamp did not establish an executable implementation.
+
+### Discrepancies and sources
+
+| Rechecked claim / discrepancy | Correction and primary Microsoft source |
+|---|---|
+| Identity population, optional agent user, native sponsorship versus custom metadata | Agent identities, optional agent users, and platform records require distinct IDs / collection. `userType = AgenticUser` is invalid; use the [documented agent-user collection](https://learn.microsoft.com/en-us/graph/api/agentuser-list?view=graph-rest-1.0). Verify [optional user creation](https://learn.microsoft.com/en-us/entra/agent-id/agent-users) and [native relationship restrictions](https://learn.microsoft.com/en-us/entra/agent-id/agent-owners-sponsors-managers). |
+| Unregistered extension aliases and six-state Dataverse assumption | Register [directory extensions](https://learn.microsoft.com/en-us/graph/api/application-post-extensionproperty?view=graph-rest-1.0) and record their actual target/name mapping. The custom governance lifecycle is not the native Dataverse [`statecode` / `statuscode` pair](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/update-delete-entities-using-web-api). |
+| P2 includes Lifecycle Workflows; blanket preview task labels | Employee workflows require Governance / Suite, not P2 alone. Check [scenario-specific licensing](https://learn.microsoft.com/en-us/entra/id-governance/licensing-fundamentals). The current [three native sponsor tasks](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) have separate prerequisites and no preview label in that guide. |
+| Default-on transfer, per-agent quarterly trigger, backup cascade, acceptance, and suspension | Native sponsor tasks apply to **human mover/leaver workflows** and require explicit configuration. Direct-manager transfer is not owner reassignment, three-hop fallback, business acceptance, or containment. Quarterly / semiannual processes remain custom. See [task scope](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) and [execution conditions](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-execution-conditions). |
+| Invalid quarterly/departure/emergency JSON and approval task IDs | Withdrawn rather than substituted with another speculative payload. Validate [workflow categories/schema](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-workflow?view=graph-rest-1.0), [date-trigger attributes](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-timebasedattributetrigger?view=graph-rest-1.0), and [task definitions](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-tasks). The former approval GUID is an **Add user to groups** task. |
+| Invented sender / integration switch; schedule mistaken for recurrence | Use documented [email settings](https://learn.microsoft.com/en-us/entra/id-governance/customize-workflow-email) and [workflow settings](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-lifecyclemanagementsettings?view=graph-rest-1.0). A 1–24-hour evaluation schedule (default 3 hours) is not a quarterly calendar or immediate SLA. |
+| Multi-day Logic App callback / placeholder extension task | Register a compatible [consumption Logic App extension](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-extensibility); [callback wait is 30 minutes–3 hours](https://learn.microsoft.com/en-us/graph/api/resources/identitygovernance-customtaskextensioncallbackconfiguration?view=graph-rest-1.0). Long approvals require separate durable state. |
+| One Graph approval write-back / audit subscription / generic approval center | Graph [cannot approve or deny admin consent requests](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/review-admin-consent-requests). `directory/auditLogs` is not a documented [subscription resource](https://learn.microsoft.com/en-us/graph/change-notifications-overview). Use the actual [agent requests experience](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-requests); [connector action control](https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control) is not a universal approval API. |
+| Approvals / Verified ID automatically sign as the human Sponsor | [Approvals](https://learn.microsoft.com/en-us/connectors/approvals/) records decisions. In [Verified ID](https://learn.microsoft.com/en-us/entra/verified-id/decentralized-identifier-overview), the issuer signs the credential and the holder signs a presentation; neither automatically binds the human Sponsor to this pack digest. [Issuance](https://learn.microsoft.com/en-us/entra/verified-id/issuance-request-api) does not return the promised archival JWS; [presentation receipts](https://learn.microsoft.com/en-us/entra/verified-id/presentation-request-api) are debugging output. [Revocation/trust](https://learn.microsoft.com/en-us/entra/verified-id/how-to-issuer-revoke) introduces online dependencies. |
+| Executable evidence helper, byte-concatenation digest, hash as immutability | Withdrawn placeholder helper; require canonical file/digest manifest, explicit human-to-statement binding, and independent archive verification. [Records Management](https://learn.microsoft.com/en-us/purview/records-management) distinguishes ordinary retention, records, and regulatory records; hashes do not configure any of them. |
+| Guaranteed audit category / approver fields and retrospective long lookback | Use documented [audit categories](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-audits), [history limits](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-history), and observed [`AuditLogs` schema](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/auditlogs). Native history offers up to 30 days. Custom approvals, [Purview Audit](https://learn.microsoft.com/en-us/purview/audit-solutions-overview), and [Log Analytics retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure) are separate. |
+| Ready-made inventory KQL / automatic alerting and empty-results PASS | `AgentInventory_CL` requires deployed [ingestion and schema](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview), known-event tests, freshness monitoring, and a separately configured [analytics rule](https://learn.microsoft.com/en-us/azure/sentinel/detect-threats-custom). Missing data/implementation is Unknown / ManualEvidenceRequired. |
+| Wrong DSPM dependency and evidence references | Corrected Control 2.1 (Managed Environments) links to Control 1.6 (DSPM for AI) and evidence-pack references to Section 11. This changes routing, not regulatory interpretation. |
+
+**Remaining implementation unknowns:** actual registered schemas, task metadata, source mutation permissions, approval/signature service, cross-surface containment, collection completeness, retention/trust configuration, and tenant rollout must be demonstrated separately. Task-arguments documentation contains inconsistent extension IDs/capitalization; no replacement deployment payload is claimed validated. No implementation script, schema, workflow, configuration, or live tenant was changed by this review.
+
+### Downstream artifacts reviewed
+
+Paths below are relative to `docs/` unless stated otherwise. A family listing explicitly names each reviewed peer file; unchanged means no propagation of the corrected sponsorship claims was needed, not that every unrelated claim was re-verified.
+
+| Artifact(s) | Disposition and reason |
+|---|---|
+| `playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md` | **Changed:** source corrections, evidence boundaries, canonical verification date, and this ledger. |
+| `controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md` | **Changed:** distinguishes organizational sponsorship process from delivered automation. |
+| `playbooks/control-implementations/1.2/portal-walkthrough.md`, `verification-testing.md`, `troubleshooting.md` | **Changed:** corrected section/routing references, custom implementation boundary, native versus custom evidence, signature binding, and departure-policy acceptance criteria. |
+| `playbooks/control-implementations/1.2/powershell-setup.md` | **Unchanged:** already explicitly supplies read-only collection / catalog verification, not sponsor mutation or custom orchestration. |
+| `framework/agent-identity-architecture.md`, `framework/governance-fundamentals.md` | **Changed:** removed fabricated workflow payload / default-on transfer promises, corrected licensing/task availability, separated custom quarterly reviews and containment. |
+| `controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md` | **Changed:** configured native task scope and licensing, no unconditional transfer or native acceptance timer. |
+| `playbooks/control-implementations/2.26/portal-walkthrough.md`, `powershell-setup.md`, `verification-testing.md`, `troubleshooting.md` | **Changed:** setup, illustrative helper assumptions, withdrawn invalid Pester assertions, outcome checks, and incident response now use the same native/custom boundary. |
+| `controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md` | **Changed:** only factual product cells/statements about native transfer, preview status, and custom attestation logging; regulatory requirements/mappings were not reinterpreted. |
+| `controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`; `playbooks/control-implementations/3.6/portal-walkthrough.md`, `troubleshooting.md` | **Changed:** configured transfer / actual outcome, not default-on behavior or guaranteed processing latency. |
+| `playbooks/control-implementations/3.6/powershell-setup.md`, `verification-testing.md` | **Unchanged:** custom reconciliation / approved remediation is not asserted to be a native default transfer or sponsor attestation. |
+| `reference/agent-365-capabilities-summary.md` | **Changed:** coverage describes custom process requirements, not comprehensive delivered attestation automation. |
+| `reference/agent-essentials-control-mapping.md` | **Unchanged:** high-level sponsorship / inventory mapping does not promise the withdrawn trigger, signing, or cascade implementation. |
+| `controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`; `playbooks/control-implementations/3.1/portal-walkthrough.md`, `powershell-setup.md`, `verification-testing.md`, `troubleshooting.md` | **Unchanged:** separate canonical inventory, custom lifecycle policy, and collection/signing checks; no source-specific native workflow payload or default transfer promise to propagate. |
+| `controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`; `playbooks/control-implementations/1.7/portal-walkthrough.md`, `powershell-setup.md`, `troubleshooting.md` | **Unchanged:** separate audit capture/preservation configuration; no custom sponsor approval implementation supplied. |
+| `playbooks/control-implementations/1.7/verification-testing.md` | **Changed:** clarifies Verified ID credential/presentation versus a named human's signature over the evidence manifest. |
+| `controls/pillar-1-security/1.10-communication-compliance-monitoring.md`; `playbooks/control-implementations/1.10/portal-walkthrough.md`, `powershell-setup.md`, `verification-testing.md`, `troubleshooting.md` | **Unchanged:** correspondence supervision/export is separate from executing sponsorship approvals, signatures, or native transfer. |
+| `playbooks/control-implementations/1.6/portal-walkthrough.md`, `powershell-setup.md`, `verification-testing.md`, `troubleshooting.md` | **Unchanged:** correct DSPM dependency; these guides do not deploy the custom sponsorship cascade. |
+| `playbooks/control-implementations/2.1/portal-walkthrough.md`, `powershell-setup.md` | **Unchanged:** Managed Environments, not DSPM; corrected the source's misplaced links instead. |
+| `playbooks/incident-and-risk/ai-incident-response-playbook.md`, `playbooks/agent-lifecycle/agent-decommissioning.md` | **Unchanged:** separate authorized incident/retirement procedures, not an automatic sponsor-workflow deployment. |
+| `images/1.2/EXPECTED.md`, `images/2.26/EXPECTED.md` | **Unchanged:** registry / generic workflow evidence checklists do not specify the withdrawn fabricated task payload or default-on transfer. No screenshots or UI verification were produced. |
+| Repository `CHANGELOG.md` | **Changed:** records this technical correction and its documentation-only boundary. |
+
+### Generated artifacts
+
+No `scripts/build_content_graph.py` or generated documentation dependency graph exists in this checkout. The assessment code graph is unrelated to these prose changes.
+
+| Artifact | Generator / check and disposition |
+|---|---|
+| `javascripts/control-explorer-data.json` | `python scripts/gen_explorer_data.py` **passed**; regenerated payload is unchanged (only generation time differed, so timestamp-only churn was discarded). `python scripts/check_explorer_data_drift.py --check` passed. No mirrored verification-date field exists. |
+| Repository `tests/e2e/fixtures/render-expectations.json` | `node scripts/generate-render-expectations.mjs --out tests/e2e/fixtures/render-expectations.json` **passed**; 697 pages, unchanged semantic oracle. Timestamp-only churn discarded; the same command with `--check` passed. |
+| Repository `maintainers-local/researcher-package/01-Pillar-1-Security-Controls.md`, `02-Pillar-2-Management-Controls.md`, `03-Pillar-3-Reporting-Controls.md`, `04-Pillar-4-SharePoint-Controls.md` | `python scripts/compile_researcher_package.py` **passed**, regenerating four local/ignored pillar compilations including the changed controls. These are not publication artifacts or a substitute for source controls. |
+| `javascripts/change-radar-data.json`; FAQ JSON-LD; assessment coverage report | **Unchanged:** no release-radar, FAQ source, or evaluator wiring changed. `check_change_radar_data_drift.py --check`, `check_faq_jsonld_drift.py --check`, and `generate_coverage_matrix.py --check` passed. |
+| `controls/CONTROL-INDEX.md`; repository `mkdocs.yml` | **Unchanged:** no control ID/title/path, playbook title/path, or navigation entry changed. `check_manifest_doc_drift.py --check` and `verify_xref_graph.py` passed. |
+| Repository `site/` pages, search index, sitemap, and generated metadata | Regenerated from current prose by `mkdocs build --strict`; local/ignored outputs, not hand-edited or committed. Built-site completeness, metadata, and internal-link checks are recorded with exact results in the local publication handoff. |
+| `version.json` | Build-hook SHA/time output is not source verification metadata. Discard incidental local build churn; publication regenerates it for the published commit. |
+
 ---
 
 [Back to Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) · [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (collection/attestation dependency review only)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (technical documentation verified 2026-10-18; no tenant/UI execution)*

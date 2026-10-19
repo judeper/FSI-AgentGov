@@ -13,7 +13,7 @@
     | Enabling Entra Agent ID via Microsoft Agent 365 / M365 E7 license assignment | M365 admin center → Billing → Licenses | Agent identities blade appears in Entra |
     | Assigning sponsors (human owners of record) to every Zone 2 / Zone 3 agent | Entra → Agent identities → Properties | Zero null-sponsor agents |
     | Provisioning agent permissions through Entitlement Management access packages | Entra → Identity Governance → Entitlement management | Time-bound (≤365 day) entitlements with audit trail |
-    | Configuring Lifecycle Workflows to handle sponsor departure | Entra → Identity Governance → Lifecycle workflows | Augment (not replace) Microsoft's default manager-transfer behavior |
+    | Configuring Lifecycle Workflows to handle sponsor departure | Entra → Identity Governance → Lifecycle workflows | Explicitly configure native sponsor tasks; separately implement acceptance, escalation, and approved containment |
     | Running access review campaigns scoped to agent assignments | Entra → Identity Governance → Access reviews | Quarterly attestation evidence for Z3 |
     | Forwarding agent identity events to SIEM with 6-year retention | Entra → Diagnostic settings + Azure Monitor | Examiner-ready evidence pipeline |
 
@@ -37,7 +37,7 @@
     |---|---|---|
     | Microsoft 365 Copilot license per agent sponsor | Required to author and own agents | M365 admin center → Billing → Licenses |
     | **Microsoft Agent 365 or Microsoft 365 E7 licensing** | Surfaces the **Agent identities** blade in Entra and unlocks the Agent 365 control plane (post-GA: May 1, 2026); replaces the pre-GA Frontier program enrollment | M365 admin center → Billing → Licenses |
-    | Entra ID P2 (Identity Governance) | Required for Entitlement Management, Lifecycle Workflows, and Access Reviews — all three are mandatory for this control | Entra → Identity → Overview → License |
+    | Entra ID Governance / Entra Suite; scenario-specific agent entitlements | P2 alone does not license Lifecycle Workflows. Verify the current employee-workflow, access-review, entitlement-management, and agent-sponsorship rows separately | [Microsoft licensing matrix](https://learn.microsoft.com/en-us/entra/id-governance/licensing-fundamentals) |
     | Microsoft Purview Audit (Standard or Premium) | Required to retain agent identity events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
     | Workday / SAP SuccessFactors / SAP HCM HR connector (or Microsoft Entra Connect with HR attribute flow) | Populates `employeeLeaveDateTime` on sponsor user objects — the leaver-trigger signal source for Lifecycle Workflows | Entra → Identity → Inbound provisioning |
 
@@ -121,7 +121,7 @@ Do not proceed past this section unless **all** of the following are true:
 - [ ] At least two named humans hold each governance role in §0.2.
 - [ ] Microsoft 365 Copilot licenses are assigned to intended sponsors.
 - [ ] Microsoft Agent 365 / M365 E7 license assignment is recorded for each operating principal who will run this playbook.
-- [ ] Entra ID P2 license is active on the tenant (Identity → Overview → License shows P2).
+- [ ] Employee Lifecycle Workflows and agent-specific entitlements in §4.2 are verified; P2 alone is not sufficient.
 - [ ] An HR connector or HR-attribute provisioning path populates `employeeLeaveDateTime` on user objects (verify in [§7](#7-hr-connector-verification-employeeleavedatetime) before relying on Lifecycle Workflows).
 
 !!! tip "If a Gate Fails"
@@ -372,62 +372,40 @@ For agents that already had ad-hoc resource grants outside access packages, run 
 
 **Verification Criterion evidenced:** VC-5 (lifecycle workflow active for sponsor departure with execution evidence).
 
-### 4.1 Understand Microsoft's default behavior first
+### 4.1 Distinguish configured native tasks from custom governance
 
-Before authoring any custom lifecycle workflow, internalize this critical fact:
+**Documentation checked 2026-10-18; no tenant/UI execution.** The [native sponsor-task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents manager notification, co-sponsor notification, and **Transfer agent identity sponsorships to manager** in **human mover/leaver workflows**. Include and verify the selected tasks explicitly. This does not establish default-on transfer in an unconfigured tenant, transfer of ownership, successor acceptance, or automatic suspension.
 
-!!! danger "Microsoft Already Auto-Transfers Sponsorship by Default"
-    When a user with `employeeLeaveDateTime` set in the past is processed by Entra, **Microsoft automatically transfers ownership of any agent identities they sponsor to that user's `manager`**. Your Lifecycle Workflow does **not** replace this behavior — it **augments** it with FSI-required notifications, attestations, and conditional disablement. **Do not author a workflow that disables agents on sponsor departure as the default action.** That breaks legitimate business continuity and is rarely the right outcome for Z2 agents.
-
-The recommended pattern is:
-
-| Sponsor event | Microsoft default | This control adds |
+| Sponsor event | Native task boundary | Separate organizational process |
 |---|---|---|
-| Sponsor `employeeLeaveDateTime` reached | Transfer sponsorship to manager | Notify AI Governance Lead + sponsor's manager + compliance; create Power Automate task for manager to attest within 14 days; if no attestation within 14 days, disable agent |
-| Sponsor's `manager` attribute is null at leave time | Transfer fails silently — agent becomes orphaned | Detect orphan; route to Control 3.6 |
-| Sponsor goes on extended leave (>30 days; flagged via HR custom attribute) | No action | Notify AI Governance Lead + designate temporary sponsor via access package |
+| In-scope human leaver trigger | Configured task transfers sponsorships to the configured manager and removes the departing sponsor | Eligibility, acceptance, zone deadline, inventory synchronization |
+| Missing / unsuitable manager or failed task | Inspect actual task result and native relationships; do not assume silent success | Route the unresolved exception to Control 3.6 |
+| Extended leave | Requires an explicitly supported signal and configured workflow/process | Temporary stewardship, approvals, and return-to-service checks |
 
-### 4.2 Enable the lifecycle workflow templates
+### 4.2 Verify prerequisites
 
-1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
-2. Navigate to **Identity governance → Lifecycle workflows → Workflows**.
-3. Confirm the **Workflows** blade loads. (Lifecycle Workflows requires Entra ID Governance, included in P2 — verify via **Identity → Overview → License**.)
-4. Click **+ Create a custom workflow** (or start from the **Pre-hire**, **Joiner**, **Mover**, **Leaver** templates and customize). For sponsor-departure governance, the **Leaver** workflow type is the correct base.
+1. Use **Lifecycle Workflows Administrator** for workflow administration, mapped from the framework's governance-admin responsibility.
+2. Navigate to **Identity governance → Lifecycle workflows** and inspect the actual tenant workflow configuration.
+3. Verify [licensing](https://learn.microsoft.com/en-us/entra/id-governance/licensing-fundamentals): employee workflows require Entra ID Governance or Entra Suite, **not P2 alone**. Native sponsorship tasks require Microsoft 365 E7, or Microsoft Agent 365 paired with at least Entra P1 or Microsoft 365 E3.
+4. Select a documented mover/leaver template, supported human trigger, and explicit subject scope. Do not reuse the former fabricated group-leave trigger / extension attribute configuration.
 
-### 4.3 Author the "Agent Sponsor Leaver" workflow
+### 4.3 Configure and separate execution boundaries
 
-1. **Basics** tab:
-   - **Workflow display name:** `Agent Sponsor Leaver — Notify and Conditional Disable`
-   - **Description:** `Augments Microsoft default sponsor-to-manager transfer with FSI notifications, manager attestation, and 14-day conditional disable. Implements Control 2.26 VC-5.`
-   - **Workflow category:** Leaver
-2. **Trigger details** tab:
-   - **Trigger type:** Group membership change → choose a dynamic security group named `sg-agent-sponsors-active` whose membership rule is `(user.userType -eq "Member") and (user.extensionAttribute_isAgentSponsor -eq "true")`. The membership rule depends on the `extensionAttribute_isAgentSponsor` attribute being set to `true` whenever a user becomes a sponsor (you can populate this attribute via the Graph hook in [`./powershell-setup.md`](./powershell-setup.md)).
-   - **Trigger evaluation:** When a user **leaves** the group (i.e., loses sponsor status because their `employeeLeaveDateTime` triggers Microsoft's default transfer-to-manager).
-   - Alternative trigger: **`employeeLeaveDateTime` is in the past** with a scope filter to the dynamic group above. Either trigger pattern works; the group-leave pattern is easier to test.
-3. **Configure scope** tab:
-   - Set the scope to the same `sg-agent-sponsors-active` group. The workflow will only fire for users in scope at the moment of trigger evaluation.
-4. **Review tasks** tab — add the following tasks in order:
-   - **Task 1: Send email to manager.** Built-in task `Send email to user's manager before user's last day` — customize the template to reference the agents the user sponsors and the 14-day attestation deadline.
-   - **Task 2: Send email to alternate contacts.** Built-in task `Send email to user's manager about user join` (re-purposed for leaver scenario by editing the template). Add the `AI Governance Lead` distribution list and the `Compliance Officer` mailbox as alternate recipients.
-   - **Task 3: Run a custom task extension.** This is the conditional disable path:
-     - Create a **Logic Apps custom task extension** (Entra → Lifecycle workflows → Custom task extensions → + New custom task extension).
-     - Logic App: poll a SharePoint attestation list daily for 14 days; if no attestation row exists for `(sponsor_upn = leaver, agent_id = X)` after 14 days, call Graph `PATCH /servicePrincipals/{id}` with `{ "accountEnabled": false }`; emit an event to Log Analytics.
-     - Wire the custom task extension into the workflow.
-   - **Task 4: Generate TAP and send via email.** Skip this task — it is not relevant for sponsor leaver.
-5. **Review + Create** → **Create**.
-6. After creation, click **Enable** on the workflow. Workflows in `Disabled` state do not fire.
+1. Record workflow ID/version, human subject scope, authoritative departure attribute, manager relationship, and the exact task-definition metadata.
+2. Add the documented manager/co-sponsor notification tasks and, where approved, native sponsorship transfer to the manager. Resolve current definitions from the [task catalog](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-tasks); do not repurpose joiner mail tasks as arbitrary recipient routing.
+3. Implement multi-day approvals, backup-owner promotion, zone-specific containment, and evidence collection as separate services with explicit permissions, idempotency, failure handling, and supported target-specific mutations. A custom inventory state change does not disable an agent.
+4. A [custom task extension](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-extensibility) uses a supported consumption Logic App. Its callback wait supports **30 minutes–3 hours**, not a 14-day polling approval. Separate long-running business state from workflow callback completion.
+5. Verify enabled **and** scheduling state. The tenant evaluation interval is **1–24 hours**, default **3 hours**; it is not an immediate-response SLA.
+6. Validate in an authorized non-production test with before/after relationship evidence and independently verified containment. This documentation re-check did not create or execute that test.
 
-*Screenshot anchor: `docs/images/2.26/EXPECTED.md#5-3-leaver-workflow-tasks` — Lifecycle workflow tasks tab showing the four tasks in sequence.*
-
-!!! warning "Test in a Lower Environment First"
-    Lifecycle Workflows execute against production Entra. There is no "what-if" mode that simulates the conditional disable. Test the workflow against a non-production sponsor identity (or create a test user with `employeeLeaveDateTime` set to 1 day in the past) before relying on it. Document the test in your change record.
+The previous four-task screenshot description and deployable conditional-disable recipe are withdrawn. The PowerShell peer does not supply a verified custom approval/containment deployment.
 
 ### 4.4 Verify execution evidence
 
 1. After at least one trigger event has occurred (test or real), navigate to **Lifecycle workflows → [your workflow] → Workflow history**.
-2. Each row represents a single user whose departure triggered the workflow. Click into a row to see per-task execution status (`Completed`, `Failed`, `In progress`).
-3. Export the **Workflow history** as CSV (top of grid → **Download**).
-4. Cross-reference the workflow execution rows against the agent identity audit log entries (Entra → Audit logs, filter to `category = AgentIdentity`) to confirm sponsorship was transferred (or the agent was disabled, in the no-attestation path).
+2. Inspect the human subject and specific task results; generic workflow completion does not prove sponsorship transfer or a business approval.
+3. Preserve the workflow/run/task evidence while available. Native history offers up to **30 days**; configure earlier export for longer lookbacks.
+4. Independently read each affected agent's native sponsor set and correlate actual audit operations/IDs. Verify manager presence, departing-sponsor removal, and preserved co-sponsors. Collect custom acceptance and source-specific containment results separately; do not infer them from a presumed audit category or workflow name.
 
 !!! example "Examiner Evidence Box — Lifecycle Workflow Execution"
     | Element | Value |
@@ -437,7 +415,7 @@ The recommended pattern is:
     | Regulatory mapping | FINRA 3110 (supervisor change-of-control), Fed SR 26-2 (formerly SR 11-7) (model owner transitions), SOX §404 (segregation of duties — automated control) |
 
 !!! tip "Cross-Reference"
-    The Logic Apps template for the conditional-disable custom task extension is documented at [`./powershell-setup.md`](./powershell-setup.md). For "workflow shows Failed status with permission error", see [`./troubleshooting.md`](./troubleshooting.md).
+    The [sponsorship playbook](../1.2/sponsorship-lifecycle-workflows.md#documentation-verification-ledger) defines the native/custom boundary and verification requirements; it is not a deployable Logic Apps template. For workflow failures, see [`./troubleshooting.md`](./troubleshooting.md).
 
 ---
 
@@ -738,5 +716,4 @@ Before declaring Control 2.26 implemented, confirm:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (sponsorship documentation checked 2026-10-18; no tenant/UI verification)*

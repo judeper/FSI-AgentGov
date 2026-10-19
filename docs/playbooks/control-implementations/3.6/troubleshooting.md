@@ -847,7 +847,7 @@ E-01, E-02, E-03 (historical Graph query replays), E-09, E-10 (examiner response
 
 1. **T-24h** (if planned): Run `Get-Agt36SponsorImpact -LeaverUpn <sponsor>`. Distribute to business-unit stewards for reassignment pre-planning.
 2. **T-0**: Termination effective. `employeeLeaveDateTime` populated.
-3. **T+2h**: LCW fires. Verify GQ-04. Manager-transfer default covers agents where business-unit steward agrees.
+3. **Workflow processing**: verify the configured human mover/leaver trigger, schedule, selected native transfer task, and actual sponsor read-backs. A proposed T+2h target is not a Microsoft execution guarantee; custom steward acceptance is separate from native task completion.
 4. **T+4h**: For agents requiring alternate owner (not manager), execute `Set-AgentOwner` with documented business-steward approval (E-05).
 5. **T+24h**: Zero orphans in sponsor's impact set. Final reconciliation and evidence bundle.
 
@@ -1053,4 +1053,4 @@ The `Write-EvidenceManifest` helper writes a signed JSON manifest to the same WO
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (sponsorship dependency checked 2026-10-18; no tenant/UI verification)*

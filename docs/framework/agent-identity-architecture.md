@@ -50,34 +50,33 @@ This document targets two audiences: **M365 administrators** implementing tactic
 
 ## Entra Agent ID: Identity Foundation
 
-Microsoft Entra Agent ID provides identity and access management specifically designed for AI agents. Unlike traditional service principals or managed identities, Entra Agent ID introduces purpose-built agent identity constructs with human sponsorship, Conditional Access policies, and lifecycle governance. Microsoft's current object model is a three-part hierarchy: an **agent identity blueprint** (a reusable template) creates an **agent identity**, which is paired with an **agent user** account in the directory ([What are agent identities](https://learn.microsoft.com/en-us/entra/agent-id/what-are-agent-identities)).
+Microsoft Entra Agent ID provides identity and access management specifically designed for AI agents. It introduces purpose-built identity constructs with human sponsorship and governance. An **agent identity blueprint** creates an **agent identity**; an **optional, explicitly created agent user** can be paired with that identity when user-only capabilities are needed ([What are agent identities](https://learn.microsoft.com/en-us/entra/agent-id/what-are-agent-identities); [agent users](https://learn.microsoft.com/en-us/entra/agent-id/agent-users)). These objects are not interchangeable inventory records.
 
 ### What is an Agent Identity?
 
-An **agent identity** is a distinct identity construct in Microsoft Entra ID, purpose-built for AI agents. It is created from an **agent identity blueprint** and paired with an **agent user** account so the agent can take on a governed digital identity that acts on behalf of the organization while maintaining clear human accountability ([What are agent identities](https://learn.microsoft.com/en-us/entra/agent-id/what-are-agent-identities)).
+An **agent identity** identifies/authenticates the agent. It does not automatically create an agent user. An explicitly created agent user has its own IDs and a one-to-one parent relationship; creating it through Graph alone does not provision Microsoft 365 participation such as a mailbox or Teams presence ([agent users](https://learn.microsoft.com/en-us/entra/agent-id/agent-users)).
 
 !!! note "Terminology"
-    Earlier framework material referred to these objects as "Agentic Users." Current Microsoft Learn describes the model as **agent identity blueprint → agent identity → agent user**; this page uses the Learn terminology. The specific directory-attribute value `userType: "AgenticUser"` reflects preview-era naming and **could not be confirmed against current Microsoft Learn (verified 2026-06-12)** — treat the exact attribute string as subject to change and verify against the live `entra/agent-id` pages before building automation that depends on it.
+    Documentation checked 2026-10-18: **agent identity blueprint → agent identity → optional agent user**. The agent user is a user subtype; inherited `userType` is **Member / Guest**, not `AgenticUser`. Use the [documented agent-user collection](https://learn.microsoft.com/en-us/graph/api/agentuser-list?view=graph-rest-1.0) and preserve source/parent IDs rather than filtering on a fabricated user type.
 
 | Characteristic | Description |
 |----------------|-------------|
-| **Identity Type** | First-class identity in Entra directory (not a service principal or managed identity) |
-| **Credentials** | Cannot have traditional credentials (no password, no MFA prompts) |
-| **Authentication** | Uses certificate-based or managed identity authentication |
-| **Licensing** | Can be assigned licenses (e.g., Copilot Studio, Microsoft 365, Agent 365) |
-| **Directory Visibility** | Appears in organization directory alongside users |
-| **Sponsorship** | Requires human sponsor for accountability and lifecycle governance |
-| **Group Membership** | Can be added to security groups for access management |
-| **Conditional Access** | Subject to Conditional Access policies like human users |
+| **Identity Type** | Agent identity and optional agent user are distinct objects, not one human-like user record |
+| **Credentials / authentication** | An agent user has no password / passkey or ordinary interactive sign-in; authentication depends on its paired parent identity |
+| **Licensing** | The optional agent user can receive licenses; feature access and Microsoft 365 resource provisioning have separate requirements |
+| **Directory Visibility** | Collect agent identities separately from optional agent-user directory entries |
+| **Sponsorship** | Verify the supported sponsor relationships for the actual object type |
+| **Group Membership** | Agent users can join supported groups, but not role-assignable groups; do not infer identical behavior for every agent object |
+| **Conditional Access** | Verify the supported agent-specific surface, target type, and entitlement; do not assume human-user policy parity |
 
 **Directory Representation:**
 
-Agent identities appear in Entra ID with attributes such as the following (verify exact attribute names against current Microsoft Learn — see the Terminology note above):
+Record object-specific native properties and separately registered governance metadata:
 
-- `userType`: reported as `"AgenticUser"` in preview-era material; **not confirmed on current Microsoft Learn (verified 2026-06-12)**. In token claims, an agent identity is indicated by the `idtyp` claim value `user` (consistent with current Learn), not a separate type.
-- `accountEnabled`: `true` or `false` (for lifecycle management)
-- `sponsorId`: Reference to human sponsor's Entra ID
-- `agentMetadata`: Custom attributes for zone classification and governance
+- Agent user `userType`: **Member / Guest**; its token has `idtyp=user`. This does not turn the parent agent identity into a user.
+- `accountEnabled`: inspect the actual supported identity/user object and read back each authorized change separately.
+- Sponsorship: native relationship, not an assumed scalar `sponsorId` custom field.
+- Zone / lifecycle metadata: custom inventory fields or registered extensions, not a built-in `agentMetadata` schema.
 
 ### Why Agent Identities Matter for FSI
 
@@ -129,7 +128,7 @@ This separation aligns with FINRA 3110's supervision requirements: sponsors prov
 
 ### Lifecycle Workflows: Automated Governance
 
-Entra ID Lifecycle Workflows automate sponsor-related governance activities, reducing manual overhead while ensuring continuous supervision:
+Entra Lifecycle Workflows provides [native sponsor tasks](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) in **human mover/leaver workflows**. It does not, by itself, deploy the custom recurring attestations, zone timers, or registration approval process below. Technical documentation reviewed 2026-10-18; no workflow or UI execution was performed.
 
 #### Periodic Sponsor Reviews
 
@@ -141,11 +140,11 @@ Entra ID Lifecycle Workflows automate sponsor-related governance activities, red
 
 **Re-Attestation Workflow:**
 
-1. Lifecycle Workflow triggers review task based on zone schedule
-2. Sponsor receives attestation request via email or Teams
-3. Sponsor reviews agent activity summary and confirms continued need
-4. If not attested within 14 days, agent is automatically suspended
-5. Compliance team notified of suspensions for regulatory tracking
+1. An independently implemented scheduler selects due inventory records using the firm's approved zone calendar.
+2. The custom approval service requests a Sponsor decision and records the named responder.
+3. The Sponsor reviews the activity summary and confirms continued need.
+4. Any 14-day escalation / suspension rule requires separately authorized source-specific enforcement and post-action verification.
+5. Preserve approval, enforcement, and notification evidence separately. The table above is an organizational review policy, not native Lifecycle Workflows recurrence configuration.
 
 #### Sponsor Departure Handling
 
@@ -153,57 +152,34 @@ When a sponsor leaves the organization or changes roles:
 
 | Trigger | Action | Timeline |
 |---------|--------|----------|
-| Sponsor termination detected | Workflow triggers reassignment task | Immediate |
-| No replacement assigned | Agent suspended (not deleted) | 14 days |
-| Replacement sponsor assigned | Agent reactivated with new sponsor | Upon assignment |
-| Agent in Zone 3 | Auto-suspend immediately; compliance notification | Immediate |
+| Sponsor departure / move detected | Configured human mover/leaver workflow notifies manager / co-sponsors and optionally transfers sponsorship to the configured manager | Subject to configured trigger, schedule, and execution |
+| No eligible replacement | Custom escalation and source-specific containment under the approved zone policy | Organization-defined; not a native 14-day timer |
+| Replacement accepted | Verify native sponsor relationship and separately authorize any reactivation | No automatic reactivation assumption |
+| Agent in Zone 3 | Apply the firm's approved immediate-containment process and verify each source result | Custom orchestration / operational procedure |
 
 **Configuration Example:**
 
-```json
-{
-  "displayName": "Agent sponsor departure handling",
-  "isEnabled": true,
-  "executionConditions": {
-    "trigger": { "type": "userDeparture" },
-    "scope": { "subjectType": "agentic_user_sponsor" }
-  },
-  "tasks": [
-    {
-      "taskDefinitionId": "sendNotificationToBackupSponsor",
-      "arguments": [
-        { "name": "messageTemplate", "value": "AgentSponsorDepartureNotification" }
-      ]
-    },
-    {
-      "taskDefinitionId": "suspendAgentIfNoAction",
-      "arguments": [
-        { "name": "delayInDays", "value": "14" }
-      ]
-    }
-  ]
-}
-```
+The former JSON was conceptual, not a supported Graph payload, and is withdrawn. `userDeparture`, `agentic_user_sponsor`, and the named task strings were not validated API definitions. Native sponsor notification/transfer tasks do not implement delayed suspension, acceptance, eligibility-aware fallback, or business signatures.
 
 **Configuration Steps:**
 
 1. Navigate to **Entra ID** > **Identity Governance** > **Lifecycle Workflows**
-2. Create workflow with trigger: "Employee leaves organization"
-3. Add condition: User is sponsor of an agent identity (or identities)
-4. Configure tasks: notification to backup sponsor → escalation to manager after 7 days → suspend agent after 14 days
-5. Enable workflow and monitor in Lifecycle Workflows dashboard
+2. Select a supported mover/leaver template and configure a documented trigger/scope for the **human sponsor**.
+3. Add the documented manager/co-sponsor notification tasks and, if appropriate, **Transfer agent identity sponsorships to manager**. Verify the manager relationship and policy suitability first.
+4. Implement acceptance, backup-owner promotion, multi-hop eligibility checks, zone deadlines, and containment separately. Do not assume default-on transfer in an unconfigured tenant.
+5. Verify enabled/scheduling state, known-event execution, native relationship read-backs, and independent business-approval evidence. See the [sponsorship verification ledger](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md#documentation-verification-ledger).
 
 #### Agent Registry Activation Workflow
 
-When an agent is registered via the Agent 365 Blueprint process, a Lifecycle Workflow triggers to activate the agent identity and establish governance tracking:
+The following is a **custom onboarding design**, not a native automatic registration-to-Lifecycle-Workflows trigger:
 
 | Step | Action | Automated? |
 |------|--------|------------|
 | 1 | Blueprint registration creates agent record | Yes |
-| 2 | Lifecycle Workflow assigns sponsor based on zone rules | Yes (Zone 1 self-sponsor) / Manual (Zone 2-3) |
+| 2 | Registration process records supported native sponsorship and custom zone metadata | Separate implementation / review |
 | 3 | Sponsor approval received | Manual |
-| 4 | Agent identity activated in Entra Agent ID | Yes (upon approval) |
-| 5 | Periodic review schedule established per zone | Yes |
+| 4 | Authorized operator performs the supported activation / publication action | Separate action and read-back |
+| 5 | Custom scheduler establishes periodic business reviews | Separate implementation |
 
 This workflow complements the Sponsor Departure Handling workflow by ensuring agents enter governance tracking at creation, not just when sponsors change.
 
@@ -679,7 +655,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 
 **Prerequisites:**
 
-- Microsoft 365 E5 licenses (includes Entra ID P2 for Conditional Access and Lifecycle Workflows)
+- Microsoft 365 E5 includes Entra ID P2, but **P2 alone does not license Lifecycle Workflows**. Employee workflows require Entra ID Governance or Entra Suite; agent sponsorship tasks have the separate current Agent 365 / Microsoft 365 E7 prerequisites in the [licensing matrix](https://learn.microsoft.com/en-us/entra/id-governance/licensing-fundamentals).
 - Power Platform Premium capacity (for Copilot Studio agents in Managed Environments)
 - Administrative access to Entra ID and M365 Admin Center
 
@@ -698,16 +674,16 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
      - **Zone 2 (Team):** Require manager approval for sponsorship
      - **Zone 3 (Enterprise):** Require director + compliance approval
 
-3. **Configure Entra ID Lifecycle Workflows**
+3. **Configure native sponsor continuity and separate custom review orchestration**
    - **Periodic sponsor reviews:**
      - Monthly reviews for Zone 3 agents (customer-facing, regulated data access)
      - Quarterly reviews for Zone 2 agents (team collaboration)
      - Semi-annual reviews for Zone 1 agents (personal productivity)
    - **Sponsor departure handling:**
-     - Automatic reassignment to sponsor's manager (if configured)
-     - Notification sent to backup sponsor (if designated)
-     - Agent suspension if no action within 14 days
-     - Immediate suspension for Zone 3 agents when sponsor departs
+     - Native sponsorship transfer to the configured manager, if the mover/leaver workflow includes that task
+     - Native notification to co-sponsors / the manager, if configured
+     - Custom escalation / containment for missed business-review deadlines
+     - Separate source-specific enforcement for the firm's Zone 3 departure policy
 
 4. **Implement Conditional Access policies** for agent authentication
    - Policy 1: Block high-risk agent identities (Agent risk = High)
@@ -723,7 +699,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 **Success Criteria:**
 
 - All Zone 2/3 agents have assigned human sponsors with documented business justification
-- Lifecycle workflows active with successful review completions (check Lifecycle Workflows dashboard)
+- Native mover/leaver tasks have successful execution and relationship read-backs; the separate custom recurring review process has completed named approvals and preserved evidence
 - Conditional Access policies enforced for high-risk agent operations (validate with test agent)
 - M365 Admin Center Agent Settings configured with zone-appropriate sharing controls
 
@@ -910,7 +886,7 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 | **[1.2 Agent Registry](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md)** | Custom SharePoint list + per-platform inventories (manual consolidation from PPAC, M365 Admin Center, Azure Portal, SharePoint Admin Center) | Agent 365 Unified Registry with automatic discovery, rich metadata (usage analytics, risk scores, compliance status), Graph API export for compliance reporting systems |
 | **[1.11 Conditional Access](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)** | Per-app policies; service principals for Copilot Studio, managed identities for Microsoft Foundry; inconsistent Conditional Access coverage | Entra Agent ID provides consistent identity model; Conditional Access policies apply uniformly across all agent types with agent-specific risk signals |
 | **[2.12 FINRA 3110 Supervision](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)** | Manual supervisor assignment documented in spreadsheets or SharePoint; no enforced separation of duties | Entra Agent ID sponsorship model enforces human accountability; sponsors cannot delete agents (separation of duties); lifecycle workflows automate supervisor attestation |
-| **[3.6 Orphaned Agent Detection](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)** | PowerShell scripts query multiple platforms; manual correlation to identify agents with departed owners | Agent 365 lifecycle governance automatically flags agents with inactive sponsors; Entra ID Lifecycle Workflows trigger reassignment or suspension |
+| **[3.6 Orphaned Agent Detection](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)** | PowerShell scripts query multiple platforms; manual correlation to identify agents with departed owners | Explicitly configured native sponsor tasks can transfer to the manager; cross-source detection, acceptance, and suspension require separately verified implementation |
 
 ### Medium Impact Controls (Enhanced Capabilities)
 

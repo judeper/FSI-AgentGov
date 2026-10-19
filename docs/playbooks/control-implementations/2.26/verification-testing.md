@@ -466,9 +466,9 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
 
 ### 4.1 Criterion mapping
 
-This namespace evidences **C2.26-5**: a Microsoft Entra **Lifecycle Workflow** is configured and active for the trigger *user account becomes inactive or marked as a leaver*, and that workflow's task on agent identities — specifically the **default automatic manager-transfer behavior of Entra** — has executed for every sponsor departure observed in the lookback window.
+This namespace evidences **C2.26-5**: an explicitly configured human sponsor mover/leaver workflow includes the intended native sponsorship tasks and has verifiable outcomes for every in-scope departure. A past leave date or disabled user account does not prove a default transfer occurred. Documentation checked 2026-10-18 against the [native sponsor-task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks); no tenant tests were run.
 
-> **Important accuracy note.** This control does **not** require organizations to build a custom suspend-on-leave workflow. Entra's default behavior, when a sponsor's user account transitions to `accountEnabled = false` or carries the `employeeLeaveDateTime` past trigger, is to transfer agent ownership to the sponsor's manager. The Pester tests verify that this default occurred. A custom suspension workflow is reserved for the case where the manager **declines** the transfer (escalation path; see §8.5).
+> **Important accuracy note.** The native transfer task adds the configured manager as **sponsor**, not owner, and removes the departing sponsor. It is not default-on in every tenant, does not collect manager acceptance, and does not impose a universal 30-day grace period. Custom zone containment and approval requirements must be tested separately. A completed workflow, notification, or empty departure set is not proof of continuity.
 
 ### 4.2 Pre-conditions
 
@@ -476,83 +476,15 @@ This namespace evidences **C2.26-5**: a Microsoft Entra **Lifecycle Workflow** i
 - The reference workflow `Agent Sponsor Departure Transfer` exists and is in `enabled` state.
 - The lookback window for verification is the prior 30 days by default; configurable via `-LookbackDays`.
 
-### 4.3 Pester suite
+### 4.3 Outcome verification procedure
 
-```powershell
-Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
+The former Pester example is withdrawn: it asserted the nonexistent task string `reassignAgentOwnerToManager`, treated a sponsor collection as one owner field, and could pass without a positive-control departure. Implement the following checks against the deployed schema and current task-definition metadata before automating this evidence test:
 
-    BeforeAll {
-        $script:WfName = 'Agent Sponsor Departure Transfer'
-        $script:Wf = Get-MgIdentityGovernanceLifecycleWorkflow `
-            -Filter "displayName eq '$script:WfName'" -ErrorAction SilentlyContinue
-        $script:Lookback = (Get-Date).AddDays(-30).ToUniversalTime()
-        $script:Departures = Get-MgUser -All `
-            -Filter "employeeLeaveDateTime ge $($script:Lookback.ToString('o'))" `
-            -Property id,userPrincipalName,employeeLeaveDateTime,manager
-    }
-
-    Context "Workflow definition" {
-        It "the lifecycle workflow exists and is enabled" {
-            $script:Wf | Should -Not -BeNullOrEmpty
-            $script:Wf.IsEnabled | Should -BeTrue
-        }
-        It "the workflow trigger is the leaver scenario" {
-            $script:Wf.ExecutionConditions.AdditionalProperties['@odata.type'] |
-                Should -Match 'triggerAndScopeBasedConditions'
-            $script:Wf.ExecutionConditions.Trigger.AdditionalProperties.timeBasedAttribute |
-                Should -Be 'employeeLeaveDateTime'
-        }
-        It "the workflow includes the manager-transfer task on agent identities" {
-            $taskTypes = $script:Wf.Tasks.TaskDefinitionId
-            $taskTypes | Should -Contain 'reassignAgentOwnerToManager'
-        }
-    }
-
-    Context "Workflow execution within lookback" {
-        It "every departed sponsor in the lookback window has a workflow run" {
-            foreach ($d in $script:Departures) {
-                $sponsoredAgents = $script:Agents | Where-Object sponsorObjectId -eq $d.Id
-                if ($sponsoredAgents.Count -eq 0) { continue }
-                $runs = Get-MgIdentityGovernanceLifecycleWorkflowRun `
-                    -LifecycleWorkflowId $script:Wf.Id -All |
-                    Where-Object { $_.Subject.Id -eq $d.Id }
-                $runs.Count | Should -BeGreaterOrEqual 1 -Because "departure $($d.UserPrincipalName) must trigger workflow"
-            }
-        }
-        It "every workflow run completed with status Completed (not Failed)" {
-            $runs = Get-MgIdentityGovernanceLifecycleWorkflowRun `
-                -LifecycleWorkflowId $script:Wf.Id -All |
-                Where-Object { $_.StartedDateTime -ge $script:Lookback }
-            foreach ($r in $runs) {
-                $r.ProcessingStatus | Should -BeIn @('completed','completedWithErrors')
-                if ($r.ProcessingStatus -eq 'completedWithErrors') {
-                    # Must have a logged escalation
-                    $r.AdditionalProperties.ContainsKey('escalation_ticket') | Should -BeTrue
-                }
-            }
-        }
-    }
-
-    Context "Manager-transfer outcome" {
-        It "for every successful run, the affected agent's sponsor now equals the departed user's manager" {
-            $runs = Get-MgIdentityGovernanceLifecycleWorkflowRun `
-                -LifecycleWorkflowId $script:Wf.Id -All |
-                Where-Object { $_.ProcessingStatus -eq 'completed' -and $_.StartedDateTime -ge $script:Lookback }
-            foreach ($r in $runs) {
-                $departedId = $r.Subject.Id
-                $managerId  = (Get-MgUser -UserId $departedId -ExpandProperty manager).Manager.Id
-                $agents = $script:Agents | Where-Object sponsorObjectId -eq $departedId
-                # Refresh agent records post-run
-                foreach ($a in $agents) {
-                    $fresh = Get-AllAgentIdentities -AgentId $a.id
-                    $fresh.sponsorObjectId | Should -Be $managerId `
-                        -Because "default manager-transfer should have replaced sponsor"
-                }
-            }
-        }
-    }
-}
-```
+1. Capture the actual workflow ID/version, enabled/scheduling state, human subject scope, authoritative departure signal, and selected task definitions. Resolve **Transfer agent identity sponsorships to manager** against the [task catalog](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-tasks); a display name alone is insufficient.
+2. Freeze the pre-departure agent-to-sponsor relationship set and the intended manager. Use a known authorized test event or a documented real departure; an empty population is **NotEvaluable**, not PASS.
+3. Correlate the human departure, specific task/run result, and each affected agent. A notification-only workflow must not be assessed as a completed transfer. A failed task or completion-with-errors remains an exception even if a ticket exists.
+4. Independently read native sponsorship afterward: the intended manager is present, the departing sponsor is absent, and unrelated co-sponsors are preserved. Keep native **sponsor** and **owner** relationships distinct.
+5. Verify custom eligibility/acceptance, approved zone timing, inventory synchronization, evidence publication, and any source-specific suspension separately. Missing history, unknown target mappings, or stale collection is **ManualEvidenceRequired**, never zero findings.
 
 ### 4.4 Sample passing evidence record
 
@@ -602,7 +534,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
 }
 ```
 
-`TRG-LIFECYCLE-01` (§8.4): manually invoke `Set-AgentSponsorBulk` with the departed user's manager as new sponsor; open a problem ticket against the lifecycle workflow; if manager declines transfer, escalate to the suspension path in §8.5.
+`TRG-LIFECYCLE-01`: record the failed/missing native transfer, obtain approved successor authorization, use a supported reassignment action, and read back the sponsor set. Custom acceptance rejection / timeout follows the approved zone containment process, not an assumed native manager-decline task.
 
 ### 4.6 Examiner artifact
 
@@ -616,7 +548,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
-| Zone 1 | n/a — Z1 agents are deleted with creator account by default | — | — |
+| Zone 1 | Apply documented native sponsorship and the approved Zone 1 continuity process; creator departure does not prove agent deletion | Missing evidence | Unhandled current sponsorship gap |
 | Zone 2 | 100% of departed sponsors processed within 24 hours | one departure processed 24–72 hours late, with documented justification | any departure unprocessed > 72 hours |
 | Zone 3 | 100% processed within 4 hours AND every transfer cross-checked against backup sponsor | n/a | any Z3 agent unprocessed > 4 hours |
 
@@ -1441,8 +1373,8 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 
 ### 10.5 TRG-LIFECYCLE-02 — Manager declines transfer (escalation)
 
-- **Trigger:** §4 workflow run completes with `processing_status == 'completedWithErrors'` and the error indicates the manager declined to accept ownership.
-- **Action:** activate the **suspension** path: set agent `accountEnabled = false`; assign temporary stewardship to the AI Governance Lead; place the agent in a 30-day reassignment hold; if no permanent owner is named within 30 days, retire the agent per Control 3.6.
+- **Trigger:** the separately deployed business-acceptance service records a named successor's rejection or an overdue decision. A native workflow error is not evidence of human rejection.
+- **Action:** apply the approved zone-specific containment / reassignment process and verify source effects. Any 30-day hold is an organizational policy, not a native Microsoft timer and not an override of the immediate Zone 3 containment policy in the [sponsorship playbook](../1.2/sponsorship-lifecycle-workflows.md#4-zone-specific-sponsorship-requirements).
 - **This is the ONE case where suspension is the correct outcome.** The Pester tests do not preemptively check for suspension; they only check for the manager-transfer outcome. Suspension only enters the picture when the manager-transfer path fails.
 
 ### 10.6 TRG-REVIEW-01 — Quarterly review incomplete
@@ -1500,7 +1432,7 @@ If the 1.2 attestation is overdue (> 30 days), the SPONSOR namespace emits a `WA
 The LIFECYCLE namespace (§4) produces a `lifecycle-runs-<runId>.json` artifact that lists every workflow run, its outcome, and the agents affected. Control 3.6's orphan-detection job consumes this artifact to:
 
 - Identify agents whose sponsor was successfully transferred to a manager but whose manager has subsequently also departed (a "double-departure orphan").
-- Identify agents flagged as `completedWithErrors` in 2.26 for which a 30-day suspension hold has expired without reassignment (a "permanent orphan").
+- Identify unresolved native sponsorship exceptions and separately recorded custom acceptance/hold expirations. Do not infer a declined approval or a 30-day hold from `completedWithErrors`.
 
 The 3.6 control's orphan registry, in turn, feeds back into the next 2.26 SPONSOR run as an input dimension: an agent listed in the 3.6 orphan registry is flagged in §2's evidence record with `observed_value.orphan_registry_match: true`.
 
