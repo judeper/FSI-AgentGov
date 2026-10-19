@@ -1,0 +1,33 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:65b8205c6875880ff26f41ab1c5e3eedd71aeb67b117e6938bb79bee11613de0",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "December CY2026",
+  "id": 576755,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Finance and Operations cross-app",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>With the dynamic tools of the Dynamics 365 ERP MCP server, large language models often have multiple options for tool-calling sequences to perform an operation or retrieve data. The orchestration can select the tool execution sequence and can include more tool calls than are required. This enhancement to the MCP server improves performance and accuracy of the server response by enabling the server to use optimal tool execution sequences to perform operations with a single point of entry for MCP tools and a semantic index of the available menu items, entities, and actions.</p>\n<p>Business Value:</p>\n<p>The Dynamics 365 ERP MCP server now uses a semantic index of target ERP menu items, entities, and actions to improve performance and accuracy of tool calls by optimizing the sequence of tool executions for agentic operations.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576755",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:orchestrat"
+    }
+  ],
+  "title": "Dynamics 365 Finance and Operations cross-app: Boost productivity with Copilot - Boost agent performance with optimal tool execution paths in Dynamics 365 ERP MCP"
+}
