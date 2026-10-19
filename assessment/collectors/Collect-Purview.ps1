@@ -7,7 +7,8 @@
     communication compliance, eDiscovery cases, insider risk evidence status
     (manual policy inventory + audit dependency only), DSPM for AI, sensitivity label
     policies, endpoint DLP settings, and sensitive information types (SITs) via
-    Security & Compliance PowerShell (ExchangeOnlineManagement).
+    Security & Compliance PowerShell (ExchangeOnlineManagement), with audit
+    ingestion status read separately through verified Exchange Online PowerShell.
 
     Outputs a structured JSON file (purview.json) consumed by the assessment engine.
 
@@ -38,7 +39,10 @@
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — Purview Collector.
-    Requires ExchangeOnlineManagement module for Connect-IPPSSession.
+    Requires ExchangeOnlineManagement module for Connect-IPPSSession and
+    Get-ConnectionInformation. Interactive audit collection can connect to
+    Exchange Online; app-only audit collection requires a pre-established
+    Exchange Online connection with the FsiAudit prefix.
     Exit codes: 0 = success, 1 = partial failure (some sections null), 2 = total failure.
     Version: 1.0.0
 #>
@@ -134,12 +138,53 @@ $auditConfig = $null
 try {
     Write-Verbose "Section 1: Collecting audit log configuration..."
 
+    # IPPS always reports this flag as False. Bind the read to a separate
+    # prefixed Exchange connection and verify its tenant and session type.
+    # https://learn.microsoft.com/en-us/purview/audit-log-enable-disable
+    $auditConnections = @(Get-ConnectionInformation -ErrorAction Stop | Where-Object { $_.ModulePrefix -eq 'FsiAudit' })
+    if ($auditConnections.Count -eq 0) {
+        if ($AuthMode -ne 'Interactive') {
+            throw 'App-only audit status requires a pre-established Exchange Online connection with -Prefix FsiAudit. Collect audit status manually if unavailable.'
+        }
+        Invoke-CollectorOperation -Target "Exchange tenant $TenantId" -Action 'Connect to Exchange Online for audit status (interactive)' -ScriptBlock {
+            Connect-ExchangeOnline -Prefix FsiAudit -CommandName Get-AdminAuditLogConfig -ErrorAction Stop
+        } | Out-Null
+        $auditConnections = @(Get-ConnectionInformation -ErrorAction Stop | Where-Object { $_.ModulePrefix -eq 'FsiAudit' })
+    }
+    if ($auditConnections.Count -ne 1) {
+        throw 'Audit status requires exactly one FsiAudit Exchange Online connection; context is missing or ambiguous.'
+    }
+    $auditConnection = $auditConnections[0]
+    if (
+        $auditConnection.State -ne 'Connected' -or
+        $auditConnection.TokenStatus -ne 'Active' -or
+        $auditConnection.IsEopSession -isnot [bool] -or $auditConnection.IsEopSession -or
+        $auditConnection.TenantID -ne $TenantId -or
+        [string]::IsNullOrWhiteSpace($auditConnection.ConnectionId)
+    ) {
+        throw 'Audit status connection is not a verified active Exchange Online session for the requested tenant.'
+    }
+
     $adminAuditConfig = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Get audit log configuration' -ScriptBlock {
-        Get-AdminAuditLogConfig -ErrorAction Stop
+        Get-FsiAuditAdminAuditLogConfig -ErrorAction Stop
     }
 
     if ($adminAuditConfig) {
         $unifiedAuditEnabled = $adminAuditConfig.UnifiedAuditLogIngestionEnabled
+        if ($unifiedAuditEnabled -isnot [bool]) {
+            throw 'Exchange Online audit status did not return a Boolean ingestion flag.'
+        }
+        $currentConnections = @(Get-ConnectionInformation -ErrorAction Stop | Where-Object { $_.ModulePrefix -eq 'FsiAudit' })
+        if (
+            $currentConnections.Count -ne 1 -or
+            $currentConnections[0].ConnectionId -ne $auditConnection.ConnectionId -or
+            $currentConnections[0].State -ne 'Connected' -or
+            $currentConnections[0].TokenStatus -ne 'Active' -or
+            $currentConnections[0].IsEopSession -isnot [bool] -or $currentConnections[0].IsEopSession -or
+            $currentConnections[0].TenantID -ne $TenantId
+        ) {
+            throw 'Exchange Online audit collection context changed during the read.'
+        }
 
         # Audit configuration policies (audit plan tier)
         $auditPolicies = $null
@@ -163,11 +208,20 @@ try {
             UnifiedAuditLogIngestionEnabled = $unifiedAuditEnabled
             AdminAuditLogAgeLimit           = $adminAuditConfig.AdminAuditLogAgeLimit
             AuditConfigurationPolicies      = $auditPolicies
+            CollectionContext              = [PSCustomObject]@{
+                Source       = 'ExchangeOnline'
+                CommandName  = 'Get-FsiAuditAdminAuditLogConfig'
+                ModulePrefix = 'FsiAudit'
+                ConnectionId = $auditConnection.ConnectionId
+                TenantId     = $auditConnection.TenantID
+                Verified     = $true
+            }
         }
         Write-Verbose "  Audit config collected. Unified audit enabled: $unifiedAuditEnabled"
     }
     else {
-        Write-Verbose "  Audit log configuration collection skipped."
+        $warnings.Add('Section 1 (Audit Config): no Exchange Online audit configuration was collected; audit status remains unknown.')
+        Write-Warning $warnings[-1]
     }
 }
 catch {

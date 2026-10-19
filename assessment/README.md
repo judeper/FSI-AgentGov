@@ -133,6 +133,41 @@ Register an Entra ID application with the following **application** permissions:
 > authentication even in ServicePrincipal mode, depending on tenant
 > configuration. Use `-SkipCollectors` for those if needed.
 
+### Purview audit-status provenance
+
+The Purview collector reads audit ingestion status through a separate,
+`FsiAudit`-prefixed **Exchange Online PowerShell** connection, not through its
+Security & Compliance (IPPS) session. Microsoft documents that the IPPS version
+of `Get-AdminAuditLogConfig` always returns `False` for
+`UnifiedAuditLogIngestionEnabled`, even when auditing is enabled
+([source](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable)).
+
+Interactive collection establishes that Exchange connection if it is absent.
+App-only collection requires the caller to establish it beforehand using the
+documented certificate-based Exchange Online authentication flow and
+`-Prefix FsiAudit`; the collector does not acquire certificates or fall back to
+interactive authentication in ServicePrincipal mode. The existing IPPS
+authentication requirements remain unchanged.
+
+Both modes require exactly one connected, active, non-IPPS session with that
+prefix and the requested tenant ID, verified before and after the prefixed
+audit read. A Boolean observation retains the existing `auditConfig` fields
+and adds `CollectionContext` (source, command, prefix, connection ID, tenant ID,
+and verification flag). Missing, ambiguous, wrong-tenant, IPPS, or failed
+context/read leaves `auditConfig: null`, emits a warning, and contributes to
+the existing partial-failure exit code. Downstream audit scoring stays unknown,
+not disabled. A verified `False` still reports observed-disabled.
+
+The Insider Risk helper also requires that provenance; bare legacy Boolean
+inputs no longer establish its audit dependency. Control 1.12 policy inventory
+and effectiveness review remain manual. Scoring/report code, manifest,
+generated coverage, SPA assets, and historical fixture files are unchanged.
+Offline regressions execute the real collector with local command stubs:
+
+```powershell
+Invoke-Pester -Path .\collectors\lib\CollectPurviewAudit.Tests.ps1,.\collectors\lib\InsiderRiskSupport.Tests.ps1
+```
+
 ## Quick Start
 
 ### Interactive Mode (Recommended)
