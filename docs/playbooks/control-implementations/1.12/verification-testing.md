@@ -169,17 +169,30 @@ Mutation operations (policy creation, role-group membership change, license assi
 
 #### Steps
 
-In a separate Exchange Online PowerShell process, capture the prerequisite:
+In a separate Exchange Online PowerShell process, capture the prerequisite. `$RunId` is the cycle identifier generated under PRE-7 (`IRM112-yyyyMMdd-HHmmss-<8 hex>`):
 
 ```powershell
 Connect-ExchangeOnline
-Get-AdminAuditLogConfig -ErrorAction Stop |
-    Select-Object UnifiedAuditLogIngestionEnabled |
-    ConvertTo-Json | Set-Content -LiteralPath '.\tc01-ual-state.json' -Encoding utf8
+$session = @(Get-ConnectionInformation |
+    Where-Object { $_.State -eq 'Connected' -and $_.IsEopSession -eq $false })
+if ($session.Count -ne 1) {
+    throw 'Expected exactly one connected Exchange Online (non-Security & Compliance) session.'
+}
+$tenantId = ([guid]$session[0].TenantID).ToString('D')
+$path = ".\Control-1.12_${tenantId}_Commercial_TC01AuditState_${RunId}.json"
+[pscustomobject]@{
+    TenantId = $tenantId
+    RunId = $RunId
+    CollectedUtc = [datetime]::UtcNow.ToString('o')
+    Session = $session[0] | Select-Object ConnectionId, State, TokenStatus, IsEopSession, ModulePrefix, TenantID
+    UnifiedAuditLogIngestionEnabled = (Get-AdminAuditLogConfig -ErrorAction Stop).UnifiedAuditLogIngestionEnabled
+} | ConvertTo-Json -Depth 5 | Out-File -LiteralPath $path -Encoding utf8 -NoClobber
+(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash |
+    Out-File -LiteralPath "$path.sha256" -Encoding ascii -NoClobber
 Disconnect-ExchangeOnline -Confirm:$false
 ```
 
-Do not query this property through IPPS, where it always reports `False`. Add run ID, collection time, and reviewer context in the firm's evidence manifest.
+Do not query this property through IPPS, where it always reports `False`. The artifact is tenant- and run-bound, and `-NoClobber` makes a repeated run for the same cycle fail instead of replacing earlier evidence. Add reviewer context in the firm's evidence manifest.
 
 **Evidence collection:** use the independent **Insider risk audit log** and relevant portal state for administrative activity. For destination alerts, correlate known alert IDs through the configured IRM connector; for forensic requests/clips, record request, decision, and capture timestamps from the portal. The former UAL/`OfficeActivity` query is withdrawn. Missing evidence remains **Pending**. See [PowerShell Setup §§3, 6, 7](powershell-setup.md).
 
@@ -191,7 +204,7 @@ Do not query this property through IPPS, where it always reports `False`. Add ru
 
 #### Evidence Capture
 
-- `tc01-ual-state.json` — `{ UnifiedAuditLogIngestionEnabled }` + `.sha256`; keep run/cloud/reviewer context and the independent IRM export in the firm's evidence manifest.
+- `Control-1.12_{TenantId}_Commercial_TC01AuditState_{RunId}.json` — `{ TenantId, RunId, CollectedUtc, Session, UnifiedAuditLogIngestionEnabled }` + `.sha256`; keep reviewer context and the independent IRM export in the firm's evidence manifest.
 - Screenshot and CSV: **Insider risk audit log > Export**, with category, actor, date range, and timezone recorded; attach the Exchange Online audit-prerequisite JSON separately.
 - Retention: 7 years (records-scope) per FINRA 4511 / SEC 17a-4(f).
 
@@ -1051,7 +1064,7 @@ FINRA 4511 · SEC 17a-4(f) · Reg S-P · OCC examination expectations · NYDFS 5
 
 | TC | Artefact filename pattern | Storage tier | Retention | Primary regulation tie-in |
 |---|---|---|---|---|
-| TC-1 | `tc01-ual-state.json` (+ `.sha256`) | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) |
+| TC-1 | `Control-1.12_{TenantId}_Commercial_TC01AuditState_{RunId}.json` (+ `.sha256`) | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) |
 | TC-2 | `tc02-roles.json`, `tc02-sod.json` | WORM | 7 years | FINRA 3110 · SOX 404 · NYDFS 500.07 |
 | TC-3 | `tc03-indicators-export.csv`, `tc03-indicators-diff.json`, `tc03-attestation.pdf` | WORM | 7 years | FINRA 3110 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 | TC-4 | `tc04-risky-agents-policy.json`, `tc04-agent-reconciliation.csv` | WORM | 7 years | FINRA RN 24-09 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
@@ -1224,7 +1237,7 @@ priorityUserGroups:
 
 ### §5.3 Appendix C — Local collector and manual-review checks
 
-Validate the local collector in [PowerShell Setup §11](powershell-setup.md): missing inputs, empty files, and present exports all remain **Pending**; present files have matching SHA-256 hashes; the aggregate hash matches its bytes; file-access errors stop the run. Test with `WorkspaceId` omitted and supplied; neither case queries Sentinel. Record the manual reviewer and source evidence for each TC separately. A local packaging test is not an IRM policy-effectiveness test.
+Validate the local collector in [PowerShell Setup §11](powershell-setup.md): missing inputs, empty files, and present exports all remain **Pending**; present files have matching SHA-256 hashes; the aggregate hash matches its bytes; file-access errors stop the run. Confirm that the aggregate file name and body carry the supplied tenant ID and a unique run ID, that two runs into the same evidence directory leave both artifacts intact, and that a repeated `-RunId` for the same tenant is rejected without modifying the existing file. Test with `WorkspaceId` omitted and supplied; neither case queries Sentinel. Record the manual reviewer and source evidence for each TC separately. A local packaging test is not an IRM policy-effectiveness test.
 
 ### §5.4 Appendix D — TC-to-regulation matrix
 

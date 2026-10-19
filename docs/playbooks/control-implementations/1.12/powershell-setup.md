@@ -19,7 +19,7 @@
 
 ## §1 — Supported automation and permissions
 
-Use a CAB-approved `ExchangeOnlineManagement` version compatible with your PowerShell runtime. The former fixed 3.7.0 / Graph 2.25.0 examples were not a current Microsoft support baseline. Install a chosen version using the shared baseline; record the actual version in evidence. No Graph module or Graph permission is required by the collector below.
+Use a CAB-approved `ExchangeOnlineManagement` version compatible with your PowerShell runtime; the `Get-ConnectionInformation` cmdlet used below is available only in version 3.0.0 or later ([reference](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-connectioninformation?view=exchange-ps)). The former fixed 3.7.0 / Graph 2.25.0 examples were not a current Microsoft support baseline. Install a chosen version using the shared baseline; record the actual version in evidence. No Graph module or Graph permission is required by the collector below.
 
 | Operation | Documented surface / permissions |
 |---|---|
@@ -50,15 +50,30 @@ In a **separate Exchange Online PowerShell process**, capture the audit prerequi
 #Requires -Version 7.4
 Import-Module ExchangeOnlineManagement
 Connect-ExchangeOnline
+$session = @(Get-ConnectionInformation |
+    Where-Object { $_.State -eq 'Connected' -and $_.IsEopSession -eq $false })
+if ($session.Count -ne 1) {
+    throw 'Expected exactly one connected Exchange Online (non-Security & Compliance) session.'
+}
+$tenantId = ([guid]$session[0].TenantID).ToString('D')
+$runId = 'IRM112-{0:yyyyMMdd-HHmmss}-{1}' -f [datetime]::UtcNow, [guid]::NewGuid().ToString('N').Substring(0, 8)
 $audit = Get-AdminAuditLogConfig -ErrorAction Stop
-$audit | Select-Object UnifiedAuditLogIngestionEnabled |
-    ConvertTo-Json | Set-Content -LiteralPath '.\audit-dependency.json' -Encoding utf8
+$path = ".\Control-1.12_${tenantId}_Commercial_ExchangeAuditStatus_${runId}.json"
+[pscustomobject]@{
+    TenantId = $tenantId
+    RunId = $runId
+    CollectedUtc = [datetime]::UtcNow.ToString('o')
+    Session = $session[0] | Select-Object ConnectionId, State, TokenStatus, IsEopSession, ModulePrefix, TenantID
+    UnifiedAuditLogIngestionEnabled = $audit.UnifiedAuditLogIngestionEnabled
+} | ConvertTo-Json -Depth 5 | Out-File -LiteralPath $path -Encoding utf8 -NoClobber
+(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash |
+    Out-File -LiteralPath "$path.sha256" -Encoding ascii -NoClobber
 Disconnect-ExchangeOnline -Confirm:$false
 ```
 
 Check `UnifiedAuditLogIngestionEnabled` is `True`. **Do not read this property through `Connect-IPPSSession`: Microsoft documents that it always returns `False` there.** This read-only example does not enable auditing; use the approved [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) change procedure when necessary.
 
-An assessment report's audit flag is not sufficient without evidence that it was collected through Exchange Online rather than Security & Compliance. Retain the independent Exchange status artifact and session context for review.
+An assessment report's audit flag is not sufficient without evidence that it was collected through Exchange Online rather than Security & Compliance. The artifact name and body carry the tenant ID and a unique run ID, and `-NoClobber` makes a repeated run fail instead of replacing earlier evidence. Retain the artifact with its SHA-256 sidecar and the recorded session context for review; `IsEopSession` is `False` for Exchange Online and `True` for Security & Compliance connections ([Get-ConnectionInformation](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-connectioninformation?view=exchange-ps)).
 
 **The IRM solution audit log is independent of the Microsoft 365 unified audit log.** It is always enabled, retains activities for 180 days, and is exported by an Auditor from **Insider risk audit log > Export**. Preserve its local timestamps and record the timezone plus UTC normalization. Do not search for invented `InsiderRiskMgmt*` operations or a record type named `InsiderRiskManagement` to attest IRM administrative activity.
 
@@ -173,10 +188,24 @@ param(
     [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$EvidencePath,
     [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$PolicyExportPath,
     [Parameter(Mandatory)] [ValidateNotNullOrWhiteSpace()] [string]$AlertExportPath,
+    [Parameter(Mandatory)] [ValidateScript({ $g = [guid]::Empty; [guid]::TryParse($_, [ref]$g) })] [string]$TenantId,
+    [ValidatePattern('^IRM112-\d{8}-\d{6}-[0-9a-f]{8}$')] [string]$RunId,
     [string]$WorkspaceId
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+function Write-NewEvidenceFile {
+    param(
+        [Parameter(Mandatory)] [string]$Path,
+        [Parameter(Mandatory)] [string]$Text,
+        [Parameter(Mandatory)] [System.Text.Encoding]$Encoding
+    )
+    $bytes = $Encoding.GetBytes($Text)
+    # CreateNew fails if the file exists, so earlier evidence is never replaced.
+    $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+    try { $stream.Write($bytes, 0, $bytes.Length) } finally { $stream.Dispose() }
+}
 
 $resolvedEvidencePath = [System.IO.Path]::GetFullPath($EvidencePath)
 $resolvedPolicyExport = [System.IO.Path]::GetFullPath($PolicyExportPath)
@@ -187,26 +216,40 @@ foreach ($path in @($resolvedPolicyExport, $resolvedAlertExport)) {
         throw "Evidence input parent directory not found: $parent"
     }
 }
+
+$tenant = ([guid]$TenantId).ToString('D')
+$generatedUtc = [datetime]::UtcNow
+if (-not $PSBoundParameters.ContainsKey('RunId')) {
+    $RunId = 'IRM112-{0:yyyyMMdd-HHmmss}-{1}' -f $generatedUtc, [guid]::NewGuid().ToString('N').Substring(0, 8)
+}
+$output = Join-Path $resolvedEvidencePath "Control-1.12_${tenant}_Commercial_PolicyEvidenceAggregate_${RunId}.json"
+$sidecar = "$output.sha256"
+foreach ($path in @($output, $sidecar)) {
+    if (Test-Path -LiteralPath $path) {
+        throw "Evidence file already exists and will not be overwritten: $path"
+    }
+}
 New-Item -ItemType Directory -Force -Path $resolvedEvidencePath | Out-Null
 
 $policy = Get-FsiIrmPolicyEvidenceStatus -PolicyExportPath $resolvedPolicyExport -AlertExportPath $resolvedAlertExport
 $aggregate = [pscustomobject]@{
+    TenantId = $tenant
+    RunId = $RunId
     OverallStatus = $policy.Status
     Components = [ordered]@{ PolicyInventory = $policy }
     WorkspaceId = $WorkspaceId
     ManualReviewSections = @(3,4,5,6,7,8,9,10)
     Cloud = 'Commercial'
-    GeneratedUtc = (Get-Date).ToUniversalTime().ToString('o')
+    GeneratedUtc = $generatedUtc.ToString('o')
 }
-$output = Join-Path $resolvedEvidencePath 'agt112-aggregate.json'
-$aggregate | ConvertTo-Json -Depth 20 |
-    Set-Content -LiteralPath $output -Encoding utf8
-(Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash |
-    Set-Content -LiteralPath "$output.sha256" -Encoding ascii
-Write-Output "OverallStatus=$($aggregate.OverallStatus); manual review required. Evidence: $output"
+$utf8 = [System.Text.UTF8Encoding]::new($false)
+Write-NewEvidenceFile -Path $output -Text ($aggregate | ConvertTo-Json -Depth 20) -Encoding $utf8
+$hash = (Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash
+Write-NewEvidenceFile -Path $sidecar -Text ($hash + [Environment]::NewLine) -Encoding ([System.Text.Encoding]::ASCII)
+Write-Output "RunId=$RunId; OverallStatus=$($aggregate.OverallStatus); manual review required. Evidence: $output"
 ```
 
-Load the helper in the same process before invoking the saved collector. `WorkspaceId` is optional context only; supplying it does not query Sentinel. Use a new evidence directory for each run to preserve earlier results. Retain the source files, aggregate JSON, SHA-256 sidecars, human-readable review, and the firm's manifest identifying each file, byte count, source, UTC collection time, and reviewer. Hashes establish integrity, not immutable storage or retention configuration.
+Load the helper in the same process before invoking the saved collector, and pass the tenant ID (GUID) that the reviewer confirmed. Each run is bound to that tenant and to a unique run ID of the form `IRM112-yyyyMMdd-HHmmss-<8 hex>`; the ID is generated unless the cycle's ID from the verification catalogue is supplied with `-RunId`. The tenant ID and run ID are embedded in the JSON and in the file name, which follows the evidence-pack convention in the [portal walkthrough](portal-walkthrough.md#evidence-pack). The collector refuses to write if the aggregate file or its sidecar already exists, so earlier results are never replaced and the same evidence directory can be reused across runs; reusing a `-RunId` for the same tenant is rejected. The identity is a reviewer-supplied label, not an authenticated claim: this collector does not connect to a tenant, so confirm the tenant ID against the Exchange Online session context recorded in §3. `WorkspaceId` is optional context only; supplying it does not query Sentinel. Retain the source files, aggregate JSON, SHA-256 sidecars, human-readable review, and the firm's manifest identifying each file, byte count, source, UTC collection time, and reviewer. Hashes establish integrity, not immutable storage or retention configuration.
 
 **Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§4 and SEC 17a-4(f).
 
