@@ -87,7 +87,7 @@ but contributor edits should always start in `assessment/manifest/controls.json`
 | `Microsoft.Graph.Authentication` | Graph | Entra ID authentication |
 | `Microsoft.Graph.Identity.SignIns` | Graph | Conditional Access policies |
 | `Microsoft.Graph.Groups` | Graph | Security group enumeration |
-| `ExchangeOnlineManagement` | Purview | Audit log, retention, compliance policies |
+| `ExchangeOnlineManagement` 3.0.0+ | Purview | Audit log, retention, compliance policies; required for connection provenance |
 | `PnP.PowerShell` | SharePoint | Site permissions, sharing, grounding validation |
 | `Az.OperationalInsights` | Sentinel | Log Analytics workspace & connector status |
 
@@ -147,7 +147,11 @@ App-only collection requires the caller to establish it beforehand using the
 documented certificate-based Exchange Online authentication flow and
 `-Prefix FsiAudit`; the collector does not acquire certificates or fall back to
 interactive authentication in ServicePrincipal mode. The existing IPPS
-authentication requirements remain unchanged.
+authentication requirements remain unchanged. In ServicePrincipal mode, the
+prefixed Exchange connection must also report Boolean certificate authentication
+and an `AppId` matching the requested `ClientId`, verified before and after the
+audit read. An interactive session or a different application's certificate
+connection cannot establish that provenance.
 
 Both modes require exactly one connected, active, non-IPPS session with that
 prefix and the requested tenant ID, verified before and after the prefixed

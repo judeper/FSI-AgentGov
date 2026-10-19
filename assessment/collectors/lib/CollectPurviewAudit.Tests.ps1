@@ -49,6 +49,8 @@ Describe 'Purview collector audit session provenance (offline)' {
                 TokenStatus = 'Active'
                 IsEopSession = $false
                 TenantID = $script:tenant
+                CertificateAuthentication = $true
+                AppId = '22222222-2222-2222-2222-222222222222'
             }
         }
         Mock Import-Module {}
@@ -181,6 +183,57 @@ Describe 'Purview collector audit session provenance (offline)' {
         $result = Invoke-OfflinePurviewCollector -AuthMode ServicePrincipal
         $result.auditConfig.UnifiedAuditLogIngestionEnabled | Should -BeFalse
         $result.insiderRiskEvidence.auditDependency.classification | Should -Be 'audit_dependency_not_met'
+        Should -Invoke Connect-ExchangeOnline -Times 0 -Exactly
+    }
+
+    It 'requires ExchangeOnlineManagement 3.0.0 or later for connection provenance' {
+        Invoke-OfflinePurviewCollector | Out-Null
+        Should -Invoke Import-Module -Times 1 -Exactly -ParameterFilter {
+            $Name -eq 'ExchangeOnlineManagement' -and $MinimumVersion -eq [version]'3.0.0'
+        }
+    }
+
+    It 'rejects app-only <Failure> before reading audit evidence' -ForEach @(
+        @{ Failure = 'interactive-auth' }
+        @{ Failure = 'missing-auth-field' }
+        @{ Failure = 'non-boolean-auth' }
+        @{ Failure = 'different-app' }
+        @{ Failure = 'missing-app-field' }
+        @{ Failure = 'empty-app' }
+    ) {
+        $fixture.Connected = $true
+        switch ($Failure) {
+            'interactive-auth' { $fixture.Connection.CertificateAuthentication = $false }
+            'missing-auth-field' { $fixture.Connection.PSObject.Properties.Remove('CertificateAuthentication') }
+            'non-boolean-auth' { $fixture.Connection.CertificateAuthentication = 'true' }
+            'different-app' { $fixture.Connection.AppId = '55555555-5555-5555-5555-555555555555' }
+            'missing-app-field' { $fixture.Connection.PSObject.Properties.Remove('AppId') }
+            'empty-app' { $fixture.Connection.AppId = '' }
+        }
+        $result = Invoke-OfflinePurviewCollector -AuthMode ServicePrincipal
+        $result.auditConfig | Should -BeNullOrEmpty
+        $result.insiderRiskEvidence.auditDependency.status | Should -Be 'unknown'
+        $script:collectorExitCode | Should -Be 1
+        Should -Invoke Get-FsiAuditAdminAuditLogConfig -Times 0 -Exactly
+        Should -Invoke Connect-ExchangeOnline -Times 0 -Exactly
+    }
+
+    It 'rejects changed app-only <Field> after reading audit evidence' -ForEach @(
+        @{ Field = 'AppId'; ChangedValue = '55555555-5555-5555-5555-555555555555' }
+        @{ Field = 'CertificateAuthentication'; ChangedValue = $false }
+    ) {
+        $fixture.Connected = $true
+        $fixture.ChangeField = $Field
+        $fixture.ChangedValue = $ChangedValue
+        Mock Get-FsiAuditAdminAuditLogConfig {
+            $fixture.Connection.($fixture.ChangeField) = $fixture.ChangedValue
+            [PSCustomObject]@{ UnifiedAuditLogIngestionEnabled = $false; AdminAuditLogAgeLimit = '90.00:00:00' }
+        }
+        $result = Invoke-OfflinePurviewCollector -AuthMode ServicePrincipal
+        $result.auditConfig | Should -BeNullOrEmpty
+        $result.insiderRiskEvidence.auditDependency.status | Should -Be 'unknown'
+        $script:collectorExitCode | Should -Be 1
+        Should -Invoke Get-FsiAuditAdminAuditLogConfig -Times 1 -Exactly
         Should -Invoke Connect-ExchangeOnline -Times 0 -Exactly
     }
 

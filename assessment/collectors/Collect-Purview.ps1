@@ -39,7 +39,7 @@
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — Purview Collector.
-    Requires ExchangeOnlineManagement module for Connect-IPPSSession and
+    Requires ExchangeOnlineManagement 3.0.0 or later for Connect-IPPSSession and
     Get-ConnectionInformation. Interactive audit collection can connect to
     Exchange Online; app-only audit collection requires a pre-established
     Exchange Online connection with the FsiAudit prefix.
@@ -102,7 +102,7 @@ $collectorRoot = Split-Path -Parent $PSCommandPath
 . (Join-Path $collectorRoot 'lib\PurviewDlpSupport.ps1')
 
 # ─── Module Import ───────────────────────────────────────────────────
-Import-Module ExchangeOnlineManagement -ErrorAction Stop
+Import-Module ExchangeOnlineManagement -MinimumVersion 3.0.0 -ErrorAction Stop
 Write-Verbose "Loaded ExchangeOnlineManagement module."
 
 # ─── Authentication ──────────────────────────────────────────────────
@@ -164,6 +164,13 @@ try {
     ) {
         throw 'Audit status connection is not a verified active Exchange Online session for the requested tenant.'
     }
+    if ($AuthMode -eq 'ServicePrincipal' -and (
+        $auditConnection.CertificateAuthentication -isnot [bool] -or
+        -not $auditConnection.CertificateAuthentication -or
+        $auditConnection.AppId -ne $ClientId
+    )) {
+        throw 'App-only audit status requires certificate authentication with the requested ClientId.'
+    }
 
     $adminAuditConfig = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Get audit log configuration' -ScriptBlock {
         Get-FsiAuditAdminAuditLogConfig -ErrorAction Stop
@@ -184,6 +191,13 @@ try {
             $currentConnections[0].TenantID -ne $TenantId
         ) {
             throw 'Exchange Online audit collection context changed during the read.'
+        }
+        if ($AuthMode -eq 'ServicePrincipal' -and (
+            $currentConnections[0].CertificateAuthentication -isnot [bool] -or
+            -not $currentConnections[0].CertificateAuthentication -or
+            $currentConnections[0].AppId -ne $ClientId
+        )) {
+            throw 'Exchange Online audit application identity changed during the read.'
         }
 
         # Audit configuration policies (audit plan tier)
