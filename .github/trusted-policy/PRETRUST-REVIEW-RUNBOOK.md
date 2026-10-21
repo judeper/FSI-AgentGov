@@ -54,32 +54,32 @@ loaded; do not delete it while it is still a trusted path.
 
 The only accepted activation is policy version 3's `exact-pins`,
 base-relative tree delta, identified by patch digest
-`6dec5764f4b2a07e939cb64e946e8680ac1c342b1f2f9beec598b57d8ef5b051`.
+`4550e995dbc4c04620a547f5d2761216b167530f8d2758d9910fdb3eb1b805cd`.
 It contains exactly:
 
 1. `package.json`: base mode/blob
-   `100644`/`e267a3b54bfbc2a7b7f3e37a3fc15a1b6ea1ba9d`; target
+   `100644`/`a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2`; target
    mode/blob/SHA-256/size
-   `100644`/`a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2`/
-   `bf97e1c0d8b078c28d3d47ccb3cfdb6a3ff98c744b46f61e7d1f9e4d60a91739`/
+   `100644`/`7658846fc75529646b233f7d65bae3a877940f64`/
+   `2fa708b046ed26eca609f86a7a4621031764ffc527378b6de4014a736105a2c1`/
    `863`.
 2. `package-lock.json`: base mode/blob
-   `100644`/`11b6591aa1b39b50d451005dae574fb465f66871`; target
+   `100644`/`a8e028cab203c4a160a654e672730f269b588b90`; target
    mode/blob/SHA-256/size
-   `100644`/`a8e028cab203c4a160a654e672730f269b588b90`/
-   `efa4589bb962f3b7947de12a82dd6763b7ec1ba451ac580a5eccfbb8464f7f75`/
-   `76375`.
+   `100644`/`e654048c252c354b6828ca8b3d1660bb6f2d44a5`/
+   `33df7fe14ea672926afa15f895db2c9d20160cf2ec980429783a1713e4b3a0d0`/
+   `76514`.
 3. `.github/workflows/e2e.yml`: base mode/blob
-   `100644`/`1636e666417025c45b949c61319d1cae7a6a14b8`; target
+   `100644`/`10877192c6614a3b24bc8516b9ba7822ba5f65c1`; target
    mode/blob/SHA-256/size
-   `100644`/`10877192c6614a3b24bc8516b9ba7822ba5f65c1`/
-   `1812e1dccc4f9246dec3234988c0675415a8053ff46aa91d152c09e80108924a`/
+   `100644`/`47ae34707cd38ec8734619c40b402f1cf9fd46e0`/
+   `42c8685cba5126671f8d6828fe5f6f8a243e6a48e17c4c5e202e8d964f4f7143`/
    `7311`.
 4. `.github/workflows/update-snapshots.yml`: base mode/blob
-   `100644`/`7e309fdd56a24ca42c26e8810bb04b3ad1d64022`; target
+   `100644`/`282b78f3ced956c178f10c66d7bbebffe98bb8e0`; target
    mode/blob/SHA-256/size
-   `100644`/`282b78f3ced956c178f10c66d7bbebffe98bb8e0`/
-   `5fad958d477290547257ba1bbc7e48669168088e6564a10e790c597114a990a4`/
+   `100644`/`78d0c961a529dceeff67a4d08992459bad1fdd44`/
+   `56e58312ad2264ebb4abb11038eab154c0c556a77d65686b00ba99308e4de9c2`/
    `2357`.
 
 No vendored artifact, provenance file, `.gitattributes`, verifier/runtime
