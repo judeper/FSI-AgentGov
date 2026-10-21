@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:06959043d140af37398b1da50105c76a5614229f34f0d09b58cd4fe3cec19d3e",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "October CY2026",
+  "id": 573168,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Planner"
+  ],
+  "raw_description": "<p>Planner Agent brings Planner’s intelligent work management directly into Copilot Chat, enabling users to create, update, and manage personal tasks and shared basic plans without switching context. Integrated across Microsoft 365, it provides insights into priorities, deadlines, and at-risk work, along with interactive task cards to help users stay organized and keep work moving.</p>\n<p>Building on the initial launch, planned improvements include:</p>\n<ul>\n<li>Improved context handling and support for larger plans.</li>\n<li>Higher-quality responses through model upgrades, refined prompts, and better grounding.</li>\n<li>Greater reliability and reduced latency for more consistent, responsive interactions.</li>\n<li>Expanded task management capabilities, including broader task assignment support.</li>\n<li>User experience enhancements to make managing tasks and plans in Copilot Chat more intuitive.</li>\n<li>New capabilities, including scheduled task catch-ups.</li>\n</ul>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573168",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    }
+  ],
+  "title": "Planner: Planner Agent in Copilot V2 Improvements"
+}

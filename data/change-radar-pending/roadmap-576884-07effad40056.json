@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:07effad40056ecbe9147d1e47f38e22410f04cb00d1ae96e5dd36e9b8df048db",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "March CY2027",
+  "id": 576884,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "June CY2026",
+  "products": [
+    "Dynamics 365 Field Service",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>This release expands the optimization capabilities of the Scheduling Operations Agent to include multiple resources. The agent considers the availability of the resources, their current schedules, and unscheduled requirements. It suggests a schedule that honors configured constraints and optimizes it according to the selected goal. Dispatchers can review and compare the proposed schedules with the current schedules before applying changes.</p>\n<p>New capabilities include:</p>\n<ul>\n<li>Optimize schedules for up to 5 resources directly from the schedule board.</li>\n<li>Optimize schedules for up to 30 resources using an optimization plan.</li>\n<li>Create custom goals and weight objectives.</li>\n<li>Create custom optimization scopes to use with your optimization plans.</li>\n</ul>\n<p>These capabilities build on the existing public preview of the Scheduling Operations Agent and will be automatically enabled for all organizations that have the agent enabled. Learn more at <a href=\"https://aka.ms/soa\">Scheduling Operations Agent documentation</a>.</p>\n<p>Business Value:</p>\n<p>Optimize multiple resources with the Scheduling Operations Agent (SOA). Schedule up to five resources directly from the schedule board or Copilot or perform ad-hoc optimizations for up to 30 resources using an optimization plan. This feature streamlines scheduling, improves efficiency, and supports better resource management.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576884",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Field Service: Optimize resource scheduling - Optimize multiple resources with Scheduling Operations Agent"
+}
