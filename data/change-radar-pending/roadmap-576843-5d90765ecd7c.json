@@ -1,0 +1,33 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:5d90765ecd7c68c8c544ef4199ddb5efe490521b7fd1db545a1846d2aac22316",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "August CY2026",
+  "id": 576843,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "June CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Dataverse"
+  ],
+  "raw_description": "<p>Organizations can securely deploy AI agents to access and interact with Dataverse data by using enterprise‑managed Microsoft Entra agent identities. This feature enables agents to be provisioned as Dataverse agent users with dedicated, least‑privileged security roles based on their intended capabilities. This feature ensures agents have only the access required to perform tasks autonomously or on behalf of users.</p>\n<p>By using identity‑based role assignment and full auditing of agent‑driven actions, organizations can enforce security and compliance policies across both human users and AI agents while maintaining traceability of data access and changes within Dataverse environments.</p>\n<p>Business Value:</p>\n<p>This feature enables secure, compliant management of AI agents in Microsoft Dataverse, which reduces risk and improves governance for autonomous and interactive agents.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576843",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.7",
+      "source": "keyword:audit"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:identity"
+    },
+    {
+      "id": "3.3",
+      "source": "keyword:audit"
+    }
+  ],
+  "title": "Microsoft Dataverse: Activate Enterprise Data in Copilot - Create Dataverse agent users with Microsoft Entra agent identity"
+}
