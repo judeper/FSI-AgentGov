@@ -2,8 +2,128 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-10-12T16:15:56Z",
+      "last_run": "2026-10-19T14:08:44Z",
       "items": {
+        "575292": {
+          "hash": "sha256:56318960157866f1c1c7b96e316c89cc6b0234246f3fede1432158d1440850a7",
+          "status": "In development",
+          "title": "Microsoft Viva:  Copilot Analytics - Agent 365 reporting availability for Microsoft platform agents",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576884": {
+          "hash": "sha256:07effad40056ecbe9147d1e47f38e22410f04cb00d1ae96e5dd36e9b8df048db",
+          "status": "In development",
+          "title": "Dynamics 365 Field Service: Optimize resource scheduling - Optimize multiple resources with Scheduling Operations Agent",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576876": {
+          "hash": "sha256:ca84623a33f875b255ffe74641003e805b6f6ab56cd227e2a988f96f8f56cbd3",
+          "status": "Launched",
+          "title": "Microsoft Dataverse: Build your low code hyperscale backend on Dataverse - Build your agentic flows with Dataverse SDK for Python",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576843": {
+          "hash": "sha256:5d90765ecd7c68c8c544ef4199ddb5efe490521b7fd1db545a1846d2aac22316",
+          "status": "Launched",
+          "title": "Microsoft Dataverse: Activate Enterprise Data in Copilot - Create Dataverse agent users with Microsoft Entra agent identity",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576842": {
+          "hash": "sha256:f74f3b6119e2a5af37a43812eb2c1935f2c709f59b6a44e78a6ea77e76897c73",
+          "status": "Launched",
+          "title": "Dynamics 365 Contact Center: Supervisor experiences - Provide real-time coaching with Quality Assurance Agent",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576826": {
+          "hash": "sha256:c298b3eeac07c9d4afb0e360604ea61cff9a25270769c706647274a0eddd7ca0",
+          "status": "Launched",
+          "title": "Dynamics 365 Finance and Operations cross-app: Boost productivity with Copilot - Enable agents to work with attachments through Dynamics 365 ERP MCP server",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576818": {
+          "hash": "sha256:14bf40866a64358232a9a784757f37da2587fb16b7503d370c7a860eab570ba8",
+          "status": "Launched",
+          "title": "Dynamics 365 Customer Service: Copilot and AI innovation - Improve customer outcomes with Service Agent in Microsoft 365 Copilot",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576814": {
+          "hash": "sha256:efad42bf0f68d4af60847eea5d99fbd9da22390e9e5416a96094fcc7e3ff6263",
+          "status": "Launched",
+          "title": "Dynamics 365 Sales: Opportunity acceleration - Chat about sales opportunity agent insights from inside Sales agent",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576789": {
+          "hash": "sha256:d5828590891bfdcdaea3bd23bc5d7bd2fe8807d8bc1274c608d10bc94b102cad",
+          "status": "Launched",
+          "title": "Dynamics 365 Business Central: Copilot and agents - Unlock more Business Central data with MCP server enhancements",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576787": {
+          "hash": "sha256:13eb353a949dbb250cc7b2ec3c4d02c5d34366531d656169fe3cbc39279ec088",
+          "status": "Launched",
+          "title": "Dynamics 365 Sales: Opportunity acceleration - Accelerate Sales Opportunity Agent deployment with simplified admin configuration",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576777": {
+          "hash": "sha256:ff28f3443346f78e817ecb7460291cdda688a56926728cf63c4047b81a23e475",
+          "status": "Launched",
+          "title": "Dynamics 365 Business Central: Copilot and agents - Speed up processing with Known Senders in Payables Agent",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576776": {
+          "hash": "sha256:e68acddb66e756c097f00d08c4752f973ecaf14e3df4535649342a1266dbd5b6",
+          "status": "Launched",
+          "title": "Dynamics 365 Business Central: Copilot and agents - Try Payables Agent for free without setting up email",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576775": {
+          "hash": "sha256:a16362dc1dc9833098e0a98ffb39d2e48786885f1bf3f192f28f19bb8d111a97",
+          "status": "Launched",
+          "title": "Dynamics 365 Customer Service: Copilot and AI innovation - Classify emails by category and subcategory with Case Management Agent",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576755": {
+          "hash": "sha256:65b8205c6875880ff26f41ab1c5e3eedd71aeb67b117e6938bb79bee11613de0",
+          "status": "In development",
+          "title": "Dynamics 365 Finance and Operations cross-app: Boost productivity with Copilot - Boost agent performance with optimal tool execution paths in Dynamics 365 ERP MCP",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576636": {
+          "hash": "sha256:c50e1b7a931ac98661f1c1e3002142553db27a619b7b1073ced53e5f0f914372",
+          "status": "In development",
+          "title": "Dynamics 365 Contact Center: Copilot and AI innovation - Use agentic simulations to evaluate contact center setup",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "576637": {
+          "hash": "sha256:bed51e27af1c69c6207252022a7e44e1809f9f42ddeab1cc40bc4ad7e1e96302",
+          "status": "In development",
+          "title": "Dynamics 365 Sales: Seller experiences - Clone and share Sales Development agent configuration across teams",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "573168": {
+          "hash": "sha256:06959043d140af37398b1da50105c76a5614229f34f0d09b58cd4fe3cec19d3e",
+          "status": "In development",
+          "title": "Planner: Planner Agent in Copilot V2 Improvements",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "575298": {
+          "hash": "sha256:95c1606674069980d4efb769795066675f6bad2060ed6c447cf12e699d3eb336",
+          "status": "In development",
+          "title": "SharePoint: Agent chat web part",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "573705": {
+          "hash": "sha256:e201106b0ab36bca5ada90862eaa98e958128b673bb44df055b8e9ae564ef088",
+          "status": "In development",
+          "title": "Dynamics 365 Supply Chain Management: Procurement Agent - Define custom scenarios for agent-generated supplier emails",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
+        "574105": {
+          "hash": "sha256:f41e3856d3a0e4155ea60946d491ecfeb6c76c9e3543c399081a354892ed10f3",
+          "status": "Rolling out",
+          "title": "Microsoft Copilot (Microsoft 365): Integrate the Sales Development agent with Salesforce",
+          "detected_at": "2026-10-19T14:08:44Z"
+        },
         "573704": {
           "hash": "sha256:5f16b34ce3866493426770565831d7b57cc1babb4eb92a12a5600c849e27a65a",
           "status": "In development",
@@ -352,24 +472,6 @@
           "title": "Microsoft Purview: Insider Risk Management - DS Triage Agent for IRM available in Defender",
           "detected_at": "2026-07-13T10:15:26Z"
         },
-        "567003": {
-          "hash": "sha256:5bec4b8e0a1f87dd67935602143cafc9c3b8b7a22d81ab81c86c65aa39765a6d",
-          "status": "Cancelled",
-          "title": "Microsoft Copilot (Microsoft 365): Enrich Sales agent meeting prep with more data sources",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "567002": {
-          "hash": "sha256:5f87ee294cacda6d1bf2929ff9a6b189c5faf56bd0cc5d09c448306002656b68",
-          "status": "Cancelled",
-          "title": "Microsoft Copilot (Microsoft 365): Add custom insights to record summaries in Sales agent",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "567000": {
-          "hash": "sha256:b2c86932731ff1797e2eb98b238c3c363ce92ff23277b9e517c6fb438a2fbff4",
-          "status": "Cancelled",
-          "title": "Microsoft Copilot (Microsoft 365): Engage prospects faster with Sales Agent-enriched leads",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "566859": {
           "hash": "sha256:83afdcaf3bce505b1427fea1fa5fd05defc8066d1705627458365110683a218a",
           "status": "In development",
@@ -554,12 +656,6 @@
           "hash": "sha256:1b5c4c59c6e52a342acc0d81688cdf561b8c27098af703044b8168917e86f98f",
           "status": "In development",
           "title": "Microsoft Purview: Data Loss Prevention - Data Security Triage Agent summaries and categorizations for DLP alerts will be made available in DLP Alerts in Microsoft Defender XDR ",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "558436": {
-          "hash": "sha256:242f2b1147616e98480975d901fb7ef26aa7af55fecee23b88357cb1a08044b3",
-          "status": "Cancelled",
-          "title": "Microsoft Purview: Credential Scanning in Data Security Posture Agent ",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "555897": {
@@ -857,8 +953,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "532720": {
-          "hash": "sha256:03d6f52f26d751cd777bb8d332ac4927f937ccd03da2a94c4a289c42d98d7b28",
-          "status": "Rolling out",
+          "hash": "sha256:b9d8566898190d054542781f006a9d785251f9bf9b01b96329b9ac31a8dc014c",
+          "status": "Launched",
           "title": "Microsoft Teams: Organization Evaluation Score for Apps and Agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -956,12 +1052,6 @@
           "hash": "sha256:c7a67c3002583599375101c933c71a5b98da11b324221a0647d7f64c145e37ac",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users in DoD will be able to use custom engine agents",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "516041": {
-          "hash": "sha256:baf69970373e961debfb4190cbd8405fe18c34f1dfacf8bbb3a33b16a1ea9e5b",
-          "status": "In development",
-          "title": "Microsoft Copilot (Microsoft 365): Expanded Agent Support in Copilot Notebooks",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "503764": {
@@ -1112,12 +1202,6 @@
           "hash": "sha256:144db620a6534d419b4560be373287f6b2feb497cde5e0abd86689d5c168a62d",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Employee Self-Service Agent in M365 Copilot",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "487857": {
-          "hash": "sha256:9bab5c53f7c16ee2343f0d0c4e3a1179ad1b794e6f3eb43b8c3a0942a94306c4",
-          "status": "Launched",
-          "title": "Microsoft 365 admin center: Manage SharePoint agents via Agents page",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "487847": {
