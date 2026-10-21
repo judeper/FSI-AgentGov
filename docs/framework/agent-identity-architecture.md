@@ -165,8 +165,8 @@ The former JSON was conceptual, not a supported Graph payload, and is withdrawn.
 
 1. Navigate to **Entra ID** > **Identity Governance** > **Lifecycle Workflows**
 2. Select a supported mover/leaver template and configure a documented trigger/scope for the **human sponsor**.
-3. Add the documented manager/co-sponsor notification tasks and, if appropriate, **Transfer agent identity sponsorships to manager**. Verify the manager relationship and policy suitability first.
-4. Implement acceptance, backup-owner promotion, multi-hop eligibility checks, zone deadlines, and containment separately. Do not assume default-on transfer in an unconfigured tenant.
+3. Add the documented manager/co-sponsor notification tasks and, where your tenant design uses the explicit workflow task, **Transfer agent identity sponsorships to manager**. Verify the manager relationship and policy suitability first.
+4. Reconcile Microsoft's [automatic manager-transfer statement](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) with the [selectable Lifecycle Workflow transfer task](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) by tenant-testing which mechanism executes the transfer in your tenant and reading back the post-departure native sponsor relationship. Implement acceptance, backup-owner promotion, multi-hop eligibility checks, zone deadlines, and containment separately.
 5. Verify enabled/scheduling state, known-event execution, native relationship read-backs, and independent business-approval evidence. See the [sponsorship verification ledger](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md#documentation-verification-ledger).
 
 #### Agent Registry Activation Workflow

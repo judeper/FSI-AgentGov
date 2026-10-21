@@ -428,7 +428,7 @@ KQL-02 returns historical orphan-create events; correlate with deployment change
 
 **One-line:** verify the explicitly configured human mover/leaver workflow, native sponsorship task, relationship outcome, and any independent containment action.
 
-> **Technical documentation checked 2026-10-18.** The [native transfer task](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) adds the configured manager as sponsor and removes the departing sponsor when the configured task runs. It does not establish default-on transfer, a manager-decline UI, a 30-day timer, or conditional suspension. Diagnose the actual actor, target, task, and approved zone policy before treating disablement as erroneous or reversing containment.
+> **Technical documentation checked 2026-10-18.** Microsoft's [tenant-wide agent management guide](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) states that Entra ID automatically reassigns sponsorship to a departing sponsor's manager, while the [native transfer task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents **Transfer agent identity sponsorships to manager** as a selectable mover/leaver workflow task that adds the configured manager as sponsor and removes the departing sponsor. Tenant-test which mechanism performs the transfer in your environment and read back the actual native sponsor relationships; neither establishes a manager-decline UI, a 30-day timer, or conditional suspension. Diagnose the actual actor, target, task, and approved zone policy before treating disablement as erroneous or reversing containment.
 
 ### 4.1 Symptom catalog
 

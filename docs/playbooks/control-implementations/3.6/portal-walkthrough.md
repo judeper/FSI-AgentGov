@@ -223,7 +223,7 @@ When an agent's **sponsor** (the registered human accountable party from Control
 
 ### 2.3 Manager-transfer confirmation
 
-The [native sponsor-transfer task](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) must be explicitly included in the configured human mover/leaver workflow; it is not a default-on transfer established for an unconfigured tenant. Control 3.6 verifies actual task outcomes and native sponsor relationships for each in-scope leaver, independently of business acceptance and source containment. Documentation checked 2026-10-18; no tenant/UI test.
+Microsoft's [tenant-wide agent management guide](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) states that Entra ID automatically reassigns sponsorship to a departing sponsor's manager, whereas the [native sponsor-transfer task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents **Transfer agent identity sponsorships to manager** as a selectable task in a human mover/leaver workflow. Tenant-test whether manager transfer occurs automatically or requires the explicit workflow task in your tenant, and verify actual task outcomes and post-departure native sponsor relationships for each in-scope leaver, independently of business acceptance and source containment. Documentation checked 2026-10-18; no tenant/UI test.
 
 For each successful leaver run:
 
