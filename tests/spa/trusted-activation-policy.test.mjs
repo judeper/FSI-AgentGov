@@ -37,6 +37,15 @@ describe("policy-stage activation assets", () => {
 
     expect(matchingStates).toHaveLength(1);
   });
+
+  it("keeps legacy lockfile byte pins aligned with the exact activation target", () => {
+    const target = policy.activation.pins["package-lock.json"];
+    expect(policy.digestPins["package-lock.json"]).toEqual({
+      blob: target.blob,
+      sha256: target.sha256,
+      size: target.size,
+    });
+  });
 });
 
 const targetObjectsAvailable = Object.values(policy.activation.pins).every(pin => {
