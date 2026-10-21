@@ -1,0 +1,17 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:baf69970373e961debfb4190cbd8405fe18c34f1dfacf8bbb3a33b16a1ea9e5b",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": null,
+  "id": 516041,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=516041",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Expanded Agent Support in Copilot Notebooks"
+}

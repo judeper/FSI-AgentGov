@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:d5828590891bfdcdaea3bd23bc5d7bd2fe8807d8bc1274c608d10bc94b102cad",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "June CY2026",
+  "id": 576789,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>With this update of the MCP server for Business Central, customers and developers can expose a broader set of Business Central APIs as tools, making it easier to build solutions that interact deeply and consistently with Business Central data and processes.</p>\n<p>Key improvements include:</p>\n<p><strong>Access to all Microsoft APIs</strong><br>\nThe MCP server can now surface the full set of standard Microsoft APIs in Business Central. This enables agents and integrations to work with a wider range of entities and actions out of the box, reducing the need for custom extensions and ensuring more consistent access to business data.</p>\n<p><strong>Support for API queries</strong><br>\nIn addition to standard APIs, API queries are now available through MCP configurations. This allows solutions to retrieve pre-aggregated and optimized datasets directly from Business Central, improving accuracy, consistency, and performance—especially for reporting and analytics scenarios.</p>\n<p>Business Value:</p>\n<p>This update to the MCP server in Business Central makes it easier to build powerful, reliable integrations and agents by expanding access to Business Central data and logic. By exposing all standard Microsoft APIs, customers can reduce the need for custom extensions and accelerate development of solutions that work consistently across their business data. Support for API queries further improves results by enabling access to pre-aggregated, optimized datasets, leading to better performance and more accurate insights in reporting and analytics scenarios. Together, these enhancements help organizations build more scalable solutions, improve data consistency, and unlock greater value from Business Central as a system of record and execution.</p>\n<p>Enabled for:</p>\n<p>Enabled for end users automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576789",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Unlock more Business Central data with MCP server enhancements"
+}

@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:ff28f3443346f78e817ecb7460291cdda688a56926728cf63c4047b81a23e475",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "August CY2026",
+  "id": 576777,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>This feature introduces email review policy and a <strong>Known Senders</strong> list page to give accounts payable teams more control over which incoming emails require human approval before the Payables Agent processes them.</p>\n<p>A new <strong>Email review</strong> field in the Payables Agent setup lets administrators choose when incoming emails require human approval. The following options are available:</p>\n<ul>\n<li>Always: Every email requires approval, regardless of the sender.</li>\n<li>Never: No emails require approval.</li>\n<li>Only if untrusted (recommended): Only emails from senders who aren't on the list of known senders require review. This is the recommended setting for most organizations.</li>\n</ul>\n<p>Administrators must explicitly select an option before they start to monitor the email inbox. To ensure that they make an active decision, a default isn't preselected for the field. Every known sender is subject to a setting that sets the review policy for the specific sender.</p>\n<p>When you set the email review policy to <strong>Manage per sender</strong>, the agent evaluates incoming emails in the following order:</p>\n<ul>\n<li>Invoice is uploaded and not received via email: No review required.</li>\n<li>Email subfolder is configured: All emails in the monitored subfolder are treated as trusted. No review required.</li>\n<li>Sender is on the Known Senders list: Action depends on the configured value (Ask, Approve, or Reject).</li>\n<li>Internal sender (same organization, not on the list): No review required. Internal detection uses email authentication headers (planned to be available in 2026 wave 2, version 29.0.).</li>\n</ul>\n<p>Administrators can maintain a list of known senders, each with a configured policy:</p>\n<ul>\n<li>Ask: The email requires human approval.</li>\n<li>Approve: The agent processes the invoice without review.</li>\n<li>Reject: The sender is blocked and the attachment isn't processed.</li>\n</ul>\n<p>To build the list organically, after you review an email and want to continue, the sender is added automatically to the list of known senders, provided that the <strong>Manage per sender</strong> policy is active. Security telemetry is logged for each auto-addition.</p>\n<p>This feature is available from the August minor release of 2026 release wave 1.</p>\n<p>Business Value:</p>\n<p>Payables Agent processes vendor invoices received by email, but today every incoming email requires supervisor approval before the agent can act on it, unless email review is disabled entirely. This creates friction for accounts payable teams who repeatedly receive invoices from the same vendors. They must manually approve each email, even from senders they already trust. The Known Senders feature lets businesses define which senders the agent can process automatically, reducing manual intervention while maintaining control over unknown or unverified sources. With this capability, organizations can safely default email review to off, moving closer to fully autonomous invoice processing.</p>\n<p>Enabled for:</p>\n<p>Enabled for end users automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576777",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Speed up processing with Known Senders in Payables Agent"
+}
