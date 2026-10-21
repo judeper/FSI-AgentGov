@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:f74f3b6119e2a5af37a43812eb2c1935f2c709f59b6a44e78a6ea77e76897c73",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "June CY2026",
+  "id": 576842,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Contact Center"
+  ],
+  "raw_description": "<p>The quality evaluation skill of the Quality Assurance Agent now includes real-time coaching, enabling organizations to shift from post-interaction monitoring to in-the-moment guidance during live conversations. Service representatives receive contextual coaching nudges during live conversations based on configured quality criteria and guardrails, allowing immediate course correction and improved interaction quality.</p>\n<p>Organizations can:</p>\n<ul>\n<li><strong>Define policy-driven coaching triggers</strong>: Configure which quality criteria (such as compliance, empathy, script adherence, or resolution steps) initiate real-time coaching.</li>\n<li><strong>Provide contextual, conversation-aware nudges</strong>: Deliver coaching suggestions based on the live conversation to ensure relevance.</li>\n<li><strong>Control coaching triggers</strong>: Specify when coaching is triggered, such as for missed behaviors, risk signals, or guideline violations.</li>\n<li><strong>Manage coaching frequency</strong>: Set frequency limits and suppression rules to prevent over-intervention.</li>\n<li><strong>Enforce boundaries for sensitive scenarios</strong>: Apply stricter or mandatory guidance for cases such as compliance requirements or escalations.</li>\n</ul>\n<p>Business Value:</p>\n<p>Shift your quality assurance approach from passive evaluation to real-time coaching that makes an immediate difference in customer interactions. With enhanced real-time guidance, you can move beyond monitoring and give your team the support they need to adjust on the spot, improve conversations, and maintain quality and compliance every time.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576842",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Contact Center: Supervisor experiences - Provide real-time coaching with Quality Assurance Agent"
+}

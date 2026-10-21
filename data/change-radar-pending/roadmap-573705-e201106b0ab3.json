@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:e201106b0ab36bca5ada90862eaa98e958128b673bb44df055b8e9ae564ef088",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "December CY2026",
+  "id": 573705,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Supply Chain Management"
+  ],
+  "raw_description": "<p>Business end-users and buyers can define and maintain their own outbound follow-up scenarios and use them wherever built-in scenarios are used today:</p>\n<ol>\n<li>Scenario maintenance — a dedicated setup page where users create, edit, and maintain custom follow-up scenarios. Each scenario carries its own name, the instructions that shape the email the agent writes, and the business entity it applies to.</li>\n<li>Scenario-driven configuration — follow-up configurations are built around the chosen scenario, so criteria, email content, and agent behavior all follow the scenario the user selected.</li>\n<li>Scenario-driven runtime — when the agent runs, it generates and sends messages according to the selected scenario's intent and instructions.</li>\n<li>Self-describing configuration history — scenario details are captured with each saved configuration, so the audit history of an agent configuration remains readable even if the underlying scenario definition is later changed or removed.</li>\n</ol>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573705",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.7",
+      "source": "keyword:audit"
+    },
+    {
+      "id": "3.3",
+      "source": "keyword:audit"
+    }
+  ],
+  "title": "Dynamics 365 Supply Chain Management: Procurement Agent - Define custom scenarios for agent-generated supplier emails"
+}
