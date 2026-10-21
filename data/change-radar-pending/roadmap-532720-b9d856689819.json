@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:b9d8566898190d054542781f006a9d785251f9bf9b01b96329b9ac31a8dc014c",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "February CY2026",
+  "id": 532720,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Teams"
+  ],
+  "raw_description": "<p>Today, IT admins manually review trust data for Teams apps and agents in the Teams admin center to ensure they meet organizational security, privacy, and compliance standards. This feature introduces a scalable, automated evaluation process. Admins can define their organization’s trust requirements once, and the system will automatically assess each app and agent—generating an evaluation score and detailed evaluation report tailored to those requirements. This enables faster, more consistent decision-making by clearly identifying which apps and agents meet the organization’s standards and where further review is needed.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=532720",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Microsoft Teams: Organization Evaluation Score for Apps and Agents"
+}

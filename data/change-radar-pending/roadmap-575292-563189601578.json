@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:56318960157866f1c1c7b96e316c89cc6b0234246f3fede1432158d1440850a7",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "October CY2026",
+  "id": 575292,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Viva"
+  ],
+  "raw_description": "<p>Customers can now view agent insights in the Agent 365 Dashboard in Microsoft Viva Insights (Copilot Analytics) without an Agent 365 license. Customers will be able to view reporting on their Microsoft platform-built agents in one consolidated picture, along with context on who built each agent and why.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=575292",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Viva:  Copilot Analytics - Agent 365 reporting availability for Microsoft platform agents"
+}

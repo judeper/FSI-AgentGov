@@ -1,0 +1,48 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:ca84623a33f875b255ffe74641003e805b6f6ab56cd227e2a988f96f8f56cbd3",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "June CY2026",
+  "id": 576876,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2025",
+  "products": [
+    "Microsoft Dataverse"
+  ],
+  "raw_description": "<p>The Microsoft Dataverse SDK for Python empowers data scientists and developers to build intelligent, compliant, and scalable agentic flows that integrate seamlessly with Dataverse. In the agentic age, where autonomous agents orchestrate workflows and act on behalf of users, the SDK provides the essential tools to interact programmatically with enterprise data platforms. The SDK supports structured data access, composable APIs, and governance features that are critical for building trustworthy and efficient agents.</p>\n<p>Key capabilities can include:</p>\n<ul>\n<li>Autonomous data agents that can query, update, and evaluate data quality</li>\n<li>Form prediction and autofill</li>\n<li>Support for agentic primitives like Model Context Protocol (MCP) and Agent-to-Agent (A2A) collaboration</li>\n</ul>\n<p>The SDK for Python offers a streamlined developer experience with support for common Create, Retrieve, Update, and Delete (CRUD) operations, bulk data processing, metadata access, and observability tools. SDK Python packages are to be published on PyPI.org with open-source support. The SDK is strategically positioned to enable agent-native development with semantic modeling, secure impersonation, and compliance built-in.</p>\n<p>Business Value:</p>\n<p>Enables data scientists and developers to create, access, and manage Dataverse business data using Python programming. The Dataverse SDK for Python implements common Python programming paradigms and best practices, provides a more natural Python interface to Dataverse, and supports community contributions.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576876",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.2",
+      "source": "keyword:metadata"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:orchestrat"
+    },
+    {
+      "id": "3.1",
+      "source": "keyword:metadata"
+    }
+  ],
+  "title": "Microsoft Dataverse: Build your low code hyperscale backend on Dataverse - Build your agentic flows with Dataverse SDK for Python"
+}

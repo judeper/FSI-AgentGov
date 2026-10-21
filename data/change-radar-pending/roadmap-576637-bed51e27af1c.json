@@ -1,0 +1,29 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:bed51e27af1c69c6207252022a7e44e1809f9f42ddeab1cc40bc4ad7e1e96302",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "April CY2027",
+  "id": 576637,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "August CY2026",
+  "products": [
+    "Dynamics 365 Sales",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>As a sales leader, you can configure a Sales Development agent once, then share or clone its configuration across your organization. Distribute the agent’s playbook, guidelines, guardrails, and settings to other business units to provide a consistent experience across sales teams.</p>\n<p>The feature supports these capabilities:</p>\n<ul>\n<li><strong>Export a configuration</strong>: In Teams, ask the source agent to package its configuration into a file. For example, enter Export your configuration.</li>\n<li><strong>Import a configuration</strong>: Attach the exported file to a new agent, then ask the agent to apply the configuration.</li>\n<li><strong>Create a one-time copy</strong>: The copied configuration is a snapshot, not a synchronized connection. Changes made later to the source agent aren’t automatically applied to the target agent.</li>\n</ul>\n<p>Knowledge sources, such as uploaded documents, FAQs, and URLs, aren’t included in the exported configuration. Add them directly to the target agent after importing the configuration.</p>\n<p>Business Value:</p>\n<p>Scaling your sales operations just got easier. Instead of manually configuring each Sales Development agent from scratch, you can now set up an agent once with your organization's best practices and guardrails, then share or clone it across your entire team. This means faster deployment, consistent outreach to prospects, and more time for your sellers to build relationships instead of repetitive work. Whether you're expanding to new markets or rolling out agents across multiple business units, you'll maintain quality and compliance while reducing the time it takes to get your agent up and running.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576637",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    }
+  ],
+  "title": "Dynamics 365 Sales: Seller experiences - Clone and share Sales Development agent configuration across teams"
+}
