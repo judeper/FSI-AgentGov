@@ -478,33 +478,33 @@ Sentinel close-out lags Defender XDR close-out by design — close Sentinel **on
 
 ## 3. Microsoft Purview Insider Risk Management — Cases
 
-Where the incident involves **AI-agent misuse by an insider**, **anomalous prompt behavior** that suggests an authorized user is exfiltrating data via a Copilot agent, or **runaway agent** behavior on stale context, **Purview Insider Risk Management (IRM)** is the investigation surface. IRM enforces a pseudonymized review workflow (default-on for the analyst role) and provides clean escalation paths into eDiscovery (Premium) for legal hold and regulator-production export.
+Where supported IRM signals indicate possible **AI-agent misuse by an insider**, use **Purview Insider Risk Management (IRM)** for investigation. Do not assume every anomalous prompt or poisoned-context scenario produces an IRM alert. Anonymization is enabled by default with documented exceptions; use the supported case escalation workflow when eDiscovery investigation is required.
 
 > Policy authoring (the upstream content for IRM alerts and cases) is owned by [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). Control 3.4 consumes IRM cases at the case-management blade level only.
 
 ### 3.1 Navigation
 
-1. Sign in to the **Microsoft Purview portal** at [https://purview.microsoft.com](https://purview.microsoft.com) with an authorized **Insider Risk Management Investigators** assignment for case investigation. Analysts triage alerts; role membership alone does not determine pseudonymization.
+1. Sign in to the **Microsoft Purview portal** at [https://purview.microsoft.com](https://purview.microsoft.com) with an authorized **Insider Risk Management Investigators** assignment for case investigation and verify its actual case permissions and AU scope. Analysts triage alerts; role membership alone does not determine pseudonymization.
 2. From the left nav, expand **Solutions → Insider risk management**.
 3. Select **Cases** in the secondary nav.
 
 ### 3.2 Pseudonymization — confirm before you click
 
-IRM defaults to **pseudonymized usernames**. Confirm Privacy settings and the authorized identity-reveal workflow before opening a case; an Investigator role does not by itself mean pseudonymization is disabled:
+IRM defaults to **pseudonymized usernames**; role membership alone does not determine the privacy setting. This subsection was checked against [IRM privacy](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-privacy) and [audit-log guidance](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log) on 2026-10-18 (no live UI review). Confirm before opening any case:
 
-1. Have an authorized administrator confirm membership at **Settings > Roles and groups > Role groups**, using the [IRM permissions matrix](https://learn.microsoft.com/en-us/purview/insider-risk-management-permissions).
-2. If real UPNs are visible, review **Settings > Insider Risk Management > Privacy** and the investigation's identity-reveal record before concluding why the name is visible.
-3. Pseudonymized cases display synthetic identifiers (e.g., `Anon_8a3f`); the investigator role can resolve to real identities through a documented unmask flow that itself produces an audit record.
+1. Have an authorized administrator confirm Purview role-group membership and AU scope at **Settings > Roles and groups > Role groups**, using the [IRM permissions matrix](https://learn.microsoft.com/en-us/purview/insider-risk-management-permissions).
+2. Inspect **Settings → Insider Risk Management → Privacy** and the investigation's identity-reveal record. Visible names alone do not prove drift: prioritized Triage Agent alerts, metadata/content, and API/eDiscovery exports have documented exceptions.
+3. Follow the firm's authorized identity-reveal process and capture case reference, justification, operator, and approval evidence separately.
 
-!!! warning "Unmask events are auditable"
-    Review available identity-reveal activity in the [independent IRM audit log](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log); do not assume a UAL operation named `IRMUnmask`. Examiners may sample these records to confirm unmask was justified; capture the case ID and justification at every unmask.
+!!! warning "Unmask events and audit reconciliation"
+    Review relevant identity-reveal actions in the [independent Insider Risk Management audit log](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log) and reconcile them with the firm's approval register. Do not assume a universal UAL operation named `IRMUnmask` or a native HR/Legal approval gate; absence of that event is not proof that identity access did not occur.
 
 ### 3.3 Opening a case from an alert
 
 When a Defender XDR / Sentinel incident is correlated with an IRM alert, record the actual policy name and source/destination alert IDs. A firm may name a policy `Data leaks via Copilot`, but this is not a Microsoft template name:
 
 1. From **Insider risk management → Alerts**, locate the alert by user identifier, severity, and date.
-2. Record the actual template, enabled indicators, scope, and triggering activity using [Microsoft's template catalog](https://learn.microsoft.com/en-us/purview/insider-risk-management-policy-templates) and [Control 1.12](../1.12/powershell-setup.md). Agent-exfiltration, anomalous-prompt, departing-user, and poisoned-context scenarios are organization-defined investigation hypotheses, not four Microsoft built-in template names. Validate the telemetry for each hypothesis. **Risky Agents (preview)** is applied by default to Copilot Studio and Microsoft Foundry agents, not blanket Microsoft 365 Copilot activity.
+2. Record the actual **policy name, template, supported host, scope, and observed indicators** using [Microsoft's template catalog](https://learn.microsoft.com/en-us/purview/insider-risk-management-policy-templates) and [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). Agent-exfiltration, anomalous-prompt, departing-user, and poisoned-context scenarios are organization-defined investigation hypotheses, not four Microsoft built-in template names. For supported agents review **Risky Agents (preview)** (applied by default to Copilot Studio and Microsoft Foundry agents, not blanket Microsoft 365 Copilot activity); for user behavior review the configured **Risky AI usage** or departing-user policy as applicable.
 3. Click **Actions → Confirm alert and create case**.
 4. In the **Create case** dialog, enter:
     - **Case name** — prepend the firm incident ID (e.g., `INC-FSI-2026-0042 — IRM — anon_8a3f — Copilot exfiltration`).

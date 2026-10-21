@@ -199,7 +199,7 @@ Two least-privilege profiles are defined — read-only investigation (most opera
 | Incident detection / read-only investigation | `SecurityIncident.Read.All`, `SecurityEvents.Read.All`, `AuditLog.Read.All`, `ServiceHealth.Read.All` | Same |
 | Incident mutation (status, classification, comment) | `SecurityIncident.ReadWrite.All`, `SecurityActions.ReadWrite.All` | `SecurityIncident.ReadWrite.All` (preferred), fall back only with documented justification |
 | Legal hold (eDiscovery Premium) | `eDiscovery.Read.All` (read), `eDiscovery.ReadWrite.All` (mutation) | Same — app-only requires Compliance Admin role on the service principal |
-| IRM case evidence | Manual Purview case review with the appropriate IRM role | No documented Graph case-inventory permission established; §6 remains Pending |
+| IRM case evidence | Manual Purview case review with the appropriate IRM role (no `InsiderRiskManagement.Read.All` scope asserted) | No documented Graph case-inventory permission established; §6 remains Pending |
 | Service Health correlation | `ServiceHealth.Read.All` | Same |
 | Information Protection labels in evidence pack | `InformationProtectionPolicy.Read` | Same |
 
@@ -262,7 +262,7 @@ When a required cmdlet is unavailable, the calling helper emits `Status='NotAppl
 | Activity | Canonical role | PIM elevation? | Notes |
 |----------|----------------|----------------|-------|
 | Read incident inventory | Entra Global Reader + Sentinel Reader | No | Sufficient for §4 read helpers |
-| Read IRM cases | Purview Insider Risk Investigator | No | Manual portal evidence; no assumed Graph scope |
+| Read IRM cases | Purview Insider Risk Investigator | No | Manual portal evidence (actual Purview permissions/AU scope); no assumed Graph scope |
 | Mutate incidents (status/classify/comment) | Entra Security Admin | **Yes — PIM-bound, 4h window** | Requires `ChangeTicketId` |
 | Deploy Sentinel Logic Apps playbooks | Logic Apps Contributor + Sentinel Contributor on the workspace RG | **Yes — PIM-bound, 8h window** | Requires `ChangeTicketId` and CAB approval |
 | Suspend a Power Platform agent | Power Platform Admin | **Yes — PIM-bound, 1h window** | Mutation; cross-reference [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) workload-identity policy |
@@ -274,7 +274,7 @@ Canonical role names: **Entra Security Admin**, **Entra Global Reader**, **Purvi
 
 ### 1.5 — Preview-surface gating preflight
 
-A subset of Control 3.4 surfaces are presented here as **public preview**, including the Graph beta `informationProtection/threatAssessmentRequests` feed used by the Service Health correlation helper. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Fsi34Session`. This historical preview classification was not re-verified in the scoped Control 1.12 review. **The IRM case helpers are different:** their Graph endpoint is unverified, and they always remain **Pending** regardless of preview opt-in. A preview switch does not establish a supported API.
+A subset of Control 3.4 surfaces are presented here as **public preview**, including the Graph beta `informationProtection/threatAssessmentRequests` feed used by the Service Health correlation helper. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Fsi34Session`. This historical preview classification was not re-verified in the scoped Control 1.12 review. **The IRM case helpers in §6 are different:** their Graph endpoint is unverified, and they always remain **Pending** (manual verification required) regardless of preview opt-in. A preview switch does not establish a supported API.
 
 ```powershell
 function Test-Fsi34PreviewGating {
@@ -288,7 +288,7 @@ function Test-Fsi34PreviewGating {
     param([Parameter(Mandatory)] [bool]$AllowPreviewSurfaces)
     [pscustomobject]@{
         AllowPreviewSurfaces = $AllowPreviewSurfaces
-        IRMLineageJoin       = if ($AllowPreviewSurfaces) { 'Reachable' } else { 'GatedOff' }
+        IRMLineageJoin       = 'ManualVerificationRequired'
         ThreatAssessmentFeed = if ($AllowPreviewSurfaces) { 'Reachable' } else { 'GatedOff' }
         Status               = if ($AllowPreviewSurfaces) { 'Clean' } else { 'NotApplicable' }
         Reason               = if ($AllowPreviewSurfaces) { '' } else { 'OperatorOptedOutOfPreview' }
@@ -1343,7 +1343,7 @@ After deploying a Logic App, you must bind it to an automation rule that fires i
 
 ## §6 — Insider Risk Management case helpers
 
-**Technical correction, 2026-10-18:** the former Graph beta IRM case endpoint and `InsiderRiskManagement.Read.All` permission were not established by current official documentation. Collect case evidence manually through Purview under the appropriate IRM role, following [Control 1.12 PowerShell Setup](../1.12/powershell-setup.md). The helper below explicitly returns **Pending** instead of calling an assumed endpoint. [Shared IRM alerts/incidents in Defender](https://learn.microsoft.com/en-us/defender-xdr/irm-investigate-alerts-defender) do not establish Graph access to Purview case inventory or content.
+**Technical correction, 2026-10-18:** Purview Insider Risk Management cases (cross-reference [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)) require authorized investigation and preservation. The former Graph beta `/beta/security/cases/insiderRiskCases` endpoint and `InsiderRiskManagement.Read.All` permission were not established by current official documentation. Collect case evidence manually through the [documented Purview case workflow](https://learn.microsoft.com/en-us/purview/insider-risk-management-cases) under the appropriate IRM role, following [Control 1.12 PowerShell Setup](../1.12/powershell-setup.md). The helper below explicitly returns **Pending** instead of calling an assumed endpoint or treating an opt-in preview flag as proof an endpoint exists. [Shared IRM alerts/incidents in Defender](https://learn.microsoft.com/en-us/defender-xdr/irm-investigate-alerts-defender) do not establish Graph access to Purview case inventory or content.
 
 ### 6.1 — `Get-Fsi-IRMCase`
 
