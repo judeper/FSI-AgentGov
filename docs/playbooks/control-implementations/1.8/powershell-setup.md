@@ -234,21 +234,8 @@ appropriate role(s) via PIM and re-run.
         Write-Warning "PRE-FLIGHT WARN: tenant does not appear to carry Audit Premium / E5 Compliance. UAL retention is capped at 180 days per https://learn.microsoft.com/en-us/purview/audit-solutions-overview. Evidence runs spanning >180 days WILL return truncated results."
     }
 
-    # 7. Microsoft 365 App Connector health (Defender for Cloud Apps) -------
-    #    Read-only via Graph beta security/dataConnectors endpoint where
-    #    available; fall back to a documented manual check.
-    #    Per https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory
-    #    AI Agents Inventory requires the M365 App Connector to be in Connected state.
-    try {
-        $connectors = Invoke-MgGraphRequest -Method GET `
-            -Uri "$($endpoint.GraphHost)/beta/security/dataConnectors" -ErrorAction Stop
-        $m365 = @($connectors.value | Where-Object { $_.displayName -match 'Microsoft 365|Office 365' })
-        if (-not $m365 -or ($m365 | Where-Object { $_.status -ne 'connected' })) {
-            Write-Warning "PRE-FLIGHT WARN: Microsoft 365 App Connector status is not 'connected' for all instances. Defender for Cloud Apps AI Agents Inventory will be empty or stale. Verify in the Defender XDR portal: Settings -> Cloud Apps -> Connected apps -> Microsoft 365."
-        }
-    } catch {
-        Write-Warning "PRE-FLIGHT INFO: dataConnectors endpoint not available on $Cloud or caller lacks SecurityEvents.Read.All. Manually verify Microsoft 365 App Connector status at https://security.microsoft.com -> Settings -> Cloud Apps."
-    }
+    # 7. Connector inventory requires separate portal evidence.
+    Write-Warning "PRE-FLIGHT MANUAL REQUIRED: Microsoft 365 App Connector health was not checked. Capture the Defender for Cloud Apps connector status and a known activity before accepting coverage. Do not use the undocumented Graph security/dataConnectors endpoint or infer health from missing alerts."
 
     # 8. Emit session context -----------------------------------------------
     [PSCustomObject]@{
@@ -260,6 +247,7 @@ appropriate role(s) via PIM and re-run.
         DirectoryRolesMet = $matched
         HasPremium        = $hasPremium
         HasAuditPremium   = $hasAuditPremium
+        AppConnectorVerification = 'ManualRequired'
         InitializedUtc    = (Get-Date).ToUniversalTime().ToString('o')
     }
 }

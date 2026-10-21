@@ -112,7 +112,7 @@ The `FsiAgtGov.Agt34` PowerShell module (installed by [`powershell-setup.md`](po
 | `Get-Agt34AgentSpn -AppDisplayName <string>` | Resolves an agent display name to its SPN object ID, app ID, owners, certificates / secrets, and assigned API permissions | Entra Identity Reader | PSCustomObject |
 | `Get-Agt34AgentSignIns -SpnObjectId <guid> -StartUtc <datetime> -EndUtc <datetime>` | Pulls `AADServicePrincipalSignInLogs` over the window (chunked at 1000 rows) | Entra Identity Reader | CSV |
 | `Get-Agt34AgentRunHistory -EnvironmentId <guid> -BotId <guid>` | For Copilot Studio agents, pulls conversation transcript metadata (NOT content) | Power Platform Admin | CSV |
-| `Get-Agt34PurviewIrmCase -CaseId <string>` | Pulls IRM case in pseudonymised form unless `-Unmask` is specified and approval log is present | Purview Insider Risk Investigator + Insider Risk Analyst (joint) | JSON |
+| IRM case evidence (manual) | Collect authorized Purview case evidence following [Control 1.12](../1.12/powershell-setup.md); the §6 PowerShell helper remains Pending and does not call an assumed Graph case endpoint | Purview Insider Risk Investigator | Reviewed case evidence + manifest |
 | `Get-Agt34LegalHold -CaseId <string>` | Returns the eDiscovery Premium hold''s custodian list, hold locations, hold status per location, and last-evaluated timestamp | eDiscovery Manager | CSV |
 | `Get-Agt34ServiceHealth -StartUtc <datetime> -EndUtc <datetime>` | Pulls Microsoft Service Health incidents and advisories overlapping the window | M365 Service Support Admin | JSON |
 | `Get-Agt34IrListItem -ItemId <int>` | Reads the SharePoint IR list item, returns it as PSCustomObject, and snapshots the related Power Automate run history | M365 Admin | JSON |
