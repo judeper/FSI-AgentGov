@@ -1,0 +1,25 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:14bf40866a64358232a9a784757f37da2587fb16b7503d370c7a860eab570ba8",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "June CY2026",
+  "id": 576818,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "March CY2026",
+  "products": [
+    "Dynamics 365 Customer Service",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Microsoft 365 Copilot Chat is becoming a consistent way that users interact with AI across Microsoft experiences. With this update, that same chat experience is available in Dynamics 365 Customer Service, with service-aware grounding and workflows.</p>\n<p>Service users can start in Microsoft 365 Copilot Chat and then:</p>\n<ul>\n<li>See and prioritize work (for example, top cases and what needs attention).</li>\n<li>Draft customer communications and prepare next steps with Microsoft 365 context when relevant.</li>\n<li>Identify trends and operational signals across cases to help supervisors and leads intervene earlier.</li>\n<li>Discover answers from support knowledge.</li>\n</ul>\n<p>Business Value:</p>\n<p>Bring the familiar Microsoft 365 Copilot Chat experience directly into Dynamics 365 Customer Service, so supervisors, leads, and customer service representatives can get answers, summarize work, and take next steps using both Dynamics 365 data and Microsoft 365 context, without switching tools.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576818",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Customer Service: Copilot and AI innovation - Improve customer outcomes with Service Agent in Microsoft 365 Copilot"
+}

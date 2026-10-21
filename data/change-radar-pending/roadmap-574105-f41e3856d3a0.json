@@ -1,0 +1,40 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:f41e3856d3a0e4155ea60946d491ecfeb6c76c9e3543c399081a354892ed10f3",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "October CY2026",
+  "id": 574105,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p><strong>Sales Development Agent now integrates with Salesforce, enabling organizations to use SDA with their existing Salesforce CRM.</strong> SDA can access leads, manage prospect records, log sales activities, and keep engagement actions—including qualification, disqualification, and ownership changes—connected to the CRM workflow. The integration uses Microsoft’s Salesforce Model Context Protocol (MCP) server to connect SDA with Salesforce.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=574105",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Rolling out",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.2",
+      "source": "keyword:ownership"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    },
+    {
+      "id": "3.6",
+      "source": "keyword:ownership"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Integrate the Sales Development agent with Salesforce"
+}
