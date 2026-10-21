@@ -24,7 +24,7 @@
 
     | Topic | Where it lives |
     |-------|----------------|
-    | Sponsor eligibility group creation, Lifecycle Workflow JSON, sponsor-departure detection logic, Zone 3 24-hour suspension automation | `sponsorship-lifecycle-workflows.md` (sibling) |
+    | Sponsor eligibility groups, native leaver-task boundaries, and custom attestation / departure orchestration requirements | [Sponsorship Lifecycle Workflows](sponsorship-lifecycle-workflows.md) (design requirements, not a deployable automation package) |
     | Conditional Access policies for human users invoking agents | `../1.1-conditional-access-for-agents/portal-walkthrough.md` |
     | Connector classification (Business / Non-Business / Blocked) and DLP policy authoring | `../1.4-advanced-connector-policies-acp.md` portal walkthrough |
     | Audit log retention, eDiscovery hold, and 7-year WORM archive plumbing | `../1.7-comprehensive-audit-logging-and-compliance.md` |
@@ -172,7 +172,7 @@ Before you register a single agent, complete these gates. Each gate has a portal
 
    *Screenshot description: Three group result rows showing names sg-agent-sponsors-zone1/2/3 with Type=Security and Membership type=Assigned. Privileged Access management toggle visible as Enabled in group properties pane.*
 
-5. If any group is missing or empty, **stop** and complete the sibling playbook `sponsorship-lifecycle-workflows.md` §2 first.
+5. If a required group is missing or empty, **stop** and complete [sponsorship eligibility group provisioning](sponsorship-lifecycle-workflows.md#73-create-sponsor-and-owner-eligibility-groups) first. Section 7.3 provisions Zone 2/3 groups; any Zone 1 group used by this registration process is an additional tenant-defined prerequisite.
 
 ### 2.2 Gate B — Custom Security Attributes Defined
 
@@ -694,7 +694,7 @@ A retirement is **not** a delete. It is a controlled state transition with audit
 ---
 ## §11 — Sponsorship Portal Touchpoints
 
-The end-to-end sponsorship lifecycle (eligibility, attestation, departure detection, reassignment, Zone 3 24-hour suspension, Lifecycle Workflow JSON) lives in the sibling playbook `sponsorship-lifecycle-workflows.md`. **Do not duplicate that material here.** This section catalogs only the portal locations where the sponsor metadata field surfaces, so you know where to look during incident response, examiner pulls, or routine reconciliation.
+The end-to-end sponsorship lifecycle requirements (eligibility, attestation, departure detection, reassignment, and zone-specific containment) live in [Sponsorship Lifecycle Workflows](sponsorship-lifecycle-workflows.md). Native sponsor tasks do not deliver the complete custom workflow. **Do not duplicate that material here.** This section catalogs registration-plane metadata touchpoints; reconcile each with the authoritative governance register during incident response, evidence collection, or routine review.
 
 ### 11.1 Where Sponsor Metadata Appears (Per Surface)
 
@@ -730,13 +730,12 @@ Reviewers, auditors, and SOC analysts often need to see sponsor metadata without
 
 For the following procedures, route to `./sponsorship-lifecycle-workflows.md`:
 
-- §2 — Sponsor eligibility group provisioning and access-package configuration
-- §3 — Sponsor attestation cadence (paired with the §14 quarterly attestation here)
-- §4 — Sponsor departure detection via Entra Lifecycle Workflows
-- §5 — Sponsor reassignment workflow
-- §6 — Zone 3 24-hour suspension automation when a sponsor cannot be reassigned
-- §7 — Evidence collection schema for sponsor lifecycle events
-- §8 — Integration with Control 3.6 orphan detection
+- [§7.3 — Sponsor and owner eligibility groups](sponsorship-lifecycle-workflows.md#73-create-sponsor-and-owner-eligibility-groups)
+- [§6 — Attestation cadence](sponsorship-lifecycle-workflows.md#6-attestation-cadence) (paired with the §14 registration verification cycle here)
+- [§9 — Departure cascade requirements](sponsorship-lifecycle-workflows.md#9-departed-sponsor-owner-cascade-workflow), including reassignment and zone-specific containment
+- [§10 — Approval integration boundaries](sponsorship-lifecycle-workflows.md#10-approval-workflow-integration)
+- [§11 — Sponsorship evidence pack](sponsorship-lifecycle-workflows.md#11-sponsorship-evidence-pack)
+- [§12 — Verification and reporting](sponsorship-lifecycle-workflows.md#12-verification-reporting-and-kql)
 
 ---
 

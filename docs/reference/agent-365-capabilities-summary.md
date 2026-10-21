@@ -65,7 +65,7 @@ Agent 365 is Microsoft's governance control plane for AI agents, announced at Ig
 | Shadow Agent Detection | [3.6](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | **Comprehensive** |
 | Agent Store Curation | [1.2](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | **Comprehensive** |
 | Orphaned Agent Remediation | [3.6](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | **Comprehensive** |
-| Agent Attestation | [Sponsorship Workflows](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md) | **Comprehensive** |
+| Agent Attestation | [Sponsorship Workflows](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md) | **Custom process requirements documented; deployment and signatures require separate verification** |
 | Agent Retirement | [Agent Decommissioning](../playbooks/agent-lifecycle/agent-decommissioning.md) | **Comprehensive** |
 
 ### Observability & Audit
@@ -123,7 +123,7 @@ Agent 365 is Microsoft's governance control plane for AI agents, announced at Ig
 |----------|-------------------|
 | [Agent 365 Observability](../playbooks/advanced-implementations/agent-365-observability/index.md) | OpenTelemetry setup, workbooks, alerting |
 | [Blueprint Promotion Gates](../playbooks/advanced-implementations/agent-blueprint-promotion-gates/index.md) | Lifecycle phase transition governance |
-| [Sponsorship Lifecycle Workflows](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md) | Entra Lifecycle Workflows for sponsor governance |
+| [Sponsorship Lifecycle Workflows](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md) | Native sponsor leaver-task boundaries plus custom attestation, cascade, and evidence requirements; not a deployable automation package |
 
 ### Native Admin Center Coverage vs. Deployable Solutions
 

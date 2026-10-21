@@ -156,6 +156,8 @@ The Preservation Owner attestation should include the literal language: *"The pr
 | Zone 2 | Entra-bound device-bound key on a managed device | Hardware-token-protected key |
 | Zone 3 | Hardware-token-protected key (FIPS 140-2 or 140-3 validated) | HSM-resident signing key with dual-control activation |
 
+**Verified ID boundary (documentation checked 2026-10-18):** an issuer-signed credential or holder presentation is not automatically the Capture / Preservation Owner's signature over the cycle manifest. Separately verify the human-to-statement/digest binding, trust material, and archival verification; Verified ID receipt output is not a stable archival signature format. See the [sponsorship signature requirements](../1.2/sponsorship-lifecycle-workflows.md#113-cryptographic-sponsor-signatures-recommended-for-z3).
+
 ---
 
 ## Section 3 — Re-verification cadence

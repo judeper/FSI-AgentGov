@@ -14,7 +14,7 @@ last_ui_verified: "May 2026"
 >
 > **License gating.** Entra Agent ID requires **Microsoft Agent 365** licensing (standalone per-user) or **Microsoft 365 E7** ("Frontier Suite," which bundles Microsoft 365 Copilot + Agent 365 + Entra Suite + E5). Tenants without either license will see empty result sets — not errors. The §1 preflight explicitly flags this false-clean condition.
 >
-> **Sponsor-departure model.** When a sponsor's `accountEnabled` flips to `false` or `employeeLeaveDateTime` passes, Entra's default behaviour transfers the agent's sponsor relationship to the departing sponsor's manager (per the standard lifecycle workflow template). The helpers in this file **read** that state to surface anomalies; they do not override the transfer. Reassignment overrides go through the §8 audited bulk path.
+> **Sponsor-departure model (documentation checked 2026-10-18).** Microsoft's [tenant-wide agent management guide](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) states that Entra ID automatically reassigns sponsorship to a departing sponsor's manager, whereas the [native transfer task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents **Transfer agent identity sponsorships to manager** as a selectable task in a human mover/leaver workflow. Until tenant-tested, do not assume `accountEnabled=false` or a past leave date proves that manager reassignment succeeded without reading back the actual native sponsor relationships and any configured workflow task/run results. The helpers here are illustrative collection/analysis code, not proof that the workflow or its custom acceptance/escalation logic exists. Reassignment overrides require separately approved, supported mutation and read-back.
 >
 > **Audit log filtering.** Microsoft Graph and Entra audit logs are emitted with object IDs, not enriched names. Correlation, alerting, and retention enforcement happen in the downstream SIEM (control 1.7). The §10 helper verifies forwarding plumbing; it does not attempt server-side filtering.
 
@@ -62,7 +62,7 @@ The table below enumerates defect classes specific to Entra Agent ID telemetry. 
 | 0.1 | Preview gating not satisfied | `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` returns zero rows | No exception is thrown; the tenant has no agent identities reachable to the calling principal because the operating account lacks Microsoft Agent 365 / Microsoft 365 E7 license coverage (post-GA gating mechanism) | §1 preflight calls `Test-Agt226LicenseCoverageGating` (name retained for backward-compat) which checks both Microsoft 365 Copilot SKU coverage and Agent ID API surface reachability, and aborts with a structured `LicenseCoverageNotSatisfied` exception (name retained) before any inventory pass |
 | 0.2 | Wrong shell edition | All inventory cmdlets succeed but return `@()` | Microsoft.Graph 2.x assemblies fail to bind under Desktop edition; the SDK swallows the bind failure and returns empty | `Assert-Agt226Shell` (above) blocks Desktop edition entirely |
 | 0.3 | Stale delegated token | Helpers run, return data, but `sponsorRelationships` collection is always null | Delegated token issued before the AgentIdentity.Read.All scope was granted; Graph silently omits the navigation property | §1 `Test-Agt226GraphScopes` re-asserts scopes against the live token and forces re-consent if mismatched |
-| 0.5 | Manager-transfer race window | An agent appears orphaned for ~5–15 minutes after a sponsor's `accountEnabled` flips to false | Lifecycle workflow has not yet run; transfer to manager is queued but not committed | §4 `Get-Agt226OrphanedAgent` accepts a `-GraceWindowMinutes` parameter (default 30) and tags rows below the threshold as `PendingLifecycleTransfer` rather than `Orphaned` |
+| 0.5 | Unverified manager-transfer assumption | An agent remains assigned to a departed sponsor | The native transfer task may be absent, out of scope, not scheduled, failed, or still processing | `PendingLifecycleTransfer` is an illustrative classification, not proof of a queued transfer; inspect actual task/run state and retain an exception until the relationship is verified |
 | 0.6 | Access package assignment without ownership chain | Agent holds an access package assignment whose policy has no approver | Default Entitlement Management catalog allows policies without approvers; assignments evaluate as valid | §5 `Get-Agt226AgentAccessPackageAssignment` joins the policy and emits `PolicyApproverMissing=$true` for any assignment lacking a primary approver |
 | 0.7 | Audit log retention assumption | Operator queries `AuditLogs` for a 90-day window and finds nothing for an agent decommissioned 6 months ago | Entra retains directory audit logs for 30 days by default; FINRA 4511 requires 6 years; the SIEM is the system of record but operators forget to query it | §10 `Test-Agt226SiemForwarding` emits an explicit `EntraNativeRetentionDays=30` field and a remediation pointer to control 1.7 |
 | 0.8 | Access review marked complete with no decisions | A Zone 3 access review shows 100% completion but every assignment was auto-approved on reviewer non-response | Default review setting may be "If reviewers don't respond: Approve" | §7 `Get-Agt226AccessReviewStatus` surfaces the `defaultDecision` and `defaultDecisionEnabled` fields and flags reviews where decisions equal auto-approval |
@@ -344,7 +344,7 @@ if (-not (Get-Command -Name 'Invoke-Agt226WithThrottle' -ErrorAction SilentlyCon
 
 The sponsor inventory is the canonical join between agent service principals and the human accountability chain. Every Entra Agent ID surface object should have **at least one** active sponsor; missing sponsors are a Zone-3 control failure and must be surfaced as `Anomaly`, not `Clean`.
 
-The helper **reads** the manager-transfer state managed by Entra's lifecycle workflow — it does not mutate it. When the sponsor's `accountEnabled=false` and the agent now points at the sponsor's manager, the row is tagged `ManagerTransferred=$true` so attestation reviewers can confirm the transfer matches policy.
+The helper compares observed relationships; it does not mutate sponsorship or prove which workflow caused a change. `ManagerTransferred=$true` is an illustrative correlation result, not proof of successor acceptance, zone eligibility, or task execution. Preserve native task results and the complete before/after sponsor set separately.
 
 ```powershell
 function Get-Agt226AgentSponsorInventory {
@@ -555,7 +555,7 @@ function Get-Agt226OrphanedAgent {
 
 ### 4.1 Operating notes
 
-- The default `-GraceWindowMinutes 30` matches Microsoft's documented lifecycle workflow execution cadence (every 3 hours with a 15-minute typical lag). Tenants with custom workflow schedules should override.
+- `-GraceWindowMinutes 30` is an illustrative local threshold, not a Microsoft latency guarantee. The tenant evaluation schedule is 1–24 hours (default 3); establish the actual trigger/processing latency and approved zone response separately.
 - The helper does **not** trigger remediation. Remediation is the responsibility of control 3.6 and the §8 bulk reassignment path with explicit operator sign-off.
 - Output rows feed directly into the §13 attestation pack under the `OrphanedAgent` criterion.
 
@@ -673,7 +673,7 @@ Rows whose `InvalidResourceTypes` is non-empty are blocking findings for the §1
 
 ## 6. Lifecycle workflow execution (`Get-Agt226LifecycleWorkflowExecution`)
 
-Lifecycle workflows are the engine that performs the automatic manager-transfer on sponsor departure. This helper enumerates **executions** that touched any sponsor of an active agent identity within the lookback window, surfacing failed runs and runs whose `processingResult` does not match the expected transfer outcome.
+An explicitly configured mover/leaver workflow can perform native sponsorship transfer. This helper illustrates execution collection, not attestation of a default transfer. Validate the actual task definitions, run/task results, and native sponsor relationships independently; generic workflow completion does not prove transfer or custom business approval.
 
 ```powershell
 function Get-Agt226LifecycleWorkflowExecution {
@@ -700,7 +700,7 @@ function Get-Agt226LifecycleWorkflowExecution {
             ControlId = '2.26'
             Criterion = 'LifecycleWorkflowExecution'
             Status    = 'Anomaly'
-            Reason    = "No lifecycle workflows in categories '$($WorkflowCategories -join ',')' are defined; manager-transfer on sponsor departure cannot run"
+            Reason    = "No matching workflows were collected; native transfer configuration and outcome require separate verification"
             Timestamp = $now
         }
     }

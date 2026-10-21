@@ -223,7 +223,7 @@ When an agent's **sponsor** (the registered human accountable party from Control
 
 ### 2.3 Manager-transfer confirmation
 
-The 2.26 workflow default is to **transfer agent sponsorship to the departing user's manager** on termination. This is a default, not a guarantee; Control 3.6 confirms the transfer actually occurred for each leaver in the window.
+Microsoft's [tenant-wide agent management guide](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) states that Entra ID automatically reassigns sponsorship to a departing sponsor's manager, whereas the [native sponsor-transfer task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents **Transfer agent identity sponsorships to manager** as a selectable task in a human mover/leaver workflow. Tenant-test whether manager transfer occurs automatically or requires the explicit workflow task in your tenant, and verify actual task outcomes and post-departure native sponsor relationships for each in-scope leaver, independently of business acceptance and source containment. Documentation checked 2026-10-18; no tenant/UI test.
 
 For each successful leaver run:
 
@@ -252,7 +252,7 @@ Overrides are executed via the Agent 365 Ownerless card (§1.3) — the agent wi
     4. For each override: justification document referencing the override scenario above.
 
 !!! tip "Cross-Reference"
-    The upstream workflow configuration, HR feed mapping, and manager-transfer defaults are owned by [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md). Do not modify workflow definitions from this walkthrough — route configuration changes through 2.26.
+    The upstream workflow configuration, HR feed mapping, and selected native sponsor-transfer tasks are owned by [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md). Do not modify workflow definitions from this walkthrough — route configuration changes through 2.26.
 
 ## 3. Signal #3 — PPAC Maker-Departed
 
@@ -654,4 +654,4 @@ A session that fails to satisfy any checklist item is **incomplete**; do not fil
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (sponsorship dependency checked 2026-10-18; no tenant/UI verification)*

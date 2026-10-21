@@ -4,7 +4,7 @@
 >
 > **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pillar **PREVIEW-ACCESS-MISSING** was renamed to **LICGAP-ACCESS-MISSING** in issue #418; anchor `#2-pillar-licgap-access-missing` is now canonical. This pillar and runbook rename was completed in issue #418.
 >
-> **Status hedging.** The core Entra Agent ID surface is GA; some adjacent surfaces (e.g. the Lifecycle Workflows agent-sponsor tasks, the `agentSignIn` log type) remain in Public Preview. Behavior, blade names, Graph endpoints (`/beta/servicePrincipals` filtered by `servicePrincipalType eq 'Agent'`), and Lifecycle Workflow agent task templates may continue to evolve post-GA. Procedures here are written to the May 2026 surface; verify the **Last UI Verified** stamp at the top of `2.26-entra-agent-id-identity-governance.md` before treating any step as authoritative for an examiner artifact.
+> **Sponsorship boundary checked 2026-10-18.** The current [native sponsor-task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) does not label its three tasks preview. Do not generalize that to adjacent log types or collection APIs. This targeted correction is not a tenant/UI or end-to-end API validation; verify the actual source, workflow tasks, and observed events before using the examples as evidence.
 >
 > **Regulatory framing.** Procedures support — they do not determine — compliance with FFIEC IT Handbook (Information Security, Management), OCC Bulletin 2013-29 / 2020-10 third-party risk, FRB Fed SR 26-2 (formerly SR 11-7) model risk management as applied to AI agents, NYDFS 23 NYCRR 500.7 (access privileges), and SEC 17a-4 / FINRA 4511 evidentiary retention. Implementation requires control-owner sign-off; no automated procedure removes the obligation to attest to control effectiveness.
 
@@ -426,9 +426,9 @@ KQL-02 returns historical orphan-create events; correlate with deployment change
 
 ## §4. Pillar SPONSOR-DEPARTED
 
-**One-line:** the human sponsor of one or more agents has left (or is leaving) the firm; the question is whether the **manager auto-transfer** built into the Lifecycle Workflow agent leaver task fired correctly, and — critically — whether anyone misconfigured the workflow to **disable** agents on sponsor departure (which is *not* the supported default and creates production-impact incidents like S-06).
+**One-line:** verify the explicitly configured human mover/leaver workflow, native sponsorship task, relationship outcome, and any independent containment action.
 
-> **Critical accuracy point.** The Microsoft-provided default behavior on a sponsor's `employeeLeaveDateTime` is to **automatically transfer agent sponsorship to the sponsor's manager** (resolved via the `manager` user property). Suspension or disablement of the agent only fires when (a) the manager affirmatively declines reassignment via the workflow's manager-task UI, **and** (b) reassignment fails within the configured SLA (default 30 days). If you observe agents being disabled the moment a sponsor is offboarded, the workflow has been customized (or a custom logic-app handler has replaced the default task) and that customization is the bug — not Entra behavior.
+> **Technical documentation checked 2026-10-18.** Microsoft's [tenant-wide agent management guide](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) states that Entra ID automatically reassigns sponsorship to a departing sponsor's manager, while the [native transfer task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents **Transfer agent identity sponsorships to manager** as a selectable mover/leaver workflow task that adds the configured manager as sponsor and removes the departing sponsor. Tenant-test which mechanism performs the transfer in your environment and read back the actual native sponsor relationships; neither establishes a manager-decline UI, a 30-day timer, or conditional suspension. Diagnose the actual actor, target, task, and approved zone policy before treating disablement as erroneous or reversing containment.
 
 ### 4.1 Symptom catalog
 
@@ -437,7 +437,7 @@ KQL-02 returns historical orphan-create events; correlate with deployment change
 | P4-S1 | Agents still show old (disabled) sponsor weeks after departure | AI Governance Lead |
 | P4-S2 | Manager received task notification but no transfer occurred | Entra Identity Governance Admin |
 | P4-S3 | **Agents disabled overnight when sponsor offboarded** (production impact) | Entra Agent ID Admin → escalate SEV-1 |
-| P4-S4 | Manager declined; agent in suspended-orphan state and approaching 30-day SLA | AI Governance Lead |
+| P4-S4 | Custom acceptance declined / overdue; unresolved exception approaches the approved zone deadline | AI Governance Lead |
 | P4-S5 | Sponsor's manager itself is disabled — transfer target invalid | AI Governance Lead |
 
 ### 4.2 Root cause matrix
@@ -446,9 +446,9 @@ KQL-02 returns historical orphan-create events; correlate with deployment change
 |----|-------------|-----------|---------|
 | RC-A | Lifecycle Workflow leaver template not enabled or scope excludes sponsor | High for P4-S1, P4-S2 | `Get-Agt226LifecycleStatus`; check workflow `executionConditions` |
 | RC-B | HR connector did not write `employeeLeaveDateTime` (see §6) | High | GQ-04 |
-| RC-C | Workflow customized to **disable** instead of transfer (misconfig) | High for P4-S3 | Inspect workflow tasks for `disableUserAccount` on the agent target |
+| RC-C | Custom containment, or an unintended target/action | Investigate for P4-S3 | Identify actor, target type, approval, and actual outcome; disabling the human workflow subject is not disabling its sponsored agents |
 | RC-D | Sponsor's manager attribute is null or points to a disabled user | Medium | `Get-MgUser -UserId <sponsor-upn> -Property manager -ExpandProperty manager` |
-| RC-E | Manager declined transfer in the workflow UI; SLA timer running | Medium | KQL-04 + workflow run details |
+| RC-E | Separate business-acceptance process declined / timed out | Deployment-dependent | Inspect the custom approval record and approved deadline, not native task completion alone |
 | RC-F | Sponsor was a contractor whose departure was never recorded in HR | Low–Medium | HR record absent |
 
 ### 4.3 Diagnostic queries
@@ -472,16 +472,16 @@ KQL-03 (sponsor reassignment) and KQL-04 (lifecycle task failures) — both for 
 **For P4-S1 / P4-S2 (no transfer occurred):**
 
 1. Confirm the workflow has fired (`Get-Agt226LifecycleStatus`). If not, jump to [§6 LIFECYCLE-NOFIRE](#6-pillar-lifecycle-nofire).
-2. If the workflow ran but produced no agent-task action, inspect `executionConditions` — the scope query must include the agents owned by the leaver. The default Microsoft template scopes by sponsor UPN; custom templates may scope differently.
-3. If RC-D (manager null/disabled), have HR populate or correct the manager attribute, then **re-trigger the workflow on demand** for the affected user via Entra → Identity Governance → Lifecycle Workflows → "Run on demand."
+2. Inspect the workflow's **human sponsor** subject scope and selected native task definitions. A notification-only workflow does not transfer sponsorship; the scope is not the set of agent objects.
+3. If RC-D (manager null/disabled), have the authoritative owner correct it. Assess all task side effects and idempotency before an approved on-demand run for the affected human; independently read the native sponsor relationships afterward.
 4. If RC-F (no HR record), set `employeeLeaveDateTime` manually on the user record (Entra Identity Governance Admin) only with documented HR / People-Ops approval. This is an out-of-band action; preserve the approval record as E-09.
 
 **For P4-S3 (agents disabled — SEV-1):**
 
-1. **Stop the workflow immediately** (pause schedule, do not delete — preserve evidence) to prevent additional agents being disabled.
-2. Re-enable the affected agents via `Update-MgBetaServicePrincipal -ServicePrincipalId <id> -AccountEnabled:$true` after AI Governance Lead approval. Document each re-enable in the incident ticket.
-3. Notify business owners / sponsors-of-record that their agents are back online; expect downstream effects (queued requests, retried integrations).
-4. Open a high-priority remediation ticket to refactor the workflow back to the supported manager-transfer pattern. Add a Pester guard that fails build if any leaver workflow targeting agents includes a `disableUserAccount` task.
+1. Preserve configuration, actor/target IDs, task results, and source audit evidence. Identify whether containment was approved or unintended before pausing any enforcement.
+2. Escalate to the incident owner / AI Governance Lead. Restore service only after approved sponsorship, risk, and source-specific prerequisites are met; use the supported action for the actual agent/identity type.
+3. Read back the changed state and verify service behavior before telling business owners it is restored.
+4. Correct the demonstrated target/scope/authorization defect. Test native transfer and approved containment separately; do not ban all disablement merely because a human leaver workflow exists.
 
 **For P4-S4 (manager declined, SLA approaching):**
 
@@ -489,9 +489,9 @@ KQL-03 (sponsor reassignment) and KQL-04 (lifecycle task failures) — both for 
 
 ### 4.5 Verification
 
-- After remediation, `Get-Agt226Agent -ObjectId <id>` shows the new sponsor UPN and `Suspended = False`.
-- KQL-03 records a reassignment with `NewSponsor` matching the manager's UPN.
-- Pester: `It 'no agents disabled by leaver workflow'` and `It 'all agents have an enabled sponsor'` pass.
+- Native sponsor read-back shows the approved successor and removal of the departed sponsor, with co-sponsors preserved.
+- Correlated task / audit evidence identifies the actual change; custom acceptance evidence is separately available.
+- The agent's operating or contained state matches the approved zone policy. Missing collection or no positive-control event is not PASS.
 
 ### 4.6 Cross-links
 
@@ -862,7 +862,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 
 1. `Get-Agt226SponsorImpact -SponsorUpn <upn>` → freeze list as E-02 entries.
 2. `Get-Agt226Health` (E-01) and `Get-Agt226LifecycleStatus` (E-05).
-3. Confirm workflow is the supported manager-transfer template (not a custom disable variant). If custom-disable is found, **immediately pause the workflow** to prevent disablement.
+3. Inspect the configured human mover/leaver scope, selected native sponsorship tasks, and any separate custom containment. Preserve actual task/actor/target evidence; do not pause approved containment merely because it disables an agent.
 4. Notify AI Governance Lead and the manager named in the sponsor's `manager` attribute.
 
 ### 11.2 Investigation
@@ -1070,7 +1070,7 @@ After any SEV-1 or SEV-2 incident under Control 2.26, run the recovery checklist
 
 The next quarterly attestation must explicitly mention the incident, the remediation, the residual risk (if any), and the test added. The attestation language should hedge appropriately — recovery does not prove non-recurrence; it supports non-recurrence by closing the specific gap. Examples:
 
-- ✅ "Following incident INC-2026-04-117, a Pester guard was added to detect customizations of the leaver workflow that disable agents. This test runs in CI on every workflow definition change and supports compliance with the manager-transfer pattern documented in Control 2.26."
+- ✅ "The change record identifies the actual native transfer task, target identities, custom acceptance process, and approved containment policy. Attach the executed test results; do not claim a guard runs in CI unless that implementation and run evidence exist."
 - ❌ "The incident has been resolved and will not recur." (Forbidden — overclaim.)
 
 ### X.3 Test-gap remediation pattern
@@ -1111,6 +1111,4 @@ For each pillar §2–§9, the verification-testing pack ([`./verification-testi
 | Cross-references | [`./portal-walkthrough.md`](./portal-walkthrough.md) · [`./powershell-setup.md`](./powershell-setup.md) · [`./verification-testing.md`](./verification-testing.md) · [`../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md`](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) |
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
-
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (sponsorship documentation checked 2026-10-18; no tenant/UI verification)*
