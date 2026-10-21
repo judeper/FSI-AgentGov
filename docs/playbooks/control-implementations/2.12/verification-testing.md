@@ -2284,7 +2284,7 @@ Each metric should appear on the council's quarterly scorecard with a sparkline 
 
 ### 19.4 Microsoft Learn references
 
-* [Microsoft 365 Copilot governance overview](https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-overview)
+* [Microsoft 365 Copilot governance overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-overview)
 * [Microsoft Purview audit (premium)](https://learn.microsoft.com/purview/audit-premium)
 * [Microsoft Sentinel data ingestion](https://learn.microsoft.com/azure/sentinel/data-connectors-reference)
 * [Microsoft Agent Framework — request_info pattern](https://learn.microsoft.com/en-us/agent-framework/workflows)
