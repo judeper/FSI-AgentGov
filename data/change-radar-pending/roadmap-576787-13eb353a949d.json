@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:13eb353a949dbb250cc7b2ec3c4d02c5d34366531d656169fe3cbc39279ec088",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "June CY2026",
+  "id": 576787,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Sales"
+  ],
+  "raw_description": "<p>As an admin, you gain access to:</p>\n<ul>\n<li><p><strong>Simple configuration experience</strong>: Navigate an intuitive, guided setup interface designed for the Sales Opportunity Agent, eliminating complexity and reducing configuration time significantly.</p>\n</li>\n<li><p><strong>Smart defaults</strong>: Leverage preoptimized settings for advanced configurations that are automatically applied, enabling rapid testing and deployment while maintaining best-practice standards.</p>\n</li>\n<li><p><strong>Segregation of basic and advanced settings</strong>: Enable the agent quickly with essential settings, then progressively unlock and configure advanced options as your team's expertise grows and business requirements evolve.</p>\n</li>\n</ul>\n<p>Business Value:</p>\n<p>As an admin, you get an easy setup experience to start testing and configuring the Sales Opportunity Agent right away. Basic settings and smart defaults let you enable the agent quickly, so you can see results fast. As adoption grows, you can fine-tune advanced options to fit your business needs without slowing your progress.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576787",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Sales: Opportunity acceleration - Accelerate Sales Opportunity Agent deployment with simplified admin configuration"
+}
