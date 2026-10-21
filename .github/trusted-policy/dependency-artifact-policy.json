@@ -111,9 +111,9 @@
       "size": 1083
     },
     "package-lock.json": {
-      "blob": "691ba02323814e7c3ba9384fabe1b8e089b0172a",
-      "sha256": "f6bcad9e26dd1de8b4ae70306135175736445130c9c2b229f13aa47da6ef051d",
-      "size": 76517
+      "blob": "e654048c252c354b6828ca8b3d1660bb6f2d44a5",
+      "sha256": "33df7fe14ea672926afa15f895db2c9d20160cf2ec980429783a1713e4b3a0d0",
+      "size": 76514
     },
     "vendor/npm/fast-uri/3.1.7/fast-uri-3.1.7.tgz": {
       "blob": "792e315ea09e9b09e157544ab038c349f6cfc1d6",
@@ -261,7 +261,7 @@
     "validationMode": "exact-pins",
     "requiredBasePolicyVersion": 3,
     "requiresCompleteSet": true,
-    "patchSha256": "6a474859e95a13df7c6e14ca819bede3a10641404467417d7eb2b9115eab7ed2",
+    "patchSha256": "4550e995dbc4c04620a547f5d2761216b167530f8d2758d9910fdb3eb1b805cd",
     "allowedFiles": [
       "package.json",
       "package-lock.json",
@@ -289,15 +289,15 @@
     "pins": {
       "package.json": {
         "mode": "100644",
-        "blob": "049a2ea48055760ecef97d0ab0a160ccdf537fcc",
-        "sha256": "a6bb3fa8c5030b18cf1a9684dadc9644f26d5e7f83f7f8d679c6cd557508db96",
+        "blob": "7658846fc75529646b233f7d65bae3a877940f64",
+        "sha256": "2fa708b046ed26eca609f86a7a4621031764ffc527378b6de4014a736105a2c1",
         "size": 863
       },
       "package-lock.json": {
         "mode": "100644",
-        "blob": "691ba02323814e7c3ba9384fabe1b8e089b0172a",
-        "sha256": "f6bcad9e26dd1de8b4ae70306135175736445130c9c2b229f13aa47da6ef051d",
-        "size": 76517
+        "blob": "e654048c252c354b6828ca8b3d1660bb6f2d44a5",
+        "sha256": "33df7fe14ea672926afa15f895db2c9d20160cf2ec980429783a1713e4b3a0d0",
+        "size": 76514
       },
       ".github/workflows/e2e.yml": {
         "mode": "100644",
@@ -307,8 +307,8 @@
       },
       ".github/workflows/update-snapshots.yml": {
         "mode": "100644",
-        "blob": "48b5aad8db636908f94d31b827073856b8bf084e",
-        "sha256": "dc0e65defbf6570a0d75abcfece786aa60306d9b54e54f9eda5a8c4d20e70cd6",
+        "blob": "78d0c961a529dceeff67a4d08992459bad1fdd44",
+        "sha256": "56e58312ad2264ebb4abb11038eab154c0c556a77d65686b00ba99308e4de9c2",
         "size": 2357
       }
     }

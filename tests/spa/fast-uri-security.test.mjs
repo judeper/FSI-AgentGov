@@ -7,10 +7,10 @@ import fastUri from "fast-uri";
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..", "..");
 const expectedIntegrity =
-  "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==";
+  "sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==";
 
 describe("fast-uri security release", () => {
-  it("locks and installs the reviewed 3.1.7 package", () => {
+  it("locks and installs the reviewed 3.1.8 package", () => {
     const lock = JSON.parse(
       readFileSync(join(repoRoot, "package-lock.json"), "utf8"),
     );
@@ -19,9 +19,9 @@ describe("fast-uri security release", () => {
     );
     const locked = lock.packages["node_modules/fast-uri"];
 
-    expect(locked.version).toBe("3.1.7");
+    expect(locked.version).toBe("3.1.8");
     expect(locked.integrity).toBe(expectedIntegrity);
-    expect(installed.version).toBe("3.1.7");
+    expect(installed.version).toBe("3.1.8");
   });
 
   it("rejects percent-encoded scheme authority injection", () => {
