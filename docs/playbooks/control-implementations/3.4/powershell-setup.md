@@ -20,7 +20,6 @@ scopes_required:
   - "SecurityIncident.ReadWrite.All  # mutation surfaces only"
   - "SecurityActions.ReadWrite.All"
   - "SecurityEvents.Read.All"
-  - "InsiderRiskManagement.Read.All"
   - "InformationProtectionPolicy.Read"
   - "eDiscovery.Read.All"
   - "eDiscovery.ReadWrite.All  # legal hold mutation only"
@@ -197,10 +196,10 @@ Two least-privilege profiles are defined — read-only investigation (most opera
 
 | Operation | Graph scopes (delegated) | Graph scopes (app-only) |
 |-----------|--------------------------|--------------------------|
-| Incident detection / read-only investigation | `SecurityIncident.Read.All`, `SecurityEvents.Read.All`, `InsiderRiskManagement.Read.All`, `AuditLog.Read.All`, `ServiceHealth.Read.All` | Same |
+| Incident detection / read-only investigation | `SecurityIncident.Read.All`, `SecurityEvents.Read.All`, `AuditLog.Read.All`, `ServiceHealth.Read.All` | Same |
 | Incident mutation (status, classification, comment) | `SecurityIncident.ReadWrite.All`, `SecurityActions.ReadWrite.All` | `SecurityIncident.ReadWrite.All` (preferred), fall back only with documented justification |
 | Legal hold (eDiscovery Premium) | `eDiscovery.Read.All` (read), `eDiscovery.ReadWrite.All` (mutation) | Same — app-only requires Compliance Admin role on the service principal |
-| IRM case helpers | Manual authorized Purview export; no `InsiderRiskManagement.Read.All` scope asserted | §6 remains Pending until manual evidence is supplied |
+| IRM case evidence | Manual Purview case review with the appropriate IRM role (no `InsiderRiskManagement.Read.All` scope asserted) | No documented Graph case-inventory permission established; §6 remains Pending |
 | Service Health correlation | `ServiceHealth.Read.All` | Same |
 | Information Protection labels in evidence pack | `InformationProtectionPolicy.Read` | Same |
 
@@ -209,7 +208,6 @@ $Fsi34Scopes = @{
     Read     = @(
         'SecurityIncident.Read.All',
         'SecurityEvents.Read.All',
-        'InsiderRiskManagement.Read.All',
         'AuditLog.Read.All',
         'ServiceHealth.Read.All',
         'InformationProtectionPolicy.Read'
@@ -264,7 +262,7 @@ When a required cmdlet is unavailable, the calling helper emits `Status='NotAppl
 | Activity | Canonical role | PIM elevation? | Notes |
 |----------|----------------|----------------|-------|
 | Read incident inventory | Entra Global Reader + Sentinel Reader | No | Sufficient for §4 read helpers |
-| Read IRM cases | Insider Risk Management Investigators | No | Actual Purview permissions/AU scope; Graph consent alone does not grant access |
+| Read IRM cases | Purview Insider Risk Investigator | No | Manual portal evidence (actual Purview permissions/AU scope); no assumed Graph scope |
 | Mutate incidents (status/classify/comment) | Entra Security Admin | **Yes — PIM-bound, 4h window** | Requires `ChangeTicketId` |
 | Deploy Sentinel Logic Apps playbooks | Logic Apps Contributor + Sentinel Contributor on the workspace RG | **Yes — PIM-bound, 8h window** | Requires `ChangeTicketId` and CAB approval |
 | Suspend a Power Platform agent | Power Platform Admin | **Yes — PIM-bound, 1h window** | Mutation; cross-reference [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) workload-identity policy |
@@ -276,7 +274,7 @@ Canonical role names: **Entra Security Admin**, **Entra Global Reader**, **Purvi
 
 ### 1.5 — Preview-surface gating preflight
 
-Preview surfaces require affirmative opt-in through `-AllowPreviewSurfaces` on `Initialize-Fsi34Session`; an opt-in flag is not evidence of API availability. In particular, the IRM case-content/lineage path in §6 is **manual verification required**, independent of that flag. Its helpers return `Pending` and do not export case content; record the manual Purview evidence before attesting completion.
+A subset of Control 3.4 surfaces are presented here as **public preview**, including the Graph beta `informationProtection/threatAssessmentRequests` feed used by the Service Health correlation helper. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Fsi34Session`. This historical preview classification was not re-verified in the scoped Control 1.12 review. **The IRM case helpers in §6 are different:** their Graph endpoint is unverified, and they always remain **Pending** (manual verification required) regardless of preview opt-in. A preview switch does not establish a supported API.
 
 ```powershell
 function Test-Fsi34PreviewGating {
@@ -1345,7 +1343,7 @@ After deploying a Logic App, you must bind it to an automation rule that fires i
 
 ## §6 — Insider Risk Management case helpers
 
-Purview Insider Risk Management cases (cross-reference [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)) require authorized investigation and preservation. The previous `/beta/security/cases/insiderRiskCases` endpoint and permission were not substantiated by the reviewed primary sources. This subsection was documentation-checked on 2026-10-18; no tenant calls were made. Use the [documented Purview case workflow](https://learn.microsoft.com/en-us/purview/insider-risk-management-cases), and keep the automated helper **Pending** rather than treating an opt-in preview flag as proof an endpoint exists. Supported Defender alert/incident APIs are not interchangeable with Purview case-content export.
+**Technical correction, 2026-10-18:** Purview Insider Risk Management cases (cross-reference [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)) require authorized investigation and preservation. The former Graph beta `/beta/security/cases/insiderRiskCases` endpoint and `InsiderRiskManagement.Read.All` permission were not established by current official documentation. Collect case evidence manually through the [documented Purview case workflow](https://learn.microsoft.com/en-us/purview/insider-risk-management-cases) under the appropriate IRM role, following [Control 1.12 PowerShell Setup](../1.12/powershell-setup.md). The helper below explicitly returns **Pending** instead of calling an assumed endpoint or treating an opt-in preview flag as proof an endpoint exists. [Shared IRM alerts/incidents in Defender](https://learn.microsoft.com/en-us/defender-xdr/irm-investigate-alerts-defender) do not establish Graph access to Purview case inventory or content.
 
 ### 6.1 — `Get-Fsi-IRMCase`
 
@@ -1353,13 +1351,14 @@ Purview Insider Risk Management cases (cross-reference [Control 1.12](../../../c
 function Get-Fsi-IRMCase {
 <#
 .SYNOPSIS
-    Returns a manual-evidence gate for Purview Insider Risk Management cases.
+    Marks IRM case collection as requiring manual Purview evidence.
 .PARAMETER CaseId
     The IRM case GUID.
 .OUTPUTS
     [pscustomobject] @{ Status; Case; Alerts; Reason }
 .NOTES
-    Control: 3.4 (cross-reference Control 1.12). No case-content Graph API is asserted.
+    Control: 3.4 (cross-reference Control 1.12). Technical review: 2026-10-18.
+    No service call is made; case evidence requires manual collection and review.
 #>
     [CmdletBinding()]
     param(
@@ -1367,11 +1366,8 @@ function Get-Fsi-IRMCase {
         [Parameter(Mandatory)] $SessionContext
     )
     $meta = Get-RunMetadata -SessionContext $SessionContext -Helper 'Get-Fsi-IRMCase'
-    Write-Warning "IRM case $CaseId requires authorized manual portal export and evidence reconciliation."
-    return [pscustomobject]@{
-        Status='Pending'; Case=$null; Alerts=@(); Meta=$meta
-        Reason='ManualVerificationRequired: unsupported case API example withdrawn; no automated case-content export performed.'
-    }
+    Write-Warning "Manual IRM case evidence required for case $CaseId; Graph case inventory is not verified."
+    return [pscustomobject]@{ Status='Pending'; Case=$null; Alerts=@(); Meta=$meta; Reason='ManualVerificationRequired: collect and review Purview case evidence.' }
 }
 ```
 
@@ -1381,9 +1377,9 @@ function Get-Fsi-IRMCase {
 function Export-Fsi-IRMCaseEvidence {
 <#
 .SYNOPSIS
-    Reports Pending for the manual IRM case-evidence export requirement.
+    Reports that manual IRM case evidence is required; no case bundle is emitted.
 .NOTES
-    Control: 3.4 (cross-reference Control 1.12). Last UI verified: April 2026.
+    Control: 3.4 (cross-reference Control 1.12). Technical correction: 2026-10-18.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
     param(
@@ -1393,10 +1389,7 @@ function Export-Fsi-IRMCaseEvidence {
     )
     $meta = Get-RunMetadata -SessionContext $SessionContext -Helper 'Export-Fsi-IRMCaseEvidence'
     $case = Get-Fsi-IRMCase -CaseId $CaseId -SessionContext $SessionContext
-    return [pscustomobject]@{
-        Status=$case.Status; OutputDir=$OutputDir; ManifestPath=''
-        ArtifactCount=0; Meta=$meta; Reason=$case.Reason
-    }
+    return [pscustomobject]@{ Status=$case.Status; OutputDir=$OutputDir; ManifestPath=''; ArtifactCount=0; Meta=$meta; Reason=$case.Reason }
 }
 ```
 

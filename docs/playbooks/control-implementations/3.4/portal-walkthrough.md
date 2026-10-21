@@ -484,27 +484,27 @@ Where supported IRM signals indicate possible **AI-agent misuse by an insider**,
 
 ### 3.1 Navigation
 
-1. Sign in to the **Microsoft Purview portal** at [https://purview.microsoft.com](https://purview.microsoft.com) with an appropriate Insider Risk Management role and verify its actual case permissions/AU scope. Role alone does not determine anonymization.
+1. Sign in to the **Microsoft Purview portal** at [https://purview.microsoft.com](https://purview.microsoft.com) with an authorized **Insider Risk Management Investigators** assignment for case investigation and verify its actual case permissions and AU scope. Analysts triage alerts; role membership alone does not determine pseudonymization.
 2. From the left nav, expand **Solutions → Insider risk management**.
 3. Select **Cases** in the secondary nav.
 
 ### 3.2 Pseudonymization — confirm before you click
 
-IRM defaults to **pseudonymized usernames**; role alone does not determine the privacy setting. This subsection was checked against [IRM privacy](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-privacy) and [audit-log guidance](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log) on 2026-10-18 (no live UI review). Confirm before opening any case:
+IRM defaults to **pseudonymized usernames**; role membership alone does not determine the privacy setting. This subsection was checked against [IRM privacy](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-privacy) and [audit-log guidance](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log) on 2026-10-18 (no live UI review). Confirm before opening any case:
 
-1. Confirm actual Purview role-group membership and AU scope through the approved access-review process.
-2. Inspect **Settings → Insider Risk Management → Privacy**. Visible names alone do not prove drift: prioritized Triage Agent alerts, metadata/content, and API/eDiscovery exports have documented exceptions.
-3. Follow the firm's authorized re-identification process and capture case reference, justification, operator, and approval evidence separately.
+1. Have an authorized administrator confirm Purview role-group membership and AU scope at **Settings > Roles and groups > Role groups**, using the [IRM permissions matrix](https://learn.microsoft.com/en-us/purview/insider-risk-management-permissions).
+2. Inspect **Settings → Insider Risk Management → Privacy** and the investigation's identity-reveal record. Visible names alone do not prove drift: prioritized Triage Agent alerts, metadata/content, and API/eDiscovery exports have documented exceptions.
+3. Follow the firm's authorized identity-reveal process and capture case reference, justification, operator, and approval evidence separately.
 
-!!! warning "Do not invent an audit operation"
-    Export relevant actions from the independent Insider risk audit log and reconcile them with the firm's approval register. The reviewed guidance does not establish a universal `IRMUnmask` event or native HR/Legal approval gate; absence of that event is not proof that identity access did not occur.
+!!! warning "Unmask events and audit reconciliation"
+    Review relevant identity-reveal actions in the [independent Insider Risk Management audit log](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log) and reconcile them with the firm's approval register. Do not assume a universal UAL operation named `IRMUnmask` or a native HR/Legal approval gate; absence of that event is not proof that identity access did not occur.
 
 ### 3.3 Opening a case from an alert
 
-When a Defender XDR / Sentinel incident is correlated with an IRM alert (e.g., the same impacted user appears in a `Data leaks via Copilot` policy alert):
+When a Defender XDR / Sentinel incident is correlated with an IRM alert, record the actual policy name and source/destination alert IDs. A firm may name a policy `Data leaks via Copilot`, but this is not a Microsoft template name:
 
 1. From **Insider risk management → Alerts**, locate the alert by user identifier, severity, and date.
-2. Record the actual **policy name, template, supported host, and observed indicators**. Scenarios such as poisoned context or exfiltration are investigation hypotheses, not Microsoft template names. For supported agents review **Risky Agents (preview)**; for user behavior review the configured **Risky AI usage** or departing-user policy as applicable, per [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md).
+2. Record the actual **policy name, template, supported host, scope, and observed indicators** using [Microsoft's template catalog](https://learn.microsoft.com/en-us/purview/insider-risk-management-policy-templates) and [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). Agent-exfiltration, anomalous-prompt, departing-user, and poisoned-context scenarios are organization-defined investigation hypotheses, not four Microsoft built-in template names. For supported agents review **Risky Agents (preview)** (applied by default to Copilot Studio and Microsoft Foundry agents, not blanket Microsoft 365 Copilot activity); for user behavior review the configured **Risky AI usage** or departing-user policy as applicable.
 3. Click **Actions → Confirm alert and create case**.
 4. In the **Create case** dialog, enter:
     - **Case name** — prepend the firm incident ID (e.g., `INC-FSI-2026-0042 — IRM — anon_8a3f — Copilot exfiltration`).

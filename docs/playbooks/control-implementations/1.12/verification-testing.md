@@ -13,6 +13,8 @@
 !!! important "Evidence planes and test limits"
     Export administrator actions from the independent **Insider risk audit log** (always enabled, **180-day** retention), not invented UAL operation names. Validate alert export separately using **Export alerts** and the dedicated Sentinel IRM connector. Portal CSV anonymization does not imply API/eDiscovery export anonymization; Triage Agent prioritized alerts, activity/file metadata, and file content can expose names even with anonymization enabled. See [audit log](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log), [data sharing](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-share-data), and [privacy](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-privacy).
 
+> **2026-10-18 technical correction:** the Microsoft 365 audit prerequisite, independent IRM solution audit log, and exported SIEM alerts are three different evidence surfaces. Follow [PowerShell Setup](powershell-setup.md) for their supported collection paths. JSON filenames and fields in this catalog are firm-defined evidence records, not guaranteed native exports. Manual or missing evidence remains **Pending** until reviewed; a quiet queue or a successful local collection is not a pass. Historical UI/build claims above were not re-tested in a tenant.
+
 ---
 
 !!! warning "Non-Substitution"
@@ -35,7 +37,7 @@
 | Regulatory hedging | "Supports compliance with" / "helps meet" / "required for" / "recommended to" / "aids in." Never overclaiming language. |
 | UTC timestamping | All evidence carries `Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ'`. Local-time evidence is rejected at audit. |
 | Hashing | SHA-256 over canonical JSON; SHA-256 sidecar `.sha256` file per evidence artifact. |
-| Cloud detection | Every Pester / KQL run records `(Get-MgContext).Environment` (expected: `Global` for commercial) and tags the evidence record. |
+| Cloud context | Every review records the actual tenant and US commercial-cloud context. Capture `(Get-MgContext).Environment` only for separately authorized Graph checks; Graph is not a prerequisite of the local collector. |
 | Evidence retention | Two-tier: **operational** (per change ticket / 1–2 year working window) and **records-scope** (≥6 years on WORM, broker-dealer ≥7 years per FINRA 4511 / SEC 17a-4(f)). The records-scope tier is enforced via Purview retention labels with `deletionLocked = true`. |
 | Run identifier | `IRM112-yyyyMMdd-HHmmss-<8charGuid>` embedded in every evidence record and filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). No title substitution — "Global Administrator" is **not** a substitute for "Entra Global Admin"; "Compliance Administrator" is **not** a substitute for "Purview Compliance Admin". |
@@ -102,30 +104,17 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 
 > **SoD gate.** The catch-all `Insider Risk Management` role group bundles all permissions and is **forbidden** in FSI tenants per [Control 1.5 §RBAC](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md). TC-2 fails any environment in which it is populated.
 
-### §0.2 Module baseline (pin to known-good versions)
+### §0.2 Module baseline (record the approved versions)
 
-```powershell
-#Requires -Version 7.4
-#Requires -Modules @{ModuleName='Pester'; ModuleVersion='5.5.0'}
-#Requires -Modules @{ModuleName='ExchangeOnlineManagement'; ModuleVersion='3.5.1'}
-#Requires -Modules @{ModuleName='Microsoft.Graph.Authentication'; ModuleVersion='2.19.0'}
-#Requires -Modules @{ModuleName='Microsoft.Graph.Security'; ModuleVersion='2.19.0'}
-#Requires -Modules @{ModuleName='Microsoft.Graph.Identity.SignIns'; ModuleVersion='2.19.0'}
-#Requires -Modules @{ModuleName='Microsoft.Graph.Reports'; ModuleVersion='2.19.0'}
-#Requires -Modules @{ModuleName='MicrosoftTeams'; ModuleVersion='6.1.0'}
-#Requires -Modules @{ModuleName='Az.Accounts'; ModuleVersion='3.0.0'}
-#Requires -Modules @{ModuleName='Az.OperationalInsights'; ModuleVersion='3.6.6'}
-```
-
-> Exact module versions are **firm-pinned**, not Microsoft-mandated. Any version drift invalidates the evidence cycle and forces re-execution.
+Use PowerShell 7.4+ for the local collector and a CAB-approved `ExchangeOnlineManagement` version for the separate audit-status check, as described in [PowerShell Setup §1](powershell-setup.md#1-supported-automation-and-permissions). Graph, Teams, Azure modules, and Pester are not dependencies of that collector. Record versions of any additional tools used for separately authorized tests. The former static version list was not an evidence-backed current Microsoft support baseline.
 
 ### §0.3 PRE gates (executed once per cycle, before any TC runs)
 
 | Gate | Assertion | Owner | On-fail |
 |---|---|---|---|
-| PRE-1 | PowerShell 7.4+ Core, Pester 5.5+ pinned per §0.2 | Purview Compliance Admin | Halt cycle; remediate workstation. |
-| PRE-2 | Verify a qualifying IRM license/base-plan combination for monitored users; these are alternatives, not a mandatory E5-plus-Compliance stack. Forensic Evidence capacity add-on verified separately. | Entra Global Admin (read) | Open ticket; record TC-1 evidence with `LicenseShortfall=true`. |
-| PRE-3 | `(Get-MgContext).Environment` returns `Global` (commercial). Tagged in every evidence record. | Purview Compliance Admin | Halt cycle if `Unknown`. |
+| PRE-1 | PowerShell 7.4+ Core for local collection; applicable approved tools recorded per §0.2 | Purview Compliance Admin | Halt affected test; remediate workstation. |
+| PRE-2 | Verify a qualifying IRM license/base-plan combination for monitored users (alternatives, not a mandatory E5-plus-Compliance stack); Forensic Evidence capacity add-on verified separately where opted in. | Entra Global Admin (read) | Open ticket; record TC-1 evidence with `LicenseShortfall=true`. |
+| PRE-3 | Actual tenant ID and US commercial-cloud context are recorded; use Graph context only when a separate test calls Graph | Purview Compliance Admin | Halt affected test if context is unknown. |
 | PRE-4 | UTC clock skew vs. `time.windows.com` < 2s (`w32tm /stripchart`). | Workstation owner | Re-sync NTP; rerun. |
 | PRE-5 | Evidence root path resolves to immutable / WORM-backed share with retention label `IRM-EvidenceLock-7y` (or firm equivalent). | Purview Compliance Admin | Halt cycle. |
 | PRE-6 | `UnifiedAuditLogIngestionEnabled = $true` for the tenant. | Exchange Online Admin | Halt cycle (TC-1 cannot pass). |
@@ -152,7 +141,7 @@ function Get-Agt112CloudContext {
 }
 ```
 
-> If `GraphEnvironment = 'Unknown'`, every downstream TC is invalidated. Do **not** continue.
+> This optional helper is only for Graph-based checks and requires an existing authorized Graph session. If it returns `Unknown`, do not use that session for Graph evidence. It does not invalidate independently collected portal or Exchange evidence.
 
 ---
 
@@ -170,7 +159,7 @@ TC-N · <Title>  ·  Frequency  ·  Owner / Counter-signer
   Regulatory tie-in
 ```
 
-Mutation operations (policy creation, role-group membership change, license assignment) are **not** performed in this playbook — they live in [`powershell-setup.md`](powershell-setup.md). Verification asserts read-only state.
+Mutation operations (policy creation, role-group membership change, license assignment) require the approved portal/change procedure; the [PowerShell collector](powershell-setup.md) does not perform them. Verification itself is read-only.
 
 ---
 
@@ -185,34 +174,49 @@ Mutation operations (policy creation, role-group membership change, license assi
 
 #### Steps
 
-```powershell
-$RunId = "IRM112-$(Get-Date -AsUTC -Format 'yyyyMMdd-HHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0,8))"
-$ctx = Get-Agt112CloudContext -RunId $RunId
+In a separate Exchange Online PowerShell process, capture the prerequisite. `$RunId` is the cycle identifier generated under PRE-7 (`IRM112-yyyyMMdd-HHmmss-<8 hex>`):
 
-# 1. Confirm UAL ingestion is enabled
-Connect-ExchangeOnline -ShowBanner:$false
-$cfg = Get-AdminAuditLogConfig
-$ualOn = $cfg.UnifiedAuditLogIngestionEnabled
+```powershell
+Connect-ExchangeOnline
+$session = @(Get-ConnectionInformation |
+    Where-Object { $_.State -eq 'Connected' -and $_.IsEopSession -eq $false })
+if ($session.Count -ne 1) {
+    throw 'Expected exactly one connected Exchange Online (non-Security & Compliance) session.'
+}
+$tenantId = ([guid]$session[0].TenantID).ToString('D')
+$path = ".\Control-1.12_${tenantId}_Commercial_TC01AuditState_${RunId}.json"
+[pscustomobject]@{
+    TenantId = $tenantId
+    RunId = $RunId
+    CollectedUtc = [datetime]::UtcNow.ToString('o')
+    Session = $session[0] | Select-Object ConnectionId, State, TokenStatus, IsEopSession, ModulePrefix, TenantID
+    UnifiedAuditLogIngestionEnabled = (Get-AdminAuditLogConfig -ErrorAction Stop).UnifiedAuditLogIngestionEnabled
+} | ConvertTo-Json -Depth 5 | Out-File -LiteralPath $path -Encoding utf8 -NoClobber
+(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash |
+    Out-File -LiteralPath "$path.sha256" -Encoding ascii -NoClobber
+Disconnect-ExchangeOnline -Confirm:$false
 ```
 
-Separately open **Insider risk audit log** from an IRM tab as an authorized Auditor/catch-all member and export actual Settings/Policies/Alerts/Cases actions for the review window. This always-enabled log retains 180 days and is independent of UAL. Preserve its original organization-local timestamps and timezone.
+Do not query this property through IPPS, where it always reports `False`. The artifact is tenant- and run-bound, and `-NoClobber` makes a repeated run for the same cycle fail instead of replacing earlier evidence. Add reviewer context in the firm's evidence manifest.
+
+**Evidence collection:** separately open **Insider risk audit log** from an IRM tab as an authorized Auditor/catch-all member and export actual Settings/Policies/Alerts/Cases actions for the review window (preserving original organization-local timestamps and timezone). For destination alerts, correlate known alert IDs through the configured IRM connector; for forensic requests/clips, record request, decision, and capture timestamps from the portal. The former UAL/`OfficeActivity` query is withdrawn. Missing evidence remains **Pending**. See [PowerShell Setup §§3, 6, 7](powershell-setup.md).
 
 #### Expected
 
 - `UnifiedAuditLogIngestionEnabled = $true`.
-- Reconcile a known administrator action with the independent IRM log; an inactive period alone is not connector-failure proof.
-- Export to the firm's records-tier archive under its approved retention policy. A retention label does not extend the native 180-day IRM audit-log window.
+- Review known policy/settings activity in the independent IRM audit-log export. No administrative changes in a quiet window do not establish a failure; compare a known change with the source evidence.
+- IRM audit activity is retained in the service for **180 days**. Export it on the firm's schedule to the records-tier archive; Microsoft 365 Audit retention settings do not extend this separate log.
 
 #### Evidence Capture
 
-- `tc01-ual-state.json` — actual audit setting, session, reviewer, and check time + `.sha256`; independent IRM CSV export and known-action reconciliation.
-- Screenshot: **Insider risk audit log**, filters, actual action, and export header.
+- `Control-1.12_{TenantId}_Commercial_TC01AuditState_{RunId}.json` — `{ TenantId, RunId, CollectedUtc, Session, UnifiedAuditLogIngestionEnabled }` + `.sha256`; keep reviewer context and the independent IRM export in the firm's evidence manifest.
+- Screenshot and CSV: **Insider risk audit log > Export**, with category, actor, date range, and timezone recorded; attach the Exchange Online audit-prerequisite JSON separately.
 - Retention: 7 years (records-scope) per FINRA 4511 / SEC 17a-4(f).
 
 #### Remediation
 
-- If `UnifiedAuditLogIngestionEnabled = $false`: invoke `Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true` per [`powershell-setup.md` §2.1](powershell-setup.md). Re-run after ≥ 24h.
-- If a known action is absent: verify log permissions, filters, organization timezone, and the action's actual surface before escalation.
+- If `UnifiedAuditLogIngestionEnabled = $false`: follow the approved Control 1.7 change procedure with the Exchange **Audit Logs** role. Allow Microsoft's documented enablement and event-search delay; see [PowerShell Setup §3](powershell-setup.md#3-audit-prerequisite-and-adaptive-protection).
+- If a known administrative change is absent from the independent IRM audit export: review category, actor, time range/timezone, and permissions, then escalate with source evidence. Alert-connector health is a different test.
 
 #### Regulatory tie-in
 
@@ -427,21 +431,21 @@ FINRA RN 24-09 + Rule 2210 (AI-generated communications) · GLBA 501(b) (data-le
 
 #### Setup
 
-- HR-triggered resignation data maps UPN, `ResignationDate`, and `LastWorkingDate` with ISO 8601 date/time values. Literal source headers are configurable; `EmployeeID` is not a required mapped resignation field.
+- HR-triggered resignation data maps `UserPrincipalName`, `ResignationDate`, and `LastWorkingDate` with ISO 8601 date-time values (literal source headers are configurable; `EmployeeID` is not a required mapped resignation field).
 - Operator: Purview Compliance Admin + HR system custodian (read-only attestation).
 
 #### Steps
 
-1. Purview portal → **Settings → Data connectors → HR**: inspect upload status and records; last success ≤ 24h is a firm-defined freshness target.
-2. Confirm the actual policy trigger and configured timeframes. Entra account deletion is an alternative departing-user trigger; do not assert fixed 90-day lookback/30-day post-last-workday windows.
+1. Purview portal → **Settings > Data connectors > My connectors** → select HR connector → **Progress > Download log**. Compare timestamps and `RecordsSaved` with the approved CSV and schedule (24h is a firm-defined freshness target, not a Microsoft SLA).
+2. Confirm the "Data theft by departing users" policy is `Active` and verify its actual trigger and configured timeframes (Entra account deletion is an alternative departing-user trigger).
 3. Diff HR-source resignation roster (CSV) against IRM in-scope user count: drift = `0`.
 4. Spot-check three randomly-sampled users in scope (pseudonymized in IRM UI).
 
-Capture portal upload-status evidence and reconcile mapped source data. The [HR connector documentation](https://learn.microsoft.com/en-us/purview/import-hr-data) does not document `Get-DataInsightsImportSchedule` for this purpose. Use at most 500 records per CSV ingestion; LastWorkingDate must be within six months before or one year after upload.
+Use the [documented HR upload logs](https://learn.microsoft.com/en-us/purview/import-hr-data), not `Get-DataInsightsImportSchedule` as a presumed HR inventory cmdlet. Resignation dates use ISO 8601 date-time values; limit each CSV ingestion to at most 500 records and review the `LastWorkingDate` upload bounds (within six months before or one year after upload) in [PowerShell Setup §4](powershell-setup.md#4-hr-connector-evidence-manual).
 
 #### Expected
 
-- HR connector `Status = Healthy`, drift = 0.
+- HR upload succeeds, `RecordsSaved` reconciles with the expected source rows, and drift = 0.
 - Policy `Active`, lookback/look-ahead windows match WSP.
 - Pseudonymization is on (verified in TC-18 evidence cycle).
 
@@ -452,7 +456,7 @@ Capture portal upload-status evidence and reconcile mapped source data. The [HR 
 
 #### Remediation
 
-- Drift > 0 → investigate source mapping and upload errors for UPN / resignation / last-working date; rerun the documented uploader and preserve results.
+- Drift > 0 → review HR ingestion via [PowerShell Setup §4](powershell-setup.md#4-hr-connector-evidence-manual); investigate source field-mapping and upload errors for `UserPrincipalName` / `ResignationDate` / `LastWorkingDate`.
 
 #### Regulatory tie-in
 
@@ -650,7 +654,7 @@ NYDFS 500.06 / 500.12 · FFIEC · [Control 2.26](../../../controls/pillar-2-mana
 
     Records-tier retention for the **substance** of an alert / case / investigation outcome (analyst notes, decisions, exfiltrated-content fingerprints, regulatory submissions) is implemented separately under [Control 1.9 — Data retention and deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [Control 1.7 — Audit logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.19 — eDiscovery for agent interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md), and the firm's records-management plane.
 
-    Export required clips before expiry; an open case or custodian hold does not extend native clip retention. Base the aging register on **actual capture time**, not the request approval time.
+    Export required clips before expiry; an open case or custodian hold does not extend native clip retention. A clip that has aged past 120 days is **gone** unless exported under a documented legal hold or preserved as part of an in-progress IRM case where the export-to-evidence step has been completed. Base the aging register on **actual clip capture time**, not the request approval time.
 
 #### Setup
 
@@ -664,19 +668,19 @@ NYDFS 500.06 / 500.12 · FFIEC · [Control 2.26](../../../controls/pillar-2-mana
 1. **Quarterly attestation walkthrough** (no real user impacted):
    - IRM Admin requests a sandbox-user capture via the Forensic evidence page.
    - IRM Approver receives the request, reviews business justification, and approves OR denies.
-   - Preserve the actual request/decision and independent IRM audit-log evidence; do not require invented UAL operations or a one-hour Microsoft SLA.
+   - Capture the request and independent decision from **Forensic evidence > User management** and export relevant IRM solution audit activity; do not assume a published UAL operation or a one-hour service SLA.
 2. **Per-capture playbook** (real captures):
-   - Admin opens the capture request with a firm-recorded case reference and documented justification; Investigator-only membership cannot submit it.
+   - Admin opens a request bound to a specific case ID with documented justification (regulatory tie-in, applicable indicators, target jurisdiction); Investigator-only membership cannot submit it.
    - Approver verifies (a) state-law notice obligations are satisfied, (b) target user is on-notice via the firm's monitoring-disclosure programme, (c) capture window is minimised.
    - On approval, the capture begins. Clip metadata (RunId, case ID, target hash, jurisdiction, approval reference) recorded immediately.
-   - **Within 100 days of each clip's capture timestamp** (firm deadline), Investigator records export/preservation/discard disposition. Apply an earlier deadline if preview terms require it.
+   - **Within 100 days of each clip's capture timestamp** (20 days before clip auto-deletion, or an earlier deadline if preview terms require it), Investigator records export/preservation/discard disposition in the case timeline.
 
-Use [forensic request management](https://learn.microsoft.com/en-us/purview/insider-risk-management-forensic-evidence-manage) and [IRM permissions](https://learn.microsoft.com/en-us/purview/insider-risk-management-permissions) to verify actual approval and capture outcomes. Policy assignment alone does not authorize a user for capture; approval alone does not prove a clip was uploaded.
+**Evidence collection:** use [forensic request management](https://learn.microsoft.com/en-us/purview/insider-risk-management-forensic-evidence-manage), [IRM permissions](https://learn.microsoft.com/en-us/purview/insider-risk-management-permissions), and the independent **Insider risk audit log** to verify actual approval and capture outcomes. Policy assignment alone does not authorize a user for capture; approval alone does not prove a clip was uploaded. The former UAL/`OfficeActivity` query is withdrawn; missing evidence remains **Pending**. See [PowerShell Setup §§3, 6, 7](powershell-setup.md).
 
 #### Expected
 
 - SoD: zero overlap between Investigator and Approver memberships (re-asserts TC-2).
-- Requester and decision-maker are distinct, actual captured activity is available, and independent audit evidence is preserved.
+- Each requested/approved capture has portal request and decision evidence with distinct requester and approver, target user, actual captured activity, and timestamps; review the independent IRM audit log separately.
 - Every approved capture has a documented 100-day decision record (extend / hold / auto-delete).
 - No capture proceeds in a jurisdiction lacking a current TC-13 attestation.
 
@@ -816,7 +820,7 @@ OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (mo
 
 #### Remediation
 
-- Binding missing → re-bind per [`powershell-setup.md` §11](powershell-setup.md).
+- Binding missing → follow the approved portal change procedure in [PowerShell Setup §10](powershell-setup.md#10-dlp-integration-with-adaptive-protection); no local collector performs the change.
 
 #### Regulatory tie-in
 
@@ -909,7 +913,6 @@ NYDFS 500.17(a) · Reg S-P 2024 · FINRA 3110 · GLBA 501(b).
 
 1. Reconfirm current pseudonymization state from Purview portal privacy evidence.
 2. Export the independent IRM audit log for privacy-setting changes and relevant actors, then reconcile with the firm's approval register, case notes, and export-access evidence. Do not assume an `InsiderRiskMgmtUserUnmasked` UAL event exists or use absence of that event as PASS.
-
 3. Confirm each firm-recorded re-identification has justification, a case reference, and an authorized operator; check actual product permissions for the surface used.
 4. Confirm jurisdictional pre-conditions (TC-13) for each unmask target.
 
@@ -944,7 +947,7 @@ GLBA 501(b) · Reg S-P · State monitoring statutes · [Control 1.7](../../../co
 
 #### Steps
 
-1. Run the canonical correlation queries below over a 30-day window. Tag results with `(Get-MgContext).Environment` mapping.
+1. Select known IRM alerts in a 30-day window and record source IDs and UTC timestamps. Capture the deployed export/data-sharing configuration and the destination connector/schema before querying.
 2. For every IRM alert in the window, confirm at least one of: a corresponding Sentinel incident, a Sentinel hunting-query hit, or a documented benign-rationale memo.
 3. For Entra Agent ID activity, confirm Sentinel UEBA enrichment is present per [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
 
@@ -958,23 +961,23 @@ Use five separate evidence checks rather than assuming administrator actions, ap
 | TC-19.D — agents | Inspect supported hosts and immutable agent IDs in actual source records. Do not assume `ServicePrincipalType == "AgentIdentity"` in noninteractive user logs or fabricated IRM `AgentId` fields |
 | TC-19.E — privacy | Reconcile independent privacy-setting audit evidence and the firm's re-identification register, including API/eDiscovery export exposure |
 
-See [IRM data sharing](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-share-data) and [Sentinel UEBA schemas](https://learn.microsoft.com/en-us/azure/sentinel/ueba-reference). Validate any tenant-specific KQL against its actual table schema and a known positive-control event before using it as acceptance evidence.
+See [IRM data sharing](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-share-data), [Sentinel UEBA schemas](https://learn.microsoft.com/en-us/azure/sentinel/ueba-reference), and [PowerShell Setup §§3, 6, 7](powershell-setup.md). Validate any tenant-specific KQL against its actual table schema and a known positive-control event before using it as acceptance evidence; missing evidence remains **Pending**.
 
 #### Expected
 
 - Every IRM alert in window has a corresponding Sentinel artefact OR documented benign rationale.
-- TC-19.B documents distinct authorized requester and approver for each sampled capture.
-- TC-19.D documents supported, unsupported, and unobserved agents separately; an empty query result is not proof of coverage.
+- TC-19.B documents distinct authorized requester and approver for each sampled capture, reconciling with the role roster and SoD requirements (TC-2 / TC-12).
+- TC-19.D documents supported, unsupported, and unobserved agents separately using validated identifiers and the actual source schema; an empty query result is not proof of coverage.
 
 #### Evidence Capture
 
-- `tc19-{query}.csv` per query, plus the JSON evidence record with the workspace ID + run ID.
+- `tc19-{query}.csv` for each validated destination query or manual correlation, plus the JSON evidence record with connector, schema, workspace ID, source/destination alert IDs, UTC timestamps, and run ID.
 - Retention: 7 years.
 
 #### Remediation
 
 - Sentinel artefact missing → SOC follow-up; potentially add a hunting query / detection rule per [`troubleshooting.md` §19](troubleshooting.md).
-- TC-19.B requester/approver overlap → suspend affected capture approvals and investigate role-group integrity.
+- TC-19.B requester/approver overlap → halt all Forensic Evidence captures; suspend affected capture approvals and investigate role-group integrity.
 
 #### Regulatory tie-in
 
@@ -1072,7 +1075,7 @@ FINRA 4511 · SEC 17a-4(f) · Reg S-P · OCC examination expectations · NYDFS 5
 
 | TC | Artefact filename pattern | Storage tier | Retention | Primary regulation tie-in |
 |---|---|---|---|---|
-| TC-1 | `tc01-ual-state.json` (+ `.sha256`) | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) |
+| TC-1 | `Control-1.12_{TenantId}_Commercial_TC01AuditState_{RunId}.json` (+ `.sha256`) | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) |
 | TC-2 | `tc02-roles.json`, `tc02-sod.json` | WORM | 7 years | FINRA 3110 · SOX 404 · NYDFS 500.07 |
 | TC-3 | `tc03-indicators-export.csv`, `tc03-indicators-diff.json`, `tc03-attestation.pdf` | WORM | 7 years | FINRA 3110 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 | TC-4 | `tc04-risky-agents-policy.json`, `tc04-agent-reconciliation.csv` | WORM | 7 years | FINRA RN 24-09 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
@@ -1243,43 +1246,9 @@ priorityUserGroups:
   - "FSI-PrivilegedAdmins"
 ```
 
-### §5.3 Appendix C — Pester scaffolding skeleton
+### §5.3 Appendix C — Local collector and manual-review checks
 
-```powershell
-#Requires -Version 7.4
-#Requires -Modules @{ModuleName='Pester'; ModuleVersion='5.5.0'}
-
-BeforeAll {
-    $script:RunId = "IRM112-$(Get-Date -AsUTC -Format 'yyyyMMdd-HHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0,8))"
-    $script:CloudCtx = Get-Agt112CloudContext -RunId $script:RunId
-}
-
-Describe 'Control 1.12 · Verification (read-only)' {
-
-    Context 'PRE gates' {
-        It 'PRE-1 PowerShell baseline'   { $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7 }
-        It 'PRE-3 Cloud environment known'  { $script:CloudCtx.GraphEnvironment | Should -Not -Be 'Unknown' }
-        It 'PRE-6 UAL ingestion on'     { (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled | Should -BeTrue }
-    }
-
-    Context 'TC-2 Role SoD' {
-        It 'Catch-all role group is empty' {
-            (Get-RoleGroupMember -Identity 'Insider Risk Management').Count | Should -Be 0
-        }
-        It 'Investigator ↔ Approver overlap is empty' {
-            $inv = (Get-RoleGroupMember -Identity 'Insider Risk Management Investigators').Name
-            $apv = (Get-RoleGroupMember -Identity 'Insider Risk Management Approvers').Name
-            ($inv | Where-Object { $apv -contains $_ }).Count | Should -Be 0
-        }
-    }
-
-}
-
-AfterAll {
-    # Emit canonical evidence record per Appendix A schema
-    # …
-}
-```
+Validate the local collector in [PowerShell Setup §11](powershell-setup.md): missing inputs, empty files, and present exports all remain **Pending**; present files have matching SHA-256 hashes; the aggregate hash matches its bytes; file-access errors stop the run. Confirm that the aggregate file name and body carry the supplied tenant ID and a unique run ID, that two runs into the same evidence directory leave both artifacts intact, and that a repeated `-RunId` for the same tenant is rejected without modifying the existing file. Test with `WorkspaceId` omitted and supplied; neither case queries Sentinel. Record the manual reviewer and source evidence for each TC separately. A local packaging test is not an IRM policy-effectiveness test.
 
 This scaffold does **not** test TC-12: complete its manual request/decision/capture evidence checks separately. The previous UAL-based test could pass with no captures and relied on undocumented operations; it has been removed rather than counted as a successful automated check.
 
@@ -1310,10 +1279,10 @@ This scaffold does **not** test TC-12: complete its manual request/decision/capt
 | Adaptive Protection | IRM capability that links risk levels to dynamic enforcement in DLP / Conditional Access / DLM. |
 | Catch-all role group | The default `Insider Risk Management` role group; bundles all permissions and is **prohibited** in regulated FSI tenants. |
 | Forensic Evidence | IRM screen recordings; capacity add-on; export before capture-based 120-day deletion or an earlier applicable preview end. Admin requests / Approver approves / Investigator views. **Investigative**, not records-tier. |
-| HR connector | Configurably mapped UPN, resignation date, and last-working date for resignation-triggered scenarios; see TC-6. |
+| HR connector | Purview connector that ingests configurably mapped `UserPrincipalName`, `ResignationDate`, and `LastWorkingDate` for resignation-triggered scenarios; see TC-6. |
 | IRM Approver | Member of `Insider Risk Management Approvers`; approves Forensic Evidence captures; **must not** overlap with Investigators. |
-| IRM Investigator | Member of `Insider Risk Management Investigators`; investigates cases and views forensic captures, but cannot request captures with that assignment alone. |
-| Pseudonymization | Default-on identity masking with documented content, metadata, Triage Agent, and export exceptions; firm re-identification approval remains a separate procedure. |
+| IRM Investigator | Member of `Insider Risk Management Investigators`; investigates cases and views forensic captures, but cannot request captures with that assignment alone (Admins submit capture requests). |
+| Pseudonymization | Default-on identity masking in alerts and cases with documented content, metadata, Triage Agent, and export exceptions; firm re-identification approval remains a separate audited procedure. |
 | Priority user group | Firm-defined dynamic group of higher-risk roles (e.g., traders, wealth advisors) with bespoke IRM policies. |
 | Risky Agents | Default preview policy after supported setup/licensing; Copilot Studio, Microsoft Foundry, and P4AI SDK agents; agent alerts do not support AUs. |
 | Risky AI usage | IRM policy template covering AI prompt categories; depends on Edge / Chrome browser extension; **Windows-only**. |
@@ -1360,20 +1329,20 @@ Any modification to this verification catalogue requires:
 
 ---
 
-### §5.9 Appendix I — Extended KQL hunting library
+### §5.9 Appendix I — Correlation evidence requirements
 
-The prior six `OfficeActivity` queries depended on undocumented `InsiderRiskMgmt*` operations and payload fields. They are withdrawn rather than presented as a working Microsoft schema. Before scheduling replacement queries, publish and validate the firm's ingestion mapping:
+The former hunting library assumed undocumented `InsiderRiskMgmt*` operations and payload fields in `OfficeActivity`; those queries are withdrawn rather than presented as a working Microsoft schema. Retain these analysis objectives, and publish and validate the firm's ingestion mapping before scheduling replacement queries:
 
-| Pattern | Required source and join |
+| Analysis | Required source and join |
 |---|---|
-| Case aging | Actual IRM case export / case register: case identifier, creation, disposition time |
-| Re-identification rate | Firm approval register and relevant independent IRM audit actions; distinguish setting changes from individual access |
-| Forensic authorization vs jurisdiction | Actual capture request/decision register joined to firm-owned jurisdiction approvals; no native `Jurisdiction` audit field assumed |
-| Agent alert volume | Exported IRM alerts with supported immutable agent IDs; no service-principal UPN assumption |
-| Adaptive Protection transitions | Actual risk-level evidence and timestamped firm snapshots; do not invent a native band-change event |
-| Triage Agent agreement | Prioritized-alert explanations / analyst feedback joined to human dispositions by actual alert ID |
+| Case age and disposition | Actual IRM case export / case register plus independent IRM audit export (case identifier, creation, disposition time) |
+| Identity-reveal review | Privacy settings, firm approval register, and relevant independent IRM audit actions; distinguish setting changes from individual access |
+| Forensic authorization and expiry | Actual capture request/decision register joined to firm-owned jurisdiction approvals and actual clip capture timestamps (approval time is not capture time; no native `Jurisdiction` audit field assumed) |
+| Risky Agents alert volume | Exported IRM alerts with supported immutable agent IDs and known source/destination alert IDs (no service-principal UPN assumption) |
+| Adaptive Protection transitions | Portal risk-level/configuration snapshots and consumer-policy test evidence (do not invent a native band-change event) |
+| Triage Agent agreement | Prioritized-alert explanations / analyst feedback joined to human dispositions by validated alert ID |
 
-Keep these checks manual/pending until ingestion, schema, positive-control records, and failure behavior have been demonstrated. A custom table or scheduled query is a separate implementation change, not delivered by this documentation review.
+Keep these checks manual/pending until ingestion, schema, positive-control records, and failure behavior have been demonstrated. Follow [PowerShell Setup §6](powershell-setup.md#6-alert-routing-manual-end-to-end-correlation).
 
 ### §5.10 Appendix J — Operational dashboards reference
 
@@ -1419,7 +1388,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | In-scope incident → Regulator-notification draft | 48 hours | CCO + GC |
 | In-scope incident → Regulator-notification submission | 72 hours (NYDFS / Reg S-P) | CCO + GC |
 | Forensic Evidence capture request → Approver decision | 4 business hours | IRM Approver |
-| Forensic Evidence clip capture → export/preservation/discard decision | 100 days from actual clip capture, or earlier applicable preview deadline | IRM Investigator |
+| Forensic Evidence clip capture → 100-day export/preservation/discard decision | 100 days from actual clip capture, or earlier applicable preview deadline | IRM Investigator |
 | Triage Agent saved-auth/config refresh | 90 days | AI Governance Lead |
 | TC-22 pull-test assembly | 48 hours | CCO + records-management custodian |
 | Compensating-control exercise | N/A — all TCs target commercial capabilities | N/A |
@@ -1432,7 +1401,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | UAL ingestion disabled | TC-1 (Exchange Online setting check; independent IRM audit checked separately) | Re-enable through approved change; halt affected evidence cycle | Monitor an explicitly ingested setting snapshot; no native Sentinel boolean field asserted |
 | Catch-all role group repopulated | TC-2 | Empty membership; quarantine in-flight cases | Add Sentinel detection rule on role-group membership changes |
 | Investigator ↔ Approver overlap | TC-2, TC-12 | Halt all FE captures; demote per SoD | Make role-group changes PIM-eligible only; require dual-approver |
-| Pseudonymization disabled | TC-18 | Re-enable; halt evidence cycle | Add Sentinel detection rule on `PseudonymizationEnabled = false` |
+| Pseudonymization disabled | TC-18 | Re-enable; halt evidence cycle | Review Privacy settings and independent IRM audit export; a Sentinel rule needs a firm-implemented settings feed, not an assumed native `PseudonymizationEnabled` column |
 | Risky Agents policy missing or scope-incomplete | TC-4 | Recreate policy; reconcile inventory | Wire Control 3.1 inventory to a scheduled Risky Agents reconciliation job |
 | Risky AI extension coverage gap | TC-5 | Push Intune assignment | Add coverage SLO to operational dashboard |
 | HR connector stale > 24h | TC-6 | Manual sync; investigate field mapping | Add health-monitor alert on connector last-sync age |
@@ -1458,11 +1427,13 @@ Each cycle, the AI Governance Lead re-verifies the following Microsoft Learn top
 - Insider Risk Management — Communication Compliance integration.
 - Insider Risk Management — Defender for Cloud Apps integration.
 - Insider Risk Management — Triage Agent (Security Copilot) requirements.
-- Microsoft Sentinel — dedicated IRM alert connector; independent IRM administrator audit CSV is reviewed separately.
+- Microsoft Sentinel — dedicated IRM alert connector and actual deployed schema; independent IRM administrator audit CSV is reviewed separately (do not assume an `OfficeActivity` feed).
 - Microsoft Purview — pseudonymization and unmask audit operations.
 
 A delta against the prior cycle's watch-list is recorded in the cycle's evidence package.
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (live UI not tested)*
+**Technical propagation:** 2026-10-18 — audit-system boundary, HR schema, browser extension naming, and forensic request/capture evidence aligned with the current-source PowerShell playbook. This is not a full tenant UI or feature-lifecycle re-verification.
+
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted technical propagation; tenant UI not exercised)*

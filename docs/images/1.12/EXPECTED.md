@@ -9,7 +9,7 @@
 | `03-purview-insider-risk-create-policy.png` | Purview | Policies → Create | Policy creation wizard |
 | `04-purview-insider-risk-indicators.png` | Purview | Policy → Indicators | Risk indicators selection |
 | `05-purview-insider-risk-settings.png` | Purview | Insider risk → Settings | Global settings configuration |
-| `06-purview-insider-risk-connectors.png` | Purview | Settings → Data connectors → HR | Actual HR upload status and mapped data; applicable only when HR is the chosen trigger |
+| `06-purview-insider-risk-connectors.png` | Purview | Settings → Data connectors → My connectors | Actual HR upload status and mapped data; applicable only when HR is the chosen trigger |
 | `07-purview-insider-risk-alerts.png` | Purview | Alerts | Alert queue and triage |
 | `08-purview-insider-risk-cases.png` | Purview | Cases | Case management view |
 

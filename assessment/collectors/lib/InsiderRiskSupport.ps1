@@ -84,6 +84,30 @@ function Get-InsiderRiskUnifiedAuditDependencyState {
         return [PSCustomObject]$state
     }
 
+    $configObject = [PSCustomObject]$AuditConfig
+    $contextProperty = $configObject.PSObject.Properties['CollectionContext']
+    $state.Detail = 'Audit dependency is unknown because verified Exchange Online collection-session provenance is missing or invalid. Collect audit status manually in Exchange Online PowerShell.'
+    if ($null -eq $contextProperty -or $null -eq $contextProperty.Value) {
+        return [PSCustomObject]$state
+    }
+    $context = [PSCustomObject]$contextProperty.Value
+    foreach ($name in @('Source', 'CommandName', 'ModulePrefix', 'ConnectionId', 'TenantId', 'Verified')) {
+        if ($null -eq $context.PSObject.Properties[$name]) {
+            return [PSCustomObject]$state
+        }
+    }
+    if (
+        $context.Source -ne 'ExchangeOnline' -or
+        $context.CommandName -ne 'Get-FsiAuditAdminAuditLogConfig' -or
+        $context.ModulePrefix -ne 'FsiAudit' -or
+        $context.Verified -isnot [bool] -or -not $context.Verified -or
+        [string]::IsNullOrWhiteSpace($context.ConnectionId) -or
+        [string]::IsNullOrWhiteSpace($context.TenantId)
+    ) {
+        return [PSCustomObject]$state
+    }
+    $state.Detail = 'Audit dependency could not be derived because Section 1 audit configuration is missing or incomplete.'
+
     $rawValue = $null
     $hasField = $false
 

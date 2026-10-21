@@ -159,6 +159,8 @@ The Owner attestation should include the literal language: *"This cycle was exec
 
 The signature method is recorded in the `method` field; verification at audit replay time confirms the method satisfied the zone minimum at the cycle start.
 
+**Verified ID boundary (documentation checked 2026-10-18):** an issuer-signed credential or holder presentation is not automatically a human signature over this cycle's manifest. If Verified ID supplies identity evidence, separately demonstrate the named signer's binding to the approval statement / digest, trust validation, and archival verification. See the [sponsorship signature requirements](sponsorship-lifecycle-workflows.md#113-cryptographic-sponsor-signatures-recommended-for-z3).
+
 ---
 
 ## Section 3 — License and permissions prerequisites
@@ -173,7 +175,7 @@ Re-verify SKU and preview availability at cycle start against current Microsoft 
 | Traditional service-principal Conditional Access policy creation/modification | Microsoft Entra Workload ID Premium; P1/P2 alone is insufficient | CA-01, CA-02 |
 | Risky service-principal API | Microsoft Entra Workload ID Premium | CA-02 |
 | Entra Workload ID Premium (richer SP governance) | Entra Workload ID Premium SKU | CA-01, CA-02, CRED-04 |
-| Entra Identity Governance (access reviews, Lifecycle Workflows) | Entra ID Governance / P2 | OWN-03, OWN-04, SPONSOR-03 |
+| Entra Identity Governance (access reviews, Lifecycle Workflows) | Entra ID Governance or Entra Suite for Lifecycle Workflows; P2 covers basic access reviews, not Lifecycle Workflows | OWN-03, OWN-04, SPONSOR-03 |
 | Microsoft Entra PIM (time-bound activation of elevated roles) | Entra ID P2 | PRE-02 |
 | Microsoft 365 agent-management surfaces | Feature-specific Microsoft 365 / Copilot / Agent 365 entitlement; package API requires Agent 365 | REG-01, REG-02 |
 | Power Platform Copilot Studio admin surface | Power Platform Admin entitlement | REG-01, REG-02 |
@@ -786,6 +788,8 @@ This family verifies that Zone 3 service principals are covered by an SP-targete
 
 This family verifies that every Zone 2 / Zone 3 agent has an active Sponsor and Backup Sponsor, that sponsor approvals have an audit trail, that quarterly sponsor attestations are completed, and that sponsor departures are handled within SLA.
 
+**Implementation boundary (documentation review 2026-10-18):** test the deployed custom approval / cascade process against the [sponsorship playbook](sponsorship-lifecycle-workflows.md), not the existence of illustrative `FSI-*` names or logical `extension_*` fields. Export the decision record, named signers, scope, timestamps, and actual source relationship / containment read-backs. Native leaver-task success, a sent notification, or the collector's signed file catalog does not prove sponsor acceptance, a quarterly signature, or agent suspension. Missing custom orchestration or evidence is **ManualEvidenceRequired**, not PASS.
+
 #### 1.2-SPONSOR-01 — Active Sponsor and Backup Sponsor on every Zone 2 / Zone 3 agent
 
 - **Objective.** Confirm that every Zone 2 / Zone 3 agent has a recorded Agent Sponsor whose UPN resolves to an active Entra user, plus a Backup Sponsor distinct from the primary.
@@ -837,16 +841,16 @@ This family verifies that every Zone 2 / Zone 3 agent has an active Sponsor and 
 
 #### 1.2-SPONSOR-04 — Sponsor departure handling SLA
 
-- **Objective.** Confirm that when a Sponsor departs the firm (Lifecycle Workflows leaver event), the agents they sponsor are reassigned to a new Sponsor (or the Backup is activated) within zone SLA: Z2 ≤ 30 days, Z3 ≤ 14 days.
+- **Objective.** Verify the custom departure policy in [Sponsorship Lifecycle Workflows §4](sponsorship-lifecycle-workflows.md#4-zone-specific-sponsorship-requirements): Z2 reassignment / acceptance within 14 days or containment; Z3 immediate containment pending accepted reassignment. These are organizational requirements, not native Microsoft timers.
 - **Pre-conditions.** SPONSOR-01 PASS.
 - **Steps.**
-  1. Pull leaver events for the trailing 12 months from Lifecycle Workflows / UAL.
+  1. Reconcile authoritative human leaver events with source sponsorship. For a trailing 12-month review, verify prior export and retention; native Lifecycle Workflows history offers up to 30 days, not retrospective 12-month recovery.
   2. Cross-reference to historical Sponsor assignments.
-  3. For each departed Sponsor, find the reassignment record in the governance store; compute time-to-reassignment.
-  4. Compare to zone SLA.
+  3. For each departure, collect native task outcomes, accepted successor approval, source relationship read-backs, and independent containment timestamps.
+  4. Compare each case to the custom zone policy; a register-only update or workflow completion is not proof of reassignment / containment.
   5. Output `sponsor-04-reassignment.csv`.
 - **Expected result.** All reassignments within SLA.
-- **Pass criteria.** Z3 p95 ≤ 14 days; Z2 p95 ≤ 30 days; zero current-state agents with a departed sole Sponsor.
+- **Pass criteria.** Each Z2 case has accepted, source-verified reassignment within 14 days or verified containment at expiry; each Z3 case has immediate verified containment pending accepted reassignment. No Active agent has a departed sole Sponsor. Missing history/implementation is **ManualEvidenceRequired**, not PASS; aggregate p95 must not hide an individual policy breach.
 - **Failure remediation.** For each over-SLA case, perform reassignment immediately; root-cause the delay; if Lifecycle Workflows did not pipe the leaver event into the sponsorship reassignment workflow, remediate the workflow.
 - **Evidence.** `sponsor-04-reassignment.csv`, `sponsor-04-rca.md`.
 - **Cadence.** Zone 1 annual · Zone 2 quarterly · Zone 3 quarterly.
