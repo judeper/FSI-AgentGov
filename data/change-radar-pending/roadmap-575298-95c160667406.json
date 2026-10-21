@@ -1,0 +1,36 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:95c1606674069980d4efb769795066675f6bad2060ed6c447cf12e699d3eb336",
+  "detected_at": "2026-10-19T14:08:44Z",
+  "ga_date": "January CY2027",
+  "id": 575298,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2026",
+  "products": [
+    "SharePoint"
+  ],
+  "raw_description": "<p>This is a new web part available for modern page editors in SharePoint. The web part can be configured to use any M365 Copilot agent.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=575298",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "4.1",
+      "source": "keyword:sharepoint"
+    },
+    {
+      "id": "4.5",
+      "source": "keyword:sharepoint"
+    }
+  ],
+  "title": "SharePoint: Agent chat web part"
+}
