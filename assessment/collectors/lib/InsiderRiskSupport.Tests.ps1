@@ -3,6 +3,23 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+BeforeAll {
+    function New-VerifiedAuditConfig {
+        param([object]$Value)
+        @{
+            UnifiedAuditLogIngestionEnabled = $Value
+            CollectionContext = @{
+                Source = 'ExchangeOnline'
+                CommandName = 'Get-FsiAuditAdminAuditLogConfig'
+                ModulePrefix = 'FsiAudit'
+                ConnectionId = '33333333-3333-3333-3333-333333333333'
+                TenantId = '11111111-1111-1111-1111-111111111111'
+                Verified = $true
+            }
+        }
+    }
+}
+
 Describe 'Get-InsiderRiskFailureClassification' {
     BeforeAll {
         . "$PSScriptRoot\InsiderRiskSupport.ps1"
@@ -51,14 +68,14 @@ Describe 'Get-InsiderRiskUnifiedAuditDependencyState' {
     }
 
     It 'derives unifiedAuditDependencyMet=true from audit configuration' {
-        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig @{ UnifiedAuditLogIngestionEnabled = $true }
+        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig (New-VerifiedAuditConfig $true)
         $state.Status | Should -Be 'collected'
         $state.UnifiedAuditDependencyMet | Should -BeTrue
         $state.Classification | Should -BeNullOrEmpty
     }
 
     It 'derives unifiedAuditDependencyMet=false from audit configuration' {
-        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig @{ UnifiedAuditLogIngestionEnabled = $false }
+        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig (New-VerifiedAuditConfig $false)
         $state.Status | Should -Be 'collected'
         $state.UnifiedAuditDependencyMet | Should -BeFalse
         $state.Classification | Should -Be 'audit_dependency_not_met'
@@ -70,6 +87,39 @@ Describe 'Get-InsiderRiskUnifiedAuditDependencyState' {
         $state.UnifiedAuditDependencyMet | Should -Be $null
         $state.Classification | Should -Be 'unknown'
     }
+
+    It 'rejects a bare Boolean without session provenance' -ForEach @(
+        @{ Value = $true }, @{ Value = $false }
+    ) {
+        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig @{ UnifiedAuditLogIngestionEnabled = $Value }
+        $state.Status | Should -Be 'unknown'
+        $state.UnifiedAuditDependencyMet | Should -Be $null
+        $state.Detail | Should -Match 'provenance'
+    }
+
+    It 'rejects invalid provenance <Field>=<Value>' -ForEach @(
+        @{ Field = 'Source'; Value = 'SecurityCompliance' }
+        @{ Field = 'CommandName'; Value = 'Get-AdminAuditLogConfig' }
+        @{ Field = 'ModulePrefix'; Value = 'IPPS' }
+        @{ Field = 'ConnectionId'; Value = '' }
+        @{ Field = 'TenantId'; Value = '' }
+        @{ Field = 'Verified'; Value = $false }
+        @{ Field = 'Verified'; Value = 'true' }
+    ) {
+        $config = New-VerifiedAuditConfig $false
+        $config.CollectionContext[$Field] = $Value
+        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig $config
+        $state.Status | Should -Be 'unknown'
+        $state.Classification | Should -Be 'unknown'
+        $state.UnifiedAuditDependencyMet | Should -Be $null
+    }
+
+    It 'accepts serialized object provenance and Boolean strings' {
+        $config = New-VerifiedAuditConfig 'false' | ConvertTo-Json | ConvertFrom-Json
+        $state = Get-InsiderRiskUnifiedAuditDependencyState -AuditConfig $config
+        $state.Status | Should -Be 'collected'
+        $state.UnifiedAuditDependencyMet | Should -BeFalse
+    }
 }
 
 Describe 'New-InsiderRiskEvidence' {
@@ -78,7 +128,7 @@ Describe 'New-InsiderRiskEvidence' {
     }
 
     It 'emits manual-required policy inventory and audit-derived dependency state' {
-        $evidence = New-InsiderRiskEvidence -AuditConfig @{ UnifiedAuditLogIngestionEnabled = $true }
+        $evidence = New-InsiderRiskEvidence -AuditConfig (New-VerifiedAuditConfig $true)
         $evidence.policyInventory.status | Should -Be 'manual_required'
         $evidence.policyInventory.classification | Should -Be 'unsupported_surface'
         $evidence.auditDependency.unifiedAuditDependencyMet | Should -BeTrue
