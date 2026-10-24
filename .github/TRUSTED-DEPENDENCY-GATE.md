@@ -124,14 +124,14 @@ This policy-only branch does not activate the package change. Policy version 3
 selects the closed `exact-pins` mode and authorizes one all-or-nothing,
 base-relative four-file dependency-security and Playwright registry/container
 transaction with patch digest
-`4550e995dbc4c04620a547f5d2761216b167530f8d2758d9910fdb3eb1b805cd`:
+`45c50d89a0209f6e30dbf313e04d5e9131e8b4fe7cebaf08631c4778c0560408`:
 
 | Path | Immutable base | Exact target |
 |---|---|---|
 | `package.json` | mode `100644`, blob `a3ac17df1593fdcd2b7ef32df05c59d22c91e7e2` | mode `100644`, blob `7658846fc75529646b233f7d65bae3a877940f64`, SHA-256 `2fa708b046ed26eca609f86a7a4621031764ffc527378b6de4014a736105a2c1`, 863 bytes |
 | `package-lock.json` | mode `100644`, blob `a8e028cab203c4a160a654e672730f269b588b90` | mode `100644`, blob `e654048c252c354b6828ca8b3d1660bb6f2d44a5`, SHA-256 `33df7fe14ea672926afa15f895db2c9d20160cf2ec980429783a1713e4b3a0d0`, 76,514 bytes |
-| `.github/workflows/e2e.yml` | mode `100644`, blob `10877192c6614a3b24bc8516b9ba7822ba5f65c1` | mode `100644`, blob `47ae34707cd38ec8734619c40b402f1cf9fd46e0`, SHA-256 `42c8685cba5126671f8d6828fe5f6f8a243e6a48e17c4c5e202e8d964f4f7143`, 7,311 bytes |
-| `.github/workflows/update-snapshots.yml` | mode `100644`, blob `282b78f3ced956c178f10c66d7bbebffe98bb8e0` | mode `100644`, blob `78d0c961a529dceeff67a4d08992459bad1fdd44`, SHA-256 `56e58312ad2264ebb4abb11038eab154c0c556a77d65686b00ba99308e4de9c2`, 2,357 bytes |
+| `.github/workflows/e2e.yml` | mode `100644`, blob `10877192c6614a3b24bc8516b9ba7822ba5f65c1` | mode `100644`, blob `98ea7bf9d4d979145e88a2c81e7ff75b316ded03`, SHA-256 `37861efc71dc52fbac1615855100e2b2a0c5d5e1e7810e8c0c41118fc381e3d3`, 7,421 bytes |
+| `.github/workflows/update-snapshots.yml` | mode `100644`, blob `282b78f3ced956c178f10c66d7bbebffe98bb8e0` | mode `100644`, blob `e0bb0d86f9b8f03695a3c50d6fe845294ad1fedd`, SHA-256 `d5e3e550d8aa443170b0e7de09041e4fed23aad0e68d2903d3be7d880e6c9f69`, 2,467 bytes |
 
 This rotation retains the compatible grouped updates and aligns the Playwright
 package and containers at 1.64.1 (`markdown-it` 15.0.3, `@axe-core/playwright` 4.14.0). Its lockfile resolves `source-map-js` 1.2.2,
