@@ -54,7 +54,7 @@ loaded; do not delete it while it is still a trusted path.
 
 The only accepted activation is policy version 3's `exact-pins`,
 base-relative tree delta, identified by patch digest
-`4550e995dbc4c04620a547f5d2761216b167530f8d2758d9910fdb3eb1b805cd`.
+`45c50d89a0209f6e30dbf313e04d5e9131e8b4fe7cebaf08631c4778c0560408`.
 It contains exactly:
 
 1. `package.json`: base mode/blob
@@ -72,15 +72,15 @@ It contains exactly:
 3. `.github/workflows/e2e.yml`: base mode/blob
    `100644`/`10877192c6614a3b24bc8516b9ba7822ba5f65c1`; target
    mode/blob/SHA-256/size
-   `100644`/`47ae34707cd38ec8734619c40b402f1cf9fd46e0`/
-   `42c8685cba5126671f8d6828fe5f6f8a243e6a48e17c4c5e202e8d964f4f7143`/
-   `7311`.
+   `100644`/`98ea7bf9d4d979145e88a2c81e7ff75b316ded03`/
+   `37861efc71dc52fbac1615855100e2b2a0c5d5e1e7810e8c0c41118fc381e3d3`/
+   `7421`.
 4. `.github/workflows/update-snapshots.yml`: base mode/blob
    `100644`/`282b78f3ced956c178f10c66d7bbebffe98bb8e0`; target
    mode/blob/SHA-256/size
-   `100644`/`78d0c961a529dceeff67a4d08992459bad1fdd44`/
-   `56e58312ad2264ebb4abb11038eab154c0c556a77d65686b00ba99308e4de9c2`/
-   `2357`.
+   `100644`/`e0bb0d86f9b8f03695a3c50d6fe845294ad1fedd`/
+   `d5e3e550d8aa443170b0e7de09041e4fed23aad0e68d2903d3be7d880e6c9f69`/
+   `2467`.
 
 No vendored artifact, provenance file, `.gitattributes`, verifier/runtime
 file, `SECURITY.md`, or optional Playwright spec migration belongs in this
