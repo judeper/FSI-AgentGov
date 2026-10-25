@@ -69,7 +69,7 @@
     button.id = BUTTON_ID;
     button.type = "button";
     button.className = "md-button md-button--primary";
-    button.setAttribute("aria-label", "Print this control page or save it as a PDF");
+    button.setAttribute("aria-label", "Print / Save as PDF");
     button.textContent = "🖨 Print / Save as PDF";
     button.addEventListener("click", function () {
       window.print();
