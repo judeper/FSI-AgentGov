@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:82fce60a43847237ffa331509d5c80e2e04310530c9e092e88465d78cbba3cfe",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "April CY2027",
+  "id": 577418,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "June CY2026",
+  "products": [
+    "Dynamics 365 Customer Insights - Journeys",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>You simply describe in everyday words what you want to create and the Journey Creation Agent builds the journey for you.</p>\n<p>With Journey Creation Agent, you can:</p>\n<ul>\n<li>Use an AI-powered, guided experience for optimized outcomes.</li>\n<li>Build in minutes with no technical jargon, complex setup, or cold start. Use natural language to describe the journey you want to create.</li>\n<li>Drive results–the agent interprets your goal and asks relevant follow-up questions to refine your intent and ensure accuracy.</li>\n</ul>\n<p><strong>Scenario</strong></p>\n<p>A campaign manager wants to re-engage inactive customers but has no time to build a journey from scratch. The manager simply types, “Send a re-engagement email to customers who haven’t purchased in 90 days, follow up with a reminder with a discount.” The journey is instantly generated, with the right audience, content, and structure.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577418",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Customer Insights - Journeys: Create journeys in minutes with Journey Creation Agent"
+}

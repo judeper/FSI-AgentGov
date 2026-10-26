@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:2a273c424605113cbfeee1edb1068ec2c87a7e53f3c26ec2154762be919d830f",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "January CY2027",
+  "id": 570652,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Work IQ"
+  ],
+  "raw_description": "<p>Provide administrators with policy-based controls for governing agents and their capabilities at scale.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=570652",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Work IQ: Agent Policy Governance"
+}

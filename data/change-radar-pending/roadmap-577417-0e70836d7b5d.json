@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:0e70836d7b5d969f48bf6220d933bd514a57dd7e4aedbb11b563fb7c5d8f9091",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "April CY2027",
+  "id": 577417,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "July CY2026",
+  "products": [
+    "Dynamics 365 Customer Insights - Journeys",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Add the Outreach Optimization Agent to your journey, select the emails you want delivered, and let the agent handle timing and cadence automatically. With Outreach Optimization Agent, you can:</p>\n<ul>\n<li><strong>Start with an intelligent baseline</strong>: Outreach Optimization Agent automatically creates a baseline messaging plan for your audience by analyzing overall historical engagement patterns, producing a smart, generic plan that is designed to work well for most customers before any individual optimization kicks in.</li>\n<li><strong>Listen to incoming interactions and adapt the plan in real time</strong>: The agent continuously monitors incoming signals, including engagement and non-responsiveness, and adjusts follow-up timing and cadence, or exits the plan based on whether the goal is progressing or has been achieved.</li>\n<li><strong>Respect quiet times</strong>: The agent enforces quiet time settings as a hard constraint, ensuring that messages are never sent outside approved communication windows, even if engagement data suggests otherwise.</li>\n</ul>\n<p><strong>Scenario</strong></p>\n<p>A global retail brand uses Outreach Optimization Agent in a seasonal campaign to re-engage customers. Unlike previous efforts with fixed schedules and repeated reminders, the agent creates a smart baseline plan, then adjusts message timing for each customer based on their engagement. It slows or stops follow-ups when customers show interest and spaces out reminders for unresponsive customers, all while respecting quiet times and consent. This leads to better engagement and less message fatigue, with minimal manual intervention.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577417",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Customer Insights - Journeys: Improve engagement and message timing with Outreach Optimization Agent"
+}

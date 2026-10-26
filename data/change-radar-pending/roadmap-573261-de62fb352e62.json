@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:de62fb352e62bef51b7778ba1ea4d0f61ffe51e6babcb9d5413aba2e6514c01b",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "December CY2026",
+  "id": 573261,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>The Expense Manager Role Center is updated to provide a more focused and efficient experience for managing vendor and expense-related activities. The enhancements align the workspace with typical expense management workflows, ensuring that key information and actions are readily accessible. Where relevant, other Role Centers are also updated to include access to expense management features.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573261",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - Use Expense Manager role center"
+}

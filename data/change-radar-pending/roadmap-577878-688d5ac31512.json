@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:688d5ac315122df4bf43ccd06e12e80f6ff3ecff10d0152a41cd398032461c56",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 577878,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Payables Agent can recognize a vendor credit note and produce a purchase credit memo and applies to the original invoice, using the same draft and task experience as invoices. Note: It does not have Return Order matching functionality.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577878",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Payables Agent - Agent can process vendor credit notes"
+}

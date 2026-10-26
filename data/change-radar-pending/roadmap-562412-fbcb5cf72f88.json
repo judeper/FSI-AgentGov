@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:fbcb5cf72f880d13b39ede33a87f4a33bce6305d315c40530946053fed97e1da",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "September CY2026",
+  "id": 562412,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "July CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Viva"
+  ],
+  "raw_description": "<p>Unlock deeper insights into Copilot agent adoption with flexible, self-serve analytics. Insights global and partition analysts can access and combine granular agent usage metrics with agent and organizational attributes to uncover agent adoption trends, export and customize reporting, and drive more informed decisions, without relying on predefined dashboards.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562412",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Rolling out",
+  "suggested_controls": [],
+  "title": "Microsoft Viva: Agent metrics for custom reporting in Insights analyst workbench"
+}

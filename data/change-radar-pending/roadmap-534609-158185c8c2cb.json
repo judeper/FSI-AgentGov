@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:158185c8c2cb9a5277977f2f1e93fb79d1eb22d9fcaa3d2fd2ac1fbd9ac8a27f",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "March CY2027",
+  "id": 534609,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2025",
+  "products": [
+    "Microsoft Purview"
+  ],
+  "raw_description": "<p>Purview SDK embedded in Agent Framework SDK enables developers to seamlessly integrate enterprise-grade security, compliance, and governance into the AI agents they build. This integration enables automatic classification and protection of sensitive data, prevents data leaks and oversharing, and provides visibility and control for regulatory compliance—empowering organizations to confidently and securely adopt AI agents in complex environments.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=534609",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Purview: Purview SDK embedded in Agent Framework SDK"
+}

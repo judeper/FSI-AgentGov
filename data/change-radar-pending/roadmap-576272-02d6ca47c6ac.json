@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:02d6ca47c6ac8fa07d8107bc966e1cdc6b8d80d3693f5cf2f24227024b56f137",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "January CY2027",
+  "id": 576272,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Enable Microsoft Copilot Studio agents to browse and interact with websites as a native capability powered by the GitHub Copilot Harness. Using natural-language instructions, agents can navigate web pages, extract information, and download files. Agents can then use that information and those files alongside other tools to complete end-to-end workflows, extending their reach beyond configured knowledge sources and API-based integrations.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=576272",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Copilot Studio: Computer Use for web browsing on GitHub Copilot Harness"
+}

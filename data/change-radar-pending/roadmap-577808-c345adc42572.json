@@ -1,0 +1,25 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:c345adc42572445abcf5a6d26049a18afa5b9e3254397df568092272231c4d99",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "July CY2026",
+  "id": 577808,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2026",
+  "products": [
+    "Dynamics 365 Contact Center",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Service Operations Agent in the Copilot Service admin center delivers a unified, conversational experience for configuring Dynamics 365 Contact Center.</p>\n<p>Administrators use conversational setup and orchestration in Service Operations Agent to streamline setup tasks—configure channels, voice settings, Teams Phone extensibility, and knowledge sources. Through the same single guided assistant, administrators also set up route-to-queue rules and assignment strategies for queues and AI agents—automating and optimizing queue management and agent assignments to drive operational efficiency.</p>\n<p>With Service Operations Agent, admins can:</p>\n<ul>\n<li>Generate and validate configurations in real time.</li>\n<li>Surface diagnostics and actionable insights.</li>\n<li>Receive clear explanations for recommendations and setup choices.</li>\n</ul>\n<p>By consolidating fragmented configuration workflows, Service Operations Agent reduces errors, shortens deployment timelines, and simplifies onboarding for customers and partners.</p>\n<p>Business Value:</p>\n<p>Service Operations Agent is an AI-powered assistant that empowers admins to simplify configuration, speed up onboarding, and ensure continuous validation of changes. By leveraging conversational setup and intelligent automation, the agent eliminates manual complexity, enabling faster deployments, reducing errors, and providing real-time feedback on every change. Designed for enterprise-scale reliability, Service Operations Agent supports seamless transitions, proactive monitoring, and compliance-ready operations.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577808",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:orchestrat"
+    }
+  ],
+  "title": "Dynamics 365 Contact Center: Administrator experiences - Use Service Operations Agent to accelerate setup, onboard, and verify config changes"
+}
