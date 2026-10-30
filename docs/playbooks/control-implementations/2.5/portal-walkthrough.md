@@ -385,7 +385,7 @@ Agent Evaluation runs a curated test set (up to **100 test cases** per test set,
     - **Monitor Themes** — from **Monitor → Use → Themes**, select a theme and click **Evaluate** to generate a test set from real production question clusters
 4. Configure the test set details:
     - **Test set name** — e.g., `<agent>-regression-v<ver>`
-    - **User profile** (Commercial only) — select up to three Microsoft Entra user connections to run authenticated test cases (requires the agent to use **No authentication** or **Authenticate with Microsoft**; **Authenticate manually** and **Fabric data agents** are not supported, and user profiles cannot be added to test sets in **GCC**)
+    - **User profile** — select up to three Microsoft Entra user connections to run authenticated test cases (requires the agent to use **No authentication** or **Authenticate with Microsoft**; **Authenticate manually** and **Fabric data agents** are not supported)
     - Select **Save** to save the test set for future runs, or **Evaluate** to save and run immediately.
 
 *Screenshot description: Copilot Studio Evaluation page showing a list of saved test sets. The selected test set is open showing 47 test cases with columns for Question, Expected response, Test method (General quality, Compare meaning, Tool use, Keyword match, etc.), and Result (Pass/Fail score). The header shows "Evaluate" and "Export" actions.*
@@ -425,7 +425,7 @@ Copilot Studio Agent Evaluation includes **eight built-in test methods (graders)
 | **Compare meaning** | Scored 0–100% (default pass: 50) | Yes | AI-graded semantic alignment between actual and expected response |
 | **Tool use** | Pass / Fail | Yes (expected tools/topics) | Verifies whether the agent invoked the expected tools, actions, or topics |
 | **Keyword match** | Pass / Fail (`Any` or `All`) | Yes | Verifies whether specified keywords appear in the response |
-| **Text similarity** | Cosine similarity 0–1 (0–100%) | Yes | Embedding cosine similarity between actual and expected response (**not available in GCC**) |
+| **Text similarity** | Cosine similarity 0–1 (0–100%) | Yes | Embedding cosine similarity between actual and expected response |
 | **Exact match** | Pass / Fail | Yes | Exact string match (with optional case/punctuation normalization) |
 | **Custom** | Pass / Fail | Optional | Evaluates responses using custom maker-supplied evaluation instructions and pass/fail labels |
 
