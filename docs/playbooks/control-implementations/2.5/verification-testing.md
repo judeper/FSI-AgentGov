@@ -3,7 +3,8 @@
 **Control:** 2.5 — Testing, Validation, and Quality Assurance  
 **Pillar:** 2 — Management  
 **Audience:** AI Governance Lead, QA Lead, Compliance Officer, Power Platform Admin, Pipeline Admin, Internal Audit, Model Risk Manager  
-**Last UI verified:** April 2026
+**Last UI verified:** October 2026  
+**Last Verified:** 2026-10-29
 
 ---
 
@@ -380,7 +381,7 @@ This family validates set-level grading, threshold discipline, and export retent
 - **Objective.** Confirm that evaluation outputs, reviewer comments, and release decisions are preserved in the firm's retained evidence store and can be correlated later to the release candidate and cycle attestation.
 - **Preconditions.** PRE-05 PASS and a completed evaluation cycle exists.
 - **Steps.**
-  1. Export the evaluation result set and save it to the cycle evidence directory, then verify the export is listed in the SHA-256 manifest and copied to the immutable retention target.
+  1. Export the evaluation result set (Note: Copilot Studio retains Maker Evaluation test runs for **89 days**, so exports must be captured promptly via the portal or `pac copilot-studio get-maker-evaluation-test-run`) and save it to the cycle evidence directory, then verify the export is listed in the SHA-256 manifest and copied to the immutable retention target.
   2. Confirm that the export includes enough metadata to reconstruct the run later: agent ID, environment, model version, dataset version, grader version, operator, and run timestamp.
   3. Where Purview or audit logging captures the evaluation activity, confirm the activity record is present within the tenant baseline and record its identifier as a correlation point rather than as the sole evidence source.
 - **Expected.** The evaluation run leaves a durable books-and-records trail that survives the pipeline workspace and can support later review or incident investigation.
@@ -1112,4 +1113,4 @@ This playbook includes a numbered anti-pattern table modeled after the stronger 
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*

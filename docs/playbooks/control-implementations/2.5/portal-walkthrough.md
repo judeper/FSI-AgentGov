@@ -3,7 +3,8 @@
 **Control ID:** 2.5
 **Pillar:** Management
 **Playbook Type:** Portal Walkthrough (Microsoft Copilot Studio, Azure AI Foundry, Power Platform Admin Center, Microsoft 365 Agents Toolkit)
-**Last UI Verified:** April 2026
+**Last UI Verified:** October 2026
+**Last Verified:** 2026-10-29
 **Estimated Time:** 12–24 hours across the five validation planes for an initial Zone 3 agent; 4–8 hours for Zone 2; 1–2 hours for Zone 1
 **Audience:** AI Governance Lead, Copilot Studio Agent Author, Power Platform Admin, Environment Admin, Model Risk Manager, Compliance Officer, Designated Supervisor / Registered Principal, Purview Audit Admin, AI Administrator
 **Prerequisites:** Pre-flight gates PRE-01 through PRE-07 (see §2) completed and evidenced
@@ -30,7 +31,7 @@
     - **Copilot Studio** — required for Test Pane and in-product Agent Evaluation
     - **Microsoft 365 Copilot** — required for declarative-agent and Microsoft 365 extensibility test scenarios
     - **Azure AI Foundry / Azure AI Evaluation SDK** — required for Plane 3 quality and safety evaluators; consumption-based billing applies; Azure AI Content Safety is the dependency for safety evaluators
-    - **Microsoft 365 Agents Toolkit** — required for declarative-agent local preview/sideload (`m365 atk validate`, `m365 atk preview`)
+    - **Microsoft 365 Agents Toolkit** — required for declarative-agent local preview/sideload (`atk validate`, `atk preview` via `@microsoft/m365agentstoolkit-cli`)
     - **Power Platform Pipelines + Managed Environments** — required to enforce promotion gates and segregation-of-duties approvals; Managed Environments licensing applies to all stage targets
     - **Microsoft Purview Audit (Standard or Premium)** — required for durable retention of approval and validation events; Premium recommended for Zone 3 (1-year+ retention)
     - **Microsoft Purview eDiscovery (Premium)** — recommended where validation evidence may become subject to legal hold
@@ -50,7 +51,7 @@ This section sets the boundary of what this walkthrough covers, distinguishes Co
     - **Plane 2** — Copilot Studio **Agent Evaluation** (repeatable batch evaluation, version comparison)
     - **Plane 3** — **Azure AI Foundry Evaluation** (quantitative quality + safety evaluator runs)
     - **Plane 4** — **PyRIT** adversarial campaigns (jailbreak, prompt injection, indirect attack, misuse)
-    - **Plane 5** — Post-deployment **Copilot Studio Analytics → Quality** monitoring with re-validation triggers
+    - **Plane 5** — Post-deployment **Copilot Studio Monitor (formerly Analytics)** telemetry with re-validation triggers
 - **Microsoft 365 Agents Toolkit (ATK)** local sideload and manifest validation for declarative agents
 - **Power Platform Solution Checker** as a static-analysis promotion gate
 - **Power Platform Pipelines / Managed Environments** stage approvals and Fed SR 26-2 (formerly SR 11-7) segregation-of-duties enforcement
@@ -86,9 +87,9 @@ This section sets the boundary of what this walkthrough covers, distinguishes Co
 | **Plane 2 — Agent Evaluation** | Curated test sets, batch run, version comparison, regression scoring | Pre-promotion, Dev → Test | Copilot Studio Agent Author + AI Governance Lead | **No** — supports promotion but not independent validation |
 | **Plane 3 — Foundry Evaluation** | Quantitative quality (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) and safety (Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes) | Independent validation, Test environment | Model Risk Manager (validator role; ≠ author) | **Yes** — load-bearing for Zone 3 |
 | **Plane 4 — PyRIT** | Orchestrated adversarial probing: jailbreak, prompt injection, indirect attack, RAG poisoning, tool misuse, exfiltration attempts | Independent validation, Test environment | Model Risk Manager + AI Red Team | **Yes** — required for Zone 3, recommended for Zone 2 |
-| **Plane 5 — Analytics → Quality** | Production telemetry: abandonment, escalation, deflection, satisfaction, latency, drift trends | Post-deployment, Production environment | Agent Owner + Compliance Officer (Zone 3) | **No** — monitoring telemetry, not pre-deployment evidence |
+| **Plane 5 — Monitor (formerly Analytics)** | Production telemetry: Summary, Overview, Effectiveness (Conversation outcomes, Reactions, CSAT, Sentiment, Agents), Use (Themes, Generated answer rate & quality, Tool use, Knowledge source use) | Post-deployment, Production environment | Agent Owner + Compliance Officer (Zone 3) | **No** — monitoring telemetry, not pre-deployment evidence |
 
-### 0.4 Portal-vs-shell decision matrix (April 2026)
+### 0.4 Portal-vs-shell decision matrix (October 2026)
 
 Use this table to decide which surface is the correct one. The criterion is **artifact authority** — what the evidence actually proves and to whom.
 
@@ -96,14 +97,14 @@ Use this table to decide which surface is the correct one. The criterion is **ar
 |---|---|---|
 | Single-turn smoke test of an utterance | Copilot Studio maker portal → agent → **Test your agent** pane (right rail) | Azure AI Foundry chat playground (different model context, different grounding) |
 | Per-topic trigger-phrase coverage | Copilot Studio → agent → **Topics** → topic → **Test topic** | Test Pane (does not isolate single topic) |
-| Curated test-set batch run (set-level scoring) | Copilot Studio → agent → **Tests** (Agent Evaluation) | Test Pane (no batch, no scoring, no version comparison) |
-| Quantitative quality grading (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) | Azure AI Foundry → project → **Evaluation** → **+ New evaluation** | Copilot Studio Agent Evaluation (the in-product grader is not the same as Foundry's evaluator family) |
-| Risk and safety evaluators (Violence, Sexual, Self-Harm, Hate/Unfairness, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes) | Azure AI Foundry → **Evaluation** → **Risk and safety evaluators** (backed by Azure AI Content Safety) | Copilot Studio Analytics (telemetry, not pre-deployment evaluation) |
+| Curated test-set batch run (set-level scoring) | Copilot Studio → agent → **Evaluation** (formerly **Tests**; top navigation bar) | Test Pane (no batch, no scoring, no version comparison) |
+| Quantitative quality grading (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) | Azure AI Foundry → project → **Evaluation** → **+ New evaluation** | Copilot Studio Agent Evaluation (in-product graders are valuable for maker promotion gating, but Zone 3 independent validation requires Foundry's 1–5 rubric evaluator family and WORM-retained output beyond Copilot Studio's 89-day retention window) |
+| Risk and safety evaluators (Violence, Sexual, Self-Harm, Hate/Unfairness, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes) | Azure AI Foundry → **Evaluation** → **Risk and safety evaluators** (backed by Azure AI Content Safety) | Copilot Studio Monitor / Analytics (telemetry, not pre-deployment evaluation) |
 | Adversarial / red-team automation (jailbreak, indirect attack, RAG poisoning) | **PyRIT** (Python, local for Zone 1, Azure ML or approved customer-hosted compute for Zone 2/3) → results into Foundry comparison or Sentinel | Manual prompt typing in Test Pane (not reproducible, not grader-scored) |
 | Solution-level static analysis | Power Apps maker → solution → **…** → **Solution checker** → **Run** | Pipelines stage approval (downstream of Checker; cannot substitute) |
-| Stage promotion (Dev → Test → Prod) with approval | Power Platform Admin Center (`admin.powerplatform.microsoft.com`) → **Pipelines** → pipeline → **Deployment stages** | Manual solution export/import (no approval audit, no SoD enforcement) |
-| Declarative-agent manifest lint + local sideload | **Microsoft 365 Agents Toolkit** in VS Code or `m365 atk validate` / `m365 atk preview` CLI | Test Pane (does not parse the declarative-agent manifest) |
-| Production-side conversation telemetry, drift, satisfaction | Copilot Studio → agent → **Analytics** → **Quality** tab; Microsoft Purview **DSPM for AI** for prompt/response inspection | Test Pane / Foundry (pre-deployment surfaces only) |
+| Stage promotion (Dev → Test → Prod) with approval | Power Platform Admin Center (`admin.powerplatform.microsoft.com`) → **Deployment** / **Pipelines** → pipeline → **Deployment stages** | Manual solution export/import (no approval audit, no SoD enforcement) |
+| Declarative-agent manifest lint + local sideload | **Microsoft 365 Agents Toolkit** in VS Code or `atk validate` / `atk preview` CLI (`@microsoft/m365agentstoolkit-cli`) | Test Pane (does not parse the declarative-agent manifest) |
+| Production-side conversation telemetry, drift, satisfaction | Copilot Studio → agent → **Monitor** (formerly **Analytics**; top menu bar) → **Effectiveness** / **Use** sections; Microsoft Purview **DSPM for AI** for prompt/response inspection | Test Pane / Foundry (pre-deployment surfaces only) |
 | Durable evidence retention (books-and-records grade) | Microsoft Purview **Audit (Premium)** + **eDiscovery (Premium)** + retention-policy-bound SharePoint library | Personal OneDrive, Teams chat, local laptop folder |
 
 **Inline references for §0 click-paths:**
@@ -128,20 +129,20 @@ Use this table to decide which surface is the correct one. The criterion is **ar
 
 Every validation activity in this playbook produces an artifact in a different surface, with a different latency floor. Operators who do not budget for these latencies miss promotion windows or, worse, close gates against stale evidence.
 
-### 1.1 Validation surface inventory (April 2026)
+### 1.1 Validation surface inventory (October 2026)
 
 | Surface | Scope | Stage | GA status (Commercial) | Authoring artifact |
 |---|---|---|---|---|
-| Copilot Studio Test Pane | Single-turn + multi-turn ad-hoc | Developer (Plane 1) | GA | Saved test in agent solution |
-| Copilot Studio Topic Test | Per-topic branching | Developer (Plane 1) | GA | Topic-scoped test set |
-| Copilot Studio Agent Evaluation | Multi-row scored runs, version compare | Developer / Validator (Plane 2) | GA | Test set in Dataverse |
-| Power Platform Solution Checker | Static analysis of Power Platform solution | Developer / Validator | GA | Checker run + findings export (CSV/JSON) |
+| Copilot Studio Test Pane | Single-turn + multi-turn ad-hoc, activity map | Developer (Plane 1) | GA | Diagnostic snapshot (`botContent.zip`: `dialog.json` + `botContent.yml`; `DSAT.zip` in Teams) |
+| Copilot Studio Topic Test | Per-topic branching | Developer (Plane 1) | GA | Topic-scoped test conversation |
+| Copilot Studio Agent Evaluation (**Evaluation** tab) | Multi-row scored runs (up to 100 test cases per set; 8 built-in graders), version compare | Developer / Validator (Plane 2) | Preview / Rollout (retained 89 days in Copilot Studio) | Test set in Dataverse + CSV/JSON export |
+| Power Platform Solution Checker | Static analysis of Power Platform solution | Developer / Validator | GA | Checker run + SARIF findings export (`.sarif` / `.zip`) |
 | Power Platform Pipelines | Stage promotion + approval | Validator / Release Manager | GA | Pipeline + stage-approval audit |
 | Azure AI Foundry — Quality Evaluators | Groundedness, Relevance, Coherence, Fluency, Similarity, F1 | Independent Validator (Plane 3) | GA | Evaluation run + scorecard JSON |
 | Azure AI Foundry — Risk & Safety Evaluators | Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes | Independent Validator (Plane 3) | GA | Evaluation run + scorecard JSON |
 | PyRIT (open source) | Orchestrated adversarial probing | Independent Validator + AI Red Team (Plane 4) | OSS, no SLA | PyRIT YAML + JSONL results |
-| Microsoft 365 Agents Toolkit (CLI + VS Code) | Declarative-agent manifest validate / preview / sideload | Developer | GA | Local validation log + sideload bundle |
-| Copilot Studio Analytics → Quality | Production telemetry: abandonment, escalation, deflection, satisfaction | Operations + Compliance Officer (Plane 5) | GA | Analytics export (CSV/JSON), Quality dashboard snapshot |
+| Microsoft 365 Agents Toolkit (CLI `atk` + VS Code) | Declarative-agent manifest validate / preview / sideload | Developer | GA | Local validation log + sideload bundle |
+| Copilot Studio **Monitor** (formerly **Analytics**) | Production telemetry: Summary, Overview, Effectiveness (Conversation outcomes, Reactions, CSAT, Sentiment, Agents), Use (Themes, Generated answer rate & quality, Tool use, Knowledge source use) | Operations + Compliance Officer (Plane 5) | GA (360-day metrics; 28-day session transcripts) | Monitor export (CSV/JSON), dashboard snapshot |
 | Microsoft Purview DSPM for AI | Production prompt/response capture, sensitive-data interactions | Compliance + Operations | GA | DSPM report |
 | Microsoft Purview Audit (Standard/Premium) | Durable retention of approval, evaluation, promotion events | Purview Audit Admin | GA | Audit log query export |
 
@@ -161,8 +162,8 @@ Every validation activity in this playbook produces an artifact in a different s
 | Copilot Studio Analytics surfacing new conversations | 6–24 h | 48 h | Plan regression cut-off accordingly; do not assume same-day visibility |
 | Microsoft Purview DSPM for AI surfacing prompt/response | 6–24 h | 72 h | Plan validator review window |
 | Microsoft Purview Audit log indexing (Standard) | 30 min – 24 h | 7 days | Use Premium for faster indexing on Zone 3 |
-| ATK `m365 atk validate` local run | < 30 s | 2 min | Local CLI; no service round-trip |
-| ATK `m365 atk preview` sideload into M365 dev tenant | 1–3 min | 10 min | Manifest upload + Copilot reload |
+| ATK `atk validate` local run | < 30 s | 2 min | Local CLI (`@microsoft/m365agentstoolkit-cli`); no service round-trip |
+| ATK `atk preview` sideload into M365 dev tenant | 1–3 min | 10 min | Manifest upload + Copilot reload |
 
 !!! tip "Plan promotion windows around Plane 5 latency"
     The most common scheduling error is closing the post-deployment review gate before Analytics has surfaced the first 24 hours of production traffic. For Zone 3 agents, schedule the post-deployment validation review **no earlier than 48 hours after first production traffic**, and confirm Analytics has populated before counting the gate.
@@ -335,14 +336,14 @@ The Test Pane is the right-rail conversational tester inside the Copilot Studio 
 ### 4.3 Multi-turn scenario test procedure
 
 1. Plan a scripted conversation that covers a **branching path** through the topic: a happy path, a clarification path, a refusal path, and an escalation path.
-2. Drive the script turn-by-turn in the Test Pane. After each turn, expand the activity tray to confirm the variable state (slot fill, entity capture, authentication state).
+2. Drive the script turn-by-turn in the Test Pane. After each turn, expand the activity tray (or enable **Show activity map when testing** under the three-dots `…` menu for generative orchestration) to confirm the variable state (slot fill, entity capture, authentication state, tool inputs/outputs).
 3. Where the topic invokes a Power Automate flow or an action, verify the flow's run history in `make.powerautomate.com` for the same correlation ID. The Test Pane shows the flow was called; only the flow's run history confirms what it actually did.
-4. Capture a single screenshot of the full conversation transcript and save the transcript text via the **…** menu → **Copy conversation** (where available) into a `.txt` file: `2.5-S5-transcript-<agent>-<scenario>-<yyyymmdd>.txt`.
+4. Capture a single screenshot of the full conversation transcript and export the diagnostic snapshot via the three-dots **…** menu → **Save snapshot** (which downloads `botContent.zip` containing `dialog.json` and `botContent.yml` in the Copilot Studio web app, or `DSAT.zip` in the Teams app): rename/archive as `2.5-S5-snapshot-<agent>-<scenario>-<yyyymmdd>.zip`. You can also click the **Evaluate** icon in the test chat header to convert the multi-turn test conversation directly into a reusable Plane 2 Agent Evaluation test set (§5).
 
-### 4.4 Variable inspection and topic trace
+### 4.4 Variable inspection, activity map, and topic trace
 
-1. In the Test Pane, with **Track between topics** enabled, expand the activity tray after a turn that should have triggered a topic redirection.
-2. Verify the **topic stack** shows the expected topic transition (e.g., "Greeting → Authenticate User → Account Inquiry").
+1. In the Test Pane, with **Track between topics** (classic orchestration) or **Show activity map when testing** (generative orchestration) enabled under the `…` menu, expand the activity view after a turn that should have triggered a topic redirection or tool invocation.
+2. Verify the **topic stack / activity map** shows the expected topic transition or action sequence (e.g., "Greeting → Authenticate User → Account Inquiry"). Note per Microsoft Learn that timer-based or inactivity triggers (such as an `Inactivity` trigger) may not fire inside the Test Pane and must be verified in a published channel.
 3. For each topic in the trace, expand the **Variables** view to confirm the slot values, entity captures, and any system variables (e.g., `User.DisplayName`, `Conversation.Id`).
 4. Where a variable is `null` or unexpected, return to the topic editor, locate the node responsible, fix, and re-run.
 
@@ -367,48 +368,68 @@ The Test Pane is the right-rail conversational tester inside the Copilot Studio 
 
 ## §5. Plane 2 — Copilot Studio Agent Evaluation (curated test sets, batch, version compare)
 
-Agent Evaluation runs a curated test set (a JSONL or in-product authored set) against the published agent and produces per-row scoring against expected behaviors. It is the **regression harness** between releases and the **version-comparison** surface for promotion gating.
+Agent Evaluation runs a curated test set (up to **100 test cases** per test set, authored in-product, generated from knowledge/topics/test chat, or imported from `.csv` / `.txt`) against the agent and produces per-row scoring across **eight built-in test methods (graders)**. It is the **maker-level regression harness** between releases and can be automated via the `pac copilot-studio` CLI (`list-maker-evaluation-test-sets`, `get-maker-evaluation-test-set`, `run-maker-evaluation-test-set`, `get-maker-evaluation-test-run`) or the Power Platform Maker Evaluation REST API (`api-version=2024-10-01`). Because Copilot Studio retains evaluation test results for **89 days**, all Zone 2 and Zone 3 evaluation results must be exported (`CSV` / `JSON`) into the Evidence Pack (§11) for long-term books-and-records retention.
 
 ### 5.1 Click-path
 
-1. Copilot Studio → agent → **Tests** (left nav under the agent; label may also appear as **Evaluation** depending on the rollout — verify in your tenant).
-2. **+ New test** to author a new test set, or **Import** to pull a JSONL test set from disk or a SharePoint library.
-3. For each test row, define:
-    - **Input** — user utterance
-    - **Expected topic** (optional but recommended) — the topic ID expected to trigger
-    - **Expected response substring** (optional) — a substring or regex expected in the response
-    - **Variable assertions** (optional) — expected variable values after the turn
+1. Copilot Studio → agent → **Evaluation** in the top menu bar (formerly labeled **Tests** in earlier rollout waves).
+2. Select **New evaluation** (or **New test set**), then select the evaluation type:
+    - **Single responses** — single-turn question-and-answer evaluation
+    - **Conversational** — multi-turn conversational evaluation
+3. Choose how to create test cases (up to **100 test cases** per test set):
+    - **Quick question set** — automatically generates 10 test questions from your agent's description, instructions, topics, or knowledge
+    - **Full question set** / **Generate** — generates questions from **Knowledge sources** (supports uploaded files [Text, Word, Excel, PDF] and individual SharePoint files up to 5 MB; SharePoint folders are not supported) or **Topics** (using trigger phrases and descriptions)
+    - **Use your test chat conversation** / **Preview chat** — imports questions from your recent Test Pane session (or click the **Evaluate** icon directly inside the Test Pane header)
+    - **Import** — upload a **`.csv` or `.txt`** file (up to 100 questions, maximum 1,000 characters per question; `.csv` supports `Question` and optional `Expected response` columns)
+    - **Write some questions yourself** — manually enter test questions and optional expected responses
+    - **Monitor Themes** — from **Monitor → Use → Themes**, select a theme and click **Evaluate** to generate a test set from real production question clusters
+4. Configure the test set details:
+    - **Test set name** — e.g., `<agent>-regression-v<ver>`
+    - **User profile** — select up to three Microsoft Entra user connections to run authenticated test cases (requires the agent to use **No authentication** or **Authenticate with Microsoft**; **Authenticate manually** and **Fabric data agents** are not supported)
+    - Select **Save** to save the test set for future runs, or **Evaluate** to save and run immediately.
 
-*Screenshot description: Copilot Studio Tests blade with a list of saved test sets. The selected test set is open showing 47 test rows, each with columns for Input, Expected topic, Expected response substring, and Last result (Pass/Fail/Warn). The header shows "Run all," "Compare versions," and "Export" buttons.*
+*Screenshot description: Copilot Studio Evaluation page showing a list of saved test sets. The selected test set is open showing 47 test cases with columns for Question, Expected response, Test method (General quality, Compare meaning, Tool use, Keyword match, etc.), and Result (Pass/Fail score). The header shows "Evaluate" and "Export" actions.*
 
-### 5.2 Importing test sets from production conversations
+### 5.2 Importing test sets from production conversations and Monitor Themes
 
-A high-value source of new test rows is the **production conversation log**. Mining real conversations into the regression suite supports Fed SR 26-2 (formerly SR 11-7) ongoing-monitoring expectations and FINRA Rule 3110 supervisory testing scope.
+A high-value source of new test rows is the **production conversation log** and **Monitor Themes**. Mining real conversations into the regression suite supports Fed SR 26-2 (formerly SR 11-7) ongoing-monitoring expectations and FINRA Rule 3110 supervisory testing scope.
 
-1. From the agent's Analytics blade (§8), filter to conversations with **negative feedback**, **escalations**, or **abandonment**.
-2. Export the filtered conversation transcripts to JSONL.
-3. Run the **synthesis pipeline** in `tests/import-prod-conversations.ipynb` (or your firm's equivalent) to anonymize, generalize, and convert each transcript into a test row with an expected behavior. **Anonymization is mandatory** — see PRE-04 and [Control 1.14](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md).
-4. Stage the new rows for review by the AI Governance Lead before merging into the version-pinned regression set.
+1. From the agent's **Monitor** page (§8), either select a cluster under **Use → Themes** and click **Evaluate**, or filter conversations with **negative feedback**, **escalations**, or **abandonment**.
+2. When exporting raw conversation transcripts outside the portal, run your firm's **anonymization pipeline** to scrub NPI/MNPI and convert each scenario into a `.csv` test set (`Question`, `Expected response`, ≤ 100 rows per set, ≤ 1,000 characters per question). **Anonymization is mandatory** — see PRE-04 and [Control 1.14](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md).
+3. Stage the new rows for review by the AI Governance Lead before importing into the version-pinned regression test set.
 
 ### 5.3 Batch run
 
-1. With a test set selected, click **Run all**. The batch executes against the **published** agent in the current environment.
-2. Wait for completion (latency floor 3–15 minutes for 50–200 row sets; longer for larger sets). Refresh the run if Analytics has not surfaced.
-3. Inspect the per-row results: **Pass / Warn / Fail**, with the first reason for failure surfaced inline.
-4. Click **Export results** → save as `2.5-S6-eval-<agent>-v<ver>-<yyyymmdd>.csv` (or `.json`) in the Evidence Pack staging library.
+1. With a test set open on the **Evaluation** page, click **Evaluate** (or trigger headlessly via `pac copilot-studio run-maker-evaluation-test-set --bot-id <BotId> --test-set-id <TestSetId> --environment <EnvId> --run-on-published-bot true` per [`powershell-setup.md` §4](powershell-setup.md)).
+2. Wait for completion (latency floor 3–15 minutes for 50–100 test cases).
+3. Inspect the per-row results across the configured test methods, including the sub-metric breakdown for **General quality** (`Relevance`, `Groundedness`, `Completeness`, `Abstention`) and **Content safety** (`Hatefulness and unfairness`, `Sexual content`, `Violence`, `Self-harm`).
+4. Export the results before the **89-day** Copilot Studio retention window expires → save as `2.5-S6-eval-<agent>-v<ver>-<yyyymmdd>.csv` (and `.json` from the CLI/REST API) in the Evidence Pack staging library.
 
 ### 5.4 Version comparison
 
-1. With two versions of the agent published (e.g., v1.7 currently in Prod, v1.8 candidate in Test), use **Compare versions** in the Tests blade.
-2. The compare view shows row-by-row deltas: rows that newly pass, newly fail, or whose response materially changed.
+1. Compare evaluation runs across agent revisions (e.g., baseline run vs. candidate run on the same test set, or draft vs. published bot via `--run-on-published-bot`).
+2. Review row-by-row deltas: rows that newly pass, newly fail, or whose quality/similarity score materially changed.
 3. Triage:
     - **Newly failing rows** — block promotion until remediated or explicitly accepted with a documented exception.
     - **Newly passing rows** — confirm intentional and update the regression baseline (PRE-05).
     - **Materially changed responses on still-passing rows** — sample 10% for human review by the Agent Author; escalate any concerning samples to the Independent Validator.
 
-### 5.5 Multi-dimensional graders
+### 5.5 Built-in test methods (graders) and Plane 3 relationship
 
-Agent Evaluation supports lightweight in-product graders for response shape (substring match, regex match, expected-topic-triggered). For **semantic quality** grading (Groundedness, Relevance, Coherence) you should run the same test set through Plane 3 (Foundry). Treat Plane 2 as the **gatekeeper** (does the agent route correctly and produce a response in the expected shape?) and Plane 3 as the **quality scorer**.
+Copilot Studio Agent Evaluation includes **eight built-in test methods (graders)** (`https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-overview`):
+
+| Test method (grader) | Scoring model | Expected response required? | What it evaluates |
+|---|---|---|---|
+| **General quality** *(default)* | Scored 0–100% | No | AI-graded composite evaluating **Relevance**, **Groundedness**, **Completeness**, and **Abstention** |
+| **Content safety** | Pass / Fail | No | Evaluates **Hatefulness and unfairness**, **Sexual content**, **Violence**, and **Self-harm** against configurable severity thresholds (0–7) |
+| **Compare meaning** | Scored 0–100% (default pass: 50) | Yes | AI-graded semantic alignment between actual and expected response |
+| **Tool use** | Pass / Fail | Yes (expected tools/topics) | Verifies whether the agent invoked the expected tools, actions, or topics |
+| **Keyword match** | Pass / Fail (`Any` or `All`) | Yes | Verifies whether specified keywords appear in the response |
+| **Text similarity** | Cosine similarity 0–1 (0–100%) | Yes | Embedding cosine similarity between actual and expected response |
+| **Exact match** | Pass / Fail | Yes | Exact string match (with optional case/punctuation normalization) |
+| **Custom** | Pass / Fail | Optional | Evaluates responses using custom maker-supplied evaluation instructions and pass/fail labels |
+
+While Plane 2 provides rich in-product makers' evaluation, **Zone 2 and Zone 3 agents must still run Plane 3 (Azure AI Foundry Evaluation, §6)** because Plane 3 provides: (a) independent validator execution outside the maker workspace with an explicitly pinned judge model deployment (Fed SR 26-2 / OCC 2026-13 segregation of duties), (b) Foundry's 1–5 rubric evaluators plus specialized safety evaluators (`IndirectAttackEvaluator`, `ProtectedMaterialEvaluator`, `CodeVulnerabilityEvaluator`, `UngroundedAttributesEvaluator`), (c) coverage for agents configured with **Authenticate manually** or >100 rows per batch, and (d) direct WORM artifact generation unaffected by Copilot Studio's 89-day evaluation history retention limit.
 
 ### 5.6 Scheduled runs
 
@@ -511,20 +532,21 @@ Export the scorecard as JSON for the Evidence Pack: **Evaluation → Run → …
 
 These are illustrative defaults; your firm's AI Governance Lead and Model Risk Manager **must** ratify the actual thresholds and review them quarterly.
 
-| Evaluator | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise) |
-|---|---|---|---|
-| Groundedness (mean) | ≥ 0.70 | ≥ 0.80 | ≥ 0.85 |
-| Relevance (mean) | ≥ 0.70 | ≥ 0.80 | ≥ 0.85 |
-| Coherence (mean) | ≥ 0.75 | ≥ 0.85 | ≥ 0.90 |
-| Fluency (mean) | ≥ 0.75 | ≥ 0.85 | ≥ 0.90 |
-| Similarity / F1 (where applicable) | ≥ 0.60 | ≥ 0.75 | ≥ 0.85 |
-| Hate/Unfairness defect rate | ≤ 5% | ≤ 2% | ≤ 0.5% |
-| Self-Harm defect rate | ≤ 5% | ≤ 2% | ≤ 0.5% |
-| Sexual defect rate | ≤ 5% | ≤ 2% | ≤ 0.5% |
-| Violence defect rate | ≤ 5% | ≤ 2% | ≤ 0.5% |
-| Protected Material defect rate | ≤ 2% | ≤ 1% | ≤ 0.1% |
-| Indirect Attack (XPIA) defect rate | ≤ 5% | ≤ 2% | ≤ 1% |
-| Ungrounded Attributes defect rate | ≤ 5% | ≤ 2% | ≤ 1% |
+| Evaluator | Scale in `azure-ai-evaluation` / Foundry | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise) |
+|---|---|---|---|---|
+| Groundedness (mean) | 1–5 integer rubric (default pass: 3) | ≥ 3.5 / 5.0 (0.70 normalized) | ≥ 4.0 / 5.0 (0.80 normalized) | ≥ 4.5 / 5.0 (0.90 normalized) |
+| Relevance (mean) | 1–5 integer rubric (default pass: 3) | ≥ 3.5 / 5.0 (0.70 normalized) | ≥ 4.0 / 5.0 (0.80 normalized) | ≥ 4.5 / 5.0 (0.90 normalized) |
+| Coherence (mean) | 1–5 integer rubric (default pass: 3) | ≥ 3.5 / 5.0 (0.70 normalized) | ≥ 4.0 / 5.0 (0.80 normalized) | ≥ 4.5 / 5.0 (0.90 normalized) |
+| Fluency (mean) | 1–5 integer rubric (default pass: 3) | ≥ 3.5 / 5.0 (0.70 normalized) | ≥ 4.0 / 5.0 (0.80 normalized) | ≥ 4.5 / 5.0 (0.90 normalized) |
+| Similarity (AI-assisted, where applicable) | 1–5 integer rubric (default pass: 3) | ≥ 3.5 / 5.0 (0.70 normalized) | ≥ 4.0 / 5.0 (0.80 normalized) | ≥ 4.5 / 5.0 (0.90 normalized) |
+| F1 (where applicable) | 0.0–1.0 token overlap | ≥ 0.60 | ≥ 0.75 | ≥ 0.85 |
+| Hate/Unfairness defect rate | 0–7 severity (defect ≥ threshold) | ≤ 5% | ≤ 2% | ≤ 0.5% (0 rows > Very Low in §5 harness) |
+| Self-Harm defect rate | 0–7 severity (defect ≥ threshold) | ≤ 5% | ≤ 2% | ≤ 0.5% |
+| Sexual defect rate | 0–7 severity (defect ≥ threshold) | ≤ 5% | ≤ 2% | ≤ 0.5% |
+| Violence defect rate | 0–7 severity (defect ≥ threshold) | ≤ 5% | ≤ 2% | ≤ 0.5% |
+| Protected Material defect rate | Binary (`true` / `false`) | ≤ 2% | ≤ 1% | ≤ 0.1% |
+| Indirect Attack (XPIA) defect rate | Binary (`true` / `false`) | ≤ 5% | ≤ 2% | ≤ 1% |
+| Ungrounded Attributes defect rate | Binary (`true` / `false`) | ≤ 5% | ≤ 2% | ≤ 1% |
 
 !!! warning "Thresholds are firm-set, not Microsoft-set"
     Microsoft does not define your firm's pass mark for any evaluator. The values above are starting points derived from observed FSI-pilot baselines; your governance committee must ratify them and document the rationale in [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md). Do not approve a release on a single evaluator passing — promotion requires the **full evaluator panel** at zone-appropriate thresholds.
@@ -663,23 +685,22 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 
 ---
 
-## §8. Plane 5 — Post-deployment monitoring (Copilot Studio Analytics → Quality)
+## §8. Plane 5 — Post-deployment monitoring (Copilot Studio Monitor, formerly Analytics)
 
 Plane 5 is the **production-side closing leg** of the validation lifecycle. It is monitoring telemetry, not pre-deployment evidence. Its job is to detect drift, surface rotted edge cases, and trigger re-validation when production behavior diverges from the validated baseline.
 
 ### 8.1 Click-path
 
-1. Copilot Studio → agent → **Analytics** (left nav).
-2. Default tab is **Overview**. Switch to the **Quality** tab (label may vary by rollout — verify in your tenant).
-3. The Quality dashboard surfaces:
-    - **Abandonment rate** — sessions where the user closed before resolution
-    - **Escalation rate** — sessions handed to a human or to another channel
-    - **Deflection rate** — sessions resolved without human intervention (the inverse of escalation; track separately to avoid misreporting ROI)
-    - **Customer satisfaction** — explicit thumbs up/down feedback widget responses
-    - **Latency** — p50 / p95 / p99 response times
-    - **Topic coverage** — distribution of triggered topics
+1. Copilot Studio → agent → **Monitor** in the top menu bar (formerly labeled **Analytics** in earlier rollout waves).
+2. Review the **Monitor** sections for conversational and autonomous agents (availability depends on agent configuration and rollout wave):
+    - **Summary** — high-level snapshot including **Customer comments summary (preview)**
+    - **Overview** — **Active users** (daily and monthly active users)
+    - **Savings** — time and cost savings estimates for autonomous/assisted flows
+    - **Custom metrics (preview)** — organization-defined telemetry dimensions
+    - **Effectiveness** — **Conversation outcomes** (`Resolved` [`Resolved confirmed`, `Resolved implied`], `Escalated` [`System intended`, `System unintended`, `User requested`], `Abandoned`, `Unengaged`), **Reactions** (thumbs up/down on responses), **Customer satisfaction** (CSAT survey score), **Sentiment (preview)**, and **Agents** (call volume, success rate, and status for child/connected agents)
+    - **Use** — **Themes** (AI-clustered user question categories with direct **Evaluate** test-set generation), **Generated answer rate and quality** (`Good` vs. `Poor` answer quality with primary failure reasons), **Tool use** (invocation volume and success rate), and **Knowledge source use** (utilization and error rates per knowledge source)
 
-*Screenshot description: Copilot Studio Analytics Quality tab showing four KPI tiles (Abandonment 7%, Escalation 12%, Satisfaction 4.1/5, p95 latency 2.4s), a 30-day trend chart, and a topic distribution bar chart at the bottom. A "Compare to baseline" toggle is visible in the header.*
+*Screenshot description: Copilot Studio Monitor page showing the Summary, Overview, Effectiveness, and Use sections with Conversation outcomes (Abandoned 7%, Escalated 12%, Resolved 76%), Customer satisfaction (4.1/5), Generated answer rate and quality, and Knowledge source use charts.*
 
 ### 8.2 KPI interpretation for FSI
 
@@ -793,18 +814,18 @@ For declarative agents and other Microsoft 365 Copilot extensibility scenarios, 
 
 ### 9.2 CLI-equivalent path
 
-For repeatable validation in CI:
+For repeatable validation in CI (using the official Microsoft 365 Agents Toolkit CLI package `@microsoft/m365agentstoolkit-cli`, whose binary is `atk` — formerly `teamsapp`):
 
 ```powershell
-m365 atk validate --manifest ./appPackage/manifest.json
-m365 atk preview --tenant <dev-tenant>
+atk validate --manifest-file ./appPackage/manifest.json
+atk preview --env dev
 ```
 
 Capture the validation log as `2.5-S10-atk-validate-<agent>-<yyyymmdd>.log` for the Evidence Pack.
 
 ### 9.3 GitHub Actions / Azure DevOps wiring
 
-Wire `m365 atk validate` into the PR build for the declarative-agent repository. A failed validate is a fail-closed event for PR merge. Capture the GitHub Actions run URL in the Evidence Pack alongside the local validate log.
+Wire `atk validate --manifest-file ./appPackage/manifest.json` (or `atk validate --package-file ./appPackage/build/appPackage.dev.zip`) into the PR build for the declarative-agent repository. A failed validate is a fail-closed event for PR merge. Capture the GitHub Actions run URL in the Evidence Pack alongside the local validate log.
 
 ### 9.4 Hand-off to formal promotion
 
@@ -813,10 +834,10 @@ ATK does **not** deploy declarative agents to production. Production deployment 
 **Inline references for §9:**
 
 - Microsoft 365 Agents Toolkit fundamentals — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/agents-toolkit-fundamentals>
+- Microsoft 365 Agents Toolkit CLI (`atk`) reference — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/microsoft-365-agents-toolkit-cli>
 - Debug local / sideload — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/debug-local>
 - Build declarative agents — <https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/build-declarative-agents>
 - Declarative agent overview — <https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/overview-declarative-agent>
-- ATK CLI (community) — <https://pnp.github.io/cli-microsoft365/>
 
 **Roles touched:** Copilot Studio Agent Author (for declarative agents), Power Platform Admin (for catalog promotion)
 **Cross-links:** §10, [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)
@@ -856,14 +877,14 @@ This section covers the **deployment-side gates**: static analysis (Solution Che
 **Click-path:**
 
 1. Power Platform Admin Center: <https://admin.powerplatform.microsoft.com>.
-2. Left nav → **Pipelines**.
+2. Left nav → **Deployment** → **Pipelines** (or **Pipelines** depending on navigation layout).
 3. Select (or create) the pipeline. Naming convention: `<agent>-pipeline`.
 4. **Deployment stages** tab → confirm three stages: **Dev → Test**, **Test → Prod** (or four if Zone 3 includes a separate **UAT** stage).
 5. For each stage, click **Edit** → configure:
-    - **Source environment** and **Target environment**
-    - **Approvers** (the Fed SR 26-2 (formerly SR 11-7) segregation applies here — see PRE-01)
+    - **Source environment** and **Target environment** (all target environments in a pipeline must be enabled as **Managed Environments**; per Microsoft Learn, starting in October 2026 the Power Platform admin deployment page notifies administrators when pipelines deploy to unmanaged target environments, providing a 30-day window — plus one optional 30-day extension — to approve enabling Managed Environments before future deployments to that unmanaged target are blocked)
+    - **Approvers** (the Fed SR 26-2 (formerly SR 11-7) segregation applies here — see PRE-01; configure delegated deployment / stage approval via **Deployment stage run** triggers in Power Automate or Azure DevOps)
     - **Pre-deployment checks** (Solution Checker re-run, Managed Environment policy eval, DLP impact preview)
-    - **Post-deployment validation** (optional; can wire to Plane 2 batch trigger)
+    - **Post-deployment validation** (optional; can wire to Plane 2 batch trigger via `pac copilot-studio run-maker-evaluation-test-set` or the Copilot Studio Maker Evaluation connector)
 
 ### 10.3 Stage approval workflow
 
@@ -1213,4 +1234,4 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*

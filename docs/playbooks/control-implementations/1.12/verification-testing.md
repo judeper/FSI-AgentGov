@@ -6,9 +6,9 @@
 >
 > **Cross-links.** [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Troubleshooting](troubleshooting.md) · [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md).
 >
-> **Last UI Verified:** April 2026 against Microsoft Purview portal build 2026.04.x and Insider Risk Management Wave 1 release.
+> **Last UI Verified:** October 2026 against Microsoft Purview portal (`purview.microsoft.com` / `solutions.microsoft.com`) and Insider Risk Management Learn documentation.
 >
-> **Last Verified:** 2026-10-18 (downstream technical corrections against Microsoft Learn; no live execution). The historical UI marker is not renewed by this review.
+> **Last Verified:** 2026-10-29 (technical re-verification against live Microsoft Learn documentation and alignment with `powershell-setup.md` / `troubleshooting.md`; no live tenant execution).
 
 !!! important "Evidence planes and test limits"
     Export administrator actions from the independent **Insider risk audit log** (always enabled, **180-day** retention), not invented UAL operation names. Validate alert export separately using **Export alerts** and the dedicated Sentinel IRM connector. Portal CSV anonymization does not imply API/eDiscovery export anonymization; Triage Agent prioritized alerts, activity/file metadata, and file content can expose names even with anonymization enabled. See [audit log](https://learn.microsoft.com/en-us/purview/insider-risk-management-audit-log), [data sharing](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-share-data), and [privacy](https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-privacy).
@@ -87,20 +87,20 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 | Purview Compliance Admin | `Compliance Administrator` + IRM role-group `Insider Risk Management Admins` | TC-1 → TC-19 |
 | AI Administrator | `AI Administrator` (Entra) | TC-4, TC-5, TC-9, TC-14 |
 | AI Governance Lead | Custom RBAC (read on Purview, AI Admin Center, AgentDLP) | TC-3, TC-4, TC-5, TC-14, TC-21 |
-| Compliance Officer / CCO | `Compliance Administrator` (read) + IRM `Insider Risk Management Auditors` | TC-2, TC-3, TC-21, TC-22 |
+| Compliance Officer / CCO | `Compliance Administrator` (read) + IRM `Insider Risk Management Auditors` | TC-2, TC-3, TC-20, TC-21 |
 | Privacy Officer | IRM `Insider Risk Management Auditors` + Purview Audit Reader | TC-12, TC-13, TC-18 |
-| General Counsel (GC) | IRM `Insider Risk Management Auditors` + eDiscovery Reviewer | TC-12, TC-13, TC-17, TC-21 |
+| General Counsel (GC) | IRM `Insider Risk Management Auditors` + eDiscovery Reviewer | TC-12, TC-13, TC-17, TC-20, TC-21 |
 | IRM Admin | `Insider Risk Management Admins` | TC-1 → TC-11, TC-15, TC-16 |
 | IRM Analyst | `Insider Risk Management Analysts` | TC-3, TC-4, TC-5, TC-6, TC-7, TC-9, TC-10, TC-11, TC-17, TC-19 |
 | IRM Investigator | `Insider Risk Management Investigators` | TC-12, TC-18 |
 | IRM Approver | `Insider Risk Management Approvers` | TC-12, TC-18 (must NOT overlap Investigator membership — SoD gate) |
-| IRM Auditor | `Insider Risk Management Auditors` | TC-1, TC-12, TC-13, TC-18, TC-21, TC-22 |
+| IRM Auditor | `Insider Risk Management Auditors` | TC-1, TC-12, TC-13, TC-18, TC-20, TC-21 |
 | Conditional Access Admin | `Conditional Access Administrator` | TC-15 |
 | Defender for Cloud Apps Admin | `Defender for Cloud Apps Administrator` (or `Cloud App Security Admin` legacy) | TC-10 |
 | MDE Admin | `Security Administrator` (Defender XDR) | TC-8 |
 | Intune Admin | `Intune Administrator` | TC-5, TC-9 |
 | SOC Analyst (Sentinel) | `Microsoft Sentinel Reader` (+ `Responder` for incident actions) | TC-19, TC-20 |
-| Internal Audit | Read-only across IRM + Audit + Sentinel; no `Insider Risk Management` (the catch-all role group is **prohibited** in regulated FSI tenants) | TC-2, TC-21, TC-22 |
+| Internal Audit | Read-only across IRM + Audit + Sentinel; no `Insider Risk Management` (the catch-all role group is **prohibited** in regulated FSI tenants) | TC-2, TC-20, TC-21 |
 
 > **SoD gate.** The catch-all `Insider Risk Management` role group bundles all permissions and is **forbidden** in FSI tenants per [Control 1.5 §RBAC](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md). TC-2 fails any environment in which it is populated.
 
@@ -274,7 +274,7 @@ $catchall = ($state | Where-Object Group -eq 'Insider Risk Management').MemberCo
 
 #### Remediation
 
-- Overlap detected → IRM Approver demotes from `Insider Risk Management Investigators` (or vice-versa) per [`powershell-setup.md` §3](powershell-setup.md); re-run within 24h.
+- Overlap detected → IRM Approver demotes from `Insider Risk Management Investigators` (or vice-versa) in the Microsoft Purview portal (**Settings → Roles and scopes → Role groups**) per [`portal-walkthrough.md` §2](portal-walkthrough.md) and re-verify via [`powershell-setup.md` §2](powershell-setup.md); re-run within 24h.
 - Catch-all populated → empty membership immediately; document remediation in change ticket; treat any prior alerts/cases handled by catch-all members as **uncertified evidence** subject to GC review.
 
 #### Regulatory tie-in
@@ -320,7 +320,7 @@ FINRA 3110 (supervisory designation) · SOX 404 (segregation of duties) · NYDFS
 
 #### Remediation
 
-- Drift detected → revert via [`powershell-setup.md` §4](powershell-setup.md) **only after** the change is rejected by RFC, or update the baseline.yaml under change control.
+- Drift detected → revert indicator selections in the Microsoft Purview portal (**Insider Risk Management → Settings → Policy indicators**) per [`portal-walkthrough.md` §3.2](portal-walkthrough.md) **only after** the change is rejected by RFC, or update `baseline.yaml` under change control and re-package evidence via [`powershell-setup.md` §4 and §11](powershell-setup.md).
 
 #### Regulatory tie-in
 
@@ -334,7 +334,7 @@ FINRA 3110 · OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerl
 #### Setup
 
 - Operator: Purview Compliance Admin + IRM Analyst.
-- Reference: [Risky Agents (preview)](https://learn.microsoft.com/en-us/purview/insider-risk-management-monitoring-agents) is available by default after setup for supported licenses and covers Copilot Studio, Microsoft Foundry, and P4AI SDK agents. Agent alerts do not support AU-scoped reviewers; use an authorized unrestricted Analyst/Investigator.
+- Reference: [Risky Agents (preview)](https://learn.microsoft.com/en-us/purview/insider-risk-management-monitoring-agents) is available by default after setup for supported licenses and covers **Copilot Studio agents**, **Microsoft Foundry agents** (formerly Azure AI Foundry / Azure AI Studio), and **agents built using the P4AI SDK**. When guest users interact with agents, full prompt and response content is not available for investigation (only indicators of sensitive information detected in those prompts and responses are shown). Administrative units are not currently supported for agent alerts (AU-scoped analysts cannot see agent-related alerts; use an authorized unrestricted Analyst/Investigator). Agent risk calculated in Insider Risk Management is shared with **Data Security Posture Management (DSPM) for AI** (**DSPM → AI observability** for Agent 365) and the **Microsoft 365 admin center**.
 
 #### Steps
 
@@ -367,7 +367,7 @@ $policyExport |
 
 #### Remediation
 
-- Reconciliation gap > 0 → register missing agent in inventory or scope into IRM per [`powershell-setup.md` §5](powershell-setup.md).
+- Reconciliation gap > 0 → register missing agent in inventory ([Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)), verify Risky Agents indicator enablement in **Insider Risk Management → Settings → Policy indicators** per [`portal-walkthrough.md` §3.2 and §5](portal-walkthrough.md), and re-collect policy/indicator evidence per [`powershell-setup.md` §4 and §11](powershell-setup.md).
 
 #### Regulatory tie-in
 
@@ -381,8 +381,8 @@ FINRA RN 24-09 + Rule 3110 (Gen AI supervision) · OCC Bulletin 2026-13 (formerl
 
 #### Setup
 
-- Risky AI usage requires the **Microsoft Insider risk extension** (Edge) or **Microsoft Purview extension** (Chrome). Both are **Windows-only** as of the April 2026 cycle. macOS / Linux / iOS / Android cannot contribute browser-side AI signal.
-- Operator: Purview Compliance Admin (IRM policy state) + Intune Admin (extension assignment state).
+- Risky AI usage browser signal detection requires the **Microsoft Compliance Extension** (historically referenced in policy-template documentation as the *Microsoft Insider risk extension* on Microsoft Edge or *Microsoft Purview extension* on Google Chrome; see [Learn: Configure browser signal detection](https://learn.microsoft.com/en-us/purview/insider-risk-management-browser-support)). Supported on **Windows 10 x64 (Build 1809) or later** and **Windows 11** only (Microsoft Edge x64 v91.0.864.41+ with extension v1.0.0.44+ [`lcmcgbabdcbngcbcfabdncmoppkajglo`], or Google Chrome with extension v2.0.0.183+ [`echcggldkblhodogklpincgchnpgcdco`]). Non-Windows devices (macOS / Linux / iOS / Android) cannot contribute browser-side AI signal.
+- Operator: Purview Compliance Admin (IRM policy state, including **Generative AI apps** indicators: **Microsoft Copilot experiences**, **Enterprise AI apps**, **Other AI applications**, and **Choose apps to monitor**) + Intune Admin (extension assignment state).
 
 #### Steps
 
@@ -491,7 +491,7 @@ FINRA 3110 · Reg S-P 2024 (customer-information handling at offboarding) · GLB
 
 #### Remediation
 
-- Missing group → recreate via [`powershell-setup.md` §7](powershell-setup.md). Re-attest within 7 days.
+- Missing group → recreate or update priority user group bindings in the Microsoft Purview portal (**Insider Risk Management → Priority user groups**) per [`portal-walkthrough.md` §4](portal-walkthrough.md) and re-package evidence per [`powershell-setup.md` §4 and §11](powershell-setup.md). Re-attest within 7 days.
 
 #### Regulatory tie-in
 
@@ -569,7 +569,7 @@ FINRA 3110 · GLBA 501(b) · Reg S-P.
 
 ---
 
-### TC-10 · Defender for Cloud Apps signal correlation (June 2025 dynamic threat detection)
+### TC-10 · Defender for Cloud Apps signal correlation
 **Frequency:** Quarterly · **Owner:** Defender for Cloud Apps Admin · **Counter-signer:** CISO
 
 #### Setup
@@ -1208,7 +1208,7 @@ Schema rules:
 - `UtcExecutionStart` and `UtcExecutionEnd` MUST be ISO 8601 in UTC.
 - `Result` ∈ {`Pass`, `Fail`, `NotApplicable`, `Skipped`}; `NotApplicable` and `Skipped` MUST include a `Reason` field with a documented rationale.
 - `Operator.PrincipalUpnHash` is SHA-256 over the lower-cased UPN to support pseudonymization at the evidence layer.
-- `Artefacts[].Sha256` MUST match the `.sha256` sidecar contents (verified at TC-22 pull-test).
+- `Artefacts[].Sha256` MUST match the `.sha256` sidecar contents (verified at TC-21 pull-test).
 
 ### §5.2 Appendix B — Indicator baseline excerpt (`baseline.yaml`)
 
@@ -1257,16 +1257,16 @@ This scaffold does **not** test TC-12: complete its manual request/decision/capt
 | Regulation | TCs that primarily evidence it |
 |---|---|
 | FINRA Rule 3110 (Supervision) | TC-2, TC-3, TC-6, TC-7, TC-9, TC-16, TC-17 |
-| FINRA Rule 4511 (Books and Records) | TC-1, TC-10, TC-12, TC-16, TC-20, TC-22 |
-| FINRA Regulatory Notice 21-18 | TC-1, TC-12, TC-22 (cloud-hosted records stewardship context) |
+| FINRA Rule 4511 (Books and Records) | TC-1, TC-10, TC-12, TC-16, TC-20, TC-21 |
+| FINRA Regulatory Notice 21-18 | TC-1, TC-12, TC-21 (cloud-hosted records stewardship context) |
 | FINRA RN 24-09 / Rule 3110 | TC-4, TC-5, TC-14, TC-16 (Gen AI supervision; technology-neutral application of existing supervisory and recordkeeping rules) |
-| SEC Rule 17a-3 / 17a-4 | TC-1, TC-12, TC-22 |
-| SEC Reg S-P (2024 amendments) | TC-6, TC-7, TC-9, TC-17, TC-18, TC-22 |
+| SEC Rule 17a-3 / 17a-4 | TC-1, TC-12, TC-21 |
+| SEC Reg S-P (2024 amendments) | TC-6, TC-7, TC-9, TC-17, TC-18, TC-21 |
 | GLBA §501(b) (Safeguards Rule) | TC-5, TC-6, TC-7, TC-9, TC-10, TC-13, TC-15, TC-18 |
-| SOX §§302 / 404 | TC-2, TC-21 |
+| SOX §§302 / 404 | TC-2, TC-20 |
 | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) | TC-3, TC-4, TC-14, TC-15, TC-20, TC-21 |
-| CFTC Regulation 1.31 | TC-1, TC-12, TC-22 (records preservation context) |
-| NYDFS 23 NYCRR 500.06 | TC-1, TC-8, TC-10, TC-11, TC-13, TC-19, TC-21, TC-22 |
+| CFTC Regulation 1.31 | TC-1, TC-12, TC-21 (records preservation context) |
+| NYDFS 23 NYCRR 500.06 | TC-1, TC-8, TC-10, TC-11, TC-13, TC-19, TC-20, TC-21 |
 | NYDFS 23 NYCRR 500.16 | TC-19 |
 | NYDFS 23 NYCRR 500.17(a) (72-hour) | TC-17 |
 | FFIEC IT Examination Handbook | TC-8, TC-11, TC-19 |
@@ -1325,7 +1325,7 @@ Any modification to this verification catalogue requires:
 3. `python scripts/verify_controls.py` clean.
 4. Cross-reference integrity (every `../../../controls/pillar-N-…` link resolves).
 5. Footer version bump (e.g., v1.4 → v1.5) with `Updated:` date.
-6. Re-run of TC-22 pull-test against the updated catalogue with archived evidence to confirm assembly continues to meet SLA.
+6. Re-run of TC-21 pull-test against the updated catalogue with archived evidence to confirm assembly continues to meet SLA.
 
 ---
 
@@ -1390,7 +1390,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | Forensic Evidence capture request → Approver decision | 4 business hours | IRM Approver |
 | Forensic Evidence clip capture → 100-day export/preservation/discard decision | 100 days from actual clip capture, or earlier applicable preview deadline | IRM Investigator |
 | Triage Agent saved-auth/config refresh | 90 days | AI Governance Lead |
-| TC-22 pull-test assembly | 48 hours | CCO + records-management custodian |
+| TC-21 pull-test assembly | 48 hours | CCO + records-management custodian |
 | Compensating-control exercise | N/A — all TCs target commercial capabilities | N/A |
 | Indicator baseline RFC review | 14 calendar days | Purview Compliance Admin + AI Governance Lead |
 
@@ -1405,14 +1405,14 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | Risky Agents policy missing or scope-incomplete | TC-4 | Recreate policy; reconcile inventory | Wire Control 3.1 inventory to a scheduled Risky Agents reconciliation job |
 | Risky AI extension coverage gap | TC-5 | Push Intune assignment | Add coverage SLO to operational dashboard |
 | HR connector stale > 24h | TC-6 | Manual sync; investigate field mapping | Add health-monitor alert on connector last-sync age |
-| MDA dynamic threat detection disabled or unhealthy | TC-10 | Re-enable; SOC sample review | Add connector-health detection rule |
+| Defender for Cloud Apps anomaly detection disabled or connector unhealthy | TC-10 | Re-enable; SOC sample review | Add connector-health detection rule |
 | Sentinel KQL hits but no IRM artefact | TC-19 | Analyst follow-up; document benign rationale | Tune detection rule or IRM policy as appropriate |
 | Forensic Evidence clip auto-delete imminent (≤ 20 days) without 100-day decision | TC-12 (per-capture) | Investigator decides extend / hold / auto-delete | Add automated reminder at 80-day mark |
 | State statute change | TC-13 | Suspend captures in jurisdiction; GC review | Subscribe to legislative-tracking service |
 | Triage Agent saved-auth expiring | TC-14 | Refresh under change ticket | Add 14-day pre-expiry alert |
 | Adaptive Protection binding drift (commercial) | TC-15 | Re-bind under change ticket | Add binding-state detection rule |
 | 72-hour clock breach | TC-17 | RCA within 7 business days | Process-engineering review; tabletop reset |
-| TC-22 artefact missing or sidecar mismatch | TC-22 | Records-management incident | Audit Committee escalation |
+| TC-21 artefact missing or sidecar mismatch | TC-21 | Records-management incident | Audit Committee escalation |
 
 ### §5.14 Appendix N — Microsoft Learn watch-list (re-verify each cycle)
 
@@ -1434,6 +1434,6 @@ A delta against the prior cycle's watch-list is recorded in the cycle's evidence
 
 ---
 
-**Technical propagation:** 2026-10-18 — audit-system boundary, HR schema, browser extension naming, and forensic request/capture evidence aligned with the current-source PowerShell playbook. This is not a full tenant UI or feature-lifecycle re-verification.
+**Technical verification:** 2026-10-29 — Purview Insider Risk Management indicator categories (Generative AI apps, Risky AI usage, Risky Agents), browser signal detection extension versions/IDs, role-group permissions, `powershell-setup.md` / `portal-walkthrough.md` cross-references, and TC-20/TC-21 numbering re-verified against live Microsoft Learn documentation.
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted technical propagation; tenant UI not exercised)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*

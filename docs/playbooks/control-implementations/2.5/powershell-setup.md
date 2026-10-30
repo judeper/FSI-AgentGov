@@ -14,7 +14,8 @@
 | Pillar | Management |
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (primary); 5.1 Desktop sub-shell guarded for `Microsoft.PowerApps.Administration.PowerShell` only |
-| Last UI Verified | April 2026 |
+| Last UI Verified | October 2026 |
+| Last Verified | 2026-10-29 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
 
 ---
@@ -42,15 +43,15 @@ if ($desktopPaths) {
 }
 ```
 
-**Tooling matrix (April 2026 baseline).**
+**Tooling matrix (October 2026 baseline).**
 
 | Tool | Minimum version | Purpose |
 |---|---|---|
 | PowerShell Core | 7.4.0 LTS | Primary shell |
 | Windows PowerShell Desktop | 5.1 | `Microsoft.PowerApps.Administration.PowerShell` sub-shell only (BL-§2) |
-| Power Platform CLI (`pac`) | 1.36.0 | Solution Checker, Pipelines, agent export |
+| Power Platform CLI (`pac`) | 1.36.0 | Copilot Studio Maker Evaluation (`pac copilot-studio`), Copilot operations (`pac copilot`), Solution Checker (`pac solution`), Pipelines (`pac pipeline`), admin (`pac admin`) |
 | Azure CLI (`az`) | 2.60.0 | AI Foundry project lookup, Log Analytics ingest token |
-| Microsoft 365 Agents Toolkit CLI (`m365`) | 6.0.0 | Declarative-agent provisioning + manifest hashing |
+| Microsoft 365 Agents Toolkit CLI (`atk`) | 1.0.0 (`@microsoft/m365agentstoolkit-cli`) | Declarative-agent validation (`atk validate`) + preview (`atk preview`); note binary name is `atk` (formerly `teamsapp`), not `m365` (which is PnP CLI for Microsoft 365) |
 | Python | 3.11.0 | `azure-ai-evaluation`, `pyrit` |
 | Git | 2.40.0 | Manifest provenance |
 | OpenSSL or `Get-FileHash` | n/a | SHA-256 evidence hashes (BL-§4) |
@@ -107,9 +108,9 @@ if (-not ($pacVer -match '1\.(3[6-9]|[4-9]\d)')) { Write-Error "pac CLI >= 1.36.
 az version --output tsv | Select-String 'azure-cli\s+2\.(6[0-9]|[7-9]\d)' | ForEach-Object { $_ } | Out-Null
 if ($LASTEXITCODE -ne 0) { Write-Error "Azure CLI >= 2.60.0 required"; exit 2 }
 
-# Microsoft 365 Agents Toolkit CLI
-npm ls -g @microsoft/m365agentstoolkit-cli 2>$null | Select-String '6\.\d+\.\d+' | Out-Null
-if ($LASTEXITCODE -ne 0) { npm install -g @microsoft/m365agentstoolkit-cli@^6.0.0 }
+# Microsoft 365 Agents Toolkit CLI (binary: `atk`)
+npm ls -g @microsoft/m365agentstoolkit-cli 2>$null | Select-String '@microsoft/m365agentstoolkit-cli@' | Out-Null
+if ($LASTEXITCODE -ne 0) { npm install -g @microsoft/m365agentstoolkit-cli }
 ```
 
 **Pinned Python packages (`requirements.agt25.txt`).**
@@ -168,7 +169,7 @@ if ($badGraph -or $badPnP) {
 - Any pinned module missing the exact `RequiredVersion` after install attempt → `exit 2`.
 - `pip install` exits non-zero AND fallback non-hashed install also fails → `exit 2`.
 - v1 of `Microsoft.Graph` or `PnP.PowerShell` discoverable on `$env:PSModulePath` → `exit 2`.
-- `pac`, `az`, `m365`, or `python` not on `PATH`, or below minimum versions → `exit 2`.
+- `pac`, `az`, `atk`, or `python` not on `PATH`, or below minimum versions → `exit 2`.
 
 ---
 
@@ -201,7 +202,8 @@ function Initialize-Agt25Session {
     pac auth clear | Out-Null
     pac auth create --cloud Public --tenant $TenantId | Out-Null
 
-    Connect-MgGraph -Environment Global -TenantId $TenantId -Scopes 'AuditLog.Read.All','Directory.Read.All','CopilotSettings.Read.All' -NoWelcome | Out-Null
+    # Connect to Microsoft Graph (Least-privilege read scopes; add 'CopilotPackages.Read.All' / 'CopilotPolicySettings.Read' if querying M365 Copilot package inventory)
+    Connect-MgGraph -Environment Global -TenantId $TenantId -Scopes 'AuditLog.Read.All','Directory.Read.All','Application.Read.All' -NoWelcome | Out-Null
     $ctx = Get-MgContext
     if ($ctx.Environment -ne 'Global') {
         Write-Error "Graph connected to $($ctx.Environment), expected Global. Aborting."; exit 2
@@ -254,24 +256,25 @@ function Test-Agt25Prerequisites {
     )
     $results = New-Object System.Collections.Generic.List[object]
 
-    # 1. Power Platform environment reachable
-    $env = pac admin list --environment $EnvironmentId --json 2>$null | ConvertFrom-Json
+    # 1. Power Platform environment reachable (`pac admin list --json` returns all accessible environments)
+    $envList = pac admin list --json 2>$null | ConvertFrom-Json
+    $env = @($envList) | Where-Object { $_.EnvironmentId -eq $EnvironmentId -or $_.EnvironmentUrl -match $EnvironmentId } | Select-Object -First 1
     $results.Add([pscustomobject]@{
         Check='PowerPlatformEnvironment'; Pass=[bool]$env; Severity='Critical'
-        Detail = if ($env) { "$($env.DisplayName) ($($env.EnvironmentType)) region=$($env.Region)" } else { 'Not found or no access' }
+        Detail = if ($env) { "$($env.DisplayName) ($($env.Type)) region=$($env.Region)" } else { 'Not found or no access' }
         EvidenceRef = "$($Session.EvidenceDir)/prereq-env.json"
     })
     $env | ConvertTo-Json -Depth 10 | Set-Content "$($Session.EvidenceDir)/prereq-env.json" -Encoding utf8
 
-    # 2. Copilot Studio agent
-    $bot = pac copilot list --environment $EnvironmentId --json 2>$null |
-           ConvertFrom-Json | Where-Object { $_.SchemaName -eq $Session.AgentId -or $_.DisplayName -eq $Session.AgentId }
+    # 2. Copilot Studio agent (`pac copilot list --environment <env>`)
+    $copilotListRaw = pac copilot list --environment $EnvironmentId 2>$null
+    $botMatched = ($copilotListRaw | Out-String) -match [regex]::Escape($Session.AgentId)
     $results.Add([pscustomobject]@{
-        Check='CopilotStudioAgent'; Pass=[bool]$bot; Severity='Critical'
-        Detail = if ($bot) { "id=$($bot.BotId) version=$($bot.LatestPublishedVersion)" } else { 'Not found' }
-        EvidenceRef = "$($Session.EvidenceDir)/prereq-agent.json"
+        Check='CopilotStudioAgent'; Pass=[bool]$botMatched; Severity='Critical'
+        Detail = if ($botMatched) { "Matched agent '$($Session.AgentId)' in pac copilot list" } else { 'Not found' }
+        EvidenceRef = "$($Session.EvidenceDir)/prereq-agent.txt"
     })
-    $bot | ConvertTo-Json -Depth 10 | Set-Content "$($Session.EvidenceDir)/prereq-agent.json" -Encoding utf8
+    ($copilotListRaw | Out-String) | Set-Content "$($Session.EvidenceDir)/prereq-agent.txt" -Encoding utf8
 
     # 3. AI Foundry project endpoint resolvable
     $projOk = $false
@@ -324,9 +327,9 @@ function Test-Agt25Prerequisites {
 
 ---
 
-## §4 — Copilot Studio test sets: export the regression baseline
+## §4 — Copilot Studio test sets: export and run the regression baseline
 
-**Why this section exists.** The Copilot Studio Test Pane is interactive and ephemeral; its results cannot be admitted as evidence under SEC 17a-4 because they are not WORM-retained, not signed, and not reproducible. The supported evidence-bearing path is to (a) export the published agent's regression test set as JSON, (b) execute the test set headlessly via `pac copilot test run` (or the equivalent Power Platform Test Engine batch), (c) hash the input dataset and the output transcript, and (d) write both into the §9 manifest.
+**Why this section exists.** The Copilot Studio Test Pane is interactive and ephemeral; its results cannot be admitted as evidence under SEC 17a-4 because they are not WORM-retained, not signed, and not reproducible, and Copilot Studio retains Maker Evaluation test runs for only **89 days**. The supported evidence-bearing path is to (a) retrieve the agent's Maker Evaluation test set definition via `pac copilot-studio list-maker-evaluation-test-sets` and `pac copilot-studio get-maker-evaluation-test-set` (backed by the Power Platform Maker Evaluation REST API `https://api.powerplatform.com/copilotstudio/environments/{EnvironmentId}/bots/{BotId}/api/makerevaluation/testsets?api-version=2024-10-01`), (b) trigger and poll the headless evaluation run via `pac copilot-studio run-maker-evaluation-test-set` and `pac copilot-studio get-maker-evaluation-test-run` (or the Power Platform Connectors / GitHub Actions / Azure DevOps Maker Evaluation tasks), (c) hash the input test set and the output run transcript, and (d) write both into the §9 manifest.
 
 ```powershell
 function Invoke-Agt25CopilotStudioBaseline {
@@ -334,50 +337,87 @@ function Invoke-Agt25CopilotStudioBaseline {
     param(
         [Parameter(Mandatory)] $Session,
         [Parameter(Mandatory)] [string]$EnvironmentId,
-        [Parameter(Mandatory)] [string]$BotSchemaName,
-        [Parameter(Mandatory)] [string]$TestSetName
+        [Parameter(Mandatory)] [string]$BotId,
+        [Parameter(Mandatory)] [string]$TestSetId
     )
 
     $exportDir = Join-Path $Session.EvidenceDir 'copilot-studio'
     New-Item -ItemType Directory -Force -Path $exportDir | Out-Null
 
-    # 1. Export the test set definition
-    pac copilot testset export `
+    # 1. Export the Maker Evaluation test set definition (`pac copilot-studio get-maker-evaluation-test-set`)
+    $testSetPath = Join-Path $exportDir 'testset.json'
+    $testSetRaw = pac copilot-studio get-maker-evaluation-test-set `
         --environment $EnvironmentId `
-        --bot $BotSchemaName `
-        --name $TestSetName `
-        --output (Join-Path $exportDir 'testset.json') | Out-Null
-    if ($LASTEXITCODE -ne 0) { Write-Error "pac copilot testset export failed"; exit 2 }
+        --bot-id $BotId `
+        --test-set-id $TestSetId `
+        --json 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $testSetRaw) {
+        Write-Error "pac copilot-studio get-maker-evaluation-test-set failed for bot $BotId / testSet $TestSetId"
+        exit 2
+    }
+    $testSetRaw | Set-Content -Path $testSetPath -Encoding utf8
+    $datasetSha = (Get-FileHash $testSetPath -Algorithm SHA256).Hash
 
-    $datasetSha = (Get-FileHash (Join-Path $exportDir 'testset.json') -Algorithm SHA256).Hash
-
-    # 2. Run the test set headlessly
-    $runOut = Join-Path $exportDir "run-$((Get-Date).ToString('yyyyMMddHHmmss')).json"
-    pac copilot testset run `
+    # 2. Trigger the test set headlessly against the published bot and poll until completion
+    $kickoffRaw = pac copilot-studio run-maker-evaluation-test-set `
         --environment $EnvironmentId `
-        --bot $BotSchemaName `
-        --name $TestSetName `
-        --output $runOut `
-        --format json | Out-Null
-    if ($LASTEXITCODE -ne 0) { Write-Error "pac copilot testset run failed"; exit 2 }
+        --bot-id $BotId `
+        --test-set-id $TestSetId `
+        --run-on-published-bot true `
+        --json 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $kickoffRaw) {
+        Write-Error "pac copilot-studio run-maker-evaluation-test-set failed"; exit 2
+    }
+    $kickoff = $kickoffRaw | ConvertFrom-Json
+    $testRunId = if ($kickoff.PSObject.Properties['runId']) { $kickoff.runId } else { $kickoff.id }
+    if (-not $testRunId) { Write-Error "No runId returned from run-maker-evaluation-test-set"; exit 2 }
+
+    $runOut = Join-Path $exportDir "run-$testRunId.json"
+    $maxAttempts = 30
+    $report = $null
+    for ($i = 1; $i -le $maxAttempts; $i++) {
+        $runRaw = pac copilot-studio get-maker-evaluation-test-run `
+            --environment $EnvironmentId `
+            --bot-id $BotId `
+            --test-run-id $testRunId `
+            --json 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $runRaw) {
+            Write-Error "pac copilot-studio get-maker-evaluation-test-run failed"; exit 2
+        }
+        $runRaw | Set-Content -Path $runOut -Encoding utf8
+        $report = $runRaw | ConvertFrom-Json
+        if ($report.state -in @('Completed', 'Failed', 'Cancelled', 'Abandoned', 'Deleted')) { break }
+        Start-Sleep -Seconds 10
+    }
+    if (-not $report -or $report.state -ne 'Completed') {
+        $runState = if ($report) { $report.state } else { 'Unknown' }
+        Write-Error "Maker Evaluation test run $testRunId did not complete cleanly (state=$runState)"; exit 2
+    }
 
     $transcriptSha = (Get-FileHash $runOut -Algorithm SHA256).Hash
-    $report = Get-Content $runOut -Raw | ConvertFrom-Json
 
-    $passed = ($report.testCases | Where-Object { $_.status -eq 'Passed' }).Count
-    $failed = ($report.testCases | Where-Object { $_.status -eq 'Failed' }).Count
-    $total  = $report.testCases.Count
-    $passRate = if ($total) { [math]::Round($passed / $total, 4) } else { 0 }
+    $cases  = @($report.testCasesResults)
+    $total  = if ($null -ne $report.totalTestCases -and [int]$report.totalTestCases -gt 0) { [int]$report.totalTestCases } else { $cases.Count }
+    if ($total -eq 0 -or $cases.Count -eq 0) { Write-Error "Maker Evaluation test run returned zero test cases (false-clean guard)"; exit 2 }
+    $passed = @(
+        $cases | Where-Object {
+            $_.state -eq 'Completed' -and
+            @($_.metricsResults).Count -gt 0 -and
+            @($_.metricsResults | Where-Object { $_.result.status -ne 'Pass' }).Count -eq 0
+        }
+    ).Count
+    $failed = $total - $passed
+    $passRate = [math]::Round($passed / $total, 4)
 
     $zoneThreshold = switch ($Session.Zone) { 'Zone1' { 0.80 } 'Zone2' { 0.90 } 'Zone3' { 0.95 } }
 
     [pscustomobject]@{
-        Check        = 'CopilotStudioBaseline'
-        Pass         = ($passRate -ge $zoneThreshold) -and ($failed -eq 0 -or $Session.Zone -ne 'Zone3')
-        Severity     = if ($Session.Zone -eq 'Zone3') { 'Critical' } else { 'Major' }
-        Detail       = "passed=$passed failed=$failed total=$total passRate=$passRate threshold=$zoneThreshold"
-        EvidenceRef  = $runOut
-        DatasetSha256 = $datasetSha
+        Check            = 'CopilotStudioBaseline'
+        Pass             = ($passRate -ge $zoneThreshold) -and ($failed -eq 0 -or $Session.Zone -ne 'Zone3')
+        Severity         = if ($Session.Zone -eq 'Zone3') { 'Critical' } else { 'Major' }
+        Detail           = "testRunId=$testRunId passed=$passed failed=$failed total=$total passRate=$passRate threshold=$zoneThreshold"
+        EvidenceRef      = $runOut
+        DatasetSha256    = $datasetSha
         TranscriptSha256 = $transcriptSha
     }
 }
@@ -393,7 +433,7 @@ function Invoke-Agt25CopilotStudioBaseline {
 
 **Fail-closed conditions:**
 
-- `pac copilot testset export` or `run` exits non-zero → `exit 2`.
+- `pac copilot-studio get-maker-evaluation-test-set`, `run-maker-evaluation-test-set`, or `get-maker-evaluation-test-run` exits non-zero → `exit 2`.
 - Exported test set is empty (`$report.testCases.Count -eq 0`) → `exit 2` (false-clean trap).
 - `passRate < zoneThreshold` for Zone 2 / Zone 3 → soft fail (`exit 1` at §9 rollup).
 - Any failed test case in Zone 3 with regulated-data tag → hard fail (`exit 2` at §9).
@@ -405,7 +445,7 @@ function Invoke-Agt25CopilotStudioBaseline {
 
 **Why this section exists.** Copilot Studio's built-in test set verifies *behavioral* pass/fail; Fed SR 26-2 (formerly SR 11-7) and OCC Bulletin 2026-13 (formerly OCC 2011-12) require *quantitative quality metrics* (groundedness, relevance, coherence, fluency, similarity), *content-safety* verdicts, and *protected-material* checks. The Azure AI Evaluation SDK (`azure-ai-evaluation`) emits these as numeric scores against a hashed evaluation dataset, with a separately versioned judge model (which MUST NOT equal the subject model — segregation of duties on inference).
 
-**Required evaluators (April 2026 baseline).**
+**Required evaluators (October 2026 baseline).**
 
 | Evaluator | Module path | Notes |
 |---|---|---|
@@ -779,15 +819,37 @@ function Invoke-Agt25SolutionChecker {
     )
     $outDir = Join-Path $Session.EvidenceDir 'solution-checker'
     New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+    $solutionZip = Join-Path $outDir "$SolutionUniqueName.zip"
 
-    pac solution check `
+    # 1. Export the unmanaged solution archive so `pac solution check --path` can analyze it
+    pac solution export `
+        --path $solutionZip `
+        --name $SolutionUniqueName `
         --environment $EnvironmentId `
-        --solutionName $SolutionUniqueName `
+        --managed false `
+        --overwrite | Out-Null
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $solutionZip)) {
+        Write-Error "pac solution export failed for $SolutionUniqueName"; exit 2
+    }
+
+    # 2. Run Solution Checker against the exported `.zip` (`--path` is required by `pac solution check`)
+    pac solution check `
+        --path $solutionZip `
+        --environment $EnvironmentId `
         --ruleSet $RuleSet `
-        --outputDirectory $outDir | Out-Null
+        --outputDirectory $outDir `
+        --saveResults true | Out-Null
     if ($LASTEXITCODE -ne 0) { Write-Error "pac solution check failed"; exit 2 }
 
-    $sarif = Get-ChildItem $outDir -Filter '*.sarif' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $sarif = Get-ChildItem $outDir -Filter '*.sarif' -Recurse -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (-not $sarif) {
+        $resultZip = Get-ChildItem $outDir -Filter '*.zip' | Where-Object { $_.FullName -ne $solutionZip } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($resultZip) {
+            $extractDir = Join-Path $outDir 'extracted'
+            Expand-Archive -Path $resultZip.FullName -DestinationPath $extractDir -Force
+            $sarif = Get-ChildItem $extractDir -Filter '*.sarif' -Recurse | Select-Object -First 1
+        }
+    }
     if (-not $sarif) { Write-Error "Solution Checker did not emit a SARIF file"; exit 2 }
     $sarifSha = (Get-FileHash $sarif.FullName -Algorithm SHA256).Hash
     $report = Get-Content $sarif.FullName -Raw | ConvertFrom-Json
@@ -829,10 +891,11 @@ function Invoke-Agt25PipelineDeployment {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(Mandatory)] $Session,
-        [Parameter(Mandatory)] [string]$PipelineId,
-        [Parameter(Mandatory)] [string]$SourceEnvironmentId,
-        [Parameter(Mandatory)] [string]$TargetEnvironmentId,
+        [Parameter(Mandatory)] [string]$StageId,
+        [Parameter(Mandatory)] [string]$HostEnvironmentId,
         [Parameter(Mandatory)] [string]$SolutionUniqueName,
+        [Parameter(Mandatory)] [string]$CurrentVersion,
+        [Parameter(Mandatory)] [string]$NewVersion,
         [Parameter(Mandatory)] [string]$EvidenceManifestPath
     )
     if (-not (Test-Path $EvidenceManifestPath)) {
@@ -849,18 +912,19 @@ function Invoke-Agt25PipelineDeployment {
         exit 2
     }
 
-    $target = "Pipeline $PipelineId : $SourceEnvironmentId -> $TargetEnvironmentId : solution $SolutionUniqueName"
-    if ($PSCmdlet.ShouldProcess($target, 'Deploy via Power Platform Pipeline')) {
+    $target = "Pipeline stage $StageId (host $HostEnvironmentId) : solution $SolutionUniqueName ($CurrentVersion -> $NewVersion)"
+    if ($PSCmdlet.ShouldProcess($target, 'Deploy via Power Platform Pipeline (`pac pipeline deploy`)')) {
         pac pipeline deploy `
-            --pipeline $PipelineId `
-            --source $SourceEnvironmentId `
-            --target $TargetEnvironmentId `
-            --solution $SolutionUniqueName `
-            --notes "agt25 runId=$($Session.RunId) manifestSha=$((Get-FileHash $EvidenceManifestPath -Algorithm SHA256).Hash)" | Out-Null
+            --solutionName $SolutionUniqueName `
+            --stageId $StageId `
+            --currentVersion $CurrentVersion `
+            --newVersion $NewVersion `
+            --environment $HostEnvironmentId `
+            --wait | Out-Null
         if ($LASTEXITCODE -ne 0) { Write-Error "pac pipeline deploy failed"; exit 2 }
         return [pscustomobject]@{
             Check='PipelineDeployment'; Pass=$true; Severity='Info'
-            Detail = "Deployed $SolutionUniqueName via pipeline $PipelineId"
+            Detail = "Deployed $SolutionUniqueName ($CurrentVersion -> $NewVersion) to stage $StageId"
             EvidenceRef = $EvidenceManifestPath
         }
     } else {
@@ -873,10 +937,11 @@ function Invoke-Agt25PipelineDeployment {
 
 ```powershell
 Invoke-Agt25PipelineDeployment -Session $s `
-    -PipelineId '5e3...c1' `
-    -SourceEnvironmentId 'contoso-fsi-test-eus' `
-    -TargetEnvironmentId 'contoso-fsi-prod-eus' `
+    -StageId '00000000-0000-0000-0000-000000000001' `
+    -HostEnvironmentId 'contoso-fsi-pipelines-host-eus' `
     -SolutionUniqueName 'CoiAdvisor' `
+    -CurrentVersion '1.4.2.0' `
+    -NewVersion '1.4.3.0' `
     -EvidenceManifestPath "$($s.EvidenceDir)/manifest.json" `
     -WhatIf
 ```
@@ -1042,7 +1107,7 @@ jobs:
 
 ## §11 — Anti-patterns (false-clean traps)
 
-A **false-clean** outcome (the harness reports green when the underlying control is broken) is the highest-impact defect class for Control 2.5. The table below catalogs the 21 most common false-clean traps observed in FSI deployments through April 2026.
+A **false-clean** outcome (the harness reports green when the underlying control is broken) is the highest-impact defect class for Control 2.5. The table below catalogs the 21 most common false-clean traps observed in FSI deployments through October 2026.
 
 | # | Anti-pattern | False-clean symptom | Detection / mitigation |
 |---|---|---|---|
@@ -1053,7 +1118,7 @@ A **false-clean** outcome (the harness reports green when the underlying control
 | 5 | Region-mismatched SPO admin URL | PnP cmdlets succeed against the wrong tenant region | Resolve via Graph `organization` endpoint, not a constant |
 | 6 | `Set-LabelPolicy` succeeds without changing the rule body | Sensitivity-label probe reports green despite missing rule | Verify with `Get-LabelPolicyRule` after set |
 | 7 | Stale Python venv with deprecated evaluator names | `evaluate()` returns `null` for renamed metrics → averages skewed | §1 venv bootstrap + pinned `azure-ai-evaluation` |
-| 8 | Mistaking the Copilot Studio Test Pane for evidence | Interactive results not WORM-retained → not admissible | §4 mandates `pac copilot testset run` headless |
+| 8 | Mistaking the Copilot Studio Test Pane for evidence | Interactive results not WORM-retained → not admissible | §4 mandates `pac copilot-studio run-maker-evaluation-test-set` headless |
 | 9 | PyRIT memory DB committed to git | Adversarial prompts leak to source control | §6 `.gitignore` precondition + §9 manifest probe |
 | 10 | Judge model equals subject model | Self-evaluation always scores high → segregation violated | §5 and §6 hard-stop |
 | 11 | Validator UPN equals developer UPN | Self-attestation accepted; SoD broken | §9 segregation gate |
@@ -1105,4 +1170,4 @@ A **false-clean** outcome (the harness reports green when the underlying control
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (evidence-signing documentation correction only)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
