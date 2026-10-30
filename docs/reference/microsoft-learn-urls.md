@@ -154,7 +154,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Agent 365 Documentation Hub** | https://learn.microsoft.com/en-us/microsoft-agent-365/ | Oct 2026 |
 | **Agent 365 Overview** | https://learn.microsoft.com/en-us/microsoft-agent-365/overview | Oct 2026 |
 | **Agent 365 SDK and CLI** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/ | Oct 2026 |
-| Agent 365 Overview Page (M365 Admin) | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide | Oct 2026 |
+| Agent 365 Overview Page (M365 Admin) | https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview?view=o365-worldwide | Oct 2026 |
 | Manage Agents in M365 Admin Center | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide | Oct 2026 |
 
 ### Agent 365 Security
