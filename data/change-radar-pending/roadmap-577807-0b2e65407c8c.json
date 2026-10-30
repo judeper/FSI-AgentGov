@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:0b2e65407c8cc5ca6ba23ed1a562081d3f67286f0e8dd43b05ce0eb65d4572b3",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "March CY2027",
+  "id": 577807,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "June CY2025",
+  "products": [
+    "Dynamics 365 Field Service",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Dispatchers often spend considerable time and energy reviewing and adjusting each technician's schedule as conditions change throughout the workday:</p>\n<ul>\n<li>A technician has one or more cancellations in the afternoon. To fill the open slots, what requirements optimally keep promise windows, prefer high-priority work, and locate work around the same neighborhoods that the technician is due to travel to?</li>\n<li>A technician is running over the planned time for the current booking. As a result, they're late for the next booking, and the delay might cascade to subsequent bookings. How do you best adjust the bookings for the remainder of the day?</li>\n<li>A technician recovers from illness sooner than expected and is now available for work earlier than planned. What's the best way to schedule work for them when they return?</li>\n<li>A technician’s schedule contains a lot of low-priority work that isn't due for weeks. How can you improve the schedule with work that better meets desired business goals?</li>\n<li>A technician’s schedule for the day is built manually or with the schedule assistant. How can you rearrange the schedule so that the resource’s travel time is reduced?</li>\n</ul>\n<p>In each case, the dispatcher needs to assess the situation, determine which business goals apply, and then update the schedule manually, one booking at a time.</p>\n<p>With this release of the Scheduling Operations Agent, dispatchers can ask Copilot to provide the best schedule for the affected technician. Within seconds, the dispatcher gets a suggested schedule for review and can apply the updates.</p>\n<p>You can direct Copilot to optimize for the business goal you want, such as maximizing technician usage or work order priority. Copilot intelligently chooses among existing bookings and new unfulfilled work orders based on factors like skillset match, territories, and customer promise windows. Users can access the feature from the Copilot side pane anywhere within the Dynamics 365 Field Service application.</p>\n<p>Business Value:</p>\n<p>The Scheduling Operations Agent for Dynamics 365 Field Service enables dispatchers to quickly and easily optimize schedules for technicians as conditions change throughout the workday, so they can significantly improve their productivity. Dispatchers can ask Copilot to optimize schedules and address issues such as traffic delays, double bookings, or last-minute cancellations that often result in conflicts, gaps, or idle time in a technician's schedule. Instruct Copilot to achieve the desired business objective, such as maximizing technician usage or work order priority while considering factors like skillset match, territories, and promised time windows.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577807",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Field Service: Optimize resource scheduling - Optimize schedules with Scheduling Operations Agent"
+}

@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:cde3850ba7efb1e127163d261e9bdbbc6dc7abe581aae8cf6604d90b799dad8c",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 573294,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Semantic model helps Sales Agent understand the structure and meaning of an organization’s CRM data. It creates a connected representation of CRM metadata, including tables or objects, fields, descriptions, data types, relationships, views, pick-list values, and glossary terms. Sales Agent can retrieve this context when responding to questions, improving its ability to interpret business language and answer complex questions that span related CRM records.</p>\n<p>Dynamics 365 admins can enable and turn on semantic model in Power Apps Maker Portal and configure the data coverage and signals that Sales Agent should use. Admins can configure the underlying data, views, metadata and relationships used in the model.</p>\n<p>For Salesforce customers, the semantic model will be based on existing Sales agent table and glossary configuration in Sales agent settings or Power Apps Maker Portal. In Power Apps Maker Portal, Salesforce admins will can configure additional Salesforce signals to use in semantic model such as relationships and views.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573294",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.2",
+      "source": "keyword:metadata"
+    },
+    {
+      "id": "3.1",
+      "source": "keyword:metadata"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): Enable semantic model in Sales agent"
+}

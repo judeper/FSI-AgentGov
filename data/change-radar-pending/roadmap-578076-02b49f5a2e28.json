@@ -1,0 +1,37 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:02b49f5a2e28e3eb01bbdcfcd82bd6461bfe373530babcbb1659ad44951f972f",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "September CY2026",
+  "id": 578076,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "August CY2026",
+  "products": [
+    "Dynamics 365 Sales",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<ul>\n<li><strong>Segment-specific qualification</strong>: Each agent operates with its own ideal customer profile, knowledge sources, templates, and consent settings, ensuring qualification conversations reflect the nuances of each product, region, or team.</li>\n<li><strong>Intelligent lead routing</strong>: The system evaluates incoming leads against agent selection criteria and assigns ownership based on configured priority, ensuring predictable and conflict-free lead management. A fallback agent handles leads that don't match any specialized criteria, ensuring no lead goes unprocessed.</li>\n<li><strong>Exclusive engagement with coordinated handoff</strong>: Only one agent engages a lead at any time. When a lead's interest shifts to another product or segment, the system hands off with full context to the appropriate agent.</li>\n<li><strong>Shared knowledge foundation</strong>: Agents can leverage common company-level knowledge while maintaining their own specialized sources, ensuring consistent answers across the organization.</li>\n<li><strong>Supervisor oversight and governance</strong>: A centralized dashboard enables supervisors to monitor agent activity, reassign leads, and track the full qualification journey across all agents.</li>\n</ul>\n<p>Business Value:</p>\n<p>Multi-agent configuration in Sales Qualification Agents enables sales organizations to deploy agents aligned to distinct product lines, regions, or sales teams, each with its own qualification criteria, knowledge sources, and engagement approach. Multi-agent configuration ensures exclusive lead ownership, coordinates handoffs when context shifts, and provides sales managers with visibility across agents. This targeted approach mirrors real-world sales structures, eliminates duplicate outreach, accelerates qualification, and scales coverage without additional seller headcount.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=578076",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:share"
+    },
+    {
+      "id": "1.2",
+      "source": "keyword:ownership"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:share"
+    },
+    {
+      "id": "3.6",
+      "source": "keyword:ownership"
+    }
+  ],
+  "title": "Dynamics 365 Sales: Lead management - Deploy multiple Sales Qualification Agents in a single environment"
+}

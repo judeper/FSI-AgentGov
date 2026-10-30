@@ -1,0 +1,26 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:88a99395bdbb2ea59f0c0b5f1b4f127bc1ef0234431b377dc30bdd2b1758ac6f",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": null,
+  "id": 542190,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=542190",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "1.17",
+      "source": "keyword:data loss prevention"
+    },
+    {
+      "id": "1.5",
+      "source": "keyword:data loss prevention"
+    }
+  ],
+  "title": "Microsoft Purview: Data Loss Prevention-Data Security Triage Agent in Data Loss Prevention"
+}

@@ -1,0 +1,32 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:bf2a10022fecad2699c681eb954ec4bd6a99f82269ffc89cf5a51930ed383e24",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 578069,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Dynamics 365 Contact Center"
+  ],
+  "raw_description": "<p>Secure a voice talent that will represent the voice of your brand. After <a href=\"https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/speech-service/text-to-speech/disclosure-voice-talent\">obtaining explicit consent</a>, gaining <a href=\"https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/speech-service/text-to-speech/limited-access\">Limited Access</a> approval through Microsoft's Responsible AI practices, and <a href=\"https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-neural-voice\">building a custom voice model</a>, it's time to integrate with Dynamics 365 Contact Center.</p>\n<p>In the Copilot Service admin center, create a connection between Dynamics 365 and Azure. Navigate to <strong>Channels</strong> &gt; <strong>Custom AI Voices</strong> &gt; <strong>Connect custom voice</strong>. You'll be prompted through a series of cascading dropdown boxes to select the speech resource and custom voice model to connect with. After the connection is established, you can create a voice channel for self-service and use the custom voice, like any portfolio voice.</p>\n<p>Business Value:</p>\n<p>Brand identity extends beyond visuals like logo, color, and typography, into voice. Custom neural voice enables enterprises to create a distinctive, natural sounding synthetic voice for contact centers. By training on approved human speech samples, organizations can deliver a natural sounding, one‑of‑a‑kind brand voice that preserves brand continuity, strengthens customer recognition, and elevates voice‑based experiences across AI‑powered agents and telephony interactions.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=578069",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:identity"
+    }
+  ],
+  "title": "Dynamics 365 Contact Center: IVR capabilities - Equip voice agents with custom voice"
+}

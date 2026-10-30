@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:031c5b20ca731465283e4c74ddc45c18d8c4beeafb9265dd26184ff438130582",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "August CY2026",
+  "id": 577819,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Customer Service",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>An administrator can enable this feature for the entire organization in the Customer Service admin center. Turning on next best actions populates the Copilot pane with actions that service representatives can use. Important case attributes are consolidated in one place as the representative gathers information through back-and-forth exchanges with the customer. Knowledge articles are suggested so representatives can dig deeper and understand the reasoning behind the recommendations.</p>\n<p>Business Value:</p>\n<p>Next Best Action (NBA) allows service representatives to perform a suite of Copilot-powered actions in one click. These actions include, but aren't limited to, drafting emails, updating knowledge articles, updating case notes, and more.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577819",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Customer Service: Copilot and AI innovation - View next best actions with Customer Intent Agent"
+}

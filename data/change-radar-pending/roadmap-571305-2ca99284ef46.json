@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:2ca99284ef461201e116974beafd860954e4675172f8e012e663ac9d74eed681",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "October CY2026",
+  "id": 571305,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Unblock users from upload files with Microsoft Purview Information Protection (MPIP) sensitivity labels to Copilot Studio agents deployed on the M365 channel. With this support agents can process content based on the user's/agents account permissions, with label protections enforced end-to-end.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=571305",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.5",
+      "source": "keyword:sensitivity label"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Support for sensitive documents protected with Microsoft Purview Information Protection (MPIP) "
+}
