@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:2510ba2aa8854dd7a04804eddf2ec5ec07617c72e71b643a82ac6dad47453602",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 573257,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Expense Agent can automatically create expense reports based on identified business trips. You just need to configure the feature on the <strong>Expense Agent Setup</strong> page. Instead of manually collecting and organizing individual expense entries, you can use the agent to group relevant expenses and generate a dedicated expense report for each trip. Key capabilities include:</p>\n<ul>\n<li>Administrators can specify whether the company wants to group expenses by trip and not only by period.</li>\n<li>Automated expense report creation without requiring you to manually start and organize reports after a travel requisition is approved.</li>\n<li>Automatic trip-based expense grouping associates eligible expenses with the correct business trip based on information in the travel requisition. The agent automatically groups not only expenses based on the location, but uses intelligence to group all expenses based on the context.</li>\n<li>Non-trip related expenses keep existing period-based grouping in expense reports.</li>\n</ul>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573257",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Create expense reports per trip automatically"
+}

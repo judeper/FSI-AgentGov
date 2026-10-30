@@ -1,0 +1,32 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:047af761906718a6f6a42a5f195c71e355afb706c9c21db9cf375d5de2eaa81c",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 577809,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2026",
+  "products": [
+    "Power Pages"
+  ],
+  "raw_description": "<p>The security agent is available directly within the security workspace in Power Pages design studio. Makers can open the security agent tab to access the embedded chat panel and security tools. From there, they can interact using natural language to review risks, understand configurations, and take guided actions.</p>\n<p>The agent assists with both authentication and authorization setup. It guides makers through configuring identity providers, reviewing authentication settings, and strengthening login protections. Based on the site’s setup, it can recommend improvements such as securing token configurations, validating redirect settings, or tightening session-related controls.</p>\n<p>For authorization, the security agent helps configure web roles and data access permissions. Using the site’s data schema and usage patterns, it suggests appropriate access levels, such as read-only, owner-only, or full administrative control aligned with least privilege best practices.</p>\n<p>All suggested changes require explicit user approval before being applied. After execution, the agent confirms what was updated, ensuring full transparency and control. By combining guided setup, continuous review, and contextual recommendations, the security agent helps keep Power Pages sites secure from initial configuration through ongoing maintenance.</p>\n<p>Business Value:</p>\n<p>Security agent empowers makers to set up secure access controls without needing deep security expertise. It uses AI to recommend the right roles and permissions for your data tables. It continuously monitors your site for misconfigurations, helping you reduce risk, ensure compliance, and build customer trust.</p>\n<p>Enabled for:</p>\n<p>Enabled for admins/makers/marketers automatically</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577809",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:identity"
+    }
+  ],
+  "title": "Power Pages: Design studio - Configure authentication with security agent"
+}

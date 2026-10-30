@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:e502f18c83831cb273fde0e9374616b2eb24f330a5dbae65d50c5ac485e73194",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "March CY2027",
+  "id": 577184,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Dynamics 365 Customer Service",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Intraday Agent is an autonomous AI agent that helps manage intraday operational scenarios. The following are its high‑level capabilities.</p>\n<p><strong>Intraday queue tracking</strong></p>\n<ul>\n<li>Continuously monitors queue volumes in real time.</li>\n<li>Detects anomalies when actual volume deviates significantly from forecasted demand.</li>\n<li>Automatically reforecasts in real time to assess current demand.</li>\n<li>Notifies supervisors with proactive alerts and recommendations.</li>\n<li>Automates corrective actions such as adjusting schedules, rescheduling breaks, or reallocating service representatives to maintain SLA performance.</li>\n<li>Supports customizable instructions to align mitigation actions with business needs.</li>\n</ul>\n<p><strong>Intraday adherence tracking</strong></p>\n<ul>\n<li>Monitors service representative adherence to scheduled shift activities in real time.</li>\n<li>Detects deviations such as late logins, extended breaks, or early logouts.</li>\n<li>Autonomously mitigates deviations through actions such as break rescheduling, shift extensions, overtime activation, or flexible channel reassignment.</li>\n<li>Supports customizable instructions to align mitigation actions with business needs.</li>\n</ul>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577184",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Customer Service: Manage intraday operations with AI agent"
+}

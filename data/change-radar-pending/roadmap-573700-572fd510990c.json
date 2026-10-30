@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:572fd510990cb92b39bc8f8d790b4375ec71978682619a85356ea2cb5db71655",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "January CY2027",
+  "id": 573700,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Autonomous agent that researches, qualifies, engages with leads, scaling sales capacity 24/7.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573700",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Sales Development Agent is now available "
+}

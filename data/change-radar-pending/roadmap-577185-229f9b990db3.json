@@ -1,0 +1,29 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:229f9b990db3a8c688194a8546d0bf755aaebaa16b26e2fe1fc5e5d4a9712059",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 577185,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "June CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Dataverse"
+  ],
+  "raw_description": "<p>Give AI agents and Copilot a true understanding of your business data — not just raw schema — so they can answer questions accurately with less manual configuration.</p>\n<ul>\n<li><strong>Learns from the systems you already run</strong> — Automatically extracts semantic knowledge from views, forms, and metadata already defined in your Dataverse environment, reducing agent deployment from days of manual setup to near-zero effort.</li>\n<li><strong>Full visibility for makers</strong> — View generated semantic knowledge per entity — including name, description, and sample questions — directly in the Power Apps maker portal. Search for understanding gaps and enrich missing context with a built-in glossary for domain-specific terms.</li>\n<li><strong>Governance and privacy built in</strong> — Enable or disable semantic signals at the org level, or at the individual signal-type or table level, giving makers and admins granular control to meet compliance and privacy requirements without sacrificing agent quality.</li>\n</ul>\n<p>No manual schema mapping. No custom query logic. No disambiguation between what your data is called and what your business actually means.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577185",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.2",
+      "source": "keyword:metadata"
+    },
+    {
+      "id": "3.1",
+      "source": "keyword:metadata"
+    }
+  ],
+  "title": "Microsoft Dataverse: Enable semantic data understanding for agentic use"
+}

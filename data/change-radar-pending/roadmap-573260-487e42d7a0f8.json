@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:487e42d7a0f88f6d5686fcf0160d3c0997ceb50c3c4746e70347591849c339ea",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "November CY2026",
+  "id": 573260,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "November CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>This feature introduces support for a simple interim approval scenario for expense reports. When someone submits an expense report, organizations can designate an interim approver to review and approve expenses before the final approver can review and approve. Interim approver must review expense reports to confirm whether they're complete and compliant before final approver.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573260",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - Add an interim approver when you submit an expense report"
+}

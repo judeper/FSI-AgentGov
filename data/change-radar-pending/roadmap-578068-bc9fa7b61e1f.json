@@ -1,0 +1,53 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:bc9fa7b61e1f79632e7e6bea24dc9f2546f5fad12e13f47990a7f4229f0bed5e",
+  "detected_at": "2026-10-26T13:42:42Z",
+  "ga_date": "October CY2026",
+  "id": 578068,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "February CY2026",
+  "products": [
+    "Dynamics 365 Business Central",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<h3>AI agents in Business Central</h3>\n<p>Business Central introduces AI agents to help users automate repetitive tasks and make business processes more intelligent and efficient. These agents act as specialized assistants that understand context, handle structured data, and collaborate with users to complete end-to-end workflows. For example, the Sales Order Agent simplifies order creation by transforming natural language or email instructions into complete sales documents, while the Payables Agent streamlines vendor invoice processing by extracting key details from incoming invoices and matching them to purchase orders—all reducing manual effort and freeing users to focus on higher-value work.</p>\n<p>The agent runtime that powers these built-in agents provides core capabilities that enable the use of agentic AI within Business Central. AI agents are defined, configured, activated, and run directly inside the familiar Business Central environment—leveraging the same security model, administration tools, and user experience as the rest of the product. Results are displayed in-context, with intuitive navigation to related data and entities, allowing users to control the agents through the interface they already know. This consistency dramatically reduces the learning curve, builds trust, and ensures efficiency when working with AI agents.</p>\n<p>The agent runtime ensures that every step taken by an agent is traceable and operates strictly within the access boundaries (permissions) assigned during configuration. It provides a timeline view of all agent activities, allowing users to review what happened and why—enabling a true human-in-the-loop experience. The runtime can also memorize relevant data during execution, use it in subsequent steps, and request additional instructions in natural language when user input is needed. It helps ensure that sensitive operations always require explicit user review and consent, supporting full transparency and control.</p>\n<p>Business Central business processes are inherently multistep, stateful, and financially consequential. The agent layer must be able to interact with a broad set of ERP capabilities and data, sequence operations with a high degree of accuracy across dependent steps, handle the data respecting permissions, company, environment, and tenant boundaries, provide a contextual audit trail, and keep humans in the loop.</p>\n<p>Business Central agentic strategy intentionally separates deep, well controlled, in-context and transparent execution within the product from cross-system orchestration. Business Central agents form the foundational layer inside the product, exposing well-defined agent capabilities that in the future will be possible to surface as MCP tools and consume by Declarative Agents in Microsoft Copilot Studio and Microsoft 365. This layered approach enables Business Central-tuned, transparent, managed execution at the ERP core processes, while allowing higher-level Declarative Agents to orchestrate end-to-end business processes across products.</p>\n<h3>Designing agents</h3>\n<p>The new in-product experience for designing agents that automate Business Central processes is made available with AI Development Toolkit for Business Central. The experience offers a low-risk environment for envisioning and prototyping new AI agents tailored to your own business scenarios—extending the same agent runtime capabilities used by built-in Business Central agents.</p>\n<p>Built for rapid iteration, the designing experience lets you create and refine custom agents using natural language instructions, define their behavior, test agent profiles and permissions, and safely experiment with Business Central data in a sandbox environment. This approach empowers partner personas like consultants, product owners, and domain experts, as well as developers and even power users, to explore new scenarios, validate ideas, and build confidence in their agents before moving to production. Whether you aim to automate repetitive business processes, streamline data processing, or deliver proactive insights, the agent design experience gives you the tools to bring your vision to life.</p>\n<h3>Agent instructions</h3>\n<p>At the core of every agent are its goals and instructions, defined in natural language. Writing agent instructions is similar to writing prompts for large language models, so you can apply general prompt-writing best practices—and even use tools like Copilot to optimize them. The agent design experience includes a simple editor to help you define, refine, and test these instructions efficiently.</p>\n<h3>Invoking your agent</h3>\n<p>You can invoke your agent by manually creating a task for it. When doing so, you can include an additional message that provides specific details or context to complement the agent’s core instructions. Although the ability to design your own agents is in public preview, there aren't yet any built-in integrations to automatically trigger these custom agents based on incoming emails, events, or scheduled recurrences (this can be done by professional developers using the APIs available in the AI Development Toolkit). However, you can simulate these scenarios by including the email header and body in the task message to mimic incoming emails, or by manually triggering the agent to emulate event, UI action, or time-based runs.</p>\n<h3>Troubleshooting</h3>\n<p>When running the agent tasks in the designing experience, you can access detailed diagnostic views to help you understand and tune the agent execution. Since an agent’s decisions depend on its instructions, available data, and language model reasoning, you can review execution logs to see its inputs, reasoning process, and outputs. This helps you identify where uncertainty occurred and why specific decisions were made to adjust your agent instructions.</p>\n<h3>Importing and exporting agents</h3>\n<p>To make it easy to back up or move custom agents across sandbox environments, the in-product experience allows you to import and export agent definitions. These definitions are stored as simple JSON files containing properties such as agent identity, instructions, assigned profiles, and permissions. We recommend storing these files in a source control system like GitHub to track changes and maintain version history.</p>\n<h3>Responsible AI</h3>\n<p>Agents built using the agent design experience adhere to Microsoft’s Responsible AI principles, helping you ensure agent compliance, fairness, and safety.</p>\n<h3>Billing</h3>\n<p>As with the built-in Sales Order and Payables agents, custom agents consume Copilot credits as they perform their steps. Credits can be provisioned through prepaid or pay-as-you-go models, providing flexible cost management as your AI usage scales.</p>\n<p>Business Value:</p>\n<p>Agents in Business Central are AI-powered team assistants that go beyond traditional automation. Unlike static workflows or hard-coded AL logic, agents can interpret high-level business goals expressed in natural language and translate them into actionable steps. They reason over Business Central data, make informed decisions within defined boundaries, and collaborate with users through human-in-the-loop approvals for critical operations.</p>\n<p>The benefits are substantial: agents reduce manual effort by automating repetitive or complex tasks, allowing users to focus on higher-value activities. They adapt to dynamic business scenarios that can't always be anticipated during development, offering flexibility that traditional automation lacks. Most importantly, agents operate transparently: every action is logged, permissions are rigorously enforced, and users remain in control at all times.</p>\n<p>This combination of intelligence, adaptability, and accountability makes agents a cornerstone of the next generation of ERP experiences. With the agent design experience, we're taking the first steps toward enabling you to build your own custom Business Central agents.</p>\n<p>Enabled for:</p>\n<p>Enabled by admins/makers/marketers for end users</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=578068",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.7",
+      "source": "keyword:audit"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:orchestrat"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.26",
+      "source": "keyword:identity"
+    },
+    {
+      "id": "3.3",
+      "source": "keyword:audit"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Envision and design AI agents in Business Central"
+}
