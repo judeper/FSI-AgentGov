@@ -157,7 +157,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.21** | AI Marketing Claims | N/A (process) | Process/documentation control |
 | **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
-| **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium + Microsoft 365 Copilot; Microsoft Agent 365 (per-user) for Agent 365 admin-center governance | PPAC feature governance is the Power Platform surface; M365 admin center agent-governance features vary by subscription. See [Agent management in M365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide). |
+| **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium + Microsoft 365 Copilot; Microsoft Agent 365 (per-user) for Agent 365 admin-center governance | PPAC feature governance is the Power Platform surface; M365 admin center agent-governance features vary by subscription. See [Agent management in M365 admin center](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview?view=o365-worldwide). |
 | **2.25** | Agent 365 Governance Console | GA May 1, 2026 — Microsoft Agent 365 per-user licensing | AI Admin/Global Admin/Global Reader roles. |
 | **2.26** | Entra Agent ID Identity Governance | Entra platform available to all Entra customers; Microsoft Agent 365 (per-user) + Microsoft Entra ID P1/P2 required for agent security features | The Entra Agent ID **platform** is available to all Entra customers. Extending **security and governance features** to agents requires **Microsoft 365 E7** or **E5 + Agent 365**. Standalone options (each still needing Agent 365): CA for agents (P1), ID Protection (P2), ID Governance (P1), network controls (Entra Internet Access). See [Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started). |
 | **2.27** | Consumption-Entitlement Governance | Power Platform Premium + Microsoft 365 Copilot or Microsoft Agent 365 (per-user) for metered consumption surfaces | Entitlement evaluation, per-agent spend caps, and policy-scope group registration. Zones 2–3 require entitlement contract evaluation and coverage-gap analysis; Zone 3 additionally requires per-agent metered spend caps. See [Copilot Studio licensing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions). |
@@ -180,7 +180,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
 | **3.11** | Centralized Agent Inventory Enforcement | Power Platform Premium | PPAC Agent Inventory feature |
 | **3.12** | Agent Governance Exception and Override Management | Microsoft 365 E3+ | Dataverse/SharePoint exception register |
-| **3.13** | Agent 365 Admin Center Analytics | Microsoft Agent 365 (per-user) | Agent overview hero metrics and governance cards start collecting data when Agent 365 licenses are activated; feature visibility can vary by subscription. See [Agent management in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide) |
+| **3.13** | Agent 365 Admin Center Analytics | Microsoft Agent 365 (per-user) | Agent overview hero metrics and governance cards start collecting data when Agent 365 licenses are activated; feature visibility can vary by subscription. See [Agent management in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview?view=o365-worldwide) |
 | **3.14** | Agent 365 Observability SDK | Microsoft Agent 365 (per-user) + Microsoft 365 E5 or Microsoft Purview Suite for extended audit retention | Observability SDK telemetry enables M365 admin center monitoring and Defender/Purview integration; Purview audit-retention licensing should be validated for regulated retention requirements. See [Agent 365 Observability](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability) and [Purview audit retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) |
 
 ---
@@ -325,7 +325,7 @@ To verify current license assignments:
 - [Agent Management Essentials overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-essentials-overview)
 - [Agent prerequisites](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites)
 - [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
-- [Agent 365 overview page in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide)
+- [Agent 365 overview page in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview?view=o365-worldwide)
 - [Copilot Control System overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-controls/copilot-controls-overview)
 
 ---
