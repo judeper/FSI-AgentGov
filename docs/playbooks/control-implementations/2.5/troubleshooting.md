@@ -139,30 +139,34 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddHours(-24) -EndDate (Get-Date) `
   Export-Csv -NoTypeInformation -Path .\E07-audit-<incident>.csv
 ```
 
-**Copilot Studio Analytics export (PowerShell + Power Platform CLI):**
-```
-pac copilot analytics export --bot <botId> --environment <envId> `
-  --start "<UTC start>" --end "<UTC end>" --output .\E06-analytics-<incident>.csv
+**Copilot Studio Maker Evaluation runs & test sets (PowerShell + Power Platform CLI):**
+```powershell
+# List Maker Evaluation test sets and inspect a completed test run (`pac copilot-studio`)
+pac copilot-studio list-maker-evaluation-test-sets --bot-id <botId> --environment <envId> --json |
+  Out-File -FilePath .\E06-testsets-<incident>.json -Encoding utf8
+pac copilot-studio get-maker-evaluation-test-run --bot-id <botId> --test-run-id <testRunId> --environment <envId> --json |
+  Out-File -FilePath .\E06-testrun-<incident>.json -Encoding utf8
 ```
 
-**Pipeline run history (last promotion):**
-```
-pac pipeline list --environment <envId> --output json |
-  ConvertFrom-Json | Where-Object { $_.SolutionUniqueName -eq "<solution>" } |
-  Sort-Object CompletedOn -Descending | Select-Object -First 5
+**Pipeline configuration & stage metadata (last promotion):**
+```powershell
+# List configured pipelines and stages in the host environment (`pac pipeline list`)
+pac pipeline list --environment <hostEnvId>
 ```
 
 **Foundry evaluation run summary (Python, AI Evaluation SDK):**
-```
-from azure.ai.evaluation import EvaluationClient
-client = EvaluationClient.from_connection_string(<conn>)
-run = client.get_run("<run_id>")
-print(run.status, run.metrics, run.artifacts)
+```python
+from azure.ai.evaluation import evaluate, GroundednessEvaluator, ContentSafetyEvaluator
+# Inspect local evaluation output JSON produced by `azure.ai.evaluation.evaluate(..., output_path=...)`
+import json, pathlib
+summary = json.loads(pathlib.Path("eval-output.json").read_text(encoding="utf-8"))
+print(summary.get("metrics"), summary.get("studio_url"))
 ```
 
-**Solution Checker last result:**
-```
-pac solution check-result --solution-unique-name <solution> --output table
+**Solution Checker static analysis against exported solution archive:**
+```powershell
+pac solution export --path .\<solution>.zip --name <solution> --environment <envId> --managed false --overwrite
+pac solution check --path .\<solution>.zip --environment <envId> --outputDirectory .\E08-checker --saveResults true
 ```
 
 These five queries cover roughly 80% of the artifacts needed for E-05 through E-10. Run them early; their output is timestamped, which strengthens the evidentiary chain.
@@ -293,7 +297,7 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 
 **Diagnostic steps:**
 1. Open the Solution Checker report and review each high/critical finding individually; do not bulk-suppress.
-2. Pull the pipeline run JSON (`pac pipeline list ... --output json`) and inspect every stage transition.
+2. Pull the pipeline configuration (`pac pipeline list --environment <hostEnvId>`) and inspect stage-run records (`deployresultrun` / `deploymentstage` tables in the Pipelines host environment) for every stage transition.
 3. Check Managed Environment policies in Power Platform Admin → Environments → Policies.
 4. Diff the source solution `.zip` and the deployed solution export; identify drift.
 
@@ -768,4 +772,4 @@ A non-exhaustive list of anti-patterns observed in Control 2.5 implementations a
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
