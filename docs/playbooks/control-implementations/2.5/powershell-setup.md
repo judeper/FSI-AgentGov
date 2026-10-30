@@ -369,8 +369,8 @@ function Invoke-Agt25CopilotStudioBaseline {
         Write-Error "pac copilot-studio run-maker-evaluation-test-set failed"; exit 2
     }
     $kickoff = $kickoffRaw | ConvertFrom-Json
-    $testRunId = $kickoff.testRunId
-    if (-not $testRunId) { Write-Error "No testRunId returned from run-maker-evaluation-test-set"; exit 2 }
+    $testRunId = if ($kickoff.PSObject.Properties['runId']) { $kickoff.runId } else { $kickoff.id }
+    if (-not $testRunId) { Write-Error "No runId returned from run-maker-evaluation-test-set"; exit 2 }
 
     $runOut = Join-Path $exportDir "run-$testRunId.json"
     $maxAttempts = 30
@@ -386,16 +386,27 @@ function Invoke-Agt25CopilotStudioBaseline {
         }
         $runRaw | Set-Content -Path $runOut -Encoding utf8
         $report = $runRaw | ConvertFrom-Json
-        if ($report.status -in @('Completed', 'Succeeded', 'Failed', 'Error')) { break }
+        if ($report.state -in @('Completed', 'Failed', 'Cancelled', 'Abandoned', 'Deleted')) { break }
         Start-Sleep -Seconds 10
+    }
+    if (-not $report -or $report.state -ne 'Completed') {
+        $runState = if ($report) { $report.state } else { 'Unknown' }
+        Write-Error "Maker Evaluation test run $testRunId did not complete cleanly (state=$runState)"; exit 2
     }
 
     $transcriptSha = (Get-FileHash $runOut -Algorithm SHA256).Hash
 
-    $passed = @($report.testCases | Where-Object { $_.result -eq 'Pass' -or $_.status -eq 'Passed' }).Count
-    $failed = @($report.testCases | Where-Object { $_.result -eq 'Fail' -or $_.status -eq 'Failed' }).Count
-    $total  = @($report.testCases).Count
-    if ($total -eq 0) { Write-Error "Maker Evaluation test run returned zero test cases (false-clean guard)"; exit 2 }
+    $cases  = @($report.testCasesResults)
+    $total  = if ($null -ne $report.totalTestCases -and [int]$report.totalTestCases -gt 0) { [int]$report.totalTestCases } else { $cases.Count }
+    if ($total -eq 0 -or $cases.Count -eq 0) { Write-Error "Maker Evaluation test run returned zero test cases (false-clean guard)"; exit 2 }
+    $passed = @(
+        $cases | Where-Object {
+            $_.state -eq 'Completed' -and
+            @($_.metricsResults).Count -gt 0 -and
+            @($_.metricsResults | Where-Object { $_.result.status -ne 'Pass' }).Count -eq 0
+        }
+    ).Count
+    $failed = $total - $passed
     $passRate = [math]::Round($passed / $total, 4)
 
     $zoneThreshold = switch ($Session.Zone) { 'Zone1' { 0.80 } 'Zone2' { 0.90 } 'Zone3' { 0.95 } }
@@ -909,7 +920,7 @@ function Invoke-Agt25PipelineDeployment {
             --currentVersion $CurrentVersion `
             --newVersion $NewVersion `
             --environment $HostEnvironmentId `
-            --wait true | Out-Null
+            --wait | Out-Null
         if ($LASTEXITCODE -ne 0) { Write-Error "pac pipeline deploy failed"; exit 2 }
         return [pscustomobject]@{
             Check='PipelineDeployment'; Pass=$true; Severity='Info'
