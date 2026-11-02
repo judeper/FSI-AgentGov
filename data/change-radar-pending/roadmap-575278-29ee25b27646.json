@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:29ee25b27646816e562f6b5f8f596a2df45b7ce22921de3493b4b6a3d7545ce8",
+  "detected_at": "2026-11-02T16:39:48Z",
+  "ga_date": "November CY2026",
+  "id": 575278,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "October CY2026",
+  "products": [
+    "Microsoft Contact Center Intelligence"
+  ],
+  "raw_description": "<p>Bring Microsoft AI to the contact center platform of your choice with the Universal Connector. Organizations can now integrate Microsoft self-service voice and chat agents with virtually any contact center using a simple API-based approach. The Universal Connector enables seamless handoff from AI agents to human representatives while preserving the full conversation context, ensuring a connected and personalized customer experience across every interaction.<br>\nThis flexibility allows organizations to modernize at their own pace by bringing AI-powered experiences to their existing contact center investments without requiring a costly migration or platform replacement. Whether supporting voice or chat experiences, customers can quickly extend intelligent self-service capabilities while maintaining continuity across AI and human-assisted engagements.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=575278",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Rolling out",
+  "suggested_controls": [
+    {
+      "id": "1.4",
+      "source": "keyword:connector"
+    }
+  ],
+  "title": "Microsoft Contact Center Intelligence: Universal connector for self-service omnichannel agents"
+}

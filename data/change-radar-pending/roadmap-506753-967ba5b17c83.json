@@ -1,0 +1,17 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:967ba5b17c837ba5843ebc9403fe542881c28d6f8ac8082d3ca80b2b843edcca",
+  "detected_at": "2026-11-02T16:39:48Z",
+  "ga_date": null,
+  "id": 506753,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=506753",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] [1.02] Generate Word, Excel, and PowerPoint documents from agents built in Microsoft 365 Copilot"
+}
