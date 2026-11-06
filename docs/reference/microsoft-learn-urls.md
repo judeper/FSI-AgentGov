@@ -85,7 +85,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Copilot Studio Overview** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio | Oct 2026 |
 | **Security and Governance** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance | Oct 2026 |
-| **Sensitivity Labels in Copilot Studio** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio | Oct 2026 |
+| **Sensitivity Labels in Copilot Studio** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-data-loss-prevention | Oct 2026 |
 | **Agent Publishing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels | Oct 2026 |
 | Share and Manage Agents | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots | Oct 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview | Oct 2026 |
