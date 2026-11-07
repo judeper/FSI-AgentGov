@@ -1,0 +1,22 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:475d3a3a7a06b9cf53d80b6e0a0cd07553078034370b139bed72d112881d6b81",
+  "detected_at": "2026-11-02T16:39:48Z",
+  "ga_date": "October CY2026",
+  "id": 577834,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft 365",
+    "Microsoft 365 admin center",
+    "Microsoft Copilot Studio",
+    "Microsoft Power Platform governance and administration"
+  ],
+  "raw_description": "<p>We’re expanding cost management for Microsoft Copilot Studio into the Microsoft 365 admin center. This gives administrators a more centralized way to manage Copilot Credit spend across usage-based AI workloads while retaining Copilot Studio cost management capabilities in the Power Platform admin center.<br>\nWith this update, administrators can bring supported Copilot Studio environments and agents under Cost Management spending policies. Resource-based policies for environments and agents are the first planned scopes, with broader user and group policy support planned for a later phase.<br>\nFurthermore, this update will introduce cost data into cost management and agent registry for AI services and agents built on Microsoft platforms (e.g., Cowork, Microsoft Copilot Studio agents).</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577834",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot Studio: Copilot studio cost controls in MAC"
+}

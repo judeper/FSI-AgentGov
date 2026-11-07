@@ -2,8 +2,32 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-10-26T13:42:43Z",
+      "last_run": "2026-11-02T16:39:48Z",
       "items": {
+        "577834": {
+          "hash": "sha256:475d3a3a7a06b9cf53d80b6e0a0cd07553078034370b139bed72d112881d6b81",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Copilot studio cost controls in MAC",
+          "detected_at": "2026-11-02T16:39:48Z"
+        },
+        "573256": {
+          "hash": "sha256:b6f9156fb04f309a5f767320d91f46ec67193db6082f3edd9d36f727a9b47efd",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Create expenses from credit card feeds",
+          "detected_at": "2026-11-02T16:39:48Z"
+        },
+        "575278": {
+          "hash": "sha256:29ee25b27646816e562f6b5f8f596a2df45b7ce22921de3493b4b6a3d7545ce8",
+          "status": "Rolling out",
+          "title": "Microsoft Contact Center Intelligence: Universal connector for self-service omnichannel agents",
+          "detected_at": "2026-11-02T16:39:48Z"
+        },
+        "573265": {
+          "hash": "sha256:828cb7bf3dc84b48ea1d7be1af8eb00d56e1b42acee1ceafbd8c9339c653d28a",
+          "status": "Launched",
+          "title": "Dynamics 365 Business Central: Expense Agent mobile app",
+          "detected_at": "2026-11-02T16:39:48Z"
+        },
         "578077": {
           "hash": "sha256:e92f9ab3dc897ed52be0e43943d7801c6980db2fa38e7263f80831880f786fd6",
           "status": "Launched",
@@ -143,9 +167,9 @@
           "detected_at": "2026-10-26T13:42:43Z"
         },
         "576272": {
-          "hash": "sha256:02d6ca47c6ac8fa07d8107bc966e1cdc6b8d80d3693f5cf2f24227024b56f137",
+          "hash": "sha256:7d0aebdc9a2f3d672c304404ac32bf8673c61f414936fe28fa50a4c225272080",
           "status": "In development",
-          "title": "Copilot Studio: Computer Use for web browsing on GitHub Copilot Harness",
+          "title": "Copilot Studio: Computer Use for web browsing on Microsoft Copilot Harness",
           "detected_at": "2026-10-26T13:42:43Z"
         },
         "571305": {
@@ -527,8 +551,8 @@
           "detected_at": "2026-08-31T14:33:17Z"
         },
         "569475": {
-          "hash": "sha256:564d25939317f00e89dc21866929ff583633c99aa48850b614ddcd38c8e73bb3",
-          "status": "In development",
+          "hash": "sha256:23e7f859eb4b9c37823497ad55c832267bf0d336781eebaad118d67d35f32eb8",
+          "status": "Launched",
           "title": "Microsoft Copilot Studio: Agent Sharing amongst makers",
           "detected_at": "2026-08-31T14:33:17Z"
         },
@@ -599,8 +623,8 @@
           "detected_at": "2026-07-20T09:49:11Z"
         },
         "567670": {
-          "hash": "sha256:33c0f22d72b7a755712bc80898532b66c30004029f3963200e6d84a8c82929e0",
-          "status": "In development",
+          "hash": "sha256:2c8bd9ed98dcd8ec6b3be528c83a56313516707ffaf33f60a00a9ac3e66e4566",
+          "status": "Rolling out",
           "title": "Microsoft Copilot (Microsoft 365): Use Agent 365 agents within Microsoft 365 Copilot Chat and Declarative Agents",
           "detected_at": "2026-07-20T09:49:11Z"
         },
@@ -641,8 +665,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "566998": {
-          "hash": "sha256:6ea7c95a7021830b7bed473adf2a48b231a888eca627559bdf01dc1e2a1f0c3c",
-          "status": "In development",
+          "hash": "sha256:6644438a42a8673226a8ab7b1f362e7e8b807ac426bf612619d7fc7c86a928a3",
+          "status": "Launched",
           "title": "Microsoft Copilot Studio: Invoke agents as workflow steps with the agent node",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -719,8 +743,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "562220": {
-          "hash": "sha256:e96919ae4797c37b5a7824feed3832aa1f19a94822c7f3d59e4f496c03511d20",
-          "status": "In development",
+          "hash": "sha256:94699586aac6eac249764c11adc1328eb221d919a063eb7bfcd195684fc02ac9",
+          "status": "Cancelled",
           "title": "Microsoft Copilot Studio: Supercharge your workflows with computer use",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -1154,12 +1178,6 @@
           "hash": "sha256:ffe28c8a1cbfb3fed9e4b0d0047dda001ff9cba2b6f7ac345054b55f270abffc",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Agent Mode in Excel",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "506753": {
-          "hash": "sha256:967ba5b17c837ba5843ebc9403fe542881c28d6f8ac8082d3ca80b2b843edcca",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] [1.02] Generate Word, Excel, and PowerPoint documents from agents built in Microsoft 365 Copilot",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "502546": {
