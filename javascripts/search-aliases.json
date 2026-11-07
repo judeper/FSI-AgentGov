@@ -1,0 +1,578 @@
+[
+  {
+    "term": "Data Loss Prevention",
+    "aliases": [
+      "DLP",
+      "Cloud DLP",
+      "data leakage",
+      "data exfiltration",
+      "sensitivity labels"
+    ],
+    "url": "controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/",
+    "label": "Data Loss Prevention (DLP) and Sensitivity Labels"
+  },
+  {
+    "term": "Endpoint Data Loss Prevention",
+    "aliases": [
+      "Endpoint DLP",
+      "device DLP",
+      "local file exfiltration",
+      "copy to USB"
+    ],
+    "url": "controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/",
+    "label": "Endpoint Data Loss Prevention"
+  },
+  {
+    "term": "DSPM for AI",
+    "aliases": [
+      "DSPM",
+      "Data Security Posture Management",
+      "Purview DSPM",
+      "AI data posture"
+    ],
+    "url": "controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
+    "label": "Microsoft Purview DSPM for AI"
+  },
+  {
+    "term": "Power Platform Admin Center",
+    "aliases": [
+      "PPAC",
+      "Power Platform portal",
+      "PPAC security",
+      "security posture"
+    ],
+    "url": "controls/pillar-3-reporting/3.7-ppac-security-posture-assessment/",
+    "label": "PPAC Security Posture Assessment"
+  },
+  {
+    "term": "Copilot Hub",
+    "aliases": [
+      "Copilot area",
+      "PPAC Copilot",
+      "Copilot dashboard",
+      "governance dashboard"
+    ],
+    "url": "controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/",
+    "label": "Copilot Hub and Governance Dashboard"
+  },
+  {
+    "term": "Microsoft Purview Audit",
+    "aliases": [
+      "Purview",
+      "audit logs",
+      "activity logs",
+      "audit trail",
+      "who did what"
+    ],
+    "url": "controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/",
+    "label": "Comprehensive Audit Logging and Compliance"
+  },
+  {
+    "term": "Sensitive Information Type",
+    "aliases": [
+      "SIT",
+      "SITs",
+      "pattern recognition",
+      "sensitive data pattern",
+      "SSN detection"
+    ],
+    "url": "controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/",
+    "label": "Sensitive Information Types (SITs) and Pattern Recognition"
+  },
+  {
+    "term": "Role-Based Access Control",
+    "aliases": [
+      "RBAC",
+      "role based access",
+      "application authorization",
+      "least privilege",
+      "access matrix"
+    ],
+    "url": "controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/",
+    "label": "Application-Level Authorization and RBAC"
+  },
+  {
+    "term": "Information Rights Management",
+    "aliases": [
+      "IRM",
+      "rights management",
+      "no copy",
+      "no print",
+      "document encryption"
+    ],
+    "url": "controls/pillar-1-security/1.16-information-rights-management-irm-for-documents/",
+    "label": "Information Rights Management (IRM) for Documents"
+  },
+  {
+    "term": "Conditional Access",
+    "aliases": [
+      "CA policy",
+      "MFA",
+      "phishing-resistant MFA",
+      "FIDO2",
+      "Windows Hello"
+    ],
+    "url": "controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/",
+    "label": "Conditional Access and Phishing-Resistant MFA"
+  },
+  {
+    "term": "Step-Up Authentication",
+    "aliases": [
+      "step up auth",
+      "extra verification",
+      "high risk operation auth"
+    ],
+    "url": "controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations/",
+    "label": "Step-Up Authentication for AI Agent Operations"
+  },
+  {
+    "term": "eDiscovery",
+    "aliases": [
+      "ediscovery",
+      "legal hold",
+      "case export",
+      "agent interaction discovery"
+    ],
+    "url": "controls/pillar-1-security/1.19-ediscovery-for-agent-interactions/",
+    "label": "eDiscovery for Agent Interactions"
+  },
+  {
+    "term": "Data Retention",
+    "aliases": [
+      "retention policy",
+      "record retention",
+      "deletion policy",
+      "WORM",
+      "write once read many",
+      "books and records"
+    ],
+    "url": "controls/pillar-1-security/1.9-data-retention-and-deletion-policies/",
+    "label": "Data Retention and Deletion Policies"
+  },
+  {
+    "term": "Information Barriers",
+    "aliases": [
+      "IB",
+      "ethical wall",
+      "restricted segments",
+      "barrier policy"
+    ],
+    "url": "controls/pillar-1-security/1.22-information-barriers/",
+    "label": "Information Barriers for AI Agents"
+  },
+  {
+    "term": "Advanced Connector Policies",
+    "aliases": [
+      "ACP",
+      "connector policy",
+      "connector allowlist",
+      "connector blocklist"
+    ],
+    "url": "controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
+    "label": "Advanced Connector Policies (ACP)"
+  },
+  {
+    "term": "Agent Publishing Authorization",
+    "aliases": [
+      "who can publish",
+      "publish agents",
+      "agent publishing",
+      "restrict publishing",
+      "publisher authorization"
+    ],
+    "url": "controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+    "label": "Restrict Agent Publishing by Authorization"
+  },
+  {
+    "term": "Policy-Based Publishing Restrictions",
+    "aliases": [
+      "publishing policy",
+      "publish restriction",
+      "channel publishing",
+      "deployment restriction"
+    ],
+    "url": "controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
+    "label": "Policy-Based Agent Publishing Restrictions"
+  },
+  {
+    "term": "Agent Inventory",
+    "aliases": [
+      "agent registry",
+      "integrated apps",
+      "app inventory",
+      "agent catalog",
+      "all agents"
+    ],
+    "url": "controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+    "label": "Agent Inventory and Metadata Management"
+  },
+  {
+    "term": "Integrated Apps",
+    "aliases": [
+      "M365 integrated apps",
+      "app consent",
+      "publisher attested",
+      "M365 certification",
+      "application inventory"
+    ],
+    "url": "controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+    "label": "Agent Registry and Integrated Apps Management"
+  },
+  {
+    "term": "File Upload Restrictions",
+    "aliases": [
+      "file upload",
+      "upload files",
+      "file analysis",
+      "attachment upload"
+    ],
+    "url": "controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/",
+    "label": "Agent File Upload and File Analysis Restrictions"
+  },
+  {
+    "term": "MIME Type Restrictions",
+    "aliases": [
+      "MIME",
+      "file type restriction",
+      "block file type",
+      "unsafe attachments"
+    ],
+    "url": "controls/pillar-1-security/1.25-mime-type-restrictions/",
+    "label": "MIME Type Restrictions for File Uploads"
+  },
+  {
+    "term": "Runtime Protection",
+    "aliases": [
+      "prompt injection",
+      "runtime threat detection",
+      "external threat detection",
+      "agent attack"
+    ],
+    "url": "controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/",
+    "label": "Runtime Protection and External Threat Detection"
+  },
+  {
+    "term": "Managed Environments",
+    "aliases": [
+      "managed environment",
+      "Power Platform managed",
+      "environment governance"
+    ],
+    "url": "controls/pillar-2-management/2.1-managed-environments/",
+    "label": "Managed Environments"
+  },
+  {
+    "term": "Environment Groups",
+    "aliases": [
+      "environment group",
+      "tier classification",
+      "environment tier",
+      "group rules"
+    ],
+    "url": "controls/pillar-2-management/2.2-environment-groups-and-tier-classification/",
+    "label": "Environment Groups and Tier Classification"
+  },
+  {
+    "term": "Environment Routing",
+    "aliases": [
+      "maker routing",
+      "default environment routing",
+      "auto provisioning",
+      "shadow AI"
+    ],
+    "url": "controls/pillar-2-management/2.15-environment-routing/",
+    "label": "Environment Routing and Auto-Provisioning"
+  },
+  {
+    "term": "Change Management",
+    "aliases": [
+      "ALM",
+      "release planning",
+      "change control",
+      "change advisory board",
+      "CAB"
+    ],
+    "url": "controls/pillar-2-management/2.3-change-management-and-release-planning/",
+    "label": "Change Management and Release Planning"
+  },
+  {
+    "term": "Business Continuity",
+    "aliases": [
+      "BC",
+      "DR",
+      "BCDR",
+      "disaster recovery",
+      "kill switch"
+    ],
+    "url": "controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery/",
+    "label": "Business Continuity and Disaster Recovery"
+  },
+  {
+    "term": "Testing and Validation",
+    "aliases": [
+      "QA",
+      "quality assurance",
+      "UAT",
+      "pre deployment testing",
+      "model validation"
+    ],
+    "url": "controls/pillar-2-management/2.5-testing-validation-and-quality-assurance/",
+    "label": "Testing, Validation, and Quality Assurance"
+  },
+  {
+    "term": "Model Risk Management",
+    "aliases": [
+      "MRM",
+      "model risk",
+      "OCC 2026-13",
+      "OCC 2011-12",
+      "SR 26-2",
+      "SR 11-7"
+    ],
+    "url": "controls/pillar-2-management/2.6-model-risk-management-sr-26-2/",
+    "label": "Model Risk Management"
+  },
+  {
+    "term": "Supervision and Oversight",
+    "aliases": [
+      "FINRA 3110",
+      "Rule 3110",
+      "WSP",
+      "written supervisory procedures",
+      "registered principal",
+      "HITL"
+    ],
+    "url": "controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/",
+    "label": "Supervision and Oversight (FINRA Rule 3110)"
+  },
+  {
+    "term": "Conflict of Interest Testing",
+    "aliases": [
+      "COI",
+      "conflicts testing",
+      "recommendation bias",
+      "best interest conflict"
+    ],
+    "url": "controls/pillar-2-management/2.18-automated-conflict-of-interest-testing/",
+    "label": "Automated Conflict of Interest Testing"
+  },
+  {
+    "term": "Customer AI Disclosure",
+    "aliases": [
+      "AI disclosure",
+      "consumer transparency",
+      "tell customers AI is used",
+      "user disclosure"
+    ],
+    "url": "controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency/",
+    "label": "Customer AI Disclosure and Transparency"
+  },
+  {
+    "term": "Microsoft Agent 365",
+    "aliases": [
+      "Agent 365",
+      "agent control plane",
+      "agent governance console",
+      "Agent 365 admin center"
+    ],
+    "url": "controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/",
+    "label": "Microsoft Agent 365 Admin Center Governance Console"
+  },
+  {
+    "term": "Entra Agent ID",
+    "aliases": [
+      "agent identity",
+      "agentic user",
+      "non-human identity",
+      "agent identity governance"
+    ],
+    "url": "controls/pillar-2-management/2.26-entra-agent-id-identity-governance/",
+    "label": "Entra Agent ID Identity Governance"
+  },
+  {
+    "term": "Microsoft Sentinel",
+    "aliases": [
+      "Sentinel",
+      "SIEM",
+      "KQL",
+      "SOC analytics"
+    ],
+    "url": "controls/pillar-3-reporting/3.9-microsoft-sentinel-integration/",
+    "label": "Microsoft Sentinel Integration"
+  },
+  {
+    "term": "Hallucination Feedback Loop",
+    "aliases": [
+      "hallucination",
+      "wrong answers",
+      "accuracy feedback",
+      "drift tracking"
+    ],
+    "url": "controls/pillar-3-reporting/3.10-hallucination-feedback-loop/",
+    "label": "Hallucination Feedback Loop"
+  },
+  {
+    "term": "SharePoint Information Access Governance",
+    "aliases": [
+      "IAG",
+      "RCD",
+      "Restricted Content Discovery",
+      "restricted discovery"
+    ],
+    "url": "controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
+    "label": "SharePoint IAG / Restricted Content Discovery"
+  },
+  {
+    "term": "Item-Level Permission Scanning",
+    "aliases": [
+      "item level permissions",
+      "permission scanning",
+      "knowledge source permissions",
+      "AKSS",
+      "overshared files"
+    ],
+    "url": "controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources/",
+    "label": "Item-Level Permission Scanning for Agent Knowledge Sources"
+  },
+  {
+    "term": "FINRA Rule 4511",
+    "aliases": [
+      "FINRA 4511",
+      "Rule 4511",
+      "books and records",
+      "six year recordkeeping"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "FINRA Rule 4511 Books and Records Mapping"
+  },
+  {
+    "term": "SEC Rule 17a-3/4",
+    "aliases": [
+      "SEC 17a-3",
+      "SEC 17a-4",
+      "17a-4",
+      "17a-3/4",
+      "WORM storage"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "SEC Rule 17a-3/4 Recordkeeping Mapping"
+  },
+  {
+    "term": "SOX Sections 302 and 404",
+    "aliases": [
+      "SOX 302",
+      "SOX 404",
+      "Sarbanes-Oxley",
+      "internal controls"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "SOX 302/404 Internal Controls Mapping"
+  },
+  {
+    "term": "GLBA Safeguards Rule",
+    "aliases": [
+      "GLBA 501",
+      "GLBA 501(b)",
+      "GLBA 501-505",
+      "Safeguards Rule",
+      "customer NPI"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "GLBA Safeguards Rule Mapping"
+  },
+  {
+    "term": "CFTC Rule 1.31",
+    "aliases": [
+      "CFTC 1.31",
+      "Rule 1.31",
+      "commodities records",
+      "derivatives records"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "CFTC Rule 1.31 Recordkeeping Mapping"
+  },
+  {
+    "term": "Regulation Best Interest",
+    "aliases": [
+      "Reg BI",
+      "best interest",
+      "broker dealer recommendations",
+      "Form CRS"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "SEC Regulation Best Interest Mapping"
+  },
+  {
+    "term": "ECOA Fair Lending",
+    "aliases": [
+      "ECOA",
+      "fair lending",
+      "Regulation B",
+      "adverse action",
+      "disparate impact"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "ECOA and Fair Lending Mapping"
+  },
+  {
+    "term": "UDAAP",
+    "aliases": [
+      "unfair deceptive abusive acts",
+      "CFPB UDAAP",
+      "consumer protection",
+      "deceptive AI"
+    ],
+    "url": "reference/regulatory-mappings/",
+    "label": "CFPB UDAAP Mapping"
+  },
+  {
+    "term": "Governance Zones",
+    "aliases": [
+      "Zone 1",
+      "Zone 2",
+      "Zone 3",
+      "personal productivity",
+      "team collaboration",
+      "enterprise managed"
+    ],
+    "url": "framework/zones-and-tiers/",
+    "label": "Governance Zones and Tiers"
+  },
+  {
+    "term": "Bias Testing and Fairness Assessment",
+    "aliases": [
+      "bias testing",
+      "fairness assessment",
+      "fairness testing",
+      "model bias",
+      "bias detection",
+      "algorithmic bias"
+    ],
+    "url": "controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment/",
+    "label": "Bias Testing and Fairness Assessment"
+  },
+  {
+    "term": "Microsoft 365 Copilot Data Governance",
+    "aliases": [
+      "M365 Copilot data governance",
+      "Microsoft 365 Copilot data governance",
+      "Copilot data governance",
+      "M365 Copilot governance",
+      "Copilot data protection"
+    ],
+    "url": "controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/",
+    "label": "Microsoft 365 Copilot Data Governance"
+  },
+  {
+    "term": "Role Catalog",
+    "aliases": [
+      "admin roles",
+      "canonical roles",
+      "Entra Global Admin",
+      "Purview Compliance Admin",
+      "Power Platform Admin"
+    ],
+    "url": "reference/role-catalog/",
+    "label": "Role Catalog"
+  }
+]
