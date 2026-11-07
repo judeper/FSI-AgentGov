@@ -30,7 +30,7 @@ This checklist specifies evidence to collect during authorized testing. It does 
 **What to capture:**
 - Automated adversarial testing stage in deployment pipeline
 - Test execution results with pass/fail indicators per attack category
-- Recorded zone policy: Zone 1 advisory; Zone 2 at least 90% defense rate with regression blocking; Zone 3 at least 95% overall and 98% for Critical/High families
+- Recorded zone policy: Zone 1 per the walkthrough is advisory, but the verification playbook (TC-2.20-09) and validator carry a Z1 ≥ 0.80 baseline — an unresolved pre-existing conflict awaiting the firm-policy owner; Zone 2 at least 90% defense rate with regression blocking; Zone 3 at least 95% overall and 98% for Critical/High families
 - Negative-path results showing that empty/skipped suites, adapter/probe errors, unscored/`REVIEW` results, missing required evidence, and enforced threshold/family breaches cannot produce a passing release
 - Actual firm implementation and run identifiers; an illustrative script or pipeline screenshot alone is not evidence that the gate works
 

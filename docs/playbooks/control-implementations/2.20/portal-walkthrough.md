@@ -212,6 +212,8 @@ The gate is a CI/CD job that runs the adversarial probe before any production re
 
 Implement the gate as a pipeline stage in Azure DevOps or GitHub Actions; the probe runner is described in `powershell-setup.md` §2. The pipeline must fail closed: if the runner errors out or the evidence pack does not generate a SHA-256 manifest, the release does **not** proceed.
 
+The Zone 1 "Advisory / n/a" values above conflict with the Z1 ≥ 0.80 baseline in the verification playbook (TC-2.20-09) and sibling validator. This pre-existing conflict is unresolved and needs a firm-policy owner decision; neither value is a Microsoft default.
+
 The sibling script is an abbreviated pattern, not a delivered release gate. Before deployment, the firm's implementation must prove that empty/skipped suites, `REVIEW`/unscored results, adapter failures, missing evidence, and Critical/High family breaches cannot produce a passing release. These are firm-set requirements, not Microsoft default thresholds.
 
 ### Step 7 — Run the cycle

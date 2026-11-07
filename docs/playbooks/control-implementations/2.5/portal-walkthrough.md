@@ -1234,4 +1234,6 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency wording only. Not a whole-page re-verification; the verification status above is the prior record and is unchanged.*

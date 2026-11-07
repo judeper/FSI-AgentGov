@@ -110,7 +110,7 @@ This pattern creates timestamped evidence names, not an idempotent replay guaran
     Executes an adversarial test suite against an AI agent endpoint and emits a SHA-256-hashed evidence pack.
 
 .DESCRIPTION
-    Idempotent probe runner for Control 2.20. Loads test cases from a tagged attack library,
+    Documentary probe-runner pattern for Control 2.20 (not idempotent; each run is preserved). Loads test cases from a tagged attack library,
     sends prompts to the agent under test, scores responses against attack/defense indicators,
     and writes a CSV + JSON + SHA-256 manifest evidence pack.
 

@@ -725,4 +725,6 @@ Maintain a rolling 12-month trend-watch table that the Control 1.21 owner review
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector correction; tenant UI not tested)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency and `AgentsInfo` wording only. Not a whole-page re-verification; the verification status above is the prior record.*

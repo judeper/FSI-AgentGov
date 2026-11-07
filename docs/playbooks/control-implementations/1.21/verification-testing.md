@@ -1371,4 +1371,6 @@ These are the 18 patterns that have caused FSI auditor findings in this control 
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted audit connector correction; tenant execution not tested)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency and `AgentsInfo` wording only. Not a whole-page re-verification; the verification status above is the prior record.*

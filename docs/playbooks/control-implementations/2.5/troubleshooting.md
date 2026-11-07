@@ -773,4 +773,6 @@ A non-exhaustive list of anti-patterns observed in Control 2.5 implementations a
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (2.20 dependency/containment routing corrected 2026-11-06; no new tenant UI evidence)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency/containment routing wording only. Not a whole-page re-verification; the verification status above is the prior record and is unchanged.*

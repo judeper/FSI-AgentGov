@@ -34,7 +34,7 @@
     | 1 | Azure AI Content Safety — Prompt Shields | Azure portal *or* AI Foundry portal | AI / Azure AI Foundry Admin | **Synchronous** (pre-response) |
     | 2 | Defender for Cloud — Threat Protection for AI Workloads | Azure portal — Defender for Cloud | Azure / Defender for Cloud Admin | Seconds–minutes |
     | 3 | Defender XDR — Security for AI (Copilot detections) | `security.microsoft.com` | Defender XDR Admin | Seconds–minutes |
-    | 3a | Power Platform — Threat detection handshake | `admin.preview.powerplatform.microsoft.com` | Power Platform Admin | Up to 30 min to propagate |
+    | 3a | Agent 365 — licensing and registry/observability onboarding evidence | `security.microsoft.com` | Defender XDR Admin | Record actual timing; no fixed window is asserted |
     | 4 | Purview Comm Compliance — Detect Microsoft Copilot Interactions | `purview.microsoft.com` | Purview Communication Compliance Admin | Minutes–hours |
     | 5 | Purview Audit — `CopilotInteraction` verification | `purview.microsoft.com` | Purview Compliance Admin | Minutes–hours |
     | 6 | Microsoft Sentinel — Content Hub solutions (Copilot, Defender for Cloud) | Azure portal — Sentinel | Sentinel SOC Analyst | Per-rule window |
@@ -114,7 +114,7 @@ Assign the following canonical roles to **named individuals** (not group-only) b
 | Azure subscription scope, Defender for Cloud plan toggle | Azure / Defender for Cloud Admin | *Owner* or *Security Admin* on the subscription; *Security Admin* in Defender for Cloud |
 | Azure AI Foundry deployment, Prompt Shields config | AI / Azure AI Foundry Admin | *Cognitive Services Contributor* on the resource; *Azure AI Developer* in Foundry |
 | Defender XDR Security for AI toggle | Defender XDR Admin | *Security Administrator* in Entra; *Security Admin* in Defender XDR unified RBAC |
-| Power Platform threat detection handshake | Power Platform Admin | *Power Platform Administrator* in Entra |
+| Agent 365 licensing / onboarding evidence | Defender XDR Admin | Role requirements follow current Microsoft Agent 365 and Defender documentation; not verified here |
 | Comm Compliance policy authoring | Purview Communication Compliance Admin | Member of *Communication Compliance Admins* role group in Purview |
 | Reviewer assignment for Comm Compliance Copilot policy | Designated Supervisor / Registered Principal | Member of *Communication Compliance Investigators* + *Reviewers* role groups; named in WSP |
 | Audit search verification | Purview Compliance Admin | *Audit Reader* or *Audit Manager* role group |
@@ -124,7 +124,7 @@ Assign the following canonical roles to **named individuals** (not group-only) b
 | Sign-off on Zone 3 blocking posture | CISO + AI Governance Lead | Tenant-level acceptance; documented in the agent risk register (Control 1.2) |
 
 !!! warning "Agent security onboarding at §4"
-    Coordinate the authorized Power Platform and Defender operators, but do not treat a legacy Power Platform threat-detection handshake as Agent 365 licensing, registry/observability coverage or complete telemetry. Capture current eligibility, settings and onboarding evidence.
+    Coordinate the authorized Defender and Agent 365 operators, but do not treat a legacy Power Platform threat-detection handshake as Agent 365 licensing, registry/observability coverage or complete telemetry. Capture current eligibility, settings and onboarding evidence.
 
 !!! note "Agent 365 inventory and alert migration"
     Microsoft names the legacy inventory table `AIAgentsInfo` and replacement `AgentsInfo`; validate the actual schema. Copilot Studio / Foundry agent security requires Agent 365 from July 1, 2026, while Azure model protection remains distinct. Agent 365 real-time protection rule events move to `BehaviorInfo`, not a universal legacy alert stream; see the [transition guidance](https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365).
@@ -261,9 +261,9 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 
 ## §4 Enable Defender XDR — Security for AI (Microsoft 365 Copilot detections)
 
-**Owner:** Defender XDR Admin (and Power Platform Admin for the handshake step)<br>
+**Owner:** Defender XDR Admin<br>
 **Surface:** Plane 3 (M365 Copilot detection)<br>
-**Two-portal step.** This is the most common point of failure in the walkthrough — schedule both admins in the same change window.
+**Separate dependencies.** Security for AI settings (§4.1) and Agent 365 licensing/onboarding evidence (§4.2) are checked separately; no legacy Power Platform handshake is assumed.
 
 ### 3.1 Enable Security for AI in Defender XDR
 
@@ -285,7 +285,7 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 ### 3.3 Verify Copilot UPIA / XPIA detections
 
 1. From the Defender portal, navigate to **Hunting** → **Advanced hunting**.
-2. For Copilot Studio / Foundry agents, verify the test agent in the available `AgentsInfo` inventory using a schema-validated query. Do not reuse the legacy `AIAgentInfo` specimen or invent field mappings. Microsoft 365 Copilot detection is a separate workload, not proof of Agent 365 agent onboarding.
+2. For Copilot Studio / Foundry agents, verify the test agent in the available `AgentsInfo` inventory using a schema-validated query. Do not reuse the legacy `AIAgentsInfo` specimen or invent field mappings. Microsoft 365 Copilot detection is a separate workload, not proof of Agent 365 agent onboarding.
 3. From test agent B (M365 Copilot pointed at the test SharePoint library that contains the XPIA poison fixture), open Copilot chat and ask a benign question that would cause Copilot to ground on the poisoned document.
 4. For a supported Microsoft 365 Copilot detection scenario, retain the actual alert and available entities/identifiers with measured ingestion timing; do not assume every stimulus generates an alert.
 5. Test the applicable UPIA route and record its expected signal. Agent 365 real-time protection events are queried as `BehaviorInfo` behaviors, not substituted with a legacy alert expectation.
@@ -322,6 +322,8 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 6. **Conditions** step → confirm both built-in classifiers are **Enabled**:
     - **Prompt Shield** (prompt injection / jailbreak risk classifier).
     - **Protected Material** (copyrighted / branded output classifier).
+
+    *Unverified:* these classifier names are carried forward unchanged. They were not confirmed or refuted against current Microsoft Learn in the 2026-11-07 targeted correction; confirm the actual classifier names in the tenant's Communication Compliance template before relying on them.
 7. **Sample rate:** Zone 3 → **100%**. Zone 2 → 10–25% to start, tune up after pilot. Zone 1 (if scoped at all) → 1–5%.
 8. **Review** → **Submit**.
 
@@ -650,7 +652,7 @@ The audit pack is the per-deployment artifact set that proves the configured pla
 | 7 | Defender for Cloud AI Workloads plan-on screenshot per subscription | §3.1 | PNG | Azure / Defender for Cloud Admin |
 | 8 | Defender for Cloud → Defender XDR alert routing screenshot + sample alert ID | §3.2 | PNG / Text | Azure / Defender for Cloud Admin |
 | 9 | Defender XDR Security for AI settings screenshot | §4.1 | PNG | Defender XDR Admin |
-| 10 | Current Agent 365 eligibility/settings and registry-observability evidence + timestamps | §4.2 | PNG / settings export | Power Platform Admin + Defender XDR Admin |
+| 10 | Current Agent 365 eligibility/settings and registry-observability evidence + timestamps | §4.2 | PNG / settings export | Defender XDR Admin |
 | 11 | Agent 365 licensing/onboarding and schema-validated `AgentsInfo` inventory evidence | §4.3 | CSV / settings export | Sentinel SOC Analyst |
 | 12 | Applicable raw threat-detection alert / real-time protection behavior identifiers and configured incident correlation, where available | §4.3 | Text / JSON | Defender XDR Admin |
 | 13 | Comm Compliance policy screenshot (active state, scope, classifiers, sample rate) | §5.2 | PNG | Purview Communication Compliance Admin |
@@ -730,4 +732,6 @@ Handoffs:
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*
+*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector correction; tenant UI not tested)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency wording, legacy Power Platform handshake removal and `AgentsInfo` naming only. Not a whole-page re-verification; the verification status above is the prior record. The Prompt Shield / Protected Material classifier names are unverified.*

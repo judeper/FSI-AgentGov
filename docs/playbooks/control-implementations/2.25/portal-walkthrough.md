@@ -933,4 +933,6 @@ Before declaring this control operational, confirm all of the following:
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (2.20 scope reference corrected 2026-11-06; no new tenant UI evidence)*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+
+*Targeted correction, #911 (2026-11-06): 2.20 scope reference only. Not a whole-page re-verification; the UI verification status above is the prior record and is unchanged.*
