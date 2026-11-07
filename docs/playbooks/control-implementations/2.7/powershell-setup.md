@@ -12,7 +12,7 @@
 
 **Last Verified:** 2026-11-06
 
-**Verification scope:** Documentation-only review of the read commands and evidence boundaries; no tenant/API execution or screenshots tested.
+**Verification scope:** Documentation-only review of the read commands and evidence boundaries; no tenant/API execution or screenshots tested. Corrected 2026-11-07 for documented `Get-AdminPowerAppConnector` and `Get-DlpPolicy` coverage limits and the `Get-DlpPolicy` list `.Value` envelope, using Microsoft documentation and static review of module 2.0.198 only; the scripts remain unexecuted and the date above is not renewed for the rest of this page.
 
 ## Prerequisites
 
@@ -37,6 +37,9 @@ The existing Power Apps version pin is retained, not newly certified against a t
 
 [Get-AdminPowerAppConnector](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/get-adminpowerappconnector?view=pa-ps-latest) returns **custom connectors**, not the complete prebuilt/certified catalog or a complete usage inventory. Preserve raw output instead of inferring publisher, connector type, owner, or API URLs from undocumented projected properties. Reconcile it with the portal [resource inventory](portal-walkthrough.md#part-1-build-the-connector-inventory-ppac), approved vendor records, and agent tools. Confirm every required environment is visible; a successful empty response alone does not establish completeness.
 
+!!! warning "Known limitation: solution-packaged custom connectors are not returned"
+    Microsoft documents that `Get-AdminPowerAppConnector` **doesn't list custom connectors that are in a solution** ([Power Platform PowerShell support](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell), "Display all custom connectors in the tenant"). Solution-based ALM is a normal delivery path, so this export is a **partial** list of the custom connectors visible to the cmdlet, not a complete custom-connector inventory. An empty `CustomConnectors` array, a zero count or a connector absent from the JSON does **not** show that no custom connector exists. Before relying on the export, separately reconcile it against the contents of the relevant solutions and the portal resource inventory under an authorized role, and record any connector found only there. This limitation was confirmed from Microsoft documentation and the `Microsoft.PowerApps.Administration.PowerShell` 2.0.198 reference text only; it was not reproduced in a tenant.
+
 ```powershell
 function Export-CustomConnectorInventory {
     [CmdletBinding()]
@@ -53,8 +56,9 @@ function Export-CustomConnectorInventory {
         [pscustomobject]@{
             EnvironmentDisplayName = $env.DisplayName
             EnvironmentId          = $env.EnvironmentName
-            CustomConnectorCount   = $connectors.Count
+            ReturnedCustomConnectorCount = $connectors.Count
             CustomConnectors       = $connectors
+            CompletenessLimitation = 'Excludes solution-packaged custom connectors (documented Get-AdminPowerAppConnector limitation); not a complete inventory. Reconcile against solution contents and portal inventory.'
             CollectedAt            = (Get-Date).ToUniversalTime().ToString('o')
         }
     })
@@ -75,6 +79,13 @@ Export-CustomConnectorInventory -Verbose
 
 The [custom connector policy reference](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity) maps **Confidential = Business** and **General = Non-business**. Host URL rules are obtained separately with **Get-PowerAppPolicyUrlPatterns**, using the tenant ID and policy GUID; they are not an assumed embedded field in **Get-DlpPolicy**. Retain the full policy and ordered pattern payloads for manual scope/classification reconciliation; counts alone are not effective-policy evidence.
 
+!!! warning "Known limitations of Get-DlpPolicy output, and a response envelope"
+    Microsoft documents two known issues for `Get-DlpPolicy` ([Power Platform PowerShell support](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell), "Retrieve a list of data policy objects"): (1) **connector display names** are those from policy creation or the last time the connector was moved within the policy, so later renames are not reflected; and (2) **connectors that are in the policy's default group and were never moved are not returned**. The default group is whatever the policy configures; it is not necessarily Non-business. Per-group counts, and any connector list built from this output, can therefore **understate the default group** and show stale names. Treat the CSV as a summary of the connectors the cmdlet returned, not a complete or effective classification of every connector, and reconcile it with the policy's portal view. Microsoft's documented workaround moves a connector out of and back into a group; that **mutates policy**, is not part of this read-only collector, and should not be used as an inventory tactic without a separate change ticket. These limits come from Microsoft documentation and have not been reproduced in a tenant.
+
+    Unlike the single-policy form (`-PolicyName`), the list form returned by `Get-DlpPolicy` in `Microsoft.PowerApps.Administration.PowerShell` 2.0.198 is a response object whose `Value` property holds the policy items; the module's REST helper returns that envelope without unwrapping it, and Microsoft's administration sample enumerates `.Value`. The example below therefore validates and enumerates `.Value` and fails closed when it is absent, instead of reading `name` or `connectorGroups` from the envelope. `Get-AdminDlpPolicy` is a different cmdlet with a different endpoint and output projection and is not a substitute.
+
+    **Not executed against a tenant.** Static review supports `.Value`, `name`, `displayName` and `connectorGroups[].classification` / `.connectors` on policy items. It does **not** establish that `environmentType`, `createdTime` or `lastModifiedTime` are present and populated for every list item (the timestamp support found is for policy-creation responses), so blank values in those CSV columns mean "not returned", not "unchanged". Treat the script as unvalidated until run by an authorized owner against the approved module version, including zero, one, multiple and paged policies. `Get-PowerAppPolicyUrlPatterns` parameters and the documented rule-object shape were checked, not its endpoint behavior or applicability to every policy.
+
 ```powershell
 function Export-DlpPolicyPosture {
     [CmdletBinding()]
@@ -85,11 +96,19 @@ function Export-DlpPolicyPosture {
     $ErrorActionPreference = 'Stop'
     New-Item -ItemType Directory -Path (Split-Path $OutputPath) -Force | Out-Null
 
-    $policies = @(Get-DlpPolicy -ErrorAction Stop)
-    ConvertTo-Json -InputObject $policies -Depth 100 |
+    $response = Get-DlpPolicy -ErrorAction Stop
+    ConvertTo-Json -InputObject $response -Depth 100 |
         Set-Content "$OutputPath.policies.json" -Encoding UTF8
+    if ($null -eq $response -or -not $response.PSObject.Properties['Value'] -or $null -eq $response.Value) {
+        throw 'Get-DlpPolicy response has no Value collection; reconcile the raw response before continuing.'
+    }
+    $policies = @($response.Value)
+    if (-not $policies.Count) {
+        Write-Warning 'Value is empty; this is not proof that no policies exist. Reconcile with the portal under an authorized role.'
+    }
     $patterns = @(foreach ($p in $policies) {
         if (-not $p.name) { throw 'Policy GUID missing; reconcile raw policy output before continuing.' }
+        if (-not $p.PSObject.Properties['connectorGroups']) { throw "Policy $($p.name) has no connectorGroups; do not report zero counts." }
         [pscustomobject]@{
             PolicyId = $p.name
             UrlPatterns = Get-PowerAppPolicyUrlPatterns -TenantId $TenantId -PolicyName $p.name -ErrorAction Stop
@@ -106,9 +125,9 @@ function Export-DlpPolicyPosture {
             PolicyName            = $p.displayName
             PolicyId              = $p.name
             EnvironmentType       = $p.environmentType
-            BusinessConnectors    = ($business.connectors | Measure-Object).Count
-            NonBusinessConnectors = ($nonBusiness.connectors | Measure-Object).Count
-            BlockedConnectors     = ($blocked.connectors | Measure-Object).Count
+            ReturnedBusinessConnectors    = ($business.connectors | Measure-Object).Count
+            ReturnedNonBusinessConnectors = ($nonBusiness.connectors | Measure-Object).Count
+            ReturnedBlockedConnectors     = ($blocked.connectors | Measure-Object).Count
             CreatedTime           = $p.createdTime
             LastModifiedTime      = $p.lastModifiedTime
             CollectedAt           = (Get-Date).ToUniversalTime().ToString('o')
@@ -118,7 +137,7 @@ function Export-DlpPolicyPosture {
     if ($rows.Count) {
         $rows | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
     } else {
-        '"PolicyName","PolicyId","EnvironmentType","BusinessConnectors","NonBusinessConnectors","BlockedConnectors","CreatedTime","LastModifiedTime","CollectedAt"' |
+        '"PolicyName","PolicyId","EnvironmentType","ReturnedBusinessConnectors","ReturnedNonBusinessConnectors","ReturnedBlockedConnectors","CreatedTime","LastModifiedTime","CollectedAt"' |
             Set-Content -Path $OutputPath -Encoding UTF8
     }
     foreach ($file in @($OutputPath, "$OutputPath.policies.json", "$OutputPath.url-patterns.json")) {
@@ -135,7 +154,7 @@ Export-DlpPolicyPosture -TenantId '<tenant-id>'
 
 ## 3. Inventory Reconciliation
 
-Use Section 1's custom connector evidence without a publisher-based filter: a non-Microsoft publisher does not identify a custom connector, and custom connectors can reach Microsoft or third-party endpoints. Record maker permissions, owner/shared visibility, resource usage and endpoint reviews. Tenant Host URL patterns do not constrain dynamically changed hosts after policy evaluation. DLP governs **usage**, not the right to create a custom connector; the [Environment Maker role](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview#environment-roles) includes creation rights. Sharing limits are not a custom-connector creation switch.
+Use Section 1's custom connector evidence without a publisher-based filter: a non-Microsoft publisher does not identify a custom connector, and custom connectors can reach Microsoft or third-party endpoints. Section 1's export omits solution-packaged custom connectors, so reconcile it with solution contents and the portal resource inventory, and keep any connector found only there in the register with its source. Section 2's counts omit never-moved default-group connectors and can show stale connector names, so classify from the policy's portal view rather than the CSV alone. Neither export is a complete inventory, and absence from either is not evidence that a connector does not exist or is unclassified. Record maker permissions, owner/shared visibility, resource usage and endpoint reviews. Tenant Host URL patterns do not constrain dynamically changed hosts after policy evaluation. DLP governs **usage**, not the right to create a custom connector; the [Environment Maker role](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview#environment-roles) includes creation rights. Sharing limits are not a custom-connector creation switch.
 
 Retrieve classic connector action/endpoint configurations separately where used ([connector configuration commands](https://learn.microsoft.com/en-us/power-platform/admin/connector-endpoint-filtering)). ACP settings and agent-level MCP tool selections require their own evidence; this DLP report does not collect them.
 
@@ -225,6 +244,7 @@ Invoke-Control27Snapshot -TenantId '<tenant-id>'
 - **Tenant collection is read-only.** Installation/authentication and local file writes have their own effects; the collectors do not change tenant DLP, connector or agent configuration. Never add DLP mutations without `-WhatIf`/`-Confirm`, change tickets, and documented rollback.
 - **Service principal usage.** For unattended collection, follow the FSI baseline pattern (certificate-based auth, just-in-time vault retrieval, scoped admin role). Avoid storing client secrets on disk.
 - **Evidence handling.** Snapshot output may include connector names that are themselves sensitive (e.g., internal API surface). Store in a least-privilege evidence repository governed by Purview retention.
+- **Coverage limits travel with the evidence.** Keep the solution-packaged custom connector and `Get-DlpPolicy` default-group/stale-name limitations in the evidence cover note; a manifest that hashes the files does not make them complete.
 
 ---
 

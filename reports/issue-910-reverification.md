@@ -159,6 +159,17 @@ Claim searches additionally reviewed `docs\reference\work-iq-governance.md`, `do
 - `releases\CHANGELOG-archive\CHANGELOG-v1.3.md`, `reports\issue-821-reverification.md`, and `reports\monitoring\learn-changes-{2026-03-11,2026-04-28,2026-06-23,2026-07-12,2026-08-28,2026-09-22,2026-10-16,2026-10-17}.md`: historical provenance/link hits, deliberately unchanged.
 - `data\monitor-state.json` and `data\monitor-pending\learn\learn.microsoft.com-en-us-microsoft-365-copilot-microsoft-365-copilot-privacy-{5b5180a9faa3df5c35c850da,6901fb9b97edbbf91f157c17,8685fd30a74366b95b13a929}.json`: historical source snapshots, not authored guidance; preserved.
 
+## Independent revision (2026-11-07) — coverage-limit and response-envelope corrections
+
+An independent reviewer rejected the original head `6037a934d32f833ac77fe9a6b92bcec4912dcdbb` because the 2.7 PowerShell guidance omitted documented cmdlet limits and assumed an unwrapped `Get-DlpPolicy` list. The revision (markdown only; no module install/import/execution, tenant, Graph or admin API call) corrects:
+
+- **`Get-AdminPowerAppConnector`** does not list custom connectors that are in a solution ([Power Platform PowerShell support](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell)). The export is labelled partial, and reconciliation with solution contents and portal inventory is required.
+- **`Get-DlpPolicy`** shows connector display names as of policy creation or last move within the policy, and omits never-moved default-group connectors (same source). The default group is not necessarily Non-business; counts are labelled "Returned". No connector-moving workaround is added to the read-only collector.
+- **List envelope.** Static review of `Microsoft.PowerApps.Administration.PowerShell` 2.0.198 (list route returns the REST helper's aggregated object with a `value` collection) and Microsoft's administration sample (`.Value`) shows the list form is an envelope. The example now enumerates `.Value` and throws on a missing/null `Value` or a policy without `connectorGroups`; an empty `Value` warns and is not treated as proof of no policies. `Get-AdminDlpPolicy` (different endpoint and projection) is not substituted.
+- **Unverified fields.** `environmentType`, `createdTime` and `lastModifiedTime` support exists only for policy-creation responses in the official sample; they are kept as columns with an explicit not-established qualification and no invented replacements.
+
+Limits: evidence is documentation plus a downloaded, inert 2.0.198 package/sample read; the limitations and the envelope were not reproduced in a tenant, the scripts were not run against the real module, and paging, scope-specific URL-pattern behavior and field presence remain unverified. The "Last Verified" dates and Needs Review UI status of the pages are not renewed. The proposed PR body below is the original and is superseded by the revised PR description.
+
 ## Generators and validation
 
 Commands executed from repository root with `PYTHONIOENCODING=utf-8`. Existing installed tools were available; no dependencies installed or restored.

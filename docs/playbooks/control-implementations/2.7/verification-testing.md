@@ -12,7 +12,7 @@
 
 | # | Test | Expected Evidence | Pass Criteria |
 |---|------|-------------------|---------------|
-| 1 | Connector inventory currency and coverage | Resource inventory CSV plus raw custom connector evidence; timestamp ≤ 7 days for Zone 2/3, ≤ 30 days for Zone 1; coverage/exception register | All Zone 2/3 environments reconciled; built-in HTTP, classic chatbot and other inventory gaps explicitly reviewed; reviewer initials present |
+| 1 | Connector inventory currency and coverage | Resource inventory CSV plus raw custom connector evidence; timestamp ≤ 7 days for Zone 2/3, ≤ 30 days for Zone 1; coverage/exception register | All Zone 2/3 environments reconciled; built-in HTTP, classic chatbot, solution-packaged custom connector (omitted by `Get-AdminPowerAppConnector`) and other inventory gaps explicitly reviewed; reviewer initials present |
 | 2 | Risk-tier completeness | Tier T1–T5 populated for every row; T3/T4/T5 connectors have a documented business owner | Zero blanks in Tier or Owner columns for Zone 2/3 |
 | 3 | DLP enforcement of Blocked tier | Non-production maker test of blocked connector and allowed positive control; actual policy error/details and publish/runtime result | Supported connector/tool use is rejected at the documented enforcement stage; capture actual logs where available, not an assumed Purview event |
 | 4 | Custom connector governance | Actual Environment Maker / Dataverse role assignments, approved producer environments, custom connector DLP classifications and Host URL rules | Creation permissions reviewed and usage restrictions tested; default-environment limitations/approved exceptions documented; sharing limits not treated as creation restrictions |
@@ -173,8 +173,8 @@ For registered Microsoft 365/Agent 365 plugins and MCP servers, capture actual p
 
 For each examination cycle, assemble:
 
-1. Latest resource inventory and raw custom connector snapshot, coverage register and SHA-256 manifest
-2. Raw DLP policies, separately retrieved custom Host URL patterns/connector configurations, ACP scope/status, and actual enforcement test results
+1. Latest resource inventory and raw custom connector snapshot, coverage register and SHA-256 manifest. The snapshot omits solution-packaged custom connectors (documented `Get-AdminPowerAppConnector` limitation), so the register must show reconciliation with solution contents
+2. Raw DLP policies, separately retrieved custom Host URL patterns/connector configurations, ACP scope/status, and actual enforcement test results. `Get-DlpPolicy` output omits never-moved default-group connectors and can show stale connector names; record the portal reconciliation that covers them
 3. Custom connector inventory, actual maker-role assignments and usage-restriction evidence; no invented creation-switch screenshot
 4. Per-vendor due diligence pack (Tier T2–T5)
 5. Quarterly vendor risk reports for the prior 12 months
