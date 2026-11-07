@@ -17,6 +17,11 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
 
+!!! warning "Agent 365 transition — these alert examples are not complete agent coverage"
+    From July 1, 2026, Copilot Studio / Foundry agent security requires Agent 365 licensing and observability/registry onboarding; the Azure subscription model plan does not grant that coverage. Defender for AI Services continues to protect Azure OpenAI / Foundry Models. Verify the consolidated Security for AI Agents toggle and the available `AgentsInfo` inventory schema.
+
+    Legacy Agent 365 real-time protection rule alerts move to `BehaviorInfo`; threat-detection alerts remain distinct. Existing Agent 365 blocking rules require redefinition in the new real-time protection policy experience; Copilot Studio real-time protection through Defender for Cloud Apps is separately unchanged. The `alerts_v2`/`SecurityAlert` examples below do not query behaviors or implement the migration. Validate the applicable signal and collection route, preserve raw identifiers and observed timing, and do not count an empty alert collection as a passing probe. [Microsoft transition guidance](https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365).
+
 ---
 
 ## 0. Wrong-shell trap (READ FIRST)
@@ -482,7 +487,7 @@ A row whose `JailbreakEnabled` or `IndirectAttackEnabled` is `$false` for a depl
 
 ## 5. Enable Microsoft Defender for Cloud — AI Workload plan
 
-The AI workload plan is the *Azure-side* detection plane. Once enabled on a subscription, Defender for Cloud raises typed alerts (*Jailbreak attempt detected*, *Suspected prompt injection*, *Sensitive data exposure in AI response*, *Credential theft in AI response*, *Suspected data exfiltration*) for inference traffic on Azure OpenAI / Foundry resources in that subscription. Alerts flow to the Defender portal, Defender XDR (via the Microsoft Graph security API), and Sentinel.
+The AI workload plan is the *Azure model-side* detection plane for Azure OpenAI / Foundry Models, not the Agent 365 agent entitlement. Verify actual supported alert types and configured routing; the subscription example does not onboard Copilot Studio / Foundry agents.
 
 ```powershell
 function Enable-Agt121DefenderAiPlan {
@@ -524,6 +529,8 @@ function Enable-Agt121DefenderAiPlan {
 ## 6. Query Defender XDR alerts (Microsoft.Graph.Security)
 
 Defender XDR exposes a unified `alerts_v2` collection that includes Defender for Cloud AI alerts and Microsoft 365 Copilot detection alerts (UPIA / XPIA). The `Microsoft.Graph.Security` module wraps `/security/alerts_v2` as `Get-MgSecurityAlertV2`.
+
+This is an **alert-only** collection pattern. It does not capture migrated Agent 365 real-time protection `BehaviorInfo` events, prove agent onboarding, or imply every probe produces a matching alert. The firm must implement and validate the applicable behavior/alert evidence path.
 
 ```powershell
 function Get-Agt121AdversarialAlerts {
@@ -643,6 +650,11 @@ function New-Agt121SentinelRuleFromTemplate {
 ---
 
 ## 8. Paged Unified Audit Log pull for `CopilotInteraction`
+
+!!! warning "Native record-type example, not complete Copilot Studio audit coverage"
+    This pattern fixes `RecordType` to `CopilotInteraction`. Microsoft's [audit schema](https://learn.microsoft.com/en-us/purview/audit-copilot) distinguishes actual operation, record type, workload and AppIdentity for native Copilot and custom/connected AI scenarios. Do not require this record category for every Studio thread or equate Operation with RecordType.
+
+    Preserve available agent/message/resource identifiers and correlation confidence; do not assume universal ConversationId/ThreadId or legacy field mappings. The firm must implement supported workload filters and schema-aware evidence capture. Zero records can be a collector return value, but cannot prove audit completeness or a clean probe; record unsupported scope, collection errors and missing expected evidence separately.
 
 This function retrieves `CopilotInteraction` records for a window — the *who / when / which agent / which thread / sensitive-data-touched* metadata. **It does not — and cannot — match on prompt body text.** Microsoft's `CopilotInteraction` audit record body does not carry the full prompt content. Pattern matching on the prompt itself must come from Prompt Shields (§4), Defender for Cloud / Defender XDR (§5–§6), or Communication Compliance (portal-only). KQL over the audit log is **metadata correlation only**.
 
@@ -1120,4 +1132,4 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*

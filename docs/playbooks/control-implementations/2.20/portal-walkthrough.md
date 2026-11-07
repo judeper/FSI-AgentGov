@@ -3,13 +3,21 @@
 **Control:** [2.20 — Adversarial Testing and Red Team Framework](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md)<br>
 **Pillar:** Management<br>
 **Last UI Verified:** April 2026<br>
+**Last Verified:** 2026-11-06 (Microsoft Learn documentation review; not tenant UI verification)<br>
 **Estimated time:** 6–10 hours initial setup; 2–8 hours per recurring test cycle (varies by zone and agent surface)<br>
 **Governance Levels:** Baseline / Recommended / Regulated
 
 ---
 
+!!! warning "Verification boundary and implementation prerequisites"
+    Microsoft product guidance was checked against the live sources in [Microsoft documentation reviewed](#microsoft-documentation-reviewed) on 2026-11-06. No tenant actions, screenshots, probes, or license assignments were verified. The historical UI date above is not renewed.
+
+    Copilot Studio solution transport requires a Dataverse environment and solution-management privileges (at least the **System Customizer** Dataverse security role). Assign the test identities the licenses required for the experience under test; a test organizational unit is not a licensing exemption. Managed Environments require qualifying standalone licenses or pay-as-you-go coverage for active usage. PIM requires Microsoft Entra ID P2 or Microsoft Entra ID Governance licensing. Foundry evaluations require an Azure subscription, a supported project/region, the **Foundry User** role, and applicable quota/billing.
+
+    Microsoft 365 Copilot does not run inside a Power Platform sandbox. Use a separately isolated test tenant and synthetic Microsoft 365 content for that surface. The **Microsoft 365 Copilot Chat API is preview**, requires a Microsoft 365 Copilot add-on license and delegated Graph permissions, and does not support application permissions or action/content-generation skills. Interactive testing remains necessary for experiences the API does not cover.
+
 !!! danger "READ FIRST — what this walkthrough is and is NOT"
-    This walkthrough configures the **proactive adversarial testing program** (red-team charter, attack library, isolated test environment, golden dataset, pre-deployment gate, evidence pack) for Microsoft 365 Copilot, Microsoft Copilot Studio agents, and Azure AI Foundry-backed FSI agents.
+    This walkthrough configures the **proactive adversarial testing program** (red-team charter, attack library, isolated test environment, golden dataset, pre-deployment gate, evidence pack) for Microsoft 365 Copilot, Microsoft Copilot Studio agents, and Microsoft Foundry (formerly Azure AI Foundry)-backed FSI agents.
 
     It is **NOT** a substitute for the following sibling controls. Each is a separate configuration surface with its own playbook:
 
@@ -31,8 +39,8 @@
     |---|---|---|---|---|
     | 1 | Red-team program charter (document) | Internal GRC system | AI Governance Lead | Charter must precede any tenant action |
     | 2 | Isolated test environment | `admin.powerplatform.microsoft.com` | Power Platform Admin | Sandbox; no production data |
-    | 3 | Test agent deployment (Copilot Studio) | `copilotstudio.microsoft.com` | Copilot Studio Agent Author | Cloned from production at known config snapshot |
-    | 4 | Azure AI Foundry deployment under test (if applicable) | `ai.azure.com` | Azure AI Owner | Read-only review of content filters & Prompt Shields |
+    | 3 | Test agent deployment (Copilot Studio) | `copilotstudio.microsoft.com` | Microsoft Copilot Studio Agent Author | Transport approved release; record differences from production snapshot |
+    | 4 | Microsoft Foundry deployment under test (if applicable) | `ai.azure.com` | Cloud Security Architect | Read-only guardrail review with appropriate Foundry/Azure RBAC |
     | 5 | Attack library + golden dataset (version-controlled) | Internal repo | Security Architect + Model Risk Manager | Reviewed quarterly |
     | 6 | Pre-deployment gate (CI/CD pipeline) | Azure DevOps / GitHub Actions | Cloud Security Architect | Gate threshold defined per zone |
     | 7 | Evidence pack (test results + SHA-256 manifest) | Storage with WORM / immutability lock | Cloud Security Architect | Reconcile with Control 1.19 hold |
@@ -46,13 +54,13 @@
 
 In scope:
 
-- Microsoft 365 Copilot, Copilot Studio agents, and Azure OpenAI / Azure AI Foundry-backed agents in any zone.
+- Microsoft 365 Copilot, Copilot Studio agents, and Azure OpenAI / Microsoft Foundry-backed agents in any zone, using the surface-specific isolation and test interfaces described above.
 - Adversarial test categories: prompt injection (direct + indirect / XPIA), jailbreak, system-prompt extraction, data exfiltration (NPI / MNPI), suitability bypass, encoded evasion (Base64, Unicode confusables, zero-width), tool / plugin abuse, multi-turn manipulation.
 - Pre-deployment probes and scheduled cycles (monthly Z3, quarterly Z2, annual Z1).
 
 Out of scope (handled by sibling controls — see READ FIRST):
 
-- Production detection (1.21), eDiscovery hold (1.19), bias testing (2.11), general QA (2.5), connector / DLP authoring (3.1), and incident response workflow (3.4).
+- Production detection (1.21), eDiscovery hold (1.19), bias testing (2.11), general QA (2.5), connector / DLP authoring (1.4 / 1.5), and incident response workflow (3.4).
 
 ### 0.2 Portal vs script matrix
 
@@ -60,10 +68,10 @@ Out of scope (handled by sibling controls — see READ FIRST):
 |---|---|---|---|
 | Author program charter | Internal GRC / Word | n/a | Document, sign, store in records system |
 | Create isolated test environment | ✅ PPAC | ✅ `New-AdminPowerAppEnvironment` | Portal recommended for first-time setup; script for repeatable refresh |
-| Clone production agent into sandbox | ✅ Copilot Studio (Solutions export/import) | ✅ Solution CLI | Portal walkthrough below; see `powershell-setup.md` for solution-based pipeline |
+| Transport a Copilot Studio agent into sandbox | ✅ Copilot Studio (Solutions export/import) | Power Platform CLI, where implemented | Use the approved unmanaged source solution; Step 3 is not an exact clone; the sibling PowerShell playbook does not supply a solution-transport pipeline |
 | Maintain attack library | Source repo | n/a | Version control (Git) is the system of record |
-| Run probes against agent endpoint | ❌ | ✅ PyRIT / `Invoke-AdversarialTests.ps1` | No portal-driven probe runner |
-| Run Azure AI Foundry Risk & Safety Evaluations | ✅ AI Foundry | ✅ Foundry SDK | Portal-driven for ad-hoc; SDK for pipeline |
+| Run probes against agent endpoint | Surface-dependent | PyRIT or firm-implemented runner | Foundry offers automated AI red teaming for supported targets; there is no universal runner across all three surfaces, and this repository does not ship `Invoke-AdversarialTests.ps1` |
+| Run risk and safety evaluations | ✅ Foundry **Evaluation → Create** | Foundry SDK | Evaluates supported targets or preexisting outputs; evaluator/target/region restrictions and preview features apply |
 | Capture evidence pack (SHA-256) | n/a | ✅ Mandatory script step | See `powershell-setup.md` §5 |
 | Track findings & remediation | Internal GRC / DevOps work-item system | API | Out of scope for Microsoft portals |
 
@@ -85,17 +93,17 @@ Complete every gate **before** opening any portal. Most defects in red-team prog
 
 - [ ] Sandbox Power Platform environment exists, labelled `RedTeam-{agent}-{yyyymm}`, type **Sandbox**, region matched to production.
 - [ ] DLP and Managed Environment posture in the sandbox matches production at a known snapshot date (record snapshot ID).
-- [ ] Sandbox environment **contains no production customer data**. Synthetic data only. Verify via Purview Data Map scan of the sandbox storage.
+- [ ] Sandbox environment **contains no production customer data**. Synthetic data only. Review every imported table, file, knowledge source, connection reference, flow, and tool destination. Purview Data Map scans of supported sources are supplementary classification evidence, not proof that all content is synthetic; scanning samples content.
 
 ### 1.3 Identity gate
 
-- [ ] Test users exist in a non-licensed test OU; do not reuse production identities.
+- [ ] Dedicated test identities exist with the required experience-specific licenses and least-privileged roles; do not reuse production identities.
 - [ ] Operator account uses **Privileged Identity Management (PIM)** for elevation; standing access not granted.
 - [ ] Audit logging is enabled in the sandbox (Control 1.7) so probe activity is captured and retrievable.
 
 ### 1.4 Tooling gate
 
-- [ ] Microsoft PyRIT installed at a CAB-approved version on the operator workstation or pipeline runner.
+- [ ] Microsoft PyRIT (Python Risk Identification Tool) installed at a CAB-approved version on the operator workstation or pipeline runner; validate that version's Python requirements and target adapter.
 - [ ] Attack library repository checked out at a tagged commit; commit SHA recorded for the run.
 - [ ] Golden dataset checked out at a tagged version; version recorded.
 - [ ] Evidence storage location confirmed and immutability / retention policy verified (link to Control 1.19 hold).
@@ -125,52 +133,53 @@ Store the signed charter in records-retention scope (link to Control 1.19 hold t
 ### Step 2 — Create an isolated test environment (PPAC)
 
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com/).
-2. **Environments → New**.
+2. **Manage → Environments → New**.
 3. Configure:
    - **Name:** `RedTeam-{AgentName}-{YYYYMM}` (e.g. `RedTeam-AdvisoryBot-202604`)
    - **Type:** Sandbox
    - **Region:** Same as production
-   - **Dataverse:** Add only if production agent uses Dataverse
+   - **Add a Dataverse data store?:** Yes for Copilot Studio agents and solution import
    - **Security group:** Restrict to red-team operator group
-4. After provisioning, open the environment → **Settings → Privacy + Security**:
-   - Confirm DLP policies match production at snapshot date.
-   - Enable detailed auditing.
-5. Apply the **Managed Environment** posture if production is managed.
+4. After provisioning, verify each configuration separately:
+   - **Security → Data and privacy → Data policy**: review all policies applicable to the sandbox and compare their effective scope/connector rules with the production snapshot.
+   - **Manage → Environments → {sandbox} → Settings → Audit and logs → Audit settings**: enable Dataverse auditing and the required table/column auditing. Dataverse audit settings do not by themselves enable every Copilot or Microsoft 365 audit stream; verify Control 1.7 separately.
+5. Apply the **Managed Environment** posture if production is managed, after confirming qualifying licensing/meter coverage.
 
 !!! note "Do not skip the security-group restriction"
-    Without a security group, default-tenant access lets unintended users see test prompts that may contain sensitive synthetic data. Restrict at create-time, not after.
+    Set the Microsoft Entra security group at create-time and review Dataverse security roles, agent sharing, and channel authentication separately. A group is not a complete isolation boundary: Power Platform Admin access and application users have documented exceptions. Without a group, eligible licensed users can be provisioned into the environment, but data access still requires security roles.
 
-### Step 3 — Clone the production agent into the sandbox
+### Step 3 — Transport the approved agent release into the sandbox
 
 For Copilot Studio agents:
 
 1. Open [Copilot Studio](https://copilotstudio.microsoft.com/).
-2. Switch to the **production** environment.
-3. Open the agent → **Settings → Solutions → Export as solution → Managed**.
-4. Switch to the **sandbox** environment.
-5. **Solutions → Import** → upload the exported solution.
-6. After import, open the agent and **disable any production connectors** (Graph, SharePoint, custom connectors) or rebind them to sandbox equivalents.
-7. Re-publish the agent to a sandbox channel only (do **not** re-publish to Teams / Web for the production audience).
+2. Use the approved **unmanaged source solution** corresponding to the production release. A managed solution installed in production cannot be exported; do not alter production to manufacture an export.
+3. Select the side-bar **… → Solutions** to open the solution explorer. Create/select a custom solution, add the agent, and use **Advanced → Add required objects** for its required components. Include flows, environment variables, connection references, and custom connectors.
+4. Select the unmanaged solution → **Export solution**. Choose the managed/unmanaged package type appropriate to the approved test workflow. Managed components must allow any sandbox customization needed for tests.
+5. Switch to the **sandbox** environment → solution explorer → **Import solution**. Import custom connectors before the connection references/agent solution when required.
+6. Review missing or nontransported knowledge sources, topics, IDs, channel details, and other properties; solution import is **not an exact clone**. Reconfigure user authentication. Before publishing or invoking the agent, replace production connections, tool/flow destinations, environment-variable values, and grounding sources with synthetic sandbox equivalents.
+7. Publish the imported agent only after that review and restrict its channels/audience to authorized test users. Record remaining differences from the production release in the evidence pack.
 
-For Azure AI Foundry-backed agents:
+For Microsoft Foundry-backed agents:
 
-1. Open [Azure AI Foundry](https://ai.azure.com/).
-2. Select the production project.
-3. **Deployments → Export** the model deployment configuration (JSON).
-4. In the sandbox project, recreate the deployment with the same model, version, and content-filter (RAI policy) configuration.
-5. Confirm Prompt Shields (UPIA + XPIA) state matches production. Record the snapshot in the evidence pack.
+1. Open [Microsoft Foundry](https://ai.azure.com/) and record whether the tenant uses the new or classic portal experience.
+2. Review the production project/deployment read-only. Capture deployment metadata through the documented Azure resource APIs or `Get-AzCognitiveServicesAccountDeployment`, and the referenced RAI policy through `Get-AzCognitiveServicesAccountRaiPolicy` where applicable. There is no assumed **Deployments → Export** portal action.
+3. Have the authorized deployment owner recreate the approved configuration in a separate test project/resource using the firm's deployment process. Verify current availability/quota for the chosen model/version/region; a historical model name in §4 is not an availability assertion.
+4. Compare model/version, assigned guardrails or content-filter policy, tools, identities, and synthetic grounding sources with the production snapshot. An exported policy alone does not prove that it is assigned or enforced.
+5. Confirm Prompt Shields (user prompt attacks + document attacks) state and supported intervention points. Record differences and actual policy/deployment identifiers in the evidence pack.
 
 ### Step 4 — Verify content-safety baseline on the agent under test
 
-Open the test agent's Azure AI Foundry deployment (if applicable):
+Open the test project in Microsoft Foundry (if applicable):
 
-1. **Deployments → {deployment} → Content filter (RAI policy)**.
-2. Verify Prompt Shields:
-   - **User prompt attacks** — should be **Annotate and Block** for Zone 3, at least **Annotate** for Zone 2.
-   - **Document attacks** (XPIA) — should be **Annotate and Block** where Prompt Shields supports it.
-3. Capture screenshots and the policy JSON via the Foundry SDK (see `powershell-setup.md` §3) for the evidence pack.
+1. In the new portal, select **Build** (top right) → **Guardrails** (left navigation). Review the guardrail assigned to the deployment/agent rather than creating or changing one during baseline capture. Classic deployments can expose content filters/RAI policies instead; record which configuration surface applies.
+2. Verify Prompt Shields controls:
+   - **User prompt attacks** — firm-defined Zone 3 posture is detection with blocking; Zone 2 is at least detection/annotation.
+   - **Document attacks** (XPIA) — detection with blocking where supported. User prompt detection is enabled by default; document attack detection is off by default. Confirm **user input** coverage for model calls and any supported **tool response** coverage for agents (Preview).
+   - Capture `detected` and `filtered` annotations separately. The standalone Azure AI Content Safety API only returns detection results; application logic must implement blocking.
+3. Capture the assigned configuration and representative benign/attack outcomes. `powershell-setup.md` §3 describes RAI-policy capture, not a complete guardrail SDK exporter. Capture tenant screenshots locally only if actually available; missing screenshots remain an open UI-verification item.
 
-This baseline is the **expected defense posture** the red-team probes will measure against. If Prompt Shields is not configured, the probe will record near-100 % attack success — the finding is then misattributed (it's a Control 1.21 / Foundry config gap, not an agent design defect).
+This baseline is the **expected defense posture** the red-team probes measure against. Missing Prompt Shields does **not** imply any fixed attack-success rate: model safeguards, application controls, attack coverage, and scoring all affect results. Record configuration gaps under Control 1.21 and assess actual observed outcomes under 2.20; neither a detected attack nor a refusal alone proves end-to-end safety.
 
 ### Step 5 — Stage the attack library and golden dataset
 
@@ -203,13 +212,15 @@ The gate is a CI/CD job that runs the adversarial probe before any production re
 
 Implement the gate as a pipeline stage in Azure DevOps or GitHub Actions; the probe runner is described in `powershell-setup.md` §2. The pipeline must fail closed: if the runner errors out or the evidence pack does not generate a SHA-256 manifest, the release does **not** proceed.
 
+The sibling script is an abbreviated pattern, not a delivered release gate. Before deployment, the firm's implementation must prove that empty/skipped suites, `REVIEW`/unscored results, adapter failures, missing evidence, and Critical/High family breaches cannot produce a passing release. These are firm-set requirements, not Microsoft default thresholds.
+
 ### Step 7 — Run the cycle
 
 For each scheduled cycle:
 
 1. Confirm pre-flight gates §1.1 – §1.4.
 2. Execute the probe runner against the test agent's endpoint (see `powershell-setup.md`).
-3. Run Azure AI Foundry Risk & Safety Evaluations on the same prompt set for cross-validation.
+3. Where supported, open Foundry **Evaluation → Create**, select the target (model/agent, or dataset of preexisting outputs), map its input/output fields, and select applicable risk/safety evaluators. Save evaluator names/versions, mappings, target IDs, raw results, and run status. **Partial** or **Failed** evaluations are not passing cross-validation. Sensitive-data-leakage and prohibited-actions evaluators are preview, agent-target-only capabilities; do not assume they can score arbitrary Copilot Studio/Microsoft 365 datasets. Use firm-reviewed scoring for unsupported FSI families.
 4. Generate the evidence pack (test results CSV + JSON + SHA-256 manifest + screenshot evidence).
 5. Triage findings: assign severity (Critical / High / Medium / Low) and SLA.
 6. Open remediation work items for each finding; track to closure.
@@ -220,12 +231,12 @@ For each scheduled cycle:
 
 For each test cycle, confirm that probe activity produced expected detection telemetry under Control 1.21:
 
-- Did Prompt Shields fire on the encoded-evasion family? (Cross-check Azure AI Content Safety logs.)
-- Did Defender XDR / Defender for Cloud surface AI alerts in the seconds-to-minutes latency window?
-- Did Purview Communication Compliance flag the supervisory-relevant prompts?
-- Did the Unified Audit Log capture the `CopilotInteraction` records (metadata only — UAL does not contain full prompt body)?
+- Did Prompt Shields return a detection, and was it filtered at the configured intervention point? Preserve raw response annotations or standalone API results; do not assume a Content Safety log exists without configured collection.
+- Did the applicable Defender XDR / Defender for Cloud integration surface the expected AI alerts? Copilot Studio/Foundry **agent** security requires Microsoft Agent 365 from July 1, 2026; Azure model protection remains a separate Defender for AI Services surface. Confirm onboarding, observability, current alert/behavior schema, connector, and measured ingestion delay. Not every probe produces an alert; seconds-to-minutes is not a universal delivery commitment.
+- Did the scoped Purview Communication Compliance policy produce a match for the intended synthetic prompt/response? Verify policy location, user/reviewer scope, conditions, sampling, and processing window. Copilot Studio/non-Microsoft 365 AI detection requires pay-as-you-go billing; Microsoft 365 Copilot data has no additional pay-as-you-go charge for this detection.
+- Did the Unified Audit Log capture the supported workload's record (`CopilotInteraction` or `ConnectedAIAppInteraction`, as applicable)? Keep its operation/workload and available IDs; prompt/response content is separate from this metadata. Do not expect Microsoft 365 audit records for every Azure-only model call or assume a universal `ConversationId` join.
 
-Reconciliation gaps mean either Control 2.20 attack-library coverage is incomplete **or** Control 1.21 detection is mis-tuned. Both findings flow to the Control 1.21 owner and the AI Governance Lead.
+Classify absent evidence as unsupported/not applicable, not yet ingested, collection failure, or a demonstrated detection gap. Only an expected supported signal missing after its documented/measured window is a detection finding. Record an explicit reason and owner for each unavailable plane; do not treat absence as either a clean pass or automatic misconfiguration.
 
 ---
 
@@ -248,6 +259,8 @@ Reconciliation gaps mean either Control 2.20 attack-library coverage is incomple
 ---
 
 ## §4 FSI example — Investment Advisory bot (Zone 3)
+
+This is illustrative firm-owned configuration, not a Microsoft API schema, current model-availability claim, telemetry SLA, or verified tenant snapshot. Replace the historical model/version and example values with the approved, available test deployment. The named evidence destination requires a separately configured retention workflow.
 
 ```yaml
 program:
@@ -311,13 +324,13 @@ remediation_slas:
   Low: next release
 
 reconciliation:
-  control_1_21_event_join_key: ConversationId
+  control_1_21_event_join_key: workload-specific IDs where available; record mapping confidence
   expected_detection_planes:
     - PromptShields (synchronous)
-    - DefenderForCloud_AI_workload_alerts (seconds–minutes)
-    - DefenderXDR_Copilot_detections (seconds–minutes)
-    - Purview_CommComplianceCopilot (minutes–hours)
-    - UnifiedAudit_CopilotInteraction (minutes–hours; metadata only)
+    - DefenderForCloud_AI_workload_alerts (supported onboarded workload; measured delay)
+    - DefenderXDR_Copilot_detections (supported onboarded workload; measured delay)
+    - Purview_CommComplianceCopilot (scoped policy and applicable billing; processing delay)
+    - UnifiedAudit_CopilotInteraction (supported workload only; metadata; measured delay)
 
 reporting:
   executive_summary: monthly
@@ -340,10 +353,31 @@ After completing the steps above, confirm:
 - [ ] First cycle completed; evidence pack with SHA-256 manifest written to WORM destination.
 - [ ] Findings opened in GRC / work-item system with severity, SLA, and owner.
 - [ ] Reconciliation with Control 1.21 detection telemetry documented.
+- [ ] UI evidence status, unsupported test families/telemetry planes, transport differences, and incomplete automation are explicitly recorded; none is counted as a pass.
+
+## Microsoft documentation reviewed
+
+Documentation checked on **2026-11-06**; these sources do not attest to tenant execution.
+
+- [Copilot Studio environments](https://learn.microsoft.com/en-us/microsoft-copilot-studio/environments-first-run-experience) — PPAC **Manage → Environments**, supported regions, Dataverse requirement.
+- [Create and manage solutions](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-overview) and [Export/import agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-import-export) — solution explorer, roles, dependencies, transport limits, authentication and publication.
+- [Environment access](https://learn.microsoft.com/en-us/power-platform/admin/control-user-access) — licenses, security roles, security-group exceptions.
+- [Manage data policies](https://learn.microsoft.com/en-us/power-platform/admin/prevent-data-loss) and [Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing) — separate DLP/auditing navigation and scope.
+- [Managed Environments licensing](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-licensing) — qualifying licenses/meters for active usage.
+- [Start using PIM](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-getting-started) — eligible/activated role boundaries and licensing.
+- [Data Map sources and sampling](https://learn.microsoft.com/en-us/purview/data-map-data-sources) — scans are supplementary, sampled classification evidence.
+- [Microsoft 365 Copilot Chat API overview (preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/ai-services/chat/overview) and [Chat API permissions](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/ai-services/chat/copilotconversation-chat) — programmatic testing boundary, add-on license, delegated-only access, unsupported skills.
+- [Foundry portal evaluations](https://learn.microsoft.com/en-us/azure/foundry/how-to/evaluate-generative-ai-app) and [Risk and safety evaluators](https://learn.microsoft.com/en-us/azure/foundry/concepts/evaluation-evaluators/risk-safety-evaluators) — navigation, roles, mappings, target restrictions and preview evaluators.
+- [AI Red Teaming Agent](https://learn.microsoft.com/en-us/azure/foundry/concepts/ai-red-teaming-agent) — PyRIT integration, supported targets/attack strategies, nondeterminism and coverage limits.
+- [Prompt Shields](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection) and [Guardrail configuration](https://learn.microsoft.com/en-us/azure/foundry/guardrails/how-to-create-guardrails) — defaults, intervention points, assignment, detection versus blocking.
+- [Get deployment metadata](https://learn.microsoft.com/en-us/powershell/module/az.cognitiveservices/get-azcognitiveservicesaccountdeployment) and [Get RAI policy](https://learn.microsoft.com/en-us/powershell/module/az.cognitiveservices/get-azcognitiveservicesaccountraipolicy) — documented read-only capture cmdlets.
+- [Create Power Platform environment](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/new-adminpowerappenvironment) — provisioning cmdlet and Dataverse parameters.
+- [Communication Compliance AI policies](https://learn.microsoft.com/en-us/purview/communication-compliance-copilot) and [Copilot audit records](https://learn.microsoft.com/en-us/purview/audit-copilot) — policy/billing boundaries and workload-specific metadata.
+- [Agent security transition](https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365) — Agent 365 licensing/onboarding and alert/behavior schema changes versus model protection.
 
 ---
 
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [PowerShell Setup](powershell-setup.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation verified 2026-11-06; tenant UI evidence not collected)*

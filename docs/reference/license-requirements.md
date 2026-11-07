@@ -153,7 +153,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.17** | Multi-Agent Orchestration Limits | Copilot Studio | Orchestration requires Copilot Studio |
 | **2.18** | Automated Conflict of Interest | N/A (process) | Process/documentation control |
 | **2.19** | Customer AI Disclosure | N/A (process) | Transparency/labeling requirement |
-| **2.20** | Adversarial Testing / Red Team | N/A (process) | Process; optional Azure AI safety tools |
+| **2.20** | Adversarial Testing / Red Team | Process plus surface-specific licenses/billing | Copilot Studio/Managed Environments need applicable licenses or meters; Microsoft 365 Copilot Chat API (preview) requires a Copilot add-on license and delegated permissions; Foundry testing needs an Azure subscription, supported project/region and quota. See the [verified prerequisites](../playbooks/control-implementations/2.20/portal-walkthrough.md#microsoft-documentation-reviewed) |
 | **2.21** | AI Marketing Claims | N/A (process) | Process/documentation control |
 | **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
@@ -330,4 +330,4 @@ To verify current license assignments:
 
 ---
 
-*Last Updated: June-2026 | Framework Version: v1.6.2*
+*Last Updated: November-2026 | Framework Version: v1.6.2*

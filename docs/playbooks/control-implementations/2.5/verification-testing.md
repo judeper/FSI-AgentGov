@@ -43,7 +43,7 @@ This playbook depends on, and is depended on by, the following framework control
 - [Control 2.1 — Managed Environments (verification playbook)](../2.1/verification-testing.md)
 - [Control 2.3 — Change Management and Release Planning (verification playbook)](../2.3/verification-testing.md)
 - [Control 2.13 — Documentation and Record Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md)
-- [Control 2.20 — Incident Response (verification playbook)](../2.20/verification-testing.md)
+- [Control 2.20 — Adversarial Testing and Red Team Framework (verification playbook)](../2.20/verification-testing.md)
 - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md)
 
 ---
@@ -1113,4 +1113,4 @@ This playbook includes a numbered anti-pattern table modeled after the stronger 
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (2.20 dependency corrected 2026-11-06; no new tenant UI evidence)*

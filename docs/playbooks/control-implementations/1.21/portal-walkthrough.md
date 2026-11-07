@@ -51,7 +51,7 @@ This walkthrough configures **detection and supervisory** surfaces for adversari
 - Azure OpenAI / Azure AI Foundry deployments backing Zone 3 FSI agents (broker-dealer, customer-NPI, MNPI, order-facing).
 - Microsoft 365 Copilot (chat, M365 apps integration) for licensed users in any zone.
 - Copilot Studio agents (Zones 1–3) registered to the tenant.
-- The Power Platform agent inventory exposed to Defender XDR via the Security for AI handshake.
+- Copilot Studio / Foundry agent inventory covered by Agent 365 licensing, registry/observability and current Defender settings.
 
 Out of scope (handled by sibling controls — see READ FIRST table):
 
@@ -78,7 +78,7 @@ Out of scope (handled by sibling controls — see READ FIRST table):
 | Enable Prompt Shields on a deployment | ✅ Azure or AI Foundry | ✅ Azure CLI / REST | This walkthrough = portal; see `powershell-setup.md` for ARM/Bicep |
 | Enable Defender for Cloud — TP for AI Workloads | ✅ | ✅ Azure CLI `az security pricing` | Portal recommended for first-time enablement (consent dialogs) |
 | Enable Defender XDR Security for AI | ✅ | ❌ (no PowerShell authoring path) | Portal-only |
-| Power Platform threat detection handshake | ✅ (Power Platform admin preview) | ❌ | Portal-only; up to 30 min propagation |
+| Verify Agent 365 eligibility/settings/registry-observability | ✅ Current Defender/Agent 365 experience | Surface-dependent evidence export | A legacy handshake is insufficient; record actual scope and timing |
 | Comm Compliance — Detect Microsoft Copilot Interactions policy | ✅ | ❌ (**no PowerShell authoring path** — confirmed April 2026) | Portal-only; do not script |
 | Verify `CopilotInteraction` audit | ✅ Audit search UI | ✅ `Search-UnifiedAuditLog` / Office 365 Mgmt API | Both supported |
 | Install Sentinel Content Hub solutions | ✅ | ✅ ARM / `Az.SecurityInsights` | Portal recommended for solution dependency resolution |
@@ -123,11 +123,11 @@ Assign the following canonical roles to **named individuals** (not group-only) b
 | Quarterly red-team execution | AI Red Team / Pen-test Owner | Sandbox-tenant access; not required to be tenant-priv in production |
 | Sign-off on Zone 3 blocking posture | CISO + AI Governance Lead | Tenant-level acceptance; documented in the agent risk register (Control 1.2) |
 
-!!! warning "Two-admin step at §4 (Defender XDR ↔ Power Platform)"
-    The Power Platform handshake at `admin.preview.powerplatform.microsoft.com/security/threatdetection` requires the **Power Platform Admin** role and is performed in a separate portal from the Defender XDR Security for AI toggle (which requires the **Security Administrator** role). These are typically two different humans. Schedule both to be available within the same change window — without the handshake, `AIAgentInfo` returns no Copilot Studio rows and Plane 3 telemetry is incomplete.
+!!! warning "Agent security onboarding at §4"
+    Coordinate the authorized Power Platform and Defender operators, but do not treat a legacy Power Platform threat-detection handshake as Agent 365 licensing, registry/observability coverage or complete telemetry. Capture current eligibility, settings and onboarding evidence.
 
-!!! note "Advanced Hunting table is migrating to `Agentsinfo` (Preview)"
-    The AI-agent Advanced Hunting table is transitioning from **`AIAgentInfo`** to **`Agentsinfo`** (Preview), powered by Microsoft Agent 365 as the single source of truth. `AIAgentInfo` (used in the KQL below) remains accessible until **July 1, 2026**, then is deprecated — migrate queries to `Agentsinfo` before that date. As a Preview schema the table and column names may still change; verify against the [`Agentsinfo` schema reference](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table). From July 1, 2026, Copilot Studio / Foundry agent inventory in Defender requires a **Microsoft Agent 365** license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
+!!! note "Agent 365 inventory and alert migration"
+    Microsoft names the legacy inventory table `AIAgentsInfo` and replacement `AgentsInfo`; validate the actual schema. Copilot Studio / Foundry agent security requires Agent 365 from July 1, 2026, while Azure model protection remains distinct. Agent 365 real-time protection rule events move to `BehaviorInfo`, not a universal legacy alert stream; see the [transition guidance](https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365).
 
 ### 1.3 Azure subscription scope gate
 
@@ -208,6 +208,9 @@ Stage the following **before** §2, in a sandbox or non-production tenant where 
 ---
 ## §3 Enable Defender for Cloud — Threat Protection for AI Workloads
 
+!!! warning "Model protection is not the Agent 365 entitlement"
+    The subscription-plan steps below apply to **Azure OpenAI / Foundry Models**. From July 1, 2026, Copilot Studio / Foundry **agent** security requires Agent 365 licensing, observability and registry onboarding; legacy Defender for Cloud Apps / Defender for Cloud licenses do not establish that coverage. Agent 365 real-time protection rule events migrate to `BehaviorInfo`, distinct from threat-detection alerts. Follow the [Microsoft transition guidance](https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365); an absent legacy alert is not proof of a clean probe.
+
 **Owner:** Azure / Defender for Cloud Admin<br>
 **Surface:** Plane 2 (Azure AI workload telemetry; seconds–minutes latency)
 
@@ -228,7 +231,7 @@ Stage the following **before** §2, in a sandbox or non-production tenant where 
 
 1. From the same subscription's Defender for Cloud blade, left rail → **Security alerts**. Filter on **Resource type = Azure AI services** (or **AI workloads**).
 2. From the sandbox client used in §2.3, re-send the direct-injection probe.
-3. Within **5–15 minutes**, confirm a **Jailbreak attempt detected** alert appears, with entities populated for the Foundry resource, the deployment name, and (if available) the calling identity.
+3. For a supported model test expected to generate an alert, capture its actual type, available entities and observed ingestion window. A probe is not guaranteed to create an alert; record unsupported, pending, collection-error or detection-gap reasons rather than treating absence as a pass.
 4. Click the alert → **Take action** → confirm it routes to **Microsoft Defender XDR** (incident view at `https://security.microsoft.com`).
 5. Capture the alert ID and the corresponding Defender XDR incident ID for the audit pack.
 
@@ -267,36 +270,31 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 1. Sign in to the **Microsoft Defender portal** at `https://security.microsoft.com` as Defender XDR Admin.
 2. Left rail → **System** → **Settings** → **Security for AI** (under the AI category).
 3. Confirm **Microsoft 365 Copilot** as an alert source is **Enabled**.
-4. Confirm **Copilot Studio** agent inventory is **Enabled** (the Power Platform handshake in §4.2 is what actually populates this — Defender XDR will show *Pending handshake* until §4.2 completes).
+4. For Copilot Studio / Foundry agent security, confirm the consolidated **Security for AI Agents** toggle is **On** and verify the Agent 365 onboarding evidence in §4.2; a legacy Power Platform handshake alone is insufficient.
 5. Optionally enable **automated response** for Copilot incidents — sign-off from CISO required for any auto-remediation that affects production users.
 
-### 3.2 Power Platform threat detection handshake (separate portal, separate admin)
+### 3.2 Verify Agent 365 licensing and onboarding
 
-1. The **Power Platform Admin** signs in to the Power Platform admin (preview) portal at `https://admin.preview.powerplatform.microsoft.com/security/threatdetection`.
-2. Locate the **Threat detection** card → toggle to **On** (this consents to Power Platform sending agent inventory and threat signals to Defender XDR).
-3. Save. Note the timestamp.
+1. Confirm the tenant's Agent 365-eligible license and the test agent's registry/observability coverage; capture current Defender settings and onboarding evidence.
+2. Verify the available inventory schema. Microsoft names the legacy table `AIAgentsInfo` and replacement `AgentsInfo`; migrate saved queries against the actual published/tenant schema.
+3. If Agent 365 real-time protection is required, verify blocking rules under **Settings → Security for AI → Policies & rules → Real-time protection**. Legacy Agent 365 Block rules stopped enforcing at cutover and require redefinition. Copilot Studio real-time protection through Defender for Cloud Apps is a distinct experience described as unchanged.
 
-!!! warning "Up to 30 minutes to propagate"
-    The handshake can take **up to 30 minutes** to propagate. Until it does, Defender XDR Advanced Hunting queries against `AIAgentInfo` will return zero rows for Copilot Studio agents and the Security for AI inventory page will show *Pending*. Do not retry the handshake; wait the full 30 minutes before troubleshooting.
+!!! warning "No assumed legacy handshake or universal propagation window"
+    Record actual onboarding/ingestion timing and unavailable-signal reasons. Licensing, registry/observability coverage, inventory and event/behavior collection must be checked separately; zero rows do not establish either a clean probe or a fixed waiting-period diagnosis.
 
 ### 3.3 Verify Copilot UPIA / XPIA detections
 
 1. From the Defender portal, navigate to **Hunting** → **Advanced hunting**.
-2. Run the following query to confirm the agent inventory has populated:
-    ```kusto
-    AIAgentInfo
-    | where TimeGenerated > ago(1d)
-    | summarize agents = dcount(AgentId) by AgentType, Tenant = tostring(parse_json(AdditionalFields).TenantId)
-    ```
+2. For Copilot Studio / Foundry agents, verify the test agent in the available `AgentsInfo` inventory using a schema-validated query. Do not reuse the legacy `AIAgentInfo` specimen or invent field mappings. Microsoft 365 Copilot detection is a separate workload, not proof of Agent 365 agent onboarding.
 3. From test agent B (M365 Copilot pointed at the test SharePoint library that contains the XPIA poison fixture), open Copilot chat and ask a benign question that would cause Copilot to ground on the poisoned document.
-4. Within **5–15 minutes**, confirm an XPIA alert appears in **Defender XDR → Incidents & alerts**, with entities for: user, agent (M365 Copilot), the poisoned file URL, and (if available) the Copilot conversation thread ID.
-5. From the same chat, attempt a direct UPIA prompt (e.g. one of the PyRIT-derived patterns). Confirm a UPIA alert is raised.
-6. Capture incident IDs for the audit pack.
+4. For a supported Microsoft 365 Copilot detection scenario, retain the actual alert and available entities/identifiers with measured ingestion timing; do not assume every stimulus generates an alert.
+5. Test the applicable UPIA route and record its expected signal. Agent 365 real-time protection events are queried as `BehaviorInfo` behaviors, not substituted with a legacy alert expectation.
+6. Capture raw alert/behavior identifiers and any configured incident correlation; classify missing supported evidence or unsupported scope explicitly.
 
 ### 3.4 Common failure modes
 
-- **`AIAgentInfo` returns zero rows** — handshake at §4.2 not complete; wait 30 min, then re-verify the Power Platform tenant ID matches the Defender XDR tenant.
-- **Alerts appear for M365 Copilot but not for Copilot Studio** — Copilot Studio inventory depends on §4.2; M365 Copilot detection works independently.
+- **Legacy inventory query returns zero rows** — verify Agent 365 licensing/onboarding, the available `AgentsInfo` schema and actual coverage; do not assume a 30-minute handshake resolves it.
+- **Alerts appear for M365 Copilot but not for Copilot Studio** — verify agent-specific Agent 365 entitlement/observability and alert-versus-`BehaviorInfo` applicability separately from Microsoft 365 Copilot.
 - **No alerts at all** — confirm test user is licensed for M365 Copilot, confirm Defender plan is assigned (typically M365 E5 Security or Defender for Office 365 P2), confirm the test SharePoint site is indexed by Copilot.
 
 ---
@@ -354,7 +352,7 @@ Document the SLA, the named Designated Supervisor, the escalation path, and the 
 
 ---
 
-## §6 Verify Purview Audit `CopilotInteraction` records
+## §6 Verify workload-specific Purview Audit records
 
 **Owner:** Purview Compliance Admin<br>
 **Surface:** Plane 5 (audit / evidence; minutes–hours latency)
@@ -362,16 +360,19 @@ Document the SLA, the named Designated Supervisor, the escalation path, and the 
 !!! warning "`CopilotInteraction` does not contain full prompt body"
     The `CopilotInteraction` audit record captures *who, when, which agent, which thread, sensitive-data-touched* metadata. It **does not** include the full prompt or response body text in the standard schema. **Pattern matching on prompt content** must come from Prompt Shields (§2), Defender for Cloud (§3), Defender XDR (§4), or Comm Compliance (§5) — not from KQL over the audit log. The previous version of this walkthrough included a KQL query against `AuditLogs.TargetResources` for prompt text; that query was wrong on both axes (wrong table, wrong field) and has been removed.
 
+!!! warning "Operation, record type and correlation are workload-specific"
+    Capture the actual `Operation`, `RecordType`, `Workload` and `AppIdentity` separately. Microsoft's schema distinguishes native Copilot, custom/connected applications and other AI applications; `CopilotInteraction` is not required for every Copilot Studio thread. Use available `AgentId`, `Messages[].ID` and `AccessedResources` identifiers where present, with documented correlation confidence. No universal `ConversationId`, `ThreadId` or field population is assumed. The native Copilot search example below is not a complete multi-workload collector. [Microsoft audit schema](https://learn.microsoft.com/en-us/purview/audit-copilot).
+
 ### 5.1 Verify audit ingestion (UI)
 
 1. Sign in to **Microsoft Purview** → left rail → **Solutions** → **Audit**.
-2. **New search** → **Activities — friendly names** → search for **Interacted with Copilot**.
+2. **New search** → select the activities/record category applicable to the tested workload; **Interacted with Copilot** is the native Copilot example, not a universal custom-agent filter.
 3. **Date range:** the test window from §4–§5.
 4. **Users:** the test users.
 5. **Search**.
-6. Confirm rows return for the test interactions. Click a row → **Properties** tab → confirm `RecordType = CopilotInteraction`, `AppIdentity`, `AgentId`, `ThreadId`, `ContextResources` (the grounded files), and any `SensitiveInfoTypes` flags are populated.
+6. Inspect the returned payload's actual operation/record type, workload and AppIdentity, plus available agent/message/resource fields. Reconcile to the known test; unavailable fields or unsupported/missing evidence require an explicit reason, not a clean pass.
 
-### 5.2 Verify via Office 365 Management API (alternative)
+### 5.2 Verify via PowerShell (native Copilot example)
 
 Equivalent to 7.1 but suitable for automation and audit-pack capture:
 
@@ -386,7 +387,7 @@ Search-UnifiedAuditLog `
   Format-List
 ```
 
-The `AuditData` column is JSON; parse with `ConvertFrom-Json` to inspect `AgentId`, `ThreadId`, and the sensitive-info flags. Full automation lives in `powershell-setup.md`.
+The `AuditData` column is JSON; preserve actual operation/record type and available `AgentId`, message/resource identifiers and flags. Do not invent `ThreadId` or other field mappings. The sibling pattern fixes `RecordType` to `CopilotInteraction`; the firm must implement and validate other applicable workload filters and schema-aware correlation.
 
 ### 5.3 Cross-reference with eDiscovery hold (Control 1.19)
 
@@ -458,7 +459,7 @@ Use this matrix to confirm the configured posture matches the firm's zone defini
 | Prompt Shields — UPIA (jailbreak) | Annotate | Annotate or Block (post-pilot) | **Block** |
 | Prompt Shields — XPIA (indirect) | Annotate | Annotate | **Block** |
 | Defender for Cloud — TP for AI Workloads (commercial only) | Plan **On**, alerts informational | Plan **On**, alerts to SOC + Sentinel | Plan **On**, alerts to SOC + auto-ticket; CISO sign-off on auto-response |
-| Defender XDR — Security for AI | Enabled (M365 Copilot only) | Enabled (M365 Copilot + Copilot Studio) | Enabled (full); UPIA/XPIA → Defender XDR auto-incident |
+| Defender XDR — Security for AI | Enabled (M365 Copilot only) | Enabled for applicable licensed M365/Agent 365 workloads | Required supported agent coverage; verify actual alert/behavior and configured incident route |
 | Comm Compliance — Detect Microsoft Copilot Interactions | Optional; sample 1–5%; monthly review | Required; sample 10–25%; weekly review | Required; **sample 100%**; **daily reviewer SLA**; named Designated Supervisor |
 | Unified Audit `CopilotInteraction` | Standard retention | Standard retention | Advanced Audit retention; eDiscovery hold via Control 1.19 |
 | Sentinel — Copilot solution analytics rules | Informational severity | Medium severity → SOC | High severity → SOC + on-call page |
@@ -474,7 +475,7 @@ For each agent in each zone, confirm in writing (audit pack):
 
 1. Which Foundry / OpenAI deployment backs the agent — is Prompt Shields configured?
 2. Which Azure subscription hosts that deployment — is Defender for Cloud TP for AI Workloads on?
-3. Is the agent a Copilot Studio agent appearing in `AIAgentInfo` after the §4.2 handshake?
+3. Is the Copilot Studio / Foundry agent covered by Agent 365 licensing, registry/observability and the available `AgentsInfo` inventory, with applicable alert/behavior collection?
 4. Is the agent's user population in scope of the Comm Compliance policy from §5?
 5. Is the agent listed in the Control 1.2 agent risk register, with its zone classification?
 6. If Zone 3, is the eDiscovery hold (Control 1.19) in place for the relevant custodian / SharePoint scope?
@@ -559,7 +560,7 @@ The configured detection planes (§2–§7) measure *whether* known attacks are 
 
 ### 9.1 Tooling
 
-- **Microsoft AI Red Team — PyRIT (Python Risk Identification Toolkit)** — open source, Microsoft-maintained: <https://github.com/Azure/PyRIT>.
+- **Microsoft AI Red Team — PyRIT (Python Risk Identification Tool)** — open source, Microsoft-maintained: <https://github.com/Azure/PyRIT>.
 - Equivalent OSS tooling (Garak, Promptfoo) acceptable if PyRIT does not support a target surface; document the substitution.
 
 ### 9.2 Per-quarter exercise structure (4–6 weeks elapsed)
@@ -623,7 +624,7 @@ The troubleshooting playbook covers, at minimum:
 
 - Prompt Shields not blocking despite *Block* posture.
 - Defender for Cloud AI alerts not appearing.
-- `AIAgentInfo` returning zero rows after the §4.2 handshake.
+- Missing Agent 365 eligibility/onboarding or inventory/signal evidence after schema-validated checks at §4.2.
 - Comm Compliance Copilot policy stuck in *Draft*.
 - `CopilotInteraction` audit records missing or delayed.
 - Sentinel Content Hub rules installed but not triggering.
@@ -649,13 +650,13 @@ The audit pack is the per-deployment artifact set that proves the configured pla
 | 7 | Defender for Cloud AI Workloads plan-on screenshot per subscription | §3.1 | PNG | Azure / Defender for Cloud Admin |
 | 8 | Defender for Cloud → Defender XDR alert routing screenshot + sample alert ID | §3.2 | PNG / Text | Azure / Defender for Cloud Admin |
 | 9 | Defender XDR Security for AI settings screenshot | §4.1 | PNG | Defender XDR Admin |
-| 10 | Power Platform threat detection handshake screenshot + timestamp | §4.2 | PNG | Power Platform Admin |
-| 11 | `AIAgentInfo` query result confirming inventory populated | §4.3 | CSV | Sentinel SOC Analyst |
-| 12 | Defender XDR sample UPIA + XPIA incident IDs | §4.3 | Text | Defender XDR Admin |
+| 10 | Current Agent 365 eligibility/settings and registry-observability evidence + timestamps | §4.2 | PNG / settings export | Power Platform Admin + Defender XDR Admin |
+| 11 | Agent 365 licensing/onboarding and schema-validated `AgentsInfo` inventory evidence | §4.3 | CSV / settings export | Sentinel SOC Analyst |
+| 12 | Applicable raw threat-detection alert / real-time protection behavior identifiers and configured incident correlation, where available | §4.3 | Text / JSON | Defender XDR Admin |
 | 13 | Comm Compliance policy screenshot (active state, scope, classifiers, sample rate) | §5.2 | PNG | Purview Communication Compliance Admin |
 | 14 | Comm Compliance sample case ID + reviewer attestation timestamp | §5.4 | Text | Designated Supervisor |
 | 15 | WSP excerpt naming Designated Supervisor, review cadence, latency caveat | §5.3 | PDF | Compliance Officer |
-| 16 | `CopilotInteraction` audit search result + Office 365 Mgmt API sample | §6 | CSV / JSON | Purview Compliance Admin |
+| 16 | Applicable workload audit payload/search export with actual operation/record type and available correlation identifiers | §6 | CSV / JSON | Purview Compliance Admin |
 | 17 | Sentinel Content Hub solutions installed + version + enabled rule list | §7 | Text | Sentinel SOC Analyst |
 | 18 | Cross-plane hunting query result | §7.3 | CSV | Sentinel SOC Analyst |
 | 19 | Zone-aware response matrix sign-off | §8 | PDF | AI Governance Lead |
@@ -687,7 +688,7 @@ The following patterns have surfaced in prior reviews and FSI audit findings aga
 
 1. **Querying `AuditLogs.TargetResources` for prompt body text.** Wrong table (Entra audit), wrong field. Prompt body is not in the standard `CopilotInteraction` schema. Source prompt-content signals from Prompt Shields, Defender for Cloud, Defender XDR, or Comm Compliance — never from KQL on `AuditLogs`.
 2. **Writing "real-time" or "ensures prevention" into the WSP.** Only Prompt Shields is synchronous. Defender alerts run seconds–minutes; Comm Compliance + audit run minutes–hours. Use the documented latencies; Microsoft surfaces *support* compliance but do not *guarantee* prevention.
-3. **Skipping the Power Platform handshake at §4.2.** Without it, Copilot Studio agents do not appear in `AIAgentInfo` and Plane 3 telemetry is incomplete. The handshake takes up to 30 minutes — schedule it in the change window.
+3. **Treating a legacy handshake or model-plan toggle as agent coverage.** Verify Agent 365 eligibility, registry/observability, the available inventory schema and alert-versus-`BehaviorInfo` collection at §4.2; missing required evidence cannot pass.
 4. **Authoring or modifying the Comm Compliance Copilot policy via PowerShell.** No public PowerShell authoring path exists for the *Detect Microsoft Copilot Interactions* template. Portal-only. Capture screenshots as the primary evidence artifact.
 5. **Group-only reviewer assignment in Comm Compliance.** FINRA Rule 3110 / RN 24-09 requires a *named* Designated Supervisor in the WSP. Group assignment is acceptable in the tenant model but the audit pack must name the human.
 6. **Promoting Zone 3 *Block* posture to production without sandbox pilot.** *Block* can deny legitimate prompts that share lexical features with attacks. Stage in a sandbox tenant or pilot user group, capture the false-positive rate in §13 artifact 24, then promote.
@@ -705,9 +706,9 @@ Final state, post-walkthrough:
 
 - Plane 1 (Prompt Shields) configured per zone on every Foundry / Azure OpenAI deployment backing an FSI agent.
 - Plane 2 (Defender for Cloud TP for AI Workloads) on for every relevant subscription.
-- Plane 3 (Defender XDR Security for AI) enabled, Power Platform handshake complete, Copilot inventory populated.
+- Plane 3's applicable licensed coverage verified; Agent 365 settings/registry-observability and supported inventory/alert/behavior evidence captured where required.
 - Plane 4 (Comm Compliance Detect Microsoft Copilot Interactions) active for Zones 2 and 3, named Designated Supervisor, reviewer SLA in WSP.
-- Plane 5 (Unified Audit `CopilotInteraction`) verified, eDiscovery hold pathway through Control 1.19 documented.
+- Plane 5's supported workload operation/record type and schema-aware correlation verified; unavailable evidence recorded, eDiscovery hold pathway through Control 1.19 documented.
 - Plane 6 (Sentinel Content Hub solutions for Copilot + Defender for Cloud) installed, baseline rules enabled, cross-plane hunting query saved.
 - §8 zone-aware response matrix signed off.
 - §9 FSI incident-handling pathways briefed to Compliance Officer, General Counsel, and CISO; clocks documented.
@@ -729,4 +730,4 @@ Handoffs:
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector correction; tenant UI not tested)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*
