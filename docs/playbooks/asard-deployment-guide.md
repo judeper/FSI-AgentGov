@@ -42,8 +42,11 @@ Before deploying ASARD, ensure the following prerequisites are met:
 - **Python 3.11 or later:** Verified with Python 3.11, 3.12, 3.13. Python 3.9 reached end-of-life on **2025-10-31** ([Status of Python versions](https://devguide.python.org/versions/), [endoflife.date/python](https://endoflife.date/python)) and is no longer supported for new deployments.
 - **Python packages:** Install required dependencies:
   ```bash
-  pip install msal requests azure-identity
+  # From the FSI-AgentGov repository root, using Python 3.11+
+  pip install -r scripts/requirements.txt
+  pip install azure-identity
   ```
+  The shared dependency set includes `python-dateutil>=4.0.0` for exception expiry parsing in `detect_agent_sharing_violations.py` and `remediate_agent_sharing.py`. That package requires Python 3.11 or later; install the set in the same environment used for detection and remediation.
 
 ### Access and Permissions
 - **BAP Admin API access:** Required to enumerate agents and manage sharing settings

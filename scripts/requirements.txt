@@ -1,5 +1,6 @@
 # FSI Agent Governance Framework - Script Dependencies
 # Install with: pip install -r scripts/requirements.txt
+# Installing this complete requirement set requires Python 3.11+.
 
 # Core validation (no external dependencies required)
 # Python 3.9+ standard library is sufficient for:

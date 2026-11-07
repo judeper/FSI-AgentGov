@@ -148,7 +148,7 @@ This section walks through setting up a fresh machine to work on this repository
 
 | Tool | Required For | Install |
 |------|-------------|---------|
-| Python 3.9+ | Validation scripts, MkDocs | python.org or package manager |
+| Python 3.11+ | Shared script dependencies (`scripts/requirements.txt`), MkDocs | python.org or package manager |
 | Git | Version control | git-scm.com |
 | VS Code + GitHub Copilot | Repository prompts, documentation editing | VS Code marketplace |
 
