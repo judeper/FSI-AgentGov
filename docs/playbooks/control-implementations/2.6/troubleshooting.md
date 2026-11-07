@@ -160,7 +160,7 @@ Before taking any remediation action recorded in this playbook:
 **Root causes (typical).**
 
 - Copilot Studio surfaces vendor models in the model-selection UI as availability rolls out; agent owners may select a vendor model without recognizing the vendor-model governance obligation.
-- No technical guardrail (Power Platform DLP / governance template) restricts vendor-model selection in Zones 2 / 3.
+- Supported Microsoft 365 provider access and separate PPAC external/preview model settings were not aligned with the firm's approval register; generic connector DLP is not a universal model-name allowlist.
 - MRM policy does not yet enumerate vendor-model providers or pre-approval status.
 
 **Resolution.**
@@ -169,13 +169,13 @@ Before taking any remediation action recorded in this playbook:
 2. **Perform post-hoc vendor-model assessment.** Apply the firm's vendor-model assessment under SR 26-2 §V (formerly SR 11-7 §V) — covering the vendor's model documentation, training-data disclosures, evaluation results, terms-of-service review, data-handling commitments, and the vendor's incident-disclosure history. Coordinate with Vendor Risk Management (Control 2.7).
 3. **MRM Committee disposition.** The Committee renders an explicit disposition: approved / approved-with-conditions / not approved. Disposition, conditions, and effective dates are recorded in Committee minutes and routed to retention.
 4. **Update Agent Card and approved-model list.** Update the Agent Card to record the specific vendor model and version, the assessment reference, and the Committee disposition. Update the firm's approved-model list and re-publish to model owners.
-5. **Add a technical guardrail (forward-looking).** Where supported, configure Power Platform DLP and / or the Agent 365 governance template so that selection of a non-approved vendor model in Zone 2 / 3 either blocks publish or routes through an approval workflow (see [Issue 8](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish)).
+5. **Add a technical guardrail (forward-looking).** Configure supported Microsoft 365 provider access and PPAC environment/group external/preview model settings ([external model controls](https://learn.microsoft.com/en-us/power-platform/admin/allow-llm-generative-responses)). Compare **Overview → Model** against the firm's approved-model register; do not assume a native arbitrary-model allowlist or governance-template publish gate. Where unsupported, document a controlled review/monitoring gap rather than inventing a switch. Review actual Anthropic routing and retention terms ([provider guidance](https://learn.microsoft.com/en-us/copilot/implement/connect-to-ai-subprocessor)).
 
 **Verification.**
 
 - Vendor-model assessment memo is filed with Committee disposition.
 - Agent Card reflects the specific vendor model, version, and approval reference.
-- Subsequent attempts to select a non-approved vendor model in Zone 2 / 3 are intercepted by the configured guardrail (test in Zone 1 first).
+- Test supported provider/preview restrictions in an approved non-production environment. Reconcile the agent's actual model choice against the organizational approval register and document any selection that cannot be technically prevented.
 
 **Cross-link.** [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) · [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 
@@ -452,4 +452,6 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 
 ---
 
-*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI procedures not reverified in September 2026)*
+**Last Verified:** 2026-11-06 — targeted vendor-model guardrail documentation correction only; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

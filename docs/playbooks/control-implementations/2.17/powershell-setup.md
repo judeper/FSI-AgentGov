@@ -43,15 +43,18 @@ Add-PowerAppsAccount
 
 ## 2. Query Orchestration Events from the Unified Audit Log
 
+!!! warning "Legacy projection is not MCP coverage proof"
+    The example below is not a complete orchestration/MCP evidence collector: custom Application Insights events are not automatically present in Purview Audit, and the projected agent/depth/correlation properties require actual schema validation. Preserve raw audit payloads and collect configured agent/server telemetry separately before using results as evidence. A successful CSV with empty properties is not proof of complete calls or payloads ([telemetry boundary](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry)).
+
 ```powershell
 <#
 .SYNOPSIS
     Queries Microsoft Purview Unified Audit Log for Copilot Studio orchestration events.
 
 .DESCRIPTION
-    Read-only. Surfaces agent-to-agent invocations, tool/MCP calls, and any custom
-    events emitted by the orchestration topics (Portal Walkthrough Step 6).
-    Writes JSON + CSV evidence with SHA-256 manifest per the FSI baseline.
+    Read-only legacy audit projection. Does not collect Application Insights custom
+    events or establish complete agent-to-agent/MCP call coverage.
+    Validate the actual audit schema and preserve raw payloads separately.
 
 .PARAMETER StartDate
     Start of audit window (UTC). Default: 7 days ago.
@@ -272,4 +275,6 @@ If a future Microsoft release adds admin API surface for orchestration limits, t
 [Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted MCP evidence boundary documentation only; snippets not executed, other API examples not reverified.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

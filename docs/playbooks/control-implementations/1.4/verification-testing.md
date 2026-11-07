@@ -18,7 +18,7 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 | 6 | Action-level restrictions enforced on each allowlisted connector (read-only by default unless ticketed) | Expand each connector in the panel | Disallowed actions toggled off; deprecated/internal actions marked | Screenshot of one high-risk connector (e.g., SharePoint) |
 | 7 | **Publish rules** has cascaded to every member environment | PPAC > each member environment > **Settings** > **History** | `Update Managed Environment Settings` event within last 24h of publish | Screenshot |
 | 8 | Mixed mode active (classic DLP still evaluating custom + HTTP) — or ACP-only mode explicitly approved | **Rules** tab toggle `Advanced connector policies only` | Toggle = `Off` (mixed mode) for FSI default | Screenshot |
-| 9 | Classic DLP policy covers HTTP, HTTP w/ Entra, and custom connectors at **environment** scope (covers service principals) | PPAC > **Security** > **Data and privacy** > **Data policy** > policy > **Scope** | Scope = `Add multiple environments` listing the in-scope envs (not security group) | Screenshot |
+| 9 | Classic DLP policies cover required hosting environments, including actual service-principal resources | PPAC > **Security** > **Data and privacy** > **Data policy** > policy > **Scope / Applied to** | Required environments included through supported tenant/environment scope; not user security-group scope | Screenshot |
 | 10 | Connector endpoint filtering configured for any allowed HTTP-class connector | Classic DLP policy > HTTP connector > **Configure connector** | Allowed endpoints limited to internal hosts | Screenshot |
 | 11 | MCP server inventory matches approved-server list; no unapproved MCP server present in allowlist | ACP panel > MCP servers section | Only approved server IDs present | Screenshot + inventory CSV |
 | 12 | Maker test confirms design-time block of a non-allowlisted certified connector | Power Automate maker portal (sign in as test maker, attempt to add a blocked connector) | Error: `This connector is blocked by your administrator` | Screenshot |
@@ -85,8 +85,8 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 
 1. Identify (or stand up) a Power Automate flow authenticated via a service principal connection in a regulated environment.
 2. Reconfigure the flow to use a connector that is **Blocked** by the environment-scoped classic DLP policy.
-3. **Expected:** flow run fails with a DLP policy violation logged to Purview Audit, with the service principal as the actor.
-4. Capture the run-history error and the corresponding audit row.
+3. **Expected:** the blocked operation fails at the documented enforcement stage. Compare with an allowed positive control and record the actual connection identity and hosting environment.
+4. Capture run-history/policy errors and available telemetry. Do not assume a universal Purview violation operation or that its actor must be the connection's service principal ([policy enforcement](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)).
 
 ---
 
@@ -100,7 +100,7 @@ Bundle the following per environment group, per test cycle, for FINRA / SEC / OC
 4. **Purview Audit export** — `UpdateDlpPolicy` / ACP rule changes for the period under review (CSV, signed with PowerShell `Get-FileHash`).
 5. **Recertification minutes** — CAB or AI Governance Council meeting record approving the current allowlist with date and attendees.
 6. **Connector catalog** — current connector and MCP-server inventory listing owner, business purpose, security review date, and zone scope.
-7. **Mixed-mode coverage proof** — classic DLP policy export showing custom connector and HTTP connector scope at environment level (not security-group level).
+7. **Mixed-mode coverage proof** — raw classic DLP policies with required hosting environments included; separate custom Host URL patterns/connector configurations and ACP read-back. No user security-group DLP scope is assumed.
 
 > Land the bundle in WORM-locked storage (Microsoft Purview retention-locked location or Azure Storage immutability container) per SEC 17a-4(f) and FINRA 4511.
 
@@ -117,4 +117,6 @@ Bundle the following per environment group, per test cycle, for FINRA / SEC / OC
 
 ---
 
-*Updated: July 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted DLP scope and runtime-evidence corrections only; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only corrections)*
