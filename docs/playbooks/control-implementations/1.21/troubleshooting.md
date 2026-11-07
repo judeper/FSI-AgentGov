@@ -8,6 +8,11 @@
 
 ---
 
+!!! warning "Agent 365 transition changes the expected evidence"
+    From July 1, 2026, Copilot Studio / Foundry agent security requires Agent 365 eligibility, observability/registry onboarding and the consolidated Security for AI Agents toggle. Azure OpenAI / Foundry Models retain separate Defender for AI Services protection; enabling that model plan does not establish agent coverage.
+
+    Legacy Agent 365 real-time protection rule alerts migrate to `BehaviorInfo`; threat-detection alerts remain distinct. Verify the available `AgentsInfo` inventory and redefine legacy Agent 365 Block rules in the new policy experience where required. Copilot Studio real-time protection through Defender for Cloud Apps is separately unchanged. The alert-oriented examples below are not complete behavior-collection tests: record applicable signal type, raw identifiers, correlation and measured timing. Missing alerts are not a clean result, and not every probe creates an incident. [Microsoft transition guidance](https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365).
+
 ## §1. FSI Incident Handling
 
 ### §1.1 Severity Matrix (Adversarial-Event Specific)
@@ -163,6 +168,8 @@ Each runbook below follows the canonical six-block structure: **Symptoms → Roo
 
 **Root cause.** Check the relevant Content Hub solutions and connectors, rule source tables, retention/lookback, and known-event arrival. The [Microsoft Copilot connector](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference#microsoft-copilot) writes interaction audit records to `CopilotActivity`, not universally to `OfficeActivity`. A rule querying `AzureActivity` or `SecurityAlert` alone does not inspect that interaction feed. Validate Defender alert and Copilot audit paths independently.
 
+For Copilot Studio / Foundry agent cases, also check Agent 365 licensing/onboarding and alert-versus-`BehaviorInfo` applicability. The queries below inspect audit/alert tables only; they cannot diagnose missing migrated behaviors or prove that a silent red-team probe was safe.
+
 **Diagnostic queries (KQL).**
 
 ```kql
@@ -194,11 +201,14 @@ SecurityIncident
 4. Confirm workspace retention covers the rule lookback (default 90 days; increase if rule lookback exceeds).
 5. If a custom rule was deployed before the solution, replace it with the solution rule and document the supersession.
 
-**Validation.** Run the diagnostic queries again; expect non-zero results. Re-run a [verification-testing.md](verification-testing.md) red-team scenario; expect Sentinel incident creation within the documented near-real-time SLA (typically minutes after Defender XDR alert).
+**Validation.** Re-run a supported known-signal scenario from [verification-testing.md](verification-testing.md). Verify the applicable alert/behavior and configured Sentinel route against measured ingestion timing; record unsupported scope, collection errors or a missing expected signal rather than requiring every probe to create an incident or treating zero rows as a pass.
 
 **Evidence.** Capture E-07 (Sentinel incident export) for the validation case; capture the content-hub solution version + connector state snapshot as a tenant-config item under E-11.
 
 #### §2.2 — `CopilotInteraction` Audit Records Not Ingested (Up to 24h Lag)
+
+!!! warning "Verify workload and record category before diagnosing lag"
+    The query below is a native `CopilotInteraction` example, not a universal Studio/AI audit search. Capture actual Operation/RecordType/Workload/AppIdentity and available agent/message/resource identifiers before choosing filters or correlation. Custom/connected and other AI scenarios can use different categories; no universal ConversationId or every-thread operation is assumed. An empty wrong-category query is not a clean result or proof of ingestion delay. [Microsoft audit schema](https://learn.microsoft.com/en-us/purview/audit-copilot).
 
 **Symptoms.** Defender XDR or Comm Compliance shows an event, but `Search-UnifiedAuditLog -RecordType CopilotInteraction` returns no matching record for the same time window. Investigation appears to "miss" the user/agent context that UAL provides.
 
@@ -715,4 +725,4 @@ Maintain a rolling 12-month trend-watch table that the Control 1.21 owner review
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted connector correction; tenant UI not tested)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted 2.20 dependency correction only; no new tenant UI evidence)*
