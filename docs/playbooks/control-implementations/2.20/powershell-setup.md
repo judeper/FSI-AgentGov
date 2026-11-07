@@ -433,6 +433,7 @@ foreach ($prefix in $expected) {
 $summaryFile = Get-ChildItem $latestRun.FullName -Filter '2.20-summary-*.json' | Select-Object -First 1
 if ($summaryFile) {
     $s = Get-Content $summaryFile.FullName -Raw | ConvertFrom-Json
+    # Illustrative values: Z1 0.80 is the repository's documented acceptance gate (owner decision), not a Microsoft or regulatory value.
     $threshold = @{ Z1 = 0.80; Z2 = 0.90; Z3 = 0.95 }[$ZoneLabel]
     if ($s.defense_rate -lt $threshold) {
         Add-Finding 'DEFENSE-RATE-LOW' 'High' "Defense rate $($s.defense_rate) below $ZoneLabel threshold $threshold."

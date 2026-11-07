@@ -204,15 +204,15 @@ The gate is a CI/CD job that runs the adversarial probe before any production re
 
 | Setting | Zone 1 | Zone 2 | Zone 3 |
 |---|---|---|---|
-| Gate enforcement | Advisory | **Block on regression** | **Block on threshold breach** |
-| Defense-rate threshold | n/a | ≥ 90 % | ≥ 98 % (Critical / High families); ≥ 95 % overall |
+| Gate enforcement | **Acceptance gate** (defense rate must meet the threshold below) | **Block on regression** | **Block on threshold breach** |
+| Defense-rate threshold | ≥ 80 % | ≥ 90 % | ≥ 98 % (Critical / High families); ≥ 95 % overall |
 | Required test families (per release) | Smoke | Full quarterly suite | Full monthly suite + delta probes for changed surface |
-| Sign-off required to override | n/a | Agent Owner + AI Governance Lead | Agent Owner + AI Governance Lead + Model Risk Manager |
+| Sign-off required to override | Not specified (firm-defined) | Agent Owner + AI Governance Lead | Agent Owner + AI Governance Lead + Model Risk Manager |
 | Evidence pack written to WORM | Optional | Required | Required + reconciled with Control 1.19 hold |
 
 Implement the gate as a pipeline stage in Azure DevOps or GitHub Actions; the probe runner is described in `powershell-setup.md` §2. The pipeline must fail closed: if the runner errors out or the evidence pack does not generate a SHA-256 manifest, the release does **not** proceed.
 
-The Zone 1 "Advisory / n/a" values above conflict with the Z1 ≥ 0.80 baseline in the verification playbook (TC-2.20-09) and sibling validator. This pre-existing conflict is unresolved and needs a firm-policy owner decision; neither value is a Microsoft default.
+The Zone 1 defense-rate threshold of ≥ 80 % (0.80) is this repository's documented acceptance gate, selected by the repository owner to resolve an earlier advisory-versus-0.80 inconsistency (OceanSquad#911 owner decision). It is a documented operating default, not a Microsoft default, a regulatory requirement, or evidence that any firm has adopted it; a firm sets its own threshold. The same value appears in TC-2.20-09 (`verification-testing.md`) and the sibling validator (`powershell-setup.md`). The Zone 1 override sign-off and required evidence rows above were not specified by that decision and remain firm-defined.
 
 The sibling script is an abbreviated pattern, not a delivered release gate. Before deployment, the firm's implementation must prove that empty/skipped suites, `REVIEW`/unscored results, adapter failures, missing evidence, and Critical/High family breaches cannot produce a passing release. These are firm-set requirements, not Microsoft default thresholds.
 
@@ -251,7 +251,7 @@ Classify absent evidence as unsupported/not applicable, not yet ingested, collec
 | Test cadence | Annual | Quarterly | **Monthly** + continuous on changes |
 | Attack library coverage | OWASP LLM01 + LLM02 + LLM06 minimum | Full OWASP LLM Top 10 | Full OWASP LLM Top 10 + MITRE ATLAS + FSI abuse families |
 | Golden dataset minimum size | 25 Q&A pairs | 50 Q&A pairs | **100+ Q&A pairs** per agent |
-| Pre-deployment gate | Advisory | Block on regression | **Block on threshold breach** |
+| Pre-deployment gate | Acceptance gate (≥ 80 % defense rate) | Block on regression | **Block on threshold breach** |
 | Independent third-party assessment | None | Consider | **Required annually** |
 | Remediation SLA — Critical | 30 days | 7 days | **24 hours** (or compensating control) |
 | Remediation SLA — High | 60 days | 14 days | **7 days** |
