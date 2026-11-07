@@ -385,7 +385,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Incident Response Planning** | https://learn.microsoft.com/en-us/security/operations/incident-response-planning | Oct 2026 |
+| **Incident Response Planning** | https://learn.microsoft.com/en-us/security/zero-trust/security-operations-incident-response-readiness | Oct 2026 |
 | **AI Red Team** | https://learn.microsoft.com/en-us/security/ai-red-team/ | Oct 2026 |
 
 ---
