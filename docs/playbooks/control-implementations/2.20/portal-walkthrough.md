@@ -3,14 +3,14 @@
 **Control:** [2.20 — Adversarial Testing and Red Team Framework](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md)<br>
 **Pillar:** Management<br>
 **Last UI Verified:** April 2026<br>
-**Last Verified:** 2026-11-06 (Microsoft Learn documentation review; not tenant UI verification)<br>
+**Last Verified:** 2026-11-07 (Microsoft Learn documentation re-verification; not tenant UI verification)<br>
 **Estimated time:** 6–10 hours initial setup; 2–8 hours per recurring test cycle (varies by zone and agent surface)<br>
 **Governance Levels:** Baseline / Recommended / Regulated
 
 ---
 
 !!! warning "Verification boundary and implementation prerequisites"
-    Microsoft product guidance was checked against the live sources in [Microsoft documentation reviewed](#microsoft-documentation-reviewed) on 2026-11-06. No tenant actions, screenshots, probes, or license assignments were verified. The historical UI date above is not renewed.
+    Microsoft product guidance was checked against the live sources in [Microsoft documentation reviewed](#microsoft-documentation-reviewed) on 2026-11-06 and re-verified against those sources on 2026-11-07. No tenant actions, screenshots, probes, or license assignments were verified. The historical UI date above is not renewed.
 
     Copilot Studio solution transport requires a Dataverse environment and solution-management privileges (at least the **System Customizer** Dataverse security role). Assign the test identities the licenses required for the experience under test; a test organizational unit is not a licensing exemption. Managed Environments require qualifying standalone licenses or pay-as-you-go coverage for active usage. PIM requires Microsoft Entra ID P2 or Microsoft Entra ID Governance licensing. Foundry evaluations require an Azure subscription, a supported project/region, the **Foundry User** role, and applicable quota/billing.
 
@@ -357,7 +357,7 @@ After completing the steps above, confirm:
 
 ## Microsoft documentation reviewed
 
-Documentation checked on **2026-11-06**; these sources do not attest to tenant execution.
+Documentation re-verified on **2026-11-07** (first checked 2026-11-06); these sources do not attest to tenant execution.
 
 - [Copilot Studio environments](https://learn.microsoft.com/en-us/microsoft-copilot-studio/environments-first-run-experience) — PPAC **Manage → Environments**, supported regions; an environment without a Dataverse database does not appear in the Copilot Studio environment switcher.
 - [Create and manage solutions](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-overview) and [Export/import agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-import-export) — solution explorer, roles, dependencies, transport limits, authentication and publication.
@@ -380,4 +380,4 @@ Documentation checked on **2026-11-06**; these sources do not attest to tenant e
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [PowerShell Setup](powershell-setup.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation verified 2026-11-06; tenant UI evidence not collected)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation re-verified 2026-11-07; tenant UI evidence not collected)*

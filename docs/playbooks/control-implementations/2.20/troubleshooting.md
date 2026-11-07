@@ -1,6 +1,6 @@
 # Control 2.20 — Troubleshooting: Adversarial Testing and Red Team Framework
 
-**Last Verified:** 2026-11-06 (documentation review; no tenant/UI/runtime evidence collected)
+**Last Verified:** 2026-11-07 (Microsoft Learn documentation re-verification; no tenant/UI/runtime evidence collected)
 
 !!! warning "Check the interface and evidence before tuning the model"
     The sibling PowerShell examples are not a delivered runner or verified gate. Endpoint adapters, per-family thresholds, complete evidence hashing and workload-specific reconciliation need firm implementation and testing. See the [walkthrough's reviewed Microsoft sources](portal-walkthrough.md#microsoft-documentation-reviewed). A transport failure, unsupported telemetry plane, or partial evaluation is not proof that a defense worked.
@@ -347,4 +347,4 @@ For SEV-1 events (probe discovers a vulnerability already exploited in productio
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Verification & Testing](verification-testing.md)
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation reviewed 2026-11-06; tenant runtime not verified)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation re-verified 2026-11-07; tenant runtime not verified)*

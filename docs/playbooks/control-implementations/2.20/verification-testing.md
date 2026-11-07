@@ -4,7 +4,7 @@
 **Pillar:** 2 — Management
 **Audience:** AI Governance Lead, Cloud Security Architect, Security Architect, Model Risk Manager, FSI Internal Audit
 
-**Last Verified:** 2026-11-06 (documentation review; no tenant, UI, or runtime evidence collected)
+**Last Verified:** 2026-11-07 (Microsoft Learn documentation re-verification; no tenant, UI, or runtime evidence collected)
 
 !!! warning "Requirements are not implemented test results"
     These cases are acceptance requirements for a firm-owned program. The sibling PowerShell examples do not implement every case or supply verified endpoint adapters. Do not attest to execution from a script, activity acknowledgement, policy JSON, or manifest alone. Use the [walkthrough's live sources](portal-walkthrough.md#microsoft-documentation-reviewed) and record unsupported surfaces, missing evidence, and transport/configuration differences.
@@ -275,4 +275,4 @@ I attest that, for the named period:
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation reviewed 2026-11-06; tenant tests not executed)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation re-verified 2026-11-07; tenant tests not executed)*

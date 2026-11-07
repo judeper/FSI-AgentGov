@@ -16,7 +16,7 @@
     Before running any command, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md) — module pinning, `-WhatIf` / `SupportsShouldProcess`, Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative when the two diverge.
 
 !!! danger "Implementation boundary — not a delivered automation package"
-    **Documentation reviewed: 2026-11-06; no tenant/runtime tests performed.** This repository does not ship the named probe, endpoint-adapter, evidence-helper, or validator scripts. These are incomplete patterns, not a verified multi-surface runner or complete release gate. Implement and test surface-specific adapters before use; do not count missing adapters, empty/skipped suites, `REVIEW` results, or missing evidence as passing.
+    **Documentation re-verified: 2026-11-07; no tenant/runtime tests performed.** This repository does not ship the named probe, endpoint-adapter, evidence-helper, or validator scripts. These are incomplete patterns, not a verified multi-surface runner or complete release gate. Implement and test surface-specific adapters before use; do not count missing adapters, empty/skipped suites, `REVIEW` results, or missing evidence as passing.
 
     The example runner does not load its helper, use `GoldenDatasetPath`, enforce zone/family thresholds, hash every required artifact, validate destination bytes, or provide complete role/cadence attestations. Its exit check blocks explicit failures/errors but not every requirement in [Verification & Testing](verification-testing.md). The firm must supply and validate that implementation.
 
@@ -465,4 +465,4 @@ if ($findings | Where-Object severity -in 'Critical','High') { exit 1 } else { e
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [Portal Walkthrough](portal-walkthrough.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation reviewed 2026-11-06; adapters and tenant runtime not verified)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation re-verified 2026-11-07; adapters and tenant runtime not verified)*
