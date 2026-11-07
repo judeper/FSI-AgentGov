@@ -359,7 +359,7 @@ After completing the steps above, confirm:
 
 Documentation checked on **2026-11-06**; these sources do not attest to tenant execution.
 
-- [Copilot Studio environments](https://learn.microsoft.com/en-us/microsoft-copilot-studio/environments-first-run-experience) — PPAC **Manage → Environments**, supported regions, Dataverse requirement.
+- [Copilot Studio environments](https://learn.microsoft.com/en-us/microsoft-copilot-studio/environments-first-run-experience) — PPAC **Manage → Environments**, supported regions; an environment without a Dataverse database does not appear in the Copilot Studio environment switcher.
 - [Create and manage solutions](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-overview) and [Export/import agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-import-export) — solution explorer, roles, dependencies, transport limits, authentication and publication.
 - [Environment access](https://learn.microsoft.com/en-us/power-platform/admin/control-user-access) — licenses, security roles, security-group exceptions.
 - [Manage data policies](https://learn.microsoft.com/en-us/power-platform/admin/prevent-data-loss) and [Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing) — separate DLP/auditing navigation and scope.
