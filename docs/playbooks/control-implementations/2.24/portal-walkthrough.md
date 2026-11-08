@@ -12,7 +12,7 @@
     | Per-environment feature flags and preview-feature exposure | PPAC → Environments → [env] → Settings → Product → Features | Preview features off in Z3; documented exceptions in Z2 |
     | Per-agent tool, knowledge-source, authentication, and publishing configuration | Copilot Studio → [agent] → Settings / Tools / Knowledge | Agent-level configuration matches feature catalog |
     | Feature catalog authoring and change workflow (forward **and reverse**) | Dataverse table / SharePoint list + ServiceNow / Jira / SPO | Every Z2/Z3 capability has an authorised record with expiration, risk rating, and reverse-change path |
-    | MCP connector and Agent Framework feature-flag governance (external tool egress) | PPAC → Security → Data and privacy → Data policy + Copilot Studio → [agent] → Actions → MCP | External tool egress is allowlisted, justified, and monitored |
+    | MCP registered-server, supporting connector and agent tool governance | Agents → Tools → Registry; PPAC data policies/ACP; Copilot Studio → [agent] → Tools | Actual Microsoft/internal/third-party routes approved and monitored; supported control planes verified separately |
     | Voice and image-upload toggles (recording consent + Purview DLP for images) | M365 admin center → Copilot → Voice; Purview → DLP | Consent banner and DLP classifier coverage verified |
 
     **This walkthrough is NOT for:**
@@ -172,7 +172,7 @@ The M365 admin center is the **tenant-scoped** control surface for Microsoft 365
     - **Image generation**
     - **File search** (Graph-grounded retrieval)
     - **Actions** (first-party and third-party connector actions)
-    - **MCP connectors** (external Model Context Protocol endpoints — see §7 for the deep dive)
+    - **MCP servers** — use the current **Agents → Tools → Registry** procedure in §7, not an assumed capability card
     - **Voice** (see §8)
     - **Image upload** (see §8)
 
@@ -378,7 +378,7 @@ Open each Zone 3 environment and apply the Z3 feature posture. Repeat the proced
     - **Copilot in model-driven apps** → **Off** unless required
     - **Copilot for makers** → **On** (author experience only; does not affect runtime)
     - **Natural language to SQL** → **Off** for Z3
-    - **External plugins / Custom connectors in Copilot Studio agents** → **Off**; use allow-list DLP per Control 1.4
+    - **Custom connector usage** → restrict through actual classic DLP classifications/patterns per Control 1.4; no generic environment **External plugins / Custom connectors Off** switch is assumed
 4. Click **Save**. Capture the confirmation banner and the last-modified timestamp.
 5. Record each change in the feature catalog (§5) with Zone `Z3-Enterprise`, approval ticket, expiration (if time-bound), and risk rating.
 
@@ -397,7 +397,7 @@ Open each Zone 2 environment:
     - **Generative actions** → **On** with documented per-agent approval recorded in the feature catalog
     - **Copilot in canvas / model-driven apps** → **On** if required by business
     - **Natural language to SQL** → **On** with DLP constraints on target databases
-    - **Custom connectors** → **On** with Control 1.4 DLP review completed
+    - **Custom connector usage** → permitted only through reviewed DLP classifications/patterns; maker-role creation rights are separate, not a generic Features **On** toggle
 3. Save. Record every deviation from the Z3 baseline in the feature catalog.
 
 ### 3.4 Configure Zone 1 environment features
@@ -724,28 +724,30 @@ Create a second template — **do not reuse the forward template**. Reverse chan
 
 **Verification Criteria evidenced:** VC-6 (DLP policies enforce feature restrictions by blocking prohibited connectors and data sources), VC-8 (restricted features cannot be enabled by authors).
 
-MCP (Model Context Protocol) connectors and Microsoft Agent Framework feature flags are the **external tool egress** surface. This is where an agent reaches **outside** Microsoft 365 — to customer APIs, SaaS services, and third-party AI tools. For FSI, this surface is the single highest-risk capability category: it combines model egress, third-party data sharing, and often non-Microsoft identity planes.
+MCP can expose Microsoft, internal and third-party services. Record the publisher, hosting operator, destination and actual identity/control plane; the protocol alone does not establish third-party/model egress. Agent Framework and Copilot Studio are separate hosting/control surfaces.
 
-### 7.1 MCP connectors — tenant-level allow-list in the M365 admin center
+### 7.1 MCP servers — supported Agent 365 registered-server controls
 
-1. Return to M365 admin center → **Copilot → Settings → Agents & connectors**.
-2. Open the **MCP connectors** card → **Edit**.
-3. Default posture: **State = Off** at the tenant ceiling unless at least one approved MCP server is in the feature catalog.
-4. If On, configure **Allowed MCP servers** as an explicit allow-list of hostnames / URLs. **Never** use a wildcard.
-5. For each allowed MCP server, the feature catalog must carry a row: Feature ID `mcp.external-server.<host>`, Surface `M365 Copilot Admin`, Z1/Z2/Z3 status per the zone matrix (typically Z1 `Restricted`, Z2 `Prohibited`, Z3 `Prohibited` unless compelling justification), Risk `High`, and **MRM ticket** populated.
-6. Save.
+1. In Microsoft 365 admin center, open **Agents → Tools → Registry** and review each actual registered MCP server's publisher/status and downstream services.
+2. Use the server **Block / Unblock** action for organization-wide registered-server availability. Review requests under **Requests (preview)**; approval and required tenant consent are separate steps.
+3. Individual-tool runtime controls are rolling out for supported registered server types through the Agent 365 Tooling Gateway. Inspect the server **Tools** tab and document unavailable discovery/control support; do not assume universal tool-level enforcement.
+4. Reconcile actual server/tool state with the organizational feature catalog and approval records. This is not a universal hostname-based **Allowed MCP servers** card, nor a ceiling over every Copilot Studio custom connector.
 
-!!! danger "MCP Connectors Are Third-Party Egress — Model Risk Management Applies Regardless of Zone"
-    Any MCP connector reaches a **non-Microsoft model or tool endpoint**. Treat every MCP connector as requiring a Control 2.6 MRM review **even in Z1**, and a Control 1.4 DLP review for the data classes it can reach. "Tenant allow-list" is not a substitute for vendor due diligence under OCC 2013-29 (third-party risk).
+Sources: [Agent tools registry](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-tools-overview), [MCP/plugin management](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/manage-plugins-skills-mcp-servers). Power Platform connector usage shown here is **preview visibility**, not connector management; use **View in Power Platform** for actual connector policies.
+
+!!! danger "MCP Service Routes — Organizational Risk Review Applies Regardless of Zone"
+    MCP does not necessarily reach a non-Microsoft model or tool endpoint. Treat every MCP connector as requiring a Control 2.6 MRM review **even in Z1**, and a Control 1.4 DLP review for the data classes it can reach, as an organizational approval requirement rather than a protocol-specific product fact. "Tenant allow-list" is not a substitute for vendor due diligence under OCC 2013-29 (third-party risk).
 
 ### 7.2 MCP connectors — DLP environment enforcement
 
 1. In PPAC → **Security → Data and privacy → Data policy**, open the policy that covers your Z3 environments.
-2. Locate the **MCP** or **Custom connectors** classification (UI naming varies).
-3. Confirm it is placed in the **Blocked** group for Z3 unless a specific allow-list entry exists.
-4. For Z2, place in **Non-business** (preventing cross-use with Business data) and maintain a small allow-list.
-5. For Z1, Microsoft default posture may be acceptable; document in the feature catalog.
-6. Save.
+2. Identify the actual supporting connector, not a universal **MCP** classification. Environment custom connectors are classified by name; tenant custom connectors use ordered Host URL patterns.
+3. For organizational default-deny, explicitly set the final tenant `*` to **Blocked**; new policies default to **Ignore**. Reconcile any by-name precedence and dynamic-host limitations.
+4. Apply zone-approved connector classifications. ACP server-level blocking applies only to supported certified connectors; retain mixed-mode classic DLP for custom/HTTP/virtual gaps.
+5. In the agent **Tools** page, turn MCP **Allow all** off and select approved tools; newly added tools then default off. This is separate from DLP and Agent 365 registered-server controls.
+6. Change-control policy updates, read back and test blocked/allowed behavior; full policy enforcement can take 24 hours.
+
+Sources: [custom connector DLP](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity), [ACP support](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies), [MCP agent settings](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent), [policy latency](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention).
 
 Cross-reference [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) for the full DLP configuration procedure. This section captures only the 2.24-specific intersection.
 
@@ -766,15 +768,15 @@ The Microsoft Agent Framework exposes feature flags via the `agent.yaml` manifes
 
 ### 7.4 Verify and capture evidence
 
-1. Export the MCP allow-list from the admin center (screenshot + CSV if available).
-2. Export the DLP policy JSON via `Get-DlpPolicy` (see `./powershell-setup.md`).
+1. Capture actual registered-server availability/tool controls, organizational approvals and agent **Allow all**/tool selections; do not invent a native bulk hostname export.
+2. Export raw DLP policies and separate Host URL patterns/configuration where used; capture ACP evidence separately (see [Control 2.7 collection boundaries](../2.7/powershell-setup.md)).
 3. Export the Agent Framework flag state per environment.
 4. Store under `Control-2.24/VC-6/mcp-and-framework/<YYYY-MM-DD>/`.
 
 !!! example "Examiner Evidence Box — MCP and Agent Framework"
     | Element | Value |
     |---|---|
-    | Artifact produced | MCP allow-list export + DLP JSON + Agent Framework flag CSV + feature-catalog rows with MRM ticket references |
+    | Artifact produced | Actual registered MCP server/tool state and approvals, agent tool selections, raw DLP/pattern/ACP evidence and feature-catalog records; no universal native bulk export inferred |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
     | Regulatory mapping | Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (model change + third-party model inventory), OCC 2013-29 (third-party risk management), FINRA 3110 (supervision of external tool use), GLBA 501(b) (third-party safeguards) |
 
@@ -983,7 +985,7 @@ This walkthrough used the portal end-to-end for clarity and screenshot evidence.
 | Bulk per-environment feature posture across >10 environments | ❌ Tedious | ✅ `Get-/Set-PowerAppEnvironmentFeature` | ✅ | **PowerShell** — portal does not scale |
 | Feature-catalog CRUD | ✅ | ✅ Dataverse Web API | ✅ | **PowerShell / Power Automate** for drift detection; portal for ceremonial edits |
 | Drift detection PPAC vs catalog | ❌ | ✅ Scheduled flow | ✅ | **PowerShell / Power Automate** — see [`./powershell-setup.md`](./powershell-setup.md) |
-| MCP allow-list edit | ✅ | ⚠️ Limited Graph support | ⚠️ | **Portal** — MCP allow-list is low-volume, ceremonial |
+| Registered MCP server availability / supported tool controls | ✅ Agents → Tools → Registry | Verify actual documented APIs | Verify actual documented APIs | **Portal** — reconcile with organizational approvals and agent bindings |
 | DLP policy change for connector / MCP enforcement | ✅ | ✅ `Get-/Set-DlpPolicy` | — | **PowerShell** for IaC parity; portal for initial design |
 | Per-agent tool/knowledge/auth audit across >20 agents | ❌ | ✅ `pac copilot` + Dataverse Web API | ✅ | **PowerShell** |
 | Change-ticket processing | ❌ | — | — | **Change-management system native** — integrate via webhook |
@@ -995,7 +997,7 @@ Open a Microsoft service request (M365 admin → Support → New service request
 
 - **Capability toggle greyed out or "save" button inactive** despite correct role (AI Administrator for Copilot, Power Platform Admin for PPAC). Category: Microsoft 365 → Copilot → Configuration.
 - **Preview feature that cannot be disabled in PPAC** but is creating audit exposure. Category: Power Platform → Admin Center → Copilot.
-- **MCP allow-list changes not propagating after 24 hours.** Category: Microsoft 365 → Copilot → Agents & connectors.
+- **Documented registered MCP approval/block state not propagating.** Capture approval, consent and actual server state; request availability after approval/consent can take 30 minutes. Classic DLP enforcement has a separate up-to-24-hour window. Category: Microsoft 365 → Agents → Tools.
 - **Purview image-DLP classifier not triggering despite On state and Premium licensing.** Category: Microsoft Purview → DLP.
 - **Voice consent banner not rendering for specific locales.** Category: Microsoft 365 → Copilot → Voice.
 
@@ -1012,7 +1014,7 @@ Before declaring Control 2.24 implemented, confirm:
 - [ ] §4 per-agent Tools, Knowledge, Authentication, Channels reviewed; no anonymous auth in Z2/Z3; solution-export hashes archived.
 - [ ] §5 feature catalog provisioned (Dataverse preferred for Z3-heavy tenants); schema includes all required fields; drift-detection flow active.
 - [ ] §6 forward AND reverse change templates exist in change-management system; approval matrix documented; walk-through of one forward change and one reverse change completed and archived.
-- [ ] §7 MCP allow-list configured (or Off); Agent Framework autonomous/background flags Off in Z2/Z3; DLP enforcement aligned with Control 1.4.
+- [ ] §7 actual supported MCP server/connector/tool controls reconciled with approvals and tested; unsupported Agent Framework/native feature-control assumptions recorded as gaps, not inferred from MCP settings.
 - [ ] §8 voice posture aligned to FINRA 2210/3110; image-upload Purview DLP classifiers active and tested with synthetic content.
 - [ ] §9 zone-cadence calendar entries created; quarterly risk-assessment memo template published.
 - [ ] §10 evidence-bundle folder convention in use; at least one session archived to validate the process.
@@ -1021,4 +1023,6 @@ Before declaring Control 2.24 implemented, confirm:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted MCP/custom-connector documentation corrections only; other capability cards/API examples were not reverified. No tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

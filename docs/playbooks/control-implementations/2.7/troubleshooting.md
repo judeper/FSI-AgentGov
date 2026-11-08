@@ -4,18 +4,22 @@
 
 ---
 
+**Last Verified:** 2026-11-06
+
+**Verification scope:** Official documentation only; no tenant UI, API execution, screenshots, or enforcement tests. Remediation changes require impact assessment and approved change control.
+
 ## Quick Reference
 
 | # | Issue | Likely Root Cause | First Action |
 |---|-------|-------------------|--------------|
-| 1 | Inventory misses connectors actually in use | Producer environments outside scope; service principals creating apps | Enumerate **all** environments via PowerShell; cross-check Purview audit |
+| 1 | Inventory misses connectors actually in use | Resource/analytics coverage gaps; missing visibility | Reconcile resource inventory, custom connectors, agent tools and actual runtime evidence |
 | 2 | Vendor cannot supply SOC 2 Type II | Smaller vendor, pre-attestation maturity | Accept ISO 27001 + bridge letter + independent assessment; document risk acceptance |
-| 3 | Custom connector created without review | Producer environment lacks creation restriction | Restrict in Managed Environments; route producers to designated environments |
+| 3 | Custom connector created without review | Maker permissions or intake process not governed | Review actual maker-role assignments and DLP usage controls; sharing limits do not restrict creation |
 | 4 | Vendor incident notice arrived late | Contract notification window not enforced | Re-paper contract; raise vendor risk score; escalate to vendor risk committee |
-| 5 | DLP policy fails to block expected connector | Less-restrictive policy wins; classification missing | Validate effective policy; ensure target connector classified and policy scoped |
-| 6 | Community / independent-publisher plugin appeared in Copilot Studio agent | Tenant allows non-allowlisted plugins; admin not scoped | Disable plugin; tighten Copilot Studio plugin governance; notify agent owner |
+| 5 | DLP policy fails to block expected connector | Wrong environment/classification, enforcement delay, ACP-only mode or unsupported connector type | Reconcile all applicable DLP/ACP policies and test the actual operation |
+| 6 | Community / independent-publisher tool appeared in Copilot Studio agent | Unapproved maker change or upstream tool change | Remove tool; review maker permissions and supported connector/server restrictions |
 | 7 | LLM vendor changed model behavior with no notice | Contract clause weak or absent | Trigger Control 2.6 re-validation; re-paper contract; consider vendor change |
-| 8 | MCP tool server reachable from agent without inventory entry | Egress not gated; intake bypassed | Block egress to MCP server; require Tier T5 onboarding before re-enabling |
+| 8 | MCP tool server reachable from agent without inventory entry | Unapproved server binding or intake bypass | Remove binding/block supported connector or server; identify actual operator and risk tier |
 
 ---
 
@@ -27,12 +31,12 @@
 
 **Diagnostics:**
 1. Run the inventory snapshot from the [PowerShell Setup](powershell-setup.md) playbook against **every** environment, including default and personal productivity.
-2. Cross-reference Purview audit (operations: `CreateConnection`, `RegisterCustomConnector`, `UpdateApp` with new connection IDs) for the prior 90 days.
-3. Confirm no service principals are creating connections outside the inventory pipeline.
+2. Compare **Manage → Inventory** resource connector references with raw custom connector reads and agent **Tools**. The PowerShell custom-connector read omits **solution-packaged** custom connectors (documented limitation), so also review solution contents; its output is partial, not an inventory of record. Analytics has at most 28 days and incomplete workload coverage; it does not provide a universal three-workload connector CSV. Built-in HTTP actions are not captured as connectors ([inventory limitations](https://learn.microsoft.com/en-us/power-platform/admin/inventory-schema)).
+3. Inspect actual available administrative audit activities and configured execution logs within their retention periods. Do not assume literal operation IDs or complete request/response evidence. Review service-principal-owned resources and any visibility gaps separately.
 
 **Resolution:**
 - Add an automated weekly snapshot to the evidence pipeline.
-- Enable Power Platform admin alerts for new connector creation in Zone 2/3.
+- Configure and test an inventory-delta/approval notification process; do not assume native automatic alerts for every new connector.
 - Require intake-ticket reference in any change-management approval before publishing a new connector to a Managed Environment.
 
 ---
@@ -55,11 +59,11 @@
 **Symptoms:** New custom connector found in a production environment with no record in the intake system.
 
 **Resolution:**
-1. Disable the connector immediately if it carries customer NPI, MNPI, or supervisory data.
+1. Contain unauthorized usage through an approved agent removal or supported DLP/ACP restriction; assess impacted existing resources before changing policy.
 2. Run the custom connector enumeration script and assess data exposure.
-3. In the affected environment, restrict custom connector creation via Managed Environments → **Sharing limits** and **Maker controls** (see [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)).
-4. Establish designated producer environments for custom connector development; block production environments from creation rights.
-5. Add a Power Platform admin alert for `RegisterCustomConnector` events.
+3. Review actual **Environment Maker** and Dataverse role assignments: Environment Maker includes custom connector creation ([environment roles](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview#environment-roles)). Managed Environment sharing limits are not a creation restriction.
+4. Establish designated producer environments and least-privilege maker permissions where supported; document the default environment's broad maker access. Use DLP to restrict **usage**, not as evidence that creation is impossible.
+5. Add tested inventory-delta notifications and intake review; use documented audit activities actually observed, not a fabricated `RegisterCustomConnector` alert contract.
 
 ---
 
@@ -80,27 +84,28 @@
 **Symptoms:** Users continue to add connectors that should be blocked.
 
 **Diagnostics:**
-1. Open Power Platform admin center → **Security → Data and privacy → Data policy** → select policy → **Policy effects**. Confirm the connector is in the **Blocked** group and the policy is scoped to the user's environment.
-2. If multiple policies apply, the **most restrictive wins**, but only across overlapping environments. Validate environment-to-policy mapping.
-3. Check propagation: changes can take up to **one hour** to take effect.
-4. Confirm the environment is **Managed** — some advanced DLP controls require Managed Environments.
+1. Open Power Platform admin center → **Security → Data and privacy → Data policy**. Review **Scope / Applied to**, connector classifications and all applicable policies; no **Policy effects** view is assumed ([manage data policies](https://learn.microsoft.com/en-us/power-platform/admin/prevent-data-loss)).
+2. If multiple policies apply, the **most restrictive wins**, but only across overlapping environments. Validate environment-to-policy mapping. If a `Get-DlpPolicy` export is used, note that it omits **new** default-group connectors that were never moved and can show stale connector names ([documented limitations](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell)); the default group is not necessarily Non-business, so confirm in the portal policy view rather than concluding from the export that a connector is unclassified or absent.
+3. Check propagation: policy enforcement is usually within an hour but can take **24 hours** for full enforcement; changes can disable connections and suspend/quarantine existing resources ([policy process](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)).
+4. Review ACP **Status**, scope and mode separately. ACP-only mode ignores classic DLP; ACP does not support custom, HTTP or virtual connectors. Managed Environments are required to block otherwise nonblockable connectors, not to apply every classic DLP policy ([ACP](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies)).
+5. For custom connectors, reconcile environment by-name classification against ordered tenant Host URL patterns; final `*` defaults to Ignore unless explicitly changed. Existing name assignments supersede patterns; dynamic host changes occur after policy evaluation ([custom connector limitations](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity)).
 
 **Resolution:**
 - Reclassify the connector and republish the policy.
-- Verify Conditional Access does not bypass policy via service-principal flows.
+- Test with the actual delegated/service-principal connection. Conditional Access is an identity control, not a mechanism that overrides DLP; DLP scope is the hosting environment, not user security-group membership.
 - For Copilot Studio plugins, confirm the plugin is also restricted at the Copilot Studio agent layer (DLP alone does not govern all plugin types).
 
 ---
 
 ### Issue 6 — Independent / community plugin appeared in a Copilot Studio agent
 
-**Symptoms:** Unvetted plugin discovered in agent **Tools / Plugins** tab.
+**Symptoms:** Unvetted tool discovered on the agent's **Tools** page.
 
 **Resolution:**
 1. Disable the plugin immediately and remove it from the agent.
-2. Review tool-call audit logs for data sent to the plugin endpoint.
+2. Review configured agent/server telemetry for the actual call and destination. Record missing payload/identity evidence rather than interpreting no log as no transmission.
 3. Assess whether NPI, MNPI, or supervisory content was transmitted. If yes, follow Control 3.x incident response and consider notification obligations.
-4. Strengthen prevention: tenant-level Copilot Studio plugin allowlist, restrict agent-author roles, and require AI Administrator approval for new plugin enablement.
+4. Restrict maker/edit permissions, apply supported connector/ACP server restrictions and require approval for additions. For MCP, turn **Allow all** off and enable only approved tools; new tools then default off ([MCP selection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent)). Do not assume a universal tenant plugin allowlist or auto-update switch.
 
 ---
 
@@ -119,19 +124,21 @@
 
 ### Issue 8 — MCP tool server reachable without inventory entry
 
-**Symptoms:** Network telemetry or agent execution log shows traffic to an MCP server that is not in the Tier T5 inventory.
+**Symptoms:** Network telemetry or agent execution log shows traffic to an MCP server absent from the approved server/vendor inventory; actual operator, destination and data determine its risk tier.
 
 **Resolution:**
-1. Block egress to the unknown MCP endpoint at the network layer.
+1. Remove the unapproved agent binding or block the supported connector/MCP server through applicable DLP/ACP. Network containment applies only where the deployment's actual supported route traverses infrastructure you govern; corporate device egress does not automatically control SaaS agent calls.
 2. Identify the agent and owner that introduced the MCP reference.
-3. Require formal Tier T5 onboarding (vendor diligence pack, contract, AI-clauses) before any re-enablement.
-4. Add network egress allowlisting as a control for Zone 3 agents reaching external services.
+3. Identify publisher, hosting operator, downstream services and applicable terms, then perform risk-tiered onboarding before re-enablement. Microsoft also publishes MCP connectors; MCP is not non-Microsoft by definition ([MCP integration](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent)).
+4. Validate the applicable network, connector/server, tool-selection and telemetry controls independently; record any unavailable enforcement plane as a gap.
 
 ---
 
 ## Microsoft Platform Update Monitoring
 
 For Copilot Studio and Microsoft 365 Copilot, the underlying models are managed by Microsoft. Treat Microsoft as your highest-volume Tier T1 / T5 vendor and monitor for change.
+
+For external model routes, identify the actual model operator and terms instead of extending that statement to every provider. Review primary models on **Overview → Model**, the live [availability/retirement matrix](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-select-agent-model), provider access plus PPAC environment/group settings, and [Anthropic route-specific terms](https://learn.microsoft.com/en-us/copilot/implement/connect-to-ai-subprocessor). Native selection is not a uniform GA, residency or contract promise.
 
 | Channel | URL | What to Monitor |
 |---------|-----|-----------------|
@@ -196,4 +203,4 @@ Get-MgServiceAnnouncementMessage -All |
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only; no tenant execution)*

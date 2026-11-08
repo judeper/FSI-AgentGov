@@ -51,7 +51,7 @@ A connector that is **not** on the allowlist still appears selectable to a maker
 1. Confirm the environment is in the targeted group **and** the group's ACP **Status = Applied**.
 2. If non-Managed Environment: enable Managed Environments (Control 2.1).
 3. Until design-time GA reaches the relevant portal, communicate to makers that runtime enforcement applies and validate via Test Scenario A run-time variant.
-4. Validate a runtime block: have the maker save and run; the run should fail with a policy violation logged in Purview Audit.
+4. Validate a runtime block with an approved non-production test; capture the actual run error and available telemetry. Do not require an assumed universal Purview runtime-violation event.
 
 ---
 
@@ -66,7 +66,7 @@ ACP currently applies to **certified connectors only**. Custom and HTTP connecto
 ### Fix
 1. Use a **classic DLP policy** to place custom connectors and HTTP / HTTP w/ Entra ID / HTTP Webhook in **Blocked** for the environment.
 2. For approved internal HTTP usage, use **connector endpoint filtering** to restrict to internal hostnames.
-3. Scope the classic DLP at **environment level** (not security-group level) so service-principal connections are also covered.
+3. Reconcile classic DLP inclusion/exclusion of all required hosting environments; environment access groups are not DLP user scope.
 4. Keep mixed mode `On` (do **not** enable ACP-only mode) until ACP custom-connector support reaches GA.
 
 ---
@@ -104,18 +104,18 @@ Selecting **Publish rules** returns an error, or `Update Managed Environment Set
 
 ---
 
-## Issue 7 — Service-principal-authenticated flow bypasses DLP
+## Issue 7 — Service-principal-authenticated flow is not blocked as expected
 
 ### Symptom
 A Power Automate flow running under a service-principal connection invokes a connector that should be blocked. ACP and DLP appear configured.
 
 ### Cause
-DLP policy was scoped at **security-group** level. Service principals authenticate as application identities and do not have user-group membership, so security-group-scoped policies do not apply.
+Wrong hosting environment, connector/operation classification, mode or propagation can explain a missing block. Classic DLP uses tenant/environment scope, not user security-group scope; Conditional Access is a separate identity control ([data policies](https://learn.microsoft.com/en-us/power-platform/admin/prevent-data-loss)).
 
 ### Fix
 1. Reauthor the classic DLP policy to scope at **environment** level (`Add multiple environments`) covering the regulated environment.
-2. Use **Environment Groups** (Control 2.2) so the policy applies consistently as new environments are added to the group.
-3. Audit service-principal connections quarterly: PPAC > **Data** > **Connections** > filter by `Created by = Service Principal`.
+2. Verify all applicable DLP policies and the effective ACP rule/mixed mode. Full policy enforcement can take 24 hours ([policy latency](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)).
+3. Reconcile actual resource/connection ownership and rerun an approved blocked/allowed control pair; do not infer exemption from identity type or an invented service-principal portal filter.
 
 ---
 
@@ -143,10 +143,10 @@ The maker can still invoke a disallowed action (e.g., SharePoint **Delete file**
 An MCP server is listed in ACP but selecting it does not present a block option, or attempting to remove it returns an error.
 
 ### Cause
-ACP supports **MCP server-level blocking** in preview. Tool-level granularity is not yet available. Some preview iterations may surface MCP servers in read-only mode for specific tenants.
+ACP supports **MCP server-level blocking**; individual MCP tool controls are separate agent settings. Verify the actual connector type, applicable environment/rule status and workload rollout rather than assuming an undocumented read-only preview ring ([ACP](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies)).
 
 ### Fix
-1. Confirm the tenant is on the latest preview ring; if not, open a support ticket.
+1. Confirm actual server/connector support and rule status; if the documented supported block fails, capture the error and open a support ticket.
 2. As a compensating control, configure the Copilot Studio agent-level tool toggles to disable the specific MCP tools per agent.
 3. Track removal evidence in the connector catalog and review at the next allowlist recertification.
 
@@ -202,4 +202,6 @@ ACP-only mode bypasses **all** classic DLP evaluation for affected environments.
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted DLP scope, MCP and runtime-evidence corrections only; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only corrections)*
