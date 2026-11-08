@@ -658,7 +658,7 @@ function Invoke-Agt25AiFoundryEvaluation {
 
 ## §6 — PyRIT: adversarial / red-team campaigns
 
-**Why this section exists.** Quality metrics from §5 measure normal-traffic behavior; they do not measure resilience to adversarial inputs (jailbreaks, prompt injection, encoding bypasses, role-play coercion). PyRIT (Python Risk Identification Toolkit) is Microsoft's OSS framework for systematic adversarial campaigns. Because PyRIT is OSS and runs locally, it is portable across commercial tenant architectures — but its memory database (DuckDB) contains adversarial prompts and MUST NOT be committed to source control or stored on user OneDrive.
+**Why this section exists.** Quality metrics from §5 measure normal-traffic behavior; they do not measure resilience to adversarial inputs (jailbreaks, prompt injection, encoding bypasses, role-play coercion). PyRIT (Python Risk Identification Tool) is Microsoft's OSS framework for systematic adversarial campaigns. Because PyRIT is OSS and runs locally, it is portable across commercial tenant architectures — but its memory database (DuckDB) contains adversarial prompts and MUST NOT be committed to source control or stored on user OneDrive.
 
 **Components.**
 
@@ -1160,7 +1160,7 @@ A **false-clean** outcome (the harness reports green when the underlying control
 - [`../2.8/portal-walkthrough.md`](../2.8/portal-walkthrough.md) — ALM and versioning; agent version SHA is recorded in §9 manifest.
 - [`../2.11/portal-walkthrough.md`](../2.11/portal-walkthrough.md) — bias and fairness testing; integrates into §5 evaluator suite.
 - [`../2.18/portal-walkthrough.md`](../2.18/portal-walkthrough.md) — conflict-of-interest testing for advisor agents.
-- [`../2.20/portal-walkthrough.md`](../2.20/portal-walkthrough.md) — adversarial testing framework; §6 is its primary automation.
+- [`../2.20/portal-walkthrough.md`](../2.20/portal-walkthrough.md) — adversarial testing framework; its sibling script examples are incomplete patterns, not a delivered multi-surface runner or release gate.
 - [`../3.1/portal-walkthrough.md`](../3.1/portal-walkthrough.md) — audit and assurance; §10 stream feeds quarterly assurance review.
 - [`../3.5/portal-walkthrough.md`](../3.5/portal-walkthrough.md) — preservation and litigation hold; manifest and artifacts must land in the WORM container defined there.
 
@@ -1171,3 +1171,5 @@ A **false-clean** outcome (the harness reports green when the underlying control
 ---
 
 *Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency wording only. Not a whole-page re-verification; the verification status above is the prior record and is unchanged.*
