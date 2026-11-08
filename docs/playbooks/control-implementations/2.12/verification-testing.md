@@ -24,7 +24,7 @@
 | Canonical roles | Per [docs/reference/role-catalog.md](../../../reference/role-catalog.md). This playbook references **Compliance Officer**, **Designated Principal / Qualified Supervisor**, **AI Governance Lead**, **AI Administrator**, **Agent Owner**, **Entra Global Admin**, **Purview Compliance Admin**, **Power Platform Admin**, **Exchange Online Admin**, and **Entra Security Reader** only. |
 | Regulatory framing | This playbook **helps meet** recordkeeping, supervision, and oversight expectations under FINRA Rules 3110 / 3120 / 2210 / 4511, FINRA Regulatory Notice 24-09 (Gen AI / LLM guidance), SEC Rules 17a-3 / 17a-4, SOX §§301 / 404, GLBA §500(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Fed SR 26-2 (formerly SR 11-7)), NYDFS 23 NYCRR 500, and the FFIEC IT Examination Handbook. It does **not** by itself establish compliance; organizations should verify findings against their own legal and regulatory obligations and tailor sample sizes, SLAs, and zone thresholds to their documented risk appetite. |
 
-> **Technical-source boundary (issue #912 correction).** The Pester suites, helper functions (`Invoke-Agt212PreFlight.ps1`, `_helpers/Agt212.*`, `Get-CopilotStudio*`, `Get-Agt212Agf*`, `_helpers/Agt212.Siem.kql/`), JSON evidence shapes, Agent Framework manifest schema (`agent.yaml`), and KQL files in this playbook are **design templates** that the firm must implement and own. They are **not included** in this repository and are **not** an out-of-box evidence pipeline; this playbook does not provide runnable copies. Names such as `trigger_expression`, `handoff_target`, `handoff_enabled`, `request_info:` manifest sections, and `AgentFrameworkCheckpoint` are firm-defined projection fields or firm-built tables, not Microsoft-documented properties. Nothing here was validated against a tenant. Microsoft-documented behavior is cited where it matters: [audit log search](https://learn.microsoft.com/en-us/purview/audit-log-search), [Copilot Studio handoff](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off), [Agent Framework human-in-the-loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop), [Agent Framework checkpoints](https://learn.microsoft.com/en-us/agent-framework/workflows/checkpoints), [Azure Monitor table retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure), and [Azure immutable blob storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview). Firm SLAs, sampling sizes, and retention periods are firm policy choices, not Microsoft commitments.
+> **Technical-source boundary (issue #912 correction).** The Pester suites, helper functions (`Invoke-Agt212PreFlight.ps1`, `_helpers/Agt212.*`, `Get-CopilotStudio*`, `Get-Agt212Agf*`, `Get-HitlProbeRecords`, `ConvertTo-FirmAuditProbeIdentity` (the AuditData identity adapter the firm must validate against its own exported records), `_helpers/Agt212.Siem.kql/`), JSON evidence shapes, Agent Framework manifest schema (`agent.yaml`), and KQL files in this playbook are **design templates** that the firm must implement and own. They are **not included** in this repository and are **not** an out-of-box evidence pipeline; this playbook does not provide runnable copies. Names such as `trigger_expression`, `handoff_target`, `handoff_enabled`, `request_info:` manifest sections, and `AgentFrameworkCheckpoint` are firm-defined projection fields or firm-built tables, not Microsoft-documented properties. Nothing here was validated against a tenant. Microsoft-documented behavior is cited where it matters: [audit log search](https://learn.microsoft.com/en-us/purview/audit-log-search), [Copilot Studio handoff](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off), [Agent Framework human-in-the-loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop), [Agent Framework checkpoints](https://learn.microsoft.com/en-us/agent-framework/workflows/checkpoints), [Azure Monitor table retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure), and [Azure immutable blob storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview). Firm SLAs, sampling sizes, and retention periods are firm policy choices, not Microsoft commitments.
 
 > **FINRA 3110 non-substitution, restated.** Tests in this playbook verify that WSPs exist, that reviewers are qualified, that decisions are captured with rationale, and that evidence is retained. They do not verify that the reviewer's *decision* was correct. The decision correctness test is a qualitative supervisory review performed by the Designated Principal during Rule 3120 annual testing (§9) and documented in Rule 3120 working papers.
 
@@ -95,7 +95,7 @@ A "green quarter" for Control 2.12 is the conjunction of nine conditions, one pe
 | 5 | Reviewer-decision audit trail | For **N=25** reviewer decisions per quarter, each record has non-null reviewer UPN + timestamp + decision + rationale; each decision is traceable to the originating agent interaction and (for Agent Framework) to the originating request ID and checkpoint | §5 REVIEWER |
 | 6 | Rule 3120 annual test | Rule 3120 annual test of AI supervisory controls documents design and operating effectiveness, enumerates exceptions with remediation, and is signed by a qualified principal | §8 R3120 |
 | 7 | Rule 2210 classification evidence | For **N=10** customer-facing Zone 3 agent outputs per quarter, 2210 classification (Correspondence / Retail / Institutional) is recorded; where Retail, principal pre-use approval (or documented exclusion under Rule 2210(b)(1)) is attached | §9 R2210 |
-| 8 | Agent Framework evidence retention | For every HITL request raised via `request_info()`, the firm retains request ID, checkpoint state at pause, reviewer response payload, and final executor output | §11 AGF |
+| 8 | Agent Framework evidence retention | For every HITL request raised via Agent Framework (Python `request_info`; C#/Go `RequestPort`), the firm retains request ID, checkpoint state at pause, reviewer response payload, and final executor output | §11 AGF |
 
 Any missing artifact is treated as a control exception requiring written remediation and re-test within the following quarter.
 
@@ -437,18 +437,44 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
         }
         It "audit records reconcile with each probe after the firm's reconciliation window" {
             # Microsoft gives no committed audit availability time; core services are typically 60-90 minutes and other services can take longer.
-            # Run this reconciliation in a later pass over probes older than $script:AuditReconciliationWindow (firm-set; >= 24 h suggested as a policy choice).
-            foreach ($probe in $script:ProbesOlderThanReconciliationWindow) {
-                $log = Search-UnifiedAuditLog `
+            # Reconcile in a later pass over probes older than $script:AuditReconciliationWindowHours (firm-set; >= 24 h suggested as a policy choice).
+            # Only MATCHED passes. PENDING, NOT_FOUND, TRUNCATED and UNSUPPORTED_SCHEMA are reported INCONCLUSIVE, never as a pass or a failure.
+            $probes = @($script:ProbesOlderThanReconciliationWindow | Where-Object { $null -ne $_ })
+            if ($probes.Count -eq 0) {
+                Set-ItResult -Inconclusive -Because 'PENDING: no probe is older than the firm-set reconciliation window, so nothing was reconciled'
+                return
+            }
+            $outcomes = @(foreach ($probe in $probes) {
+                # The 5-minute and 30-minute offsets only pad the search window; they are not an availability SLA.
+                $log = @(Search-UnifiedAuditLog `
                     -StartDate $probe.emitted_at.AddMinutes(-5) `
                     -EndDate   $probe.emitted_at.AddMinutes(30) `
                     -RecordType 'CopilotInteraction' `
                     -UserIds   $probe.probe_user_upn `
-                    -ResultSize 5000
-                # Match on operation, record type, AppIdentity (Copilot.Studio.<appId>) and time; keyword/free-text search covers only indexed common-schema content.
-                $matched = $log | Where-Object { ($_.AuditData | ConvertFrom-Json).AppIdentity -like "Copilot.Studio.$($probe.bot_app_id)*" }
-                $matched.Count | Should -BeGreaterOrEqual 1 -Because "a missing record is INCONCLUSIVE until the known-positive control passes, the schema/filter is confirmed, and the query is complete"
+                    -ResultSize 5000 | Where-Object { $null -ne $_ })
+                # Match intent: operation, record type, probe app identity and time; keyword/free-text search covers only indexed common-schema content.
+                # ConvertTo-FirmAuditProbeIdentity is a firm-built adapter (not included). The firm must validate it against its own exported AuditData
+                # (Learn documents no single AppIdentity path for every record). It returns $null for any payload it cannot map; no property path is assumed here.
+                $identities = @($log | ForEach-Object {
+                    $raw = $_.PSObject.Properties['AuditData']
+                    $id = if ($raw) { ConvertTo-FirmAuditProbeIdentity -AuditData $raw.Value }
+                    if ($null -eq $id) { $null } else { $id }
+                })
+                $mapped = @($identities | Where-Object { $null -ne $_ })
+                $hits   = @($mapped | Where-Object { $_.PSObject.Properties['AppIdentity'] -and $_.AppIdentity -like "Copilot.Studio.$($probe.bot_app_id)*" })
+                $status = if ($hits.Count -ge 1)            { 'MATCHED' }
+                          elseif ($log.Count -ge 5000)      { 'TRUNCATED' }
+                          elseif ($mapped.Count -lt $log.Count) { 'UNSUPPORTED_SCHEMA' }
+                          else                              { 'NOT_FOUND' }
+                [pscustomobject]@{ BotAppId = $probe.bot_app_id; EmittedAt = $probe.emitted_at; Status = $status }
+            })
+            $unresolved = @($outcomes | Where-Object Status -ne 'MATCHED')
+            if ($unresolved.Count -gt 0) {
+                # A missing record stays inconclusive until the known-positive control passes, the schema/filter is confirmed, and the query is complete.
+                Set-ItResult -Inconclusive -Because ("INCONCLUSIVE: " + (($unresolved | ForEach-Object { "$($_.BotAppId)@$($_.EmittedAt):$($_.Status)" }) -join '; '))
+                return
             }
+            @($outcomes | Where-Object Status -eq 'MATCHED').Count | Should -Be $probes.Count -Because 'every eligible probe must have a validated matching audit record'
         }
     }
 
@@ -484,14 +510,14 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
     "probe_transcript_id": "copilot-tx-0b7a...",
     "probe_latency_ms": 1843,
     "reviewer_receipt_ref": "firm-defined engagement-hub or destination receipt id",
-    "audit_reconciliation": { "status": "MATCHED", "window_hours": 24, "positive_control": "PASS" },
+    "audit_reconciliation": { "status": "MATCHED", "window_hours": 24, "positive_control": "PASS", "identity_adapter": "firm-validated against exported AuditData" },
     "autonomy_level": "recommend_only"
   },
   "expected_value": {
     "handoff_enabled": true,
     "wsp_intents_covered_pct": 100,
     "reviewer_count_active_series24_or_66_or_65": ">=1",
-    "audit_reconciliation": "MATCHED after the firm-set window, or PENDING within it"
+    "audit_reconciliation": "MATCHED after the firm-set window; PENDING within it; INCONCLUSIVE (NOT_FOUND, TRUNCATED or UNSUPPORTED_SCHEMA) is never PASS"
   },
   "evidence_artifacts": ["hitl-config-bot-0012-<runId>.json","hitl-transcript-0b7a-<runId>.json"],
   "regulator_mappings": ["FINRA-3110","FINRA-2210","FINRA-4511","SEC-17a-4","FINRA-Notice-24-09"],
@@ -560,7 +586,7 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
 
 This namespace evidences **C2.12-4**: *supervisory review queue shows median and 95th-percentile time-to-review within the firm's documented SLA (per zone); exceptions are logged as incidents under Control 3.4.*
 
-The queue is the operational surface where handoff events (§3) and AGF `request_info()` pauses (§11) become work items for a human reviewer. A queue with perfect handoff configuration but a 48-hour median review latency fails C2.12-4 even if C2.12-2 passes.
+The queue is the operational surface where handoff events (§3) and AGF HITL request pauses (Python `request_info`; C#/Go `RequestPort`; §11) become work items for a human reviewer. A queue with perfect handoff configuration but a 48-hour median review latency fails C2.12-4 even if C2.12-2 passes.
 
 ### 4.2 Pre-conditions
 
@@ -1632,7 +1658,7 @@ Bridge integrity is binary across all zones: any orphan in Z2/Z3 fails the names
 
 > **Verification Criteria:** C2.12-2 (when AGF is the runtime) and **C2.12-8** (Agent Framework HITL request/response handlers and checkpoint persistence are configured and observable).
 >
-> **Non-substitution reminder:** AGF verifies that the *technical scaffolding* for HITL exists (request_info functions, checkpoint storage, response handlers wired to a human queue). It does not verify that the human's response was correct — that is reviewer-decision audit-trail (§5 REVIEWER) territory.
+> **Non-substitution reminder:** AGF verifies that the *technical scaffolding* for HITL exists (Python `request_info` or C#/Go `RequestPort` wiring, checkpoint storage, response handlers wired to a human queue). It does not verify that the human's response was correct — that is reviewer-decision audit-trail (§5 REVIEWER) territory.
 
 ### 11.1 Background — what AGF HITL must look like
 
@@ -1682,10 +1708,12 @@ Describe 'AGF — C2.12-8 Agent Framework HITL scaffolding' -Tag 'AGF','C2.12-8'
     }
 
     Context 'Checkpoint persistence' {
-        It 'each agent emits a checkpoint within 30 days for every HITL request invocation' -ForEach $script:AgfAgents {
-            $cp = Get-Agt212AgfCheckpoints -AgentId $_.agent_id -Since (Get-Date).AddDays(-30)
-            $invocations = Get-Agt212AgfRequestInfoInvocations -AgentId $_.agent_id -Since (Get-Date).AddDays(-30)
-            ($cp.Count) | Should -BeGreaterOrEqual ($invocations.Count) -Because 'Every HITL request must be covered by a checkpoint in durable storage (the firm-built helpers read the configured CheckpointStorage and the application event log)'
+        It 'each HITL request raised within 30 days is covered by a checkpoint for the superstep that raised it' -ForEach $script:AgfAgents {
+            $cp = @(Get-Agt212AgfCheckpoints -AgentId $_.agent_id -Since (Get-Date).AddDays(-30))
+            $invocations = @(Get-Agt212AgfRequestInfoInvocations -AgentId $_.agent_id -Since (Get-Date).AddDays(-30))
+            $covered = @($cp.pending_request_ids)
+            $missing = @($invocations | Where-Object { $_.request_id -notin $covered })
+            $missing.Count | Should -Be 0 -Because 'Every HITL request (Python request_info; C#/Go RequestPort) must appear as a pending request in a checkpoint for the superstep that raised it, stored in durable storage. Checkpoints are created by the framework at superstep boundaries, so do not require a write before the request call returns (the firm-built helpers read the configured CheckpointStorage and the application event log)'
         }
         It 'checkpoint payload includes the firm-required fields (workflow_state, tool_inputs, draft_output)' -ForEach $script:AgfAgents {
             $sample = Get-Agt212AgfCheckpoints -AgentId $_.agent_id -Since (Get-Date).AddDays(-30) | Select-Object -First 5

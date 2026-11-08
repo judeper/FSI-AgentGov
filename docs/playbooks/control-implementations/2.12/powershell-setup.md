@@ -161,7 +161,7 @@ Import-Module Microsoft.Graph.Authentication -RequiredVersion 2.25.0 -Force
 | `Microsoft.PowerApps.Administration.PowerShell` — `Add-PowerAppsAccount -Endpoint prod` | Power Automate approval history (§4.4) | Power Platform Administrator (PIM-elevated) |
 | `ExchangeOnlineManagement` — `Connect-ExchangeOnline` then `Search-UnifiedAuditLog` | Copilot Studio transcript metadata and cross-check (§4.2) | Compliance Administrator (PIM-elevated); `AuditLog` role on the EXO principal |
 | `Az.OperationalInsights` — `Invoke-AzOperationalInsightsQuery` | Sentinel forwarding verification (§12) | Reader on the Log Analytics workspace |
-| Agent Framework evidence endpoint (HTTPS) | `request_info()` event stream export (§6) | App registration with certificate-based auth; the endpoint URL is firm-specific and must be configured in §3.7 |
+| Agent Framework evidence endpoint (HTTPS) | HITL request event stream export (Python `request_info`; C#/Go `RequestPort`; §6) | App registration with certificate-based auth; the endpoint URL is firm-specific and must be configured in §3.7 |
 
 ### 1.4 RBAC matrix
 
