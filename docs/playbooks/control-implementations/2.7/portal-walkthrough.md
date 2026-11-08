@@ -149,7 +149,7 @@ The minimums below are firm procurement requirements, not promised Microsoft pla
 ## Evidence to Capture for Audit
 
 - Inventory workbook export (with timestamps and reviewer initials)
-- Raw DLP policy reads and separate custom Host URL patterns/connector configurations, reconciled with portal scope and ACP settings (see [PowerShell Setup](powershell-setup.md)); do not assume a native policy **Export** button. `Get-DlpPolicy` output omits never-moved default-group connectors and can show stale connector names, and the default group is not necessarily Non-business, so reconcile classifications with the portal policy view
+- Raw DLP policy reads and separate custom Host URL patterns/connector configurations, reconciled with portal scope and ACP settings (see [PowerShell Setup](powershell-setup.md)); do not assume a native policy **Export** button. `Get-DlpPolicy` output omits **new** default-group connectors that were never moved and can show stale connector names, and the default group is not necessarily Non-business, so reconcile classifications with the portal policy view
 - Copilot Studio **Overview → Model**, **Tools**, MCP **Allow all**/tool selections, and applicable provider/environment settings screenshots, captured during a separately approved tenant verification
 - Vendor due diligence pack per Tier T2–T5 vendor
 - Quarterly vendor risk report delivered to governance committee

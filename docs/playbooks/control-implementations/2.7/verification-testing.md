@@ -174,7 +174,7 @@ For registered Microsoft 365/Agent 365 plugins and MCP servers, capture actual p
 For each examination cycle, assemble:
 
 1. Latest resource inventory and raw custom connector snapshot, coverage register and SHA-256 manifest. The snapshot omits solution-packaged custom connectors (documented `Get-AdminPowerAppConnector` limitation), so the register must show reconciliation with solution contents
-2. Raw DLP policies, separately retrieved custom Host URL patterns/connector configurations, ACP scope/status, and actual enforcement test results. `Get-DlpPolicy` output omits never-moved default-group connectors and can show stale connector names; record the portal reconciliation that covers them
+2. Raw DLP policies, separately retrieved custom Host URL patterns/connector configurations, ACP scope/status, and actual enforcement test results. `Get-DlpPolicy` output omits **new** default-group connectors that were never moved and can show stale connector names; record the portal reconciliation that covers them
 3. Custom connector inventory, actual maker-role assignments and usage-restriction evidence; no invented creation-switch screenshot
 4. Per-vendor due diligence pack (Tier T2–T5)
 5. Quarterly vendor risk reports for the prior 12 months
