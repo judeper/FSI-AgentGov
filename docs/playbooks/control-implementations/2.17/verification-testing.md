@@ -92,14 +92,16 @@ The seven manual tests below validate every governance objective in the control.
 **Objective:** Confirm every orchestration step produces an audit-defensible event chain.
 
 1. Run a representative end-to-end chain (root → leaf → return).
-2. Query Application Insights and the Microsoft 365 Unified Audit Log for the `correlationId`.
+2. Query the configured Application Insights/custom telemetry for the `correlationId` and correlate whatever Microsoft audit records are actually available. Custom events are not automatically copied to Purview Audit.
 
 **Expected:** A complete event chain is recoverable from telemetry alone:
 
 - One `Orchestration.DelegationStart` per parent→child edge
 - One `Orchestration.DelegationEnd` matching each start (with duration and success)
-- Audit log `CopilotInteraction` records correlated by `correlationId`
+- Available Microsoft audit records joined through verified identifiers/mappings; no universal custom `correlationId` property is assumed
 - For chains touching MCP: one `Orchestration.MCP.ToolInvocation` per tool call with `dataClassification`
+
+The named MCP event is an organization-defined instrumentation contract, not a native operation ID. Include blocked/allowed connector and supported server tests, agent **Allow all** off/tool-selection evidence, and a newly added upstream tool test (new tools should default off). Document consumers and payloads not covered by configured logging ([MCP settings](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent), [telemetry settings](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry)).
 
 **Critical:** If telemetry cannot reconstruct the chain end-to-end, the control is not yet meeting FINRA Rule 4511 / SEC 17a-4 recordkeeping expectations for agentic workflows — flag as a control gap.
 
@@ -216,4 +218,6 @@ I have reviewed the evidence pack referenced below and attest to the following f
 [Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted MCP/telemetry evidence correction only; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

@@ -33,6 +33,7 @@
 ---
 
 ## Notes for Verification
+- **Last Verified:** 2026-11-06 — targeted MCP/telemetry checklist documentation only; no tenant UI/screenshots tested. Capture actual supporting connector DLP, supported ACP server block, agent MCP **Allow all** off and approved tool selections; Agent 365 registered-server tool controls are a separate rolling-out surface. Use the [current portal procedure](../../playbooks/control-implementations/2.17/portal-walkthrough.md#step-7-configure-mcp-server-allow-list-if-applicable), not a universal MCP HTTP connector or Purview payload guarantee.
 - This control is based on governance design patterns, not built-in platform constraints
 - Screenshots should demonstrate custom implementation of orchestration controls
 - Capture from pre-production environment when possible

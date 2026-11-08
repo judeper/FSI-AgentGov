@@ -22,7 +22,7 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 |-------|-----|---------|
 | Commercial (Global) | [`https://servicetrust.microsoft.com`](https://servicetrust.microsoft.com) | Work or school account; no special role required to browse the public report library, but downloads require sign-in |
 
-**No tenant-side configuration required.** Any signed-in customer can access STP. There is no Compliance Manager dependency, no Purview entitlement, and no Power Platform requirement.
+**Access boundary.** Protected STP materials require an eligible Microsoft cloud organizational account and NDA/license acceptance. Some restricted documents need a supported administrative/security role; organization-specific resources depend on subscription and permissions. This is not proof that every signed-in customer can download every report. There is no requirement to configure a Compliance Manager assessment before using STP ([current STP access guidance](https://learn.microsoft.com/en-us/compliance/assurance/stp-get-started)).
 
 ---
 
@@ -37,7 +37,7 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 | **ISO/IEC 27017** | Cloud-services security profile | 3-year cycle | Cloud-specific control evidence |
 | **ISO/IEC 27018** | Cloud-services PII protection | 3-year cycle | GLBA / GDPR / CCPA personal-data-processing evidence |
 | **ISO/IEC 27701** | Privacy Information Management System | 3-year cycle | Privacy-program evidence |
-| **ISO/IEC 42001:2023** | AI Management System (the AI MS standard) | New standard; check STP for Microsoft's first attestation cycle | EU AI Act / NIST AI RMF vendor evidence |
+| **ISO/IEC 42001:2023** | AI Management System (the AI MS standard) | Microsoft publishes certificates/audit reports; verify the current report's service scope and period | EU AI Act / NIST AI RMF vendor evidence |
 | **HITRUST CSF** | Selected Microsoft 365 services | 2-year cycle | Healthcare-adjacent FSI lines (insurance, integrated wealth-and-health) |
 | **PCI DSS Attestation of Compliance (AoC)** | Azure | Annual | Card-data processing where Azure is in scope |
 | **CSA STAR Level 2** | Cloud Security Alliance attestation | Annual | Cloud-specific vendor due diligence |
@@ -52,12 +52,8 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 ## How to Download Reports for an Evidence Pack
 
 1. Navigate to [`https://servicetrust.microsoft.com`](https://servicetrust.microsoft.com) and sign in.
-2. Open **Reports & White Papers** (or use the search bar).
-3. Filter by:
-    - **Industry** (e.g., Financial Services)
-    - **Region** (e.g., United States)
-    - **Cloud Service** (Microsoft 365, Azure, Dynamics 365, Power Platform)
-    - **Compliance Framework** (SOC, ISO, FedRAMP, etc.)
+2. Open **Certifications, Regulations, and Standards**, **Reports, Whitepapers, and Artifacts**, or **All Documents**, or use search.
+3. Select the relevant category and use the available cloud-service, date and search filters. Verify actual filter labels in the portal rather than assuming every category exposes the same four filters.
 4. For each required report, download the PDF (and any accompanying mappings/SOC bridge letters).
 5. Capture the **report effective date**, **report period covered**, and **next-expected-refresh date** in the firm's vendor evidence register. Reports older than the report-period end date should be supplemented with a SOC bridge letter (also available on STP) until the next annual report is published.
 6. Validate hash integrity if your evidence-retention policy requires it (compute SHA-256 of the downloaded PDF and store alongside in the evidence register).
@@ -73,7 +69,7 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 |---------------|-----------------|------------------|
 | SOC 1 / SOC 2 Type 2 | Annual; Microsoft sometimes publishes semi-annual delta reports | Annually + after any Microsoft service-update advisory affecting in-scope services |
 | ISO 27001 / 27017 / 27018 / 27701 | 3-year cycle, annual surveillance | Annually (capture surveillance results) |
-| ISO/IEC 42001 | New (2023 standard); first Microsoft cycle in progress | Verify status quarterly until cycle stabilises |
+| ISO/IEC 42001 | Regular independent audits; current certificates/reports available through STP | Review current service scope and report period per vendor evidence cadence |
 | FedRAMP | Annual continuous-monitoring summary; 3-year recertification | Annually for federal-regulator evidence |
 | PCI DSS AoC | Annual | Annually for card-data scenarios |
 | Microsoft DPA / Model Clauses | As regulation evolves | Quarterly check |
@@ -115,7 +111,7 @@ This guide complements:
 ## Microsoft Learn Sources
 
 - [Microsoft Service Trust Portal — main entry](https://servicetrust.microsoft.com)
-- [Microsoft Learn: Get started with the Microsoft Service Trust Portal](https://learn.microsoft.com/en-us/microsoft-365/compliance/get-started-with-service-trust-portal)
+- [Microsoft Learn: Get started with the Microsoft Service Trust Portal](https://learn.microsoft.com/en-us/compliance/assurance/stp-get-started)
 - [Microsoft Learn: Microsoft compliance offerings (canonical attestation list)](https://learn.microsoft.com/en-us/compliance/regulatory/offering-home)
 - [Microsoft Learn: Microsoft Online Services Data Protection Addendum](https://learn.microsoft.com/en-us/compliance/regulatory/gdpr-dpia-office365)
 - [Microsoft Learn: SOC 2 Type 2 (Microsoft compliance)](https://learn.microsoft.com/en-us/compliance/regulatory/offering-soc-2)
@@ -127,4 +123,6 @@ This guide complements:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted documentation review of access/navigation and Microsoft ISO/IEC 42001 report availability only. No protected reports downloaded, tenant UI or screenshots tested; regulator acceptance and regulatory mappings were not reassessed. [Microsoft's ISO/IEC 42001 service scope](https://learn.microsoft.com/en-us/compliance/regulatory/offering-iso-42001) includes Copilot Studio; this does not establish coverage of every external provider/model route.
+
+*Updated: November 2026 | Version: v1.6.2 | Verification Status: Documentation-only (tenant/report evidence not tested)*
