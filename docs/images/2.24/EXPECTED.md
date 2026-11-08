@@ -35,7 +35,7 @@
   - Preview features: Disabled
   - Web search tool: Disabled or "Explicit allowlist"
   - Code interpreter: Disabled
-  - Custom plugins: "Approved list only"
+  - Custom connector usage: actual DLP classifications/Host URL patterns plus agent tool selections, not a generic "Approved list only" environment toggle
   - Multi-agent orchestration: Disabled or "Requires approval"
 - All toggles in restrictive/disabled state
 - Save button visible
@@ -51,7 +51,7 @@
   - Preview features: Disabled
   - Web search tool: Enabled (with note: "Approved agents only")
   - Code interpreter: Disabled
-  - Custom plugins: Enabled (with note: "Approved plugins")
+  - Approved plugin/server/tool availability on the actual hosting control plane; no generic Custom plugins Enabled environment toggle
   - Multi-agent orchestration: Enabled (with note: "Max depth 2 levels")
 - Mix of enabled and disabled toggles
 - Save button visible
@@ -67,7 +67,7 @@
   - Preview features: Enabled
   - Web search tool: Enabled
   - Code interpreter: Enabled
-  - Custom plugins: Enabled
+  - Custom connector usage governed through actual DLP and maker-role evidence, not a generic Custom plugins Enabled environment toggle
   - Multi-agent orchestration: Enabled
 - All or most toggles in enabled state
 - Save button visible
@@ -143,7 +143,7 @@
   - Web Search: On
   - Code Interpreter: On
   - Generative actions: Available
-  - Custom plugins: Enabled
+  - Approved tools present on the agent Tools page; no generic Custom plugins Enabled switch is assumed
 - No restrictions visible
 - Environment name showing Zone 1 classification
 - Demonstration of permissive feature access in Zone 1
@@ -389,7 +389,7 @@
   - "Found 3 DLP policies"
   - "Analyzing Policy: Zone 3 Enterprise DLP"
   - "  ✓ shared_http is blocked"
-  - "  ✓ shared_custom is blocked"
+  - Actual custom connector name/classification or ordered tenant Host URL rules, including explicit final wildcard; no generic `shared_custom` connector ID
   - (Additional policies analyzed...)
   - "Validation results saved to: DLPValidation_20260212-103500.csv"
   - "✓ All high-risk connectors are properly blocked"
@@ -402,7 +402,7 @@
 - Console output showing:
   - "Analyzing Policy: Zone 3 Enterprise DLP"
   - "  ✗ shared_http is NOT blocked (should be blocked for high-risk environments)"
-  - "  ✓ shared_custom is blocked"
+  - Actual custom connector name/classification or tenant Host URL rules; no generic `shared_custom` connector ID
   - "Validation results saved to: DLPValidation_20260212-103500.csv"
   - "⚠ WARNING: 1 non-compliant connector(s) found!"
   - "Review DLP policies and move high-risk connectors to Blocked group."
@@ -475,6 +475,8 @@
 
 ## Notes for Verification
 
+- **Last Verified:** 2026-11-06 — targeted custom connector/MCP evidence corrections only; no tenant UI/screenshots tested. Capture registered-server **Agents → Tools → Registry** state, separately supported Agent 365 tool controls and agent **Allow all** off/tool selections. Use the [current MCP procedure](../../playbooks/control-implementations/2.24/portal-walkthrough.md#7-mcp-connectors-and-agent-framework-feature-flags). Other historical capability-toggle/illustrative-script expectations are not newly certified; unavailable controls must be recorded as gaps, not fabricated screenshots.
+
 - Capture screenshots from a pre-production or test environment when possible
 - Use non-sensitive environment names, user accounts, and organization names (e.g., "Contoso" instead of real org)
 - Include timestamps to demonstrate currency of configurations
@@ -515,7 +517,7 @@ Examples:
 - `2.24_Screenshot-26_PowerShell-Compliance-Report-Output_20260212.png`
 - `2.24_Screenshot-32_Error-Generative-Action-Blocked_20260212.png`
 
-Store all screenshots in the `docs/images/2.24/` directory for easy reference and documentation embedding.
+Store actual screenshots locally under `maintainers-local/tenant-evidence/`; do not commit or publish tenant screenshots.
 
 ---
 

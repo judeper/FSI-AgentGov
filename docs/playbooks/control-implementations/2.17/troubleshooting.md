@@ -15,7 +15,7 @@ This guide covers the high-frequency failure modes observed when implementing th
 | Circuit breaker stuck Open | Reset timeout too long, downstream still failing, or half-open probe failing | Manually inspect `fsi_CircuitBreakerState`; verify downstream health independently |
 | Cascade failures still occurring | Circuit breaker not invoked on every delegation edge | Audit topic flow for missed `fsi-CircuitBreaker-Check` calls |
 | HITL approvals abandoned by users | Timeout too short, approver group unstaffed, or card lacks context | Tune timeout; configure secondary approver chain; enrich card metadata |
-| MCP tool invoked from unapproved server | DLP gap or registry not synced to Microsoft Copilot Studio | Tighten Power Platform DLP (Control 2.14); audit registry sync |
+| MCP tool invoked from unapproved server | Actual connector/server/tool settings or registry reconciliation gap | Review classic DLP, supported ACP server blocking and agent Allow all/tool selections |
 | App Insights events missing dimensions | Custom event call missing required custom-dimension keys | Update topic / flow; re-test with Test 7 from *Verification & Testing* |
 | Cross-environment depth tracking returns null | Dataverse row not written or `If-Match` ETag conflict not handled | Add retry-on-conflict in the flow; confirm row retention policy |
 
@@ -117,7 +117,7 @@ These patterns produce evidence that *looks* compliant but is not. Hunt them act
 
 **Resolution:** Block at two layers:
 
-- **Power Platform DLP** (Control 2.14): place the MCP HTTP connector in the *Blocked* group for non-business-data environments; in the *Business* group for governed environments where it is needed.
+- **Power Platform DLP / ACP**: classify the actual custom connector by name (environment policy) or ordered Host URL patterns (tenant policy); do not assume every MCP uses a single HTTP connector. ACP server blocking applies only to supported certified connectors. Turn agent **Allow all** off and select approved tools ([custom DLP](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity), [ACP limits](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies), [MCP settings](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent)).
 - **Registry sync**: if you maintain the MCP registry as a SharePoint list or Dataverse table, build a daily Power Automate flow that reconciles registered MCP servers in production agents against the approved list and opens an incident on drift.
 
 Treat any drift event as a Control 3.4 incident and document in the quarterly attestation.
@@ -132,7 +132,7 @@ Treat any drift event as a Control 3.4 incident and document in the quarterly at
 | No native circuit breaker | Custom Power Automate flow required | Documented in *Portal Walkthrough* Step 4 |
 | Limited cross-environment orchestration visibility | Reconstructing chains spanning environments requires manual correlation | Use Pattern B + correlation-ID propagation; consider keeping Zone 3 chains within a single environment |
 | HITL via adaptive cards uses polling | Latency between approval and resume | Use Microsoft Agent Framework HITL primitives where available — they integrate with checkpoint persistence |
-| Custom MCP servers reached GA in April 2026 (post-preview) | Post-GA behavior may continue to evolve | Verify capabilities against current Microsoft Learn before promoting custom MCP servers to Zone 3 production |
+| MCP integration and server-authoring capabilities differ | A protocol label does not establish availability or enforcement coverage | Verify the specific capability; no universal April 2026 GA date is assumed |
 | 128-tool-per-agent ceiling | Large delegation trees can hit ceiling silently | Run Section 4 of *PowerShell Setup* monthly to track headroom |
 
 ---
@@ -154,4 +154,6 @@ For incidents involving customer impact, regulated data, or material financial d
 [Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted MCP documentation correction only. The named MCP custom events require configured instrumentation; absent events do not prove absent calls, and Purview Audit does not universally capture their payloads. No tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

@@ -4,14 +4,18 @@
 
 ---
 
+**Last Verified:** 2026-11-06
+
+**Verification scope:** Documentation-only; none of these tenant tests, UI checks, screenshots, or API reads were executed. Zone thresholds and contract minimums below are organizational acceptance criteria, not product guarantees.
+
 ## Verification Checklist
 
 | # | Test | Expected Evidence | Pass Criteria |
 |---|------|-------------------|---------------|
-| 1 | Connector inventory currency | Inventory CSV with timestamp ≤ 7 days for Zone 2/3, ≤ 30 days for Zone 1 | All Zone 2/3 environments represented; reviewer initials present |
+| 1 | Connector inventory currency and coverage | Resource inventory CSV plus raw custom connector evidence; timestamp ≤ 7 days for Zone 2/3, ≤ 30 days for Zone 1; coverage/exception register | All Zone 2/3 environments reconciled; built-in HTTP, classic chatbot, solution-packaged custom connector (omitted by `Get-AdminPowerAppConnector`) and other inventory gaps explicitly reviewed; reviewer initials present |
 | 2 | Risk-tier completeness | Tier T1–T5 populated for every row; T3/T4/T5 connectors have a documented business owner | Zero blanks in Tier or Owner columns for Zone 2/3 |
-| 3 | DLP enforcement of Blocked tier | Test agent attempts to add a Blocked connector | Add operation fails with policy-block message; Purview audit event recorded |
-| 4 | Custom connector restriction | Power Platform admin center shows custom connector creation restricted in Zone 2/3 to designated environments | Producer environments are explicit; no Zone 1 production environments allow custom |
+| 3 | DLP enforcement of Blocked tier | Non-production maker test of blocked connector and allowed positive control; actual policy error/details and publish/runtime result | Supported connector/tool use is rejected at the documented enforcement stage; capture actual logs where available, not an assumed Purview event |
+| 4 | Custom connector governance | Actual Environment Maker / Dataverse role assignments, approved producer environments, custom connector DLP classifications and Host URL rules | Creation permissions reviewed and usage restrictions tested; default-environment limitations/approved exceptions documented; sharing limits not treated as creation restrictions |
 | 5 | SOC 2 / equivalent on file | Vendor file shows SOC 2 Type II within validity window OR accepted alternative + risk-acceptance memo | Coverage = 100% of Tier T2–T5 vendors |
 | 6 | AI-specific contract clauses | Procurement export shows clause flags for model change notice, no-training-on-customer-data, AI incident notice, audit rights | Coverage = 100% of Tier T5 vendors |
 | 7 | Transitive data-flow map | Architecture artifact lists every downstream subprocessor reached by Zone 3 multi-tool agents | One map per Zone 3 multi-tool agent; reviewed within last 12 months |
@@ -89,15 +93,19 @@ Weighted score ≥ 4.0 → Tier T5 (high); 2.5–3.9 → enhanced monitoring; �
 
 ## Dynamic Tool / Plugin / MCP Governance Checklist
 
-- [ ] Default-deny posture for runtime tool discovery in Zone 2/3 agents
-- [ ] Plugin and MCP allowlist maintained per agent
-- [ ] Independent-publisher and community plugins blocked unless reviewed
-- [ ] Auto-update disabled for non-Microsoft tools
+- [ ] Approved tools recorded per agent; supported DLP/ACP restrictions tested
+- [ ] MCP **Allow all** turned off; only approved individual tools enabled; new tools checked as disabled by default
+- [ ] Independent-publisher and community tools removed or blocked using the applicable supported connector/agent controls unless reviewed
+- [ ] Upstream changes reviewed through controlled vendor processes; no assumed universal tool auto-update-disable switch
 - [ ] Transitive data-flow map exists for every Zone 3 multi-tool agent
-- [ ] Marketplace installations blocked at the tenant level
-- [ ] Tool-call logging enabled (request, response metadata, identity)
+- [ ] Applicable app/connector approvals and maker permissions documented; no assumed universal Copilot Studio tenant plugin-marketplace allowlist
+- [ ] Tool-call logging coverage tested for request/response metadata and identity; gaps/redaction/retention recorded
 - [ ] Quarterly review of approved tool inventory completed and signed off
-- [ ] MCP tool servers traverse only approved network egress paths
+- [ ] Actual MCP hosting/service route verified; network controls tested only for traffic they govern, not inferred from corporate device egress
+
+**Product evidence:** [MCP tool selection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent) documents the **Allow all** default and new-tool behavior. [ACP](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies) blocks supported MCP servers, not individual MCP tools; custom/HTTP/virtual connector gaps need classic DLP. [Copilot Studio data policies](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-data-loss-prevention) describe maker/publish violation details. [Environment roles](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview) establish custom connector creation rights. [Agent telemetry](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry) depends on configured logging and sensitive-data settings, not a universal Purview request/response feed.
+
+For model/provider evidence, capture **Overview → Model**, release/retirement status, actual route-specific terms and Microsoft 365 provider access plus PPAC environment/group controls. Native availability is not proof of GA or identical coverage; see the [portal model review](portal-walkthrough.md#part-3-govern-copilot-studio-plugins-generative-actions-and-mcp).
 
 ---
 
@@ -110,7 +118,8 @@ Agent:        [Agent name]                     Zone: [1/2/3]
 Owner:        [Business owner]                 Reviewed: [YYYY-MM-DD]
 
 Tool 1: [Connector / plugin / MCP]
-  Publisher: [Microsoft / Verified / Independent / Custom / MCP server]
+  Publisher: [Actual publisher organization — not the protocol name]
+  Hosting operator / service route: [Actual operator and downstream services]
   Data sent: [Class — e.g., customer NPI, MNPI, supervisory log]
   Vendor:    [Name]
   Subprocessors: [List]
@@ -160,11 +169,13 @@ Aggregate risk:
 
 ## Evidence Package for Examination
 
+For registered Microsoft 365/Agent 365 plugins and MCP servers, capture actual publisher-category settings, plugin user availability and separate server block state. If individual-tool runtime controls are exposed, record supported server type, discovery and Tooling Gateway scope; rollout is not universal. Test dependent-plugin behavior separately from other plugins using the same server ([registered tool controls](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/manage-plugins-skills-mcp-servers)).
+
 For each examination cycle, assemble:
 
-1. Latest connector inventory snapshot (CSV + SHA-256 manifest)
-2. DLP policy export and effective-policy report
-3. Custom connector inventory and creation-restriction screenshot
+1. Latest resource inventory and raw custom connector snapshot, coverage register and SHA-256 manifest. The snapshot omits solution-packaged custom connectors (documented `Get-AdminPowerAppConnector` limitation), so the register must show reconciliation with solution contents
+2. Raw DLP policies, separately retrieved custom Host URL patterns/connector configurations, ACP scope/status, and actual enforcement test results. `Get-DlpPolicy` output omits **new** default-group connectors that were never moved and can show stale connector names; record the portal reconciliation that covers them
+3. Custom connector inventory, actual maker-role assignments and usage-restriction evidence; no invented creation-switch screenshot
 4. Per-vendor due diligence pack (Tier T2–T5)
 5. Quarterly vendor risk reports for the prior 12 months
 6. Transitive data-flow maps for Zone 3 multi-tool agents
@@ -181,4 +192,4 @@ For each examination cycle, assemble:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only; no tenant tests)*
