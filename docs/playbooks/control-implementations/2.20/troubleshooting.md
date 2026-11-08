@@ -1,5 +1,10 @@
 # Control 2.20 — Troubleshooting: Adversarial Testing and Red Team Framework
 
+**Last Verified:** 2026-11-07 (Microsoft Learn documentation re-verification; no tenant/UI/runtime evidence collected)
+
+!!! warning "Check the interface and evidence before tuning the model"
+    The sibling PowerShell examples are not a delivered runner or verified gate. Endpoint adapters, per-family thresholds, complete evidence hashing and workload-specific reconciliation need firm implementation and testing. See the [walkthrough's reviewed Microsoft sources](portal-walkthrough.md#microsoft-documentation-reviewed). A transport failure, unsupported telemetry plane, or partial evaluation is not proof that a defense worked.
+
 > **Scope.** This playbook supports the team operating Control 2.20 — *Adversarial Testing and Red Team Framework* — when probes misbehave, evidence packs do not validate, gates fail to fire, or findings are misclassified. It assumes the program is deployed per the [portal walkthrough](portal-walkthrough.md), [PowerShell setup](powershell-setup.md), and [verification & testing](verification-testing.md) playbooks.
 >
 > **Hedging.** Nothing here constitutes legal advice or a guarantee of regulatory compliance. The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110 (with RN 24-09 for AI supervisory guidance), SEC Rule 17a-4(b)(4) / 17a-4(f), and GLBA §501(b). Final responsibility for filing decisions rests with Legal, Compliance, and the named regulator-facing officer.
@@ -18,7 +23,7 @@
 | `manifest.json` SHA-256 does not match WORM-side recompute | File modified post-write; encoding drift; LF/CRLF rewrite | §2.4 |
 | Findings keep recurring at same severity | Root cause not addressed; only symptom tuned | §2.5 |
 | Probe runner fires alerts in production tenant | Wrong endpoint configured (production not sandbox) | §2.6 |
-| Defender XDR / Sentinel show **no** alerts during probe campaign | Reconciliation gap — Control 1.21 detection misconfigured | §2.7 |
+| Defender XDR / Sentinel show **no** alerts during probe campaign | Unsupported/not-onboarded plane, processing delay, query error, or actual detection gap | §2.7 |
 | Same probe passes Z2 sandbox but fails production with users | Sandbox configuration drift from production | §2.8 |
 | Operator cannot run probe — Direct Line bearer rejected | Token expired or scoped to wrong agent | §2.9 |
 | `Get-AzCognitiveServicesAccountRaiPolicy` returns empty | Wrong subscription / missing reader role | §2.10 |
@@ -37,7 +42,7 @@
 **Diagnostic steps.**
 
 1. Inspect `2.20-PRE-03_canary.json`. Did the canary actually return a substantive response?
-2. Inspect a sample of `response_excerpt` fields in `2.20-results-*.json`. Are responses **identical** across many tests? Identical responses indicate a stubbed endpoint or a circuit breaker.
+2. Inspect `response_excerpt` values and raw replies. Identical responses can reflect a stub/circuit breaker or legitimate filtering; distinguish actual bot output from user echoes and Direct Line POST acknowledgements.
 3. Verify the `endpoint` in the summary matches the intended sandbox URL.
 4. Verify `library_version` matches a tagged commit known to contain real attack content (not a placeholder commit).
 
@@ -60,7 +65,7 @@ Do **not** average a known-bad cycle into the trend chart "for completeness". Th
 **Diagnostic steps.**
 
 1. Compare `2.20-rai-policy-*.json` between cycles. Was the RAI policy reverted? Did Prompt Shields posture change?
-2. Check Foundry deployment metadata — did the underlying model version (e.g. `gpt-4o-2024-08-06` → `gpt-4o-2024-11-20`) silently roll forward?
+2. Check Foundry deployment metadata and update policy against the prior snapshot. The historical model-version examples are illustrative, not a claim that those versions remain available in the test region.
 3. Check Microsoft Copilot Studio agent solution version — was a managed solution upgrade applied without re-baselining 2.20?
 
 **Resolution.**
@@ -88,7 +93,7 @@ Do **not** weaken `success_indicators` to "recover" the previous defense rate. D
 **Resolution.**
 
 - Mark the probe stage as required on protected branches; remove single-approver bypass for Z3 agents (require AI Governance Lead + Model Risk Manager).
-- Configure the runner to exit non-zero on any Critical FAIL (the runner already does this — see `powershell-setup.md` §2 last line).
+- Implement and test the full gate: explicit failures/errors, empty/skipped suites, REVIEW/unscored results, missing evidence, regressions and zone/family breaches cannot pass. The sibling example's final exit check covers failures/errors, not all those conditions.
 - Open a finding for the post-deployment escape; track to closure with documented preventive action.
 
 ---
@@ -161,17 +166,17 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 
 **Diagnostic steps.**
 
-1. Verify Prompt Shields is **Annotate-and-Block** (see §2.10 for how to read RAI policy).
-2. Verify Defender for Cloud — Threat Protection for AI Workloads is **enabled** on the subscription.
-3. Verify Sentinel Content Hub solutions for *Microsoft 365 Copilot* and *Defender for Cloud* are installed and analytics rules are deployed.
-4. Inspect the Sentinel KQL window. Did the probe timestamps fall inside? Sentinel ingestion can lag minutes-to-hours; widen the window to + 6 h before re-asserting "no detection".
-5. Verify the `AgentId` filter in the KQL matches the actual agent registration.
+1. Verify the applicable Prompt Shields control's enablement, blocking/action, intervention points and deployment/agent assignment, then inspect `detected` versus `filtered` results. A policy export alone does not establish enforcement.
+2. Verify the Defender integration actually supports and is onboarded to the tested workload with the required plan/configuration. Copilot Studio/Foundry agent security requires Agent 365 from July 1, 2026; model protection is separate. Review current observability and alert/behavior schemas. A probe is not required to generate every possible Defender alert.
+3. Review the actual installed Sentinel connector/solution, table schema and analytics rules; a product display name or a Content Hub listing is not evidence of ingested events.
+4. Record event and ingestion timestamps and use the supported plane's documented/measured processing window. Do not apply one universal seconds-to-minutes, six-hour, or 24-hour delivery assumption to all sources.
+5. Verify workload-specific identifiers and correlation confidence. Microsoft 365 audit operation/record types vary by surface; Azure-only calls do not imply `CopilotInteraction`. Unrelated alerts without an agent-specific join do not prove detection for this campaign.
 
 **Resolution.**
 
-- Open the gap as a Control 1.21 finding (not 2.20). 2.20 found and surfaced the gap; 1.21 owns the fix.
-- Re-run reconciliation 24 h after probe to confirm no late-arriving telemetry.
-- Add the missing detection plane to the next 1.21 deployment cycle.
+- Classify each absent plane as unsupported/not applicable, awaiting ingestion, collection/query error, or demonstrated detection gap. Preserve the reason and owner; no absence is automatically a clean pass.
+- Re-run after the applicable processing window. Escalate expected supported signals that remain missing to the Control 1.21 owner.
+- For Communication Compliance, verify supported policy location, scoped users/reviewers, conditions, sampling and processing; Copilot Studio/non-Microsoft 365 AI requires pay-as-you-go billing for detection.
 
 ---
 
@@ -199,15 +204,15 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 
 **Diagnostic steps.**
 
-1. Check token TTL. Direct Line tokens expire (commonly 1 hour); long campaigns must refresh.
-2. Check token scope — token issued for one agent will not authorize a different agent.
-3. Confirm the bot endpoint is published and the channel is enabled (Copilot Studio → Channels → Direct Line).
+1. Use the returned `expires_in`; Microsoft's current example is 1800 seconds, not a guaranteed one-hour TTL. Refresh before expiry; expired tokens cannot be refreshed.
+2. Check the conversation ID/token pairing: Direct Line tokens are valid for a single conversation.
+3. Confirm publication and **Settings → Security → Web channel security → Require secured access**, plus separate end-user authentication. The security setting can take up to two hours to propagate and does not require republishing.
 
 **Resolution.**
 
 - Add a token-refresh helper to the runner; refresh when remaining TTL < 5 minutes.
-- For long campaigns, prefer per-call refresh over a single long-lived token.
-- If the channel is not enabled, enable it via Copilot Studio portal — there is no PowerShell cmdlet to author Direct Line channels.
+- Refresh according to the actual remaining lifetime, not an assumed per-call or one-hour rule.
+- Review web/Direct Line configuration against [Microsoft's channel-security instructions](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configure-web-security); channel credentials do not authenticate users or restrict clients to one website.
 
 ---
 
@@ -219,7 +224,7 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 
 1. Confirm `Get-AzContext` shows the correct subscription and tenant.
 2. Confirm the operator has `Cognitive Services User` or `Reader` role on the resource.
-3. Confirm the resource is a Cognitive Services / Azure OpenAI account (not a deprecated AOAI v1 resource).
+3. Confirm the resource/account, policy name and deployment reference. The Azure RAI-policy cmdlet does not enumerate every new Foundry agent guardrail; inspect the applicable guardrail surface instead.
 
 **Resolution.**
 
@@ -236,7 +241,7 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 
 1. Inspect `where python` (Windows) / `which python` — multiple interpreters present?
 2. Confirm the venv is activated; `pip install` may have targeted system Python.
-3. Confirm Python ≥ 3.10 (PyRIT requires modern Python).
+3. Confirm the exact approved PyRIT release's Python/dependency requirements; Foundry cloud/local SDK requirements are not proof of that PyRIT package's compatibility.
 4. On Windows, watch for PowerShell `python` aliasing to the Microsoft Store stub.
 
 **Resolution.**
@@ -286,7 +291,7 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 
 ### §3.1 Quick health check (90 seconds)
 
-1. Open the latest `2.20-summary-Z3-*.json` for each Z3 agent. Is `defense_rate` ≥ 0.95?
+1. Open the latest run for each Z3 agent. Is `defense_rate` ≥0.95 overall and ≥0.98 for Critical/High families, with no unscored/error/missing-evidence path counted as passing?
 2. Open the findings register. Are any Critical findings past 24 h without a compensating-control sign-off?
 3. Open the manifest at the WORM destination for the latest cycle. Does it parse and do recomputed hashes match?
 4. Open the pipeline definition for at least one Z3 agent. Is the probe stage required?
@@ -295,12 +300,12 @@ If any of these is "no", open a finding before the next cycle starts.
 
 ### §3.2 N-of-M reproducibility rule
 
-Single-run failures on a non-deterministic model are noise. Adopt the following rule for declaring a real finding:
+Single-run failures require investigation; nondeterminism is not a reason to dismiss an observed failure. The following is a firm-defined repeat-testing policy, not a Microsoft feature or a reason to defer urgent containment:
 
 - **Critical / High severity:** require **3-of-5 reproducible failures** with the same prompt across separate runs within 48 h before opening a finding.
 - **Medium / Low severity:** require **2-of-3** within 7 days.
 
-This rule is enforced by the runner's `--repeat` mode, which automatically replays a failing prompt N times and only emits a finding when the threshold is met. Document the rule in the WSP so auditors understand why a single FAIL in raw results may not have produced a finding.
+The sibling runner does not implement `--repeat` or automatic N-of-M adjudication. Run and preserve repetitions through a firm-validated process; retain every initial failure and its triage decision. Document the rule in the WSP so auditors understand why a single FAIL in raw results may not have produced a finding.
 
 ### §3.3 Trend monitoring
 
@@ -330,8 +335,8 @@ For SEV-1 events (probe discovers a vulnerability already exploited in productio
 | Limitation | Impact | Workaround |
 |---|---|---|
 | LLM non-determinism | Same prompt may pass and fail across runs | N-of-M reproducibility rule (§3.2); larger sample sizes for indicators |
-| No native Microsoft "red team" portal for Copilot Studio | Custom runner required | PyRIT + this playbook |
-| Microsoft 365 Copilot itself is not generally script-promptable | Cannot probe Copilot Chat directly via supported API | Probe Foundry-backed surfaces; for M365 Copilot, rely on Comm Compliance + Defender XDR detection (Control 1.21) and human-led red team |
+| No universal red-team interface across all covered surfaces | Foundry red-teaming target support is not proof of Copilot Studio coverage | Use a tested surface-specific adapter and human review; do not treat Foundry model tests as full agent coverage |
+| Microsoft 365 Copilot Chat API is preview, licensed and delegated-only | API does not exercise action/content-generation skills or every interactive experience | Test supported text conversations only in an isolated licensed test tenant; use authorized human-led testing for unsupported experiences |
 | Probe generates audit / Defender / Sentinel events | Operational noise in SOC | Communicate run windows in advance; tag operator activity; do **not** suppress detection rules |
 | Test coverage is never complete | New attacks emerge | Quarterly library refresh; track MITRE ATLAS / OWASP updates; subscribe to Microsoft AI Red Team blog |
 | Resource intensive | Cycles take time and skilled operators | Prioritize Z3 agents handling NPI / MNPI / customer-facing surfaces; defer Z1 to annual |
@@ -342,4 +347,4 @@ For SEV-1 events (probe discovers a vulnerability already exploited in productio
 [Back to Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) · [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Verification & Testing](verification-testing.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation re-verified 2026-11-07; tenant runtime not verified)*
