@@ -153,7 +153,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.17** | Multi-Agent Orchestration Limits | Copilot Studio | Orchestration requires Copilot Studio |
 | **2.18** | Automated Conflict of Interest | N/A (process) | Process/documentation control |
 | **2.19** | Customer AI Disclosure | N/A (process) | Transparency/labeling requirement |
-| **2.20** | Adversarial Testing / Red Team | N/A (process) | Process; optional Azure AI safety tools |
+| **2.20** | Adversarial Testing / Red Team | Process plus surface-specific licenses/billing | Copilot Studio/Managed Environments need applicable licenses or meters; Microsoft 365 Copilot Chat API (preview) requires a Copilot add-on license and delegated permissions; Foundry testing needs an Azure subscription, supported project/region and quota. See the [verified prerequisites](../playbooks/control-implementations/2.20/portal-walkthrough.md#microsoft-documentation-reviewed) |
 | **2.21** | AI Marketing Claims | N/A (process) | Process/documentation control |
 | **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
@@ -313,7 +313,7 @@ To verify current license assignments:
 | Control | Licensing interpretation |
 |---------|--------------------------|
 | **1.8 - Runtime Protection** | Defender for Cloud Apps surfaces AI Agent Inventory during the grace period. **Effective July 1, 2026, AI Agent Inventory and Defender agent security require Microsoft Agent 365**; Defender for Cloud Apps / Defender for Cloud alone no longer provide them ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
-| **1.21 - Adversarial Input Logging** | Copilot Studio / Foundry agent threat detection and Advanced Hunting (`Agentsinfo`) in Microsoft Defender require Microsoft Agent 365 from **July 1, 2026**. Azure-side Defender for Cloud Threat Protection for AI Workloads (Prompt Shields plane) is licensed separately and unchanged. |
+| **1.21 - Adversarial Input Logging** | Copilot Studio / Foundry agent threat detection and Advanced Hunting (`AgentsInfo`) in Microsoft Defender require Microsoft Agent 365 from **July 1, 2026**. Azure-side Defender for Cloud Threat Protection for AI Workloads (Prompt Shields plane) is licensed separately and unchanged. |
 | **1.24 - Defender AI Security Posture Management** | Agent-level discovery, posture, and threat detection for Copilot Studio / Foundry agents require Microsoft Agent 365 from **July 1, 2026**. Defender CSPM continues to discover Foundry accounts/projects, but agent-level capabilities move under Agent 365 ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
 | **3.7 - PPAC Security Posture Assessment** | Defender for Cloud Apps AI Agent Inventory cross-reference remains useful for portal walkthrough validation; from July 1, 2026 the agent-inventory dependency requires Microsoft Agent 365. |
 | **2.25 - Agent 365 Governance Console** | Requires Microsoft Agent 365 per-user licensing at GA (May 1, 2026). |
@@ -326,8 +326,8 @@ To verify current license assignments:
 - [Agent prerequisites](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites)
 - [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
 - [Agent 365 overview page in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview?view=o365-worldwide)
-- [Copilot Control System overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-controls/copilot-controls-overview)
+- [Copilot controls overview](https://learn.microsoft.com/en-us/copilot/implement/copilot-controls-overview)
 
 ---
 
-*Last Updated: June-2026 | Framework Version: v1.6.2*
+*Last Updated: November-2026 | Framework Version: v1.6.2*
