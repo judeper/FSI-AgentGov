@@ -35,7 +35,7 @@ Severity is the first decision. It governs response time, escalation depth, comm
 
 | Severity | Definition | Examples (Testing & Validation) | Initial Response | Escalation |
 |---|---|---|---|---|
-| **SEV-1** | Production agent producing unsafe, materially inaccurate, or non-compliant output to customers, registered representatives, or regulators; OR validation evidence integrity is in doubt for a deployed agent; OR a control bypass is confirmed and the agent is live. | Drift breach with confirmed customer harm; holdout leakage discovered after Zone-3 deployment; pipeline gate bypass on production agent; tampered evidence pack discovered during an examination. | Immediate containment within 1 hour. War-room. Pause / disable agent per Control 2.20. | AI Governance Lead, Model Risk Manager, CISO, Chief Compliance Officer (CCO), Legal/Privacy, Designated Supervisor; consider 24-hour notification to Operational Risk Committee. |
+| **SEV-1** | Production agent producing unsafe, materially inaccurate, or non-compliant output to customers, registered representatives, or regulators; OR validation evidence integrity is in doubt for a deployed agent; OR a control bypass is confirmed and the agent is live. | Drift breach with confirmed customer harm; holdout leakage discovered after Zone-3 deployment; pipeline gate bypass on production agent; tampered evidence pack discovered during an examination. | Immediate containment within 1 hour. War-room. Pause / disable agent through the Control 3.4 incident-response workflow. | AI Governance Lead, Model Risk Manager, CISO, Chief Compliance Officer (CCO), Legal/Privacy, Designated Supervisor; consider 24-hour notification to Operational Risk Committee. |
 | **SEV-2** | High-risk validation defect with no confirmed customer impact yet, OR validation gate failure on a Zone-3 candidate that was about to be promoted, OR a recurring drift signal exceeding warning thresholds. | New jailbreak class identified in PyRIT but agent still gated; safety evaluator regression in pre-prod; SoD violation discovered before sign-off. | Containment within 4 hours. Hold all promotions touching the affected pattern. | AI Governance Lead, Model Risk Manager, Compliance Officer, Agent Owner, Designated Supervisor (informed). |
 | **SEV-3** | Defect or process gap affecting a Zone-2 (team) agent, or a recoverable evaluator/quota incident with no governance breach. | Foundry quota exhaustion mid-run; transient grader timeouts; analytics dashboard data lag; a single failed verification criterion in a Zone-2 pilot. | Triage within next business day. Document remediation plan. | Agent Owner, AI Governance Lead (informed). |
 | **SEV-4** | Cosmetic, documentation, or single-developer issue with no governance, regulatory, or production impact. | Test Pane authentication hiccup affecting one developer; manifest validation warnings in M365 Agents Toolkit; mis-labeled evaluator in a non-prod report. | Standard ticket queue. | Agent author, team lead. |
@@ -95,7 +95,7 @@ Before paging an executive or convening a war-room, the on-call AI Governance Le
 
 1. Severity classified per §1.1 with a written rationale.
 2. Evidence floor (§1.3) capture *initiated* (not necessarily complete).
-3. Containment option identified — at minimum a path to disable or scope-restrict the agent per Control 2.20.
+3. Containment option identified — at minimum a path to disable or scope-restrict the agent through the Control 3.4 incident-response workflow.
 4. Reportability tree (§1.2) walked with preliminary answers; Legal awareness flag set if any Yes.
 5. Customer-facing or supervised-communication impact preliminarily assessed.
 6. Last-known-good validation evidence located (E-04).
@@ -119,7 +119,7 @@ All ladder events are themselves evidence (E-12). Do not communicate outward at 
 
 - **T+0:00** Agent Owner pages on-call AI Governance Lead. Severity initially SEV-2.
 - **T+0:15** Lead pulls last sign-off (E-04) and sees the model was swapped two weeks ago via a "minor configuration change" without re-running the quality evaluator suite. Severity raised to **SEV-1** under §1.1 (validation evidence integrity in doubt for a deployed agent).
-- **T+0:25** Containment: Power Platform Admin disables the agent in Production environment per Control 2.20; replaces with a maintenance message; pipeline locked.
+- **T+0:25** Containment: Power Platform Admin disables the agent in Production environment through the Control 3.4 incident-response workflow; replaces with a maintenance message; pipeline locked.
 - **T+0:30** Reportability tree (§1.2): Q1 Yes (customer received material misinformation), Q3 Yes (supervisory procedure for change management was bypassed), Q4 Yes (model swap without re-validation is an MRM finding). Legal and CCO paged at L3.
 - **T+1:00** Evidence floor capture in motion (E-01..E-12); Purview audit log frozen for the relevant window.
 - **T+2:00** Customer impact assessment: how many sessions were exposed to the swapped model? Analytics export (E-06) used to enumerate.
@@ -382,7 +382,7 @@ This pattern — holdout leakage — is one of the most common and most damaging
 2. Freeze all in-flight promotions touching this agent or any sibling agent that may share the same datasets. The leakage may be a corpus-management defect that affects multiple agents, not just this one.
 3. Capture E-04 (the contaminated evidence pack) and quarantine — do not delete, do not amend in place. The original is itself evidence.
 4. Snapshot the current production agent (E-02, E-03) for later comparison.
-5. Consider, but do not yet execute, a Control 2.20 disable. The decision to take the agent offline is a business-impact decision and requires the Agent Owner plus Compliance concurrence; see Containment.
+5. Consider, but do not yet execute, containment through Control 3.4. The decision to take the agent offline is a business-impact decision and requires the Agent Owner plus Compliance concurrence; see Containment.
 
 **Investigation (T+1h to T+8h).**
 - Determine the *extent* of leakage: how many holdout rows are contaminated, and by what mechanism (direct copy, paraphrase, embedding-similarity duplication)?
@@ -391,7 +391,7 @@ This pattern — holdout leakage — is one of the most common and most damaging
 - Determine whether the agent's *production* behavior shows signs of memorization (e.g., near-verbatim responses to holdout-style prompts in production telemetry — pull E-06).
 - Re-score the agent on a *clean* holdout — built independently by the validation team, drawn from production-distribution data with PII handled per Control 1.6, never seen by the development team. This is the truth-test.
 
-**Containment.** If the clean re-score shows the agent's true quality is materially below the deployment threshold, take the agent offline (Control 2.20) and substitute either a prior known-good version or a maintenance message. If the clean re-score is within acceptable bounds, the agent may remain live under enhanced monitoring (daily Analytics review, lowered drift thresholds, increased human sampling per Control 2.3) while remediation proceeds. Document this decision and its approver explicitly.
+**Containment.** If the clean re-score shows the agent's true quality is materially below the deployment threshold, take the agent offline through the Control 3.4 incident-response workflow and substitute either a prior known-good version or a maintenance message. If the clean re-score is within acceptable bounds, the agent may remain live under enhanced monitoring (daily Analytics review, lowered drift thresholds, increased human sampling per Control 2.3) while remediation proceeds. Document this decision and its approver explicitly.
 
 **Eradication.**
 - Rebuild the holdout dataset from scratch under the supervision of an independent validator who did not contribute to the training corpus.
@@ -490,7 +490,7 @@ This is the "the world moved" failure mode: validation was honest at deployment,
 
 **Immediate actions (T+0 to T+1h).**
 1. Page CISO, AI Governance Lead, Model Risk Manager, Compliance Officer, Designated Supervisor, Agent Owner. Open incident channel. Loop in Threat Intelligence if the firm has an internal function.
-2. Containment first, investigation second: scope-restrict or disable the attack vector. In this scenario, that means either disabling PDF ingestion temporarily or routing PDF-derived content through a sanitizer step before the agent sees it. Use Control 2.20 if full disable is required.
+2. Containment first, investigation second: scope-restrict or disable the attack vector. In this scenario, that means either disabling PDF ingestion temporarily or routing PDF-derived content through a sanitizer step before the agent sees it. Use the Control 3.4 incident-response workflow if full disable is required.
 3. Preserve the PyRIT campaign artifacts (E-05 with full attack manifests and judge rationales) and the matching production telemetry slice (E-06).
 4. Search production telemetry for prior occurrences: has this attack pattern *already* succeeded in the wild without being caught?
 
@@ -537,7 +537,7 @@ Drift breaches are the most-anticipated and least-prepared-for incident class in
 - For model-side shifts: this is a hidden model swap from the firm's perspective and triggers Runbook 6.
 - Engage Compliance to assess whether the drift produced any customer-facing communications that, in retrospect, would not have met disclosure or accuracy standards. Pull conversation transcripts as needed under Control 1.7 retention.
 
-**Containment.** While investigation proceeds, lower the drift alert threshold further so any continued degradation is caught earlier; increase Control 2.3 human review sampling rate; if the drift is severe (for this scenario, sustained below 0.75 would qualify), scope-restrict or disable the agent per Control 2.20.
+**Containment.** While investigation proceeds, lower the drift alert threshold further so any continued degradation is caught earlier; increase Control 2.3 human review sampling rate; if the drift is severe (for this scenario, sustained below 0.75 would qualify), scope-restrict or disable the agent through the Control 3.4 incident-response workflow.
 
 **Eradication.** Address the root cause identified in investigation. Re-validate against a fresh holdout that reflects the *current* input distribution, not the deployment-vintage distribution. Update the baseline for the drift metric and document the re-baseline approval (MRM concurrence required).
 
@@ -568,7 +568,7 @@ Model swap is the single most under-appreciated change-management category in M3
 - Inventory other agents that share the same underlying model. A model swap that went unannounced for one agent likely went unannounced for many — search the platform.
 - Determine whether Microsoft itself swapped the model under the agent (a *silent* model update from the platform) or whether the firm performed the swap. The former is a vendor-management finding (Control 2.4) in addition to a Control 2.5 finding.
 
-**Containment.** If rollback is still feasible, roll back to the prior validated model under enhanced monitoring while re-validating the new model properly. If rollback is not feasible (the prior model is decommissioned by the vendor), scope-restrict the agent to lower-risk use cases until re-validation is complete, or disable per Control 2.20 if the regression is severe.
+**Containment.** If rollback is still feasible, roll back to the prior validated model under enhanced monitoring while re-validating the new model properly. If rollback is not feasible (the prior model is decommissioned by the vendor), scope-restrict the agent to lower-risk use cases until re-validation is complete, or disable through the Control 3.4 incident-response workflow if the regression is severe.
 
 **Eradication.**
 - Update Control 2.5 procedures to define model identity and version explicitly as a *material change* requiring full re-validation, with no "configuration change" path available for it. Encode this as a pipeline gate: any solution promotion whose model identity differs from the prior promotion must invoke the full evaluation suite, not the delta suite.
@@ -767,9 +767,12 @@ A non-exhaustive list of anti-patterns observed in Control 2.5 implementations a
 - [`../1.21/troubleshooting.md`](../1.21/troubleshooting.md) — Records retention and disposition troubleshooting
 - [`../2.1/troubleshooting.md`](../2.1/troubleshooting.md) — Agent inventory and lifecycle governance troubleshooting
 - [`../2.3/troubleshooting.md`](../2.3/troubleshooting.md) — Human-in-the-loop and 4-eyes review troubleshooting
-- [`../2.20/troubleshooting.md`](../2.20/troubleshooting.md) — Agent disable and decommissioning troubleshooting
+- [`../2.20/troubleshooting.md`](../2.20/troubleshooting.md) — Adversarial testing and evidence troubleshooting
+- [Control 3.4 incident-response workflow](../3.4/portal-walkthrough.md) — Incident triage and authorized containment coordination
 - [`../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) — Control 2.5 specification
 
 ---
 
 *Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency/containment routing wording only. Not a whole-page re-verification; the verification status above is the prior record and is unchanged.*

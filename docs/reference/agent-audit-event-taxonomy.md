@@ -6,7 +6,7 @@ description: "This reference provides a consolidated taxonomy of audit events re
 !!! warning "Published Operations vs. Conceptual Categories"
     This taxonomy separates **published, searchable audit operations** ([Section 1](#published-searchable-audit-operations)) from **conceptual governance categories** ([Section 2](#conceptual-governance-categories-no-dedicated-microsoft-audit-operation)) that have no dedicated Microsoft audit operation as of June 2026. Build production KQL / `Search-UnifiedAuditLog` queries **only** from operations listed in Section 1. Each operation in Section 1 is cited to a specific Microsoft Learn page. See [Purview Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) for the full catalog.
 
-**Last Updated:** October 2026 (targeted Copilot connector/schema correction only)
+**Last Updated:** October 2026 (targeted Copilot connector/schema correction only); 2026-11-07 targeted correction of the Advanced Hunting table names `AIAgentsInfo`/`AgentsInfo` only. This is not a whole-page re-verification; other entries retain their prior verification state.
 **Version:** v1.6.2
 
 ---
@@ -53,19 +53,19 @@ Source: [Purview Audit Log Activities — M365 Admin Center Agent Management](ht
 | `UpdatedAgent` | Updated Agent | Admin updated a custom agent by uploading latest manifest | GA |
 | `UpdatedTenantSettings` | Updated Tenant-level Agent Settings | Admin updated tenant-level settings that apply to agents | GA |
 
-### Defender XDR — Advanced Hunting AI agent inventory (`Agentsinfo`)
+### Defender XDR — Advanced Hunting AI agent inventory (`AgentsInfo`)
 
-Source: [`Agentsinfo` table reference (Preview)](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table) | [Naming changes](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-schema-changes)
+Source: [`AgentsInfo` table reference (Preview)](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table) | [Naming changes](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-schema-changes)
 
-The Microsoft Defender XDR Advanced Hunting AI-agent inventory table is **transitioning from `AIAgentInfo` to `Agentsinfo`**, powered by Microsoft Agent 365 as the single source of truth for AI agent inventory.
+The Microsoft Defender XDR Advanced Hunting AI-agent inventory table is **transitioning from `AIAgentsInfo` to `AgentsInfo`**, powered by Microsoft Agent 365 as the single source of truth for AI agent inventory.
 
 | Table | Status | Notes |
 |-------|--------|-------|
-| `Agentsinfo` | Preview | Current table. Microsoft Agent 365 customers should query this table today. Schema and column names may still change while in Preview — verify against the schema reference before relying on a specific field. |
-| `AIAgentInfo` | Deprecating | Legacy table; remains accessible until **July 1, 2026**, then deprecated. Migrate saved queries, custom detections, and workbooks to `Agentsinfo` before that date. |
+| `AgentsInfo` | Preview | Current table. Microsoft Agent 365 customers should query this table today. Schema and column names may still change while in Preview — verify against the schema reference before relying on a specific field. |
+| `AIAgentsInfo` | Deprecating | Legacy table; remains accessible until **July 1, 2026**, then deprecated. Migrate saved queries, custom detections, and workbooks to `AgentsInfo` before that date. |
 
 !!! note "Name may still change"
-    These are Preview-stage Advanced Hunting tables. The earlier `AIAgentInfo` name is being retired in favor of `Agentsinfo`, and Microsoft notes the schema may be substantially modified before commercial release. Treat the table and column names as provisional and re-verify against [Microsoft Learn](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table) at query-authoring time. After **July 1, 2026**, Copilot Studio / Foundry agent inventory in Defender requires a Microsoft Agent 365 license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
+    These are Preview-stage Advanced Hunting tables. The earlier `AIAgentsInfo` name is being retired in favor of `AgentsInfo`, and Microsoft notes the schema may be substantially modified before commercial release. Treat the table and column names as provisional and re-verify against [Microsoft Learn](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table) at query-authoring time. After **July 1, 2026**, Copilot Studio / Foundry agent inventory in Defender requires a Microsoft Agent 365 license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
 
 ### Purview UAL — Microsoft 365 Copilot Admin Activities
 
