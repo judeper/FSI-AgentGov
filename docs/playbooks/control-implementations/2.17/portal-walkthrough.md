@@ -132,7 +132,7 @@ For Zone 3 chains and any chain that touches customer-impacting actions, regulat
 
 ## Step 6: Configure Orchestration Telemetry
 
-1. In each orchestrating agent, enable **Application Insights** under *Settings → Advanced → Analytics*.
+1. In each orchestrating agent, open **Settings → Advanced** and configure the **Application Insights** connection string and approved logging options ([telemetry setup](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry)).
 2. Add custom event emission at four points using the *Send a custom event* action (or via Power Automate calling the Application Insights ingestion endpoint):
 
     | Event name | Emit when | Required custom dimensions |
@@ -144,7 +144,7 @@ For Zone 3 chains and any chain that touches customer-impacting actions, regulat
     | `Orchestration.MCP.ToolInvocation` | Each MCP tool call | `correlationId`, `mcpServer`, `toolName`, `dataClassification` |
 
 3. Configure Application Insights → *Alerts* for: depth-limit violations, circuit-breaker opens, HITL timeouts, and MCP invocations on **unapproved servers** (cross-reference your approved MCP registry — see Control 2.17 § MCP Server Governance).
-4. Forward Application Insights events to Microsoft Sentinel (or your SIEM) for correlation with Copilot audit log events from Control 1.7.
+4. Configure a tested Application Insights export/query route to Microsoft Sentinel (or your SIEM) and correlate available Copilot audit records. The named events/dimensions above require custom instrumentation; they are not automatically copied to Purview Audit. Validate input/output coverage under approved logging settings, rather than assuming universal MCP payload capture.
 
 ---
 
@@ -155,10 +155,11 @@ If your orchestration uses MCP servers (Microsoft-built or custom):
 1. Maintain an **approved MCP server registry** (recommended: SharePoint list with columns `mcpServerId`, `vendor`, `dataClassification`, `approvedZones`, `approverUpn`, `approvedUtc`, `nextReviewUtc`).
 2. In Copilot Studio → agent → **Tools → Add tool → Model Context Protocol**, register only servers from the approved list.
 3. Capture the *server URL*, *authentication method* (OAuth 2.0 minimum; OAuth 2.0 + certificate pinning for Zone 3), and *tool surface* (specific tools enabled vs. wildcard).
-4. Add a Power Platform DLP policy (Control 2.14) blocking the MCP HTTP connector from being combined with non-business connectors in Zone 2/3 environments.
+4. Apply classic DLP to the actual supporting connector: custom connectors are classified by name in environment policies, or by ordered Host URL patterns in tenant policies (explicit final `*` **Blocked** for default-deny). Apply ACP server-level blocking only to supported certified MCP connectors, retaining mixed-mode classic coverage for custom/HTTP/virtual gaps ([custom DLP](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity), [ACP](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies)).
+5. Turn agent MCP **Allow all** off and select approved tools; new tools then default off. Test actual blocked/allowed behavior and inventory drift; the organizational registry does not automatically enforce DLP ([MCP settings](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent)).
 
-!!! warning "Custom MCP servers — preview status"
-    Microsoft documents custom MCP servers in the 2026 Wave 1 release plan with public preview in March 2026 and GA targeted for April 2026. Confirm current GA status on Microsoft Learn before promoting custom MCP servers to production. For Zone 3, do not use preview features in customer-impacting orchestrations.
+!!! warning "MCP capability and enforcement boundaries"
+    Verify the specific integration/server-authoring capability's availability, not a universal March/April 2026 date. OAuth/certificate-pinning standards above are organizational requirements; validate support rather than assuming a native pinning switch. Agent 365 registered-server individual-tool controls are rolling out for supported server types through a separate Tooling Gateway ([tool governance](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/manage-plugins-skills-mcp-servers)); this is not tool-level ACP. For Zone 3, do not use preview features in customer-impacting orchestrations.
 
 ---
 
@@ -190,7 +191,7 @@ After completing the steps above, confirm the following before declaring the con
 - [ ] HITL checkpoints configured at the **action boundary**, not chain entry
 - [ ] All five custom events emit with required dimensions
 - [ ] Sentinel / SIEM alerts wired for depth violations, circuit opens, HITL timeouts, unapproved MCP invocations
-- [ ] MCP server registry exists and is referenced by the DLP policy
+- [ ] MCP registry reconciles with actual connector policies, supported server blocking and agent tool selections; no automatic registry-to-DLP binding is assumed
 - [ ] Combined Model Risk Card written for Zone 3 chains (Control 2.6)
 - [ ] Quarterly review scheduled in your governance cadence (Control 2.12)
 
@@ -201,4 +202,6 @@ Run the *Verification & Testing* playbook against this configuration before prom
 [Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted MCP and telemetry documentation correction only; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

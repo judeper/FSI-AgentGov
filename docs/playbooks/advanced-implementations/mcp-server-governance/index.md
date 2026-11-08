@@ -3,16 +3,18 @@
 **Last Updated:** May 2026
 **Version:** v1.6.2
 
+**Last Verified:** 2026-11-06 — targeted connector, tool-selection, network and telemetry documentation corrections; no tenant UI, screenshots, or API execution.
+
 ---
 
 ## Overview
 
-The **Model Context Protocol (MCP)** is an open standard that enables Microsoft Copilot Studio agents to connect to external data sources and tools through custom MCP servers. In Copilot Studio, organizations can create new MCP servers or connect agents to existing ones, allowing agents to retrieve real-time data from internal APIs, databases, and third-party services.
+The **Model Context Protocol (MCP)** is an open standard for tool discovery and invocation. Copilot Studio agents can connect to existing Microsoft, internal or third-party servers; building a server with an SDK is a distinct experience, not a universal native server-authoring portal switch.
 
-MCP servers surface as **custom connectors** within the Power Platform connector framework. This means they inherit the same DLP policy controls, environment scoping, and governance mechanisms that apply to any Power Platform connector — but they also introduce new risks specific to regulated environments.
+Copilot Studio supports prebuilt Microsoft MCP connectors and custom/third-party MCP integrations through Power Platform connectors. MCP does not identify the publisher, hosting operator, service owner or risk tier; inventory each separately. Supported governance differs by connector type ([MCP integration](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent), [ACP support matrix](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies)).
 
-!!! info "GA Feature — Custom MCP Servers"
-    Custom MCP Servers in Copilot Studio entered **public preview in March 2026** and reached **general availability in April 2026**. Configuration options, authentication flows, and administrative controls may continue to evolve after GA. Organizations should verify current capabilities against [Microsoft Learn documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server) before production deployment.
+!!! info "Verify the specific MCP capability"
+    Connecting an existing MCP server, creating a server with an SDK, and other server-authoring experiences are distinct capabilities. Do not infer a universal March/April 2026 release date or coverage from the protocol name. Verify the specific integration and current supported controls against [Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server) before production deployment.
 
 This playbook provides FSI-specific governance guidance for MCP server integration, covering DLP connector policy scoping, authentication governance, network isolation, and audit requirements.
 
@@ -20,9 +22,11 @@ This playbook provides FSI-specific governance guidance for MCP server integrati
 
 ## Three flavors of MCP
 
+**Registered-server control plane:** Microsoft 365 admin center **Agents → Tools → Registry** supports server **Block / Unblock**; **Requests (preview)** approval and consent are separate. Individual-tool runtime controls are rolling out for supported Agent 365 server types through its Tooling Gateway, not as granular MCP ACP. A plugin block can leave the server available to other plugins; block the server separately when required ([current governance](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/manage-plugins-skills-mcp-servers)). Verify actual tenant/server/client support.
+
 MCP governance depends on which MCP path is in use. FSI teams should identify the hosting model, administrative surface, and covered controls before approving an agent design because the same protocol can enter through different Microsoft governance surfaces.
 
-**Copilot Studio custom MCP** uses customer- or vendor-hosted MCP servers wired into Copilot Studio agents as custom connectors. The server is hosted outside Microsoft by the customer or vendor, while governance is applied through Power Platform connector governance, DLP and Advanced Connector Policies, environment scope, and Copilot Studio publish review; see Controls 1.4, 1.5, 2.17, and 2.25.
+**Copilot Studio custom MCP** can use customer- or vendor-operated servers connected through custom connectors. Classic DLP governs custom connector usage; ACP separately supports MCP server-level blocking but does not generally support custom connectors. Verify the actual server/connector exposure in the tenant rather than assuming ACP parity; see Controls 1.4, 1.5, 2.17, and 2.25.
 
 **Microsoft-published MCP servers** are first-party MCP servers shipped and maintained by Microsoft, such as the Microsoft 365 connector MCP. Microsoft hosts and publishes the server, while the tenant governs availability through Microsoft 365 admin center and Agent 365 inventory, app and connector approvals, audit, and reporting surfaces; see Controls 1.2, 1.7, 2.25, 3.13, and 3.14.
 
@@ -85,8 +89,8 @@ flowchart TB
     subgraph "Governance Layer"
         G[DLP Connector Policy] -->|Scopes| B
         H[OAuth 2.0 / API Key] -->|Authenticates| B
-        I[VNet Integration] -->|Routes| B
-        J[Purview Audit] -->|Logs| A
+        I[Verified supported network route] -->|Where applicable| B
+        J[Configured agent and server telemetry] -->|Observed execution evidence| A
     end
 
     subgraph "Data Sources"
@@ -100,7 +104,9 @@ flowchart TB
 
 ## DLP Connector Policy Scoping
 
-MCP servers appear as custom connectors in the Power Platform environment. This means they fall under **Advanced Connector Policies (ACP)** and **DLP policy enforcement** — the same mechanisms used for all Power Platform connectors.
+MCP access relies on Power Platform connector connectivity. Classic DLP restrictions on a connector also regulate its MCP access. ACP supports MCP **server-level** blocking, not granular individual MCP tools; custom, HTTP and virtual connectors need classic DLP. Keep **mixed mode** while those rules are required ([data policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention), [ACP](https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies)).
+
+In the agent's **Tools** page, select the MCP server and turn **Allow all** off, then enable only reviewed tools. All tools start on; after Allow all is off, newly added tools default off. Server definitions can change without agent republishing, so retain review/delta monitoring; this is not a universal auto-update-disable switch ([MCP tool selections](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent), [agent tools](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/agent-tools)).
 
 ### Connector Classification
 
@@ -116,22 +122,10 @@ When an MCP server is registered, classify it within your DLP connector policy:
 
 Apply DLP connector policies at the environment level per [Control 1.4 — Advanced Connector Policies](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md):
 
-```powershell
-# Example: Block unapproved MCP custom connectors in a Zone 3 environment
-# Retrieve the environment-level DLP policy
-$policy = Get-DlpPolicy -PolicyName "Zone3-Production-DLP"
-
-# Add MCP custom connector to the blocked group
-# Note: MCP connectors appear as custom connectors with a
-# connector ID matching the MCP server registration
-Add-CustomConnectorToPolicy `
-    -PolicyName "Zone3-Production-DLP" `
-    -ConnectorId "/providers/Microsoft.PowerApps/apis/shared_mcp-<server-id>" `
-    -GroupName "Blocked"
-```
+Use the actual custom connector name in an **environment-level** data policy's **Connectors** page. For a **tenant-level** policy, configure ordered Host URL patterns and explicitly set the final `*` to **Blocked** (new policies default to **Ignore**). Existing by-name assignments supersede Host URL rules; environment-admin visibility is limited to owned/shared connectors, and dynamic host changes occur after policy evaluation. Do not invent a connector ID from an MCP server name or use a display name as a policy GUID. See [custom connector data policies](https://learn.microsoft.com/en-us/power-platform/admin/dlp-custom-connector-parity) and the [Control 2.7 portal procedure](../../control-implementations/2.7/portal-walkthrough.md#part-2-configure-dlp-and-connector-policies).
 
 !!! tip "Recommended Approach"
-    Block all custom connectors by default and explicitly allowlist approved MCP servers. This prevents unauthorized MCP servers from being used in governed environments.
+    Require default-deny custom connector usage and explicitly approve required server/connector routes. Test actual name/Host URL rules, dynamic-host limitations and supported enforcement; classification alone is not a guarantee that every downstream destination is approved.
 
 ### Policy Scoping by Zone
 
@@ -207,7 +201,7 @@ Set-AzKeyVaultSecret `
 
 ## VNet Integration
 
-For Zone 3 (Enterprise) deployments handling regulated data, MCP server traffic should be routed through Azure Virtual Network (VNet) integration per [Control 1.20 — Network Isolation and Private Connectivity](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md).
+For Zone 3 (Enterprise), verify whether the specific connector/server route supports Power Platform VNet integration before relying on private connectivity per [Control 1.20 — Network Isolation and Private Connectivity](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md). Corporate device egress controls do not automatically govern SaaS agent calls. Where the required private route is unsupported, record a gap and obtain an approved alternative or withhold deployment; the diagram below is an organizational target, not universal product support.
 
 ### Private Endpoint Configuration
 
@@ -229,7 +223,7 @@ flowchart LR
 |-------------|-------------|
 | **Private DNS** | Configure private DNS zones for MCP server endpoints |
 | **NSG rules** | Restrict inbound access to MCP servers from Copilot Studio VNet subnets only |
-| **Traffic logging** | Enable NSG flow logs for MCP server traffic — aids in FINRA 4511 recordkeeping |
+| **Traffic logging** | Configure supported network telemetry for the actual hosted infrastructure and verify coverage — aids in FINRA 4511 recordkeeping |
 | **No public endpoints** | Zone 3 MCP servers should not expose public endpoints |
 | **Egress controls** | Restrict MCP server outbound traffic to approved destinations only |
 
@@ -240,11 +234,11 @@ flowchart LR
 
 ## Audit and Compliance
 
-MCP server interactions generate audit events that support FSI recordkeeping requirements. Organizations should configure audit capture to help meet regulatory retention obligations.
+Require tested execution evidence for MCP interactions. Copilot Studio administrative audit is not a universal record of every tool request/response, downstream data source, or identity. Configure and correlate agent/server telemetry, identity evidence and supported audit activities; document missing coverage. Organizations should configure audit capture to help meet regulatory retention obligations.
 
 ### Telemetry Capture
 
-MCP server call events are captured through Copilot Studio agent telemetry:
+The following are required evidence signals to validate, not a guaranteed native event schema. [Application Insights telemetry](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry) requires configuration; tool input/output capture under OpenTelemetry depends on **Log conversation details**, and may expose sensitive data. Verify actual fields, redaction, retention and supported feature status before relying on them:
 
 | Audit Signal | Description | Regulatory Mapping |
 |-------------|-------------|-------------------|
@@ -258,9 +252,9 @@ MCP server call events are captured through Copilot Studio agent telemetry:
 
 Configure Microsoft Purview to capture and retain MCP-related audit events:
 
-1. **Unified Audit Log (UAL):** MCP server invocations appear as Copilot Studio activity events in the UAL
-2. **Retention policies:** Apply retention policies per [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) to meet regulatory minimums
-3. **eDiscovery:** MCP interaction records should be searchable via eDiscovery per [Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)
+1. **Unified Audit Log (UAL):** Retain supported activities actually observed; do not assume every MCP invocation or its request/response is a UAL event.
+2. **Retention policies:** Apply the storage-specific retention path per [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) to meet regulatory minimums; Purview Audit retention does not retain Application Insights/server logs.
+3. **eDiscovery:** Validate actual ingestion and searchability of required MCP interaction records per [Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md); external telemetry is not automatically eDiscovery content.
 
 ### Retention Requirements
 
@@ -284,7 +278,7 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 | **DLP connector policy** | Tenant-level default | Environment-level policy | Environment-level + custom blocking |
 | **Authentication** | OAuth 2.0 recommended; API key acceptable | OAuth 2.0 required | OAuth 2.0 required |
 | **Credential storage** | Key Vault recommended | Key Vault required | Key Vault required + rotation policy |
-| **VNet integration** | Not required | Recommended for sensitive data | Required |
+| **VNet integration** | Not required | Recommended where the route supports it | Organizational requirement; verify supported route or record approved alternative/gap |
 | **Private endpoints** | Not required | Not required | Required for internal MCP servers |
 | **Audit retention** | 30 days (default) | 90 days minimum | 7+ years (regulatory minimum) |
 | **Data classification** | Not required | Recommended | Required before MCP server approval |
@@ -310,7 +304,7 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 
 | Control | Integration Point |
 |---------|-------------------|
-| [1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | MCP connectors governed by ACP classification |
+| [1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Supported MCP server blocking in ACP; classic DLP retained for custom/HTTP/virtual gaps |
 | [1.5 — DLP and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP enforcement for MCP data flows |
 | [1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit capture for MCP server invocations |
 | [1.9 — Data Retention and Deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Retention policies for MCP interaction records |
@@ -327,13 +321,13 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 ## Verification Checklist
 
 1. ☐ MCP server inventory documented with data classification for each connected data source
-2. ☐ DLP connector policies classify all MCP custom connectors (Business / Non-Business / Blocked)
+2. ☐ Classic DLP name/Host URL rules cover custom connector paths; supported ACP server blocking and mixed-mode scope verified separately
 3. ☐ Unapproved MCP connectors blocked by default in Zone 2 and Zone 3 environments
 4. ☐ OAuth 2.0 configured for all Zone 2 and Zone 3 MCP servers
 5. ☐ API keys (if used) stored in Azure Key Vault with expiration and rotation policy
 6. ☐ VNet integration configured for Zone 3 MCP servers accessing regulated data
 7. ☐ Private endpoints configured for internal MCP servers in Zone 3
-8. ☐ Purview audit retention policies applied to MCP interaction records
+8. ☐ Supported administrative audit plus actual agent/server execution coverage and storage-specific retention tested; missing MCP payloads/identities recorded as gaps
 9. ☐ Conditional Access policies applied to MCP server app registrations
 10. ☐ Agent sponsor sign-off documented for each MCP server connection
 11. ☐ Data classification assessment completed for all MCP-accessible data sources
@@ -352,4 +346,4 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only corrections)*
