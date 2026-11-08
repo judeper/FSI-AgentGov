@@ -746,7 +746,7 @@ Agent Analytics provides the trend signals governance staff use to detect anomal
 ### 10.3 Agents by Platform panel
 
 1. Review the breakdown across **Microsoft 365 Copilot / Copilot Studio / Azure AI Foundry / Microsoft Agent Framework / Partner**.
-2. The platform mix informs which Pillar 2 controls (2.10–2.16 for Copilot Studio governance, 2.20+ for Azure AI Foundry) require deeper attention.
+2. Use the platform mix to select applicable governance controls. [Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) covers adversarial testing across Microsoft 365 Copilot, Copilot Studio and Foundry-backed agents; it is not the start of a Foundry-only control range.
 
 ### 10.4 Active Users Over Time panel
 
@@ -934,3 +934,5 @@ Before declaring this control operational, confirm all of the following:
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+
+*Targeted correction, #911 (2026-11-06): 2.20 scope reference only. Not a whole-page re-verification; the UI verification status above is the prior record and is unchanged.*
