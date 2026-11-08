@@ -126,7 +126,7 @@ For Zone 3 chains and any chain that touches customer-impacting actions, regulat
 5. Persist the approval decision (`approverUpn`, `decision`, `decisionUtc`, `correlationId`) to the same Dataverse table used for orchestration state, retained per Control 1.7.
 
 !!! tip "Microsoft Agent Framework HITL primitives"
-    Microsoft Agent Framework (preview as of April 2026) documents `RequestPort` / `request_info()` / response-handler routing for HITL. If your orchestration is built on Agent Framework rather than Copilot Studio topics, prefer those primitives over hand-rolled adaptive cards — they integrate with checkpoint persistence and event streaming for chain-of-custody evidence.
+    Microsoft Agent Framework (preview as of April 2026) documents HITL request routing — Python `request_info` with `@response_handler`, and C#/Go `RequestPort`. If your orchestration is built on Agent Framework rather than Copilot Studio topics, prefer those primitives over hand-rolled adaptive cards — they integrate with checkpoint persistence and event streaming for chain-of-custody evidence.
 
 ---
 

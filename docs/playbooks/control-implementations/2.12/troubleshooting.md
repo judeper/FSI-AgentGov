@@ -3,7 +3,7 @@
 **Companion to:** [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Audience:** Designated Principal (Series 24 / 66 / 65), Compliance Officer, AI Governance Lead, AI Administrator, Purview Compliance Admin, Power Platform Admin, Exchange Online Admin, Entra Global Reader, IR on-call.
-**Scope:** Diagnose and remediate failures in the human-in-the-loop (HITL) supervisory workflow for Microsoft Copilot Studio, Microsoft Agent Framework (`RequestPort` / `request_info()` / checkpointed pending requests), Power Automate approval actions, the Zone 3 supervisory review queue, Rule 2210 classification and principal pre-use approval, Rule 3120 annual testing, WSP-to-deployed-config reconciliation, designated-principal qualification, sponsorship-derived accountability (cascade from Control 2.26), orphaned-agent supervisory re-entry (cascade from Control 3.6), reviewer-decision evidence retention (FINRA 4511 / SEC 17a-4(b)(4) / (f)).
+**Scope:** Diagnose and remediate failures in the human-in-the-loop (HITL) supervisory workflow for Microsoft Copilot Studio, Microsoft Agent Framework (Python `request_info`/`@response_handler`; C#/Go `RequestPort`; checkpointed pending requests), Power Automate approval actions, the Zone 3 supervisory review queue, Rule 2210 classification and principal pre-use approval, Rule 3120 annual testing, WSP-to-deployed-config reconciliation, designated-principal qualification, sponsorship-derived accountability (cascade from Control 2.26), orphaned-agent supervisory re-entry (cascade from Control 3.6), reviewer-decision evidence retention (FINRA 4511 / SEC 17a-4(b)(4) / (f)).
 
 > **Regulatory framing (non-substitution).** This playbook describes diagnostic and remediation procedures that **support compliance with** FINRA Rule 3110 (Supervision), Rule 3120 (Supervisory Control System), Rule 2210 (Communications with the Public), Rule 4511 (Books and Records), FINRA Regulatory Notice 24-09 (Gen AI / LLM Guidance), SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA Safeguards Rule § 314.4, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, and NYDFS 23 NYCRR 500. The Copilot Studio HITL surface, Agent Framework request/response API, Power Automate approval actions, and Entra Agent ID sponsorship constitute supervisory **tooling**; they do **not** substitute for (a) the firm's written supervisory procedures, (b) the designation of an appropriately registered principal (Series 24 for broker-dealer supervisory scope; Series 66 / 65 for RIA scope), or (c) the registered-principal supervisory review and principal pre-use approval required by FINRA Rule 3110 and Rule 2210 for the business activities involved. Controls 2.25, 2.26, and 3.6 reference Control 2.12 as the authoritative non-substitution anchor. When troubleshooting, a successful remediation that restores tooling does **not** close the supervisory gap for any interaction that occurred while the tooling was broken — that gap remains for Legal / Compliance disposition (see §21 RB-01, RB-03, RB-04).
 
@@ -145,6 +145,9 @@ This section enumerates the helper cmdlets, Graph queries, KQL queries, and Data
 
 ### §2.1 `Get-Agt212*` / `Invoke-Agt212*` Helper Catalog
 
+!!! warning "Design templates — not included"
+    The `Get-Agt212*` / `Invoke-Agt212*` helpers, the `_helpers/Agt212.*` modules, and the output fields shown in this playbook are firm-owned design templates. They are **not included** in this repository and were not validated against a tenant. Build equivalents against documented Microsoft interfaces, or substitute manual portal and audit-log steps.
+
 | Cmdlet | Purpose | Mutates? |
 |---|---|---|
 | `Get-Agt212Health` | End-to-end probe of Copilot Studio handoff endpoint, Power Automate approval endpoint, Agent Framework checkpoint service, Purview evidence-library write path, and WSP-reconciliation service | No |
@@ -169,6 +172,9 @@ This section enumerates the helper cmdlets, Graph queries, KQL queries, and Data
 All mutating cmdlets honor `-WhatIf` and emit a SHA-256 evidence hash per the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md).
 
 ### §2.2 Graph Query Catalog (GQ-01..GQ-10)
+
+!!! warning "Unverified routes"
+    Microsoft Learn was not found to document the `/beta/admin/agentFramework/*`, `/beta/copilotStudio/agents/{id}/hitlConfiguration`, or `/beta/admin/agentGov/supervisionTesting` routes (GQ-01..GQ-04, GQ-10); the `AgentSupervision` category in GQ-08 and the GQ-09 label route are likewise unconfirmed. Absence from documentation is not proof that they do not exist, but treat them as **unverified, firm-owned examples**: confirm each in Microsoft Graph documentation or Graph Explorer before relying on it, and do not assume Agent Framework checkpoints are exposed through Graph. Checkpoints live in the firm-configured `CheckpointStorage`.
 
 Replace `{tenantId}`, `{agentId}`, `{conversationId}` as appropriate.
 
@@ -349,10 +355,10 @@ The Copilot Studio human-agent handoff, Power Automate approval action, or Agent
 | Code | Root cause | Confirmation signal |
 |---|---|---|
 | **RC-A** | **Trigger criteria mismatch.** The deployed agent's intent / topic / pattern does not reference the WSP trigger vocabulary (e.g., WSP says "route on 'investment advice'" but topic only matches "investing advice"). | `Get-Agt212HitlStatus -AgentId <id>` returns `TriggerCriteria` whose tokens do not match `Get-Agt212WspReconciliation -AgentId <id>`. |
-| **RC-B** | **HITL pattern not wired.** The agent has no HITL configuration at all (Copilot Studio "Require handoff" is off; no Agent Framework `RequestPort` wired; no Power Automate approval action bound). | GQ-04 returns `hitlPattern: "none"` for an agent whose registry record says Zone 3. |
+| **RC-B** | **HITL pattern not wired.** The agent has no HITL configuration at all (no engagement-hub connection with an Escalate topic or Transfer conversation node is configured (Microsoft documents no "Require handoff" switch); no Agent Framework HITL request wired (Python `request_info`; C#/Go `RequestPort`); no Power Automate approval action bound). | GQ-04 returns `hitlPattern: "none"` for an agent whose registry record says Zone 3. |
 | **RC-C** | **Configuration drift post-republish.** The agent was republished and the HITL binding was lost (common when the author did not include the handoff topic in the solution import). | KQL-05 shows `WspReconciliation.Drift` for field `hitlPattern` after a recent publish event. |
 | **RC-D** | **Power Automate flow disabled or in error.** The approval flow backing the agent is disabled, suspended, or has exceeded its run quota. | GQ-05 returns `state: "Suspended"` or `runs[].status: "Failed"` with quota-exceeded error. |
-| **RC-E** | **Agent Framework handler wired but `request_info()` not called.** The workflow executor checks a condition that evaluates false for production traffic (e.g., compares against a feature-flag that is off in prod). | KQL-07 shows `Raised` zero while `Handled` zero and interaction volume non-zero; code review confirms gated call. |
+| **RC-E** | **Agent Framework handler wired but the HITL request (Python `request_info()`) is not called.** The workflow executor checks a condition that evaluates false for production traffic (e.g., compares against a feature-flag that is off in prod). | KQL-07 shows `Raised` zero while `Handled` zero and interaction volume non-zero; code review confirms gated call. |
 | **RC-F** | **Wrong autonomy level.** Agent is declared `Recommend-Only` (no HITL needed) but in fact executes material actions; WSP misclassified the agent at onboarding. | `Get-Agt212AutonomyDeclaration -AgentId <id>` returns `Recommend-Only` but `Get-Agt212Agent` shows it has connectors that perform trades, moves money, or sends customer communications. |
 | **RC-G** | **Generative-answers path bypass.** The HITL pattern is wired to the scripted-topic path, but the agent fell through to the generative-answers path on an unmatched intent, which has no handoff. | KQL-04 `BypassReason: "FellThroughToGenerativeAnswers"`. |
 | **RC-H** | **Trigger suppression override.** A recent tenant-level "expedite" or "low-friction customer experience" toggle in Copilot Studio has overridden HITL. | Copilot Studio environment-level flag `SuppressHandoffForLowConfidence` set to `true`. |
@@ -1006,7 +1012,7 @@ Reviewer decision evidence is missing, incomplete, or below-retention for an int
 
 ## §12 Pillar: AGF-CHECKPOINT-LOSS
 
-Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `request_info()` with pending requests preserved in checkpoints. When a workflow is restored from a checkpoint, pending requests should be re-emitted so supervisory review can resume. This pillar covers the failure mode where checkpoints are not persisted, not restored cleanly, or the request/response pair becomes orphaned — leaving an interaction in a supervisory limbo state.
+Microsoft Agent Framework supports human-in-the-loop via Python `request_info` / `@response_handler` and C#/Go `RequestPort`, with pending requests preserved in checkpoints when explicit durable `CheckpointStorage` is configured (InMemory is not durable; File and Cosmos DB are documented for Python; Table, Blob and Dataverse need a firm-built custom store). When a workflow is restored from a checkpoint, pending requests should be re-emitted so supervisory review can resume. This pillar covers the failure mode where checkpoints are not persisted, not restored cleanly, or the request/response pair becomes orphaned — leaving an interaction in a supervisory limbo state.
 
 ### §12.1 Symptom Catalog
 
@@ -1027,7 +1033,7 @@ Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `reques
 | **RC-A** | Checkpoint not persisted — code path exits before checkpoint write. | Trace shows `request_info()` return without checkpoint op. |
 | **RC-B** | Checkpoint backend (durable storage) misconfigured. | GQ-01 service status degraded; storage errors. |
 | **RC-C** | Workflow identity / scope not preserved; restore loads different scope. | Request ID present but belongs to different workflow key. |
-| **RC-D** | Response handler not bound to the RequestPort. | Code review: handler registration missing. |
+| **RC-D** | Response handler not bound to the RequestPort. | Code review: response handler (Python `@response_handler`) or RequestPort binding missing. |
 | **RC-E** | Event streaming broker dropped events. | Broker metrics show drop. |
 | **RC-F** | Clock skew / ordering issues. | Timestamps out of order. |
 | **RC-G** | Retention policy evicts checkpoints before reviewer responds (SLA > retention). | Policy SLA mismatch. |
