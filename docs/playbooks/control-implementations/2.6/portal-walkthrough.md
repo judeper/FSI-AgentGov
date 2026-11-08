@@ -304,17 +304,19 @@ SR 26-2 (formerly SR 11-7) applies to vendor and externally developed models wit
 
 ### 4.1 Capture vendor-model selection and provider evidence
 
-**Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **Settings** → **Generative AI** → **Model**.
+**Portal path (primary model, standard harness):** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **Overview → Model**.
 
 1. Sign in as **Environment Admin** for the agent's environment.
-2. Open **Settings → Generative AI** and capture the **model provider** (Microsoft / OpenAI via Microsoft / Anthropic / other), the **model name**, and the **model version string** as displayed in the tenant.
+2. Open **Overview → Model** and capture the selected primary model, provider/hosting route, release tag, region and any visible version identifier. If an exact snapshot version is not exposed, record that limitation and available lifecycle notices rather than inventing a version. Prompt builder and other AI model settings are separate.
 3. Verify the model is on the firm's MRM-approved allow-list (defined in the Agent 365 governance template — see §1.2).
 4. For Anthropic Claude or other third-party providers, capture additional vendor-model evidence:
     - **Provider identity** and contractual relationship (which entity Microsoft routes the model call through, what data-handling commitments apply)
     - **Cross-geography routing** posture — confirm whether prompts and responses are processed only in approved regions
     - **Data-handling and training commitments** as published by Microsoft for that provider
     - **Approval evidence** from the firm's vendor-risk function (see Control 2.7) and the MRM Committee
-5. Reference: [Copilot Studio — Choose a generative AI model](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions). Verify availability and GA status of any third-party model in **your** tenant.
+5. Reference: [Copilot Studio — Select a primary AI model](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-select-agent-model). Verify availability, GA/preview/experimental tags and retirement/fallback behavior for the specific model in **your** tenant.
+
+**Targeted documentation check (2026-11-06):** External providers need Microsoft 365 provider access plus separate PPAC environment/group controls ([external model settings](https://learn.microsoft.com/en-us/power-platform/admin/allow-llm-generative-responses)). Anthropic is a Microsoft subprocessor for covered routes, but models labeled **Anthropic models with Data Retention** have separate enablement/terms and independent-processor handling ([provider guidance](https://learn.microsoft.com/en-us/copilot/implement/connect-to-ai-subprocessor)). Native selection does not establish uniform contract, residency or certification coverage. No tenant UI, screenshots or API calls were tested; this does not reverify other sections.
 
 ### 4.2 Operate the Copilot Studio model lifecycle
 
@@ -427,4 +429,4 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 
 ---
 
-*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; portal UI not reverified in September 2026)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections; tenant UI not tested)*
