@@ -127,11 +127,11 @@ For every environment covered by ACP, also confirm a classic DLP policy is scope
 1. Places **HTTP**, **HTTP with Microsoft Entra ID**, and **HTTP Webhook** connectors in **Blocked** unless used by an approved internal flow (then use **connector endpoint filtering** to restrict to internal hosts).
 2. Places all **custom connectors** in **Blocked** by default; allowlist only after security review (Control 2.7).
 3. Places **Copilot Studio virtual connectors** (knowledge sources, channels, skills) in the appropriate group — these are **not** governed by ACP and will not be in the future.
-4. Is scoped at the **environment level**, not security-group level, so service-principal-authenticated connections are also covered (see the Service Principal warning on the control page).
+4. Applies to every required hosting environment through tenant/environment DLP scope. Environment access groups are separate; they are not a DLP user/security-group scope. Test actual service-principal connections ([policy scope](https://learn.microsoft.com/en-us/power-platform/admin/prevent-data-loss)).
 
 ---
 
-## Step 7 — MCP Server Governance (Preview)
+## Step 7 — MCP Server Governance
 
 1. In the same **Advanced connector policies** panel, scroll to the MCP servers section.
 2. Each registered MCP server appears alongside connectors.
@@ -139,6 +139,8 @@ For every environment covered by ACP, also confirm a classic DLP policy is scope
 4. Document the server-level decision in the connector catalog (server ID, owner, business purpose, supported zones).
 
 > ACP supports **server-level** MCP blocking only. Tool-level granularity is not yet available — combine with the Copilot Studio agent-level tool toggles for layered control.
+
+In the agent's MCP settings, turn **Allow all** off and select approved tools. Newly added tools then default off ([MCP settings](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent)). Prebuilt Microsoft MCP connectors are supported too; risk tier depends on actual publisher, operator and destination. Verify workload rollout instead of applying a blanket protocol-level preview/GA date.
 
 ---
 
@@ -176,4 +178,6 @@ For every environment covered by ACP, also confirm a classic DLP policy is scope
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-06 — targeted DLP scope/MCP documentation correction only; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only corrections)*
