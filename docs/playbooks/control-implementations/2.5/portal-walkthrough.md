@@ -580,7 +580,7 @@ Treat each of the following as a mandatory Plane 3 re-run, not an optional one. 
 ---
 ## §7. Plane 4 — PyRIT adversarial campaign
 
-PyRIT (Python Risk Identification Toolkit) is the Microsoft AI Red Team's open-source orchestration framework for adversarial probing of generative AI systems. It is not a portal feature — it is a Python library you run on customer-controlled compute. It is included in this Control 2.5 walkthrough because the **adversarial-resilience leg** of independent validation is required for Zone 3 agents and recommended for Zone 2 agents that interact with external users.
+PyRIT (Python Risk Identification Tool) is the Microsoft AI Red Team's open-source orchestration framework for adversarial probing of generative AI systems. It is not a portal feature — it is a Python library you run on customer-controlled compute. It is included in this Control 2.5 walkthrough because the **adversarial-resilience leg** of independent validation is required for Zone 3 agents and recommended for Zone 2 agents that interact with external users.
 
 For the broader red-team program design (attacker personas, campaign scoping, kill-chain coverage), see [Control 1.21 — Adversarial Input Logging](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) and [Control 2.20 — Adversarial Testing and Red Team Framework](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md). This section covers the **portal hand-off** — where PyRIT inputs come from, how PyRIT outputs feed the Evidence Pack, and which portals operators look at to confirm a campaign is wired correctly.
 
@@ -1235,3 +1235,5 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 ---
 
 *Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Current (technical re-verification 2026-10-29)*
+
+*Targeted correction, #911 (2026-11-06 to 2026-11-07): 2.20 dependency wording only. Not a whole-page re-verification; the verification status above is the prior record and is unchanged.*
