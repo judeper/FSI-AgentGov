@@ -24,6 +24,8 @@
 | Canonical roles | Per [docs/reference/role-catalog.md](../../../reference/role-catalog.md). This playbook references **Compliance Officer**, **Designated Principal / Qualified Supervisor**, **AI Governance Lead**, **AI Administrator**, **Agent Owner**, **Entra Global Admin**, **Purview Compliance Admin**, **Power Platform Admin**, **Exchange Online Admin**, and **Entra Security Reader** only. |
 | Regulatory framing | This playbook **helps meet** recordkeeping, supervision, and oversight expectations under FINRA Rules 3110 / 3120 / 2210 / 4511, FINRA Regulatory Notice 24-09 (Gen AI / LLM guidance), SEC Rules 17a-3 / 17a-4, SOX §§301 / 404, GLBA §500(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Fed SR 26-2 (formerly SR 11-7)), NYDFS 23 NYCRR 500, and the FFIEC IT Examination Handbook. It does **not** by itself establish compliance; organizations should verify findings against their own legal and regulatory obligations and tailor sample sizes, SLAs, and zone thresholds to their documented risk appetite. |
 
+> **Technical-source boundary (issue #912 correction).** The Pester suites, helper functions (`Invoke-Agt212PreFlight.ps1`, `_helpers/Agt212.*`, `Get-CopilotStudio*`, `Get-Agt212Agf*`, `Get-HitlProbeRecords`, `ConvertTo-FirmAuditProbeIdentity` (the AuditData identity adapter the firm must validate against its own exported records), `_helpers/Agt212.Siem.kql/`), JSON evidence shapes, Agent Framework manifest schema (`agent.yaml`), and KQL files in this playbook are **design templates** that the firm must implement and own. They are **not included** in this repository and are **not** an out-of-box evidence pipeline; this playbook does not provide runnable copies. Names such as `trigger_expression`, `handoff_target`, `handoff_enabled`, `request_info:` manifest sections, and `AgentFrameworkCheckpoint` are firm-defined projection fields or firm-built tables, not Microsoft-documented properties. Nothing here was validated against a tenant. Microsoft-documented behavior is cited where it matters: [audit log search](https://learn.microsoft.com/en-us/purview/audit-log-search), [Copilot Studio handoff](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off), [Agent Framework human-in-the-loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop), [Agent Framework checkpoints](https://learn.microsoft.com/en-us/agent-framework/workflows/checkpoints), [Azure Monitor table retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure), and [Azure immutable blob storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview). Firm SLAs, sampling sizes, and retention periods are firm policy choices, not Microsoft commitments.
+
 > **FINRA 3110 non-substitution, restated.** Tests in this playbook verify that WSPs exist, that reviewers are qualified, that decisions are captured with rationale, and that evidence is retained. They do not verify that the reviewer's *decision* was correct. The decision correctness test is a qualitative supervisory review performed by the Designated Principal during Rule 3120 annual testing (§9) and documented in Rule 3120 working papers.
 
 ---
@@ -65,7 +67,7 @@ Set-StrictMode -Version Latest
 
 ### 0.3 PRE gates (must all pass before §2–§12 execute)
 
-The bootstrap script `Invoke-Agt212PreFlight.ps1` runs seven pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
+The bootstrap script `Invoke-Agt212PreFlight.ps1` is a **design template the firm must implement**; it is not included in this repository. A firm implementation should run the pre-flight gates below. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
@@ -93,7 +95,7 @@ A "green quarter" for Control 2.12 is the conjunction of nine conditions, one pe
 | 5 | Reviewer-decision audit trail | For **N=25** reviewer decisions per quarter, each record has non-null reviewer UPN + timestamp + decision + rationale; each decision is traceable to the originating agent interaction and (for Agent Framework) to the originating request ID and checkpoint | §5 REVIEWER |
 | 6 | Rule 3120 annual test | Rule 3120 annual test of AI supervisory controls documents design and operating effectiveness, enumerates exceptions with remediation, and is signed by a qualified principal | §8 R3120 |
 | 7 | Rule 2210 classification evidence | For **N=10** customer-facing Zone 3 agent outputs per quarter, 2210 classification (Correspondence / Retail / Institutional) is recorded; where Retail, principal pre-use approval (or documented exclusion under Rule 2210(b)(1)) is attached | §9 R2210 |
-| 8 | Agent Framework evidence retention | For every HITL request raised via `request_info()`, the firm retains request ID, checkpoint state at pause, reviewer response payload, and final executor output | §11 AGF |
+| 8 | Agent Framework evidence retention | For every HITL request raised via Agent Framework (Python `request_info`; C#/Go `RequestPort`), the firm retains request ID, checkpoint state at pause, reviewer response payload, and final executor output | §11 AGF |
 
 Any missing artifact is treated as a control exception requiring written remediation and re-test within the following quarter.
 
@@ -150,7 +152,8 @@ Every evidence record produced by every namespace MUST conform to this schema. T
   "observed_value": {
     "handoff_enabled": true,
     "trigger_expression": "intent in ['buy-recommendation','sell-recommendation','account-specific-advice']",
-    "handoff_target": "o365group:supervision-retail@contoso.com",
+    "handoff_target": "firm-defined destination (engagement-hub queue or firm-built route) <identifier>",
+    "handoff_target_source": "engagement-hub routing export",
     "wsp_version_ref": "WSP-AI-Addendum-v2026.03"
   },
   "expected_value": {
@@ -367,7 +370,10 @@ The companion namespace §11 AGF covers the same criterion for the Microsoft Age
 
 - WSP namespace returned PASS (the WSP trigger taxonomy is the expected value for the HITL trigger configuration).
 - Power Platform admin credentials are PIM-activated with Power Platform Admin (read) role.
-- Copilot Studio bot inventory is retrievable via `Get-AdminPowerAppEnvironment` + `Get-CopilotStudioBot` (firm wrapper around the unsupported but documented Power Platform API).
+- Copilot Studio bot inventory is retrievable through a firm-built wrapper (`Get-CopilotStudioBotInventory`, not included here) built on a supported Power Platform / Dataverse inventory source that the firm has selected and validated. No Microsoft-documented cmdlet by these names is assumed.
+- **What "handoff configuration" means technically.** Microsoft documents handoff as an engagement-hub connection (for example Omnichannel for Customer Service) plus the **Escalate** system topic (**Topics > System > Escalate**) and/or a **Transfer conversation** node added through **Add node > Topic Management**; context variables such as `va_LastTopic` and `va_AgentMessage` are passed to the hub ([Copilot Studio handoff](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off)). Without an engagement hub, the default Escalate topic only shows a message. Learn does not document a bot-level "handoff enabled" flag, a `trigger_expression`, node-level queue assignment, a "Require handoff" switch, direct Microsoft 365 group routing, or a publishing block for agents lacking a handoff topic. `Get-CopilotStudioHandoffConfiguration` is therefore a firm-defined projection that must read the actual topic definitions and the engagement-hub routing rules, and each field it returns must state its source.
+- Routing to a qualified reviewer, reviewer notification, and any publication gate are **firm-built or engagement-hub controls** (for example hub routing rules, a Power Automate flow, or a change-management check before publishing). Document the actual mechanism and its owner per bot.
+- The test canvas can show "No renderer for this activity" when a **Transfer conversation** node fires, so a test-canvas event alone is not evidence that a qualified reviewer received the conversation; confirm receipt in the engagement hub or the firm-built destination.
 - The reference dataset `hitl-test-prompts.json` supplies 3 canonical high-risk prompts per Z3 agent used to drive the handoff transcript test.
 
 ### 3.3 Pester suite
@@ -380,6 +386,8 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
         $script:Sample     = Get-Random -InputObject $script:AllZ3Bots -Count ([Math]::Min(10, $script:AllZ3Bots.Count))
         $script:WspTriggers = (Get-WspAddendumMetadata).high_risk_intents
         $script:TestPrompts = Get-Content "$PSScriptRoot/hitl-test-prompts.json" -Raw | ConvertFrom-Json
+        $script:AuditReconciliationWindowHours = 24   # firm policy choice, not a Microsoft commitment
+        $script:ProbesOlderThanReconciliationWindow = Get-HitlProbeRecords -OlderThanHours $script:AuditReconciliationWindowHours   # firm-built probe ledger
     }
 
     Context "Per-bot HITL configuration (N=10 sample)" {
@@ -419,18 +427,54 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
                 $result.transcript_id     | Should -Not -BeNullOrEmpty
             }
         }
-        It "the transcript is captured in the supervision audit log within 60 seconds of emission" {
+        It "the live probe is captured immediately in application or engagement-hub evidence" {
             foreach ($bot in $script:Sample) {
                 $prompt = ($script:TestPrompts | Where-Object bot_id -eq $bot.Id).prompts[0]
                 $result = Invoke-CopilotStudioProbeTranscript -BotId $bot.Id -Prompt $prompt
-                Start-Sleep -Seconds 60
-                $log = Search-UnifiedAuditLog `
-                    -StartDate $result.emitted_at `
-                    -EndDate   ($result.emitted_at.AddMinutes(5)) `
-                    -RecordType 'CopilotInteraction' `
-                    -FreeText  $result.transcript_id
-                $log.Count | Should -BeGreaterOrEqual 1 -Because "transcript must be auditable (supports C2.12-5 REVIEWER)"
+                $result.transcript_id        | Should -Not -BeNullOrEmpty -Because "primary evidence is the conversation transcript and the engagement-hub or firm-built receipt, not the audit log"
+                $result.reviewer_receipt_ref | Should -Not -BeNullOrEmpty
             }
+        }
+        It "audit records reconcile with each probe after the firm's reconciliation window" {
+            # Microsoft gives no committed audit availability time; core services are typically 60-90 minutes and other services can take longer.
+            # Reconcile in a later pass over probes older than $script:AuditReconciliationWindowHours (firm-set; >= 24 h suggested as a policy choice).
+            # Only MATCHED passes. PENDING, NOT_FOUND, TRUNCATED and UNSUPPORTED_SCHEMA are reported INCONCLUSIVE, never as a pass or a failure.
+            $probes = @($script:ProbesOlderThanReconciliationWindow | Where-Object { $null -ne $_ })
+            if ($probes.Count -eq 0) {
+                Set-ItResult -Inconclusive -Because 'PENDING: no probe is older than the firm-set reconciliation window, so nothing was reconciled'
+                return
+            }
+            $outcomes = @(foreach ($probe in $probes) {
+                # The 5-minute and 30-minute offsets only pad the search window; they are not an availability SLA.
+                $log = @(Search-UnifiedAuditLog `
+                    -StartDate $probe.emitted_at.AddMinutes(-5) `
+                    -EndDate   $probe.emitted_at.AddMinutes(30) `
+                    -RecordType 'CopilotInteraction' `
+                    -UserIds   $probe.probe_user_upn `
+                    -ResultSize 5000 | Where-Object { $null -ne $_ })
+                # Match intent: operation, record type, probe app identity and time; keyword/free-text search covers only indexed common-schema content.
+                # ConvertTo-FirmAuditProbeIdentity is a firm-built adapter (not included). The firm must validate it against its own exported AuditData
+                # (Learn documents no single AppIdentity path for every record). It returns $null for any payload it cannot map; no property path is assumed here.
+                $identities = @($log | ForEach-Object {
+                    $raw = $_.PSObject.Properties['AuditData']
+                    $id = if ($raw) { ConvertTo-FirmAuditProbeIdentity -AuditData $raw.Value }
+                    if ($null -eq $id) { $null } else { $id }
+                })
+                $mapped = @($identities | Where-Object { $null -ne $_ })
+                $hits   = @($mapped | Where-Object { $_.PSObject.Properties['AppIdentity'] -and $_.AppIdentity -like "Copilot.Studio.$($probe.bot_app_id)*" })
+                $status = if ($hits.Count -ge 1)            { 'MATCHED' }
+                          elseif ($log.Count -ge 5000)      { 'TRUNCATED' }
+                          elseif ($mapped.Count -lt $log.Count) { 'UNSUPPORTED_SCHEMA' }
+                          else                              { 'NOT_FOUND' }
+                [pscustomobject]@{ BotAppId = $probe.bot_app_id; EmittedAt = $probe.emitted_at; Status = $status }
+            })
+            $unresolved = @($outcomes | Where-Object Status -ne 'MATCHED')
+            if ($unresolved.Count -gt 0) {
+                # A missing record stays inconclusive until the known-positive control passes, the schema/filter is confirmed, and the query is complete.
+                Set-ItResult -Inconclusive -Because ("INCONCLUSIVE: " + (($unresolved | ForEach-Object { "$($_.BotAppId)@$($_.EmittedAt):$($_.Status)" }) -join '; '))
+                return
+            }
+            @($outcomes | Where-Object Status -eq 'MATCHED').Count | Should -Be $probes.Count -Because 'every eligible probe must have a validated matching audit record'
         }
     }
 
@@ -456,7 +500,7 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
   "subject_id": "bot-retail-research-assistant-0012",
   "subject_type": "copilot_studio_bot",
   "status": "PASS",
-  "assertion": "Z3 bot has handoff enabled, trigger aligns with WSP, reviewer group members are qualified principals, live probe fired handoff within SLA",
+  "assertion": "Z3 bot has handoff enabled, trigger aligns with WSP, reviewer group members are qualified principals, live probe fired handoff and a reviewer receipt was captured",
   "observed_value": {
     "handoff_enabled": true,
     "handoff_target_group": "supervision-retail@contoso.com",
@@ -465,14 +509,15 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
     "wsp_intents_covered_pct": 100,
     "probe_transcript_id": "copilot-tx-0b7a...",
     "probe_latency_ms": 1843,
-    "audit_log_hit_within_60s": true,
+    "reviewer_receipt_ref": "firm-defined engagement-hub or destination receipt id",
+    "audit_reconciliation": { "status": "MATCHED", "window_hours": 24, "positive_control": "PASS", "identity_adapter": "firm-validated against exported AuditData" },
     "autonomy_level": "recommend_only"
   },
   "expected_value": {
     "handoff_enabled": true,
     "wsp_intents_covered_pct": 100,
     "reviewer_count_active_series24_or_66_or_65": ">=1",
-    "audit_log_hit_within_60s": true
+    "audit_reconciliation": "MATCHED after the firm-set window; PENDING within it; INCONCLUSIVE (NOT_FOUND, TRUNCATED or UNSUPPORTED_SCHEMA) is never PASS"
   },
   "evidence_artifacts": ["hitl-config-bot-0012-<runId>.json","hitl-transcript-0b7a-<runId>.json"],
   "regulator_mappings": ["FINRA-3110","FINRA-2210","FINRA-4511","SEC-17a-4","FINRA-Notice-24-09"],
@@ -522,7 +567,7 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
 |---|---|---|---|
 | Zone 1 | n/a — Z1 personal scope, HITL optional | — | — |
 | Zone 2 | Handoff enabled OR documented sampling-based alternative in WSP; reviewer is Agent Owner or team lead | Handoff misaligned < 10% with WSP intents | Handoff disabled with no WSP-documented alternative |
-| Zone 3 | 100% WSP intent coverage; 100% reviewer-group membership is registered principal; probe handoff fires; audit-log hit < 60s | Probe latency 60–120s with trend down | Any WSP intent not covered; any reviewer non-registered; probe fails to fire |
+| Zone 3 | 100% WSP intent coverage; 100% reviewer-group membership is registered principal; probe handoff fires with a reviewer receipt; audit reconciliation MATCHED after the firm-set window | Probe latency 60–120s with trend down; audit reconciliation PENDING inside the window | Any WSP intent not covered; any reviewer non-registered; probe fails to fire; no receipt; audit record absent after the window **and** the known-positive control, filter/schema, and query completeness checks all passed (otherwise INCONCLUSIVE, investigate) |
 
 ### 3.8 Regulator mapping
 
@@ -531,7 +576,7 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
 | Handoff enabled | ✓ supervision | ✓ retail-comm pre-use | — | — | ✓ control operating effectiveness |
 | WSP-trigger alignment | ✓ WSPs enforceable | ✓ consistent classification | — | — | ✓ traceability |
 | Reviewer qualifications | ✓ qualified principal | ✓ principal pre-use approver | — | — | ✓ segregation |
-| Audit-log hit | — | — | ✓ books-and-records | ✓ 17a-4(b)(4) | ✓ evidence |
+| Audit reconciliation | — | — | ✓ books-and-records | ✓ 17a-4(b)(4) | ✓ evidence |
 
 ---
 
@@ -541,7 +586,7 @@ Describe "AGT212-HITL" -Tag 'C2.12','HITL' {
 
 This namespace evidences **C2.12-4**: *supervisory review queue shows median and 95th-percentile time-to-review within the firm's documented SLA (per zone); exceptions are logged as incidents under Control 3.4.*
 
-The queue is the operational surface where handoff events (§3) and AGF `request_info()` pauses (§11) become work items for a human reviewer. A queue with perfect handoff configuration but a 48-hour median review latency fails C2.12-4 even if C2.12-2 passes.
+The queue is the operational surface where handoff events (§3) and AGF HITL request pauses (Python `request_info`; C#/Go `RequestPort`; §11) become work items for a human reviewer. A queue with perfect handoff configuration but a 48-hour median review latency fails C2.12-4 even if C2.12-2 passes.
 
 ### 4.2 Pre-conditions
 
@@ -1613,22 +1658,30 @@ Bridge integrity is binary across all zones: any orphan in Z2/Z3 fails the names
 
 > **Verification Criteria:** C2.12-2 (when AGF is the runtime) and **C2.12-8** (Agent Framework HITL request/response handlers and checkpoint persistence are configured and observable).
 >
-> **Non-substitution reminder:** AGF verifies that the *technical scaffolding* for HITL exists (request_info functions, checkpoint storage, response handlers wired to a human queue). It does not verify that the human's response was correct — that is reviewer-decision audit-trail (§5 REVIEWER) territory.
+> **Non-substitution reminder:** AGF verifies that the *technical scaffolding* for HITL exists (Python `request_info` or C#/Go `RequestPort` wiring, checkpoint storage, response handlers wired to a human queue). It does not verify that the human's response was correct — that is reviewer-decision audit-trail (§5 REVIEWER) territory.
 
 ### 11.1 Background — what AGF HITL must look like
 
+The Agent Framework HITL contract is **language-specific** ([Learn: human-in-the-loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)). Do not require one language's primitive from another language's workflows.
+
+| Language | Request mechanism | Event observed by the host application | Response mechanism |
+|---|---|---|---|
+| C# and Go | A typed `RequestPort` node in the workflow | `RequestInfoEvent` | Response created from the request and sent back to the run |
+| Python | An executor calls `ctx.request_info(...)`; no `RequestPort` node or `request_port.submit` call | `WorkflowEvent` with `type == "request_info"` carrying `request_id` and `data` | `@response_handler` method on the executor; responses are passed by `request_id` to `workflow.run(..., responses=...)` |
+| Agent orchestrations (all languages) | Approval-required tool call pauses the workflow | Same request/response event, with a tool-approval payload (Python `Content` of `type == "function_approval_request"`) | Same response mechanism |
+
 A conformant Microsoft Agent Framework agent that participates in Control 2.12 supervision must:
 
-1. Define at least one `request_info` (or framework-equivalent) function for *any* tool that mutates customer-facing state, exceeds an autonomy threshold, or produces a Rule 2210 retail communication.
-2. Persist a **checkpoint** (workflow state + tool inputs + draft output) to durable storage at the moment the request is made.
-3. Wire a **response handler** that consumes the human's decision (`approve | reject | modify`) and either resumes, terminates, or branches the workflow.
-4. Emit a structured event to the supervisory queue such that §4 QUEUE p95-latency calculations include AGF interventions.
+1. Use the HITL mechanism for its language (table above) for *any* tool that mutates customer-facing state, exceeds an autonomy threshold, or produces a Rule 2210 retail communication. Python workflows use `request_info`; C#/Go workflows use a `RequestPort`.
+2. Configure **checkpoint storage explicitly**. Checkpointing exists only when a `CheckpointStorage` (Python) or checkpoint manager (C#/Go) is supplied to the workflow ([Learn: checkpoints](https://learn.microsoft.com/en-us/agent-framework/workflows/checkpoints)). Pending requests are saved with the checkpoint and re-emitted when the workflow is restored; the response can be supplied on resume. Python built-in providers documented by Learn are `InMemoryCheckpointStorage` (in-process only, **not durable**), `FileCheckpointStorage` (local disk; single machine), and `CosmosCheckpointStorage` (Azure Cosmos DB, via `agent-framework-azure-cosmos`). Azure Table, Blob, Dataverse, or other backings are **not** documented built-ins; using one requires a firm-implemented custom `CheckpointStorage` whose durability, access control, and integrity the firm must establish. Checkpoint storage is a trust boundary: restrict access and never restore checkpoints from untrusted or tampered storage.
+3. Wire a **response handler** (Python `@response_handler`; C#/Go handle the response routed from the `RequestPort`) that consumes the human's decision and resumes the workflow. The decision vocabulary (`approve | reject | modify`) is a firm-defined payload, not a framework-defined enum.
+4. Forward an evidence record to the supervisory queue through a **firm-built bridge** so that §4 QUEUE p95-latency calculations include AGF interventions. Agent Framework does not by itself populate the firm's queue, Sentinel, or Purview.
 
 ### 11.2 Pre-conditions
 
 1. AGF agents are inventoried with `runtime = "AgentFramework"` in the Agent Inventory.
-2. Checkpoint store is reachable: `$env:AGT212_AGF_CHECKPOINT_STORE` (Azure Storage Table or Cosmos DB).
-3. The Pester runner has read access to the agent's source manifest (`agent.yaml` or `agent.json`) at `$env:AGT212_AGF_MANIFEST_ROOT`.
+2. Checkpoint store is reachable and **durable**: `$env:AGT212_AGF_CHECKPOINT_STORE` identifies the firm's configured backing (for example Cosmos DB through `CosmosCheckpointStorage`, or a firm-implemented custom `CheckpointStorage`). `InMemoryCheckpointStorage` does not satisfy this pre-condition. The variable name is a template convention, not an Agent Framework setting.
+3. The Pester runner has read access to the firm-owned workflow manifest (`agent.yaml` or `agent.json`) at `$env:AGT212_AGF_MANIFEST_ROOT`. This manifest schema (`tools[].sensitivity`, `request_info[].linked_tool`) is a firm-defined inventory convention that must be generated from or reconciled with the actual workflow code; it is not an Agent Framework file format.
 
 ### 11.3 Pester suite — `AGT212.AGF.Tests.ps1`
 
@@ -1643,8 +1696,8 @@ BeforeAll {
 
 Describe 'AGF — C2.12-8 Agent Framework HITL scaffolding' -Tag 'AGF','C2.12-8' {
 
-    Context 'Manifest declares request_info for sensitive tools' {
-        It 'every sensitive tool has a paired request_info' -ForEach $script:AgfAgents {
+    Context 'Manifest declares a HITL request for sensitive tools' {
+        It 'every sensitive tool has a paired HITL request (Python request_info; C#/Go RequestPort)' -ForEach $script:AgfAgents {
             $manifestPath = Join-Path $env:AGT212_AGF_MANIFEST_ROOT "$($_.agent_id)/agent.yaml"
             $m = ConvertFrom-Yaml (Get-Content $manifestPath -Raw)
             $sensitive = $m.tools | Where-Object { $_.sensitivity -in @('mutating','retail-comm','high-autonomy') }
@@ -1655,12 +1708,14 @@ Describe 'AGF — C2.12-8 Agent Framework HITL scaffolding' -Tag 'AGF','C2.12-8'
     }
 
     Context 'Checkpoint persistence' {
-        It 'each agent emits a checkpoint within 30 days for every request_info invocation' -ForEach $script:AgfAgents {
-            $cp = Get-Agt212AgfCheckpoints -AgentId $_.agent_id -Since (Get-Date).AddDays(-30)
-            $invocations = Get-Agt212AgfRequestInfoInvocations -AgentId $_.agent_id -Since (Get-Date).AddDays(-30)
-            ($cp.Count) | Should -BeGreaterOrEqual ($invocations.Count) -Because 'Every request_info must produce a durable checkpoint'
+        It 'each HITL request raised within 30 days is covered by a checkpoint for the superstep that raised it' -ForEach $script:AgfAgents {
+            $cp = @(Get-Agt212AgfCheckpoints -AgentId $_.agent_id -Since (Get-Date).AddDays(-30))
+            $invocations = @(Get-Agt212AgfRequestInfoInvocations -AgentId $_.agent_id -Since (Get-Date).AddDays(-30))
+            $covered = @($cp.pending_request_ids)
+            $missing = @($invocations | Where-Object { $_.request_id -notin $covered })
+            $missing.Count | Should -Be 0 -Because 'Every HITL request (Python request_info; C#/Go RequestPort) must appear as a pending request in a checkpoint for the superstep that raised it, stored in durable storage. Checkpoints are created by the framework at superstep boundaries, so do not require a write before the request call returns (the firm-built helpers read the configured CheckpointStorage and the application event log)'
         }
-        It 'checkpoint payload includes workflow_state, tool_inputs, draft_output' -ForEach $script:AgfAgents {
+        It 'checkpoint payload includes the firm-required fields (workflow_state, tool_inputs, draft_output)' -ForEach $script:AgfAgents {
             $sample = Get-Agt212AgfCheckpoints -AgentId $_.agent_id -Since (Get-Date).AddDays(-30) | Select-Object -First 5
             foreach ($c in $sample) {
                 $c.workflow_state | Should -Not -BeNullOrEmpty
@@ -1729,7 +1784,7 @@ Describe 'AGF — C2.12-8 Agent Framework HITL scaffolding' -Tag 'AGF','C2.12-8'
 }
 ```
 
-See §15 for **TRG-AGF-01** (missing request_info — agent suspension and re-deployment workflow).
+See §15 for **TRG-AGF-01** (missing HITL request on a sensitive tool — agent suspension and re-deployment workflow).
 
 ### 11.6 Examiner artifact table
 
@@ -1764,21 +1819,21 @@ See §15 for **TRG-AGF-01** (missing request_info — agent suspension and re-de
 
 ### 12.1 What this namespace verifies
 
-1. The Microsoft Purview audit pipeline forwards Copilot Studio, Agent Framework, Power Platform, and Entra agent-related event categories to the firm SIEM.
-2. Forwarding is configured for the table set required by Control 2.12 (see §12.2).
+1. The firm's chosen audit/SIEM forwarding path (for example Microsoft Sentinel connectors, Office 365 Management Activity API ingestion, or a firm-built export) delivers Copilot Studio, Agent Framework, Power Platform, and Entra agent-related event categories to the firm SIEM. The Microsoft Purview audit log is a search/export surface; it does not by itself forward to a SIEM.
+2. Forwarding is configured for the table set the firm has defined for Control 2.12 (see §12.2). Each table must be traced to an official table reference, connector, or firm-owned ingestion; a table name that cannot be traced is **unverified** and is not evidence of a Microsoft-provided feed.
 3. End-to-end latency from event emission to SIEM index is bounded (target: p95 ≤ 15 min for Z3 events).
-4. Retention in SIEM meets or exceeds the maxima in the Control 2.12 retention table (7 yrs for supervisory records; 6 yrs WORM-aligned for 2210; 17a-4(f) for compliance-locked items).
+4. Retention in SIEM meets or exceeds the maxima in the Control 2.12 retention table (7 yrs for supervisory records; 6 yrs WORM-aligned for 2210; 17a-4(f) for compliance-locked items). Technically, this is two separate checks: (a) the effective **analytics retention and total retention of each required table** (long-term retention is a per-table total-retention setting, not a workspace "archive" property), and (b) the configuration of any separate **immutable evidence storage** (for example Azure Blob immutability policies), which Log Analytics retention does not provide. The retention periods themselves are firm policy.
 5. Daily forwarding-health digests are produced and reviewed by Compliance/SOC.
 
 ### 12.2 Required event categories
 
-| Source | Table / event class | Why it matters for 2.12 |
-|---|---|---|
-| Copilot Studio | `CopilotStudioActivity` | HITL events, prompt/response audit |
-| Microsoft Agent Framework | `AgentFrameworkCheckpoint`, `AgentFrameworkRequestInfo` | C2.12-8 evidence |
-| Power Platform | `PowerPlatformAdminActivity`, `PowerAutomateRunHistory` | flow-driven supervisory queue events |
-| Entra | `AuditLogs` (filter: agent-id objects, sponsor changes) | C2.12-3 chain integrity |
-| Purview | `ComplianceManagerAlerts`, `LabelActivity` | C2.12-7 classification |
+| Source | Table / event class | Why it matters for 2.12 | Basis |
+|---|---|---|---|
+| Copilot Studio | `CopilotStudioActivity` | HITL events, prompt/response audit | **Unverified** table name; no official table reference was established. Copilot Studio interactions appear in the Purview audit log as `CopilotInteraction` records with `AppIdentity` `Copilot.Studio.<appId>`. Confirm the actual destination table or firm-built ingestion before relying on this row. |
+| Microsoft Agent Framework | `AgentFrameworkCheckpoint`, `AgentFrameworkRequestInfo` | C2.12-8 evidence | **Firm-built** custom tables only. Agent Framework does not document forwarding checkpoints or request events to Purview or Sentinel; the firm must write them (for example from its checkpoint storage or application events) and own the schema. |
+| Power Platform | `PowerPlatformAdminActivity`; `PowerAutomateRunHistory` | flow-driven supervisory queue events | `PowerPlatformAdminActivity` has an official table reference. `PowerAutomateRunHistory` is **unverified**; confirm or replace. |
+| Entra | `AuditLogs` (filter: agent-id objects, sponsor changes) | C2.12-3 chain integrity | Standard Entra audit table; the agent-id filter is firm-defined. |
+| Purview | `ComplianceManagerAlerts`; `LabelActivity` | C2.12-7 classification | **Unverified**. Sensitivity-label audit events are documented in the `MicrosoftPurviewInformationProtection` table; confirm the table the firm actually ingests. |
 
 ### 12.3 Pre-conditions
 
@@ -1800,8 +1855,12 @@ BeforeAll {
 
 Describe 'SIEM — forwarding & retention' -Tag 'SIEM' {
 
-    Context 'All required tables receiving data within last 6h' {
+    BeforeDiscovery {
+        # Firm-defined table set; see the basis column in §12.2 for which names are unverified or firm-built.
         $tables = @('CopilotStudioActivity','AgentFrameworkCheckpoint','PowerPlatformAdminActivity','AuditLogs','LabelActivity')
+    }
+
+    Context 'All required tables receiving data within last 6h' {
         It "<_> has rows in last 6h" -ForEach $tables {
             $kql = "$_ | where TimeGenerated > ago(6h) | summarize n = count()"
             $r = Invoke-AzOperationalInsightsQuery -WorkspaceId $script:Workspace -Query $kql
@@ -1818,10 +1877,17 @@ Describe 'SIEM — forwarding & retention' -Tag 'SIEM' {
     }
 
     Context 'Retention configuration' {
-        It 'Sentinel workspace retention ≥ 2 years; archive tier configured to 7 yrs' {
-            $ws = Get-AzOperationalInsightsWorkspace -Name $env:AGT212_SENTINEL_WORKSPACE_NAME -ResourceGroupName $env:AGT212_SENTINEL_RG
-            $ws.RetentionInDays   | Should -BeGreaterOrEqual 730
-            $ws.ArchiveRetentionInDays | Should -BeGreaterOrEqual 2555  # 7 yrs
+        # Long-term retention is a per-table total-retention setting; there is no workspace ArchiveRetentionInDays property.
+        # Confirm exact PSTable property names with Get-Member in the firm's pinned Az.OperationalInsights version.
+        It "<_> effective analytics retention ≥ 730 days and total retention ≥ 2555 days (firm policy values)" -ForEach $tables {
+            $t = Get-AzOperationalInsightsTable -ResourceGroupName $env:AGT212_SENTINEL_RG -WorkspaceName $env:AGT212_SENTINEL_WORKSPACE_NAME -TableName $_
+            $t.RetentionInDays      | Should -BeGreaterOrEqual 730
+            $t.TotalRetentionInDays | Should -BeGreaterOrEqual 2555
+        }
+        It 'the immutable evidence destination has a locked container-level time-based retention policy (or the firm documents its version-level policy or legal hold) separate from table retention' {
+            # Container-level check shown; version-level immutability and legal holds are separate configurations (Get-AzRmStorageContainer exposes legal-hold state).
+            $c = Get-AzRmStorageContainerImmutabilityPolicy -ResourceGroupName $env:AGT212_EVIDENCE_RG -StorageAccountName $env:AGT212_EVIDENCE_ACCOUNT -ContainerName $env:AGT212_EVIDENCE_CONTAINER
+            $c.State | Should -Be 'Locked'
         }
     }
 
@@ -1842,8 +1908,8 @@ Describe 'SIEM — forwarding & retention' -Tag 'SIEM' {
 {
   "control_id": "C2.12", "namespace": "SIEM", "criterion": "cross-cutting",
   "status": "PASS",
-  "assertion": "All 5 required tables fresh < 6h; p95 ingestion lag 312s; retention 730 hot / 2555 archive days; digest clean",
-  "observed_value": { "tables_fresh": 5, "p95_lag_seconds": 312, "retention_hot_days": 730, "retention_archive_days": 2555, "open_errors": 0 },
+  "assertion": "All 5 firm-defined tables fresh < 6h; p95 ingestion lag 312s; per-table analytics 730 / total 2555 days; locked immutable evidence container; digest clean",
+  "observed_value": { "tables_fresh": 5, "p95_lag_seconds": 312, "table_analytics_retention_days": 730, "table_total_retention_days": 2555, "immutable_container_policy_state": "Locked", "open_errors": 0 },
   "evidence_artifacts": ["siem-table-counts-AGT212-20260415-091200-7f3ac9d2.json","siem-digest-20260415.json"],
   "regulator_mappings": ["SEC 17a-4(b)(4)","SEC 17a-4(f)","FINRA Rule 3110(b)","SOX §404"],
   "schema_version": "1.0"
@@ -1856,7 +1922,7 @@ Describe 'SIEM — forwarding & retention' -Tag 'SIEM' {
 {
   "control_id": "C2.12", "namespace": "SIEM",
   "status": "FAIL",
-  "assertion": "AgentFrameworkCheckpoint table silent for 9h — possible Diagnostic Settings disconnect",
+  "assertion": "AgentFrameworkCheckpoint (firm-built table) silent for 9h — possible firm-built forwarder or ingestion failure",
   "observed_value": { "table": "AgentFrameworkCheckpoint", "silent_hours": 9 },
   "expected_value": { "max_silent_hours": 6 },
   "remediation_ref": "TRG-SIEM-01",
@@ -1869,7 +1935,7 @@ Describe 'SIEM — forwarding & retention' -Tag 'SIEM' {
 | Examiner ask | Artifact |
 |---|---|
 | "Show me supervisory events from last March" | KQL output saved to `siem-export-<period>.csv` with workspace + query hash |
-| "Prove the data hasn't been altered" | Sentinel immutable archive policy export + Storage account lock report |
+| "Prove the data hasn't been altered" | Export of the immutable evidence container's immutability policy (state, retention interval, legal holds) plus the per-table analytics/total retention export; table retention alone is not an immutability control |
 | "How fast does an event reach SIEM?" | Daily lag dashboard PNG + raw KQL |
 
 ### 12.8 Regulator mapping
@@ -1878,7 +1944,7 @@ Describe 'SIEM — forwarding & retention' -Tag 'SIEM' {
 |---|---|---|---|
 | Required tables receiving | ✓ supervisory data exists | ✓ books-and-records | ✓ |
 | Latency bounded | ✓ timely supervision | ✓ | ✓ |
-| Retention ≥ 7 yrs archive | — | ✓ 17a-4(b)(4)/(f) | ✓ |
+| Per-table retention and immutable evidence storage configured | — | ✓ 17a-4(b)(4)/(f) | ✓ |
 | Digest reviewed daily | ✓ pipeline supervised | ✓ | ✓ |
 
 ---
@@ -1898,8 +1964,8 @@ The Pester suites in §2–§12 cover the bulk of automated assertions. The foll
 
 1. Sign in to Copilot Studio as a non-admin author.
 2. Attempt to publish a new agent with a sensitive topic (e.g., trade recommendation) but **without** a configured human-handoff topic.
-3. Confirm the publish action is blocked or the agent is auto-routed to the supervisory review backlog.
-4. Capture screenshots of the block dialog and resulting backlog entry.
+3. Record what actually happens. Microsoft documents the Escalate topic and Transfer conversation node but no built-in publishing block for a missing handoff topic, so a block or backlog entry exists only if the firm built a publication control (for example a change-management gate or a flow). If none exists, record the gap as a finding; do not treat a successful publish as a control failure of Copilot Studio.
+4. Capture screenshots of the firm-built block or backlog entry where one exists, or of the publish result where none does.
 
 ### 13.3 Reviewer console UX walkthrough (C2.12-5)
 
@@ -1949,10 +2015,10 @@ The following eight scenarios rehearse end-to-end examiner asks and map them to 
 |---|---|---|
 | 1. Produce Purview retention policy export | Purview Compliance Admin | `retention-policy-export.json` |
 | 2. Demonstrate compliance lock on a sample record | Purview Compliance Admin | Screenshot: attempt to delete; produce error |
-| 3. Show storage account immutable policy (Sentinel archive) | AI Administrator | Az CLI output of `az storage account blob-service-properties show` |
+| 3. Show the immutable evidence storage configuration (separate from Log Analytics table retention) | AI Administrator | Output of `Get-AzRmStorageContainerImmutabilityPolicy` (state, retention interval) plus legal-hold state, or `az storage container immutability-policy show` |
 | 4. Provide §12 SIEM retention verification | AI Governance Lead | Latest §12.4 PASS record |
 
-**Failure mode:** retention < 7 yrs archive — see TRG-SIEM-02.
+**Failure mode:** per-table total retention below the firm's 7-year policy, or immutable evidence storage not locked — see TRG-SIEM-02.
 
 ### 14.3 Scenario C — Surprise audit: reviewer-decision audit trail for a named agent output
 
@@ -1992,7 +2058,7 @@ The following eight scenarios rehearse end-to-end examiner asks and map them to 
 | 3. Show the AGF HITL scaffolding | AI Administrator | §11 AGF latest record for this agent |
 | 4. Show 30 days of supervisory traffic | AI Governance Lead | §4 QUEUE + §5 REVIEWER export |
 
-**Failure mode:** missing intake or missing AGF request_info on a sensitive tool — TRG-AGF-01.
+**Failure mode:** missing intake or missing AGF HITL request on a sensitive tool — TRG-AGF-01.
 
 ### 14.6 Scenario F — Sponsor departs: evidence continuity during reassignment
 
@@ -2073,7 +2139,7 @@ Each TRG-* identifier is a short remediation runbook. Owners are role names, not
 
 * **Trigger:** §3 HITL FAIL — sensitive topic without human-handoff route or unauthenticated handoff.
 * **Owner:** Agent Owner (lead); AI Administrator (support).
-* **Steps:** disable affected agent; correct topology in Copilot Studio; re-publish; re-run §3.
+* **Steps:** disable affected agent; correct the topic design in Copilot Studio (Escalate and/or Transfer conversation to a connected engagement hub or firm-built route) and any firm-built publication gate; re-publish; re-run §3.
 * **Closure evidence:** passing §3 record + Copilot Studio change-history export.
 
 #### TRG-QUEUE-01 — SLA breach on supervisory queue
@@ -2130,11 +2196,11 @@ Each TRG-* identifier is a short remediation runbook. Owners are role names, not
 * **Owner:** AI Governance Lead.
 * **Steps:** suspend agent from supervisory queue immediately; coordinate with Control 2.26 owner to reassign Sponsor; resume only after 2.26 PASS and §10 PASS.
 
-#### TRG-AGF-01 — Missing request_info on sensitive AGF tool
+#### TRG-AGF-01 — Missing HITL request on sensitive AGF tool
 
 * **Trigger:** §11 AGF FAIL.
 * **Owner:** Agent Owner (lead); AI Administrator (support).
-* **Steps:** suspend agent; add request_info to manifest; redeploy; backfill checkpoint storage if required; re-run §11.
+* **Steps:** suspend agent; add the language-appropriate HITL request (Python `request_info` with a `@response_handler`; C#/Go `RequestPort`) and update the firm manifest; confirm durable checkpoint storage is configured; redeploy; re-run §11.
 
 #### TRG-SIEM-01 — Forwarding pipeline silent
 
@@ -2144,9 +2210,9 @@ Each TRG-* identifier is a short remediation runbook. Owners are role names, not
 
 #### TRG-SIEM-02 — Retention shortfall
 
-* **Trigger:** §12 SIEM retention < 7 yrs archive.
+* **Trigger:** §12 SIEM per-table total retention below firm policy, or immutable evidence storage unlocked or missing.
 * **Owner:** AI Administrator.
-* **Steps:** extend workspace archive retention; coordinate cost approval; re-run §12.
+* **Steps:** extend the affected tables' total retention (a per-table setting; coordinate cost approval) and/or correct the immutable evidence container policy; re-run §12.
 
 ---
 
@@ -2266,7 +2332,7 @@ Each metric should appear on the council's quarterly scorecard with a sparkline 
 ### 19.2 Sister playbooks under Control 2.12
 
 * [Portal Walkthrough](portal-walkthrough.md) — admin-portal configuration steps that produce the artifacts verified here.
-* [PowerShell Setup](powershell-setup.md) — bootstraps `Agt212.Common.ps1`, `Agt212.Sampling.psm1`, helper modules referenced throughout.
+* [PowerShell Setup](powershell-setup.md) — design-template functions (`Sup212*`) for the firm to implement; it does not bootstrap `Agt212.Common.ps1` or `Agt212.Sampling.psm1`, which are not included in this repository.
 * [Troubleshooting](troubleshooting.md) — symptom-to-fix lookup for the Pester suites and pipelines.
 
 ### 19.3 Regulatory references
@@ -2287,7 +2353,11 @@ Each metric should appear on the council's quarterly scorecard with a sparkline 
 * [Microsoft 365 Copilot controls overview](https://learn.microsoft.com/en-us/copilot/implement/copilot-controls-overview)
 * [Microsoft Purview audit (premium)](https://learn.microsoft.com/purview/audit-premium)
 * [Microsoft Sentinel data ingestion](https://learn.microsoft.com/azure/sentinel/data-connectors-reference)
-* [Microsoft Agent Framework — request_info pattern](https://learn.microsoft.com/en-us/agent-framework/workflows)
+* [Microsoft Agent Framework — human-in-the-loop (Python `request_info`; C#/Go `RequestPort`)](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
+* [Microsoft Agent Framework — checkpoints](https://learn.microsoft.com/en-us/agent-framework/workflows/checkpoints)
+* [Search the audit log (availability not committed; typically 60–90 minutes for core services)](https://learn.microsoft.com/en-us/purview/audit-log-search)
+* [Manage data retention in a Log Analytics workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure)
+* [Immutable storage for Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview)
 * [Copilot Studio human handoff](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off)
 * [Microsoft Entra agent identities](https://learn.microsoft.com/en-us/entra/agent-id/agent-identities)
 

@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.12: Supervision and Oversight (FINRA Rule 3110)
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
-    **This playbook configures the supervisory control surfaces that FINRA Rule 3110 requires a firm to operate on top of AI agents** — Written Supervisory Procedures (WSP) addendum authoring, designated-principal designation and CRD verification, Microsoft Copilot Studio supervisory patterns (human-agent handoff, approval actions, generative-answers guardrails), Microsoft Agent Framework human-in-the-loop (HITL) using `RequestPort` / `request_info()` / checkpointed pending requests, Power Automate supervisory review queues, Entra ID Governance sponsor attestation, Rule 2210 communication classification, Rule 3120 annual testing.
+    **This playbook configures the supervisory control surfaces that FINRA Rule 3110 requires a firm to operate on top of AI agents** — Written Supervisory Procedures (WSP) addendum authoring, designated-principal designation and CRD verification, Microsoft Copilot Studio supervisory patterns (human-agent handoff, approval actions, generative-answers guardrails), Microsoft Agent Framework human-in-the-loop (HITL) using the language-specific HITL request mechanism (Python `request_info`/`@response_handler`; C#/Go `RequestPort`) with checkpointed pending requests, Power Automate supervisory review queues, Entra ID Governance sponsor attestation, Rule 2210 communication classification, Rule 3120 annual testing.
 
     **Control 2.12 is the FINRA Rule 3110 non-substitution anchor for the framework.** Controls [2.25 (Agent 365 admin center)](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [2.26 (Entra Agent ID)](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), and [3.6 (orphaned-agent detection)](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) provide tooling that **supports** supervision; they do **not substitute for** the principal-led supervisory review configured here.
 
@@ -14,7 +14,7 @@
     | Configuring **human-agent handoff** in Copilot Studio (escalation to a live reviewer) | Copilot Studio → Agent → Topics / Settings → Escalation | Deterministic escalation for defined high-risk triggers |
     | Configuring **approval actions** in Copilot Studio (pre-send principal approval via Power Automate) | Copilot Studio → Agent → Actions + Power Automate | Zero Retail Communications delivered without documented pre-use approval |
     | Configuring **generative-answers guardrails** (content sources, moderation, citation enforcement) | Copilot Studio → Generative AI → Knowledge + Moderation | Grounded outputs with enforced citation and topic boundaries |
-    | Wiring **Microsoft Agent Framework HITL** (`RequestPort`, `request_info()`, checkpoints with pending requests) | Agent Framework SDK + application-surface integration | Auditable pause / resume with reviewer-attributed decisions |
+    | Wiring **Microsoft Agent Framework HITL** (Python `request_info`; C#/Go `RequestPort`; explicit checkpoint storage) | Agent Framework SDK + application-surface integration | Auditable pause / resume with reviewer-attributed decisions |
     | Building the **Power Automate supervisory review queue** (SLA, risk-based routing, reviewer identity) | Power Automate → Cloud flows → Approvals | Examiner-ready queue with per-item audit trail |
     | Configuring **Entra ID Governance sponsor attestation** (quarterly access review for Z3 agents) | Entra → Identity Governance → Access reviews | Quarterly sponsor attestation evidence |
     | Operating the **Rule 2210 classification** workflow (Correspondence / Retail / Institutional) | Copilot Studio metadata + approval flow | Per-template classification with principal pre-use approval where required |
@@ -50,7 +50,7 @@
     | Microsoft Purview Audit (Standard or Premium) | Required to retain supervision events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
     | SharePoint Online with retention labels (or equivalent 17a-4(f) WORM archive) | Required to preserve signed WSP, reviewer decisions, and Rule 3120 evidence | SharePoint admin → Content services → Retention labels |
     | FINRA Gateway access (or firm CRD-evidence repository) | Required to verify principal registration | <https://www.finra.org/filing-reporting/finra-gateway> |
-    | Microsoft Agent Framework SDK (optional) | Required for HITL patterns using `RequestPort` / `request_info()` / checkpoints when building code-first agents | Developer workstation with the Agent Framework runtime |
+    | Microsoft Agent Framework SDK (optional) | Required for HITL patterns (Python `request_info`; C#/Go `RequestPort`) and checkpoints when building code-first agents | Developer workstation with the Agent Framework runtime |
 
 !!! tip "Portal Navigation May Shift"
     Microsoft refines Copilot Studio, Power Automate, and Entra navigation regularly. If a blade name does not match what you see, anchor on the underlying noun ("Topics", "Actions", "Moderation", "Approvals", "Access reviews") and consult Microsoft Learn. Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) header (April 2026).
@@ -201,7 +201,7 @@ Re-version (v2, v3, …) and re-sign the addendum whenever any of the following 
 
 - Annual review date arrives (minimum once per calendar year).
 - A new AI agent deploys into Zone 3 for a business activity not previously covered.
-- A material change occurs in a referenced Microsoft feature (e.g., Copilot Studio approval-action semantics change; Agent Framework `RequestPort` API is superseded).
+- A material change occurs in a referenced Microsoft feature (e.g., Copilot Studio approval-action semantics change; Agent Framework HITL request API (`request_info` / `RequestPort`) is superseded).
 - FINRA, SEC, OCC, Fed, or NYDFS publishes AI-specific guidance that changes the expectation (e.g., a successor to FINRA Regulatory Notice 24-09).
 - A Rule 3120 annual test identifies a design- or operating-effectiveness gap that requires procedural amendment.
 - A supervisory failure is reported through [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) and root-cause analysis identifies a WSP gap.
@@ -287,7 +287,7 @@ Human-agent handoff transfers a live Copilot Studio conversation to a human revi
 2. Create a new topic named `Escalate to Human — {scope}` (e.g., `Escalate to Human — Investment Advice`) or open an existing escalation topic.
 3. Configure trigger phrases for interactive handoff triggers (e.g., `talk to an advisor`, `speak to a human`, `I need a recommendation`).
 4. In the authoring canvas, add a node **Transfer conversation → Transfer to agent** (exact label varies with Copilot Studio release; anchor on "Transfer"). Configure:
-    - **Target agent / queue** — the Omnichannel / Customer Service queue staffed by licensed representatives. The queue must be monitored during business hours and must have a documented SLA (typically ≤5 minutes initial response for Zone 3).
+    - **Engagement hub and routing target** — Microsoft documents handoff through a connected engagement hub (for example Dynamics 365 Contact Center / Omnichannel); without one, Escalate only shows a message. Queue assignment is configured in the engagement hub, not in the Copilot Studio node. The firm-owned queue staffed by licensed representatives must be monitored during business hours and must have a documented SLA (typically ≤5 minutes initial response for Zone 3).
     - **Context to pass** — include conversation history, agent ID, triggering phrase, and the registered user's identifier (do not pass PII not needed for routing).
     - **Fallback** — if no agent is available, route to a `Take a message` topic that collects callback details and creates a review queue item (see §5).
 
@@ -304,7 +304,7 @@ Human-agent handoff transfers a live Copilot Studio conversation to a human revi
 1. Open the **Test agent** pane (right side).
 2. Trigger each escalation path in turn. Verify:
     - The transfer node fires.
-    - The target queue receives the conversation with context.
+    - The engagement hub receives the conversation with the `va_*` context variables (firm-defined routing rules apply in the hub).
     - The reviewer's UPN is recorded in the transcript.
 3. Capture a screenshot of one successful handoff and attach to the control session worksheet.
 
@@ -430,7 +430,7 @@ Follow §3a.5 for publishing, version recording, and YAML export. The combined e
 
 ## 4. Microsoft Agent Framework HITL Configuration
 
-For code-first agents built with the **Microsoft Agent Framework** (the open-source framework that supersedes Semantic Kernel / AutoGen orchestration patterns for enterprise agents), HITL is implemented programmatically rather than through Copilot Studio topics. The Agent Framework exposes a **`RequestPort`** abstraction, a **`request_info()`** call (Python SDK) / equivalent in .NET, and **checkpoints with pending requests** that let the runtime pause, persist state, wait for a human decision via an external surface, and resume.
+For code-first agents built with the **Microsoft Agent Framework** (the open-source framework that supersedes Semantic Kernel / AutoGen orchestration patterns for enterprise agents), HITL is implemented programmatically rather than through Copilot Studio topics. The Agent Framework exposes HITL request mechanisms that differ by language: C# and Go use **`RequestPort`** / `RequestInfoEvent`; Python uses `ctx.request_info(...)` with an `@response_handler` and a `WorkflowEvent` of type `request_info`. Checkpoints with pending requests let the runtime pause, persist state, wait for a human decision via an external surface, and resume.
 
 !!! info "When to use Agent Framework HITL vs Copilot Studio patterns"
     Use Copilot Studio patterns (§3) when the agent is authored in Copilot Studio or Microsoft 365 Copilot declarative-agent form. Use Agent Framework HITL when the agent is a code-first .NET or Python application that the firm builds and deploys (typically Zone 3 back-office agents — surveillance assistants, exception-investigation agents, document-review agents). Both can co-exist in a firm; both must be documented in the WSP (§1.2 row 4).
@@ -438,7 +438,7 @@ For code-first agents built with the **Microsoft Agent Framework** (the open-sou
 ### 4.1 Prerequisites
 
 1. Agent Framework SDK installed on developer workstations (`pip install agent-framework` for Python, or the .NET package; exact package name and version pinned in the firm's `requirements.txt` / `Directory.Packages.props`).
-2. Persistent checkpoint store configured — Azure Storage (Blob + Table), Azure Cosmos DB, or Dataverse. The store must be in a region consistent with the firm's data-residency posture and must have soft-delete and retention-lock enabled to protect supervision state.
+2. Durable checkpoint storage configured explicitly (`CheckpointStorage`). Microsoft documents InMemory (not durable), File, and Cosmos DB (`agent-framework-azure-cosmos`) for Python; Azure Table, Blob, or Dataverse stores are not documented built-ins and require a firm-built custom `CheckpointStorage`. The store must be in a region consistent with the firm's data-residency posture and must have soft-delete and retention-lock enabled to protect supervision state.
 3. A reviewer-facing application surface — Teams adaptive card, Power Automate approval, a firm-built web app, or an Outlook actionable message. The surface authenticates the reviewer and writes the decision back to the pending-request store.
 4. Application Insights / Azure Monitor configured to capture HITL telemetry to the firm's SIEM per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
 
@@ -458,42 +458,41 @@ For code-first agents built with the **Microsoft Agent Framework** (the open-sou
     - `decisionApproverUpn`, `decisionUtc`, `decisionComments`
 2. Commit the schema as JSON Schema to `SharePoint/Compliance/Supervision/2.12/agent-framework/pending-request.schema.json`. The schema is an audit artifact and must version with the addendum.
 
-### 4.3 Wire `RequestPort` and `request_info()` (Python example)
+### 4.3 Wire the HITL request (Python `request_info` example; C#/Go use `RequestPort`)
 
-The snippet below is illustrative — exact class and method names track the Agent Framework release the firm is pinned to. The WSP addendum (§1.2 row 4) documents the firm's pinned version and the surface used to render pending requests.
+The snippet below is a docs-only conceptual pattern, not tenant-validated and not shipped in this repository; names follow the Microsoft Learn Python human-in-the-loop page and track the Agent Framework release the firm is pinned to. The WSP addendum (§1.2 row 4) documents the firm's pinned version and the surface used to render pending requests.
 
 ```python
-from agent_framework import Agent, RequestPort, Checkpoint
-from firm.supervision import build_pending_request, wait_for_decision
+from dataclasses import dataclass
+from agent_framework import Executor, WorkflowContext, handler, response_handler
 
-class SupervisedAgent(Agent):
-    async def handle(self, turn):
-        draft = await self.generate(turn)
+@dataclass
+class SupervisionRequest:
+    request_id: str
+    agent_id: str
+    generated_output: str
+    risk_tier: str
 
-        if self.classify_risk(draft) != "Low":
-            # Persist a checkpoint with a pending request
-            req = build_pending_request(
-                agent_id=self.id,
-                conversation_id=turn.conversation_id,
-                generated_output=draft,
-                rule_2210_classification=self.classify_rule_2210(draft),
-                risk_tier=self.classify_risk(draft),
-                requester_upn=turn.user.upn,
-                approver_upn=self.registry.lookup_principal(self.id),
-            )
-            await self.request_port.submit(req)                      # RequestPort.submit
-            decision = await wait_for_decision(req.request_id)       # resolves via request_info()
-            if decision.outcome != "Approve":
-                return self.rejection_template(decision)
+class SupervisionGate(Executor):
+    @handler
+    async def review(self, draft: SupervisionRequest, ctx: WorkflowContext) -> None:
+        # Pauses the workflow; surfaces a request_info event to the caller
+        await ctx.request_info(request_data=draft, response_type=str)
 
-        return draft
+    @response_handler
+    async def on_decision(self, original: SupervisionRequest, decision: str, ctx: WorkflowContext) -> None:
+        # Decision vocabulary (Approve/Reject/Modify) is firm-defined
+        if decision == "Approve":
+            await ctx.yield_output(original.generated_output)
+
+# Caller: for each WorkflowEvent with type == "request_info", route to the reviewer
+# surface, then resume with workflow.run(responses={event.request_id: decision}).
 ```
 
-1. `RequestPort.submit(req)` writes the pending request to the checkpoint store and signals the reviewer-facing surface.
-2. The reviewer opens the surface, reviews the `generatedOutput`, records a decision, and writes back to the store.
-3. `wait_for_decision(request_id)` (backed by `request_info()` in the framework) resumes the agent turn when the decision arrives.
-4. All state is durable: if the runtime restarts during the wait, the agent resumes from the checkpoint on the decision event.
-
+1. The `request_info` event pauses the workflow and surfaces the pending request to the application; the firm's reviewer surface and queue write are firm-built.
+2. The reviewer decides on the surface; the application resumes with `workflow.run(responses=...)`.
+3. Checkpointing is separate and must be enabled with a durable `CheckpointStorage`; a resumed run restores pending requests from the checkpoint.
+4. The decision record must carry the authenticated reviewer identity (see §4.4).
 ### 4.4 Response handler (reviewer-facing surface)
 
 Typical implementations:
