@@ -304,6 +304,8 @@ if (-not $existing) {
 
 > **STOP.** Read this entire section before running the lock cmdlet. After this completes, the policy cannot be disabled, deleted, or shortened by anyone — including Microsoft Support.
 
+The [documented command and read-back property](https://learn.microsoft.com/en-us/purview/retention-preservation-lock) are `-RestrictiveRetention $true` and `RestrictiveRetention`, not `RetentionComplianceLockType`. Before invoking the helper, independently verify eligibility: adaptive scopes are unsupported, and a label-publishing policy must contain only regulatory-record labels. The helper is not a complete eligibility validator. Approval and second-person review remain mandatory; these examples were not executed against a tenant.
+
 ### 6.1 Pre-lock validation
 
 ```powershell
@@ -318,7 +320,7 @@ function Test-PolicyReadyForLock {
     if ($p.Enabled -ne $true)                  { $issues += 'Policy is not Enabled.' }
     if ($p.Mode -ne 'Enforce')                 { $issues += "Policy Mode is '$($p.Mode)' (not 'Enforce')." }
     if ($p.DistributionStatus -ne 'Success')   { $issues += "DistributionStatus is '$($p.DistributionStatus)'." }
-    if ($p.RetentionComplianceLockType -eq 'Lock') { $issues += 'Policy is already Locked.' }
+    if ($p.RestrictiveRetention -eq $true)      { $issues += 'Policy is already Locked.' }
     if (-not $r)                               { $issues += 'No rules attached to policy.' }
     foreach ($rule in $r) {
         if ($rule.RetentionDuration -lt 1095) {
@@ -359,10 +361,13 @@ function Lock-RetentionPolicy {
         "Apply Preservation Lock (IRREVERSIBLE) under ticket $ChangeTicket, reviewed by $SecondReviewerUpn")) {
 
         Set-RetentionCompliancePolicy -Identity $PolicyName `
-            -RetentionComplianceLockType Lock -ErrorAction Stop
+            -RestrictiveRetention $true -ErrorAction Stop
 
         $evidence = Get-RetentionCompliancePolicy -Identity $PolicyName |
-            Select-Object Name, Mode, Enabled, RetentionComplianceLockType, WhenChanged
+            Select-Object Name, Mode, Enabled, RestrictiveRetention, WhenChanged
+        if ($evidence.RestrictiveRetention -ne $true) {
+            throw "Preservation Lock read-back failed for '$PolicyName'; retain the change ticket and investigate."
+        }
         $evidence | ConvertTo-Json |
             Out-File (Join-Path $EvidenceRoot "lock-$PolicyName-$Stamp.json")
         Write-Host "[LOCKED] '$PolicyName'. Evidence saved." -ForegroundColor Green
@@ -380,7 +385,7 @@ function Lock-RetentionPolicy {
 |---|---|---|
 | "Locked" prevents *all* changes | False — you can still **add** locations and **extend** retention | Document permitted change paths in the change ticket |
 | Lock can be removed by Global Admin | False — no role can unlock | Treat lock as a CAB SEV-2 change with second-person review |
-| Lock applies to label policies too | True — `Set-RetentionCompliancePolicy -RetentionComplianceLockType Lock` works on the policy that publishes labels | Lock the publish-policy after labels stabilize |
+| Lock applies to label policies too | Only when every published label marks items as regulatory records; adaptive scopes are unsupported | Confirm eligibility and obtain approval before `Set-RetentionCompliancePolicy -RestrictiveRetention $true` |
 | Lock affects existing rules retroactively | True — but new rules added after lock are also locked | Add all rules **before** locking |
 | Lock survives tenant-to-tenant migration | Microsoft does not support migrating locked policies in tenant moves | Plan the records strategy with the tenant lifecycle in mind |
 
@@ -394,7 +399,7 @@ $labels   = Get-ComplianceTag | Where-Object { $_.Name -like 'FSI-Agent-*' } |
 $labels | Export-Csv (Join-Path $EvidenceRoot "labels-$Stamp.csv") -NoTypeInformation
 
 $policies = Get-RetentionCompliancePolicy | Where-Object { $_.Name -like 'FSI-*' } |
-    Select-Object Name, Mode, Enabled, DistributionStatus, RetentionComplianceLockType, WhenCreated, WhenChanged
+    Select-Object Name, Mode, Enabled, DistributionStatus, RestrictiveRetention, WhenCreated, WhenChanged
 $policies | Export-Csv (Join-Path $EvidenceRoot "policies-$Stamp.csv") -NoTypeInformation
 
 $rules    = foreach ($p in $policies) {
@@ -435,4 +440,6 @@ Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-09 (targeted retention-method documentation review only)
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (last UI verification May 2026)*

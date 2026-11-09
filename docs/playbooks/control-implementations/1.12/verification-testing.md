@@ -38,7 +38,7 @@
 | UTC timestamping | All evidence carries `Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ'`. Local-time evidence is rejected at audit. |
 | Hashing | SHA-256 over canonical JSON; SHA-256 sidecar `.sha256` file per evidence artifact. |
 | Cloud context | Every review records the actual tenant and US commercial-cloud context. Capture `(Get-MgContext).Environment` only for separately authorized Graph checks; Graph is not a prerequisite of the local collector. |
-| Evidence retention | Two-tier: **operational** (per change ticket / 1–2 year working window) and **records-scope** (≥6 years on WORM, broker-dealer ≥7 years per FINRA 4511 / SEC 17a-4(f)). The records-scope tier is enforced via Purview retention labels with `deletionLocked = true`. |
+| Evidence retention | Two-tier: **operational** (per change ticket / 1–2 year working window) and **records-scope** (≥6 years on WORM, broker-dealer ≥7 years per FINRA 4511 / SEC 17a-4(f)). Verify actual item-level record protection and any separate policy-level Preservation Lock per the [shared retention evidence procedure](../2.6/verification-testing.md#72-retention-label-binding-test); a standard label alone is insufficient. |
 | Run identifier | `IRM112-yyyyMMdd-HHmmss-<8charGuid>` embedded in every evidence record and filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). No title substitution — "Global Administrator" is **not** a substitute for "Entra Global Admin"; "Compliance Administrator" is **not** a substitute for "Purview Compliance Admin". |
 | KQL anchor | KQL snippets target Microsoft Sentinel workspaces enriched with M365 Defender + Purview + Entra ID Protection connectors. See [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). |
@@ -1097,7 +1097,7 @@ FINRA 4511 · SEC 17a-4(f) · Reg S-P · OCC examination expectations · NYDFS 5
 | TC-20 | `tc20-soa-{year}.pdf`, `tc20-tabletop-{year}-{scenario}.pdf` | WORM | 7 years | SOX §§302 / 404 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 | TC-21 | `tc21-pulltest-{window}.json`, `tc21-attestation-{year}.pdf` | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) · Reg S-P |
 
-> **Two-tier retention reminder.** The **operational** tier (working window 1–2 years) is for live triage and analyst handoff; the **records-scope** tier above (7 years on WORM with `deletionLocked = true` retention labels) is for examination-ready evidence. **Forensic Evidence clip media** themselves remain on the Microsoft 120-day clip-deletion ceiling unless exported under legal hold — only the **decision metadata** records-tier-retains.
+> **Two-tier retention reminder.** The **operational** tier (working window 1–2 years) is for live triage and analyst handoff; the **records-scope** tier above (7 years on WORM with verified item-level record protection) is for examination-ready evidence. **Forensic Evidence clip media** themselves remain on the Microsoft 120-day clip-deletion ceiling unless exported under legal hold — only the **decision metadata** records-tier-retains.
 
 ---
 
@@ -1290,7 +1290,7 @@ This scaffold does **not** test TC-12: complete its manual request/decision/capt
 | Run identifier | `IRM112-yyyyMMdd-HHmmss-<8charGuid>`; binds all evidence in a verification cycle. |
 | Saved-auth refresh (Triage Agent) | User-context authentication expires after 90 days; manually save configuration to renew. Confirm identity mode. |
 | Triage Agent | Security Copilot agent that triages IRM alerts; depends on SCU + PAYG; decision-support, not supervisory decision-maker. |
-| WORM | Write-Once-Read-Many storage tier supporting `deletionLocked = true` retention labels. |
+| WORM | Write-Once-Read-Many storage tier; verify the approved store's actual immutability configuration, not a fictional Purview `deletionLocked` property. |
 
 ### §5.6 Appendix F — Examiner-facing crib sheet
 

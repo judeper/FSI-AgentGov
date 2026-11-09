@@ -57,12 +57,12 @@ If any of these are missing, **stop**. The Microsoft surfaces below have nothing
 
 | Capability | License / SKU |
 |---|---|
-| Microsoft Purview Data Security Posture Management for AI | Microsoft 365 E5 Compliance, Purview Premium, or DSPM for AI standalone — verify in your tenant |
-| Azure AI Foundry evaluation harness and monitoring | Azure subscription with Foundry compute (AI Hub project, evaluator quota) |
+| Microsoft Purview Data Security Posture Management for AI | Verify feature-specific entitlements against the [Purview service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description); Copilot Studio non-Microsoft-channel interaction protection requires Purview pay-as-you-go billing |
+| Microsoft Foundry evaluation and monitoring | Azure subscription, supported project/evaluation workflow, applicable model quota and consumption billing; an AI Hub project is not a universal prerequisite |
 | Copilot Studio Analytics | Copilot Studio prepaid Copilot Credit pack subscription, Copilot Credits prepurchase plan, or PAYG billing policy |
 | Microsoft 365 Copilot grounding for in-scope agents | Microsoft 365 Copilot per-user license |
-| Microsoft Agent 365 Admin Center | Microsoft 365 E7 ("Frontier Suite") or standalone Agent 365 layered on M365 Copilot |
-| Microsoft Entra Agent ID | Microsoft Entra ID Governance (P1 + ID Governance add-on, or Entra Suite) |
+| Microsoft Agent 365 | Per-user Agent 365 licensing; at least one qualifying user license enables Agent 365. Verify feature-level prerequisites in the [Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview), not a blanket Copilot-license dependency |
+| Microsoft Entra Agent ID | Base Agent ID is available to all Entra customers; extending Entra security features to agents requires Agent 365. Verify the [identity platform prerequisites](https://learn.microsoft.com/en-us/entra/agent-id/what-is-agent-id-platform) for the capability used |
 | Microsoft Purview Audit (long retention for telemetry) | M365 E5 Compliance or Audit Premium add-on |
 | 17a-4(f) WORM retention for validation evidence | Purview retention with locked policy **or** approved 17a-4(f) vendor (Smarsh, Global Relay, Proofpoint, Mimecast) |
 
@@ -74,11 +74,11 @@ Activate every role through **Entra Privileged Identity Management (PIM)** with 
 |---|---|---|
 | **AI Administrator** | Agent 365 Admin Center governance templates and approval workflows | 4 h, ticket justification |
 | **Entra Global Admin** | Initial Agent 365 enrollment; broad consent scenarios only | Time-boxed; PIM-only |
-| **Purview Data Security AI Admin** | DSPM for AI policies and AI-activity dashboards | 4 h |
-| **Purview Data Security AI Viewer** | Read-only DSPM for AI inventory exports for the MRM Committee | 8 h |
+| **Purview Compliance Admin** | DSPM for AI (classic) configuration; additional solution permissions may be required | 4 h |
+| **Purview Data Security AI Viewer** | Read-only DSPM for AI reports/activity evidence for the MRM Committee | 8 h |
 | **Purview Compliance Admin** | Retention labels, policies, and 17a-4(f)-aligned holds | 4 h |
 | **Purview Records Manager** | Records retention configuration for validation memos | 4 h |
-| **Power Platform Admin** | Copilot Studio Analytics, environment-level analytics settings | 4 h |
+| **Power Platform Admin** | Power Platform inventory and environment-level settings; per-agent Monitor access is checked separately | 4 h |
 | **Environment Admin** | Per-environment Copilot Studio agent settings | 4 h |
 | **Entra Agent ID Admin** | Agent identity registration and lifecycle for in-scope agents | 4 h |
 | **SharePoint Site Owner** | Agent Card inventory list (model-inventory SharePoint site) | 8 h |
@@ -106,35 +106,37 @@ SR 26-2 (formerly SR 11-7) conceptual soundness asks whether the model is approp
 
 ### 1.1 Microsoft Purview DSPM for AI inventory
 
-**Portal path:** [Microsoft Purview portal](https://purview.microsoft.com) → **Data Security Posture Management** → **AI activities** (or **DSPM for AI**, depending on tenant release wave).
+**Portal path:** [Microsoft Purview portal](https://purview.microsoft.com) → **Solutions → DSPM for AI (classic)**; the current **Data Security Posture Management** experience also exposes AI activity in activity explorer. Record which experience was used.
 
-1. Sign in as **Purview Data Security AI Admin**.
-2. Open **DSPM for AI → Overview** and confirm the dashboard renders AI activity counts for Microsoft 365 Copilot, Copilot Studio, Foundry-registered AI apps, and Entra-registered third-party AI apps. If a connector tile shows "Not configured", open **Settings → AI app connectors** and complete onboarding per [Microsoft Learn — DSPM for AI](https://learn.microsoft.com/en-us/purview/dspm-for-ai). *(TODO: verify the canonical Learn slug for your tenant release wave.)*
-3. Open **DSPM for AI → AI activities** and filter to the in-scope environments hosting Zone 2 / Zone 3 agents. Export the activity inventory as CSV; this snapshot is the **starting inventory** the MRM Committee reconciles against the firm's authoritative Agent Card list.
+1. Sign in with **Purview Compliance Admin** or the least-privileged permissions for the action in [Microsoft's permissions matrix](https://learn.microsoft.com/en-us/purview/ai-microsoft-purview-permissions). Viewing prompt/response content requires additional content-viewer permission.
+2. In **DSPM for AI (classic) → Overview**, verify auditing and supported app-specific onboarding. Do not assume one generic connector screen onboards every AI app.
+3. Use **Reports → Copilot experiences & agents → View details** and activity-explorer filters actually available for the source. Retain the report/activity export, filter scope and coverage limitations; this is observed activity, not a complete agent inventory. Reconcile against the Agent Card list, the Agent 365 registry and Power Platform inventory per [Verification §1.2](./verification-testing.md#12-population-of-in-scope-agents).
 4. Configure **DSPM for AI policies** that detect prompts and responses containing sensitive information types relevant to the firm (for example, account numbers, MNPI, customer PII). These policies do not validate the model — they generate signals the MRM Committee reviews when assessing whether the model is being used as designed.
-5. Schedule a recurring monthly export of DSPM for AI inventory and route it to the MRM Committee distribution list. Capture the schedule definition itself as evidence.
+5. Arrange a recurring monthly evidence collection through the firm's approved export process; do not assume a native scheduled-inventory-export feature. Capture collection ownership and delivery evidence.
 
-*Screenshot anchor: capture the DSPM for AI Overview blade and the AI activities filter showing in-scope environments.*
+*Screenshot anchor: capture the actual Overview/Reports experience, activity filters and coverage limitations. Use the [Copilot Studio-specific Purview procedure](https://learn.microsoft.com/en-us/purview/ai-copilot-studio); inactive or unsupported agents may have no activity.*
 
 !!! note "DSPM for AI is inventory and signal — not validation"
     The DSPM for AI dashboard tells the MRM Committee **what** AI activity is occurring across the tenant. It does not assess whether a model is conceptually sound. Conceptual soundness is the MRM Committee's judgment based on the agent's design, knowledge sources, and intended use.
 
 ### 1.2 Agent 365 Admin Center publication-approval workflow with governance template
 
-**Portal path:** [Microsoft 365 admin center](https://admin.microsoft.com) → **Agent 365** → **Pending Requests** → **Publishing**, and **Agent 365 → Governance → Templates**.
+**Portal path:** [Microsoft 365 admin center](https://admin.microsoft.com) → **Agents → All agents → Requests**; policy templates are under **Agents → Settings → Templates**.
 
-1. Sign in as **AI Administrator**. Confirm the Agent 365 node is visible (entitlement check — see Control 2.25 if missing).
-2. Open **Governance → Templates** and create or review the **MRM-aligned governance template** that will be applied at publish time for in-scope agents. Recommended template fields:
-    - Required Agent Card metadata (model tier, knowledge sources, last validation date, next validation date)
-    - Required approver chain (Model Risk Manager + registered principal under FINRA Rule 3110 for broker-dealers)
-    - Required retention label for the agent's audit trail (links to [§5](#5-validation-evidence-retention-path))
-    - Zone-appropriate model allow-list (verify against the underlying-model availability disclosure in Control 2.6 §"Underlying Model Availability in Copilot Studio")
-3. Open **Pending Requests → Publishing** and confirm the queue rhythm (daily for Zone 3, weekly for Zone 2) is documented in the firm's runbook.
+1. Sign in as **AI Administrator**. Confirm access to the relevant agent/request type and its prerequisites.
+2. Review available policy templates under **Agents → Settings → Templates**. These bundle supported security policies; they do not supply a built-in MRM approval chain, model-name allowlist, Agent Card schema or per-document retention label. Maintain those requirements in the firm's approval register/workflow:
+    - Agent Card metadata (model tier, knowledge sources, last validation date, next validation date)
+    - Approver chain (Model Risk Manager + registered principal under FINRA Rule 3110 for broker-dealers)
+    - Evidence-retention reference (links to [§5](#5-validation-evidence-retention-path))
+    - Zone-appropriate approved-model register and separate supported provider/environment controls
+3. Open **Requests**, inspect the request state and confirm the queue rhythm (daily for Zone 3, weekly for Zone 2) in the firm's runbook.
 4. For each pending publication, the AI Administrator validates that the request package includes:
     - A completed Agent Card (see §1.3)
     - The MRM Committee's tiering decision (Tier 1 / 2 / 3) and validation memo reference
     - The registered-principal supervisory acknowledgment (broker-dealers, per §0.4)
-5. Approval in Agent 365 records an admin-attributed audit event. **This event is evidence of the publication decision, not evidence of validation.** The validation memo itself lives in the retention store described in §5.
+5. For a supported publish request, select **Publish to store**, review audience, available policy template and permissions, and retain the actual decision and available audit evidence. **This is evidence of the publication decision, not evidence of validation.** The validation memo itself lives in the retention store described in §5. Other distribution channels require their own access/deployment checks.
+
+Sources: [Manage agent requests](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-requests), [Policy templates](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/policy-template), [Agent settings](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-settings). Template support varies by agent/scenario; Microsoft's template page retains preview/custom-policy limitations, while settings documents a one-time bulk apply action for eligible agent identities. Do not assume an environment-bound, continuously scheduled MRM gate.
 
 Cross-link: [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for full publish/activate workflow detail.
 
@@ -153,7 +155,7 @@ The Agent Card is the firm's **authoritative model inventory record** for each i
     | Agent Name | Single line | Matches Copilot Studio / Agent 365 display name |
     | Agent ID | Single line | Entra Agent ID GUID where applicable |
     | Model | Single line | Underlying foundation model (e.g., GPT-5, Claude — verify per tenant) |
-    | Model version | Single line | Capture exact version string at publication time |
+    | Model version | Single line | Capture exposed version identifiers; record when a precise model snapshot is not exposed |
     | Owner (first line) | Person | Agent Owner / business owner |
     | Tier | Choice | Tier 1 / Tier 2 / Tier 3 per MRM Committee decision |
     | Knowledge sources | Multi-line | SharePoint sites, Dataverse tables, connectors, web search scope |
@@ -165,11 +167,11 @@ The Agent Card is the firm's **authoritative model inventory record** for each i
     | Status | Choice | Proposed / Active / Suspended / Retired |
 
 4. Enable **versioning** on the list with a long version retention to preserve inventory history.
-5. Apply the Purview retention label to the site at **Microsoft Purview → Information Protection → Retention labels → Apply to SharePoint site**.
+5. Publish the appropriate retention labels to the SharePoint location, then verify application to actual items. Site publication does not label every item. Retain protected snapshots of the mutable Agent Card register; apply record protection to finalized evidence per §5.
 6. Schedule a monthly snapshot export (CSV) of the list and route to the MRM Committee distribution list. The snapshot is the inventory the firm produces on demand for examiners (VC-1).
 
-!!! tip "Reconcile Agent Card against DSPM for AI monthly"
-    The MRM Committee should reconcile the Agent Card list against the DSPM for AI inventory monthly. Any agent appearing in DSPM for AI but not in the Agent Card list is an unregistered model and must be either tiered and registered or blocked. Conversely, any retired agent must be removed from active production surfaces and its Agent Card row marked **Retired** with retirement evidence retained under §5.
+!!! tip "Reconcile the Agent Card register with supported sources monthly"
+    Compare Power Platform/Agent 365 inventories and supported Purview activity with the firm's register, recording scope and unresolved deltas. Investigate activity without a registered agent; absence from activity reports does not prove absence from production. Any retired agent must be removed from active production surfaces and its Agent Card row marked **Retired** with retirement evidence retained under §5.
 
 ---
 
@@ -179,11 +181,11 @@ SR 26-2 (formerly SR 11-7) ongoing monitoring asks whether the model continues t
 
 ### 2.1 Copilot Studio Analytics — summary and event-trigger reports
 
-**Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **Analytics**.
+**Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **Monitor**.
 
-1. Sign in as **Power Platform Admin** or **Environment Admin** for the environment hosting the agent.
-2. Open **Analytics → Summary** and review session counts, resolution rate, escalation rate, and customer satisfaction (where surveys are configured).
-3. Open the per-agent analytics tabs that apply (conversational analytics, autonomous-agent / event-trigger analytics where the agent is configured for event triggers). The exact tab labels evolve — anchor on the page title and consult [Microsoft Learn — Copilot Studio analytics](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview). *(TODO: verify slug for current release wave.)*
+1. Sign in with agent access; an environment administration role alone is not evidence that the reviewer can access this agent's monitoring data.
+2. Open **Monitor** and review applicable session counts, outcomes, escalation and satisfaction metrics.
+3. Select conversational, event-triggered or hybrid views as applicable, following the [Monitor overview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview). Test-panel sessions are excluded. A trigger that fails before delivering a payload produces no analytics session; corroborate failures with trigger/flow telemetry.
 4. Define **monitoring thresholds** per agent tier in the firm's runbook. Suggested starting thresholds (the MRM Committee owns the final values):
 
     | Metric | Tier 1 threshold | Tier 2 threshold | Tier 3 threshold |
@@ -194,10 +196,10 @@ SR 26-2 (formerly SR 11-7) ongoing monitoring asks whether the model continues t
     | Autonomous trigger error rate | ≤ 1% | ≤ 5% | n/a |
 
 5. Name a **threshold-breach owner** (typically the Agent Owner with notification to the Model Risk Manager). Document the named owner on the Agent Card.
-6. Schedule a recurring monthly Analytics export per in-scope agent and route to the MRM Committee.
+6. Arrange recurring evidence exports through the firm's approved process; collect transcripts before the 28-day UI window closes. Sentiment/customer-comment summaries belong to Copilot Studio, not Purview; the customer comments summary is preview.
 
 !!! info "Copilot Studio Analytics Retention Windows (May 2026)"
-    Analytics data is available for up to **180 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn — analytics overview). Ongoing-monitoring evidence required beyond these windows — session transcripts, KPI trend snapshots, threshold-breach records — must be exported to Log Analytics or the retention path described in [§5](#5-validation-evidence-retention-path) before the applicable window closes. Validation memos and MRM Committee minutes are not stored in Copilot Studio Analytics and must be routed to the §5 retention path directly.
+    Monitor data is available for up to **360 days**; session details and transcript information in Copilot Studio are available for the last **28 days**. Dataverse transcript retention is separate. Ongoing-monitoring evidence required beyond these windows — session transcripts, KPI trend snapshots, threshold-breach records — must be exported to Log Analytics or the retention path described in [§5](#5-validation-evidence-retention-path) before the applicable window closes. Validation memos and MRM Committee minutes are not stored in Copilot Studio Analytics and must be routed to the §5 retention path directly.
 
 !!! warning "Analytics is the evidence — not the validation"
     Copilot Studio Analytics produces operational telemetry. It is one input the MRM Committee uses to perform ongoing monitoring under SR 26-2 (formerly SR 11-7). The committee's review, judgment, and effective challenge are the validation — Analytics dashboards are not.
@@ -210,7 +212,7 @@ The Model Risk Manager, Internal Audit, and the MRM Committee secretariat typica
 
 1. Sign in as the **agent owner** (or a Co-owner authorized to share).
 2. In the Share dialog, search for the named validator individual.
-3. Set the role to **Analytics viewer**. This grants read-only access to the agent's Analytics page (Summary, Sessions, Topics, CSAT, autonomous trigger analytics where applicable) without conferring permission to modify topics, knowledge, actions, publish settings, or sharing.
+3. Set the role to **Analytics viewer**. This grants read-only access to the agent's **Monitor** page without edit permissions on the agent.
 4. Optionally also assign **Bot Transcript Viewer** to the same individual when conversation transcripts are needed as outcomes-analysis evidence (§3).
 5. Save and capture a screenshot of the Share dialog as evidence in the validation work-paper.
 
@@ -221,22 +223,22 @@ Reference: [Microsoft Learn — Share an agent](https://learn.microsoft.com/en-u
 
 ### 2.2 Foundry monitoring (when underlying model is on Azure AI Foundry)
 
-**Portal path:** [Azure AI Foundry portal](https://ai.azure.com) → select project → **Monitoring**.
+Use the [Microsoft Foundry monitoring dashboard procedure](https://learn.microsoft.com/en-us/azure/ai-foundry/observability/how-to/how-to-monitor-agents-dashboard) for the actual project experience rather than assuming a universal **Monitoring** blade.
 
 1. Sign in as **AI Administrator** (or the Azure RBAC role with Foundry project access).
-2. For agents whose underlying model or evaluation harness runs on Foundry, open **Monitoring** and confirm telemetry is flowing for groundedness, relevance, latency, and safety signals (where the model is wrapped in a Foundry deployment).
-3. Configure **Foundry alerts** for drift in groundedness or safety scores. Alerts route to the Agent Owner and the Model Risk Manager.
+2. Confirm Application Insights linkage and supported instrumentation; configure quality/safety evaluation separately and record sampling. Model hosting alone does not populate every metric.
+3. Configure supported **Azure Monitor alerts** for collected metrics/logs. Alerts route to the Agent Owner and the Model Risk Manager.
 4. Capture the alert configuration export as evidence.
 5. Confirm Foundry evaluator availability in the tenant before relying on the run as evidence.
 
-Reference: [Microsoft Learn — Azure AI Foundry monitoring](https://learn.microsoft.com/en-us/azure/ai-foundry/). *(TODO: verify exact monitoring article slug.)*
+Reference: [Microsoft Foundry observability](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/observability). Record preview boundaries and any missing telemetry as gaps, not zero failures.
 
 ### 2.3 Application Insights / Azure Monitor telemetry routing to Sentinel
 
 **Portal path:** [Azure portal](https://portal.azure.com) → **Application Insights** → workspace → **Diagnostic settings**, and **Microsoft Sentinel** → workspace → **Data connectors**.
 
 1. For Foundry-hosted models and any custom orchestration code wrapping the agent, send Application Insights telemetry to a Log Analytics workspace.
-2. From the workspace, configure **Diagnostic settings → Send to Microsoft Sentinel** so that operational anomalies (latency spikes, error bursts, unexpected tool-call patterns) are correlated with security signals.
+2. Use the approved Sentinel-enabled Log Analytics workspace and supported ingestion/query design in Control 3.9 to correlate operational anomalies with security signals. There is no generic **Send to Microsoft Sentinel** diagnostic-setting destination.
 3. This telemetry path is **operational monitoring**, not 17a-4(f) WORM retention. See [Control 3.9 — Centralized SIEM Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for SIEM/Sentinel architecture and [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for the audit-log retention story.
 4. Validation memos and MRM Committee minutes do **not** belong in Application Insights or Sentinel. They live in the retention path described in §5.
 
@@ -254,8 +256,8 @@ SR 26-2 (formerly SR 11-7) outcomes analysis compares model output to actual out
 2. Create an evaluation run that includes the Foundry built-in evaluators relevant to the agent's risk profile:
     - **Quality evaluators:** groundedness, relevance, coherence, fluency
     - **Safety evaluators:** content safety, protected material, indirect attack
-    - **Agent-specific evaluators:** tool-call accuracy, intent resolution, task adherence / task completion
-3. Confirm evaluator availability in the tenant before relying on the run as evidence.
+    - **Agent-specific evaluators:** Tool Call Accuracy; Intent Resolution, Task Adherence and Task Completion are **preview** in the current built-in reference
+3. Confirm supported evaluator inputs, region, judge-model prerequisites and release state against the [built-in evaluator reference](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/built-in-evaluators). Record skipped/unsupported results; do not treat them as passes or preview evaluators as GA production dependencies.
 4. Schedule periodic re-evaluation runs. Recommended cadence:
 
     | Tier | Re-evaluation cadence | Trigger-based re-evaluation |
@@ -272,8 +274,8 @@ Reference: [Microsoft Learn — Azure AI Foundry evaluation](https://learn.micro
 
 For agents handling firm-specific risk (e.g., regulation-classification accuracy, MNPI handling), built-in evaluators are insufficient. Configure custom evaluators:
 
-1. In the Foundry project, open **Evaluation → Evaluators → New custom evaluator**.
-2. Implement the evaluator as a prompt-based or code-based evaluator referencing a firm-defined ground-truth dataset.
+1. Follow the [custom evaluator workflow](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-evaluators/custom-evaluators) supported by the project/API version; do not assume a universal **New custom evaluator** portal command.
+2. Implement the approved evaluator against firm-defined ground truth and record its release/support status; custom evaluators are marked preview in the current Foundry reference.
 3. Version-control the evaluator definition (Git or Foundry asset versioning) so that the evaluator used for each validation memo is reproducible.
 4. The MRM Committee reviews the evaluator definition itself as part of conceptual soundness — an evaluator that is not appropriate to the agent's intended use produces evidence that is not fit for purpose.
 
@@ -308,7 +310,7 @@ SR 26-2 (formerly SR 11-7) applies to vendor and externally developed models wit
 
 1. Sign in as **Environment Admin** for the agent's environment.
 2. Open **Overview → Model** and capture the selected primary model, provider/hosting route, release tag, region and any visible version identifier. If an exact snapshot version is not exposed, record that limitation and available lifecycle notices rather than inventing a version. Prompt builder and other AI model settings are separate.
-3. Verify the model is on the firm's MRM-approved allow-list (defined in the Agent 365 governance template — see §1.2).
+3. Verify the model is on the firm's MRM-approved register (separate from the native Agent 365 policy template — see §1.2).
 4. For Anthropic Claude or other third-party providers, capture additional vendor-model evidence:
     - **Provider identity** and contractual relationship (which entity Microsoft routes the model call through, what data-handling commitments apply)
     - **Cross-geography routing** posture — confirm whether prompts and responses are processed only in approved regions
@@ -356,16 +358,18 @@ Validation memos, MRM Committee minutes, ongoing-monitoring reports, outcomes-an
 
 | Path | Configuration | Use when |
 |---|---|---|
-| **Microsoft Purview retention** with locked records-management policy | Purview portal → **Records Management → Retention labels** → label marked as **Regulatory Record**; apply to the SharePoint site holding validation memos | Firm has accepted Purview as the 17a-4(f)-compliant store and has documented the locked-policy configuration |
+| **Microsoft Purview retention** with locked records-management policy | Publish the approved record label to the SharePoint location and verify application to each finalized evidence item; document any policy-level Preservation Lock separately | Firm has accepted Purview as the 17a-4(f)-compliant store and has documented the locked-policy configuration |
 | **Approved 17a-4(f) vendor** — Smarsh, Global Relay, Proofpoint, Mimecast | Configure vendor connector to the SharePoint validation site and to the Agent Card list export pipeline | Firm uses a designated third-party records vendor for all 17a-4(f) records |
 
 ### 5.2 Configure Purview retention (if chosen)
 
 1. Sign in as **Purview Records Manager** at [https://purview.microsoft.com](https://purview.microsoft.com).
-2. Navigate to **Records Management → File plan → Create label**. Mark the label as a **Regulatory Record** (this is the configuration that produces immutable, locked retention; verify the firm's compliance counsel has accepted this configuration as 17a-4(f)-aligned).
+2. Navigate to **Records Management → File plan → Create a label** and follow the approved record-label design. Regulatory-record declaration must first be enabled and is irreversible once applied; ordinary records can be unlockable. Verify the firm's compliance counsel has accepted the chosen configuration as 17a-4(f)-aligned.
 3. Set retention duration to the firm's standard for model artifacts (commonly life-of-model + 7 years).
-4. Apply the label to the SharePoint site holding the Agent Card list, validation memos, MRM Committee minutes, and evaluation-run exports.
-5. Document the locked-policy attestation per Control 1.9.
+4. Publish the label to the SharePoint location, then apply it to finalized evidence items and verify item-level label/status. Preserve snapshots of the active Agent Card register separately so ongoing updates do not require editing a regulatory record.
+5. Document label settings, item application and any policy-level Preservation Lock separately per Control 1.9 and [Verification §7.2](./verification-testing.md#72-retention-label-binding-test). `Get-ComplianceTag` reads labels; `Get-RetentionCompliancePolicy` reads policies and their `RestrictiveRetention` state. Neither alone proves item application.
+
+Sources: [Records management restrictions](https://learn.microsoft.com/en-us/purview/records-management), [Publish and apply labels](https://learn.microsoft.com/en-us/purview/create-apply-retention-labels), [Preservation Lock](https://learn.microsoft.com/en-us/purview/retention-preservation-lock). Preservation Lock is configured through PowerShell under authorized change control, not a portal deletion-lock toggle.
 
 ### 5.3 What does NOT count as 17a-4(f) WORM
 
@@ -381,16 +385,16 @@ Cross-link: [Control 1.7 — Comprehensive Audit Logging](../../../controls/pill
 
 The MRM Committee, on demand, can produce each of the following. The verification is the production of the artifact, not the existence of a portal screen.
 
-1. **VC-1 — In-scope agent inventory.** A current inventory of all in-scope AI agents with: agent name, owner, tier, model, model version, knowledge sources, validation status, last validation date, next validation date — produced from the Agent Card SharePoint list, reconciled monthly against DSPM for AI inventory.
+1. **VC-1 — In-scope agent inventory.** A current inventory of all in-scope AI agents with: agent name, owner, tier, model, available model-version identifiers/limitations, knowledge sources, validation status, last validation date, next validation date — produced from the firm's Agent Card list, reconciled monthly with supported inventory and activity sources with explicit coverage deltas.
 2. **VC-2 — MRM Committee charter and policy reference.** The firm's MRM Committee charter and the MRM policy section addressing AI agents are current, named, and accessible.
 3. **VC-3 — Validation memo demonstrating effective challenge.** For any in-scope agent, a validation memo authored by the independent validation function, referencing the conceptual-soundness analysis, the validator's challenge points, and the resolution. Independence is substantiated by the validator's reporting line (organizationally and functionally separate from the model owner / developer); third-party engagement is one way to demonstrate independence but is not required.
-4. **VC-4 — Tiering and approval audit trail.** Agent 365 Admin Center publication-approval audit events and the linked governance template that was applied at publish time.
+4. **VC-4 — Tiering and approval audit trail.** Firm's MRM approval record, actual Agent 365 publication/activation decision and available audit evidence, plus supported policy-template application where applicable. A native template is not an MRM approval gate.
 5. **VC-5 — Ongoing-monitoring report.** A monthly Copilot Studio Analytics export and (for Foundry-hosted models) Foundry monitoring export per in-scope agent, with named threshold-breach owner and any breach-response memos.
 6. **VC-6 — Threshold breach response evidence.** For any threshold breach during the reporting period, the response memo and any resulting re-validation.
 7. **VC-7 — Outcomes-analysis evaluation run.** For any in-scope agent, a recent evaluator run (Foundry built-in or custom) bundled with the dataset version and evaluator version used.
 8. **VC-8 — Vendor-model evidence.** For any agent using a vendor model (including Microsoft default-model migrations), the provider, data-handling, cross-geography, and approval evidence; the Message Center / release-plan subscription configuration; and a runbook activation log if a default-model migration occurred during the period.
 9. **VC-9 — 17a-4(f) retention attestation.** Evidence that validation memos, MRM Committee minutes, and evaluation runs are retained in 17a-4(f)-compliant WORM (Purview locked policy or approved vendor).
-10. **VC-10 — Model retirement evidence.** For any agent retired during the period, the MRM Committee retirement decision, the Agent Card row marked **Retired**, the Agent 365 lifecycle action audit event, and confirmation that production access has been removed.
+10. **VC-10 — Model retirement evidence.** For any agent retired during the period, the MRM Committee retirement decision, the Agent Card row marked **Retired**, actual channel-specific administrative action/audit evidence where supported, and confirmation that production access has been removed. Do not assume one Agent 365 action revokes every channel or identity.
 
 ---
 
@@ -411,9 +415,9 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 
 | Playbook | Use for |
 |---|---|
-| [`./powershell-setup.md`](./powershell-setup.md) | Microsoft Graph PowerShell automation for inventory exports, Agent Card list provisioning, retention-label application, Message Center subscription |
+| [`./powershell-setup.md`](./powershell-setup.md) | Illustrative read-only helpers; unimplemented inventory/Foundry adapters explicitly require manual evidence. No Agent Card provisioning, label application or signed examination assembler is supplied |
 | [`./verification-testing.md`](./verification-testing.md) | Test cases that exercise each of VC-1 through VC-10, sample evidence packages, evaluator-run reproducibility checks |
-| [`./troubleshooting.md`](./troubleshooting.md) | DSPM for AI connector failures, Agent 365 entitlement gaps, Foundry evaluator quota errors, Message Center subscription gaps |
+| [`./troubleshooting.md`](./troubleshooting.md) | Source-coverage gaps, Agent 365 entitlement/approval scope, Foundry evaluator support and Message Center subscription gaps |
 | [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Control specification, regulatory mapping, and zone requirements |
 
 ### Cross-control references
@@ -429,4 +433,6 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 
 ---
 
-*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections; tenant UI not tested)*
+**Last Verified:** 2026-11-09 — targeted inventory, monitoring, evaluator, template and retention documentation corrections; no tenant UI, screenshots or execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation-only corrections; tenant UI not tested)*
