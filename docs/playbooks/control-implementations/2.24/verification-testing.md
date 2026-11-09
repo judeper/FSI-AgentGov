@@ -76,7 +76,7 @@ The bootstrap script `Invoke-Agt224PreFlight.ps1` runs nine pre-flight gates. An
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms `Microsoft.Graph.*` (2.25+), `Microsoft.PowerApps.Administration.PowerShell` (2.0.196+), `MicrosoftPowerBIMgmt`, `Pester` (5.5+) all loaded at pinned versions | HALT |
-| Graph context | PRE-02 | Confirms `Connect-MgGraph` with scopes: `Directory.Read.All`, `Application.Read.All`, `Policy.Read.All`, `AuditLog.Read.All`, `AgentGovernance.Read.All`, `CopilotSettings.Read.All` | HALT |
+| Graph context | PRE-02 | Confirms feature-specific scopes: `Directory.Read.All`, `Application.Read.All`, `Policy.Read.All`, `AuditLog.Read.All`, `CopilotSettings.Read.All`; add `CopilotPackages.Read.All` only for optional, licensed package collection, not as an Entra identity or general settings permission | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
 | Catalog presence | PRE-04 | Confirms `$env:AGT224_FEATURE_CATALOG_ROOT` exists and contains `catalog.commercial.json` | HALT |
 | Catalog schema | PRE-05 | Validates the commercial catalog against the §1.5 schema | HALT |

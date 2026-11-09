@@ -3,7 +3,9 @@
 **Playbook ID:** 3.13-D
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
-**Last Verified:** April 2026
+**Last Verified:** 2026-11-09 (documentation review; no tenant/UI execution)
+
+**Technical cross-check:** 2026-11-09 (Microsoft documentation only, not tenant/UI execution). See the [Control 2.25 source ledger](../2.25/verification-testing.md#microsoft-documentation-verification-ledger). Overview hero metrics are Agent registry, Active users, Agent run-time, and Registry sync. Agents with exceptions is an actionable count/view. A derived rate is `100 * sessions with errors / sessions` for the same supported Activity scope/date range; higher is worse, and zero sessions or missing telemetry yields no rate. Native registry exports may be CSV or Excel; retain the actual format, All agents / Filtered agents scope, filters, and source coverage. Missing approval/template fields require separately sourced evidence, not assumed API columns.
 
 ---
 
@@ -25,7 +27,7 @@ This playbook documents the most common issues encountered when implementing and
 **Symptom**: The "Agents" item does not appear in the M365 Admin Center left navigation, even after selecting "Show all."
 
 **Probable Causes**:
-- The signed-in account does not have the Entra Global Admin or AI Administrator role
+- The signed-in account does not have the AI Reader/Entra Global Reader for review; AI Administrator for changes role
 - The tenant does not have an active Microsoft 365 Copilot or Agent 365 license
 - A browser caching issue is presenting a stale navigation state
 
@@ -35,8 +37,8 @@ This playbook documents the most common issues encountered when implementing and
 3. Check the M365 Message Center for any active service advisories affecting the Admin Center navigation.
 
 **Resolution**:
-1. If the account lacks the required role: have a current Entra Global Admin assign the AI Administrator role via Entra Admin Center > Roles and administrators. Prefer AI Administrator for least-privilege analytics access.
-2. If the tenant lacks the required licenses: Agent 365 features require Microsoft 365 Copilot or Agent 365 / Microsoft 365 E7 licensing. Engage your Microsoft account team to acquire appropriate licenses.
+1. If the account lacks the required role: have a current Entra Global Admin assign the AI Administrator role via Entra Admin Center > Roles and administrators. Use AI Reader or Entra Global Reader for read-only analytics; AI Administrator is needed for management changes.
+2. If the tenant lacks the required licenses: Verify feature-specific entitlement; Copilot alone is not Agent 365 entitlement and is not a universal prerequisite for standalone Agent 365. Engage your Microsoft account team to acquire appropriate licenses.
 3. If a caching issue is suspected: clear browser cache and cookies, open a new private browsing window, and navigate to `https://admin.microsoft.com` again.
 4. Try the direct navigation URL: `https://admin.microsoft.com/Adminportal/Home#/agents`
 
@@ -54,7 +56,7 @@ This playbook documents the most common issues encountered when implementing and
 - The tenant is in a new state and telemetry has not yet been generated
 
 **Diagnostic Steps**:
-1. Navigate to Agents > All Agents. Confirm whether any agents are listed in the full inventory view.
+1. Navigate to Agents > All agents > Registry. Confirm whether any agents are listed in the full inventory view.
 2. If agents are listed in All Agents but not reflected in the Overview count, a data sync issue is present — note the discrepancy and time.
 3. If All Agents is also empty, agents may not be registered. Review Control 3.1 (Agent Inventory) to confirm agents are registered.
 
@@ -69,7 +71,7 @@ This playbook documents the most common issues encountered when implementing and
 
 ### Issue 2.1: Hero metric cards show placeholder or are absent from the page
 
-**Symptom**: The Overview page displays the Agent Registry count but the four hero metric cards (Active Users, Total Sessions, Exception Rate, Agent Runtime) are not visible, or display a "licensing required" message.
+**Symptom**: The Overview page displays the Agent Registry count but the four hero metric cards (Agent registry, Active users, Agent run-time, Registry sync) are not visible, or display a "licensing required" message.
 
 **Probable Causes**:
 - Tenant lacks Microsoft Agent 365 or Microsoft 365 E7 licensing required for hero metrics
@@ -77,37 +79,30 @@ This playbook documents the most common issues encountered when implementing and
 - Post-GA: tenant has not yet provisioned the licenses required for the full analytics surface
 
 **Diagnostic Steps**:
-1. Navigate to M365 Admin Center > Settings > Org settings > Microsoft 365 Insider program (or equivalent Frontier enrollment page). Confirm enrollment status.
-2. Check the M365 Message Center for any Frontier-specific announcements about feature availability in your region.
+1. Verify documented read roles, actual feature entitlement, and a qualifying assigned user for Agent 365 enablement. Basic registry/governance and advanced features have different requirements.
+2. Check service health and Message Center for actual availability incidents; do not infer a current Frontier prerequisite.
 
 **Resolution**:
 1. Provision Microsoft Agent 365 or Microsoft 365 E7 licensing: M365 Admin Center > Billing > Licenses > Assign to the relevant admin and pilot users.
 2. Allow propagation time after license assignment (typically minutes, but up to 24 hours in some tenants) for entitlements to flow to the analytics surface.
 3. After confirmation, revisit the Overview page. Hero metrics should appear.
-4. Document the Frontier enrollment date and store it in the IT governance register.
+4. Document the actual license assignment and availability evidence and store it in the IT governance register.
 
-**Escalation**: If enrollment is confirmed but hero metrics are still absent after 72 hours, contact Microsoft Support via your FastTrack contact or admin support ticket.
+**Escalation**: If the entitlement and role are confirmed but hero metrics are still absent after 72 hours, contact Microsoft Support via your FastTrack contact or admin support ticket.
 
 ---
 
-### Issue 2.2: Exception Rate metric shows 0% or 100% unexpectedly
+### Issue 2.2: Derived exception rate shows 0% or 100% unexpectedly
 
-**Symptom**: The Exception Rate hero metric (percentage of sessions completing without errors) displays an anomalous value — either 0% (no sessions completing successfully) or exactly 100% — which appears inconsistent with known agent activity.
+**Symptom:** An internally calculated rate appears inconsistent with known activity. It is not a native Overview hero metric.
 
-**Probable Causes**:
-- Custom agents are not instrumented with the Agent 365 Observability SDK, causing their session/error data to be absent from the calculation
-- A telemetry ingestion delay or interruption is affecting the calculation
-- All measured sessions in the window have in fact completed without error (100% is plausible in low-volume environments with stable, well-tested agents)
+**Diagnostic steps:**
+1. Inspect the supported agent's Activity Sessions and Exceptions for the same date range. Exceptions counts sessions with an error.
+2. Calculate `100 * Exceptions / Sessions`. With complete telemetry, 0% means no sessions had errors and 100% means all sessions had errors; higher is worse.
+3. With zero sessions or missing telemetry, report no rate. Do not coerce absent telemetry to 0% or claim successful operation.
+4. Validate collection coverage and licensing against known activity before interpreting reliability. Compare like scopes, not Copilot-only usage with cross-host Activity.
 
-**Diagnostic Steps**:
-1. Check Total Sessions count. If Total Sessions = 0, the exception rate is mathematically indeterminate and should be treated as "no data."
-2. Review Control 3.14 implementation status: confirm custom agents have the Observability SDK implemented and `ENABLE_A365_OBSERVABILITY_EXPORTER=true` is set.
-3. If exception rate = 0%, check Microsoft Defender XDR for agent-related incident alerts that may indicate a widespread reliability event.
-
-**Resolution**:
-1. If the root cause is missing SDK instrumentation: implement the Agent 365 Observability SDK per Control 3.14 and Playbook 3.14-B.
-2. If Total Sessions = 0 despite known agent usage: see Issue 2.3 below (telemetry ingestion delay).
-3. If exception rate = 0% and Defender XDR shows active incidents: initiate incident response procedures; do not attempt Admin Center resolution until the underlying agent reliability issue is understood.
+**Resolution:** Correct the collector, denominator, date range, or alert direction as appropriate; preserve the input evidence and escalate a validated high error rate using the firm's documented policy. SDK presence alone does not prove complete per-agent Activity coverage.
 
 ---
 
@@ -115,10 +110,10 @@ This playbook documents the most common issues encountered when implementing and
 
 ### Issue 3.1: Pending Requests count does not match Requests tab count
 
-**Symptom**: The Pending Requests governance card shows a different count than the actual number of requests visible in the Agent Registry > Requests tab.
+**Symptom**: The Pending Requests governance card shows a different count than the actual number of requests visible in the Agents > All agents > Requests.
 
 **Probable Causes**:
-- The governance card reflects a 30-day rolling window while the Requests tab may show all-time unresolved requests
+- The Overview card shows three newest requests while the Requests list contains the full queue
 - A display caching issue is causing the card to show stale data
 - Requests were dispositioned in the Requests tab but the card has not yet refreshed
 
@@ -139,7 +134,7 @@ This playbook documents the most common issues encountered when implementing and
 
 **Resolution**:
 1. Clear browser extensions, or use a private browsing window without extensions.
-2. As a workaround, navigate manually: Agents > All Agents > Filter by Owner = "None" or "Unassigned" (exact filter label may vary).
+2. As a workaround, navigate manually: Agents > All agents > Registry > Filter by Owner = "None" or "Unassigned" (exact filter label may vary).
 3. Assign owners manually using the filter. Document that the governance card navigation was non-functional and the date.
 4. Check the M365 Message Center for known issues with the Admin Center navigation and report the issue via Admin Center > Support if no known issue exists.
 

@@ -2,9 +2,9 @@
 title: "Control 2.25 — PowerShell Setup (Microsoft Agent 365 Admin Center Governance Console)"
 control_id: "2.25"
 playbook_type: "powershell-setup"
-last_updated: "2026-04-15"
+last_updated: "2026-11-09"
 version: "v1.4"
-ui_verified: "April 2026 (post-GA)"
+ui_verified: "Needs Review (documentation only; no tenant execution)"
 prerequisites:
   - "PowerShell 7.4 Core (Windows, Linux, or macOS)"
   - "Microsoft Graph PowerShell SDK 2.25.0+ (pinned)"
@@ -28,9 +28,9 @@ related_controls: ["1.2", "1.11", "2.3", "2.26", "3.1", "3.6", "3.13"]
 >
 > **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, evidence emission, SHA-256 manifest format.
 
-This playbook automates discovery, attestation, and continuous monitoring for the **Microsoft Agent 365 Admin Center**, the unified governance console that became Generally Available **May 1, 2026**. It mirrors the structural conventions of the sister playbook for Control 2.26 ([Agent Approval Workflow Configuration](../2.26/powershell-setup.md)) and uses the cmdlet prefix `Agt225` for every helper introduced in this file. The Agent 365 Admin Center is Microsoft's GA replacement for the legacy "Copilot Hub" preview; many of its surfaces are still partly portal-only, so this playbook combines Graph reads with documented portal-export fallbacks.
+This playbook describes a proposed framework for discovery, attestation, and continuous monitoring for the **Microsoft Agent 365 Admin Center**, the unified governance console that became Generally Available **May 1, 2026**. It mirrors the structural conventions of the sister playbook for Control 2.26 ([Agent Approval Workflow Configuration](../2.26/powershell-setup.md)) and uses the cmdlet prefix `Agt225` for every helper introduced in this file. The Agent 365 Admin Center is Microsoft's GA replacement for the legacy "Copilot Hub" preview; many of its surfaces are still partly portal-only, so this playbook combines Graph reads with documented portal-export fallbacks.
 
-**Targeted documentation correction verified 2026-10-16, not tenant/UI execution:** the automation claim above describes an intended operating model, not a working end-to-end harness. The registry adapter and undocumented approvals/templates/Researcher/mutation adapters below now stop with `ManualEvidenceRequired`; they must not emit clean evidence. Use the [Control 1.2 source ledger](../1.2/powershell-setup.md#documentation-verification-ledger) for current package/identity routes, scope and licensing. Independent feature/date claims elsewhere in this historical playbook were not reverified in this targeted correction.
+**Last Verified:** 2026-11-09 (live Microsoft documentation only; no tenant/UI execution). The [verification ledger](./verification-testing.md#microsoft-documentation-verification-ledger) records the supported licensing, navigation, roles, package API, metrics, and Researcher controls. This is not a working end-to-end harness: inventory, approvals, templates, license interpretation, lifecycle audit mapping, and Researcher adapters require validated feature-specific evidence and stop with `ManualEvidenceRequired`. Missing evidence blocks acceptance; it is not Clean or NotApplicable. Remaining data models and assembly examples are firm designs, not native Microsoft response schemas.
 
 > **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** FINRA Rule 3110, SEC Rule 17a-4, SOX §404, GLBA Safeguards, OCC Bulletin 2013-29, and Federal Reserve SR 26-2 (formerly SR 11-7). They do **not** "confirm" or "provide" compliance. In particular, FINRA Rule 3110 requires a **registered principal** to bear supervisory responsibility — automated discovery and approval-history extracts described here **do not substitute** for that registered principal's review and sign-off; they provide the evidence the principal then attests to.
 
@@ -38,7 +38,7 @@ This playbook automates discovery, attestation, and continuous monitoring for th
 
 ## §0 — The Wrong-Shell Trap and False-Clean Defects
 
-Before any helper is dot-sourced, operators must internalize a short list of failure modes that have produced **false-clean** governance signals during the Agent 365 preview and the first eight weeks of GA. Each row below describes a defect we have observed in production tenants, the symptom it produces, and the mitigation hard-wired into the helpers in this file.
+Before any helper is dot-sourced, operators must internalize a short list of failure modes that have produced **false-clean** governance signals during the Agent 365 preview and the first eight weeks of GA. The rows below describe illustrative failure modes to test; this documentation review establishes neither production incident observations nor implemented mitigation coverage.
 
 ### 0.1 The wrong-shell trap
 
@@ -62,7 +62,7 @@ Every helper in §2 calls `Assert-Agt225ShellHost` as its first action. The asse
 | 5 | Beta cmdlet GA-renamed mid-flight | Cmdlet not found, caught by broad `try`, swallowed | Microsoft renamed `*Bot*` → `*Agent*` between preview and GA | `Get-Agt225CmdletAvailability` (§1.3) emits `NotApplicable`, not `Clean` |
 | 6 | Empty result conflated with "no findings" | Helper returns `$null`; downstream evidence pack says "Clean" | Helpers must distinguish `Clean` from `NotApplicable` from `Error` | All helpers return `[pscustomobject]` with explicit `Status` enum |
 | 7 | Cached delegated token from prior tenant | Helper enumerates the wrong tenant's agents | Operator switched tenants but did not call `Disconnect-MgGraph` | `Initialize-Agt225Session` always disconnects first |
-| 8 | Researcher (Computer Use) defaults assumed restrictive | Tenants with Copilot licensing inherit `default-on` for the Researcher agent's Computer Use action; operators assume opt-in | GA October 2025 default | `Test-Agt225ResearcherComputerUse` (§7.3) flags `Anomaly` if no affirmative zone decision is recorded |
+| 8 | Researcher (Computer Use) defaults assumed restrictive | Operators assume a default instead of capturing actual user/group, work-data, and website settings | Unverified default/availability assumption | `Test-Agt225ResearcherComputerUse` (§7.3) requires manual configuration evidence; missing evidence blocks acceptance |
 | 9 | Approval-history JSON missing approver UPN | Audit row written before approver context resolved; later renders as "(unknown)" | Race in M365 audit ingestion when approval is auto-completed | `Get-Agt225ApprovalHistory` (§6.2) joins to `Get-MgAuditLogDirectoryAudit` and emits `Anomaly` rather than `Clean` when UPN is null |
 
 Every helper in this playbook returns one of five `Status` values — **`Clean`**, **`Anomaly`**, **`Pending`**, **`NotApplicable`**, **`Error`** — and every helper carries a non-empty `Reason` string when `Status -ne 'Clean'`. **Helpers never return `$null` or `@()` as a clean signal.** This single convention addresses defect #6 and is the foundation on which the §9 evidence pack is built.
@@ -73,7 +73,7 @@ Every helper in this playbook returns one of five `Status` values — **`Clean`*
 
 ### 1.1 Module pinning
 
-The Agent 365 Admin Center surface is exposed through the v1.0 and beta endpoints of Microsoft Graph. Pin the SDK at the version this playbook was last verified against (April 2026):
+The documented Copilot package API is available in v1.0 and beta; it is not a unified Agent 365 governance API. The following module pins are historical firm examples, not current Microsoft minima or a validated module distribution. Validate and pin the SDK operations actually used:
 
 ```powershell
 #Requires -Version 7.4
@@ -109,7 +109,7 @@ The helper `Test-Agt225GraphScopes` (defined in §2.4) interrogates the live tok
 
 ### 1.3 Cmdlet availability — handling preview-to-GA renames
 
-Between the November 2025 preview and the May 2026 GA, Microsoft renamed several cmdlets from the `*Bot*` and `*CopilotAgent*` families to the unified `*Agent*` family. To prevent defect #2, every helper that calls a Graph SDK cmdlet first invokes `Get-Agt225CmdletAvailability`:
+A command's local presence does not establish a supported service contract; this review does not substantiate the former Bot-to-Agent cmdlet-rename claim. To prevent defect #2, every helper that calls a Graph SDK cmdlet first invokes `Get-Agt225CmdletAvailability`:
 
 ```powershell
 function Get-Agt225CmdletAvailability {
@@ -136,37 +136,27 @@ When a required cmdlet is unavailable, the calling helper emits `Status='NotAppl
 
 | Activity | Minimum role | PIM elevation? | Notes |
 |---|---|---|---|
-| Read agent inventory | Entra Global Reader | No | Sufficient for all §3 helpers |
+| Read portal registry | AI Reader or Entra Global Reader | No | Package API roles/permissions and licensing must be validated separately; the §3 adapter is not implemented |
 | Read approval history | Entra Global Reader + Purview Compliance Admin | No | Compliance Admin needed for unified audit |
 | Approve / reject pending agents | Entra Global Admin **or** AI Administrator | **Yes — PIM-bound** | Mutation operations only |
 | Apply governance template | AI Administrator | Yes (PIM) | Tracked via `ChangeTicketId` (§8) |
 | Forward evidence to SIEM | Reader role on the SIEM workspace | No | Out-of-scope for Entra |
 
-Canonical role names: **AI Administrator**, **Entra Global Admin**, **Entra Global Reader**, **AI Governance Lead**, **Purview Compliance Admin**. See [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md).
+Administrative roles include **AI Administrator**, **AI Reader**, **Entra Global Admin**, **Entra Global Reader**, and **Purview Compliance Admin**. **AI Governance Lead** is a firm responsibility, not an Entra built-in role. AI Administrator alone cannot configure Conditional Access or Entra access-package policies. See [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md).
 
 ### 1.5 License-coverage gating preflight
 
-A small number of Agent 365 surfaces remained in **public preview** at GA — most notably the per-tenant Computer Use policy editor for the Researcher agent and the bulk approval-template export. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Agt225Session`. Without that switch, helpers that touch preview surfaces return `Status='NotApplicable'`, `Reason='PreviewSurfaceNotEnabled'` rather than failing or, worse, returning a synthetic clean.
+An operator's `-AllowPreviewSurfaces` choice does not prove a feature is licensed, available, or reachable. Check actual tenant availability and feature entitlement. Researcher policy and template export have no validated automated adapter here.
 
 ```powershell
 function Test-Agt225LicenseCoverageGating {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [bool] $AllowPreviewSurfaces
-    )
-    [pscustomobject]@{
-        AllowPreviewSurfaces = $AllowPreviewSurfaces
-        ResearcherCUPolicy   = if ($AllowPreviewSurfaces) { 'Reachable' } else { 'GatedOff' }
-        BulkTemplateExport   = if ($AllowPreviewSurfaces) { 'Reachable' } else { 'GatedOff' }
-        Status               = if ($AllowPreviewSurfaces) { 'Clean' } else { 'NotApplicable' }
-        Reason               = if ($AllowPreviewSurfaces) { '' } else { 'OperatorOptedOutOfPreview' }
-    }
+    param([Parameter(Mandatory)] [bool] $AllowPreviewSurfaces)
+    throw 'ManualEvidenceRequired: validate actual feature entitlement and availability; an opt-in switch is not a reachability test.'
 }
 ```
 
-This pattern mirrors the §1.5 of the Control 2.26 playbook so that compliance reviewers see identical preflight behaviour across the two paired controls.
-
----
+Use the manual license and feature checks in the verification playbook. Do not schedule downstream examples until their collection adapters are implemented and independently validated.
 
 ## §2 — Bootstrap
 
@@ -540,89 +530,20 @@ $bindReport = Test-Agt225TemplateBinding -Inventory $inventory -Templates $templ
 ```powershell
 function Get-Agt225LifecycleEvents {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [object] $Session,
-        [int] $LookbackDays = 30
-    )
-    $start = (Get-Date).AddDays(-$LookbackDays).ToUniversalTime().ToString('o')
-    $events = Invoke-Agt225Throttled {
-        Invoke-Agt225PagedQuery -Uri "/beta/auditLogs/directoryAudits?`$filter=category eq 'Agent365' and activityDateTime ge $start"
-    }
-    $rows = foreach ($e in $events) {
-        [pscustomobject]@{
-            EventId       = $e.id
-            ActivityUtc   = $e.activityDateTime
-            Activity      = $e.activityDisplayName
-            Initiator     = $e.initiatedBy.user.userPrincipalName
-            TargetAgentId = ($e.targetResources | Where-Object type -eq 'Agent').id
-            Result        = $e.result
-            ResultReason  = $e.resultReason
-        }
-    }
-    [pscustomobject]@{
-        Count = $rows.Count
-        Rows  = $rows
-        Status = if ($rows.Count -gt 0) { 'Clean' } else { 'Anomaly' }
-        Reason = if ($rows.Count -gt 0) { '' } else { "NoLifecycleEventsInLast${LookbackDays}Days" }
-    }
+    param([Parameter(Mandatory)] [object] $Session, [int] $LookbackDays = 30)
+    throw 'ManualEvidenceRequired: map actual lifecycle operations to documented audit sources and validate a known event; no Agent365 audit category is established here.'
 }
 ```
 
-A 30-day window with **zero** lifecycle events in a tenant that has any pending or approved agents is itself anomalous — it usually indicates that audit ingestion is broken (Control 3.1) or that the operator queried the wrong tenant.
+A quiet window does not itself prove a broken pipeline. Trace a known authorized action through its documented source and connector, with the correct tenant and retention window.
 
 ### 6.2 Get-Agt225ApprovalHistory
 
 ```powershell
 function Get-Agt225ApprovalHistory {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [object] $Session,
-        [int] $LookbackDays = 90
-    )
-    $start = (Get-Date).AddDays(-$LookbackDays).ToUniversalTime().ToString('o')
-    $approvals = Invoke-Agt225Throttled {
-        throw 'ManualEvidenceRequired: supply approved approval-history evidence with actual retention coverage and approver identifiers.'
-    }
-    # Defect #9 mitigation — join to directory audit to recover approver UPN
-    $audits = Invoke-Agt225Throttled {
-        Invoke-Agt225PagedQuery -Uri "/beta/auditLogs/directoryAudits?`$filter=category eq 'Agent365' and activityDisplayName eq 'ResolveAgentApproval' and activityDateTime ge $start"
-    }
-    $auditByApproval = @{}
-    foreach ($a in $audits) {
-        $approvalId = ($a.targetResources | Where-Object type -eq 'AgentApproval').id
-        if ($approvalId) { $auditByApproval[$approvalId] = $a.initiatedBy.user.userPrincipalName }
-    }
-
-    $rows = foreach ($p in $approvals) {
-        $approver = if ($p.resolvedBy.userPrincipalName) {
-            $p.resolvedBy.userPrincipalName
-        } elseif ($auditByApproval.ContainsKey($p.id)) {
-            $auditByApproval[$p.id]
-        } else {
-            '(unknown)'
-        }
-        [pscustomobject]@{
-            ApprovalId     = $p.id
-            AgentId        = $p.agentId
-            DisplayName    = $p.displayName
-            SubmittedUtc   = $p.submittedDateTime
-            ResolvedUtc    = $p.resolvedDateTime
-            Decision       = $p.decision
-            ApproverUpn    = $approver
-            Justification  = $p.justification
-            Zone           = $p.deploymentZone
-            Status         = if ($approver -eq '(unknown)') { 'Anomaly' } else { 'Clean' }
-            Reason         = if ($approver -eq '(unknown)') { 'ApproverUpnUnresolved-AuditRace' } else { '' }
-        }
-    }
-    [pscustomobject]@{
-        Count = $rows.Count
-        Rows  = $rows
-        Status = if ($rows | Where-Object Status -eq 'Anomaly') { 'Anomaly' }
-                 elseif ($rows.Count -eq 0) { 'NotApplicable' }
-                 else { 'Clean' }
-        Reason = ''
-    }
+    param([Parameter(Mandatory)] [object] $Session, [int] $LookbackDays = 90)
+    throw 'ManualEvidenceRequired: supply approved approval-history evidence with actual retention coverage and approver identifiers; no ResolveAgentApproval audit contract is established here.'
 }
 ```
 
@@ -634,46 +555,13 @@ The output of `Get-Agt225ApprovalHistory` is the primary attestation artifact fo
 
 ### 7.1 Get-Agt225LicenseCoverage
 
-The Agent 365 Admin Center is licensed via **Microsoft 365 E7 ("Frontier Suite")** or **Microsoft 365 Copilot Business Chat**. Operators must verify that every user assigned a governance role is licensed; an unlicensed AI Administrator silently loses access to many of the admin surfaces.
+Agent 365 is a standalone subscription for eligible Microsoft 365 subscriptions and is included in Microsoft 365 E7. At least one qualifying user assignment enables Agent 365; basic Microsoft 365 registry access and advanced features have different entitlements. Do not infer universal admin licensing, Copilot prerequisites, or license identifiers from fabricated SKU names. Review actual assignments and current feature requirements.
 
 ```powershell
 function Get-Agt225LicenseCoverage {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [object] $Session,
-        [string[]] $RequiredSkus = @('SPE_E7_FRONTIER','M365_COPILOT_BUSINESS_CHAT')
-    )
-    $govRoleMembers = Invoke-Agt225Throttled {
-        $roles = @('AI Administrator','Global Reader','Compliance Administrator')
-        $members = foreach ($r in $roles) {
-            $roleObj = Get-MgDirectoryRole -Filter "displayName eq '$r'" -ErrorAction SilentlyContinue
-            if ($roleObj) {
-                Get-MgDirectoryRoleMember -DirectoryRoleId $roleObj.Id |
-                    Select-Object @{n='Upn';e={$_.AdditionalProperties.userPrincipalName}},
-                                  @{n='Role';e={$r}}
-            }
-        }
-        $members
-    }
-    $rows = foreach ($m in ($govRoleMembers | Where-Object Upn)) {
-        $skus = (Get-MgUserLicenseDetail -UserId $m.Upn -ErrorAction SilentlyContinue).SkuPartNumber
-        $covered = $false
-        foreach ($req in $RequiredSkus) { if ($skus -contains $req) { $covered = $true } }
-        [pscustomobject]@{
-            Upn        = $m.Upn
-            Role       = $m.Role
-            Skus       = ($skus -join ',')
-            Covered    = $covered
-            Status     = if ($covered) { 'Clean' } else { 'Anomaly' }
-            Reason     = if ($covered) { '' } else { "MissingRequiredLicense:$($RequiredSkus -join '|')" }
-        }
-    }
-    [pscustomobject]@{
-        Count = $rows.Count
-        Rows  = $rows
-        Status = if ($rows | Where-Object Status -eq 'Anomaly') { 'Anomaly' } else { 'Clean' }
-        Reason = ''
-    }
+    param([Parameter(Mandatory)] [object] $Session, [string[]] $RequiredSkus)
+    throw 'ManualEvidenceRequired: verify actual feature entitlements and qualifying user assignments against an approved license catalog; no default SKU aliases are assumed.'
 }
 ```
 
@@ -706,9 +594,9 @@ function Test-Agt225AccessReviewBinding {
 
 ### 7.3 Test-Agt225ResearcherComputerUse
 
-The Researcher agent's **Computer Use** capability went GA in **October 2025** and is **default-on** for any tenant with Copilot licensing. This is the single most material policy decision in the Agent 365 surface for FSI tenants because Computer Use can drive a browser to interact with internal web apps on the user's behalf — a capability that requires affirmative supervisory review under FINRA Rule 3110 and OCC Bulletin 2013-29.
+Current Researcher configuration documentation does not establish the former October 2025 GA or universal default-on claims. This is the single most material policy decision in the Agent 365 surface for FSI tenants because Computer Use operates an isolated virtual computer; private intranet reachability must not be assumed — a capability that requires affirmative supervisory review under FINRA Rule 3110 and OCC Bulletin 2013-29.
 
-`Test-Agt225ResearcherComputerUse` does not change any setting; it asserts that an **affirmative restrictive zone decision** is recorded in the per-zone policy register. The default-on inheritance is treated as `Anomaly` until the AI Governance Lead has signed off per zone.
+`Test-Agt225ResearcherComputerUse` does not change any setting; it asserts that an **affirmative restrictive zone decision** is recorded in the per-zone policy register. Missing or mismatched configuration evidence remains unresolved until the AI Governance Lead has signed off per zone.
 
 ```powershell
 function Test-Agt225ResearcherComputerUse {
@@ -1435,7 +1323,7 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 * [``docs/reference/regulatory-mappings.md``](../../../reference/regulatory-mappings.md) — Full regulator-to-control matrix.
 * [Microsoft Learn — Microsoft 365 Agent 365 Admin Center](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview?view=o365-worldwide) (verify currency before each major run).
 * [Microsoft Learn — Microsoft Graph SDK for PowerShell](https://learn.microsoft.com/powershell/microsoftgraph/overview).
-* [Microsoft Learn — Researcher with Computer Use](https://learn.microsoft.com/en-us/microsoft-365/copilot/researcher-agent-computer-use) — GA October 2025; default-on inheritance behaviour.
+* [Microsoft Learn — Researcher with Computer Use](https://learn.microsoft.com/en-us/copilot/manage/researcher-agent-computer-use) — current access, work-data, and website configuration.
 
 ---
 

@@ -848,7 +848,7 @@ An agent is classified at an autonomy level that does not match its actual behav
 
 1. **Autonomy declaration required at onboarding.** Registration (Control 3.1) blocks without a declaration.
 2. **Connector-change triggers reclassification.** New connector invokes a CAB step that re-evaluates autonomy.
-3. **Fully-Autonomous gate.** Platform-level gate preventing Fully-Autonomous declaration in Z3 until Microsoft publishes GA guidance.
+3. **Fully-Autonomous gate.** Firm-owned scope gate, not a documented Agent 365 platform control. Historical preview references do not establish current Microsoft availability; see the product documentation correction in Control 2.12. This technical clarification does not revise the firm's autonomy policy.
 4. **Quarterly attestation.** Compliance Officer re-attests each agent's autonomy declaration quarterly.
 
 ### §9.6 Evidence to Capture

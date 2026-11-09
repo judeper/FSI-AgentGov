@@ -5,12 +5,14 @@
 **Pillar:** Reporting
 **Estimated Duration:** 30–45 minutes (initial setup); 10–15 minutes (recurring review)
 **Required Role:** Entra Global Admin or Microsoft 365 AI Administrator
-**Last Verified:** April 2026
+**Last Verified:** 2026-11-09 (documentation review; no tenant/UI execution)
+
+**Technical cross-check:** 2026-11-09 (Microsoft documentation only, not tenant/UI execution). See the [Control 2.25 source ledger](../2.25/verification-testing.md#microsoft-documentation-verification-ledger). Overview hero metrics are Agent registry, Active users, Agent run-time, and Registry sync. Agents with exceptions is an actionable count/view. A derived rate is `100 * sessions with errors / sessions` for the same supported Activity scope/date range; higher is worse, and zero sessions or missing telemetry yields no rate. Native registry exports may be CSV or Excel; retain the actual format, All agents / Filtered agents scope, filters, and source coverage. Missing approval/template fields require separately sourced evidence, not assumed API columns.
 
 ---
 
 !!! info "Hero Metrics Availability"
-    The hero metrics on the Agent 365 Overview page (Active Users, Total Sessions, Exception Rate, Agent Runtime) reached **General Availability on May 1, 2026** for tenants with Agent 365 or Microsoft 365 E7 licensing. The Agent Registry and governance cards (Pending Requests, Ownerless Agents) were Generally Available pre-Agent-365-GA and remain accessible. Steps that depend on hero metrics require Microsoft Agent 365 or Microsoft 365 E7 licensing — these are flagged **[Requires Agent 365 / E7 licensing]**.
+    The hero metrics on the Agent 365 Overview page (Agent registry, Active users, Agent run-time, Registry sync) reached **General Availability on May 1, 2026** for tenants with Agent 365 or Microsoft 365 E7 licensing. The Agent Registry and governance cards (Pending Requests, Ownerless Agents) were Generally Available pre-Agent-365-GA and remain accessible. Steps that depend on hero metrics require Microsoft Agent 365 or Microsoft 365 E7 licensing — these are flagged **[Requires Agent 365 / E7 licensing]**.
 
 ---
 
@@ -24,7 +26,7 @@ This playbook walks compliance officers, IT governance leads, and M365 administr
 
 Before beginning this walkthrough, confirm the following:
 
-- [ ] You have a Microsoft 365 Entra Global Admin or AI Administrator account for the target tenant.
+- [ ] You have a Microsoft 365 AI Reader/Entra Global Reader for review; AI Administrator for changes account for the target tenant.
 - [ ] Multi-factor authentication (MFA) is enabled and functioning for your admin account.
 - [ ] If accessing hero metrics: the tenant has Microsoft Agent 365 or Microsoft 365 E7 licensing provisioned.
 - [ ] You have reviewed Control 3.13 and understand the Zone designation applicable to your organization.
@@ -38,7 +40,7 @@ Before beginning this walkthrough, confirm the following:
 
 **1.2** Navigate to: `https://admin.microsoft.com`
 
-**1.3** Sign in with your Entra Global Admin or AI Administrator credentials. Complete MFA if prompted.
+**1.3** Sign in with your AI Reader/Entra Global Reader for review; AI Administrator for changes credentials. Complete MFA if prompted.
 
 **1.4** Confirm you are in the correct tenant by verifying the tenant name displayed in the upper-right corner of the Admin Center. If you manage multiple tenants, use the tenant switcher before proceeding.
 
@@ -58,7 +60,7 @@ Before beginning this walkthrough, confirm the following:
 **2.4** Select **"Overview"** from the Agents submenu. The Agent 365 Overview page will load.
 
 !!! note "Navigation Variability"
-    The M365 Admin Center navigation layout may vary based on your Microsoft 365 license, tenant configuration, and any Admin Center preview features enabled. If "Agents" is not visible even after selecting "Show all," verify that your account has the required AI Administrator or Global Admin role and that your tenant has M365 Copilot licensing.
+    The M365 Admin Center navigation layout may vary based on your Microsoft 365 license, tenant configuration, and any Admin Center preview features enabled. If "Agents" is not visible even after selecting "Show all," verify that your account has the required AI Administrator or Global Admin role and the entitlement for the requested feature; standalone Agent 365 does not universally require Copilot.
 
 ---
 
@@ -75,25 +77,15 @@ Before beginning this walkthrough, confirm the following:
 ## Step 4: Review Hero Metrics [Requires Agent 365 / E7 licensing]
 
 !!! info "Availability"
-    Steps 4.1–4.5 require Frontier enrollment before May 1, 2026 GA. From May 1, 2026, hero metrics are available to all tenants with Agent 365 / Microsoft 365 E7 licensing. If your tenant has neither, skip to Step 5.
+    Verify current feature licensing and at least one qualifying user assignment for Agent 365 enablement; do not use historical Frontier enrollment as a current diagnostic gate. If your tenant has neither, skip to Step 5.
 
-**4.1** On the Overview page, locate the four hero metric cards:
-- **Active Users**: unique users who interacted with at least one agent in the last 30 days
-- **Total Sessions**: complete agent invocations in the last 30 days
-- **Exception Rate**: percentage of sessions completing without errors
-- **Agent Runtime**: total agent-assisted time in the last 30 days
+**4.1** Record the four current Overview hero metrics: Agent registry, Active users, Agent run-time, and Registry sync. Runtime is hours over the last 30 days; third-party activity starts accumulating at license activation.
 
-**4.2** Record all four metric values in your supervisory review log.
+**4.2** Record their displayed scope, period, and capture time. Sessions and Exceptions are supported per-agent Activity metrics, not Overview hero cards.
 
-**4.3** Exception Rate Assessment (Exception Rate = % of sessions that completed without errors; higher is better):
+**4.3** For exception monitoring, open **Agents with exceptions** and, where supported, the agent's Activity tab. Calculate a firm-derived error-session rate only with complete counts for the same period: `100 * error sessions / sessions`. Higher is worse; zero sessions means no rate. Use the firm's documented threshold (for example >5% triggers investigation), not the former inverted 95%/85% success-rate thresholds.
 
-- If exception rate is **at or above 95%**: within normal operating range. Note the value.
-- If exception rate has **declined 5 or more percentage points** since last review: flag as anomaly. Create a remediation ticket and notify the IT governance lead and affected agent owners. Do not close the review without documenting the alert.
-- If exception rate is **below 85%**: escalate to the CISO and CCO immediately. Treat as a potential systemic agent reliability event.
-
-**4.4** Active Users and Total Sessions Assessment:
-- Unexplained spikes in Active Users or Total Sessions may indicate unauthorized agent usage or a misconfigured agent generating automated sessions. Flag significant anomalies (greater than 20% week-over-week change) for investigation.
-- Unexplained declines in Active Users may indicate a user-facing agent failure or access revocation event.
+**4.4** Investigate unexplained changes in active users or runtime against known deployments and collection coverage. Do not compare unlike date ranges or equate Copilot-only usage with cross-host activity.
 
 **4.5** Record findings and any remediation actions initiated in the supervisory review log.
 
@@ -128,10 +120,10 @@ Before beginning this walkthrough, confirm the following:
 
 **6.1** Locate the **Pending Requests** governance card.
 
-**6.2** Note the pending request count and the week-over-week delta badge.
+**6.2** Record the three newest requests shown; use Manage requests for the full queue and actual submission-date evidence. Do not assume a delta badge or oldest-first order.
 
 **6.3** If pending requests exist:
-- Select the **"Manage requests"** button. This navigates to Agent Registry > Requests tab.
+- Select the **"Manage requests"** button. This navigates to Agents > All agents > Requests.
 - Review each pending request: agent name, requesting user, submission date, and description.
 - Disposition each request (approve or deny) within your Zone's defined SLA:
   - Zone 1: 30 days
@@ -144,7 +136,7 @@ Before beginning this walkthrough, confirm the following:
 **6.5** Note the ownerless agent count.
 
 **6.6** If ownerless agents exist:
-- Select the **"Assign Owner"** button. This navigates to Agent Registry > Ownerless Agents filter.
+- Select the **"Assign Owner"** button. This opens the registry filtered to agents without owners; assign owners from agent details.
 - For each ownerless agent, identify the appropriate business line owner and assign ownership.
 - If the agent has no identifiable business purpose or owner, escalate to the CISO for potential decommissioning review.
 - Document all ownership assignments in the supervisory review log.
@@ -164,12 +156,12 @@ Before beginning this walkthrough, confirm the following:
 
 **7.3** Locate the **Export** button in the top-right area of the agent list (above the table).
 
-**7.4** Select **Export**. The admin center will generate and download a CSV file containing the full agent inventory.
+**7.4** Select **Export**. Choose the offered CSV/Excel export and record All agents / Filtered agents scope, applied filters, and coverage. Preserve the actual file extension.
 
 **7.5** Immediately rename the exported file using the following naming convention to create a dated examination artifact:
 
 ```
-AgentInventory_[TenantName]_[YYYYMMDD].csv
+AgentInventory_[TenantName]_[YYYYMMDD].csv (or .xlsx for Excel)
 ```
 
 Example: `AgentInventory_ContosoCapital_20260322.csv`
@@ -206,7 +198,7 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 - Reviewer name and title
 - Tenant name and environment (production/test)
 - Agent Registry count (current and prior period comparison)
-- Hero metric values where available (Active Users, Sessions, Exception Rate, Runtime)
+- Hero metric values where available (Agent registry, Active users, Agent run-time, Registry sync)
 - Exception rate assessment (normal/anomaly/escalated)
 - Pending request count and disposition actions taken
 - Ownerless agent count and remediation actions taken

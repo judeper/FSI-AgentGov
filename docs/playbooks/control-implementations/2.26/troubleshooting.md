@@ -126,7 +126,7 @@ function Get-Agt226Health {
         OrphanCount      = (Get-AgentsWithoutSponsors).Count
         AccessPkgCount   = (Get-AgentAccessPackageAssignments).Count
         SponsorCoverage  = (Get-AgentGovernanceSummary).SponsorCoveragePct
-        AgentIdSurfaceEnabled = (Get-MgBetaAdminMicrosoft365CopilotSetting -ErrorAction SilentlyContinue).FrontierProgramEnabled
+        AgentIdSurfaceEnabled = $(throw 'ManualEvidenceRequired: verify actual entitlement, assignments, typed identity coverage, and portal access separately; no Frontier toggle is a supported license check.')
     }
     $out = $snap | ConvertTo-Json -Depth 5
     if ($IncidentId) {
@@ -286,7 +286,7 @@ AuditLogs
 | E-05 | Lifecycle Workflow definition + last 5 runs | §1.1 `Get-Agt226LifecycleStatus` | `FSI-Examiner-Hold-7yr` |
 | E-06 | Active access review definition + scope | §1.1 `Get-Agt226ReviewCoverage` | `FSI-Examiner-Hold-7yr` |
 | E-07 | Sponsor `employeeLeaveDateTime` value at detection | GQ-04 | `FSI-Examiner-Hold-7yr` |
-| E-08 | Tenant cloud + license posture (Copilot + Agent 365 / M365 E7) | `Get-Agt226Health.AgentIdSurfaceEnabled` (value reflects Agent ID API surface reachability post-GA) + license assignment report | `FSI-Examiner-Hold-7yr` |
+| E-08 | Tenant cloud + actual feature entitlements and qualifying assignments | Approved license/assignment records plus independently captured typed identity API and portal evidence; the health example requires manual evidence | `FSI-Examiner-Hold-7yr` |
 | E-09 | Operator identity + UTC timestamp of every remediation step | Incident ticket / change record | `FSI-Examiner-Hold-7yr` |
 
 `Export-Control226EvidencePackage -IncidentId <id>` bundles E-01 through E-08 automatically. E-09 is captured in the incident ticket by the operator.
@@ -315,7 +315,7 @@ AuditLogs
 
 | RC | Description | Likelihood | How to confirm |
 |----|-------------|-----------|----------------|
-| RC-A | Operator missing **Microsoft Agent 365** or **Microsoft 365 E7** license | High (most common post-GA) | M365 admin center → Users → operator → Licenses; Agent 365 or M365 E7 must be assigned (group-based works) |
+| RC-A | Required feature entitlement or qualifying assignment not evidenced | Verify, do not assume frequency | Compare actual subscriptions and assignments with the current feature requirements; do not assume every administrative reader needs the same license |
 | RC-B | Tenant has no available Agent 365 / M365 E7 SKUs to assign | Medium | M365 admin center → Billing → Your products; if not listed, contact account team to procure |
 | RC-C | Operator missing the **Entra Agent ID Admin** or **AI Administrator** directory role | Medium | `Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '{id}'"` |
 | RC-E | Adjacent surface (e.g., the assignment-policy toggle still labelled "(preview)") rolled back transiently by Microsoft (service advisory) | Low | Service Health → Entra advisories |
@@ -326,12 +326,12 @@ AuditLogs
 ### 2.3 Diagnostic queries
 
 ```powershell
-# Quick check (post-GA: AgentIdSurfaceEnabled reflects Agent ID API reachability)
+# The health example blocks until its manual evidence dependency is implemented.
 Get-Agt226Health | Select Cloud, AgentIdSurfaceEnabled, AgentCount
 
-# Operator license check (post-GA: prefer Agent 365 / M365 E7; transitional Copilot match retained)
+# Record actual identifiers; interpret against an approved feature-specific catalog.
 Get-MgUserLicenseDetail -UserId <operator-upn> |
-  Where-Object { $_.SkuPartNumber -match 'Microsoft_Agent_365|M365_E7|COPILOT|M365_COPILOT' }
+  Select-Object SkuId, SkuPartNumber, ServicePlans
 
 # Operator role check
 Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '<operator-objectId>'" |
@@ -339,13 +339,13 @@ Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '<operator-o
   Select DisplayName
 ```
 
-Graph: GQ-01 returning 400/404 → operating principal lacks Microsoft Agent 365 / M365 E7 license coverage (post-GA gating); returning 200 with empty result → license is provisioned but role / RBAC gating on operator only.
+Graph: preserve the actual request, response, and error. A 400/404 or a 200 empty result does not diagnose a particular missing SKU or role; verify entitlement, permissions, request validity, supported object type, and known-object coverage separately.
 
 ### 2.4 Resolution steps
 
 1. Confirm `Cloud` = `Global`.
-2. Have an **Entra Global Admin** verify the operating principal has **Microsoft Agent 365** (standalone) or **Microsoft 365 E7** ("Frontier Suite") license assignment active in M365 admin center → Billing → Licenses. Capture the assignment record (date, SKU part number, assigning admin's UPN) for E-08.
-3. Assign / verify the affected operator has a Microsoft 365 Copilot license. Group-based assignment is supported; verify license **provisioning status** is `Success`, not `PendingProvisioning`.
+2. Have an authorized licensing administrator verify actual **Microsoft Agent 365 / Microsoft 365 E7** feature entitlements and required qualifying user assignments in M365 admin center → Billing → Licenses. Capture the assignment record (date, actual product identifier, assigning admin's UPN) for E-08; do not assume every administrative reader needs the same user license.
+3. Verify creator, sponsor, and operating-user entitlements for the selected feature against the current [Agent 365 service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-agent-365/microsoft-agent-365). Do not impose a universal standalone Copilot prerequisite or treat purchased capacity as assignment evidence.
 4. Assign the **Entra Agent ID Admin** role (preferred; least-privilege) or **AI Administrator** (broader). Avoid Global Admin for routine operation.
 5. Operator must sign out and back in (token refresh) before the blade appears. If still missing after 15 minutes, clear browser cache and retry.
 6. If Conditional Access is suspected (RC-F), have the Entra Security Admin add the operator to a CA exclusion test group temporarily, retry, then remove the exclusion and adjust policy.
@@ -824,7 +824,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 
 ### 10.2 Investigation
 
-1. Confirm whether the Microsoft Agent 365 / M365 E7 SKU has lapsed separately from the Microsoft 365 Copilot SKU; an Agent 365 lapse alone removes the Agent ID surface even when the Copilot prerequisite remains active, and vice-versa.
+1. Confirm the actual feature entitlement and assignments separately from Microsoft 365 Copilot licensing. Standalone Agent 365 has no universal Copilot prerequisite; a failed/empty API read does not by itself prove a lapsed license or removed portal surface.
 2. Pull sign-in logs for last 24 h to identify which operators were attempting agent admin actions when the lapse hit.
 3. Determine whether the renewal is in flight (PO open, awaiting fulfillment) or whether the firm has dropped the SKU intentionally.
 
@@ -837,7 +837,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 ### 10.4 Eradication / restoration
 
 1. Confirm renewed SKU assigned and provisioned (`Success` not `PendingProvisioning`).
-2. Verify Microsoft Agent 365 / M365 E7 license assignment is reattached to operating principals after the renewal posts; it can take up to 24h for the Agent identities surface to reflect the reassignment. If the surface remains empty after 24h, open a Microsoft support ticket per §2.7.
+2. Verify the actual required feature entitlements and qualifying assignments after renewal, then test known-object coverage and portal access separately. No fixed 24-hour recovery time is established here; escalate persistent unexplained failures through §2.7 with source evidence.
 3. Resume paused operations. Run `Get-Agt226Health` and confirm `AgentIdSurfaceEnabled = True`, `AgentCount` matches pre-incident.
 
 ### 10.5 Lessons-learned / reportability

@@ -4,8 +4,10 @@
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Estimated Duration:** 1–2 hours
-**Required Role:** Entra Global Admin or AI Administrator; Internal Audit (for attestation)
-**Last Verified:** April 2026
+**Required Role:** AI Reader/Entra Global Reader for review; AI Administrator for changes; Internal Audit (for attestation)
+**Last Verified:** 2026-11-09 (documentation review; no tenant/UI execution)
+
+**Technical cross-check:** 2026-11-09 (Microsoft documentation only, not tenant/UI execution). See the [Control 2.25 source ledger](../2.25/verification-testing.md#microsoft-documentation-verification-ledger). Overview hero metrics are Agent registry, Active users, Agent run-time, and Registry sync. Agents with exceptions is an actionable count/view. A derived rate is `100 * sessions with errors / sessions` for the same supported Activity scope/date range; higher is worse, and zero sessions or missing telemetry yields no rate. Native registry exports may be CSV or Excel; retain the actual format, All agents / Filtered agents scope, filters, and source coverage. Missing approval/template fields require separately sourced evidence, not assumed API columns.
 
 ---
 
@@ -19,9 +21,9 @@
 Verification testing for Control 3.13 confirms that:
 
 1. The Agent 365 Admin Center Analytics dashboard is accessible to authorized roles and displaying accurate data.
-2. Hero metrics (if Frontier-enrolled) are populating from real agent telemetry.
+2. Hero metrics (where licensed and supported) are populating from real agent telemetry.
 3. Governance cards (Pending Requests, Ownerless Agents) are visible and actionable.
-4. Inventory exports are complete, correctly formatted, and successfully stored in the designated records repository.
+4. Inventory exports and documented supplements are reconciled for coverage and format, and successfully stored in the designated records repository.
 5. Automated alert workflows are functioning and delivering notifications within the expected timeframe.
 6. The supervisory review log contains evidence of recurring reviews at the required cadence.
 
@@ -71,30 +73,21 @@ Expected Result: User is either redirected away from the admin center or cannot 
 **Test Steps**:
 
 **T2.1 — Metric Presence**
-1. Navigate to Agents > Overview.
-2. Confirm all four hero metric cards are visible: Active Users, Total Sessions, Exception Rate, Agent Runtime.
-3. Record all four current values.
+1. Open Agents > Overview and capture Agent registry, Active users, Agent run-time, and Registry sync with their actual units and date ranges.
+2. Record errors, pending sync, or unsupported telemetry as unresolved rather than a passing zero.
 
-Expected Result: All four cards visible and displaying numeric values.
+**T2.2 — Source and Period Validation**
+1. Confirm known authorized activity falls inside the displayed period and supported agent-type coverage.
+2. Runtime is measured in hours over the last 30 days. Third-party activity begins at license activation, so the first collection window may be shorter.
+3. Zero activity can be legitimate; it is not automatically a failure or evidence of complete collection.
 
-**T2.2 — Non-Zero Validation**
-1. Confirm Active Users > 0 (at least one user has interacted with an agent in the past 30 days).
-2. Confirm Total Sessions > 0.
-3. Confirm Exception Rate is between 0% and 100% (a value outside this range indicates a data error).
-4. Confirm Agent Runtime > 0.
-
-Expected Result: All metrics show non-zero values in a tenant with deployed, active agents.
-
-**T2.3 — Metric Consistency Check**
-1. If Total Sessions = N, Active Users cannot logically exceed N. Verify this relationship holds.
-2. Record any metric combinations that appear logically inconsistent (e.g., Active Users > Total Sessions) as anomalies requiring investigation.
+**T2.3 — Derived Exception Rate**
+1. Use supported per-agent Activity Sessions and Exceptions (sessions with errors) for the same scope and period.
+2. Calculate `100 * Exceptions / Sessions` only with a positive denominator and complete telemetry. Higher is worse. Missing data or zero sessions means no rate.
+3. The Overview does not provide the old Total Sessions/Exception Rate hero cards; retain the input counts and formula as firm-derived evidence.
 
 **T2.4 — Historical Trend Validation**
-1. Review the Active Users Over Time chart.
-2. Confirm the chart displays 30 days of daily data points.
-3. Confirm the trend line is continuous (no unexpected gaps that might indicate telemetry interruption).
-
-Expected Result: Continuous 30-day trend line with no unexplained gaps.
+Capture the actual displayed Active users trend, its coverage start, and date range. Investigate unexplained gaps without assuming every tenant has a complete initial 30-day history.
 
 **Evidence to Record**:
 - Screenshot of Overview page showing all four hero metric values
@@ -112,11 +105,11 @@ Expected Result: Continuous 30-day trend line with no unexplained gaps.
 **T3.1 — Pending Requests Card**
 1. Note the pending request count displayed on the governance card.
 2. Select the "Manage requests" button.
-3. Confirm navigation to Agent Registry > Requests tab.
+3. Confirm navigation to Agents > All agents > Requests.
 4. Count the requests visible in the Requests tab.
-5. Verify count in Requests tab matches (or is consistent with) the governance card count.
+5. Review the full Requests list and reconcile actual scope/time. The Overview shows three newest requests, not necessarily every pending request.
 
-Expected Result: Navigation works correctly. Count in Requests tab is consistent with governance card.
+Expected Result: Navigation works correctly. The full Requests list is reviewed; the three-item Overview preview is not used as an aging report.
 
 **T3.2 — Ownerless Agents Card**
 1. Note the ownerless agent count displayed on the governance card.
@@ -128,7 +121,7 @@ Expected Result: Navigation works correctly. Count in Requests tab is consistent
 Expected Result: Navigation works correctly. Filtered agent count is consistent with governance card.
 
 **T3.3 — Cross-Reference Validation**
-1. Navigate to Agents > All Agents.
+1. Navigate to Agents > All agents > Registry.
 2. Sort or filter agents by "Owner" to identify agents with no owner assigned.
 3. Confirm the ownerless agents identified in the All Agents view match those shown in the governance card filter.
 
@@ -150,20 +143,20 @@ Expected Result: Agent list and governance card are consistent. Discrepancies sh
 **Test Steps**:
 
 **T4.1 — Manual Export Generation**
-1. Navigate to Agents > All Agents.
+1. Navigate to Agents > All agents > Registry.
 2. Note the total agent count displayed in the All Agents list (page header or row count).
 3. Select the Export button.
 4. Allow the download to complete.
-5. Open the downloaded CSV file.
+5. Open the downloaded CSV or Excel file.
 
 **T4.2 — Row Count Verification**
-1. Count the data rows in the exported CSV (excluding the header row).
+1. Count the data rows in the exported file (excluding the header row).
 2. Compare row count to the agent count noted in step T4.1.
 
-Expected Result: Row count in CSV matches the agent count displayed in the All Agents list. A discrepancy of more than 1–2 agents (accounting for any pagination timing differences) should be investigated.
+Expected Result: Reconcile row count with the selected All agents / Filtered agents scope and capture time. Total agents is unchanged by filters; document every unexplained difference rather than apply an arbitrary 1–2-row tolerance.
 
 **T4.3 — Field Completeness Verification**
-Review the CSV headers and confirm the export includes at minimum:
+Review the actual export headers and confirm the export includes at minimum:
 - [ ] Agent display name
 - [ ] Publisher / publisher type (Microsoft / Organization / Partner)
 - [ ] Platform (Microsoft Copilot Studio / Azure AI Foundry / etc.)
@@ -171,11 +164,11 @@ Review the CSV headers and confirm the export includes at minimum:
 - [ ] Owner or owner email
 - [ ] Creation date or last modified date
 
-Expected Result: All fields are present. Blank values in "Owner" column should correlate to agents identified as ownerless in the governance card.
+Expected Result: All firm-required fields are evidenced by the native export or a provenance-labelled supplement; Microsoft does not promise every listed header. Blank values in "Owner" column should correlate to agents identified as ownerless in the governance card.
 
 **T4.4 — Cross-Reference with Known Agents**
 1. Select three known agents (one Microsoft-built, one custom/internal, one partner-built if applicable).
-2. Confirm each appears in the exported CSV with the correct publisher type.
+2. Confirm each appears in the exported file with the correct publisher type.
 
 Expected Result: All three test agents appear in the CSV with correct attributes.
 
@@ -203,7 +196,7 @@ Expected Result: Policy State = "Locked"; Immutability period = 2,190 days (6 ye
 
 **Evidence to Record**:
 - Screenshot of All Agents page showing total agent count
-- Exported CSV file (retain as test evidence artifact)
+- Exported CSV or Excel file (retain as test evidence artifact)
 - Row count comparison results
 - Field completeness checklist
 - Screenshot of records repository showing dated export files
@@ -226,11 +219,11 @@ Expected Result: Policy State = "Locked"; Immutability period = 2,190 days (6 ye
 Expected Result: Flow is active. Run history shows successful executions on the scheduled cadence.
 
 **T5.2 — Alert Trigger Test (Exception Rate)**
-1. Temporarily lower the exception rate alert threshold in the flow to a value guaranteed to trigger (e.g., 99%) to simulate an alert condition.
+1. In an approved test environment, record the original threshold and inject complete test counts yielding an error-session rate above the firm's configured threshold. Include zero-session and missing-telemetry cases, which must report no rate rather than a clean result. A validated collector/alert implementation is required; the companion flow is only a design.
 2. Manually trigger the flow using the "Run" button in Power Automate.
 3. Confirm the compliance officer email inbox receives the alert email within 15 minutes.
 4. Review the email content for accuracy: exception rate value, required action, timestamp.
-5. Restore the threshold to the production value (90%) after the test.
+5. Restore the actual recorded threshold and test inputs; do not assume a 90% production threshold.
 
 Expected Result: Alert email received within 15 minutes. Email content is accurate and actionable.
 
@@ -286,7 +279,7 @@ Expected Result: Log entries are present at the required cadence. Gaps, if any, 
 Expected Result: All three sampled log entries contain the required elements.
 
 **T6.4 — Reviewer Authorization Verification**
-1. For each sampled log entry, confirm the listed reviewer holds the Entra Global Admin or AI Administrator role.
+1. For each sampled log entry, confirm the listed reviewer holds the AI Reader/Entra Global Reader for review; AI Administrator for changes role.
 2. Verify via Entra admin center: Users > [reviewer name] > Assigned roles.
 
 Expected Result: All reviewers hold an authorized role. Log entries from users without an authorized role should be treated as a control deficiency.

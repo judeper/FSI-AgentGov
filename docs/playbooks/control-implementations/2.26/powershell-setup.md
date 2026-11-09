@@ -10,9 +10,9 @@ last_ui_verified: "May 2026"
 
 > **Scope.** Operational PowerShell automation for governing Entra Agent ID lifecycle: sponsor assignment, orphan detection, access package assignment review, lifecycle workflow telemetry, access review tracking, bulk sponsor reassignment, evidence pack export, and SIEM forwarding verification.
 >
-> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" prerequisite is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. The `Test-Agt226LicenseCoverageGating` helper and the `LicenseCoverageNotSatisfied` exception type retain their pre-GA names for backward compatibility — the underlying check (whether the operating principal can reach the agent identity surface) remains valid because both the pre-GA Frontier gate and the post-GA license assignment manifest as the same API reachability state. This rename was completed in issue #418.
+> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. Historical Frontier enrollment is not a current prerequisite. Verify the actual Agent 365 / Microsoft 365 E7 feature entitlement, qualifying assignment, role, typed identity API coverage, and portal availability independently; one API reachability result does not establish all of them. Historical helper names remain for cross-reference compatibility.
 >
-> **License gating.** Entra Agent ID requires **Microsoft Agent 365** licensing (standalone per-user) or **Microsoft 365 E7** ("Frontier Suite," which bundles Microsoft 365 Copilot + Agent 365 + Entra Suite + E5). Tenants without either license will see empty result sets — not errors. The §1 preflight explicitly flags this false-clean condition.
+> **License gating.** Verify the current entitlement for each Agent ID operation; standalone Agent 365 and Microsoft 365 E7 are licensing options. An empty result, 403, or 404 is not a reliable diagnosis of licensing state. The §1.4 adapter requires manual evidence rather than report an unverified outcome as Clean or NotApplicable.
 >
 > **Sponsor-departure model (documentation checked 2026-10-18).** Microsoft's [tenant-wide agent management guide](https://learn.microsoft.com/en-us/entra/agent-id/manage-agent-identities-admin#sponsor-responsibilities) states that Entra ID automatically reassigns sponsorship to a departing sponsor's manager, whereas the [native transfer task guide](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks) documents **Transfer agent identity sponsorships to manager** as a selectable task in a human mover/leaver workflow. Until tenant-tested, do not assume `accountEnabled=false` or a past leave date proves that manager reassignment succeeded without reading back the actual native sponsor relationships and any configured workflow task/run results. The helpers here are illustrative collection/analysis code, not proof that the workflow or its custom acceptance/escalation logic exists. Reassignment overrides require separately approved, supported mutation and read-back.
 >
@@ -59,7 +59,7 @@ The table below enumerates defect classes specific to Entra Agent ID telemetry. 
 
 | # | Defect | Symptom | Why it appears clean | Structural guard |
 |---|--------|---------|----------------------|------------------|
-| 0.1 | Preview gating not satisfied | `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` returns zero rows | No exception is thrown; the tenant has no agent identities reachable to the calling principal because the operating account lacks Microsoft Agent 365 / Microsoft 365 E7 license coverage (post-GA gating mechanism) | §1 preflight calls `Test-Agt226LicenseCoverageGating` (name retained for backward-compat) which checks both Microsoft 365 Copilot SKU coverage and Agent ID API surface reachability, and aborts with a structured `LicenseCoverageNotSatisfied` exception (name retained) before any inventory pass |
+| 0.1 | Entitlement or collection scope not evidenced | An inventory read returns zero rows | Empty results can reflect the request, permissions, source coverage, or entitlement; they do not diagnose a missing operator SKU | `Test-Agt226LicenseCoverageGating` stops with `ManualEvidenceRequired`; independently verify actual licensing and known-object source coverage |
 | 0.2 | Wrong shell edition | All inventory cmdlets succeed but return `@()` | Microsoft.Graph 2.x assemblies fail to bind under Desktop edition; the SDK swallows the bind failure and returns empty | `Assert-Agt226Shell` (above) blocks Desktop edition entirely |
 | 0.3 | Stale delegated token | Helpers run, return data, but `sponsorRelationships` collection is always null | Delegated token issued before the AgentIdentity.Read.All scope was granted; Graph silently omits the navigation property | §1 `Test-Agt226GraphScopes` re-asserts scopes against the live token and forces re-consent if mismatched |
 | 0.5 | Unverified manager-transfer assumption | An agent remains assigned to a departed sponsor | The native transfer task may be absent, out of scope, not scheduled, failed, or still processing | `PendingLifecycleTransfer` is an illustrative classification, not proof of a queued transfer; inspect actual task/run state and retain an exception until the relationship is verified |
@@ -195,55 +195,13 @@ Use the canonical short names from the role catalog. Mixing legacy long-form nam
 
 ### 1.4 License gating preflight
 
+**Technical cross-check 2026-11-09:** [Agent 365 licensing](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-agent-365/microsoft-agent-365) does not impose a universal standalone Copilot prerequisite. Guessed SKU prefixes, a transitional Copilot fallback, and an API's HTTP status do not establish feature entitlement or qualifying user assignment. The former automatic gate is withdrawn; capture approved licensing evidence and verify role, typed identity API, known-object coverage, and portal access independently. This is not a complete working automation harness.
+
 ```powershell
 function Test-Agt226LicenseCoverageGating {
     [CmdletBinding()]
     param()
-
-    # Post-GA (May 2026): Entra Agent ID is gated on Microsoft Agent 365 or
-    # Microsoft 365 E7 licensing, plus reachability of the documented Agent ID collection.
-    # surface to the calling principal. The function name and field names
-    # below are preserved from the pre-GA "PreviewGating" check to keep
-    # downstream evidence-pack consumers backward-compatible across the
-    # GA cutover. Verify SkuPartNumber values in your tenant via
-    # Get-MgSubscribedSku before relying on these regex patterns.
-
-    $licenseSku = Get-MgSubscribedSku |
-        Where-Object {
-            ($_.SkuPartNumber -match 'Microsoft_Agent_365|M365_E7' -or
-             # transitional fallback for tenants still on pre-GA Copilot SKUs
-             $_.SkuPartNumber -match 'Microsoft_365_Copilot') -and
-            $_.AppliesTo -eq 'User'
-        }
-    $hasLicense = [bool]$licenseSku
-
-    # Post-GA: probe the Agent ID API surface directly. Pre-GA this also
-    # evidenced Frontier program enrollment; post-GA a 200 indicates the
-    # surface is reachable to the calling principal (license + RBAC OK),
-    # while a 403/404 indicates a license-coverage or RBAC gap.
-    $probe = Invoke-Agt226WithThrottle -ScriptBlock {
-        try {
-            Invoke-MgGraphRequest -Method GET `
-                -Uri 'https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1' -ErrorAction Stop
-        } catch {
-            [pscustomobject]@{ probeError = $_.Exception.Message }
-        }
-    }
-    $hasAgentIdAccess = $null -ne $probe -and -not $probe.probeError
-
-    $status = if ($hasLicense -and $hasAgentIdAccess) { 'Clean' } else { 'NotApplicable' }
-    [pscustomobject]@{
-        ControlId     = '2.26'
-        Criterion     = 'LicenseCoverageSatisfied'
-        HasCopilotSku = $hasLicense   # field name retained for backward-compat;
-                                      # post-GA reflects Agent 365 / M365 E7 / Copilot license presence
-        HasAgentIdAccess = $hasAgentIdAccess  # field name retained for backward-compat;
-                                      # post-GA reflects Agent ID API surface reachability
-        Status        = $status
-        Reason        = if ($status -eq 'NotApplicable') {
-            "Tenant lacks $((@{$true='';$false='Agent 365 / M365 E7 license'}[$hasLicense])) $((@{$true='';$false='Agent ID API reachability'}[$hasAgentIdAccess])) — Entra Agent ID surface area is empty or not accessible to the calling principal."
-        } else { $null }
-    }
+    throw 'ManualEvidenceRequired: validate actual feature entitlement and qualifying assignments; no SKU-prefix or HTTP-status-only license adapter is supplied.'
 }
 ```
 
@@ -1580,7 +1538,7 @@ When operators document findings produced by these helpers, use only the hedged 
 
 Implementation caveat to retain in narrative reports:
 
-> "Implementation requires an active Microsoft 365 Copilot license and either a Microsoft Agent 365 (standalone) or Microsoft 365 E7 ("Frontier Suite") license assigned to each operating principal. Organizations should verify license-coverage gating before relying on inventory completeness."
+> "Implementation requires the actual feature's entitlements, qualifying user assignments, and independently verified administrative permissions. Standalone Agent 365 has no universal Copilot prerequisite. Organizations should verify source coverage and known-object visibility before relying on inventory completeness."
 
 
 ---

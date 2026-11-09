@@ -59,7 +59,7 @@
     | 3 | Power Platform admin center | `https://admin.powerplatform.microsoft.com` | Power Platform Admin |
     | 4 | Copilot Studio | `https://copilotstudio.microsoft.com` | Agent Maker, AI Administrator |
     | 5 | Microsoft 365 admin center (license validation) | `https://admin.microsoft.com` | Entra Global Admin |
-    | 6 | Microsoft Agent 365 Admin Center (governance console) | `https://admin.microsoft.com` → Agent 365 | AI Administrator (cross-ref [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) |
+    | 6 | Microsoft Agent 365 Admin Center (governance console) | `https://admin.microsoft.com` > Agents > Overview | AI Administrator (cross-ref [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) |
 
 ---
 
@@ -421,7 +421,7 @@ The relevant cloud apps as enumerated in the Entra cloud-app picker are:
 
 ### 6.3 Add Microsoft Agent 365 Admin Center to the same fence
 
-The Agent 365 Admin Center governance console — see [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — is reached through `https://admin.microsoft.com → Agent 365`. Access is gated by the **Microsoft 365 admin center** cloud app. To extend Policy B to cover this surface, **clone** Policy B as `CA-002b` and change the **Users** scope to:
+The Agent 365 Admin Center governance console — see [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — is reached through `https://admin.microsoft.com` > Agents > Overview. Access is gated by the **Microsoft 365 admin center** cloud app. To extend Policy B to cover this surface, **clone** Policy B as `CA-002b` and change the **Users** scope to:
 
 - **Include:** **`AI-Administrators`** group (members of the AI Administrator role) and **`Agent-365-Approvers`** group.
 - **Cloud apps:** **Microsoft 365 admin center** + **Microsoft Graph** *(do not target "All cloud apps" because that would impact every M365 admin sign-in unrelated to Agent 365)*.
@@ -551,7 +551,7 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 
 ### 9.4 Cross-reference to the Agent 365 Admin Center
 
-Once an agent identity is in scope of Policy C, the **Agent 365 Admin Center** governance dashboard will display the CA enforcement state for that agent. Cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for the operational read-out — Agent Registry → `[agent]` → **Identity & Access** tab shows linked CA policies, last successful sign-in, and last blocked sign-in.
+Use Entra policy and sign-in evidence to verify CA enforcement for the agent identity. Cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for the registry and approval workflow, but do not assume a native Identity & Access tab or registry-export columns expose all linked CA policies and sign-in results. Retain the Entra evidence separately.
 
 !!! info "Entra Agent ID surfaces are still evolving post-GA"
     Although Entra Agent ID reached GA in April 2026, schema, attribute names, and blade locations continue to evolve as Microsoft expands the surface (especially the `Identity governance → Agent ID` registry view, which remains Frontier-gated in some tenants). Document the **portal version** you verified against (header **Last UI Verified** date) and after each Microsoft Wave release. Prefer the portal-level **Enterprise applications** view as the durable enforcement plane; treat undocumented Agent ID endpoints as preview surfaces and avoid scripting against them in production.

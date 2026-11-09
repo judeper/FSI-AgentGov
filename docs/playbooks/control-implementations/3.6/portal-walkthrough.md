@@ -199,7 +199,7 @@ From the full Ownerless Agents blade:
     6. ITSM ticket IDs referenced in justifications.
 
 !!! tip "Cross-Reference"
-    The Ownerless Agents card shares a governance strip with the cards described in [Control 2.25 §3](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). If the card is missing entirely (not just empty), verify Agent 365 program enrollment before assuming a detection gap.
+    The **Agents without owners** view is reached from **Agents > Overview**, as documented in [Control 2.25's source ledger](../2.25/verification-testing.md#microsoft-documentation-verification-ledger). If the card is missing entirely (not just empty), verify the actual feature entitlement, role, supported platforms, and tenant rollout before assuming a detection gap; no preview-program enrollment prerequisite is established here.
 
 ## 2. Signal #2 — Entra Lifecycle Workflows Leaver Cascade
 

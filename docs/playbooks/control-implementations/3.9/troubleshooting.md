@@ -982,7 +982,7 @@ Capture E-01 (incident), E-02 (connector + AppInsights linkage state at time of 
 - [Control 1.9 — Data Retention & Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — TC-08, TC-14, TC-17, TC-20.
 - [Control 1.11 — Emergency Access & Break-Glass Procedures](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) — TC-06, TC-15.
 - [Control 2.8 — Environment Strategy & Governance](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) — TC-02.
-- [Control 2.25 — Content Moderation & Safety](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — TC-03, TC-04, TC-11, TC-20.
+- [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — registry and supplemental governance evidence for TC-03, TC-04, TC-11, TC-20; content moderation is not a capability established by this control.
 - [Control 2.26 — Records Management & Retention](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — TC-08, TC-09, TC-17, TC-20.
 - [Control 3.1 — Monitoring & Alerting Strategy](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — TC-03, TC-12, TC-19.
 - [Control 3.4 — Incident Response Procedures](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — TC-05, TC-07, TC-15, TC-16, TC-20.

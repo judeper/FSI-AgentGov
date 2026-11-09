@@ -103,7 +103,7 @@ The bootstrap function `Invoke-Me21PreFlight` runs eight pre-flight gates before
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms required modules loaded at the pinned versions in §0.2 | HALT |
 | Power Platform context | PRE-02 | Confirms `Add-PowerAppsAccount` established and that `Get-AdminPowerAppEnvironment` returns at least one environment | HALT |
-| Graph context | PRE-03 | Confirms `Connect-MgGraph` established with required scopes (`Directory.Read.All`, `Reports.Read.All`, `Application.Read.All`, `User.Read.All`, `AuditLog.Read.All`, `AgentGovernance.Read.All` on commercial) | HALT |
+| Graph context | PRE-03 | Confirms `Connect-MgGraph` established with required feature-specific scopes (`Directory.Read.All`, `Reports.Read.All`, `Application.Read.All`, `User.Read.All`, `AuditLog.Read.All`); add `CopilotPackages.Read.All` only for licensed TC-15 package collection, not for Managed Environments or identity reads | HALT |
 | Tenant identification | PRE-04 | Captures `tenantId`, `displayName`, primary verified domain for every evidence record | HALT |
 | Cloud detection | PRE-05 | Reads `(Get-MgContext).Environment`; verifies it is `Global` (commercial) | HALT on non-commercial |
 | License gate | PRE-06 | Confirms tenant holds at least one Power Platform-bearing SKU (Power Apps Premium, Power Automate Premium, Microsoft Copilot Studio, or Dynamics 365 with Power Platform usage rights). Surfaces the **June 2026 enforcement** banner — see TC-3. | HALT on absent entitlement; WARN on PAYG-only |
@@ -1109,7 +1109,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Remediation
 
-- Re-trigger Agent 365 catalog sync via the [Control 2.25 §3 — Catalog reconciliation](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) runbook.
+- Review the actual **Agents > Overview > Registry sync** status and reconcile source-platform and registry evidence using [Control 2.25 verification §6](../2.25/verification-testing.md). A universal manual resync command or button is not established by that playbook; investigate the affected platform and escalate unresolved gaps.
 
 ---
 

@@ -505,7 +505,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 ### Remediation
 
 - **Detection misses the canary connector:** confirm the watchlist `AgentConnectorBaseline` refresh job ran (Logic App `wf-baseline-refresh`); a stale baseline causes false negatives.
-- **Enrichment missing `agentRegistryRef`:** the Agent Registry sync into Sentinel watchlists is broken; cross-reference Control 2.25 verification evidence for the watchlist export job.
+- **Enrichment missing `agentRegistryRef`:** inspect the firm's validated registry-to-watchlist integration and its actual collection scope. Control 2.25 supplies manual evidence procedures, not a working watchlist export job; missing or partial owner/connector evidence is unresolved, not proof of no anomalies.
 
 
 ---
