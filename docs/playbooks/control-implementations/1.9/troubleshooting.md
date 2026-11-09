@@ -122,7 +122,7 @@ Get-RetentionCompliancePolicy | Where-Object RetentionComplianceLockType -eq 'Lo
 | Remove a label from a publish-policy | ❌ Denied |
 | **Add** a new location | ✅ Permitted |
 | **Extend** retention duration | ✅ Permitted (and itself irreversible) |
-| Add a new rule to the policy | ✅ Permitted (the new rule is also locked) |
+| Add a second rule to the policy | ❌ Unsupported; only one rule per retention policy ([cmdlet reference](https://learn.microsoft.com/en-us/powershell/module/exchange/new-retentioncompliancerule)) |
 | Modify `ContentMatchQuery` to *broaden* | ⚠️ Microsoft behavior has varied — verify in test before production change |
 
 **Resolution:**
@@ -137,7 +137,7 @@ Get-RetentionCompliancePolicy | Where-Object RetentionComplianceLockType -eq 'Lo
 
 ### 2.3 Conflicting retention policies — which one wins?
 
-**Symptom:** Multiple retention policies / labels apply to the same item and behavior is unexpected.
+**Symptom:** Overlapping retention policies and an item's retention label produce unexpected behavior. An item has only one retention label; auto-apply does not replace an existing label.
 
 **Likely cause:** Misunderstanding of the Microsoft Purview precedence model.
 
@@ -267,7 +267,7 @@ Get-RetentionCompliancePolicy -Identity 'FSI-Agent-Labels-Publish-Zone3' -Distri
 
 **Resolution:**
 
-1. Allow the documented distribution window before declaring failure (24 h typical; up to 7 days for fully populated mailboxes).
+1. Allow the documented distribution window before declaring label-publication failure (about a day typical; up to 7 days, including SharePoint).
 2. If `Error`, inspect the `DistributionDetail` payload for invalid GUIDs / removed sites; remove or replace the offending location.
 3. Confirm authoring account had Records Manager + Compliance Admin at create time; if not, recreate from a properly-roled session.
 4. Check Microsoft 365 Service Health for active retention-service incidents.
@@ -376,4 +376,4 @@ Get-CaseHoldRule  -Policy '<hold-policy-name>' | Select-Object Name, ContentMatc
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (shared retention-rule/publication corrections documentation-verified 2026-11-09; tenant diagnostics not executed)*

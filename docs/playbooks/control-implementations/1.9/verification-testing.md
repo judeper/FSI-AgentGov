@@ -19,10 +19,10 @@ Run each item; record PASS / FAIL / N/A and capture the named evidence artifact.
 |---|---|---|---|---|
 | 1 | Retention schedule is signed off by counsel and references regulations | Document review | Signed PDF references 17a-4, FINRA 4511, SOX §802, GLBA 501(b), CFTC 1.31, IRS | `retention-schedule-signed-YYYYMM.pdf` |
 | 2 | All FSI labels exist with planned duration and flags | PS: `Get-ComplianceTag` | `IsRecordLabel`/`Regulatory` match design; `RetentionDuration` matches schedule | `labels-YYYYMMDD.csv` |
-| 3 | Label policy distribution status is **Success** | Portal: Records management > Label policies | All FSI label policies show **Success** | Screenshot + `policies-YYYYMMDD.csv` |
+| 3 | Label policy distribution status is **Success** | Portal: Solutions > Records Management > Policies > Label policies | All FSI label policies show **Success**, with the correct group/site location; static SharePoint locations exclude group-connected team sites | Screenshot + `policies-YYYYMMDD.csv` |
 | 4 | Three AI-experience retention policies exist and are distributed | PS: `Get-RetentionCompliancePolicy` | `FSI-Copilot-AIExperiences-Retention`, `FSI-EnterpriseAIApps-Retention`, `FSI-OtherAIApps-Retention` all `DistributionStatus = Success` | `policies-YYYYMMDD.csv` |
 | 5 | Preservation Lock applied to Zone 3 retention policies | PS: `Get-RetentionCompliancePolicy | Where RetentionComplianceLockType -eq 'Lock'` | All Zone 3 policies show `Lock` | `lock-<policy>-YYYYMMDD.json` |
-| 6 | Test deletion is blocked during retention | Test scenario T-1 below | Deletion attempt fails with retention block; audit log records the block | Audit search export |
+| 6 | Test locked standard-record deletion is blocked during retention | Test scenario T-1 below | Deletion fails while the standard record is locked; preserve observed errors and actual audit results | Error capture and audit search export |
 | 7 | Disposition review fires at retention end and produces reviewer audit trail | Test scenario T-2 below | Item appears in disposition queue; reviewer decision recorded | Disposition decision CSV export |
 | 8 | eDiscovery hold preserves content past retention disposition | Test scenario T-3 below | Item retained even though retention would dispose; release of hold restores normal behavior | Hold inventory export |
 | 9 | Audit log captures retention/deletion event types | Portal: Audit > Search | Event types in §5 of [PowerShell setup](./powershell-setup.md) all return results | Audit search CSV export |
@@ -40,7 +40,7 @@ Each scenario uses a **disposable test tenant container** (test SharePoint site,
 
 **Goal:** Prove that retention actually blocks deletion.
 
-1. **Setup.** Create a SharePoint document library scoped to the `FSI-Agent-Labels-Publish-Zone3` policy. Wait for label availability (≤24 h).
+1. **Setup.** Create a SharePoint document library scoped to the `FSI-Agent-Labels-Publish-Zone3` policy, selecting the Microsoft 365 group for a group-connected team site. Allow up to 7 days for label availability.
 2. **Apply.** Upload a test file `T1-retention-test.docx`. Apply the `FSI-Agent-BooksRecords-6Year` label.
 3. **Verify label applied.**
     - Portal: file properties show the retention label and "Retain until <created+6yr>".
@@ -50,9 +50,9 @@ Each scenario uses a **disposable test tenant container** (test SharePoint site,
           Where-Object { $_.FieldValues.FileLeafRef -eq 'T1-retention-test.docx' } |
           Select-Object @{n='Label';e={$_.FieldValues._ComplianceTag}}, @{n='RetainUntil';e={$_.FieldValues._ComplianceTagWrittenTime}}
       ```
-4. **Attempt deletion.** Delete the file from SharePoint and from the second-stage Recycle Bin.
-5. **Expected.** Site collection administrators cannot permanently delete the file; it remains in the Preservation Hold Library. Audit log records `FileDeleted` followed by retention enforcement.
-6. **Capture.** Export an audit search filtered to the test file showing the retention block.
+4. **Attempt deletion.** Verify the standard record is **Locked**, then attempt deletion of the disposable test file.
+5. **Expected.** Deletion is blocked while locked. Standard records support authorized unlocking/record versioning, and a container administrator can remove/change even a locked standard-record label; do not infer regulatory-record restrictions from this test. See [record restrictions](https://learn.microsoft.com/en-us/purview/records-management).
+6. **Capture.** Save the displayed error, label and lock status, and actual audit search results. Do not require a fabricated successful `FileDeleted` event for a blocked operation.
 
 ### T-2: Disposition review fires and is auditable
 
@@ -189,4 +189,4 @@ Bundle these artifacts under `evidence/1.9/YYYY-Q#/` for examination response:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (shared record/publication test corrections documentation-verified 2026-11-09; tenant tests not executed)*
