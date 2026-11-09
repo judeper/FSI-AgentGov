@@ -1,0 +1,25 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:445077ec63046a64599cf59cdcee655d9b75dc5a19a85a953ec6f3018ac96167",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "December CY2026",
+  "id": 573170,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft 365 admin center",
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>We are introducing new Microsoft 365 Copilot usage reports for Copilot Search, Copilot Connectors, and Copilot Agents for US Government customers across GCC Moderate, GCC High, and DoD environments.<br>\nThese reports will provide administrators with organization-level and user-level insights to help them understand usage and adoption of these Copilot capabilities.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573170",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.4",
+      "source": "keyword:connector"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): New Microsoft 365 Copilot usage reports for Copilot Search, Connectors, and Agents for US Government customers"
+}

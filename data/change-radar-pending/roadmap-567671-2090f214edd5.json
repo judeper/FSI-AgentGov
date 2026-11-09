@@ -1,0 +1,20 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:2090f214edd5067f68c37f8cd818151628c28984fca9d3f6200a1207c4395e53",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "September CY2026",
+  "id": 567671,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Planner"
+  ],
+  "raw_description": "<p>Introducing built-in Planner Agent chat with natural language Q&amp;A, smart task discovery, and in-plan task management.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=567671",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [],
+  "title": "Planner: Planner Agent chat in Basic Plans"
+}

@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:8d8db93fdec7a7b3b49e7aebbafc7d88f2da611dd8cf27801c74b6c2945fa3e3",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "February CY2027",
+  "id": 573605,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Keep expense approvals moving when primary approvers are unavailable or when requests exceed their approval limits. Organizations can set a maximum approval amount—or unlimited approval authority—for each approver, designate a next approver for requests above that limit, and assign alternate approvers as temporary or scheduled backups. Approval requests can route to an alternate approver during periods of unavailability while following the same approval processes and controls.</p>\n<p>Benefits<br>\n•\tSet approval limits for each approver and route requests that exceed those limits to a designated next approver.<br>\n•\tAssign alternate approvers for ad hoc needs or planned periods of absence to help maintain approval continuity.<br>\n•\tReduce delays for employees submitting expenses by keeping approval requests moving when the primary approver is unavailable.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573605",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - Enable approving limits and alternate approvers when primary is not available"
+}

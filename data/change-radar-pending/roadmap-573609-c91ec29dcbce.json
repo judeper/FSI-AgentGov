@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:c91ec29dcbce0d2c5b3f4abe424d3c55270b126a9de9f39c9afda637b48ddcc9",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "April CY2027",
+  "id": 573609,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "January CY2027",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Spend less time manually adding attendees to meal-related business expenses. Expense Agent can match the expense to the relevant Outlook calendar event and add invited guests as expense participants, helping keep participant information aligned with the meeting invitation.</p>\n<p>Benefits<br>\n•\tAutomatically identifies relevant Outlook calendar meetings when expense participants are required.<br>\n•\tRetrieves invited attendees from the matching calendar invitation.<br>\n•\tAdds invited guests as expense participants without manual entry.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573609",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Adding invited guests from calendar as participants to your expense"
+}

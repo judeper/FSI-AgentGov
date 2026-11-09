@@ -1,0 +1,28 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:23e7f859eb4b9c37823497ad55c832267bf0d336781eebaad118d67d35f32eb8",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "October CY2026",
+  "id": 569475,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Enables sharing of agents with other makers in the new Microsoft Copilot harness. Makers can grant other makers Agent Viewer (view analytics/evaluations only) or Editor (view, edit, configure, share, publish) access to an agent, with auto-assigned security roles.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=569475",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:publish"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:publish"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Agent Sharing amongst makers"
+}

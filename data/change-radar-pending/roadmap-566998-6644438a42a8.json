@@ -1,0 +1,25 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:6644438a42a8673226a8ab7b1f362e7e8b807ac426bf612619d7fc7c86a928a3",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "September CY2026",
+  "id": 566998,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>The agent node lets you embed reasoning directly into your workflow. This means fewer manual handoffs, faster processing times, and workflows that can handle nuanced decisions without additional development effort, helping teams automate more of their end-to-end processes and reduce operational overhead.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=566998",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Invoke agents as workflow steps with the agent node"
+}

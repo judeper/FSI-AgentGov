@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:54d4ac981ddd3cfa57c04182757eec70a22eda0b5d355916a3079aaeafebc7c3",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "April CY2027",
+  "id": 573606,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "February CY2027",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Make expenses easier to organize and categorize by adding relevant tags when you create or edit expenses in the web application. Add one or more custom tags to capture business, project, event, or other dimensional context beyond standard expense fields.</p>\n<p>Benefits<br>\n•\tAdd one or more custom tags while creating or editing an expense.<br>\n•\tCapture relevant business, project, event, or other dimensional context with expense records.<br>\n•\tOrganize and categorize expenses beyond standard expense fields.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573606",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Add tags for expenses as submitter"
+}

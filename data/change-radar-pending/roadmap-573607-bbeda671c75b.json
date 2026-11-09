@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:bbeda671c75b1c10181756a2abc2c2338e41c11ec9f88d9386510c172910ad0a",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "April CY2027",
+  "id": 573607,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "January CY2027",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Take control of employee spending earlier in the expense process with configurable spend limits. Define thresholds that reflect your organization’s expense policies and apply them by time period for individual employees, teams, or the whole company. Expenses that exceed predefined limits can be prevented or flagged, with immediate feedback during expense creation.</p>\n<p>Benefits<br>\n•\tProactively manage expenses before reimbursement and accounting processes begin.<br>\n•\tReduce approval rework by giving employees immediate feedback when expenses exceed defined thresholds.<br>\n•\tSupport budget adherence across employees, teams, and the organization with configurable spending limits.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573607",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:approval"
+    },
+    {
+      "id": "2.24",
+      "source": "keyword:approval"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Expense Agent - Set expense spend limits in Expense Management"
+}

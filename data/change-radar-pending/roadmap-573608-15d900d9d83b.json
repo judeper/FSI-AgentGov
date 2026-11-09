@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:15d900d9d83ba5cc146812d5e733a0b2b73ec9f8a177dc8325d2b429a936cfb3",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "April CY2027",
+  "id": 573608,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "January CY2027",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Manage expenses across multiple Business Central companies and environments more efficiently with the Expense Agent web app. Switch between the companies and environments you’re authorized to access within a single session, without restarting the app or signing in again.</p>\n<p>Benefits<br>\n•\tAccess multiple authorized Business Central environments from the Expense Agent web app.<br>\n•\tSwitch directly between companies while managing expenses.<br>\n•\tReduce context switching when working across multiple organizations, business units, or legal entities.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573608",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Change companies and environments in the web app"
+}

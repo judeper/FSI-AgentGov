@@ -1,0 +1,36 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:5d7de739af138b7f261800b219d211210333f87fda6d65cfe0120ebe18559409",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "March CY2027",
+  "id": 578898,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Dynamics 365 Sales"
+  ],
+  "raw_description": "<p>Sales Development Agent (SDA) can take leads from qualified opportunities to closed deals.<br>\nKey capabilities include:</p>\n<ol>\n<li>Generating quotes through D365S as well as 1P/3P systems and sharing them with customers to company branded templates.</li>\n<li>Connectivity to quoting and transaction systems managed through Agent 365 MCP registry.</li>\n<li>Answer questions about the quote and adjust details based on customer feedback.</li>\n<li>Facilitate customers completing self-service transactions.</li>\n<li>Escalating to human sellers when customers are blocked and need human intervention.</li>\n<li>Configuration through interactive chat experience with each agent instance.</li>\n</ol>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=578898",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.1",
+      "source": "keyword:sharing"
+    },
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.28",
+      "source": "keyword:sharing"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    }
+  ],
+  "title": "Dynamics 365 Sales: Autonomously generate quotes and drive sales with Sales Development Agent"
+}
