@@ -34,7 +34,7 @@ related_controls: ["1.2", "1.7", "2.6", "2.13", "2.25", "2.26", "3.1", "3.4", "3
 >
 > **Shared baseline (authoritative):** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission, SHA-256 manifest format. **Read the baseline before running any command in this file.**
 
-This playbook automates the operational PowerShell surface for **Control 2.12 — Supervision and Oversight (FINRA Rule 3110)**. It covers review-queue health monitoring, HITL reviewer-decision extraction, Microsoft Agent Framework `request_info()` evidence export, principal-registration (CRD) verification, sampling-protocol execution, the Rule 3120 annual-testing harness (Pester), Rule 2210 communication classification, quarterly sponsor attestation, and SIEM forwarding. Every helper in this file uses the cmdlet prefix `Sup212` so that operators can distinguish 2.12 helpers from sister controls (`Agt225`, `Agt226`, `Orph36`) at a glance in transcripts and SIEM rules.
+This playbook automates the operational PowerShell surface for **Control 2.12 — Supervision and Oversight (FINRA Rule 3110)**. It covers review-queue health monitoring, HITL reviewer-decision extraction, Microsoft Agent Framework HITL request evidence export (Python `request_info`; C#/Go `RequestPort`), principal-registration (CRD) verification, sampling-protocol execution, the Rule 3120 annual-testing harness (Pester), Rule 2210 communication classification, quarterly sponsor attestation, and SIEM forwarding. **The `Sup212` functions are design templates for the firm to implement and test; they are not shipped as a module, and endpoints, JSON fields and bot-definition properties they read (for example `properties.supervision.handoff`) are firm-defined projections, not Microsoft-documented schemas.** Every helper in this file uses the cmdlet prefix `Sup212` so that operators can distinguish 2.12 helpers from sister controls (`Agt225`, `Agt226`, `Orph36`) at a glance in transcripts and SIEM rules.
 
 > **Hedged-language reminder.** Every helper and every evidence bundle in this playbook **supports compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 3120 (Supervisory Control System), FINRA Rule 2210 (Communications with the Public), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 24-09 (Gen AI / LLM Guidance), SEC Rules 17a-3 / 17a-4 (Recordkeeping and WORM), SOX §§ 302 / 404 (Internal Controls), and NYDFS 23 NYCRR 500. It does **not** "ensure" or "guarantee" compliance, and it does **not substitute** for the registered principal's supervisory review or for the firm's Written Supervisory Procedures (WSPs). In FINRA Rule 3110 terms, the scripts in this file produce the evidence the principal attests to — the principal's judgment remains the control.
 
@@ -161,7 +161,7 @@ Import-Module Microsoft.Graph.Authentication -RequiredVersion 2.25.0 -Force
 | `Microsoft.PowerApps.Administration.PowerShell` — `Add-PowerAppsAccount -Endpoint prod` | Power Automate approval history (§4.4) | Power Platform Administrator (PIM-elevated) |
 | `ExchangeOnlineManagement` — `Connect-ExchangeOnline` then `Search-UnifiedAuditLog` | Copilot Studio transcript metadata and cross-check (§4.2) | Compliance Administrator (PIM-elevated); `AuditLog` role on the EXO principal |
 | `Az.OperationalInsights` — `Invoke-AzOperationalInsightsQuery` | Sentinel forwarding verification (§12) | Reader on the Log Analytics workspace |
-| Agent Framework evidence endpoint (HTTPS) | `request_info()` event stream export (§6) | App registration with certificate-based auth; the endpoint URL is firm-specific and must be configured in §3.7 |
+| Agent Framework evidence endpoint (HTTPS) | HITL request event stream export (Python `request_info`; C#/Go `RequestPort`; §6) | App registration with certificate-based auth; the endpoint URL is firm-specific and must be configured in §3.7 |
 
 ### 1.4 RBAC matrix
 
@@ -657,7 +657,7 @@ function Get-Sup212Zone3AgentInventory {
 
 ### 4.2 Get-Sup212CopilotStudioHandoffConfig
 
-For each Zone 3 agent, this helper reads the Copilot Studio bot definition (via the Power Platform admin API) and extracts the handoff / approval configuration. The helper emits `Anomaly` — not `Clean` — when the configuration is missing, when the trigger criteria are empty, or when no test transcript exists.
+For each Zone 3 agent, this helper reads a firm-built projection of the Copilot Studio agent definition (Microsoft documents handoff as an engagement-hub connection plus the Escalate topic and/or Transfer conversation node, and documents no `supervision.handoff` property; adapt the extraction to the firm's own export) and extracts the handoff / approval configuration. The helper emits `Anomaly` — not `Clean` — when the configuration is missing, when the trigger criteria are empty, or when no test transcript exists.
 
 ```powershell
 function Get-Sup212CopilotStudioHandoffConfig {
@@ -1142,7 +1142,7 @@ function Export-Sup212QuarterlyDecisionSample {
 
 ## §6 — Agent Framework Evidence Export (Verification Criterion #8)
 
-Microsoft Agent Framework's human-in-the-loop pattern uses `RequestPort` / `request_info()` to pause an executor, preserve state in a checkpoint, emit a request to an external supervisor, and resume the workflow with the reviewer's response payload. For FINRA Rule 3110 purposes, the evidence unit is the tuple **(request ID, checkpoint state at pause, reviewer response payload, final executor output)**, retained for six years per [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md).
+Microsoft Agent Framework's human-in-the-loop pattern uses a language-specific request mechanism (Python `ctx.request_info` with `@response_handler`, surfaced as a `WorkflowEvent` of type `request_info`; C#/Go `RequestPort` with `RequestInfoEvent`) to pause an executor, preserve state in a checkpoint (explicit durable `CheckpointStorage` required; InMemory is not durable), emit a request to an external supervisor, and resume the workflow with the reviewer's response payload. For FINRA Rule 3110 purposes, the evidence unit is the tuple **(request ID, checkpoint state at pause, reviewer response payload, final executor output)**, retained for six years per [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md).
 
 This section produces an **idempotent** export of that tuple. Idempotency is required because the export feeds a WORM store; re-running the export must not create duplicate entries, must not overwrite previously signed records, and must detect when an existing record was tampered with by comparing content hashes.
 
@@ -1177,7 +1177,7 @@ function Get-Sup212AgentFrameworkConfig {
 
 ### 6.2 Get-Sup212AgentFrameworkHitlConfig
 
-Per-flow helper that verifies the HITL pattern is wired: every production workflow in scope has at least one `RequestPort` node, a response handler, and checkpointing enabled. Missing wiring → `Anomaly`, not `Clean`.
+Per-flow helper that verifies the HITL pattern is wired: every production workflow in scope has at least one HITL request node (C#/Go `RequestPort`, or the Python `request_info` executor as described in the firm's own workflow descriptor), a response handler, and durable checkpointing enabled. The `nodes`/`checkpointing` descriptor is firm-defined, not a Microsoft API. Missing wiring → `Anomaly`, not `Clean`.
 
 ```powershell
 function Get-Sup212AgentFrameworkHitlConfig {
@@ -1196,7 +1196,7 @@ function Get-Sup212AgentFrameworkHitlConfig {
                     -Authentication Certificate `
                     -CertificateThumbprint $cfg.agentFrameworkCertThumbprint
             }
-            $hasRequestPort = [bool]($def.nodes | Where-Object Type -eq 'RequestPort')
+            $hasRequestPort = [bool]($def.nodes | Where-Object { $_.Type -in 'RequestPort','RequestInfo' })
             $hasResponseHandler = [bool]($def.nodes | Where-Object Type -eq 'ResponseHandler')
             $hasCheckpointing = [bool]$def.checkpointing.enabled
             $status = if ($hasRequestPort -and $hasResponseHandler -and $hasCheckpointing) { 'Clean' } else { 'Anomaly' }
@@ -1268,7 +1268,7 @@ function Export-Sup212AgentFrameworkEvidence {
     if (($requests.Count -eq 0) -and ($runActivity.count -gt 0)) {
         return [pscustomobject]@{
             Status = 'Anomaly'
-            Reason = "Sup212-AgfCorrelationMismatch: zero HITL requests but $($runActivity.count) runs in window. Confirm RequestPort wiring is present (see §6.2)."
+            Reason = "Sup212-AgfCorrelationMismatch: zero HITL requests but $($runActivity.count) runs in window. Confirm HITL request wiring (request_info / RequestPort) is present (see §6.2)."
         }
     }
 
