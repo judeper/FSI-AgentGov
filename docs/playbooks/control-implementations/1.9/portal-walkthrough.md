@@ -249,7 +249,7 @@ For each examination-ready file:
 | Retention schedule (signed) | Counsel + Compliance | WSP repository |
 | Label inventory CSV | PowerShell `Get-ComplianceTag` export (see PowerShell §7) | Compliance evidence vault |
 | Policy inventory CSV | PowerShell `Get-RetentionCompliancePolicy` export | Compliance evidence vault |
-| Preservation Lock proof | PowerShell `Get-RetentionCompliancePolicy | Where RetentionComplianceLockType -eq 'Lock'` export + portal screenshot | Compliance evidence vault, change ticket |
+| Preservation Lock proof | PowerShell `Get-RetentionCompliancePolicy` export showing each expected policy's `RestrictiveRetention = True`; compare against the expected-policy list so missing/unlocked policies cannot disappear from a filtered result | Compliance evidence vault, change ticket |
 | Disposition reviewer roster | Group membership export | Records management binder |
 | eDiscovery hold inventory | Purview > eDiscovery > Holds export | Legal hold register |
 | Audit log retention proof | Purview > Audit > Audit retention policies | Audit evidence vault |
@@ -268,4 +268,6 @@ For each examination-ready file:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-09 (targeted lock-evidence documentation review only)
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (last UI verification May 2026)*
