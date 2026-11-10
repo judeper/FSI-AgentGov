@@ -1,6 +1,6 @@
 # Control 2.6 — Troubleshooting: Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7) Evidence Pipeline and Examination Readiness
 
-> **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 26-2 (formerly SR 11-7) — the model inventory (DSPM for AI), the underlying-model change-detection path (Microsoft Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the publication-approval workflow in Agent 365, the PowerShell helpers used to produce examiner-ready inventories, and examination-readiness rehearsal.
+> **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 26-2 (formerly SR 11-7) — the firm's reconciled model inventory, the underlying-model change-detection path (Microsoft Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the firm's approval workflow alongside Agent 365 requests, the illustrative PowerShell helpers and their manual-evidence gaps, and examination-readiness rehearsal.
 >
 > **Regulatory framing.** Reliable evidence produced by the surfaces in this control *supports compliance with* OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-15-2026, FFIEC IT Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 and SEC 17a-3 / 17a-4 (Books and Records — including 17a-4(f) WORM retention of validation evidence and Committee minutes), SOX §§ 302 / 404 (ICFR documentation of AI controls), GLBA 501(b), and NYDFS 23 NYCRR 500 where AI agents touch covered customer information. FINRA RN 25-07 (workplace modernization RFC) is referenced **as contextual material only** and is not cited as an enforceable AI rule. The Microsoft surfaces described here **support** the firm's MRM program; they **do not replace** the firm's Model Risk Management Committee, the independent validation function, the effective-challenge process, three-lines-of-defense governance, or registered-principal supervisory review under FINRA Rule 3110.
 >
@@ -40,14 +40,14 @@
 
 | # | Presenting Symptom | Likely Issue | First Diagnostic |
 |---|---|---|---|
-| 1 | Agent visible in Power Platform Admin Center / Agent 365 but absent from DSPM for AI inventory | [§1](#1-issue-1-dspm-for-ai-inventory-missing-agents) | License / region / connector audit |
+| 1 | Agent visible in Power Platform / Agent 365 but absent from Purview activity | [§1](#1-issue-1-dspm-for-ai-inventory-missing-agents) | Scope, onboarding, activity and permissions check |
 | 2 | Agent Card references a model no longer in production; vendor migrated default | [§2](#2-issue-2-default-model-migration-not-detected-before-it-took-effect) | Message Center subscription audit |
 | 3 | Examiner challenges validator independence — validator reports to model owner | [§3](#3-issue-3-independent-validation-challenged-because-validator-reports-to-model-owner) | Org-chart trace + MRM charter |
 | 4 | Vendor model (e.g., Anthropic Claude) selected in Copilot Studio without vendor-model assessment | [§4](#4-issue-4-anthropic-claude-or-other-vendor-model-selected-without-vendor-model-assessment) | Agent Card vs. approved-model list |
 | 5 | Tier 1 agent has no Foundry evaluator runs; outcomes-analysis evidence gap | [§5](#5-issue-5-foundry-evaluator-runs-missing-for-tier-1-agent) | Foundry evaluator history |
 | 6 | Committee minutes describe approvals in generic terms; effective-challenge evidence weak | [§6](#6-issue-6-effective-challenge-evidence-weak-committee-minutes-generic) | Minute-template review |
 | 7 | Validation memos / Committee minutes stored only in M365 Audit Premium or general SharePoint | [§7](#7-issue-7-validation-evidence-retention-not-17a-4f-compliant) | Retention-label / WORM audit |
-| 8 | Agent 365 publication-approval workflow does not block publish for non-MRM-approved agents | [§8](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish) | Governance template scope check |
+| 8 | Agent published without the firm's MRM approval | [§8](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish) | Actual distribution path and separate approval gate |
 | 9 | Tier 1 agent retired; decision, last validation, and final monitoring snapshot not retained | [§9](#9-issue-9-model-retirement-evidence-missing) | Change-history reconstruction |
 | 10 | PowerShell helper returns `Status=Error` | [§10](#10-issue-10-powershell-helper-returns-statuserror) | Module / connection / endpoint check |
 | 11 | Examiner asks for in-scope agent inventory in real time and firm cannot produce | [§11](#11-issue-11-examiner-asks-for-inventory-of-in-scope-agents-and-firm-cannot-produce-in-real-time) | On-demand PS helper + rehearsal review |
@@ -74,26 +74,26 @@ Before taking any remediation action recorded in this playbook:
 
 ## §1 Issue 1 — DSPM for AI Inventory Missing Agents
 
-**Symptom.** One or more agents are visible in Power Platform Admin Center, Copilot Studio, or the Agent 365 console, but do not appear in Microsoft Purview **DSPM for AI** > **Discover** > **AI applications**. The model inventory the firm relies on for examination response is incomplete.
+**Symptom.** An agent in Power Platform or the Agent 365 registry has no corresponding Purview activity evidence. This is a reconciliation delta, not automatic proof of a discovery defect or an unregistered model.
 
 **Root causes (typical).**
 
-- **License gap.** DSPM for AI requires Purview / Compliance Manager licensing tied to the tenant; affected agents may sit in an environment whose owner is not licensed for DSPM for AI.
-- **Region / rollout lag.** DSPM for AI feature rollout proceeds wave-by-wave by region and tenant. Newly provisioned tenants or recently created environments may not have completed first-time discovery.
-- **Connector enablement.** The Copilot, Copilot Studio, Foundry, and Entra-registered-AI-app connectors in DSPM for AI are individually enableable; one or more may be off in the tenant.
-- **Identity / Entra Agent ID propagation lag.** Agents not yet registered in Entra Agent ID (Control 2.26) may be invisible to the DSPM for AI discovery surface that pivots on Entra identity.
+- **Different source contracts.** Purview reports observed supported interactions, while inventories can include inactive agents.
+- **Onboarding, billing or policy gap.** Verify app/channel-specific prerequisites; Copilot Studio non-Microsoft-channel protection requires Purview pay-as-you-go.
+- **Filters or permissions.** Report filters and content-viewer permissions can hide relevant evidence.
+- **Collection timing or failure.** Record the collection window and actual error; do not assume an identity-propagation SLA or a universal connector refresh contract.
 
 **Resolution.**
 
-1. **License audit.** Confirm tenant-level Purview / Compliance Manager license assignment and that the environment owner principals are licensed. Open a ticket with the tenant licensing administrator if a gap is found.
-2. **Connector audit.** In Purview > **Settings** > **DSPM for AI** > **Connectors**, confirm that Copilot, Copilot Studio, Foundry, and Entra-registered AI app connectors are enabled. Where a connector is disabled, document the business reason; if there is none, enable it under change control.
-3. **Force a discovery pass.** In commercial cloud, the DSPM for AI inventory refresh is on a service-managed cadence and cannot be forced by the customer. Document the expected refresh window (verify the current SLA in Microsoft Learn) and re-check after the window has elapsed.
-4. **Cross-check with Power Platform admin export.** Use the inventory PowerShell helper from [`powershell-setup.md`](powershell-setup.md) to enumerate agents from the Power Platform admin endpoint, and diff against the DSPM for AI export. Investigate every agent present in one source and not the other.
+1. **Check supported coverage.** Follow [Purview's Copilot Studio procedure](https://learn.microsoft.com/en-us/purview/ai-copilot-studio), the app-specific onboarding and the feature-specific service description, not a generic Compliance Manager license assumption.
+2. **Inspect actual reports.** In Purview **Solutions → DSPM for AI (classic) → Reports → Copilot experiences & agents → View details**, inspect the available activity-explorer filters. Record current-DSPM equivalents if that experience is used. Do not invent a generic **Connectors** or **Discover → AI applications** route.
+3. **Check activity and timing.** Use an approved test interaction and record when it becomes visible. Microsoft advises waiting at least a day for initial policy report data; that is not a tenant-wide agent-discovery SLA.
+4. **Reconcile supported inventories.** Compare the firm's Agent Card register with Power Platform inventory/model exports and **Agents → All agents → Registry**. The illustrative PowerShell inventory adapters deliberately emit `ManualEvidenceRequired`; reinstalling modules does not complete them.
 
 **Verification.**
 
-- Re-run the inventory diff after the documented refresh window. The DSPM for AI inventory and the Power Platform admin enumeration agree to ±0 agents, or every delta has a documented reason.
-- License and connector audit findings are recorded in the change ticket and signed off by the AI Governance Lead.
+- Every delta has a documented source-scope/onboarding/activity explanation or an unresolved finding; do not require identical activity and inventory populations.
+- Retain raw collection evidence, scope, errors and any remediation in the change ticket. See [Verification §1.2](./verification-testing.md#12-population-of-in-scope-agents).
 
 **Cross-link.** [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) · [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
@@ -112,14 +112,14 @@ Before taking any remediation action recorded in this playbook:
 **Resolution.**
 
 1. **Subscribe vendor change signals to a monitored mailbox.** Route the Microsoft 365 Message Center, Power Platform release plan, and Copilot Studio release notes to a shared mailbox / Teams channel with the AI Administrator, AI Governance Lead, Model Risk Manager, and second-line MRM as members. Document the subscription owners and the SLA for triage of model-impacting messages (recommended: 1 business day).
-2. **Update Agent Card schema.** Require the Agent Card to record **specific underlying model and version** (e.g., `gpt-5-2026-03`, not `Copilot Studio default`). Re-issue Agent Cards for every in-scope agent in the inventory.
+2. **Update Agent Card schema.** Record the selected model, provider, default-versus-specific selection and visible version identifiers on **Overview → Model**. If an exact snapshot version is not exposed, record that limitation with dated lifecycle evidence, not a fabricated version. Follow [Microsoft's model-selection guidance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-select-agent-model).
 3. **Treat the migration as a model change.** Under SR 26-2 §VI (formerly SR 11-7 §VI), a vendor-driven default-model migration is a model change. Open a change ticket per agent, perform impact assessment proportionate to tier (Tier 1: full re-validation; Tier 2: abbreviated re-validation; Tier 3: documented review), and obtain MRM Committee disposition.
 4. **Backfill evidence.** For the migration that took effect without prior assessment, document the gap in the Committee minutes, the date the firm became aware, the post-fact impact assessment, and any compensating monitoring (e.g., enhanced Foundry evaluator cadence for the next monitoring period).
 
 **Verification.**
 
 - Message Center routing produces a triage record within the documented SLA on the next vendor-issued model-change message (test by waiting for, or simulating receipt of, a representative message).
-- 100% of in-scope Agent Cards record specific model and version.
+- 100% of in-scope Agent Cards record actual model selection and available version evidence, with explicit limitations where the service exposes no snapshot version.
 - Committee minutes for the next cycle reflect the post-fact impact assessment for the missed migration.
 
 **Cross-link.** [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) · [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md).
@@ -196,7 +196,7 @@ Before taking any remediation action recorded in this playbook:
 1. **Configure the Foundry built-in evaluators.** For each Tier 1 agent, configure the relevant subset of Foundry built-in evaluators against a representative evaluation dataset:
     - **Quality:** groundedness, relevance, coherence, fluency.
     - **Safety:** content-safety / harm evaluators (verify per region and judge-model availability).
-    - **Agentic behavior:** tool-call accuracy, task completion.
+    - **Agentic behavior:** Tool Call Accuracy; Task Completion and Intent Resolution are preview in the [current built-in reference](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/built-in-evaluators).
 2. **Curate a representative evaluation dataset.** The dataset must reflect the agent's production use cases, including known edge cases, adversarial prompts, and golden-answer cases. The dataset is itself an MRM artifact and must be versioned and retained.
 3. **Document cadence in MRM policy.** The MRM policy should specify evaluator cadence by tier — for example, Tier 1 monthly, Tier 2 quarterly, Tier 3 annually or on material change. Cadence is set by the firm; the values above are illustrative.
 4. **Schedule and monitor the runs.** Configure the runs on the documented cadence; route run-failure alerts to a monitored channel. Backfill the missed period by running the evaluator suite against the current production configuration and recording the gap as a finding.
@@ -204,7 +204,7 @@ Before taking any remediation action recorded in this playbook:
 
 **Verification.**
 
-- Foundry evaluator history shows runs at the documented cadence for every Tier 1 agent.
+- Native evaluation evidence shows applicable runs at the documented cadence, with release state, inputs, judge model and skipped/unsupported evaluators recorded. Preview evaluators are not assumed to be GA production dependencies.
 - Evaluation dataset is versioned and retained under the 17a-4(f) path.
 - Backfill memo is filed with the Committee.
 
@@ -259,14 +259,14 @@ Before taking any remediation action recorded in this playbook:
 **Resolution.**
 
 1. **Define the retention map.** Map each MRM artifact type (validation memo, Committee minute, vendor-model assessment, Foundry evaluator dataset and results, Agent Card version, change-ticket package, model-retirement memo) to its retention class, retention period, and storage path.
-2. **Apply Purview retention labels.** Configure or update Purview retention labels with **records / regulatory record** behavior so that protected items cannot be modified or deleted before the retention period expires. Apply the labels to the MRM SharePoint sites and / or to the specific document libraries that hold model artifacts. Validate label inheritance.
+2. **Verify actual record protection.** Distinguish ordinary retention, locked/unlocked records and regulatory records using [Microsoft's restriction table](https://learn.microsoft.com/en-us/purview/records-management). Publish the approved labels to the location, then verify application and status on actual finalized evidence items. A standard retention label can preserve a copy while permitting deletion; a record can be unlockable. Regulatory-record labeling and policy-level Preservation Lock are separate, irreversible decisions requiring authorized change control.
 3. **Or route to an approved 17a-4(f) vendor.** Where the firm uses an approved third-party archive (Cohasset-attested or equivalent), route the artifact via the documented connector and retain the connector's confirmation of receipt and immutability attestation.
 4. **Backfill historical artifacts.** For artifacts already in non-compliant locations, copy them under change control to the compliant store, apply the retention label / archival route, and record the move in a remediation memo. Retain the originals in place where deletion is not authorized.
 5. **Decouple from M365 Audit Premium.** Do not rely on M365 Audit Premium retention for model artifacts. Audit Premium remains useful for operational telemetry and for evidencing access to the artifacts.
 
 **Verification.**
 
-- Retention-label policy report shows 100% of MRM artifact libraries covered by a records-class label.
+- Sampled items show the actual applied label/status and approved retention start/duration. `Get-ComplianceTag` reads label settings; `Get-RetentionCompliancePolicy` reads policy settings, including `RestrictiveRetention` for Preservation Lock. A publication-scope report alone does not prove item protection; there is no documented per-item `deletionLocked` test.
 - An attempt to delete a protected artifact (test in Zone 1 with a non-evidence document) is blocked by the label.
 - Vendor-archive confirmations exist for any artifact routed to an external 17a-4(f) vendor.
 
@@ -276,28 +276,28 @@ Before taking any remediation action recorded in this playbook:
 
 ## §8 Issue 8 — Agent 365 Publication-Approval Workflow Not Blocking Publish
 
-**Symptom.** An agent is published to Zone 2 / Zone 3 without MRM Committee approval. The Agent 365 publication-approval workflow exists but did not block the publish action. The governance template is not enforced.
+**Symptom.** An agent is published to Zone 2 / Zone 3 without MRM Committee approval. Determine which distribution channel was used and whether the firm's separate approval gate was exercised; native policy-template assignment alone does not enforce an MRM Committee decision.
 
 **Root causes (typical).**
 
-- Governance template was authored at tenant scope but not bound to the relevant environment(s).
-- Template was applied to the environment but the publication-approval policy within it is in **report-only** mode rather than **enforce**.
-- The publishing principal has an admin-tier role that bypasses governance template enforcement.
-- A new environment was created after template binding and was not re-bound.
+- The firm's MRM approval record was not checked before the supported publication/activation action.
+- A distribution channel outside the reviewed store-approval path remained available.
+- A policy-template security bundle was mistaken for a custom MRM approver chain or model-name allowlist.
+- Template support or underlying Entra authentication prerequisites were assumed rather than verified.
 
 **Resolution.**
 
-1. **Re-apply the governance template at environment scope.** In Agent 365 Admin Center, confirm the governance template is bound to every in-scope environment, and that the publication-approval policy within the template is in **enforce** mode (not report-only).
-2. **Audit bypass roles.** Enumerate principals with roles that bypass governance template enforcement. Restrict these roles to a small documented set of break-glass identities, and record any use in the change ticket and Sentinel (Control 3.9).
-3. **Verify only MRM-Committee-approved agents publish.** The workflow must check, before allowing publish to Zone 2 / 3, that the agent's inventory record has a current Committee disposition of "approved" and that no blocking conditions are open. Where the workflow integrates with the inventory store (Dataverse / SharePoint), confirm the check.
+1. **Inspect the real request.** Review **Agents → All agents → Requests**, request state, audience and actual approval decision per [Microsoft's request procedure](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-requests).
+2. **Review policy evidence separately.** Inspect **Agents → Settings → Templates** and the policies actually applied. [Policy templates](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/policy-template) bundle supported policies, not arbitrary MRM fields or a universal environment-scoped enforce/report-only switch. Verify scenario/release limitations and actual Entra authentication before relying on runtime policy.
+3. **Verify the firm's MRM gate.** The organization's workflow must check current Committee disposition and blocking conditions before an authorized administrator publishes/activates an in-scope agent. Retain the decision independently of the native security template.
 4. **Backfill remediation for the agent that slipped through.** Treat the unapproved publication as a control failure. Quarantine or unpublish the agent pending Committee disposition; document the slip in Committee minutes; route the remediation memo to retention.
-5. **Re-bind on environment creation.** Add a process step to the environment-provisioning runbook that re-binds the governance template before any agent can publish.
+5. **Check all deployment paths.** Include new environments and channels in the approval/access review; do not infer universal blocking from store approval or from a one-time bulk template action.
 
 **Verification.**
 
-- Governance template is bound to 100% of in-scope environments and is in enforce mode.
-- A test publish attempt for an agent without Committee disposition is blocked (test in Zone 1).
-- Bypass-role inventory is documented and minimized.
+- Every in-scope publication has the firm's MRM disposition and actual supported request/template evidence.
+- A controlled negative test demonstrates the firm's configured approval gate for each relevant channel; missing native support remains an explicit gap.
+- Administrative access and exceptions are documented and minimized; do not invent template-bypass roles.
 
 **Cross-link.** [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) · [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 
@@ -364,7 +364,7 @@ Before taking any remediation action recorded in this playbook:
 
 **Verification.**
 
-- Helper completes with `Status=OK` and emits the documented evidence artifact (CSV / JSON / HTML).
+- Helper output uses the documented `Clean / Anomaly / Pending / NotApplicable / Error` vocabulary, not `OK`. Unsupported inventory/Foundry adapters remain `Error` with `ManualEvidenceRequired` until separately collected evidence is reconciled; an emitted folder or matching hashes do not prove complete inventory or validation.
 
 **Cross-link.** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) · [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 
@@ -377,7 +377,7 @@ Before taking any remediation action recorded in this playbook:
 **Root causes (typical).**
 
 - Inventory exists as a manually maintained SharePoint list updated quarterly; the as-of inventory at the examiner's requested date is reconstructable but not at-hand.
-- Multiple inventory sources (DSPM for AI, Power Platform admin, manual SharePoint) have not been reconciled and the firm cannot determine which is authoritative.
+- The firm's authoritative register has not been reconciled with supported Power Platform/Agent 365 inventories and bounded Purview activity evidence.
 - No examination-readiness rehearsal has been performed; the runbook to assemble the response packet does not exist.
 
 **Resolution.**
@@ -452,6 +452,6 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 
 ---
 
-**Last Verified:** 2026-11-06 — targeted vendor-model guardrail documentation correction only; no tenant UI, screenshots or execution.
+**Last Verified:** 2026-11-09 — targeted inventory, evaluator, template, retention and helper-contract documentation corrections; no tenant UI, screenshots or execution.
 
 *Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (targeted documentation-only corrections)*

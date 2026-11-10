@@ -79,7 +79,7 @@ $ProgressPreference    = 'SilentlyContinue'
 | Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment`; confirms `Commercial` | HALT if not commercial |
 | HR connector health | PRE-05 | Confirms at least one Entra HR provisioning connector with status `Healthy` in the last 24h and last-sync within tenant SLA | HALT — without HR feed, SPONSOR and HR namespaces cannot attest |
 | Agent 365 Ownerless card reachability | PRE-06 | Probes `/beta/agentGovernance/ownerlessAgents?$top=1`; any error → HALT | HALT |
-| Orphan register endpoint | PRE-07 | Confirms the SharePoint or Dataverse orphan register is reachable, has versioning enabled, and is bound to a `≥6-year` Purview retention label with `deletionLocked=true` | HALT — without the system of record, no evidence can be assembled |
+| Orphan register endpoint | PRE-07 | Confirms the register is reachable and versioned, with retained snapshots under the approved `≥6-year` schedule. Verify actual SharePoint item labels/status and separate policy-lock evidence per the [shared retention evidence procedure](../2.6/verification-testing.md#72-retention-label-binding-test); for Dataverse, retain exports in the approved evidence store rather than assuming SharePoint labels apply directly | HALT — without the system of record, no evidence can be assembled |
 | Clock skew gate | PRE-08 | Compares local UTC to Graph `Date` header; aborts on > 60s drift | HALT — skew invalidates timestamp evidence under FINRA 4511 / SEC 17a-4 |
 | Evidence root writeable | PRE-09 | Confirms `$env:AGT36_EVIDENCE_ROOT` exists, is writeable, resolves to WORM-eligible storage | HALT |
 
