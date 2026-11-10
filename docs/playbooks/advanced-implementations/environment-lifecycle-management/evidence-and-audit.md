@@ -216,7 +216,9 @@ For organizations electing WORM storage:
 !!! note "Prerequisites"
     - **Microsoft.Xrm.Data.PowerShell** module for Dataverse access
     - **Az.Storage** module for Azure Blob operations
-    - Azure Storage Account with immutability policy support (Blob storage with versioning enabled)
+    - Azure Storage Account with version-level immutability configured and blob versioning enabled for the version-scoped example below. This differs from [Control 2.13's container-scoped procedure](../../control-implementations/2.13/portal-walkthrough.md#option-a-worm-storage-azure-immutable-blob), which does not require blob versioning
+
+The sample creates an **Unlocked** policy for validation, not a completed production retention lock. After approval, lock the intended policy using the documented [version-level procedure](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-policy-configure-version-scope), read back its scope, state, and expiry, and test deletion/overwrite protection with disposable data. Do not treat the sample's completion message as proof of locked preservation.
 
 ```powershell
 # Prerequisites
@@ -687,4 +689,4 @@ catch {
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (immutability-scope clarification documentation-verified 2026-11-09; tenant execution not performed)*

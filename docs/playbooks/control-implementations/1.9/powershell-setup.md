@@ -68,7 +68,7 @@ $ReviewerStage3 = 'legal-stage3@contoso.com'
 
 ## §2. Idempotent label creation
 
-`New-ComplianceTag` fails if the tag exists. Wrap creates in an idempotency check and use `Set-ComplianceTag` for updates. **`Set-ComplianceTag` cannot reduce retention on a record/regulatory label** — see §6.
+`New-ComplianceTag` fails if the tag exists. Wrap creates in an idempotency check and review existing settings before using `Set-ComplianceTag`. **Regulatory-record label** retention cannot be reduced; standard-record unlocking and policy-level Preservation Lock are different restrictions — see [record restrictions](https://learn.microsoft.com/en-us/purview/records-management) and §6.
 
 ### 2.1 Helper: ensure a label exists
 
@@ -142,7 +142,7 @@ Ensure-ComplianceTag -Name 'FSI-Agent-RegRecord-10Year' `
 Ensure-ComplianceTag -Name 'FSI-Agent-Configuration-6Year' `
     -Comment 'Agent definitions, version history, exports. 6-year retention.' `
     -RetentionDurationDays 2190 `
-    -RetentionAction Delete
+    -RetentionAction KeepAndDelete
 ```
 
 !!! warning "Regulatory record is one-way"
@@ -435,4 +435,4 @@ Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (shared retention-action correction documentation-verified 2026-11-09; tenant execution not performed)*

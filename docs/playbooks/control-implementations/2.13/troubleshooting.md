@@ -5,6 +5,7 @@
 **Audience:** SharePoint Admin, Purview Records Manager, Purview Compliance Admin, Power Platform Admin, Compliance Officer
 **Companion playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Last UI verified:** April 2026
+**Last Verified:** 2026-11-09 (affected retention, solution, and storage guidance checked against live documentation; tenant diagnostics not executed)
 
 ---
 
@@ -60,9 +61,9 @@
 **Likely Cause:**
 
 - Retention label policy is not published to the AI Governance SharePoint site
-- Retention label policy is in simulation mode (not enforcing)
+- Auto-apply label policy is in simulation mode (not applying labels)
 - Auto-labeling policy conditions do not match document content
-- A deletion policy is overriding the retention policy (policy precedence conflict)
+- The label uses deletion-only settings, the record is outside the configured group/site scope, or another retention/hold setting affects disposition
 
 **Diagnostic Steps:**
 
@@ -70,27 +71,27 @@
    ```powershell
    Connect-IPPSSession -ShowBanner:$false
    Get-RetentionCompliancePolicy | Where-Object { $_.Name -like '*FSI*' -or $_.Name -like '*AI*' } |
-       Select-Object Name, Mode, Enabled, SharePointLocation
+       Select-Object Name, Mode, Enabled, SharePointLocation, ModernGroupLocation
    ```
-   Verify `Enabled = True` and `Mode = Enforce` (not `Simulate`).
+   Inspect the policy type, mode, and distribution status in **Solutions** > **Records Management** > **Policies** > **Label policies**. Simulation applies to auto-apply policies, not publication policies. For the group-connected governance team site and static scope, verify **Microsoft 365 Group mailboxes & sites** (`ModernGroupLocation`), not the non-group-connected SharePoint location.
 
 2. Verify labels are published and visible:
    - Navigate to a governed library > upload a document > check if FSI-Agent labels appear in the retention label dropdown
    - If labels do not appear: the policy may still be propagating (up to 7 days)
 
-3. Check for conflicting policies:
+3. Check the actual label and applicable retention settings:
    ```powershell
-   Get-RetentionCompliancePolicy | Select-Object Name, Mode, Enabled, Priority |
-       Sort-Object Priority
+   Get-ComplianceTag -Identity 'FSI-Agent-Communications-3Year' |
+       Select-Object Name, RetentionDuration, RetentionAction, IsRecordLabel
    ```
-   Lower priority numbers take precedence. A deletion-only policy with higher priority may override retention.
+   `Delete` alone does not retain content during the configured period. Standard retention conflict resolution is not a numeric policy-priority override: preservation takes precedence over ordinary deletion, and the longest applicable retention period wins. One item has only one retention label. Review any separately configured priority-cleanup workflow with the records team rather than changing ordinary policy priority.
 
 **Resolution:**
 
-1. If policy is in simulation mode: edit the policy in Purview and switch to **Enforce** mode
-2. If not published to the site: edit the policy and add the AI Governance SharePoint site URL
-3. If propagation delay: wait 7 days after publishing; if still not visible, recreate the policy
-4. If policy conflict: adjust policy priority or modify the conflicting policy scope to exclude AI Governance libraries
+1. If an auto-apply policy is in simulation: review its results before turning it on
+2. If not published to the site: correct the group/site location using Portal Walkthrough Step 8
+3. If propagation delay: allow 7 days, then inspect distribution errors. Use the documented retry-distribution procedure in [Publish retention labels](https://learn.microsoft.com/en-us/purview/create-apply-retention-labels); do not recreate policies as the first response
+4. If auto-apply misses documents: confirm indexing, the actual library URL in `ParentLink`, and matching unlabeled content. Allow up to 7 days after deployment
 
 **Escalation Path:** Purview Records Manager → Purview Compliance Admin → Microsoft Support
 
@@ -98,7 +99,7 @@
 
 ### Retention Conflicts Between Labels
 
-**Symptom:** Multiple retention labels apply conflicting retention periods to the same content, or a user-applied label conflicts with an auto-applied label.
+**Symptom:** A document has an unexpected retention label, or overlapping policies produce an unexpected retention/deletion outcome.
 
 **Likely Cause:**
 
@@ -112,20 +113,21 @@
    - Open document properties in SharePoint > **Retention label** column
    - Note the label name and whether it was auto-applied or manually applied
 
-2. Review auto-labeling policies:
+2. Review retention label policies (not sensitivity-label policies):
    ```powershell
-   Get-AutoSensitivityLabelPolicy | Where-Object { $_.Name -like '*FSI*' -or $_.Name -like '*Agent*' } |
-       Select-Object Name, ApplySensitivityLabel, Mode
+   Get-RetentionCompliancePolicy | Where-Object { $_.Name -like '*FSI*' -or $_.Name -like '*Agent*' } |
+       Select-Object Name, Mode, Enabled, SharePointLocation, ModernGroupLocation
    ```
+   Inspect the selected policy's label/rule and conditions in **Records Management** > **Policies** > **Label policies**.
 
 3. Review retention label precedence rules in [Microsoft Learn: Retention label precedence](https://learn.microsoft.com/en-us/purview/retention#the-principles-of-retention-or-what-takes-precedence)
 
 **Resolution:**
 
-1. Microsoft Purview applies the **retention wins over deletion** principle: if one label retains and another deletes, retention takes precedence
-2. For conflicting retention periods: the **longer retention period** takes precedence
-3. If a record label has been applied: it cannot be removed or replaced with a non-record label
-4. Adjust auto-labeling policy conditions to avoid overlapping targeting
+1. Only **one retention label** is applied to an item. Ordinary overlapping retention policies follow retention-over-deletion and longest-retention principles; these rules do not mean multiple labels can coexist
+2. Auto-apply policies do not replace an existing retention label, even if a different label has a longer period
+3. A container administrator can remove/change a **locked standard-record** label; regulatory-record labels cannot be removed by anyone. Use authorized record-versioning procedures for standard records and never attempt to bypass regulatory-record restrictions
+4. Refine and simulate auto-apply queries to avoid overlapping matches; regulatory-record labels are not supported by auto-apply policies
 
 **Escalation Path:** Purview Records Manager → Purview Compliance Admin → Legal/Compliance Officer (for regulatory interpretation)
 
@@ -145,21 +147,15 @@
 
 **Diagnostic Steps:**
 
-1. In **Power Platform Admin Center** > **Environments** > select environment > **Solutions**:
-   - Review solution history for the agent's solution
-   - Check for unmanaged layers above the managed solution layer
+1. Open the agent in **Copilot Studio** > **Settings** > **Agent details** > **View solution**:
+   - In Power Apps, select the same environment > **Solutions** > select solution > **See history**; preserve evidence before its 180-day cleanup
+   - In the solution explorer, select **Agents** > agent > **Advanced** > **See solution layers** and check for unmanaged layers above the managed solution layer
 
 2. Compare the agent's current configuration against the governance record:
-   - Export the current agent definition from Copilot Studio
-   - Compare against the last documented version in the `AgentConfigurations` library
+   - Compare the release record and source unmanaged solution export with the deployed solution version
+   - A managed target solution cannot be exported; use its source deployment package and separately capture current configuration and dependency discrepancies
 
-3. Check Dataverse audit logs for the environment:
-   ```powershell
-   # Requires Windows PowerShell 5.1 (Desktop edition)
-   Add-PowerAppsAccount
-   Get-AdminPowerAppEnvironment -EnvironmentName '<env-id>' |
-       Select-Object DisplayName, @{N='AuditEnabled';E={$_.Properties.isAuditEnabled}}
-   ```
+3. Check Dataverse auditing in PPAC > **Manage** > **Environments** > environment > **Settings** > **Audit and logs** > **Audit settings**. Verify environment, required-table, and column auditing before inspecting **Audit Summary**. An environment-level toggle alone does not prove change coverage.
 
 **Resolution:**
 
@@ -186,8 +182,8 @@
 **Diagnostic Steps:**
 
 1. Check versioning settings:
-   - Navigate to the library > **Settings** > **Versioning settings**
-   - Verify **Create a version each time you edit a file** = Yes
+   - Navigate to the library > **Settings** > **Library settings** > **More library settings** (if shown) > **Versioning settings**
+   - Verify **Create major versions** is selected
    - Verify version limit is ≥ 500 major versions
 
 2. Check if version history exists for a specific document:
@@ -385,24 +381,20 @@
    - Navigate to library > **Settings** > **Permissions for this document library**
    - Check if the library has unique permissions or inherits from the site
 
-3. Check if a record label is blocking modification:
-   - If the document has a record label, it cannot be edited or deleted until the retention period expires
-   - Check the label: document properties > **Retention label** column
+3. Check the label type and record status:
+   - A locked standard record blocks content edits, but authorized unlocking permits record versioning; properties are editable by default unless the tenant blocks this
+   - A regulatory record blocks content/property edits and label removal, including for administrators; deletion follows the configured disposition after finite retention
+   - Inspect document properties > **Retention label** and **Record status**
 
-4. Verify Purview role assignments:
-   ```powershell
-   Connect-MgGraph -Scopes 'RoleManagement.Read.Directory'
-   Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '<user-object-id>'" |
-       Select-Object RoleDefinitionId, DirectoryScopeId
-   ```
+4. Verify the operator's **Records Management** role-group membership in the Purview portal permissions settings. Entra directory-role enumeration alone does not prove these Purview permissions. See [Records Management permissions](https://learn.microsoft.com/en-us/purview/get-started-with-records-management#permissions).
 
 **Resolution:**
 
 1. If site membership issue: add the user to the AI Governance site owners or members group
 2. If unique permissions: grant the user appropriate permissions on the specific library
-3. If record label blocking edit: this is working as designed — create a new version of the document instead of editing the locked version
+3. If a standard record is locked: follow the authorized unlock/edit/relock workflow for record versioning. Do not attempt to edit a regulatory record
 4. If PIM elevation expired: re-activate the Purview Records Manager or Purview Compliance Admin role in PIM
-5. If Purview role missing: assign via Entra ID > **Roles and administrators** (requires Entra Privileged Role Admin)
+5. If Purview role-group membership is missing: have an authorized Purview permissions administrator assign the required group; do not look for a directory role named Purview Records Manager
 
 **Escalation Path:** SharePoint Admin → Entra Privileged Role Admin → Purview Compliance Admin
 
@@ -459,32 +451,33 @@
 
 - The time-based retention policy was created but not locked
 - The container was created without immutability configured
-- Blob versioning is not enabled, allowing overwrites
+- The configured scope is version-level rather than the intended container scope, or the test blob is outside the effective retention interval
 - The storage account is using a tier that does not support immutability
 
 **Diagnostic Steps:**
 
-1. In **Azure Portal** > **Storage accounts** > select account > **Containers** > select container:
-   - Check **Access policy** > **Immutable blob storage**
+1. In **Azure Portal** > **Storage accounts** > select account > **Data storage** > **Containers**:
+   - Select the container's **More** menu > **Access policy** > **Immutable blob storage**
    - Verify a time-based retention policy exists
    - Check if the policy is **Locked** (shows a lock icon)
 
 2. Test immutability:
-   - Attempt to delete a blob in the container via Azure Portal
-   - Expected: deletion blocked with error message
+   - Allow up to 35 seconds for policy activation; attempt deletion and overwrite of disposable test blobs still under retention, never production evidence
+   - Expected: both operations blocked with an error message
 
-3. Verify blob versioning:
-   - **Storage account** > **Data protection** > **Enable versioning for blobs** should be checked
+3. Verify scope:
+   - Portal Walkthrough Step 11 uses **container-scoped** retention, which does not require blob versioning
+   - If using version-level immutability instead, follow its separate prerequisites and verify protection on the specific blob version
 
 **Resolution:**
 
 1. If policy exists but is unlocked: **carefully consider locking** — this is irreversible. Verify the retention period is correct (≥ 2190 days) before locking. Obtain Compliance Officer approval.
 2. If no policy exists: create a time-based retention policy on the container (see Portal Walkthrough Step 11)
-3. If blob versioning is disabled: enable it in storage account Data protection settings
+3. If scope is incorrect: correct the configuration using the [container-scoped procedure](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-policy-configure-container-scope), or independently validate the version-scoped design
 4. If wrong storage tier: ensure the account uses Standard or Premium tier with immutability support
 
 !!! danger "Policy locking is irreversible"
-    Once a time-based retention policy is locked, it cannot be unlocked, shortened, or deleted. The container cannot be deleted until all blobs in it have expired. Test in a non-production environment first. Organizations should verify this meets their operational and regulatory requirements before proceeding.
+    Once a time-based retention policy is locked, it cannot be unlocked, shortened, or deleted. Protected blobs cannot be deleted before expiry; delete expired blobs before deleting the empty container. Test in a non-production environment first. Organizations should verify this meets their operational and regulatory requirements before proceeding.
 
 **Escalation Path:** Azure Storage Account Owner → Compliance Officer (approval) → Legal (if regulatory interpretation needed)
 
@@ -539,14 +532,14 @@
 
 | Limitation | Impact | Workaround |
 |---|---|---|
-| Auto-labeling processing delay | New documents may take 24–48 hours to receive auto-applied labels | Apply labels manually for time-sensitive records; use simulation mode to test before enforcing |
+| Auto-labeling processing delay | Automatic retention-label application can take up to 7 days after deployment | Check indexing, conditions, and deployment status; simulate before turning on. Manual labels are not replaced by auto-apply |
 | WORM policy lock is irreversible | Cannot shorten retention period or delete the container after locking | Test thoroughly in non-production before locking; plan retention period with buffer |
 | Retention label publishing delay | Labels may take up to 7 days to appear in SharePoint libraries after policy publishing | Plan a 1-week buffer between policy creation and expected label availability |
 | Search indexing delay | Newly uploaded documents are not immediately searchable | Allow 15–30 minutes for indexing; for bulk uploads, allow up to 24 hours |
 | Cross-site eDiscovery complexity | Searching across multiple libraries requires eDiscovery cases | Use Purview eDiscovery for comprehensive cross-library search per [Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
 | PnP.PowerShell v2 requires app registration | v2 breaking change from v1; cannot silently upgrade | Register an Entra app with explicit consent before upgrading; see FSI PowerShell baseline |
-| Regulatory record labels are permanent | Cannot remove or replace regulatory record labels once applied | Use regulatory record labels only for content with clear, confirmed regulatory retention requirements |
-| Copilot Studio publish history is not exportable via API | No programmatic export of agent publish history | Manual screenshot capture; document version via solution history if agent is in a managed solution |
+| Regulatory record label removal is blocked | Nobody can remove the label; finite retention still has a configured disposition action | Complete metadata before applying; do not confuse standard-record unlocking with regulatory-record behavior |
+| Solution history is not publication history | Import/export/uninstall operations do not prove the agent publication operator; history expires after 180 days | Preserve release records, Publish-page evidence, source ZIP, and solution history/layers per Portal Steps 10 and 16 |
 | PowerApps Administration module requires Desktop edition | Module does not work in PowerShell 7 | Run PPAC-related scripts in Windows PowerShell 5.1; use the PSEdition guard from the baseline |
 
 ---
@@ -555,4 +548,4 @@
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation verified 2026-11-09; tenant diagnostics pending)*

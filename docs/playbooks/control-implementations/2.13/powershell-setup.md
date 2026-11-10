@@ -4,11 +4,12 @@
 **Pillar:** Pillar 2 — Management
 **Audience:** SharePoint Admin, Purview Records Manager, Purview Compliance Admin, Power Platform Admin
 **Companion playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [Verification & Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
+**Last Verified:** 2026-11-09 (retention publishing and agent-export corrections checked against Microsoft documentation; tenant execution not performed)
 
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
-> This playbook automates Control 2.13 via **PnP.PowerShell** (SharePoint site and library provisioning) and **ExchangeOnlineManagement** (the IPPS endpoint for Purview retention labels and policies). Every mutating command is wrapped in idempotency checks, supports `-WhatIf`, emits SHA-256 evidence hashes, and writes to a timestamped transcript.
+> This playbook provides configuration samples via **PnP.PowerShell** (SharePoint site and library provisioning) and **ExchangeOnlineManagement** (the IPPS endpoint for Purview retention labels and policies), plus local evidence hashing. Creation helpers skip existing configuration; they do not prove that it is correct. Native Security & Compliance cmdlet `-WhatIf` is not supported; use the outer helpers' `SupportsShouldProcess` gates for covered mutations, and review each remaining command before execution.
 >
 > **Hedging note.** This automation helps support, and is recommended for compliance with, FINRA 4511 (books and records), FINRA 3110 (supervision documentation), SEC 17a-3/4 (record creation and preservation), SOX §§302/404 (internal controls), GLBA 501(b) (safeguards), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk documentation), and CFTC 1.31 (regulatory records). It does **not by itself** satisfy SEC 17a-4(f) preservation requirements — see the parent control's SEC 17a-4 guidance.
 
@@ -22,7 +23,6 @@
 |---|---|---|---|
 | `PnP.PowerShell` v2+ | **Core only** (PS 7.2+) | 2.x (CAB-approved) | SharePoint site, library, column, and content type management |
 | `ExchangeOnlineManagement` | Desktop (5.1) or Core (7.2+) | CAB-approved stable release | Purview retention labels, policies, auto-labeling |
-| `Microsoft.Graph` | Core (PS 7+) | CAB-approved | Optional: agent metadata retrieval |
 
 ```powershell
 # REQUIRED: Replace <version> with the version approved by your CAB.
@@ -45,10 +45,10 @@ Install-Module -Name ExchangeOnlineManagement `
 
 | Task | Required Role |
 |---|---|
-| SharePoint site and library provisioning | **SharePoint Admin** |
-| Retention label and policy creation | **Purview Records Manager** + **Purview Compliance Admin** |
+| SharePoint site and library provisioning | **SharePoint Admin** for site creation; site-owner permissions for library/schema changes |
+| Retention label and policy creation | **Purview Records Manager** / **Purview Compliance Admin**, with the required Purview Records Management role-group permissions |
 | Auto-labeling policy creation | **Purview Compliance Admin** |
-| Microsoft Copilot Studio agent metadata export | **Power Platform Admin** |
+| Microsoft Copilot Studio source solution export | Agent access and at least Dataverse **System Customizer** in the source environment |
 
 ### 1.3 Initialize evidence directory and transcript
 
@@ -73,9 +73,8 @@ $TenantAdminUrl  = 'https://contoso-admin.sharepoint.com'        # Replace with 
 $SiteAlias       = 'AI-Governance'
 $SiteUrl         = 'https://contoso.sharepoint.com/sites/AI-Governance'  # Replace
 
-# Purview configuration
-$ReviewerStage1  = 'records-mgmt@contoso.com'     # Replace with your org's records manager
-$ReviewerStage2  = 'compliance@contoso.com'         # Replace with your org's compliance reviewer
+# Group-connected site created by this playbook
+$GovernanceGroup = 'ai-governance@contoso.com'   # Replace with its Microsoft 365 group address
 
 # Evidence manifest
 $ManifestPath    = Join-Path $EvidenceRoot "manifest-2.13-$Stamp.csv"
@@ -315,7 +314,9 @@ function Ensure-RetentionLabel {
 ```
 
 !!! warning "Regulatory record labels are one-way"
-    Once `Regulatory = $true` is set on a label, the label cannot be unmarked or deleted, items it has been applied to cannot have the label removed, and retention can only be extended. Treat creation of a regulatory label as a SEV-2 change requiring second-person approval. Organizations should verify this behavior meets their requirements.
+    Items marked as regulatory records cannot have the label removed, and the label's retention period can only be extended. This is different from a standard record, which supports authorized unlocking and record versioning. Treat creation of a regulatory label as a SEV-2 change requiring second-person approval. See [record restrictions](https://learn.microsoft.com/en-us/purview/records-management).
+
+The sample uses retain-then-delete actions without disposition reviewers, matching the portal table. If your approved schedule requires review, configure `ReviewerEmail` and preserve that workflow. Existing labels are skipped, not reconciled: compare their periods, record type, and disposition settings before reuse. `Delete` alone does not preserve content during the period. Cmdlet durations below are **days**, not calendar-year arithmetic; reconcile them with the approved schedule. See [`New-ComplianceTag`](https://learn.microsoft.com/en-us/powershell/module/exchange/new-compliancetag).
 
 ### 4.2 Create the FSI retention label set
 
@@ -327,37 +328,33 @@ Ensure-RetentionLabel -Name 'FSI-Agent-Communications-3Year' `
     -Comment 'Agent conversation logs classified as communications under SEC 17a-4(b)(4). 3-year retention.' `
     -RetentionDurationDays 1095 `
     -RetentionAction KeepAndDelete `
-    -IsRecordLabel $true `
-    -ReviewerEmail $ReviewerStage1
+    -IsRecordLabel $true
 
 # Books and records (6 years per SEC 17a-4(a))
 Ensure-RetentionLabel -Name 'FSI-Agent-BooksRecords-6Year' `
     -Comment 'Agent records that evidence or generate a 17a-3 record. 6-year retention per SEC 17a-4(a).' `
     -RetentionDurationDays 2190 `
     -RetentionAction KeepAndDelete `
-    -IsRecordLabel $true `
-    -ReviewerEmail $ReviewerStage1
+    -IsRecordLabel $true
 
 # Governance records (6 years per FINRA 4511)
 Ensure-RetentionLabel -Name 'FSI-Agent-Governance-6Year' `
     -Comment 'AI governance decisions, policy records per FINRA 4511. 6-year retention.' `
     -RetentionDurationDays 2190 `
-    -RetentionAction KeepAndDelete `
-    -ReviewerEmail $ReviewerStage1
+    -RetentionAction KeepAndDelete
 
 # Supervision records (6 years per FINRA 3110)
 Ensure-RetentionLabel -Name 'FSI-Agent-Supervision-6Year' `
     -Comment 'FINRA 3110 supervision records including review logs and sampling evidence. 6-year retention.' `
     -RetentionDurationDays 2190 `
     -RetentionAction KeepAndDelete `
-    -IsRecordLabel $true `
-    -ReviewerEmail $ReviewerStage1
+    -IsRecordLabel $true
 
 # Agent configuration (6 years)
 Ensure-RetentionLabel -Name 'FSI-Agent-Configuration-6Year' `
     -Comment 'Agent definitions, version history, manifest exports. 6-year retention.' `
     -RetentionDurationDays 2190 `
-    -RetentionAction Delete
+    -RetentionAction KeepAndDelete
 
 # --- Zone 3 labels (regulatory record — IRREVERSIBLE) ---
 
@@ -367,8 +364,7 @@ Ensure-RetentionLabel -Name 'FSI-Agent-RegRecord-7Year' `
     -RetentionDurationDays 2555 `
     -RetentionAction KeepAndDelete `
     -IsRecordLabel $true `
-    -Regulatory $true `
-    -ReviewerEmail $ReviewerStage2
+    -Regulatory $true
 
 # CFTC 1.31 (5 years for derivatives records)
 Ensure-RetentionLabel -Name 'FSI-Agent-CFTC-5Year' `
@@ -376,16 +372,14 @@ Ensure-RetentionLabel -Name 'FSI-Agent-CFTC-5Year' `
     -RetentionDurationDays 1825 `
     -RetentionAction KeepAndDelete `
     -IsRecordLabel $true `
-    -Regulatory $true `
-    -ReviewerEmail $ReviewerStage2
+    -Regulatory $true
 
 # Model risk documentation (6 years per OCC 2026-13 / Fed SR 26-2 — formerly OCC 2011-12 / SR 11-7)
 Ensure-RetentionLabel -Name 'FSI-Agent-ModelRisk-6Year' `
     -Comment 'OCC 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk documentation. 6-year retention.' `
     -RetentionDurationDays 2190 `
     -RetentionAction KeepAndDelete `
-    -IsRecordLabel $true `
-    -ReviewerEmail $ReviewerStage2
+    -IsRecordLabel $true
 ```
 
 ---
@@ -394,35 +388,35 @@ Ensure-RetentionLabel -Name 'FSI-Agent-ModelRisk-6Year' `
 
 ### 5.1 Helper: ensure a retention policy exists
 
+[`New-RetentionComplianceRule`](https://learn.microsoft.com/en-us/powershell/module/exchange/new-retentioncompliancerule) permits only one rule per policy and takes a single string for `PublishComplianceTag`. This sample creates one publication policy per label. For the group-connected team site, use [`ModernGroupLocation`](https://learn.microsoft.com/en-us/powershell/module/exchange/new-retentioncompliancepolicy), not `SharePointLocation`; the latter static location excludes group-connected sites. See [policy locations](https://learn.microsoft.com/en-us/purview/retention-settings). The optional permanent label is created and published through the portal procedure, not this sample.
+
 ```powershell
 function Ensure-RetentionPolicy {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)] [string]   $PolicyName,
-        [Parameter(Mandatory)] [string[]] $LabelNames,
-        [Parameter(Mandatory)] [string]   $SharePointLocation,
+        [Parameter(Mandatory)] [string]   $LabelName,
+        [Parameter(Mandatory)] [string]   $ModernGroupLocation,
         [string] $Comment = ''
     )
 
     $existing = Get-RetentionCompliancePolicy -Identity $PolicyName -ErrorAction SilentlyContinue
     if ($existing) {
-        Write-Host "[SKIP] Retention policy '$PolicyName' already exists (Mode: $($existing.Mode))" -ForegroundColor Yellow
+        Write-Warning "Policy '$PolicyName' exists. Verify its rule, label, scope, and distribution in the portal before treating it as complete."
         return $existing
     }
 
     if ($PSCmdlet.ShouldProcess($PolicyName, "Publish retention labels via policy")) {
         $policy = New-RetentionCompliancePolicy -Name $PolicyName `
             -Comment $Comment `
-            -SharePointLocation $SharePointLocation `
+            -ModernGroupLocation $ModernGroupLocation `
             -Enabled $true `
             -ErrorAction Stop
 
-        foreach ($labelName in $LabelNames) {
-            New-RetentionComplianceRule -Policy $PolicyName `
-                -PublishComplianceTag $labelName `
-                -ErrorAction Stop
-            Write-Host "  [PUBLISHED] Label '$labelName' via policy '$PolicyName'" -ForegroundColor Green
-        }
+        New-RetentionComplianceRule -Policy $PolicyName `
+            -PublishComplianceTag $LabelName `
+            -ErrorAction Stop
+        Write-Host "  [CONFIGURED] Label '$LabelName' via policy '$PolicyName'; distribution still requires verification" -ForegroundColor Cyan
 
         $policyPath = Join-Path $EvidenceRoot "policy-$PolicyName-$Stamp.json"
         $policy | ConvertTo-Json -Depth 5 | Out-File -FilePath $policyPath -Encoding UTF8
@@ -444,10 +438,12 @@ $Zone2Labels = @(
     'FSI-Agent-Configuration-6Year'
 )
 
-Ensure-RetentionPolicy -PolicyName 'FSI-AI-Governance-Retention-Zone2' `
-    -LabelNames $Zone2Labels `
-    -SharePointLocation $SiteUrl `
-    -Comment 'Zone 2 retention labels for AI governance documentation per FINRA 4511 / SEC 17a-4'
+foreach ($labelName in $Zone2Labels) {
+    Ensure-RetentionPolicy -PolicyName "FSI-AI-Governance-Retention-Zone2-$labelName" `
+        -LabelName $labelName `
+        -ModernGroupLocation $GovernanceGroup `
+        -Comment 'Zone 2 retention labels for AI governance documentation per FINRA 4511 / SEC 17a-4'
+}
 
 # Zone 3 regulatory labels (separate policy for audit segregation)
 $Zone3Labels = @(
@@ -456,10 +452,12 @@ $Zone3Labels = @(
     'FSI-Agent-ModelRisk-6Year'
 )
 
-Ensure-RetentionPolicy -PolicyName 'FSI-AI-Governance-Retention-Zone3' `
-    -LabelNames $Zone3Labels `
-    -SharePointLocation $SiteUrl `
-    -Comment 'Zone 3 regulatory record labels per SEC 17a-4(f) / CFTC 1.31 / OCC 2026-13 (formerly OCC 2011-12)'
+foreach ($labelName in $Zone3Labels) {
+    Ensure-RetentionPolicy -PolicyName "FSI-AI-Governance-Retention-Zone3-$labelName" `
+        -LabelName $labelName `
+        -ModernGroupLocation $GovernanceGroup `
+        -Comment 'Zone 3 regulatory record labels per SEC 17a-4(f) / CFTC 1.31 / OCC 2026-13 (formerly OCC 2011-12)'
+}
 ```
 
 !!! note "Propagation delay"
@@ -548,7 +546,7 @@ function Export-RetentionStatus {
     # Export policies
     $policies = Get-RetentionCompliancePolicy | Where-Object {
         $_.Name -like '*AI*' -or $_.Name -like '*Agent*' -or $_.Name -like '*FSI*'
-    } | Select-Object Name, Mode, Enabled, SharePointLocation, WhenCreatedUTC
+    } | Select-Object Name, Mode, Enabled, SharePointLocation, ModernGroupLocation, WhenCreatedUTC
 
     $policyPath = Join-Path $EvidenceRoot "retention-policies-$Stamp.csv"
     $policies | Export-Csv -Path $policyPath -NoTypeInformation
@@ -565,62 +563,22 @@ Export-RetentionStatus -EvidenceRoot $EvidenceRoot -Stamp $Stamp
 
 ## §8. Copilot Studio agent documentation export
 
+[`Get-AdminPowerApp`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/get-adminpowerapp) inventories Power Apps, not Copilot Studio agent definitions; do not relabel that output as an agent inventory or publication history. Use the supported [agent solution export](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-solutions-import-export) in Portal Walkthrough Steps 10 and 16:
+
+1. Export the custom unmanaged source solution after adding required objects. Preserve the deployment ZIP from the source when the target is managed.
+2. Record agent/environment IDs, solution version, release operator, publication time, and approval reference in a release record. Preserve solution operation history before its 180-day cleanup; it is not an agent publication ledger.
+3. Inventory dependencies and exclusions, including external knowledge content and topic comments. Save the ZIP and release record in `AgentConfigurations` under the approved retention schedule.
+4. Add the saved local files to the evidence manifest before §9:
+
 ```powershell
-function Export-AgentDocumentation {
-    <#
-    .SYNOPSIS
-        Exports Copilot Studio agent metadata for governance documentation.
-    .DESCRIPTION
-        Retrieves agent metadata from Power Platform Admin Center and exports
-        to the evidence directory for record-keeping per FINRA 4511 / OCC 2026-13 (formerly OCC 2011-12).
-    .PARAMETER EnvironmentId
-        The Power Platform environment ID containing the agents.
-    .PARAMETER EvidenceRoot
-        Path to the evidence output directory.
-    .EXAMPLE
-        Export-AgentDocumentation -EnvironmentId 'abc-123' -EvidenceRoot 'C:\fsi-evidence\2.13'
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [string] $EnvironmentId,
-        [Parameter(Mandatory)] [string] $EvidenceRoot
-    )
-
-    # Guard: requires Windows PowerShell 5.1 for PPAC module
-    if ($PSVersionTable.PSEdition -ne 'Desktop') {
-        Write-Host "[WARN] Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1." -ForegroundColor Yellow
-        Write-Host "[INFO] Run this section in Windows PowerShell (Desktop edition)." -ForegroundColor Cyan
-        return
+$SolutionPath = Join-Path $EvidenceRoot 'agent-solution.zip'       # Replace with the saved export
+$ReleaseRecordPath = Join-Path $EvidenceRoot 'agent-release.csv'  # Replace with the saved release record
+foreach ($path in @($SolutionPath, $ReleaseRecordPath)) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "Required agent evidence is missing: $path"
     }
-
-    Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
-    Add-PowerAppsAccount  # Interactive login
-
-    $localStamp = (Get-Date).ToString('yyyyMMdd-HHmmss')
-    $agents = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId |
-              ForEach-Object { Get-AdminPowerApp -EnvironmentName $EnvironmentId }
-
-    if (-not $agents -or $agents.Count -eq 0) {
-        Write-Host "[INFO] No agents found in environment $EnvironmentId" -ForegroundColor Yellow
-        return
-    }
-
-    $agentReport = $agents | Select-Object @{N='AgentName';E={$_.DisplayName}},
-        @{N='AgentId';E={$_.AppName}},
-        @{N='Owner';E={$_.Owner.displayName}},
-        @{N='CreatedTime';E={$_.CreatedTime}},
-        @{N='LastModified';E={$_.LastModifiedTime}},
-        @{N='EnvironmentId';E={$EnvironmentId}}
-
-    $agentPath = Join-Path $EvidenceRoot "agent-inventory-$EnvironmentId-$localStamp.csv"
-    $agentReport | Export-Csv -Path $agentPath -NoTypeInformation
-    Add-EvidenceToManifest -FilePath $agentPath -Description "Agent inventory for environment $EnvironmentId"
-
-    Write-Host "[PASS] Exported $($agents.Count) agents from environment $EnvironmentId" -ForegroundColor Green
+    Add-EvidenceToManifest -FilePath $path -Description 'Agent solution export or publication release record'
 }
-
-# Usage (uncomment and set your environment ID):
-# Export-AgentDocumentation -EnvironmentId '<your-environment-id>' -EvidenceRoot $EvidenceRoot
 ```
 
 ---
@@ -650,7 +608,9 @@ Write-Host "[TRANSCRIPT SHA-256] $transcriptHash" -ForegroundColor Green
 
 ---
 
-## §10. Complete validation script
+## §10. Inventory validation script
+
+This checks library and label/policy inventory, not control acceptance. Five standard labels are expected for Zone 2, with three additional Zone 3 labels; the optional permanent label is portal-only. Publication does not auto-apply a label: configure Portal Step 9 separately. Complete [TC-003 through TC-008](verification-testing.md#test-cases) to verify settings, rule-to-label mapping, group/site scope, distribution, automatic application, and agent release evidence. A count alone cannot prove these.
 
 ```powershell
 <#
@@ -708,11 +668,11 @@ Write-Host "`n[Check 2] Retention Labels" -ForegroundColor Cyan
 try {
     Connect-IPPSSession -ShowBanner:$false
     $labels = Get-ComplianceTag | Where-Object { $_.Name -like 'FSI-Agent*' }
-    if ($labels -and $labels.Count -ge 4) {
+    if ($labels -and $labels.Count -ge 5) {
         Write-Host "  [PASS] Found $($labels.Count) FSI-Agent retention labels" -ForegroundColor Green
         $results += [PSCustomObject]@{ Check = 'RetentionLabels'; Status = 'PASS' }
     } else {
-        Write-Host "  [WARN] Found $($labels.Count) labels (expected 4+)" -ForegroundColor Yellow
+        Write-Host "  [WARN] Found $($labels.Count) labels (expected 5+ for Zone 2)" -ForegroundColor Yellow
         $results += [PSCustomObject]@{ Check = 'RetentionLabels'; Status = 'WARN' }
     }
 
@@ -766,4 +726,4 @@ Write-Host "Results: $resultPath" -ForegroundColor Cyan
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation corrections verified; tenant execution pending)*

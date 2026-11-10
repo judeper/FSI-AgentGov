@@ -144,7 +144,7 @@ Ensure auditing is properly configured:
 
 **Environment-Level Settings:**
 
-1. Power Platform Admin Center → Environment → Settings
+1. Power Platform Admin Center > **Manage** > **Environments** > select environment > **Settings**
 2. **Audit and logs** → **Audit settings**
 3. Enable:
    - [x] Start Auditing
@@ -157,9 +157,9 @@ For MessageCenterPost, AssessmentLog, DecisionLog:
 1. Open table → **Properties** (gear icon)
 2. **Advanced options** → Enable **Audit changes to its data**
 
-**Column-Level Settings (Optional):**
+**Column-Level Settings:**
 
-For sensitive columns, enable explicit column auditing:
+Verify auditing on each column whose changes must be captured; environment and table auditing alone do not enable a column with auditing disabled. See [Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing).
 
 1. Open column properties
 2. Enable **Auditing**
@@ -205,11 +205,13 @@ Apply to: Dataverse exports
 Configure auto-labeling for PCG evidence:
 
 1. Go to [Microsoft Purview portal](https://purview.microsoft.com)
-2. **Information protection** → **Auto-labeling**
+2. **Solutions** > **Records Management** > **Policies** > **Label policies** > **Auto-apply a label** (retention labeling, not sensitivity auto-labeling)
 3. Create policy:
    - Name: `PCG Evidence Auto-Label`
-   - Conditions: File name contains "PCG-" AND location is compliance library
+   - Conditions: Use a tested keyword/searchable-property query combining the evidence file-name pattern with `ParentLink:"<actual compliance library URL>"`; library targeting is a query condition, not a location picker
    - Label: FSI-PCG-6Year
+4. With a static scope, select the governance group under **Microsoft 365 Group mailboxes & sites** for a group-connected team site; use **SharePoint classic and communication sites** only for non-group-connected sites
+5. Simulate, review matches and negative samples, then turn on. Allow up to 7 days for application. Existing retention labels are not replaced, and regulatory-record labels cannot auto-apply. See [automatic retention labeling](https://learn.microsoft.com/en-us/purview/apply-retention-labels-automatically) and [location selection](https://learn.microsoft.com/en-us/purview/retention-settings)
 
 ### eDiscovery Considerations
 
@@ -344,4 +346,4 @@ Write-Host "Evidence export complete. Files ready for upload to compliance libra
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (retention-label and audit-scope corrections documentation-verified 2026-11-09; UI not retested)*

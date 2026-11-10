@@ -5,6 +5,7 @@
 **Audience:** SharePoint Admin, Purview Records Manager, Purview Compliance Admin, Compliance Officer, AI Governance Lead, Internal Audit
 **Companion playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Troubleshooting](./troubleshooting.md)
 **Last UI verified:** April 2026
+**Last Verified:** 2026-11-09 (affected product assertions checked against live documentation; tenant tests not executed)
 
 ---
 
@@ -23,9 +24,9 @@ Before executing test cases, confirm the following pre-gates are met:
 | Pre-Gate | Requirement | Verification Method |
 |---|---|---|
 | PRE-01 | SharePoint Admin role assigned to test operator | Entra ID role assignments |
-| PRE-02 | Purview Records Manager role assigned | Entra ID role assignments |
+| PRE-02 | Purview Records Manager has the Purview **Records Management** role group | Purview portal role groups; this is not an Entra directory role of the same name |
 | PRE-03 | AI Governance SharePoint site provisioned | Navigate to site URL |
-| PRE-04 | Retention labels created and published | Purview portal > Data lifecycle management > Labels |
+| PRE-04 | Retention labels created and published | Purview portal > **Solutions** > **Records Management** > **File plan** and **Policies** > **Label policies** |
 | PRE-05 | Zone classification documented for agents under test | Control 2.2 zone register |
 | PRE-06 | Evidence directory created at `C:\fsi-evidence\2.13` | PowerShell: `Test-Path C:\fsi-evidence\2.13` |
 
@@ -55,7 +56,7 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify AI Governance metadata columns are present on all document libraries |
 | **Zone Applicability** | Zone 1 (3 core columns), Zone 2+ (7 columns) |
 | **Preconditions** | PRE-01, TC-2.13-001 passed |
-| **Steps** | 1. Navigate to each library > **+ Add column** dropdown<br>2. Verify the following columns appear: `Agent ID`, `Document Category`, `Classification Date`<br>3. For Zone 2+: verify `Regulatory Reference`, `Retention Period`, `Governance Zone`, `Record Owner` also appear<br>4. Upload a test document and confirm all required metadata fields are available for population |
+| **Steps** | 1. Navigate to each library > **Settings** > **Library settings** > **Columns**<br>2. Verify the following columns appear: `Agent ID`, `Document Category`, `Classification Date`<br>3. For Zone 2+: verify `Regulatory Reference`, `Retention Period`, `Governance Zone`, `Record Owner` also appear; compare internal names with the automation schema<br>4. Upload a test document and confirm all required metadata fields are available for population before applying record labels |
 | **Expected Result** | All zone-required metadata columns are present in each library |
 | **Pass Criteria** | All columns visible and editable when uploading/editing documents |
 | **Fail Criteria** | Any required column is missing from any governed library |
@@ -70,8 +71,8 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify Purview retention labels exist with correct retention periods per the SEC 17a-4 record-type matrix |
 | **Zone Applicability** | Zone 2 (standard labels), Zone 3 (+ regulatory record labels) |
 | **Preconditions** | PRE-02, PRE-04 |
-| **Steps** | 1. Open **Purview portal** > **Data lifecycle management** > **Microsoft 365** > **Labels**<br>2. Search for labels beginning with `FSI-Agent`<br>3. For each label, verify:<br>   - Name matches expected naming convention<br>   - Retention period matches specification (1095 days = 3yr, 2190 = 6yr, 2555 = 7yr, 1825 = 5yr)<br>   - Retention action is correct (KeepAndDelete or Delete)<br>   - Record type is correct (Item, Record, or Regulatory record) |
-| **Expected Result** | Zone 2: at least 5 labels (Communications-3Year, BooksRecords-6Year, Governance-6Year, Supervision-6Year, Configuration-6Year). Zone 3: add RegRecord-7Year, CFTC-5Year, ModelRisk-6Year |
+| **Steps** | 1. Open **Purview portal** > **Solutions** > **Records Management** > **File plan**<br>2. Search for labels beginning with `FSI-Agent`<br>3. For each label, verify:<br>   - Name matches expected naming convention<br>   - Retention duration, units, and start trigger match the approved schedule; do not treat fixed day counts as calendar-year arithmetic<br>   - Content is retained during the period and disposition matches the approved action (retain-then-delete in this portal example; deletion-only does not preserve content)<br>   - Record type is correct (Item, Record, or Regulatory record), including default lock state<br>4. With disposable standard-record test data, verify locked content cannot be edited or deleted; verify authorized unlocking permits edits under record versioning. Do not expect standard records to have regulatory-record label-removal restrictions<br>5. For regulatory records, verify content/properties and label removal are blocked, and application is from a published label policy, not auto-apply |
+| **Expected Result** | Zone 2: at least 5 labels (Communications-3Year, BooksRecords-6Year, Governance-6Year, Supervision-6Year, Configuration-6Year). Zone 3: add RegRecord-7Year, CFTC-5Year, ModelRisk-6Year; verify Permanent if created through the portal |
 | **Pass Criteria** | All expected labels present with correct retention periods and record types |
 | **Fail Criteria** | Any expected label missing, or retention period does not match specification |
 | **Evidence to Capture** | Screenshot of Purview Labels page showing all FSI-Agent labels; PowerShell: `Get-ComplianceTag | Where-Object { $_.Name -like 'FSI-Agent*' } | Select-Object Name, RetentionDuration, RetentionAction, IsRecordLabel | Export-Csv` |
@@ -85,11 +86,11 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify retention label policies are published to the AI Governance SharePoint site and are in active (enabled) state |
 | **Zone Applicability** | Zone 2, Zone 3 |
 | **Preconditions** | PRE-02, TC-2.13-003 passed |
-| **Steps** | 1. Open **Purview portal** > **Data lifecycle management** > **Microsoft 365** > **Label policies**<br>2. Locate the FSI-AI-Governance-Retention policies<br>3. Verify each policy is **Enabled** (not in simulation mode)<br>4. Verify the **SharePoint location** includes the AI Governance site URL<br>5. For Zone 3: verify separate Zone 3 regulatory record policy exists |
+| **Steps** | 1. Open **Purview portal** > **Solutions** > **Records Management** > **Policies** > **Label policies**<br>2. Locate the FSI-AI-Governance-Retention policies of type **Publish** and check distribution status; simulation applies to auto-apply policies, not publication<br>3. For the group-connected governance team site and a static scope, verify the group is selected under **Microsoft 365 Group mailboxes & sites**; for a non-group-connected site verify **SharePoint classic and communication sites**<br>4. Verify the published labels are actually available on a test document in the target library, allowing up to 7 days<br>5. For Zone 3: verify its additional labels are published; the PowerShell sample creates one policy per label |
 | **Expected Result** | At least one active retention policy targets the AI Governance site with all required labels |
-| **Pass Criteria** | Policy status = Enabled, SharePoint location includes AI Governance site |
+| **Pass Criteria** | Publication distributed without errors, correct group/site scoped, and required labels available in the target library |
 | **Fail Criteria** | Policy missing, disabled, or not targeting the correct SharePoint site |
-| **Evidence to Capture** | Screenshot of policy details showing enabled status and locations; PowerShell: `Get-RetentionCompliancePolicy | Where-Object { $_.Name -like '*FSI*' } | Select-Object Name, Mode, Enabled, SharePointLocation | Export-Csv` |
+| **Evidence to Capture** | Screenshot of policy type, distribution status, labels, and group/site location; PowerShell: `Get-RetentionCompliancePolicy | Where-Object { $_.Name -like '*FSI*' } | Select-Object Name, Mode, Enabled, SharePointLocation, ModernGroupLocation | Export-Csv` |
 
 ---
 
@@ -100,10 +101,10 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify auto-labeling policies are configured and applying retention labels to agent interaction logs |
 | **Zone Applicability** | Zone 2 (recommended), Zone 3 (required) |
 | **Preconditions** | PRE-02, TC-2.13-004 passed, allow 7+ days after label publishing |
-| **Steps** | 1. Upload a test document to the `InteractionLogs` library with the text "Agent ID: TEST-001" and "Copilot interaction" in the content<br>2. Wait 24–48 hours for auto-labeling policy to process<br>3. Return to the document and check the **Retention label** column<br>4. Verify the label `FSI-Agent-Communications-3Year` (or the configured auto-label) has been applied |
+| **Steps** | 1. Review the auto-apply policy query, group/site scope, simulation results, and deployed status. Confirm `ParentLink` targets the actual `InteractionLogs` URL<br>2. Upload an unlabeled test document there with "Agent ID: TEST-001" and "Copilot interaction" in the content; add a negative sample outside the library and one without the matching text<br>3. Allow indexing and up to **7 days** for automatic application after deployment<br>4. Verify `FSI-Agent-Communications-3Year` (or the configured standard-record auto-label) is applied only to matching samples. An existing retention label must not be replaced; regulatory-record labels are not supported by auto-apply policies |
 | **Expected Result** | The uploaded document has the correct retention label automatically applied |
 | **Pass Criteria** | Auto-applied label matches the expected label per the auto-labeling policy |
-| **Fail Criteria** | No label applied after 48 hours, or wrong label applied |
+| **Fail Criteria** | No label applied after 7 days with confirmed indexing and policy deployment, wrong label applied, or negative samples labeled by this policy |
 | **Evidence to Capture** | Screenshot of document properties showing the auto-applied retention label with timestamp; document properties export |
 
 ---
@@ -115,7 +116,7 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify WORM storage or audit-trail alternative is configured for Zone 3 agent records |
 | **Zone Applicability** | Zone 3 only |
 | **Preconditions** | PRE-02, Zone 3 deployment confirmed |
-| **Steps** | **Option A (WORM):**<br>1. Open **Azure Portal** > **Storage accounts** > locate the FSI governance storage account<br>2. Navigate to **Containers** > `ai-governance-records`<br>3. Verify **Immutable blob storage** is configured with a time-based retention policy<br>4. Verify the policy is **Locked** (not unlocked)<br>5. Verify retention period ≥ 2190 days (6 years)<br>6. Attempt to delete a blob in the container — verify deletion is blocked<br><br>**Option B (Audit-trail):**<br>1. Review the audit-trail alternative documentation in WSPs<br>2. Verify DEO representation or DTP undertaking is on file<br>3. Verify Cohasset (or equivalent) attestation is current<br>4. Verify serialized indexing is operational |
+| **Steps** | **Option A (WORM):**<br>1. Open **Azure Portal** > **Storage accounts** > locate the FSI governance storage account<br>2. Navigate to **Data storage** > **Containers** > `ai-governance-records` > **More** > **Access policy**<br>3. Verify **Immutable blob storage** is configured with a container-scoped time-based retention policy; do not require blob versioning for this scope<br>4. Verify the policy is **Locked** (not unlocked)<br>5. Verify retention period ≥ 2190 days (6 years)<br>6. After allowing up to 35 seconds for activation, attempt deletion and overwrite of disposable test blobs still under retention — verify both are blocked; never use production records<br><br>**Option B (Audit-trail):**<br>1. Review the audit-trail alternative documentation in WSPs<br>2. Verify DEO representation or DTP undertaking is on file<br>3. Verify Cohasset (or equivalent) attestation is current<br>4. Verify serialized indexing is operational |
 | **Expected Result** | WORM: locked policy with ≥ 6-year retention, deletion blocked. Audit-trail: documentation complete and current |
 | **Pass Criteria** | Either Option A or Option B fully verified with all sub-checks passing |
 | **Fail Criteria** | WORM policy unlocked, retention period insufficient, or audit-trail documentation incomplete |
@@ -130,7 +131,7 @@ Before executing test cases, confirm the following pre-gates are met:
 | **Objective** | Verify SharePoint versioning is enabled and preserving document history for governance records |
 | **Zone Applicability** | Zone 1, Zone 2, Zone 3 |
 | **Preconditions** | TC-2.13-001 passed |
-| **Steps** | 1. Navigate to each governed library > **Settings** > **Versioning settings**<br>2. Verify **Create a version each time you edit a file** = Yes (Major versions)<br>3. Verify version limit is ≥ 500<br>4. Upload a test document, edit it, save — verify version 2.0 is created<br>5. Click **Version history** on the document and verify both versions are listed |
+| **Steps** | 1. Navigate to each governed library > **Settings** > **Library settings** > **Versioning settings**<br>2. Verify **Create major versions** is selected<br>3. Verify the major-version count limit is ≥ 500 (not the draft limit) and capture version expiration settings separately<br>4. Upload an unlabeled test document, edit it, save — verify version 2.0 is created<br>5. Click **Version history** on the document and verify both versions are listed |
 | **Expected Result** | Versioning enabled, edits create new versions, version history is viewable |
 | **Pass Criteria** | Versioning on, version limit ≥ 500, test document shows version history |
 | **Fail Criteria** | Versioning disabled, version limit too low, or version history not maintained |
@@ -142,14 +143,14 @@ Before executing test cases, confirm the following pre-gates are met:
 
 | Field | Detail |
 |---|---|
-| **Objective** | Verify Microsoft Copilot Studio agent publish history and version information is captured and preserved |
+| **Objective** | Verify Microsoft Copilot Studio publication release records, solution version/history, and source export are preserved |
 | **Zone Applicability** | Zone 2, Zone 3 |
-| **Preconditions** | Power Platform Admin role, agent deployed in a managed environment |
-| **Steps** | 1. Open **Power Platform Admin Center** > **Environments** > select environment<br>2. Navigate to **Copilot Studio** > **Agents** > select agent<br>3. Review the **Publish history** — verify entries exist with timestamps and publisher identity<br>4. For agents in managed solutions: navigate to **Solutions** > select solution > review **Solution history**<br>5. Verify that an export of agent details (topics, actions, knowledge sources) has been saved to the `AgentConfigurations` library |
-| **Expected Result** | Publish history visible with timestamped entries; agent details export saved to governance library |
-| **Pass Criteria** | At least one publish record visible; latest agent export in AgentConfigurations library |
-| **Fail Criteria** | No publish history, no agent export in governance library |
-| **Evidence to Capture** | Screenshot of Copilot Studio publish history; screenshot of solution history (if applicable); file listing from AgentConfigurations library filtered by agent name |
+| **Preconditions** | Access to agent and Dataverse solution; at least System Customizer for export. Managed Environment status is not a prerequisite for viewing solution history |
+| **Steps** | 1. Open the agent in **Copilot Studio** in the correct environment > **Publish**; capture the displayed status<br>2. Verify a release record binds agent/environment IDs, operator identity, publication timestamp, approval, and solution version<br>3. Open **Settings** > **Agent details** > **View solution**; in Power Apps > same environment > **Solutions** > select solution > **See history**, capture operation, version, timestamps, and result. Preserve before the 180-day cleanup; the solution **Publisher** is not the human release operator<br>4. For layers: solution > **Agents** > agent > **Advanced** > **See solution layers**<br>5. Verify the custom unmanaged source solution export, required-object inventory, and documented exclusions are in `AgentConfigurations`. For managed targets, use the preserved source deployment ZIP, not a target export<br>6. Confirm Dataverse auditing at environment, required-table, and column levels under PPAC > **Manage** > **Environments** > environment > **Settings** > **Audit and logs** > **Audit settings** and the table/column settings |
+| **Expected Result** | Release record, publication evidence, solution history/layers, and dependency-checked source export preserved |
+| **Pass Criteria** | Latest deployed agent matches its release record and source package; evidence is captured before history cleanup; auditing scope documented |
+| **Fail Criteria** | Missing release record/source package, mismatched solution version, or solution operation history incorrectly presented as publication history |
+| **Evidence to Capture** | Agent details and Publish screenshots; release record; solution history and layers; source ZIP and dependency/exclusion inventory; audit settings. Do not substitute `Get-AdminPowerApp` output for agent definitions |
 
 ---
 
@@ -243,14 +244,14 @@ The following artifacts constitute the evidence pack for Control 2.13. Maintain 
 | 3 | Retention labels inventory CSV | §7 of PowerShell Setup | `retention-labels-{stamp}.csv` | `manifest-2.13-{stamp}.csv` row 3 |
 | 4 | Retention policies inventory CSV | §7 of PowerShell Setup | `retention-policies-{stamp}.csv` | `manifest-2.13-{stamp}.csv` row 4 |
 | 5 | Documentation completeness audit CSV | §6 of PowerShell Setup | `doc-completeness-audit-{stamp}.csv` | `manifest-2.13-{stamp}.csv` row 5 |
-| 6 | Agent inventory per environment CSV | §8 of PowerShell Setup | `agent-inventory-{env}-{stamp}.csv` | `manifest-2.13-{stamp}.csv` row 6 |
+| 6 | Source agent solution ZIP and publication release record | §8 of PowerShell Setup; Portal Steps 10 and 16 | Saved solution ZIP, release CSV, and dependency/exclusion inventory | Separate manifest entries per saved file |
 | 7 | Validation results CSV | §10 of PowerShell Setup | `validation-results-{stamp}.csv` | `manifest-2.13-{stamp}.csv` row 7 |
 | 8 | Retention label creation evidence (JSON per label) | §4 of PowerShell Setup | `label-{name}-{stamp}.json` | Separate entries per label |
 | 9 | Retention policy creation evidence (JSON per policy) | §5 of PowerShell Setup | `policy-{name}-{stamp}.json` | Separate entries per policy |
 | 10 | PowerShell transcript | §1.3 of PowerShell Setup | `transcript-2.13-{stamp}.log` | Final transcript hash |
 | 11 | Evidence manifest (master) | §9 of PowerShell Setup | `manifest-2.13-{stamp}.csv` | Self-referencing (manifest hash printed to console) |
 | 12 | Site creation screenshot | Portal Walkthrough Step 1 | `evidence-2.13-site-creation.png` | Manual entry |
-| 13 | Agent version screenshots | Portal Walkthrough Step 10 | `evidence-2.13-agent-version-*.png` | Manual entry |
+| 13 | Agent Publish-page and solution history/layer screenshots | Portal Walkthrough Steps 10 and 16 | Screenshots paired with the release record and source ZIP | Manual entry |
 | 14 | WORM policy screenshot (Zone 3) | TC-2.13-006 | `evidence-2.13-worm-policy.png` | Manual entry |
 | 15 | Examination response procedure | Portal Walkthrough Step 14 | `Examination-Response-Procedure.docx` | Manual entry |
 
@@ -305,11 +306,13 @@ verified and are operating as designed:
 2. **Purview retention labels** are configured and published:
    - Labels created: [Count]
    - Retention periods verified per SEC 17a-4 record-type matrix
-   - Label policy published to AI Governance site
+   - Publication distributed; target group/site and published label inventory: [Details]
 
 3. **Auto-labeling** (Zone 2+):
    - Auto-labeling policy: [Enabled / Not applicable]
-   - Policy targets: [Library names]
+   - Policy targets: [Group/site and actual library ParentLink query]
+   - Simulation/deployment status and matching/negative sample results: [Evidence]
+   - Existing labels preserved; no regulatory-record auto-apply policy: [Verified]
 
 4. **SEC 17a-4 compliant storage** (Zone 3):
    - Method: [WORM / Audit-trail alternative / Not applicable]
@@ -343,4 +346,4 @@ verified and are operating as designed:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation verified 2026-11-09; tenant tests pending)*

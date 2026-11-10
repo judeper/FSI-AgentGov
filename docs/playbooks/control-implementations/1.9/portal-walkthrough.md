@@ -60,7 +60,7 @@ All steps below start from one of these entry points:
     - Start retention based on: **When items were created**
     - At end of retention: **Start a disposition review**
 7. **Disposition reviewers:** Stage 1 `records-mgmt-stage1@contoso.com`, Stage 2 `compliance-stage2@contoso.com`, Stage 3 `legal-stage3@contoso.com`.
-8. **Mark items as a record:** **Yes** (locks retention so it can be extended but not reduced).
+8. **Mark items as a record:** **Yes**. A locked standard record blocks content edits, but authorized unlocking permits record versioning; this is not the irreversible regulatory-record restriction. See [record action restrictions](https://learn.microsoft.com/en-us/purview/records-management).
 9. **Mark items as a regulatory record:** **No** for communications (regulatory-record flag is best reserved for content where you want absolute immutability — see 1.3).
 10. **Review and create.**
 
@@ -100,24 +100,22 @@ For Copilot Studio agent definitions, version history, and topic exports stored 
 
 ## Step 2 — Publish labels via a label policy
 
-**Path:** Purview > **Solutions** > **Records management** > **Label policies** > **+ Publish labels**
+**Path:** Purview > **Solutions** > **Records management** > **Policies** > **Label policies** > **Publish labels**
 
 1. Click **+ Publish labels**.
 2. **Choose labels to publish:** select all four `FSI-Agent-*` labels created in Step 1.
-3. **Choose admin units (optional):** scope to a Zone 3 administrative unit if used.
-4. **Choose locations:** enable all of the following that the firm uses for agent-touching data:
+3. **Choose admin units:** keep **Full directory** when publishing to SharePoint; administrative units scope users, not SharePoint sites.
+4. **Choose locations:** publish labels to the supported locations the firm uses:
     - Exchange email
     - SharePoint classic and communication sites
     - OneDrive accounts
     - Microsoft 365 Group mailboxes & sites
-    - Teams chats and Copilot interactions
-    - Teams channel messages (standard, private, shared)
-    - Viva Engage user messages
-    - Viva Engage community messages
+    - For a group-connected team site, select the group under **Microsoft 365 Group mailboxes & sites**; the static SharePoint location does not include that site
+    - Teams/Copilot/Viva Engage message retention uses retention policies, not publication of these item labels. See [label publication](https://learn.microsoft.com/en-us/purview/create-apply-retention-labels) and [locations](https://learn.microsoft.com/en-us/purview/retention-settings)
 5. **Policy settings:**
     - Name: `FSI-Agent-Labels-Publish-Zone3`
     - Description: "Publishes Control 1.9 retention labels to Zone 3 in-scope users and locations."
-6. **Review and submit.** Distribution typically takes 24 hours (up to 7 days for fully populated mailboxes). Track in **Label policies** > policy detail > **Distribution status**.
+6. **Review and submit.** Distribution typically takes a day; allow up to 7 days, including for SharePoint. Track in **Label policies** > policy detail > **Distribution status**.
 
 ---
 
@@ -268,4 +266,4 @@ For each examination-ready file:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (shared record/publication claims documentation-verified 2026-11-09; UI not retested)*

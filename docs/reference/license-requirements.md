@@ -146,7 +146,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.10** | Patch Management | Microsoft 365 E3+ | Automatic with SaaS |
 | **2.11** | Bias Testing | N/A (process) | Process/documentation control |
 | **2.12** | Supervision & Oversight | Microsoft 365 E5 (for monitoring) | Communication Compliance optional |
-| **2.13** | Documentation & Records | Microsoft 365 E3+ | SharePoint/OneDrive storage |
+| **2.13** | Documentation & Records | Microsoft 365 E3+ for basic storage/labels; feature-specific E5 or Microsoft Purview Suite entitlements for advanced records features | File plan, record/regulatory labels, disposition review, and keyword auto-apply require eligible advanced licenses; see the [Purview service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description) |
 | **2.14** | Training & Awareness | Microsoft 365 E3+ | Viva Learning optional |
 | **2.15** | Environment Routing | Power Platform Premium | Managed Environments auto-provisioning |
 | **2.16** | RAG Source Integrity | N/A (process) | Process/documentation control |
