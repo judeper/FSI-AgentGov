@@ -121,20 +121,20 @@ SR 26-2 (formerly SR 11-7) conceptual soundness asks whether the model is approp
 
 ### 1.2 Agent 365 Admin Center publication-approval workflow with governance template
 
-**Portal path:** [Microsoft 365 admin center](https://admin.microsoft.com) → **Agent 365** → **Pending Requests** → **Publishing**, and **Agent 365 → Governance → Templates**.
+**Portal path:** [Microsoft 365 admin center](https://admin.microsoft.com) → **Agents > All agents > Requests**, and **Agents > Settings > Security templates**. Paths were documentation-checked on 2026-11-09 against [agent requests](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-requests) and [agent settings](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-settings); no tenant/UI execution.
 
-1. Sign in as **AI Administrator**. Confirm the Agent 365 node is visible (entitlement check — see Control 2.25 if missing).
-2. Open **Governance → Templates** and create or review the **MRM-aligned governance template** that will be applied at publish time for in-scope agents. Recommended template fields:
+1. Sign in as **AI Administrator**. Confirm the **Agents** node and the specific licensed feature are available (entitlement check — see Control 2.25 if missing).
+2. Open **Agents > Settings > Security templates** and review the supported policy bindings. Keep the following **MRM-aligned requirements** in the firm's supplemental governance record; they are not documented native template fields:
     - Required Agent Card metadata (model tier, knowledge sources, last validation date, next validation date)
     - Required approver chain (Model Risk Manager + registered principal under FINRA Rule 3110 for broker-dealers)
     - Required retention label for the agent's audit trail (links to [§5](#5-validation-evidence-retention-path))
     - Zone-appropriate model allow-list (verify against the underlying-model availability disclosure in Control 2.6 §"Underlying Model Availability in Copilot Studio")
-3. Open **Pending Requests → Publishing** and confirm the queue rhythm (daily for Zone 3, weekly for Zone 2) is documented in the firm's runbook.
+3. Open **Agents > All agents > Requests**, review the actual request state, and confirm the queue rhythm (daily for Zone 3, weekly for Zone 2) is documented in the firm's runbook. The Overview card shows only the three newest requests; it is not the complete queue or an aging report.
 4. For each pending publication, the AI Administrator validates that the request package includes:
     - A completed Agent Card (see §1.3)
     - The MRM Committee's tiering decision (Tier 1 / 2 / 3) and validation memo reference
     - The registered-principal supervisory acknowledgment (broker-dealers, per §0.4)
-5. Approval in Agent 365 records an admin-attributed audit event. **This event is evidence of the publication decision, not evidence of validation.** The validation memo itself lives in the retention store described in §5.
+5. Capture the actual publication decision, actor, timestamp, and correlated audit evidence where available; do not assume a generic approval-history API or fixed event schema. **This event is evidence of the publication decision, not evidence of validation.** The validation memo itself lives in the retention store described in §5.
 
 Cross-link: [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for full publish/activate workflow detail.
 

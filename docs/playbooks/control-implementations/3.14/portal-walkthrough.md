@@ -201,18 +201,16 @@ After SDK implementation (Playbook 3.14-B), return to this step to confirm that 
 
 ### Step 4.2: Confirm Metric Contribution [Requires Agent 365 / E7 licensing]
 
-**4.2.1** Navigate to Agents > Overview.
+**4.2.1** Open Agents > Overview and capture Agent registry, Active users, Agent run-time, and Registry sync. There is no Total Sessions or Exception Rate hero card.
 
-**4.2.2** Note the Total Sessions count.
+**4.2.2** Record a known non-sensitive test invocation in the validated SDK telemetry destination with agent identity, time, and correlation ID.
 
-**4.2.3** Run a test agent invocation using the custom agent (a simple "hello" query is sufficient).
+**4.2.3** Reconcile supported Overview/activity telemetry with its actual collection window. Per-agent Activity is currently documented for Agent Builder, SharePoint, and Agents Toolkit agents; SDK export alone does not establish that an arbitrary custom agent has the same Activity UI.
 
-**4.2.4** Wait 30–60 minutes for telemetry to propagate. Refresh the Overview page.
+**4.2.4** Where supported, Sessions and Exceptions are per-agent Activity metrics. A derived rate is `100 * sessions with errors / sessions` for the same scope/period; higher is worse, zero sessions or missing telemetry yields no rate.
 
-**4.2.5** Confirm the Total Sessions count has incremented by at least 1 compared to the pre-test value.
-
-!!! info "Metric Propagation Delay"
-    Agent 365 metrics are not real-time. Expect up to 60 minutes for a new agent invocation to appear in the Total Sessions count. For Exception Rate, propagation of exception events may take up to 4 hours. Do not interpret absence of immediate metric change as an SDK integration failure.
+!!! info "Documentation cross-check — 2026-11-09"
+    [Overview](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview) and [Activity](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-activity) do not establish the old fixed 60-minute/four-hour propagation guarantees. Capture actual coverage and timing; no tenant/UI execution was performed for this correction.
 
 ---
 

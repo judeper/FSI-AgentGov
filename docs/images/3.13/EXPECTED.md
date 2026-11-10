@@ -6,7 +6,7 @@
 **Portal Path:** M365 admin center -> Agents -> Overview
 **What to capture:**
 - Agent Registry, Active Users, Agent Run-time, and Registry Sync hero metrics
-- Pending Requests card
+- Pending Requests card (three newest requests only); capture the full Requests list separately for queue and SLA evidence
 - Agents without Owners card
 - Agents with Exceptions actionable view
 
@@ -18,11 +18,12 @@
 - Trend visual for active users
 
 ### Screenshot 3: Inventory export action
-**Portal Path:** M365 admin center -> Agents -> All Agents
+**Portal Path:** M365 admin center -> Agents -> All agents -> Registry
 **What to capture:**
 - Export button
 - Agent list columns
 - Evidence-friendly point-in-time view
+- Selected All agents / Filtered agents scope, actual CSV/Excel format, and any supplemental firm-required fields absent from the native export
 
 ### Screenshot 4: Researcher with Computer Use reporting
 **Portal Path:** M365 admin center -> Agents -> Researcher -> Computer Use
@@ -48,7 +49,7 @@ Save screenshots with the following naming format:
 3.13_Screenshot-[Number]_[Description]_[YYYYMMDD].png
 ```
 
-Store screenshots in the `docs/images/3.13/` directory for local maintainer verification.
+Store screenshots under `maintainers-local/tenant-evidence/`; retain only this checklist in the repository. Documentation cross-check: 2026-11-09; no screenshots or tenant/UI execution were verified.
 
 ---
 

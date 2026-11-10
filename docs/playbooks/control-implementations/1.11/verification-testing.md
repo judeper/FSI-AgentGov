@@ -92,7 +92,7 @@ Reports.Read.All
 RoleManagement.Read.Directory
 PrivilegedAccess.Read.AzureAD
 UserAuthenticationMethod.Read.All
-AgentGovernance.Read.All           # Entra Agent ID preview surface
+CopilotPackages.Read.All           # Optional documented package collection, not an Entra Agent ID permission; Agent 365 license required
 ```
 
 ### 0.3 Pre-flight gates

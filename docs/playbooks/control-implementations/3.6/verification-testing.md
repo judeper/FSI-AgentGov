@@ -65,7 +65,7 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
 ```
 
-> **Note on Agent 365 Graph endpoints.** The `/beta/agentGovernance` Graph branch exposes the Ownerless Agents card data as of the verification date. Noun names and module distribution are still stabilising across 2026 Wave 1. Wrapper functions (`Get-Agt36OwnerlessCard`, `Get-Agt36AgentInventory`, `Get-Agt36SponsorTask`) are defined in the sister [PowerShell Setup](./powershell-setup.md). Re-verify module / noun availability after each Microsoft release wave.
+> **Agent 365 evidence boundary (documentation checked 2026-11-09).** No cited Microsoft contract establishes the former generic governance Graph routes. Capture the ownerless view in **Agents > Overview** and retain its actual scope and rows. `Get-Agt36OwnerlessCard`, `Get-Agt36AgentInventory`, and `Get-Agt36SponsorTask` are not supplied implementations in the sister guide; the Pester examples below are firm evidence-contract designs, not a working harness. Collect and reconcile evidence manually or independently validate an adapter before relying on results. See [Control 2.25's source ledger](../2.25/verification-testing.md#microsoft-documentation-verification-ledger). Missing evidence blocks acceptance.
 
 ### 0.3 PRE gates (must all pass before §2–§12 execute)
 
@@ -74,11 +74,11 @@ $ProgressPreference    = 'SilentlyContinue'
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms modules loaded at the pinned versions in §0.2 | HALT |
-| Graph context | PRE-02 | Confirms `Connect-MgGraph` with scopes `AgentGovernance.Read.All`, `Directory.Read.All`, `User.Read.All`, `Application.Read.All`, `LifecycleWorkflows.Read.All`, `AuditLog.Read.All`, `Reports.Read.All` | HALT |
+| Graph context | PRE-02 | Confirms `Connect-MgGraph` with scopes `CopilotPackages.Read.All` (optional package collection only; Agent 365 license required), `Directory.Read.All`, `User.Read.All`, `Application.Read.All`, `LifecycleWorkflows.Read.All`, `AuditLog.Read.All`, `Reports.Read.All` | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
 | Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment`; confirms `Commercial` | HALT if not commercial |
 | HR connector health | PRE-05 | Confirms at least one Entra HR provisioning connector with status `Healthy` in the last 24h and last-sync within tenant SLA | HALT — without HR feed, SPONSOR and HR namespaces cannot attest |
-| Agent 365 Ownerless card reachability | PRE-06 | Probes `/beta/agentGovernance/ownerlessAgents?$top=1`; any error → HALT | HALT |
+| Agent 365 Ownerless card reachability | PRE-06 | Manually verify Agents > Overview > Agents without owners under the intended role; capture scope and source evidence, not an inferred Graph endpoint | HALT if required evidence is inaccessible or unverified |
 | Orphan register endpoint | PRE-07 | Confirms the SharePoint or Dataverse orphan register is reachable, has versioning enabled, and is bound to a `≥6-year` Purview retention label with `deletionLocked=true` | HALT — without the system of record, no evidence can be assembled |
 | Clock skew gate | PRE-08 | Compares local UTC to Graph `Date` header; aborts on > 60s drift | HALT — skew invalidates timestamp evidence under FINRA 4511 / SEC 17a-4 |
 | Evidence root writeable | PRE-09 | Confirms `$env:AGT36_EVIDENCE_ROOT` exists, is writeable, resolves to WORM-eligible storage | HALT |
@@ -354,7 +354,7 @@ VC-2: "For every reconciliation cycle, the count from the Microsoft 365 Agent 36
 ### 3.2 Pre-conditions
 
 - DETECT cycle for the same window has PASS status.
-- AI Administrator can read the Ownerless Agents card via Graph (`/beta/agentGovernance/ownerlessAgents`) or Agent 365 admin center.
+- AI Administrator can read **Agents > Overview > Agents without owners** and its supported details. The package API is not an ownerless-card API; capture manual evidence when no validated feature-specific adapter exists.
 - Orphan register query supports filter `category=1 AND status IN ('open','reassigned-pending','terminal-pending')`.
 
 ### 3.3 Pester suite
@@ -1561,7 +1561,7 @@ If any dependency is in WARN or FAIL for the quarter, the 3.6 attestation must d
 - Microsoft Entra Agent ID — sponsor lifecycle workflows
 - Microsoft Purview records management — retention labels and regulatory records
 - Microsoft Power Platform — environment and maker ownership management
-- Microsoft Graph `/beta/agentGovernance` namespace
+- [Microsoft Agent 365 Overview and governance views](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview)
 
 ---
 

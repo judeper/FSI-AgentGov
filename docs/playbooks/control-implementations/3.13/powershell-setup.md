@@ -9,7 +9,9 @@
 **Estimated Duration:** 2–4 hours (initial setup); ongoing automation thereafter
 **Required Role:** Entra Global Admin (for app registration and admin consent), Power Platform Admin (for Power Automate flow), Azure subscription contributor (for storage and Key Vault)
 **Prerequisites:** Microsoft Graph PowerShell SDK; Az PowerShell modules; Power Automate license; Azure subscription
-**Last Verified:** April 2026
+**Last Verified:** 2026-11-09 (documentation review; no tenant/UI execution)
+
+**Technical cross-check:** 2026-11-09 (Microsoft documentation only, not tenant/UI execution). See the [Control 2.25 source ledger](../2.25/verification-testing.md#microsoft-documentation-verification-ledger). Overview hero metrics are Agent registry, Active users, Agent run-time, and Registry sync. Agents with exceptions is an actionable count/view. A derived rate is `100 * sessions with errors / sessions` for the same supported Activity scope/date range; higher is worse, and zero sessions or missing telemetry yields no rate. Native registry exports may be CSV or Excel; retain the actual format, All agents / Filtered agents scope, filters, and source coverage. Missing approval/template fields require separately sourced evidence, not assumed API columns.
 
 ---
 
@@ -17,7 +19,7 @@
     This playbook covers: (1) automated agent inventory export via Microsoft Graph API and PowerShell, (2) WORM-compliant storage configuration for SEC 17a-4 compliance, (3) Power Automate alert workflow setup for exception rate and pending request threshold notifications, and (4) scheduled task configuration for recurring exports. Manual portal export procedures are covered in Playbook 3.13-A.
 
 !!! warning "Graph API Preview Endpoints"
-    The Microsoft Graph API endpoints for Agent 365 inventory and analytics data are in preview and remain subject to change through and after the May 1, 2026 GA. Validate all endpoint paths against the current Microsoft Graph beta documentation and the Microsoft Graph changelog before deploying scripts to production. The script examples below use placeholder endpoint paths that reflect the documented Agent 365 API structure as of April 2026; treat them as templates, not fixed contracts.
+    No cited Microsoft contract establishes the old m365Apps/agents or analyticsOverview routes and schemas. The export example below stops before connecting or writing; implement and validate a package adapter using `/v1.0/copilot/admin/catalog/packages`, `CopilotPackages.Read.All`, and Agent 365 licensing, then separately source missing firm inventory/approval/template fields. There is no verified universal analytics endpoint here. Use manual exports until that work is complete.
 
 ---
 
@@ -78,7 +80,7 @@ For scheduled (unattended) exports, you must register an Entra application with 
 **1.2.6** Grant API permissions:
 - API permissions > Add a permission > Microsoft Graph > Application permissions
 - Add: `Reports.Read.All` (for usage/analytics data)
-- Add: `Directory.Read.All` (for agent registry data)
+- Add: `CopilotPackages.Read.All` only for a validated documented package adapter; this does not supply all firm registry fields
 - Select **Grant admin consent** for all permissions.
 
 !!! danger "Secret Management"
@@ -90,7 +92,7 @@ For scheduled (unattended) exports, you must register an Entra application with 
 
 ### Step 2.1: Configure Script Variables
 
-Save the following as `Export-AgentInventory.ps1` in your automation scripts directory.
+The following historical assembly design is not a deployable collector. Its explicit gate prevents collection, upload, or scheduled clean evidence until the data adapters are validated.
 
 ```powershell
 <#
@@ -100,7 +102,7 @@ Save the following as `Export-AgentInventory.ps1` in your automation scripts dir
 
 .DESCRIPTION
     Connects to Microsoft Graph using a registered Entra application (service principal),
-    retrieves the full agent inventory, exports to a dated CSV file, and uploads the
+    retrieves the full agent inventory, exports to a dated CSV or Excel file, and uploads the
     file to Azure Blob Storage configured with an immutability policy.
 
     Regulatory context: Produces examination artifacts under FINRA Rule 4511 and
@@ -119,8 +121,10 @@ Save the following as `Export-AgentInventory.ps1` in your automation scripts dir
 #>
 
 # ============================================================
-# CONFIGURATION — Edit these values for your environment
+# CONFIGURATION — Blocked until validated data adapters exist
 # ============================================================
+
+throw 'ManualEvidenceRequired: package and metrics adapters plus firm-field reconciliation are not implemented; use the portal evidence workflow.'
 
 # Entra App Registration credentials (retrieve from Azure Key Vault in production)
 $TenantId         = "YOUR_TENANT_ID"
@@ -143,7 +147,7 @@ $TenantDisplayName    = "ContosoCapital"
 
 # Alert configuration
 $ComplianceEmailRecipient = "compliance@yourfirm.com"
-$ExceptionRateAlertThreshold = 90  # Alert if exception rate drops below this %
+$ExceptionRateAlertThreshold = 5  # Illustrative firm limit: alert when a valid error-session rate exceeds it
 $PendingRequestAlertThreshold = 10  # Alert if pending requests exceed this count
 
 # ============================================================
@@ -172,7 +176,7 @@ Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Retrieving agent invento
 
 try {
     # Primary inventory endpoint — adjust path per current API documentation
-    $AgentInventoryUri = "https://graph.microsoft.com/beta/admin/m365Apps/agents"
+    $AgentInventoryUri = "<validated package adapter required; not supplied>"
     $AgentInventory    = Invoke-MgGraphRequest -Uri $AgentInventoryUri -Method GET
 
     $Agents = $AgentInventory.value
@@ -419,17 +423,17 @@ TRIGGER: Recurrence (Daily for Zone 3 / Weekly for Zone 2)
 
 ACTION 1: HTTP - Call Microsoft Graph API
   Method: GET
-  URI: https://graph.microsoft.com/beta/admin/m365Apps/agents/analyticsOverview
+  URI: <validated firm metrics collector endpoint; not supplied>
   Authentication: OAuth 2.0 (Entra app registration)
 
 ACTION 2: Parse JSON (parse the Graph API response)
 
 ACTION 3: Condition — Exception Rate Check
-  IF: analyticsOverview.exceptionRate < 90
+  IF: validatedMetrics.errorSessionRate > firmConfiguredThreshold
   THEN: Send Email (Office 365 Outlook)
     To: [ComplianceEmailRecipient]
-    Subject: [ALERT] Agent Exception Rate Below Threshold — Review Required
-    Body: Exception rate is currently [exceptionRate]%, below the 90% alert threshold.
+    Subject: [ALERT] Agent Error-Session Rate Above Threshold — Review Required
+    Body: Derived error-session rate is [errorSessionRate]%, above [firmConfiguredThreshold]%. Zero sessions or missing data must generate a collection-gap result, not a clean rate.
           Review required per Control 3.13 Zone [X] procedures.
           Date/Time: [utcNow()]
           Action Required: Review exception events and initiate root cause analysis.
@@ -447,7 +451,7 @@ ACTION 4: Condition — Pending Requests Check
 ```
 
 !!! note "Graph API Schema"
-    The specific Graph API endpoint and response schema for Agent 365 analytics data should be validated against current Microsoft Learn documentation. The `analyticsOverview` endpoint and property names above are illustrative based on documented capabilities as of March 2026. Adjust the HTTP action URI and Parse JSON schema to match the actual API response structure in your tenant.
+    The specific Graph API endpoint and response schema for Agent 365 analytics data should be validated against current Microsoft Learn documentation. The old analyticsOverview endpoint and schema are withdrawn, not a documented preview contract. Implement and independently validate a feature-specific collector before scheduling this design; the manual portal procedure remains the current evidence path.
 
 ---
 

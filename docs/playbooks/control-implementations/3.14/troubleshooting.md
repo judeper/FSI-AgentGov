@@ -237,19 +237,15 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 
 ---
 
-### Issue 4.2: Agent appears in registry but does not contribute to hero metrics
+### Issue 4.2: Registry presence without expected activity telemetry
 
-**Symptom**: Custom agent is visible in the All Agents list and shows as Active, but Total Sessions, Exception Rate, and Agent Runtime metrics remain unchanged after agent invocations.
+**Symptom:** A custom agent is in the registry, but its intended telemetry destination has no evidence of known invocations. Overview does not have Total Sessions or Exception Rate hero metrics.
 
-**Probable Causes**:
-- `ENABLE_A365_OBSERVABILITY_EXPORTER=true` is not set (see Issue 3.1)
-- The agent platform is not yet supported for hero metric contribution (some platforms only contribute to registry count, not metrics)
-- Frontier enrollment is not active
+**Diagnosis:** Verify actual SDK export configuration, agent identity, feature entitlement, supported metric coverage, collection period, and source ingestion. Do not use historical Frontier enrollment or a fixed 60-minute/four-hour deadline as proof of availability or failure.
 
-**Resolution**:
-1. Verify `ENABLE_A365_OBSERVABILITY_EXPORTER=true` per Issue 3.1.
-2. Confirm Frontier enrollment is active (hero metrics require Frontier).
-3. Check the Agent 365 documentation for the list of supported platforms for metric contribution. If your platform is not listed, open a feedback item with Microsoft and document this as a known telemetry gap.
+**Resolution:** Trace a uniquely identified, non-sensitive test invocation through the validated exporter and destination. Treat missing data as a collection gap. Per-agent Activity currently documents Agent Builder, SharePoint, and Agents Toolkit coverage; custom SDK export alone does not establish that same UI. Any derived error-session rate uses comparable counts and a positive denominator; higher is worse.
+
+**Technical cross-check:** 2026-11-09, [Overview](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview) and [Activity](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-activity), documentation only; no tenant/UI execution.
 
 ---
 

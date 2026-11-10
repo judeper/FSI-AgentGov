@@ -970,7 +970,7 @@ The custom entity `AgentId` is mapped at rule authoring (§3.0). In the incident
 This enrichment is the **single most-used artifact** in SOC triage and significantly compresses the first-response window.
 
 !!! tip "Cross-Reference"
-    The Agent 365 watchlist is sourced from [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). If the registry is sparse or stale, incident enrichment degrades and SOC mean-time-to-respond increases — this is a cross-cutting program risk, not a Sentinel deficiency.
+    The firm-owned Agent 365 watchlist combines supported registry evidence with supplemental owner, zone, and connector records; [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) does not deliver a working watchlist export job or promise all fields in a native export. Independently validate collection, pagination, mapping, and refresh. If the registry is sparse or stale, incident enrichment degrades and SOC mean-time-to-respond increases — this is a cross-cutting program risk, not a Sentinel deficiency.
 
 ### 8.4 Cascade to Control 3.4 incident reporting
 

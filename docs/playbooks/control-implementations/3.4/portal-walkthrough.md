@@ -1347,7 +1347,7 @@ Confirm every item before declaring Control 3.4 portal-side implementation **Rea
 - [ ] Retention-policy adequacy for Copilot interaction history validated per [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 - [ ] Identity controls (PIM, phishing-resistant MFA) per [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md).
 - [ ] Material AI-agent integrity incidents trigger MRM challenge re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
-- [ ] Agent-365 console used for cross-tenant agent inventory and ownership lookups per [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
+- [ ] Agent inventory and ownership evidence reconciled separately for each governed tenant using [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md); do not assume one native cross-tenant registry or that every required owner field is available in the package API.
 - [ ] Orphaned-agent detection feed correlated into Sentinel per [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 - [ ] Sentinel integration architecture maintained per [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 

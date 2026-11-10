@@ -35,7 +35,7 @@
 !!! info "License and Program Requirements"
     | Requirement | Why | Where to verify |
     |---|---|---|
-    | Microsoft 365 Copilot license per agent sponsor | Required to author and own agents | M365 admin center → Billing → Licenses |
+    | Feature-specific creator/sponsor entitlement | Verify the actual authoring and usage feature; Copilot is not a universal prerequisite for standalone Agent 365 | M365 admin center → Billing → Licenses |
     | **Microsoft Agent 365 or Microsoft 365 E7 licensing** | Surfaces the **Agent identities** blade in Entra and unlocks the Agent 365 control plane (post-GA: May 1, 2026); replaces the pre-GA Frontier program enrollment | M365 admin center → Billing → Licenses |
     | Entra ID Governance / Entra Suite; scenario-specific agent entitlements | P2 alone does not license Lifecycle Workflows. Verify the current employee-workflow, access-review, entitlement-management, and agent-sponsorship rows separately | [Microsoft licensing matrix](https://learn.microsoft.com/en-us/entra/id-governance/licensing-fundamentals) |
     | Microsoft Purview Audit (Standard or Premium) | Required to retain agent identity events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
@@ -101,14 +101,14 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 ### 0.3 Confirm Microsoft Agent 365 / M365 E7 license coverage
 
 1. Open [`https://admin.microsoft.com`](https://admin.microsoft.com) → **Billing → Licenses**.
-2. Confirm the count of **Microsoft 365 Copilot** licenses is greater than zero and that licenses are assigned to the human accounts who will sponsor agents.
-3. Confirm at least one of the following SKUs is provisioned and assigned to the operating principals who will run this playbook:
-   - **Microsoft Agent 365** (standalone per-user license, layered on a Microsoft 365 Copilot prerequisite), **or**
+2. Verify feature-specific creator, sponsor, and operating-user entitlements against the current service description; do not require a separate Copilot license for every sponsor or administrator.
+3. Confirm the required qualifying assignment for Agent 365 enablement and the specific identity-governance feature's entitlement. The standalone/suite options are:
+   - **Microsoft Agent 365** (standalone per-user subscription for eligible Microsoft 365 subscriptions; no universal Copilot prerequisite), **or**
    - **Microsoft 365 E7** ("Frontier Suite" — bundles E5 + Microsoft 365 Copilot + Microsoft Entra Suite + Agent 365).
 4. Capture the current state:
    - **No Agent 365 / E7 licenses provisioned in tenant** → procure SKUs via your Microsoft account team or Cloud Solution Provider before proceeding to [§1](#1-microsoft-agent-365-microsoft-365-e7-license-assignment).
    - **Provisioned but unassigned** → proceed to [§1](#1-microsoft-agent-365-microsoft-365-e7-license-assignment) to assign at scale.
-   - **Provisioned and assigned to operating principals** — Agent identities blade should be reachable; spot-check via Entra → Identity → Applications → Agent identities and continue to [§2](#2-sponsor-assignment-in-entra-agent-id).
+   - **Required assignments evidenced** — separately verify roles, typed identity API scope, and actual portal availability before continuing to [§2](#2-sponsor-assignment-in-entra-agent-id). A purchased SKU or successful API read alone does not establish those other facts.
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-3-license-coverage` — M365 admin Billing → Licenses page showing Microsoft Agent 365 / M365 E7 SKU and assigned seat count.*
 
@@ -119,8 +119,8 @@ Do not proceed past this section unless **all** of the following are true:
 - [ ] You are signed in to the correct tenant and have captured the tenant ID.
 - [ ] Tenant is in M365 Commercial cloud.
 - [ ] At least two named humans hold each governance role in §0.2.
-- [ ] Microsoft 365 Copilot licenses are assigned to intended sponsors.
-- [ ] Microsoft Agent 365 / M365 E7 license assignment is recorded for each operating principal who will run this playbook.
+- [ ] Creator/sponsor entitlements are verified for the actual feature; no universal Copilot prerequisite is assumed.
+- [ ] Required Agent 365 qualifying assignments and feature-specific identity-governance entitlements are evidenced separately from administrator roles and API reachability.
 - [ ] Employee Lifecycle Workflows and agent-specific entitlements in §4.2 are verified; P2 alone is not sufficient.
 - [ ] An HR connector or HR-attribute provisioning path populates `employeeLeaveDateTime` on user objects (verify in [§7](#7-hr-connector-verification-employeeleavedatetime) before relying on Lifecycle Workflows).
 
@@ -136,7 +136,7 @@ Do not proceed past this section unless **all** of the following are true:
 Post-GA (May 2026), the Entra Agent ID surface is gated by **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite") licensing. Pre-GA this surface was gated by enrolment in the Microsoft Frontier early-access program; section numbering and anchor (`#2-microsoft-agent-365-microsoft-365-e7-license-assignment`) is preserved across the GA cutover. Verify the exact SKU part numbers available in your tenant via `Get-MgSubscribedSku` before assigning licenses at scale.
 
 !!! danger "Tenant-Wide License Decisions"
-    License assignment to Microsoft Agent 365 or Microsoft 365 E7 unlocks Agent ID and the broader Agent 365 surface for the assigned user. Coordinate with your finance, procurement, identity, and Copilot product owners before assignment at scale. Some Agent 365 surfaces still carry adjacent Public Preview labels — verify current GA / preview status against Microsoft Learn before relying on a specific surface in production. License changes should be approved through your standard change-control board.
+    Verify actual feature entitlements and required qualifying assignments separately from roles and portal/API availability. The assignment examples below apply only where the firm's approved licensing design and the selected feature require them; they are not a Microsoft requirement to license every administrative reader identically. Coordinate with finance, procurement, identity, and product owners before assignment at scale. Verify current feature availability against Microsoft Learn. License changes should be approved through your standard change-control board.
 
 ### 1.1 Confirm tenant has Agent 365 or M365 E7 SKUs available
 

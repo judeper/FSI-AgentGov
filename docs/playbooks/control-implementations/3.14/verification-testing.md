@@ -138,37 +138,23 @@ Pass Criteria: All four sub-tests pass with expected outputs.
 **Test Steps**:
 
 **T2.1 — Pre-Test Baseline**
-Record the current Total Sessions value from M365 Admin Center > Agents > Overview.
+Capture the actual supported Overview/activity scope and time range. Overview hero cards are Agent registry, Active users, Agent run-time, and Registry sync, not Total Sessions or Exception Rate.
 
 **T2.2 — Execute Test Agent Invocation**
-Send a simple, well-defined test query to the custom agent. Use a query that:
-- Is easily identifiable in logs (e.g., "OBSERVABILITY-SDK-TEST-[timestamp]")
-- Completes successfully without error
-- Does not involve sensitive data
+Send a non-sensitive, uniquely identifiable query to the custom agent and record its timestamp, agent identity, and correlation ID.
 
-**T2.3 — Wait for Propagation**
-Agent 365 metrics have an ingestion delay. Wait **60 minutes** after the test invocation before checking.
+**T2.3 — Verify Telemetry**
+Trace that invocation to the validated SDK destination. Reconcile available portal telemetry only for supported agent types and the actual collection period; there is no documented two-hour universal acceptance deadline.
 
-**T2.4 — Verify Session Count**
-Navigate to M365 Admin Center > Agents > Overview. Confirm:
-- Total Sessions count has increased by at least 1 compared to the baseline
-- Agent Runtime has increased (the test session added to total runtime)
+**T2.4 — Verify Registry and Metric Coverage Separately**
+Confirm registry presence and reconcile identity/source coverage. Per-agent Activity is currently documented for Agent Builder, SharePoint, and Agents Toolkit; SDK export alone is not proof of that UI for every custom agent.
 
-**T2.5 — Verify Agent Visibility in Registry**
-Navigate to Agents > All Agents. Confirm the custom agent under test appears in the agent list.
+**T2.5 — Verify Derived Exception Metric, If Supported**
+Retain Sessions and Exceptions (sessions with errors) for the same scope/period. Calculate `100 * Exceptions / Sessions` only with a positive denominator and complete telemetry. Higher is worse; missing telemetry or zero sessions means no rate.
 
-**T2.6 — Verify No Exception Rate Impact**
-Confirm the Exception Rate metric has not declined as a result of the test invocation (since the test query completed successfully, no exception should have been recorded).
+**Evidence to Record:** baseline, invocation ID/time, source telemetry, registry reconciliation, supported metric scope, and unresolved gaps. PASS requires the intended supported collection path to be evidenced; an unchanged aggregate hero card alone is not a failure or a success.
 
-**Evidence to Record**:
-- Screenshot of Admin Center Overview (before and after) showing Total Sessions values
-- Timestamp of test invocation
-- Timestamp of post-test Admin Center screenshot
-- Exception Rate values (before and after — should be unchanged or improved)
-
-Pass Criteria: Total Sessions increases after test invocation. Agent appears in registry. Exception Rate unaffected.
-
-Fail Criteria: Total Sessions unchanged after 2+ hours. Refer to Troubleshooting Playbook 3.14-D, Issue 2.1.
+**Technical cross-check:** 2026-11-09, [current Activity contract](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-activity), documentation only; no tenant/UI test execution.
 
 ---
 

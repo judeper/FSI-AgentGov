@@ -65,7 +65,7 @@ The bootstrap script `Invoke-Agt226PreFlight.ps1` runs six pre-flight gates. Any
 | Module presence | PRE-01 | Confirms required modules loaded at the pinned versions above | HALT |
 | Graph context | PRE-02 | Confirms Connect-MgGraph established with required scopes | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| License gate | PRE-04 | Confirms tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU (post-GA: `SkuPartNumber -like 'Microsoft_Agent_365*' -or -like 'M365_E7*'`). Pre-GA, this gate looked for a `Microsoft_365_Copilot*` SKU — verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` and update the regex if needed. | HALT — Agent ID requires post-GA licensing |
+| License gate | PRE-04 | Manually verify actual feature entitlements and required qualifying assignments against the current service description and approved license catalog; purchased capacity, guessed SKU prefixes, and Copilot-only fallback do not establish them | HALT if required evidence is absent or unverified |
 | Agent ID API operability gate | PRE-05 | Probe the documented v1.0 Agent ID collection with `AgentIdentity.Read.All`; record response and known-object evidence. Classify failures without inferring a single cause from HTTP status. | HALT with exact request/permission/entitlement investigation |
 | Clock skew gate | PRE-06 | Compares local UTC to `Date` header from Graph response; aborts if drift > 60 seconds | HALT |
 
@@ -80,7 +80,7 @@ The eight Verification Criteria from [Control 2.26](../../../controls/pillar-2-m
 
 | Namespace | Evidences Criterion | Section | Cadence | Owner |
 |---|---|---|---|---|
-| `LICGAP` | C2.26-1 (Agent ID surface reachable — Microsoft Agent 365 / M365 E7 + Microsoft 365 Copilot license coverage) | §8 | Per release / monthly | Entra Agent ID Admin |
+| `LICGAP` | C2.26-1 (actual feature entitlement and qualifying assignments, plus independently verified Agent ID surface access; no universal Copilot prerequisite) | §8 | Per release / monthly | Entra Agent ID Admin |
 | `SPONSOR` | C2.26-2 (every Z2/Z3 agent has assigned sponsor) | §2 | Daily | AI Governance Lead |
 | `ACCESSPKG` | C2.26-3 + C2.26-4 (packages exist; ≤365-day expiry; no perpetual Z3) | §3 | Daily | Entra Identity Governance Admin |
 | `LIFECYCLE` | C2.26-5 (workflow triggers on sponsor departure; manager-transfer succeeds) | §4 | Weekly | Entra Identity Governance Admin |
@@ -1051,66 +1051,15 @@ In addition, the **Agent identities** blade must be verified separately in the t
 - Graph context holds `AgentIdentity.Read.All`.
 - Probe URL: `https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1`.
 
-### 8.3 Pester suite
+### 8.3 Manual verification procedure
 
-```powershell
-Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
+The former Pester gate used guessed SKU prefixes, accepted a Copilot-only fallback, and conflated HTTP status with entitlement. It is withdrawn following the 2026-11-09 [Control 2.25 documentation check](../2.25/verification-testing.md#microsoft-documentation-verification-ledger); the companion license adapter stops with `ManualEvidenceRequired`.
 
-    BeforeAll {
-        # Post-GA: prefer Agent 365 / M365 E7 SKUs. Verify SkuPartNumber values
-        # in your tenant via Get-MgSubscribedSku before relying on these patterns.
-        $script:LicenseSkus = Get-MgSubscribedSku -All |
-            Where-Object {
-                $_.SkuPartNumber -like 'Microsoft_Agent_365*' -or
-                $_.SkuPartNumber -like 'M365_E7*'             -or
-                # transitional fallback for tenants still on pre-GA Copilot SKUs
-                $_.SkuPartNumber -like 'Microsoft_365_Copilot*'
-            }
-        $script:Probe = $null
-        try {
-            $script:Probe = Invoke-MgGraphRequest -Method GET `
-                -Uri 'https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity?$top=1&$expand=sponsors($select=id,displayName)' -ErrorAction Stop
-        } catch {
-            $script:ProbeError = $_.Exception.Message
-        }
-    }
-
-    Context "License gate (C2.26-1a)" {
-        It "tenant holds at least one Agent 365 / M365 E7 (or transitional Copilot) SKU" {
-            $script:LicenseSkus.Count | Should -BeGreaterThan 0
-        }
-        It "at least one license is assigned (consumedUnits > 0)" {
-            ($script:LicenseSkus | Measure-Object -Property ConsumedUnits -Sum).Sum |
-                Should -BeGreaterThan 0
-        }
-    }
-
-    Context "Agent ID API operability gate (C2.26-1b)" {
-        It "the documented Agent ID collection returns HTTP 200 (not a portal rendering test)" {
-            $script:Probe | Should -Not -BeNullOrEmpty
-            $script:Probe.value | Should -BeOfType [System.Object[]]
-        }
-        It "the response shape contains the expected agent-identity properties when populated" {
-            if ($script:Probe.value.Count -gt 0) {
-                $first = $script:Probe.value[0]
-                $first.id                        | Should -Not -BeNullOrEmpty
-                $first.displayName               | Should -Not -BeNullOrEmpty
-                $first.agentIdentityBlueprintId  | Should -Not -BeNullOrEmpty
-                @($first.sponsors).Count         | Should -BeGreaterThan 0
-            }
-        }
-    }
-
-    Context "Blade operability proxy (C2.26-1c)" {
-        It "blade probe did not return 403 (RBAC or license-coverage misconfiguration)" {
-            $script:ProbeError | Should -NotMatch '403'
-        }
-        It "blade probe did not return 404 (Agent ID surface not reachable to caller)" {
-            $script:ProbeError | Should -NotMatch '404'
-        }
-    }
-}
-```
+1. Capture actual eligible subscriptions, product identifiers, service plans, and the qualifying user assignments against an approved license catalog and current Microsoft service description.
+2. Verify the specific identity-governance operation's entitlement separately. Standalone Agent 365 does not impose a universal Copilot prerequisite.
+3. Record the calling identity's actual role, feature-specific permission, tenant, and authorized collection scope. A 403/404 is a failed request requiring investigation, not a diagnosis of a particular missing SKU.
+4. Verify typed identity collection against a known in-scope object and expected coverage, and test portal rendering separately. Neither an empty successful response nor purchased capacity proves the other checks.
+5. Retain the source records and unresolved gaps. Missing evidence is `ERROR`/`ManualEvidenceRequired`, not PASS or NotApplicable. The sample records below are illustrative evidence contracts, not actual tenant results.
 
 ### 8.4 Sample passing record
 
@@ -1159,14 +1108,14 @@ Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
 }
 ```
 
-`TRG-LICGAP-01` (§8.10): confirm Microsoft Agent 365 / M365 E7 license is assigned to the calling principal and the tenant has at least one consumed unit; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
+`TRG-LICGAP-01` (§8.10): confirm actual feature entitlements and required qualifying assignments, without assuming every reader needs an identical user license; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
 
 ### 8.6 Examiner artifact
 
 | Artifact | Filename | Retention |
 |---|---|---|
 | Feature-state snapshot | `licgap-state-<runId>.json` | 6 years |
-| Copilot SKU list | `licgap-skus-<runId>.json` | 6 years |
+| Actual feature entitlement and assignment evidence | `licgap-skus-<runId>.json` | 6 years |
 | Agent ID API probe response (raw) | `agent-id-api-probe-<runId>.json` | 6 years |
 
 ### 8.7 Zone thresholds

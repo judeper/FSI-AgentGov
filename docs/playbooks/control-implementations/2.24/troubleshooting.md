@@ -63,7 +63,7 @@ Before paging Microsoft Support, the AI Administrator must collect:
 
 > **Stop-the-press rule.** If an examiner inquiry, internal-audit hold, or legal-hold notice is open against the affected agent, environment, or feature, **do not** flip toggles, delete agents, or rotate credentials before evidence is captured per §16 and §X. SEC Rule 17a-4(f) and CFTC Rule 1.31 require WORM-grade preservation of the configuration state at the time of the inquiry; remediation that overwrites that state is itself a finding.
 
-Capture order: (1) `Get-Agt224FeatureSnapshot -IncludeAuditTrail` to immutable storage, (2) Purview audit export for the affected actors over the inquiry window, (3) PPAC governance-console screenshots (Control 2.25), (4) only then begin remediation.
+Capture order: (1) `Get-Agt224FeatureSnapshot -IncludeAuditTrail` to immutable storage, (2) Purview audit export for the affected actors over the inquiry window, (3) Microsoft 365 admin center **Agents** screenshots (Control 2.25), not PPAC screenshots of a nonexistent Agent 365 console, (4) only then begin remediation. Validate any firm-owned snapshot collector separately.
 
 ---
 

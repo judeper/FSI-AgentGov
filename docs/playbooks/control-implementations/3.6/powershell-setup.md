@@ -711,7 +711,7 @@ function Set-Agt36PowerAppOwner {
 
 ### 5.4 — Tier 4: Terminal disposal handoff (to Control 2.25)
 
-Tier-4 is **not a mutation** performed by this playbook. It is a structured handoff to Control 2.25's service-principal lifecycle disposal workflow. This playbook only emits the handoff evidence and updates the orphan register status to `HandedOff-2.25`.
+Tier-4 is **not a mutation** performed by this playbook. It is a structured, firm-owned handoff to the operator following Control 2.25, not a supplied Microsoft disposal queue or generic service-principal deletion API. This playbook only emits the handoff evidence and updates the orphan register status to `HandedOff-2.25`. Current [agent actions](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-actions) distinguish soft-delete with 30-day recovery from a separate irreversible permanent deletion (documentation checked 2026-11-09). Verify the selected object and platform before either action.
 
 ```powershell
 function Invoke-Agt36TerminalDisposalHandoff {

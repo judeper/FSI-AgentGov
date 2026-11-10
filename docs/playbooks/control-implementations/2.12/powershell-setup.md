@@ -233,7 +233,7 @@ When a required cmdlet is unavailable, the calling helper emits `Status='NotAppl
 
 ### 2.1 Preview-gating preflight
 
-Agent 365 autonomous-agent identities remain in Preview at the May 1, 2026 GA milestone (see Control 2.12 control document § "Autonomous Agents, Zone 3, and Agent 365 Preview Scope"). This playbook **does not** emit any helper that relies on autonomous-agent preview surfaces; `Test-Sup212PreviewGating` returns `NotApplicable` with `Reason='AutonomousAgentsOutOfScope'` if an operator attempts to pass `-IncludeAutonomous`.
+The helper below retains this playbook's firm-defined autonomous-agent scope exclusion; it is not a current Microsoft preview/GA detector. Current [agent details](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-instances) document AI teammate instances with their own identity and Microsoft 365 resources (documentation checked 2026-11-09; no tenant execution). `Test-Sup212PreviewGating` returns `NotApplicable` with `Reason='AutonomousAgentsOutOfScope'` if an operator attempts to pass `-IncludeAutonomous`; this result must not be used as evidence that Microsoft does not support the feature.
 
 ```powershell
 function Test-Sup212PreviewGating {
@@ -245,7 +245,7 @@ function Test-Sup212PreviewGating {
         return [pscustomobject]@{
             Surface = 'AutonomousAgentIdentities'
             Status  = 'NotApplicable'
-            Reason  = 'AutonomousAgentsOutOfScope — see Control 2.12 control doc and Control 2.25 preview-gating note.'
+            Reason  = 'AutonomousAgentsOutOfScope — firm playbook scope exclusion, not a Microsoft availability finding; see Control 2.12 product documentation correction.'
         }
     }
     [pscustomobject]@{

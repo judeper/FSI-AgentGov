@@ -1,5 +1,7 @@
 # Control 2.25 — Microsoft Agent 365 Admin Center Governance Console: Troubleshooting Playbook
 
+**Last Verified:** 2026-11-09 (live Microsoft documentation only; tenant/UI execution pending). Sources: [verification ledger](./verification-testing.md#microsoft-documentation-verification-ledger). The incident thresholds are firm operating targets, not Microsoft SLAs. Root-cause matrices are diagnostic hypotheses requiring evidence, not guaranteed service internals. Quoted error/state/property labels are illustrative firm-normalized diagnostic labels, not documented API fields or guaranteed Microsoft messages. Use manual evidence procedures below; no diagnostic helper module, TRG-225 Pester files, unified governance API, or native AgentGovActivity table is supplied.
+
 **Companion to:** [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Audience:** AI Administrator, Entra Global Reader, AI Governance Lead, Purview Compliance Admin, Power Platform Admin, IR on-call.
@@ -42,9 +44,9 @@ Use this section as the entry point for every Sev1/Sev2/Sev3 incident touching C
 
 Before paging the AI Governance Lead or Entra Global Admin (PIM-elevated), the on-call AI Administrator must complete:
 
-1. Confirm GA status: tenant is on Microsoft Agent 365 Admin Center GA build (≥ May 1, 2026). Pre-GA preview tenants follow a different support path; see §2.4.
-2. Confirm reporter''s license posture: Microsoft 365 E7 ("Frontier Suite") OR standalone Agent 365 + Copilot prerequisite (`Get-Agt225LicenseAssignment -UserPrincipalName <upn>`).
-3. Confirm reporter''s role: AI Administrator, Entra Global Reader, AI Governance Lead, or other role per [Role Catalog](../../../reference/role-catalog.md). PIM activation timestamp captured.
+1. Confirm current feature availability and actual errors; Agent 365 GA was May 1, 2026, but no public console build/flighting probe is established here. See §2.4.
+2. Confirm reporter''s license posture: Microsoft 365 E7 ("Frontier Suite") OR standalone Agent 365 with an eligible Microsoft 365 subscription (license-assignment evidence).
+3. Confirm reporter''s role: AI Administrator for management, AI Reader/Entra Global Reader for reading, or another documented role per [Role Catalog](../../../reference/role-catalog.md). PIM activation timestamp captured.
 4. Capture initial evidence floor (E-01 console screenshot, E-02 Graph activity log, E-03 PowerShell session transcript). See §1.4.
 5. Identify affected zone(s): Zone 1 Personal, Zone 2 Team, Zone 3 Enterprise. Zone 3 escalations require Compliance Officer notification within 1 hour.
 6. Determine examiner-active status (FINRA / SEC / OCC / Fed exam in flight). If yes, escalate immediately and **do not** mutate state until Legal acknowledges.
@@ -58,76 +60,53 @@ Any remediation that mutates console state (template re-apply, approval queue re
 ---
 ## §1 Diagnostic Data Collection
 
-This section catalogs the helper cmdlets, Graph queries, and KQL queries used throughout §2–§16. All examples assume PowerShell 7.4 Core and the helper module loaded per [PowerShell Setup §2](./powershell-setup.md).
+This section catalogs the helper cmdlets, Graph queries, and KQL queries used throughout §2–§16. The old helper names are withdrawn as executable instructions. Use the manual collection map below and the fail-closed boundaries in [PowerShell Setup](./powershell-setup.md).
 
-```powershell
-#Requires -Version 7.4
-#Requires -Modules Microsoft.Graph.Authentication, Microsoft.Graph.Users, Microsoft.Graph.Identity.Governance
-```
+Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 
 ### §1.1 `Get-Agt225*` Helper Catalog
 
-| Cmdlet | Purpose | Source |
-|---|---|---|
-| `Get-Agt225Health` | End-to-end health probe of console + Graph + template service endpoints | [PowerShell Setup §4.1](./powershell-setup.md) |
-| `Get-Agt225Agent` | Returns single agent record from console-backing store, including ownership chain and template binding | [PowerShell Setup §4.2](./powershell-setup.md) |
-| `Get-Agt225PendingRequests` | Returns approval-queue snapshot with age, requester, governance-template id | [PowerShell Setup §4.3](./powershell-setup.md) |
-| `Get-Agt225TemplateStatus` | Returns Default / Custom Governance Template apply state per agent or per scope | [PowerShell Setup §4.4](./powershell-setup.md) |
-| `Get-Agt225InventoryExport` | Streams console inventory in CSV / JSON; pagination-safe fallback for failed UI export | [PowerShell Setup §3](./powershell-setup.md) |
-| `Get-Agt225ResearcherConfig` | Returns Researcher with Computer Use enablement scope, group bindings, and license check | [PowerShell Setup §4.5](./powershell-setup.md) |
-| `Get-Agt225LicenseAssignment` | Returns Microsoft 365 E7 ("Frontier Suite") / Agent 365 / Copilot license posture for a user or group | [PowerShell Setup §4.6](./powershell-setup.md) |
-| `Get-Agt225AuditEvents` | Wrapper over Purview Audit unified log filtered to Agent365AdminCenter workload | [PowerShell Setup §4.7](./powershell-setup.md) |
-| `Invoke-Agt225EvidenceSnapshot` | Produces the E-01..E-09 evidence bundle to the Purview immutable library | [PowerShell Setup §5](./powershell-setup.md) |
+The old Health, Agent, PendingRequests, TemplateStatus, InventoryExport, ResearcherConfig, LicenseAssignment, AuditEvents, and EvidenceSnapshot helpers are not supplied by the companion playbook and are not Microsoft cmdlets.
+
+| Diagnostic record | Manual source |
+|---|---|
+| Console health | Actual Agents page error, correlation ID, service health advisory, and Entra sign-in evidence |
+| Agent/inventory | Agents > All agents > Registry and agent detail; export actual CSV/Excel and scope |
+| Pending requests | Agents > All agents > Requests; retain actual request dates, dispositions, and firm approval/ticket evidence |
+| Template assignment | Agents > Settings > Security templates and downstream Entra/Purview/SharePoint/Defender policy state |
+| Researcher | Agents > Researcher > Computer use; actual user/group scope, work-data access, website policy |
+| License assignment | Billing > Licenses; actual qualifying user assignments and feature-specific entitlement |
+| Audit / incident snapshot | Validated source-platform audit export and connector mapping; assemble E-01..E-09 with provenance manually |
+
+Any remaining named firm evidence action below refers to this table, not a command to execute. The companion API adapters return `ManualEvidenceRequired`; do not present their output as a clean diagnostic result.
 
 ### §1.2 Graph Query Catalog (GQ-01..GQ-08)
 
-All Graph queries target the `/beta/admin/agent365` namespace as published in the Microsoft Graph documentation for the Agent 365 GA release. Replace `{tenantId}` and `{agentId}` placeholders.
+The former `/beta/admin/agent365/*` routes are withdrawn: no cited Microsoft contract establishes them. The documented package API is:
 
-**GQ-01 — Console health probe**
 ```http
-GET https://graph.microsoft.com/beta/admin/agent365/serviceStatus
-```
-Expected `200 OK` with `state: "operational"`. Anything else → §2.
-
-**GQ-02 — Pending approval requests (queue snapshot)**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/governance/pendingRequests?$filter=status eq ''pending''&$top=999
+GET https://graph.microsoft.com/v1.0/copilot/admin/catalog/packages
 ```
 
-**GQ-03 — Single agent record**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/agents/{agentId}?$expand=owners,governanceTemplate,licenseBinding
-```
+It requires `CopilotPackages.Read.All` and Agent 365 licensing. Follow every `@odata.nextLink`. Pending package requests support `requestStatus eq 'pending'` and request-type filtering. Package `lastModifiedDateTime` is not request submission time, and package rows do not supply every firm ownership/template/approval field.
 
-**GQ-04 — Default Governance Template state for tenant**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/governance/templates/default
-```
+The GQ labels below are retained as **manual evidence references**, not endpoints:
 
-**GQ-05 — Custom Governance Template enumeration**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/governance/templates?$filter=type eq ''custom''
-```
+| Reference | Replacement |
+|---|---|
+| GQ-01 | Actual portal error/correlation ID, documented role and entitlement, service health |
+| GQ-02 | Full Requests list and approved submission-date/decision evidence |
+| GQ-03 | Registry agent detail and reconciled source-platform/firm inventory evidence |
+| GQ-04 / GQ-05 | Actual Default/Custom template and downstream policy configuration |
+| GQ-06 | Researcher Computer use administrative settings and effective group membership |
+| GQ-07 | Validated source-platform audit export for the incident window |
+| GQ-08 | Actual registry export file, selected scope, filters, format, and counts |
 
-**GQ-06 — Researcher with Computer Use scope**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/features/researcherComputerUse
-```
-Returns `enabledFor` (`all` | `group` | `none`) and bound group ids. Default-on for Copilot tenants per the October 2025 GA — FSI tenants must scope to a group or set `none` and document the affirmative restrictive decision in the Risk Register.
-
-**GQ-07 — Bulk action audit (last 24h)**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/auditEvents?$filter=createdDateTime ge {iso8601-24h-ago} and category eq ''bulkAction''
-```
-
-**GQ-08 — Inventory export job status**
-```http
-GET https://graph.microsoft.com/beta/admin/agent365/exportJobs/{jobId}
-```
+See the [package API contract](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/api/admin-settings/package/copilotpackages-list). There is no verified universal health, template, Researcher, or export-job endpoint here.
 
 ### §1.3 KQL Catalog (KQL-01..KQL-05)
 
-Run in Microsoft Sentinel or the Purview Audit advanced-search experience, depending on the firm''s SIEM landing.
+**Illustrative firm telemetry only:** `AgentGovActivity`, workload labels, fields, and operation names below are proposed custom schema, not native Microsoft tables/events. Use these KQL patterns only after validating the firm's ingestion and exact schema in a KQL-capable SIEM. Purview Audit search is not a general KQL execution surface. Missing mapping or no rows is unresolved, not proof of no incidents.
 
 **KQL-01 — Console availability over 24h**
 ```kusto
@@ -186,7 +165,7 @@ AgentGovActivity
 
 ### §1.4 Evidence Floor (E-01..E-09)
 
-Every Sev1 and every Zone-3 Sev2 incident must produce the following bundle via `Invoke-Agt225EvidenceSnapshot -IncidentId <id> -Destination AgentGov-Evidence-225`:
+Every Sev1 and every Zone-3 Sev2 incident must produce the following bundle using the firm's approved manual evidence process; the former EvidenceSnapshot command is not implemented:
 
 | Artifact | Description | Source | Retention target |
 |---|---|---|---|
@@ -196,8 +175,8 @@ Every Sev1 and every Zone-3 Sev2 incident must produce the following bundle via 
 | **E-04** | Approval queue snapshot at incident time | GQ-02 | 7 yr |
 | **E-05** | Affected agent record(s) | GQ-03 per agent | 7 yr |
 | **E-06** | Template state snapshot | GQ-04 / GQ-05 | 7 yr |
-| **E-07** | License-posture snapshot of affected actors | `Get-Agt225LicenseAssignment` | 7 yr |
-| **E-08** | Purview Audit unified-log export for the incident window | `Get-Agt225AuditEvents` | 7 yr (CFTC 1.31) |
+| **E-07** | License-posture snapshot of affected actors | license-assignment evidence | 7 yr |
+| **E-08** | Purview Audit unified-log export for the incident window | validated source audit evidence | 7 yr (CFTC 1.31) |
 | **E-09** | Incident commander attestation (signed by AI Governance Lead at recovery close) | §X recovery | 7 yr |
 
 The snapshot is written with a Purview retention label that **supports** SEC Rule 17a-4(f) WORM-equivalent immutability when the Purview Compliance Admin has correctly configured the immutability policy. Verify policy state via `Get-RetentionCompliancePolicy -Identity "AgentGov-Evidence-225"` (Exchange Online Admin or Purview Compliance Admin role required).
@@ -212,7 +191,7 @@ The Microsoft Agent 365 Admin Center landing page fails to render, returns "We c
 | Code | Symptom | Severity hint |
 |---|---|---|
 | **P2-S1** | Landing tile shows error banner "We can''t load this view. Please try again." | Sev2 |
-| **P2-S2** | Page renders skeleton indefinitely; no error banner; network tab shows 401 / 403 from `/admin/agent365/serviceStatus` | Sev2 |
+| **P2-S2** | Page renders skeleton indefinitely; no error banner; the actual failing request shows 401 / 403 (record its URL; no serviceStatus contract is assumed) | Sev2 |
 | **P2-S3** | Page renders but all sub-blades (Approvals, Templates, Inventory, Researcher) are empty with "Loading…" spinner | Sev2 |
 | **P2-S4** | Page renders for some admins but not others, despite identical role assignments | Sev3 |
 | **P2-S5** | Page redirects back to admin.microsoft.com root with no error | Sev3 |
@@ -222,42 +201,33 @@ The Microsoft Agent 365 Admin Center landing page fails to render, returns "We c
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
-| **RC-A** | Admin lacks AI Administrator or AI Governance Lead role; PIM activation lapsed | GQ-01 returns 401 / 403; Entra sign-in log shows missing role token claim |
-| **RC-B** | Tenant on pre-GA preview build; flighting flag dropped after GA cut-over | GQ-01 returns 200 but `state: "preview-deprecated"`; banner present in admin.microsoft.com |
-| **RC-C** | Microsoft 365 E7 ("Frontier Suite") or Agent 365 SKU not assigned to tenant; license expired | `Get-Agt225LicenseAssignment -TenantScope` returns `licenseState: "expired"` or `"none"` |
+| **RC-A** | Admin lacks a documented AI Administrator management role (or AI Reader/Entra Global Reader for reading); PIM activation lapsed | GQ-01 returns 401 / 403; Entra sign-in log shows missing role token claim |
+| **RC-B** | Feature availability/rollout or service-side issue requiring Microsoft confirmation | Actual page error and service health/support evidence; no preview-deprecated response is assumed |
+| **RC-C** | Microsoft 365 E7 ("Frontier Suite") or Agent 365 SKU not assigned to tenant; license expired | license-assignment evidence returns `licenseState: "expired"` or `"none"` |
 | **RC-D** | Browser-side cache holds stale pre-GA bundle; service worker not refreshed | Hard reload (Ctrl-F5) restores function; problem returns next session |
 | **RC-E** | Conditional Access policy blocks the admin.microsoft.com → graph.microsoft.com token exchange (e.g., new device-compliance grant control) | Entra sign-in log shows `Failure reason: 53003 - Blocked by Conditional Access` |
 | **RC-F** | Microsoft service incident affecting the Agent 365 Admin Center fabric | Service Health Dashboard shows active advisory; KQL-01 shows tenant-wide failure spike |
 
 ### §2.3 Diagnostic Steps
 
-1. Run `Get-Agt225Health -Verbose`. Inspect `ServiceStatus`, `GraphReachability`, `LicensePosture`, `RolePosture` blocks.
-2. Issue **GQ-01**. Capture HTTP status and response body. 401/403 → RC-A or RC-E. 503 → RC-F. 200 with `state != "operational"` → RC-B.
-3. Run `Get-Agt225LicenseAssignment -TenantScope` and confirm Microsoft 365 E7 ("Frontier Suite") or Agent 365 SKU is in `enabled` state with seats available.
-4. Confirm reporter''s role bindings: `Get-MgUserMemberOf -UserId <upn>` and cross-check against [Role Catalog](../../../reference/role-catalog.md). For PIM-eligible roles, confirm activation timestamp via `Get-MgPrivilegedAccessRoleAssignmentScheduleInstance`.
-5. Inspect Entra sign-in log for the affected admin in the past 1 hour: `Get-MgAuditLogSignIn -Filter "userPrincipalName eq ''<upn>''" -Top 25`. Look for `errorCode 53003`, `500011`, or `50105`.
-6. If RC-D suspected, ask reporter to (a) hard-reload, (b) clear site data for `admin.microsoft.com` and `*.cloud.microsoft`, (c) re-test in InPrivate / new profile.
-7. Review Service Health Dashboard for advisories tagged `Agent365` or `Copilot Admin`. RC-F is non-actionable from the tenant — escalate to Microsoft Support and document.
+1. Capture the actual **Agents > Overview** error, failing URL, timestamp, tenant, and correlation ID. Do not query an invented serviceStatus endpoint.
+2. Verify active AI Administrator/Entra Global Admin for management or AI Reader/Entra Global Reader for reading.
+3. Check actual feature entitlement and at least one qualifying Agent 365 user assignment; basic Microsoft 365 registry and advanced Agent 365 features differ.
+4. Review the affected operator's Entra sign-in and Conditional Access results, then service health. Use a fresh browser session to isolate cache state without weakening policy.
+5. Escalate unresolved errors with the captured evidence; do not infer a deprecated preview channel from a missing page.
 
 ### §2.4 Pre-GA vs GA Build Detection
 
-Tenants enrolled in the pre-GA preview (Sept 2025 – April 2026) used a flighting flag (`Agt365.Console.PreviewBuild`) that was deprecated on the May 1, 2026 GA cutover. Symptoms include phantom blades that no longer exist in GA and missing Custom Governance Template editor.
+There is no verified `Agt365.Console.PreviewBuild` flighting flag, `preview-deprecated` service response, or Health helper. Do not edit tenant service principals or attempt a local preview-to-GA migration from such inferred states.
 
-```powershell
-$buildInfo = Get-Agt225Health -Verbose | Select-Object -ExpandProperty ConsoleBuildInfo
-if ($buildInfo.Channel -ne ''GA'') {
-    Write-Output "Tenant on non-GA channel: $($buildInfo.Channel). Engage Microsoft FastTrack to graduate the tenant."
-}
-```
-
-If the tenant is stuck on `preview-deprecated`, open a Microsoft 365 service request citing the GA cutover; do **not** attempt to roll back the Entra application service principals (this will break the GA console).
+Capture the actual Agents page, available features, error text/correlation ID, role, entitlement, and service health. Escalate unresolved availability to Microsoft Support using that evidence rather than a fabricated console channel.
 
 ### §2.5 Resolution Steps
 
 | Root cause | Resolution |
 |---|---|
 | RC-A | Re-activate PIM role; if eligible-only without active assignment, request activation justification per Privileged Access Workflow. Document in change log. |
-| RC-B | File Microsoft service request to graduate tenant to GA channel. **Do not** attempt local workarounds. |
+| RC-B | File a Microsoft service request with actual availability/error evidence. **Do not** attempt local workarounds. |
 | RC-C | Coordinate with Procurement to remediate license; until remediated, document the manual review fallback in the incident record. |
 | RC-D | Instruct reporter to clear site data; if recurring, file an internal IT ticket to investigate browser policy preventing cache refresh. |
 | RC-E | Coordinate with Identity team to evaluate the blocking Conditional Access policy. Common cause is a new device-compliance grant control rolled out without admin-workstation exemption. |
@@ -267,9 +237,9 @@ If the tenant is stuck on `preview-deprecated`, open a Microsoft 365 service req
 
 After remediation, confirm:
 
-1. `Get-Agt225Health -Verbose` returns `Overall: Healthy` for all four blocks.
+1. console health evidence returns `Overall: Healthy` for all four blocks.
 2. Reporter can load the Admin Center landing page and all four sub-blades within 60 s.
-3. Pester test `TRG-225-01` (Console Load Smoke) passes (`Invoke-Pester -Path ./tests/trg-225-01.tests.ps1`). See [Verification & Testing §2](./verification-testing.md).
+3. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 4. Evidence snapshot E-01..E-08 captured to `AgentGov-Evidence-225` if Sev1 or Zone-3 Sev2.
 
 ### §2.7 Cross-References
@@ -300,21 +270,19 @@ The admin-gated approval queue (Default Governance Template "Approve Before Publ
 | Code | Root cause | Confirmation signal |
 |---|---|---|
 | **RC-A** | Approval-queue ingestion service degraded (Microsoft-side) | KQL-02 shows tenant-wide p95 lag spike; Service Health advisory present |
-| **RC-B** | AI Governance Lead or designated approver lacks the `Agent365.Approval.Process` permission (regression after a recent role change) | GQ-02 succeeds for Global Reader but UI shows queue empty for approver |
-| **RC-C** | Governance template prerequisite missing — e.g., the Default Template''s required Purview AI Compliance Assessment policy was deleted or disabled | GQ-04 returns `prerequisiteState: "incomplete"`; KQL-03 shows correlated `GovernanceTemplate.Apply` failures |
+| **RC-B** | Designated approver lacks an active AI Administrator or Entra Global Admin role; AI Governance Lead is a firm responsibility, not a directory role | GQ-02 succeeds for Global Reader but UI shows queue empty for approver |
+| **RC-C** | Governance template prerequisite missing — e.g., the Default Template''s required Purview AI Compliance Assessment policy was deleted or disabled | Manual template evidence records `prerequisiteState: "incomplete"`; KQL-03 shows correlated `GovernanceTemplate.Apply` failures |
 | **RC-D** | Custom Governance Template references an Entra Access Package that has been retired; new requests stall at the access-package gate | GQ-05 shows `accessPackageBindingState: "broken"` for the affected template |
 | **RC-E** | Approval-action token-exchange failure due to Conditional Access (CA evaluates the approver''s session during the action and blocks) | Entra sign-in log shows interrupt during approval action |
-| **RC-F** | Audit-pipeline outage (Purview side); queue functions, but examiner-grade evidence is not being recorded → P3-S6 | Purview Service Health advisory; `Get-Agt225AuditEvents` returns empty for known approvals |
+| **RC-F** | Audit-pipeline outage (Purview side); queue functions, but examiner-grade evidence is not being recorded → P3-S6 | Purview Service Health advisory; validated source audit evidence returns empty for known approvals |
 
 ### §3.3 Diagnostic Steps
 
-1. Capture queue snapshot: `$snap = Get-Agt225PendingRequests -IncludeAge`. Compute p95 age and queue depth.
-2. Run KQL-02 for last 7 days. Compare today''s p95 ingestion lag to baseline. Sustained > 600 s → RC-A or RC-D.
-3. For each affected approver, run `Get-MgUserMemberOf -UserId <upn>` and confirm the `AI Governance Lead` directory role and any custom approval-permission group bindings are present.
-4. Issue **GQ-04** and inspect `prerequisiteState`. If `incomplete`, the Default Template''s downstream policies need re-validation — see §5 PILLAR-TEMPLATE-APPLY-FAIL for re-apply procedure.
-5. Issue **GQ-05** for each Custom Template in use. Inspect `accessPackageBindingState`. `broken` → RC-D, see resolution table.
-6. For RC-F suspicion: pick three approvals known to have completed in the past 24h, confirm they are queryable via `Get-Agt225AuditEvents -StartTime (Get-Date).AddDays(-1) -OperationName "ApprovalRequest.Approved"`. Missing → escalate to Purview Compliance Admin, freeze any examiner-facing evidence claims until pipeline restored.
-7. Inspect Entra sign-in log for affected approver during the failed action window.
+1. Open **Agents > All agents > Requests**; record actual request states, full queue, submission dates, and dispositions. Overview shows three newest requests, not the oldest queue.
+2. Reconcile firm zones and business-day SLA age using approved request/ticket evidence. Package lastModifiedDateTime is not request submission time.
+3. Verify the approver's active management role. AI Governance Lead is a firm responsibility, not a directory role or Agent365.Approval.Process permission.
+4. Review the affected template and actual downstream policy state in the supported admin surfaces. Capture known successful and failed actions with their available source audit records.
+5. Treat missing audit attribution or collector coverage as unresolved. Do not infer native state fields from the old GQ labels.
 
 ### §3.4 FINRA 3110 Caveat (Critical)
 
@@ -326,17 +294,17 @@ The Agent 365 approval queue **supports** FINRA Rule 3110 supervisory review by 
 |---|---|
 | RC-A | Wait on Microsoft mitigation; activate manual-review fallback per §3.4. Snapshot E-04 every 30 min until resolved. |
 | RC-B | Reinstate approver permission via PIM; for permanent regression, file Identity-team ticket to investigate role-assignment drift. |
-| RC-C | Re-establish missing prerequisite policy in Purview (`New-ProtectionAlert` / `Set-AIComplianceAssessment`), then re-apply Default Template per §5.5. |
+| RC-C | Re-establish missing prerequisite policy in Purview (use documented Purview configuration; no Set-AIComplianceAssessment cmdlet is established here), then re-apply Default Template per §5.5. |
 | RC-D | Rebuild the Entra Access Package or rebind the Custom Template to the replacement package. Pending requests will not auto-replay — they must be re-submitted by users; communicate via published change record. |
-| RC-E | Coordinate with Identity team to add an approver-action exemption to the blocking CA policy (or use admin-workstation grant). Document in change log. |
+| RC-E | Ask the Identity team to investigate the actual CA failure under the approved change process; do not add an exemption solely to make this check pass. Document in change log. |
 | RC-F | Engage Purview Compliance Admin and Microsoft Support; freeze examiner production until audit pipeline confirmed healthy and back-fill complete. |
 
 ### §3.6 Verification
 
-1. `Get-Agt225PendingRequests -IncludeAge` returns p95 age < 4 business hours and depth < pre-incident baseline.
+1. full Requests-list evidence returns p95 age < 4 business hours and depth < pre-incident baseline.
 2. KQL-02 returns p95 ingestion lag < 120 s for the most recent 1 h bin.
 3. Three test publish requests submitted by a test user appear in the queue within 60 s and can be approved with audit-log confirmation.
-4. Pester `TRG-225-02` (Approval Queue Round-Trip) passes.
+4. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 5. Evidence E-04, E-08 captured for the incident window.
 
 ### §3.7 Cross-References
@@ -365,34 +333,26 @@ The Agent 365 Admin Center shows a different ownerless / orphaned-agent count th
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
-| **RC-A** | Reconciliation cadence mismatch: Console reads from Graph at near-real-time; Registry reconciles on a 6-hour cadence | Mismatch resolves on next Registry reconcile cycle; KQL-05 shows no anomalies |
+| **RC-A** | Reconciliation cadence mismatch: capture times, platform coverage, and owner-validity definitions differ; no fixed six-hour product cadence is established | Mismatch resolves on next Registry reconcile cycle; KQL-05 shows no anomalies |
 | **RC-B** | Offboarded user''s Entra account in soft-deleted state; Console resolves owner ID to a tombstone, Registry resolves to the soft-deleted user record | `Get-MgDirectoryDeletedItem -DirectoryObjectId <ownerId>` returns object |
-| **RC-C** | Agent created via API/SDK with `owner` field unset; Console infers ownership from creator service principal, Registry leaves null | GQ-03 returns `owners: [{type:"servicePrincipal", id:"..."}]` while Registry shows `owners: []` |
+| **RC-C** | Agent created via API/SDK with `owner` field unset; Console infers ownership from creator service principal, Registry leaves null | Manual agent evidence records `owners: [{type:"servicePrincipal", id:"..."}]` while Registry shows `owners: []` |
 | **RC-D** | Group-based ownership: Console expands group, Registry stores group reference | GQ-03 shows expanded user list; Registry export shows single group entry |
 | **RC-E** | Reassignment loop: a downstream automation (e.g., Power Automate flow tied to a leaver event) is reverting owner assignments | KQL audit on `Agent.OwnerChanged` shows oscillating actor identities |
 | **RC-F** | Console-backing store stale due to Microsoft-side cache invalidation lag | Mismatch persists > 24h with no reconcile correction; Service Health advisory present |
 
 ### §4.3 Diagnostic Steps
 
-1. Capture both inventories at a single timestamp:
-   - `$console = Get-Agt225InventoryExport -Format Json -Filter "ownership eq ''ownerless''"`
-   - Capture a registry export and resolve owner identities using the [Control 1.2 collection examples](../1.2/powershell-setup.md). `Get-AgtRegistry` is not a provided Control 1.2 helper or verified Microsoft cmdlet; the collection output still needs ownership and source reconciliation.
-2. Compute set differences: agents in Console-only, in Registry-only, and in both. Persist to evidence library as E-05 enrichment.
-3. For each Console-only-ownerless agent, issue **GQ-03** and inspect the `owners` collection. Empty array or tombstoned owner → confirms ownerless. Service principal owner → RC-C.
-4. For each Registry-only-ownerless agent, query Registry-side reconciliation log for the most recent ownership-resolution attempt.
-5. For RC-E suspicion, run `Get-Agt225AuditEvents -OperationName "Agent.OwnerChanged" -StartTime (Get-Date).AddDays(-7)` and group by `AgentId`. Any agent with > 4 owner changes in a week is in a reassignment loop.
-6. For RC-B, enumerate soft-deleted directory objects referenced by Console: `Get-MgDirectoryDeletedItem -DirectoryObjectId <ownerId>` per affected agent.
+1. Capture the native Agents without owners filtered registry and the firm's inventory at comparable timestamps and scope.
+2. Compare identifiers and record platform/draft coverage; absence from one source is not proof of deletion.
+3. Verify assigned owner identity separately against directory/source-platform records. The native assigned-owner gap is narrower than disabled/departed/nonhuman-owner rules.
+4. Trace repeated changes to actual source audit and authorized automations before changing ownership. Preserve both pre-state and source provenance.
+5. Route confirmed orphaned cases through Control 3.6; do not restore or hard-delete a directory object merely to make counts match.
 
 ### §4.4 Reassignment Loop Containment
 
 If RC-E confirmed, **stop the reassignment loop before any further owner changes** to avoid producing audit-log noise that obscures the examiner narrative. Disable the offending automation:
 
-```powershell
-# Identify candidate automations
-Get-MgIdentityGovernanceLifecycleWorkflow | Where-Object { $_.Category -eq ''leaver'' -and $_.Enabled }
-# Pause the suspect workflow (requires AI Governance Lead + Identity Governance Admin)
-Update-MgIdentityGovernanceLifecycleWorkflow -LifecycleWorkflowId <id> -Enabled $false
-```
+Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 
 Document the pause in the change log. Resume only after the Power Automate / Logic App / lifecycle workflow logic has been corrected to honor the Console as the authoritative owner field.
 
@@ -400,8 +360,8 @@ Document the pause in the change log. Resume only after the Power Automate / Log
 
 | Root cause | Resolution |
 |---|---|
-| RC-A | Wait one reconcile cycle (≤ 6h); if mismatch persists, escalate to RC-F path. |
-| RC-B | Restore or hard-delete the soft-deleted directory object via Identity team; re-run reconciliation. |
+| RC-A | Reconcile source timestamps and actual collection schedule; if mismatch persists, escalate to RC-F path. |
+| RC-B | Have the Identity team confirm owner status and assign an authorized accountable owner; do not restore or hard-delete an identity merely to make counts match. |
 | RC-C | Use the Console "Reassign Owner" bulk action to set a human owner on each affected agent; update SDK / IaC to require owner field on creation. |
 | RC-D | Update Registry mapping rules to expand group ownership for export parity, OR document the intentional divergence in the Registry README and the Risk Register. |
 | RC-E | See §4.4. |
@@ -410,7 +370,7 @@ Document the pause in the change log. Resume only after the Power Automate / Log
 ### §4.6 Verification
 
 1. Re-run §4.3 step 1 at T+1h after remediation. Set differences < 1% of total agents.
-2. Pester `TRG-225-04` (Console-Registry Parity) passes.
+2. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 3. Evidence E-05 (per-agent records) and E-08 (audit log) captured.
 4. Cross-control verification: Control 3.6 orphaned-agent dashboard re-runs and produces matching count (within reconcile tolerance).
 
@@ -425,7 +385,7 @@ Document the pause in the change log. Resume only after the Power Automate / Log
 
 ## §5 Pillar: TEMPLATE-APPLY-FAIL
 
-Applying the Default Governance Template (bundled at GA: Entra Identity Protection, Lifecycle Management, SharePoint access, Purview Audit / AI Compliance Assessment, automatic Agent 365 license assignment) or a Custom Governance Template (extends with Entra Access Packages, Global Secure Access, Purview Know Your Data, SharePoint Content Permissions Insights) returns an error or partial-success state. Zone 3 agents are required to bind to a Custom Template that includes an Entra Access Package — failures here block Zone 3 publish.
+Applying the Default Governance Template (bundled at GA: Entra Identity Protection, Lifecycle Management, SharePoint access, Purview Audit / AI Compliance Assessment, automatic Agent 365 license assignment) or a Custom Governance Template (uses the firm's selected policy combination; network visibility, Know your data, and content permissions insights are also in Default) returns an error or partial-success state. Zone 3 agents are required to bind to a Custom Template that includes an Entra Access Package — failures here block Zone 3 publish.
 
 ### §5.1 Symptom Catalog
 
@@ -442,51 +402,32 @@ Applying the Default Governance Template (bundled at GA: Entra Identity Protecti
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
-| **RC-A** | Entra Identity Protection policy required by Default Template missing or disabled | GQ-04 returns `prerequisites: [{name:"IdentityProtection", state:"missing"}]` |
+| **RC-A** | Entra Identity Protection policy required by Default Template missing or disabled | Manual template evidence records `prerequisites: [{name:"IdentityProtection", state:"missing"}]` |
 | **RC-B** | Purview AI Compliance Assessment policy missing or scope mismatch | GQ-04 prerequisite state `policyScopeMismatch` |
-| **RC-C** | License drift: tenant has Microsoft 365 E7 ("Frontier Suite") assigned but seat count exhausted; auto-assignment cannot complete | `Get-Agt225LicenseAssignment -TenantScope` returns `seatsAvailable: 0` |
-| **RC-D** | Custom Template bound to an Entra Access Package whose policy expired or lacks reviewer | GQ-05 returns `accessPackageBindingState: "policyExpired"` |
-| **RC-E** | Global Secure Access (GSA) prerequisite required by Custom Template''s SharePoint Content Permissions Insights component is not deployed in tenant | GQ-05 prerequisite `gsa: "notDeployed"` |
+| **RC-C** | License drift: tenant has Microsoft 365 E7 ("Frontier Suite") assigned but seat count exhausted; auto-assignment cannot complete | license-assignment evidence returns `seatsAvailable: 0` |
+| **RC-D** | Custom Template bound to an Entra Access Package whose policy expired or lacks reviewer | Manual template evidence records `accessPackageBindingState: "policyExpired"` |
+| **RC-E** | Selected network policy is unavailable or not configured; inspect that policy independently of SharePoint content permissions insights | GQ-05 prerequisite `gsa: "notDeployed"` |
 | **RC-F** | Background reconciliation job conflict — concurrent template re-apply from a Power Automate scheduled flow | KQL-03 shows two template-apply events from different actors within seconds |
 
 ### §5.3 Diagnostic Steps
 
-1. Issue **GQ-04** for Default Template; inspect `prerequisites` collection. Any element with `state != "satisfied"` indicates a missing dependency.
-2. Issue **GQ-05** for the affected Custom Template. Inspect `prerequisites`, `accessPackageBindingState`, `componentStates`.
-3. Run KQL-03 for last 24h. Group failures by `FailureReason`. Multi-mode failure (multiple distinct reasons) often indicates RC-F (concurrent apply).
-4. Run `Get-Agt225TemplateStatus -TemplateId <id> -Detailed` to retrieve per-agent apply state. For P5-S3, the per-agent failure reason is the most precise diagnostic.
-5. For RC-C, run `Get-Agt225LicenseAssignment -TenantScope -IncludeSeatAccounting`. If `seatsAvailable == 0`, coordinate with Procurement immediately.
-6. For RC-E, validate GSA tenant posture: `Get-MgNetworkAccessTenantStatus`. If `provisioningState != "complete"`, the Custom Template''s SCPI component will fail.
-7. For RC-D, retrieve access-package state: `Get-MgEntitlementManagementAccessPackage -AccessPackageId <id> -ExpandProperty AssignmentPolicies`.
+1. Open **Agents > Settings > Security templates** and capture the actual selected policy combination and affected agent.
+2. Validate downstream Entra, Purview, SharePoint, and Defender policy state with their responsible administrators.
+3. Default policies include network visibility, Know your data, and content permissions insights; those are not exclusively Custom additions, and no GSA prerequisite for content permissions insights is established here.
+4. Verify required assignments, entitlement, and any firm access-package association separately. AI Administrator alone cannot configure Conditional Access/access-package policies.
+5. Review the actual failure message/correlation ID and before/after state. No generic prerequisites/componentStates Graph contract is supplied.
 
 ### §5.4 Default Template Prerequisites (Reference)
 
-The Default Governance Template at GA bundles five managed components. **Each must be in `satisfied` state** before apply will succeed:
+Current Default policies include Entra Identity Protection, network visibility and lifecycle management; SharePoint sharing/access and content permissions insights; Purview Audit, Know your data and AI compliance assessment; and Defender policies. License assignment is documented during activation.
 
-| Component | Underlying control | Owner |
-|---|---|---|
-| Entra Identity Protection (sign-in & user risk policies for agent-OBO scenarios) | Identity team | Entra Global Admin |
-| Lifecycle Management (joiner/leaver propagation to agent ownership) | Identity Governance | Identity Governance Admin |
-| SharePoint access (default site-collection access boundaries for SharePoint-grounded agents) | M365 Apps | SharePoint Admin |
-| Purview Audit + AI Compliance Assessment (audit pipeline + AI-specific risk evaluation) | Compliance | Purview Compliance Admin |
-| Automatic Agent 365 license assignment (group-based) | Licensing | AI Administrator |
-
-A change to any underlying control (e.g., a Purview policy retirement) can break the Default Template''s prerequisite check. The AI Administrator should subscribe to change-management notifications from each underlying-control owner.
+Capture the actual policy configuration and downstream enforcement. This is not a five-component prerequisite-state API, and a template name is not proof that each policy was applied. Use the appropriately privileged administrator for each policy surface.
 
 ### §5.5 Custom Template Re-apply (Recovery Procedure)
 
 After remediating a prerequisite, re-apply the template:
 
-```powershell
-# Validate prerequisites first
-$status = Get-Agt225TemplateStatus -TemplateId $templateId -Detailed
-if ($status.PrerequisiteState -ne ''Satisfied'') {
-    throw "Prerequisites not satisfied: $($status.PrerequisiteFailures -join ''; '')"
-}
-# Apply (idempotent)
-Invoke-Agt225TemplateApply -TemplateId $templateId -Scope $scopeFilter -WhatIf
-# Then drop -WhatIf and re-run after review
-```
+Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 
 Capture the apply event in evidence (E-06).
 
@@ -496,16 +437,16 @@ Capture the apply event in evidence (E-06).
 |---|---|
 | RC-A | Coordinate with Identity team to restore Identity Protection policy; re-apply per §5.5. |
 | RC-B | Coordinate with Purview Compliance Admin to restore AI Compliance Assessment policy; re-apply. |
-| RC-C | Procurement provisions additional Microsoft 365 E7 ("Frontier Suite") / Agent 365 seats; auto-assignment will complete on next reconcile (≤ 1h). |
+| RC-C | Procurement provisions additional Microsoft 365 E7 ("Frontier Suite") / Agent 365 seats; recheck actual assignment and activation results; no fixed one-hour reconciliation time is established. |
 | RC-D | Renew the Access Package assignment policy; assign reviewers; re-apply Custom Template. |
-| RC-E | Coordinate with Identity / Network team to deploy GSA; until deployed, Zone 3 agents that depend on SCPI cannot publish. |
+| RC-E | Coordinate with the responsible administrators to validate the actual failed policy and firm requirements; do not infer a GSA dependency for SharePoint content permissions insights. |
 | RC-F | Disable conflicting Power Automate flow; consolidate template-apply automation under a single AI Administrator service principal. |
 
 ### §5.7 Verification
 
-1. `Get-Agt225TemplateStatus -TemplateId <id>` returns `PrerequisiteState: Satisfied` and `ApplyState: Success` for all in-scope agents.
+1. template and downstream-policy evidence returns `PrerequisiteState: Satisfied` and `ApplyState: Success` for all in-scope agents.
 2. KQL-03 returns no failures in the past 1 h.
-3. Pester `TRG-225-05` (Template Apply Idempotency) passes.
+3. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 4. Evidence E-06 (template state snapshot) captured pre- and post-apply.
 
 ### §5.8 Cross-References
@@ -528,7 +469,7 @@ The Agent Publish wizard (used by Agent Owners to submit a new agent for approva
 | **P6-S3** | Template selector shows version `v3` but submit returns "Template version mismatch — expected v2" | Sev2 |
 | **P6-S4** | Wizard accepts submission, but the request never appears in the approval queue | Sev2 (cross-link to §3) |
 | **P6-S5** | "Required field gap" surfaced for an Agent Owner field that the firm has marked optional in its Custom Template | Sev2 |
-| **P6-S6** | Publish wizard returns 403 "Insufficient privilege" for an Agent Owner who has the `Agent365.Publish.Submit` permission | Sev2 |
+| **P6-S6** | Publish wizard returns 403 "Insufficient privilege" for the affected publisher/operator (verify actual documented permissions) | Sev2 |
 
 ### §6.2 Root Cause Matrix
 
@@ -536,28 +477,24 @@ The Agent Publish wizard (used by Agent Owners to submit a new agent for approva
 |---|---|---|
 | **RC-A** | Custom Template was edited mid-flight; user''s draft was created against the prior version | Browser dev-tools shows submitted `templateVersion` ≠ Console current |
 | **RC-B** | Required-field metadata cached on the client; backend now demands additional fields after a Custom Template update | KQL audit shows `Template.SchemaUpdated` event in the last 24h |
-| **RC-C** | License posture for the submitter changed mid-session (Microsoft 365 E7 ("Frontier Suite") seat reclaimed) | `Get-Agt225LicenseAssignment -UserPrincipalName <upn>` returns `enabled: false` |
+| **RC-C** | License posture for the submitter changed mid-session (Microsoft 365 E7 ("Frontier Suite") seat reclaimed) | license-assignment evidence returns `enabled: false` |
 | **RC-D** | Approval-queue ingestion broken (cross-link §3 RC-A) | Wizard succeeds; queue does not show entry |
-| **RC-E** | Custom Template''s `requiredFields` schema includes a field that no longer exists in the Console UI (schema drift) | `Get-Agt225TemplateStatus -TemplateId <id> -Detailed` shows `schemaWarnings` |
+| **RC-E** | Custom Template''s `requiredFields` schema includes a field that no longer exists in the Console UI (schema drift) | template and downstream-policy evidence shows `schemaWarnings` |
 | **RC-F** | Submitter''s permission was assigned via a group whose membership eval is delayed | Sign-in log shows token issued before group-membership refresh |
 
 ### §6.3 Diagnostic Steps
 
-1. Reproduce in InPrivate session with a known-good Agent Owner identity. Capture HAR file for E-03 enrichment.
-2. Inspect submitted JSON payload in browser dev-tools network panel. Note `templateVersion`, `requiredFields` set, and HTTP response body.
-3. Issue **GQ-05** for the affected Custom Template; compare `version` and `requiredFields` to the submitted payload.
-4. Run `Get-Agt225TemplateStatus -TemplateId <id> -Detailed` and inspect `schemaWarnings` and `lastSchemaUpdate`.
-5. For P6-S6, run `Get-MgUserMemberOf -UserId <upn>` and verify the publish-permission group membership is present *and* token reflects it (`Get-MgAuditLogSignIn -Filter "userPrincipalName eq ''<upn>''"`).
-6. For P6-S4, immediately switch to §3 diagnostic flow.
+1. Use **Agents > All agents > Requests > Pending review > Publish to store** for the supported publication flow.
+2. Capture actual validation messages and review audience/preinstallation, template selection, and permissions alongside the firm's approved agent design and change ticket.
+3. Verify actual operator role, feature entitlement, and supported agent type. Do not assume Agent365.Publish.Submit or a template requiredFields API.
+4. Obtain missing owner, tool, connection, and approval evidence from approved source-platform/firm records; no fixed seven-step wizard or native complete prompt diff is promised.
+5. Retain the actual request result and correlation ID, and use §3 for missing requests.
 
 ### §6.4 Schema-Drift Containment
 
-When a Custom Template is edited, in-flight drafts created against the prior schema will fail submission. The Console does **not** auto-migrate drafts. Containment requires:
+Preserve the draft/change evidence and actual error before retrying. Compare the submitted configuration with current supported UI and approved firm policy, then coordinate a controlled resubmission if needed.
 
-1. AI Administrator publishes a change-management notice ≥ 24h before a Custom Template schema update.
-2. Drafts older than the schema update are listed via `Get-Agt225PendingRequests -Status draft -OlderThan (Get-Date).AddDays(-1)`.
-3. Affected Agent Owners are notified to re-create the draft against the new schema.
-4. Old drafts are auto-purged at T+30 days per the Default Template lifecycle policy.
+No automatic draft migration, Custom Template requiredFields schema, or fixed 30-day draft-purge schedule is established by the current sources. Do not delete drafts or mutate template internals on those assumptions.
 
 ### §6.5 Resolution Steps
 
@@ -574,7 +511,7 @@ When a Custom Template is edited, in-flight drafts created against the prior sch
 
 1. Test agent submission via test Agent Owner identity completes within 60 s.
 2. Submitted entry appears in approval queue within 2 min.
-3. Pester `TRG-225-06` (Publish Wizard Round-Trip) passes.
+3. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 4. Evidence E-04 captured if Sev2.
 
 ### §6.7 Cross-References
@@ -604,39 +541,25 @@ Deploy / Reassign / Disable bulk actions from the Console fail for one or more t
 | Code | Root cause | Confirmation signal |
 |---|---|---|
 | **RC-A** | Target group unresolvable: dynamic Entra group rule errored; group soft-deleted; group too large for Console expansion | KQL audit shows `BulkAction.GroupResolutionFailed` |
-| **RC-B** | License-coverage gap on target population (cross-link RB-04) | `Get-Agt225LicenseAssignment -GroupId <targetGroup>` returns coverage < 100% |
+| **RC-B** | License-coverage gap on target population (cross-link RB-04) | license-assignment evidence returns coverage < 100% |
 | **RC-C** | Conditional Access interrupt (cross-link §2 RC-E) | Sign-in log shows interrupt during action |
-| **RC-D** | Dependency chain: agents reference one another via multi-agent orchestration (Control 2.17); reassign parent first | GQ-03 returns `dependencies: [...]` |
+| **RC-D** | Dependency chain: agents reference one another via multi-agent orchestration (Control 2.17); reassign parent first | Manual agent evidence records `dependencies: [...]` |
 | **RC-E** | Bulk action exceeded the Console''s 500-agent batch limit; the Console truncated silently in pre-GA, errors loudly post-GA | Action JSON payload count > 500 |
-| **RC-F** | Audit pipeline outage (cross-link §3 RC-F) | `Get-Agt225AuditEvents` returns empty for known successful actions |
+| **RC-F** | Audit pipeline outage (cross-link §3 RC-F) | validated source audit evidence returns empty for known successful actions |
 
 ### §7.3 Diagnostic Steps
 
-1. Capture the bulk-action correlation ID from the Console UI ("View action details" link) and persist as evidence.
-2. Run KQL-05 for the past 24h. Group failures by `ActionType` and `FailureReason`. Cross-reference to RC table.
-3. For P7-S2, run `Get-MgGroup -GroupId <targetGroup> -Property *` and validate `groupTypes`, `membershipRule`, `membershipRuleProcessingState`. Errored dynamic-rule processing → RC-A.
-4. For P7-S3, run `Get-Agt225LicenseAssignment -GroupId <targetGroup> -IncludeMissingMembers` to enumerate users lacking required license.
-5. For P7-S5, run `Get-Agt225Agent -Id <agentId>` and inspect `dependencies` collection. Plan reassignment in dependency-topological order.
-6. For P7-S6, immediately escalate to Purview Compliance Admin per §3 RC-F path; do **not** re-run the bulk action until audit pipeline confirmed healthy.
+1. Capture the actual Install/Uninstall, Activate, Block/Unblock, or Delete/Restore action, target IDs, scope, result, and correlation ID.
+2. Confirm active management role and feature entitlement, then check actual audience/group and source-platform state.
+3. Blocking SharePoint/Foundry agents controls Copilot Chat availability, not all source-platform execution. Verify the affected hosts before asserting containment.
+4. Reconcile each target's before/after state and available audit evidence. Do not retry a possibly completed mutation until its result is known.
+5. Use documented agent management rules where appropriate; no PowerShell bulk mutation adapter is supplied here.
 
 ### §7.4 Batch-Size Discipline
 
-Bulk actions in the Agent 365 Admin Center are bounded at **500 agents per submission** post-GA. For tenants with > 500 agents in scope, partition the action via PowerShell:
+The cited sources do not establish the former 500-agent submission limit or a supplied topological bulk-action helper. Determine the limits for the actual supported action and agent type before batching.
 
-```powershell
-$targets = Get-Agt225InventoryExport -Format Json -Filter "<scope>"
-$batches = [System.Collections.ArrayList]::new()
-for ($i = 0; $i -lt $targets.Count; $i += 500) {
-    $end = [Math]::Min($i + 499, $targets.Count - 1)
-    $null = $batches.Add($targets[$i..$end])
-}
-foreach ($batch in $batches) {
-    Invoke-Agt225BulkAction -ActionType Deploy -AgentIds $batch.Id -CorrelationIdPrefix "deploy-$(Get-Date -Format yyyyMMdd)"
-    Start-Sleep -Seconds 30  # respect throttle
-}
-```
-
-Each batch produces a distinct correlation ID, which simplifies the SOX ITGC change-record narrative.
+Record target IDs and per-target results, use an approved pilot/change window, and retry only confirmed failures after reconciling uncertain outcomes. Preserve correlation IDs and firm authorization evidence.
 
 ### §7.5 Resolution Steps
 
@@ -644,7 +567,7 @@ Each batch produces a distinct correlation ID, which simplifies the SOX ITGC cha
 |---|---|
 | RC-A | Repair dynamic group rule via Identity team; OR target a static group; re-run failed batch only. |
 | RC-B | Coordinate license remediation per RB-04 (§13); re-run after coverage restored. |
-| RC-C | Coordinate Conditional Access exemption per §2 RC-E. |
+| RC-C | Investigate the actual Conditional Access result with the Identity team; preserve the approved security policy. |
 | RC-D | Re-order action in topological order per §7.4 helper; reassign roots first, dependents second. |
 | RC-E | Re-partition action per §7.4. |
 | RC-F | Freeze actions; restore audit pipeline; back-fill audit events with Microsoft Support before resuming. |
@@ -652,8 +575,8 @@ Each batch produces a distinct correlation ID, which simplifies the SOX ITGC cha
 ### §7.6 Verification
 
 1. KQL-05 returns 0% failure rate for the most recent action.
-2. Target population state matches expected post-action state (sample 10 agents via `Get-Agt225Agent`).
-3. Pester `TRG-225-07` (Bulk Action Round-Trip) passes.
+2. Target population state matches expected post-action state (sample 10 agents via agent-detail evidence).
+3. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 4. Evidence E-08 captured for the action window; correlation IDs catalogued.
 
 ### §7.7 Cross-References
@@ -666,14 +589,14 @@ Each batch produces a distinct correlation ID, which simplifies the SOX ITGC cha
 
 ## §8 Pillar: INVENTORY-EXPORT-INCOMPLETE
 
-The Agent 365 Admin Center inventory export (CSV / JSON via UI, or Graph job per GQ-08) returns truncated rows, missing columns, or fails outright. Examiner production frequently depends on inventory-export deliverables — this pillar is high-priority during exam windows.
+The Agent 365 registry export (CSV or Excel, according to the actual offered experience) returns truncated rows, missing columns, or fails outright. Examiner production frequently depends on inventory-export deliverables — this pillar is high-priority during exam windows.
 
 ### §8.1 Symptom Catalog
 
 | Code | Symptom | Severity hint |
 |---|---|---|
 | **P8-S1** | UI export returns CSV with row count < known agent count | Sev2 (Sev1 if examiner-active) |
-| **P8-S2** | Graph export job (`exportJobs/{jobId}`) stays in `running` indefinitely (> 30 min) | Sev2 |
+| **P8-S2** | Native export does not complete; capture actual error and time (no exportJobs endpoint is established) | Sev2 |
 | **P8-S3** | Export missing columns the Console UI displays (e.g., `governanceTemplateId`, `lastApprovedBy`) | Sev2 |
 | **P8-S4** | Export succeeds but row encoding garbles non-ASCII characters in agent names / descriptions | Sev3 |
 | **P8-S5** | Two consecutive exports return different row counts (non-deterministic) | Sev2 |
@@ -683,35 +606,26 @@ The Agent 365 Admin Center inventory export (CSV / JSON via UI, or Graph job per
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
-| **RC-A** | Export pagination bug — UI export silently truncates at 10,000 rows | Row count exactly 10,000 |
+| **RC-A** | Unexplained scope/coverage or export discrepancy; no fixed 10,000-row ceiling is established | Actual identifiers/counts differ after scope/time reconciliation |
 | **RC-B** | Permission propagation lag: AI Administrator role assigned via group, token has not refreshed | Sign-in log timestamp > role-assignment timestamp by < 1h |
-| **RC-C** | Export format gaps — CSV format omits columns that JSON includes | Compare CSV vs JSON exports of same scope |
+| **RC-C** | Firm evidence schema exceeds actual native export headers | Compare actual native headers with required supplemental evidence |
 | **RC-D** | Source-data ownership reconciliation in flight (cross-link §4 RC-A) | Two consecutive exports differ; KQL shows reconciliation event between |
 | **RC-E** | Encoding configuration: CSV exported as Windows-1252 instead of UTF-8 | Garbled non-ASCII characters in CSV |
 | **RC-F** | Microsoft-side export-job worker outage | Service Health advisory; multiple jobs stuck `running` |
 
 ### §8.3 Diagnostic Steps
 
-1. Compare expected vs actual: `$expected = (Get-Agt225Agent -All).Count`; `$actual = (Import-Csv $exportPath).Count`. Delta indicates RC-A or RC-D.
-2. For P8-S2, issue **GQ-08** with the job ID. Inspect `state`, `progress`, `error`. `running` > 30 min → cancel and re-submit; persistent → RC-F.
-3. For P8-S3, request both CSV and JSON exports of the same scope; diff column lists. Confirm the missing column is present in JSON; if so, RC-C — use JSON for examiner production.
-4. For P8-S5, compute row-count delta and run KQL audit for `Agent.OwnerChanged` events between the two exports. Reconciliation activity → RC-D.
-5. For P8-S6, validate role-membership token freshness as in §6 RC-F.
+1. Export from **Agents > All agents > Registry**; record All agents / Filtered agents scope, filters, capture time, actual CSV/Excel format, and headers.
+2. Total agents is unchanged by filters. Reconcile selected-scope rows, identifiers, source-platform coverage, and timing instead of assuming a fixed export ceiling.
+3. Compare actual columns with the firm's evidence requirements. Supplement unavailable approval/template/zone fields from approved sources with provenance.
+4. There is no documented exportJobs endpoint or universal JSON UI export here. The documented package API is a separate collection contract, not a complete-field fallback.
+5. Treat missing rows, unavailable fields, or uncertain coverage as unresolved; preserve the original file and raise a supported service request when needed.
 
-### §8.4 PowerShell Fallback (Authoritative for Examiner Production)
+### §8.4 Manual Export Fallback (Reconcile Before Examiner Production)
 
-When the UI export is unreliable, fall back to the helper cmdlet documented in [PowerShell Setup §3](./powershell-setup.md) — `Get-Agt225InventoryExport`. The helper:
+The companion inventory adapter stops with ManualEvidenceRequired. It does not stream every required field, overcome a documented 10,000-row ceiling, or implement an authoritative examiner export.
 
-- Streams pagination beyond the 10,000-row UI ceiling
-- Emits all columns regardless of CSV/JSON choice
-- Uses UTF-8 encoding by default
-- Computes a SHA-256 hash of the output and writes it alongside the file for integrity attestation
-
-```powershell
-$exportPath = "./evidence/agent-inventory-$(Get-Date -Format yyyyMMddHHmmss).json"
-Get-Agt225InventoryExport -Format Json -OutputPath $exportPath -ComputeIntegrityHash
-# Writes $exportPath and $exportPath.sha256
-```
+Retain the actual native CSV/Excel export and build a provenance-labelled supplement from the firm's approved source records. Validate any package collector separately, following every nextLink and documenting field/coverage gaps. Generate and verify hashes using the firm's approved evidence process.
 
 For SEC 17a-4 examiner production, the hash file is co-archived to the immutable evidence library and referenced in the production-package README.
 
@@ -719,19 +633,19 @@ For SEC 17a-4 examiner production, the hash file is co-archived to the immutable
 
 | Root cause | Resolution |
 |---|---|
-| RC-A | Use PowerShell fallback (§8.4); file Microsoft service request for UI pagination fix. |
+| RC-A | Use reconciled manual evidence (§8.4); file Microsoft service request for UI pagination fix. |
 | RC-B | Wait ≤ 1 h for token refresh; if persistent, force token refresh via re-auth. |
-| RC-C | Use JSON format for examiner production; document column-set difference in production README. |
+| RC-C | Retain the actual CSV/Excel export and supplemental records with provenance; no universal full-column JSON export is promised. |
 | RC-D | Wait for reconciliation cycle to complete (≤ 6h); then re-export. Document the timing in production README. |
-| RC-E | Use PowerShell fallback (§8.4) which forces UTF-8; OR open CSV in Excel with explicit UTF-8 import. |
-| RC-F | Wait on Microsoft mitigation; use PowerShell fallback as primary. |
+| RC-E | Use reconciled manual evidence (§8.4) which forces UTF-8; OR open CSV in Excel with explicit UTF-8 import. |
+| RC-F | Wait on Microsoft mitigation; use reconciled manual evidence as the current fallback. |
 
 ### §8.6 Verification
 
-1. Row count matches `(Get-Agt225Agent -All).Count` ± reconciliation tolerance (< 1%).
-2. JSON export contains all columns documented in [Portal Walkthrough §8](./portal-walkthrough.md).
+1. Row count matches agent-detail evidence ± reconciliation tolerance (< 1%).
+2. Native export plus approved supplements evidence the firm's required fields described in [Portal Walkthrough §8](./portal-walkthrough.md).
 3. SHA-256 hash file present alongside export.
-4. Pester `TRG-225-08` (Inventory Export Integrity) passes.
+4. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 5. Evidence E-05 captured.
 
 ### §8.7 Cross-References
@@ -743,7 +657,7 @@ For SEC 17a-4 examiner production, the hash file is co-archived to the immutable
 ---
 ## §9 Pillar: RESEARCHER-CONFIG-DRIFT
 
-Researcher with Computer Use (GA October 2025) is **default-on for Copilot-licensed tenants**. FSI tenants must make an affirmative restrictive decision: scope to a specific Entra group, OR set scope to `none`. This pillar covers detection and remediation when the configured scope drifts — typically due to a license-eligibility change, a group-membership change, or a tenant-wide policy push from Microsoft.
+Current Researcher configuration documentation does not establish an October 2025 GA date or universal default-on behavior. Capture actual availability and configured scope. FSI tenants must make an affirmative restrictive decision: scope to a specific Entra group, OR set scope to `none`. This pillar covers detection and remediation when the configured scope drifts — typically due to a license-eligibility change, a group-membership change, or a tenant-wide policy push from Microsoft.
 
 > **FSI affirmative-restriction expectation.** A Copilot-licensed Researcher with Computer Use enables agents to operate browser-based actions on behalf of the user. In an FSI context, this surface must be explicitly scoped, not implicitly enabled. Document the scoping decision and reviewing approver in the Risk Register.
 
@@ -751,9 +665,9 @@ Researcher with Computer Use (GA October 2025) is **default-on for Copilot-licen
 
 | Code | Symptom | Severity hint |
 |---|---|---|
-| **P9-S1** | `Get-Agt225ResearcherConfig` returns `enabledFor: "all"` when the firm policy is group-scoped | Sev1 |
+| **P9-S1** | Researcher settings evidence returns `enabledFor: "all"` when the firm policy is group-scoped | Sev1 |
 | **P9-S2** | Bound group exists but membership has expanded to include users not in the originally approved population | Sev2 |
-| **P9-S3** | Scope was `none`, but a recent Microsoft tenant-policy push reverted to default-on | Sev1 |
+| **P9-S3** | Observed access differs from the signed no-user baseline; determine the actor/cause from evidence | Sev1 |
 | **P9-S4** | Scope unchanged but feature is unavailable to approved users (regression) | Sev3 |
 | **P9-S5** | License expiry mid-period: user retained group membership but lost Copilot license; feature no longer available — change is silent | Sev3 |
 | **P9-S6** | Audit event `Feature.ResearcherComputerUse.ScopeChanged` recorded but no change-management ticket exists | Sev1 (unsanctioned change) |
@@ -762,38 +676,28 @@ Researcher with Computer Use (GA October 2025) is **default-on for Copilot-licen
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
-| **RC-A** | Microsoft tenant-policy push (e.g., new Wave release toggles default-on); customer override not preserved | KQL-04 shows `ActorUPN: System` change event |
+| **RC-A** | Unexplained configuration change; Microsoft rollout causation requires service/support evidence | KQL-04 shows `ActorUPN: System` change event |
 | **RC-B** | Identity team modified group membership without notifying AI Governance | Group-membership audit shows additions; no change ticket |
-| **RC-C** | License-driven eligibility change: user lost Copilot license; Researcher silently unavailable for that user | `Get-Agt225LicenseAssignment -UserPrincipalName <upn>` shows `copilot: false` |
+| **RC-C** | License-driven eligibility change: user lost Copilot license; Researcher silently unavailable for that user | license-assignment evidence shows `copilot: false` |
 | **RC-D** | An admin used the Console "Reset to Microsoft default" action in error | KQL-04 shows admin actor + `NewScope: "all"` |
 | **RC-E** | Custom Governance Template removed the Researcher scoping component during a template edit | GQ-05 diff shows component removal |
 | **RC-F** | Conditional Access change blocks Researcher for in-scope users (false-positive availability gap) | Sign-in log shows blocking CA evaluation |
 
 ### §9.3 Diagnostic Steps
 
-1. Capture current state: `$rc = Get-Agt225ResearcherConfig -Detailed`. Persist as evidence E-06 enrichment.
-2. Compare `$rc` to the approved baseline stored in the tenant Risk Register. Any divergence → RC-A through RC-E.
-3. Run KQL-04 for the past 90 days. Inspect every scope change. Match each to a change-management ticket.
-4. For P9-S2, run `Get-MgGroupMember -GroupId <boundGroup>` and compare to the approved-population source-of-truth (often an HR system export). Membership expansion → RC-B.
-5. For P9-S5, run `Get-Agt225LicenseAssignment -GroupId <boundGroup> -IncludeMissingMembers` to enumerate license-eligibility gaps in the bound group.
+1. Open the admin **Agents > Researcher > Computer use** configuration if available. Capture actual user/group access, work-data setting, and website policy.
+2. Compare effective group membership and settings with the signed firm decision. Do not assume a universal default-on, reset-to-default button, or generic Graph policy endpoint.
+3. Admin-enabled work-data access still requires the user to enable Work in Sources; admin-disabled access makes Work unavailable.
+4. Trace a known authorized change to available documented audit evidence; custom SIEM labels require a validated source mapping.
+5. Recheck actual availability and entitlement for affected users. Missing configuration or collection evidence blocks acceptance.
 
 ### §9.4 Affirmative-Restriction Reset Procedure
 
 Re-applying the firm''s scoping decision after detected drift:
 
-```powershell
-# Apply group-scoped restriction (preferred)
-Set-Agt225ResearcherConfig -Scope Group -BoundGroupId $approvedGroupId `
-    -JustificationText "Reset to firm baseline per RR-225-009; ticket CHG-2026-0421" `
-    -Confirm
+Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 
-# OR apply firm-wide disable (most restrictive)
-Set-Agt225ResearcherConfig -Scope None `
-    -JustificationText "Disable per firm policy; pending zone-3 risk review" `
-    -Confirm
-```
-
-The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event with the supplied justification. Capture E-08 immediately after.
+Retain the actual before/after configuration and available validated source audit evidence; no specific ScopeChanged event is promised. Capture E-08 immediately after.
 
 ### §9.5 Resolution Steps
 
@@ -804,14 +708,14 @@ The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event wit
 | RC-C | Coordinate Procurement to restore licensing OR remove user from bound group with documented rationale. |
 | RC-D | Apply §9.4; review admin role assignments and consider PIM-elevation for the scope-change permission. |
 | RC-E | Restore Custom Template scoping component; re-apply per §5.5; review template-edit change-control. |
-| RC-F | Coordinate with Identity team to add Researcher-scope exemption to the blocking CA policy. |
+| RC-F | Investigate the actual CA result with the Identity team under the approved change process; do not assume an exemption is required. |
 
 ### §9.6 Verification
 
-1. `Get-Agt225ResearcherConfig` returns scope matching firm baseline.
+1. Researcher settings evidence returns scope matching firm baseline.
 2. KQL-04 shows the reset event with admin justification.
 3. Bound-group membership matches HR-system source-of-truth.
-4. Pester `TRG-225-09` (Researcher Scope Drift Detection) passes.
+4. The corresponding manual checks in Verification & Testing are evidenced; no TRG-225 Pester test files are supplied.
 5. Evidence E-06 and E-08 captured pre- and post-reset.
 
 ### §9.7 Cross-References
@@ -829,7 +733,7 @@ The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event wit
 ### §10.1 Pre-Conditions
 
 - Acquired-tenant inventory exported as CSV/JSON with at minimum: agent display name, owner UPN (mapped to acquirer-tenant UPN), zone classification, current template binding, license requirement.
-- Microsoft 365 E7 ("Frontier Suite") seats provisioned for inbound owners (verified via `Get-Agt225LicenseAssignment -TenantScope -IncludeSeatAccounting`).
+- Microsoft 365 E7 ("Frontier Suite") seats provisioned for inbound owners (verified via license-assignment evidence).
 - Default Governance Template and any required Custom Templates are in `prerequisiteState: Satisfied`.
 - Change-management ticket open with rollback plan.
 
@@ -837,18 +741,11 @@ The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event wit
 
 1. **Stage inventory**: import the acquired CSV; validate UPN mapping; flag rows without acquirer-tenant UPN (these block the run).
 2. **Partition by zone**: Zone 3 agents must bind to a Custom Template with Entra Access Package; do these in a separate batch.
-3. **Submit publish drafts via PowerShell** (Console wizard does not scale to 10+):
-   ```powershell
-   $stage = Import-Csv ./acquisition-stage.csv
-   foreach ($row in $stage) {
-       New-Agt225PublishDraft -DisplayName $row.DisplayName -OwnerUpn $row.OwnerUpn `
-           -Zone $row.Zone -GovernanceTemplateId $row.TemplateId `
-           -CorrelationIdPrefix "rb01-$(Get-Date -Format yyyyMMdd)"
-   }
-   ```
+3. **Submit through the supported portal flow** (no supplied bulk publication adapter):
+   Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 4. **Approve in batches** of ≤ 50 via the Console approval queue. AI Governance Lead reviews; FINRA-3110 manual supervisory review per §3.4 must accompany.
 5. **Apply template** per §5.5 procedure.
-6. **Verify** via `Get-Agt225Agent` sample of 10% (or all if N < 100).
+6. **Verify** via agent-detail evidence sample of 10% (or all if N < 100).
 
 ### §10.3 Evidence Bundle
 
@@ -861,7 +758,7 @@ The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event wit
 
 ### §10.4 Rollback
 
-If onboarding produces unexpected failures (> 5% per batch), pause via `Suspend-Agt225BulkOperation -CorrelationIdPrefix "rb01-..."`. Disable agents created in the failing batch via `Invoke-Agt225BulkAction -ActionType Disable`. Document and re-plan.
+If onboarding produces unexpected failures (> 5% per batch), pause via `Suspend-Agt225BulkOperation -CorrelationIdPrefix "rb01-..."`. Disable agents created in the failing batch via the approved manual evidence/change process. Document and re-plan.
 
 ### §10.5 Cross-References
 
@@ -889,8 +786,8 @@ If onboarding produces unexpected failures (> 5% per batch), pause via `Suspend-
    - Queue snapshot: E-04 with timestamp, depth, p95 age, FINRA-3110 manual-review log
    - Approval audit: KQL `AgentGovActivity | where OperationName startswith "ApprovalRequest." | where TimeGenerated between (start..end)`
    - Ownership inventory: Registry export (Control 1.2), with delta-vs-Console reconciliation note per §4
-   - Template state: `Get-Agt225TemplateStatus -All` snapshot
-   - Researcher scope: `Get-Agt225ResearcherConfig -Detailed` snapshot
+   - Template state: template and downstream-policy evidence snapshot
+   - Researcher scope: Researcher settings evidence snapshot
 5. **Document the staleness** in the production package README. Disclose: "The Agent 365 Admin Center approval queue experienced a Sev1 staleness incident from {start} to {end}; manual supervisory review continued throughout per FINRA Rule 3110 § (b); evidence of the manual review is in Section X of this package."
 
 ### §11.3 Examiner-Production Package Structure
@@ -927,17 +824,9 @@ examiner-prod-2026Q1/
 ### §12.2 Procedure
 
 1. **Stage mapping**: import HR CSV; validate every old UPN appears exactly once.
-2. **Capture pre-state**: `Get-Agt225InventoryExport -Format Json` to evidence.
+2. **Capture pre-state**: registry export and reconciliation evidence to evidence.
 3. **Apply reassignment**:
-   ```powershell
-   $map = Import-Csv ./reorg-owner-map.csv  # columns: OldOwnerUpn, NewOwnerUpn
-   $agents = Get-Agt225Agent -All | Where-Object { $map.OldOwnerUpn -contains $_.OwnerUpn }
-   foreach ($a in $agents) {
-       $newUpn = ($map | Where-Object OldOwnerUpn -eq $a.OwnerUpn).NewOwnerUpn
-       Invoke-Agt225BulkAction -ActionType ReassignOwner -AgentIds @($a.Id) `
-           -NewOwnerUpn $newUpn -CorrelationIdPrefix "rb03-$(Get-Date -Format yyyyMMdd)"
-   }
-   ```
+   Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 4. **Verify**: post-state export; diff to pre-state should match the mapping table exactly.
 5. **Confirm no reassignment loop** per §4.4 (no automation should be reverting these changes).
 
@@ -961,13 +850,13 @@ examiner-prod-2026Q1/
 
 ### §13.1 Pre-Conditions
 
-- License-coverage gap identified, typically via `Get-Agt225LicenseAssignment -GroupId <agentTargetGroup> -IncludeMissingMembers`.
+- License-coverage gap identified, typically via license-assignment evidence.
 - Procurement engaged for emergency license review.
 
 ### §13.2 Procedure
 
 1. **Identify scope**: enumerate agents, target users, and time window of OBO activity for unlicensed users.
-2. **Immediate containment**: disable the affected agents via `Invoke-Agt225BulkAction -ActionType Disable -AgentIds @(...)` to stop further unlicensed OBO activity.
+2. **Immediate containment**: disable the affected agents via the approved manual evidence/change process to stop further unlicensed OBO activity.
 3. **Capture evidence**: E-08 audit window covering all unlicensed OBO calls (for SOX ITGC and contractual records).
 4. **Decision branch**:
    - If users should be licensed: Procurement provisions licenses; re-enable agents; post-mortem.
@@ -1002,11 +891,7 @@ examiner-prod-2026Q1/
 
 1. **Capture evidence** of the unexpected feature appearance: E-01 console screenshot; any user notification screenshots; release-notes search for "Agent Suggestions" GA status.
 2. **Disable at tenant scope** if a feature toggle is exposed:
-   ```powershell
-   # Toggle path subject to change once GA; check release notes
-   Set-Agt225FeaturePolicy -FeatureName AgentSuggestions -State Disabled `
-       -JustificationText "Feature not yet risk-accepted; awaiting GA + AI Governance Lead review"
-   ```
+   Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 3. **If no toggle is exposed** (common during silent flighting): file a Microsoft service request requesting opt-out; in parallel, communicate to users via the change-management channel that the feature is not yet sanctioned.
 4. **Open Risk Register entry** noting the unsanctioned feature appearance, dates, and remediation.
 5. **Schedule risk review** when GA is announced; do **not** rely on the silently-flighted feature for any production workflow.
@@ -1037,9 +922,9 @@ examiner-prod-2026Q1/
 
 ### §15.2 Procedure
 
-1. **T-7d**: Validate `Get-Agt225Health -Verbose` returns `Channel: PreviewLatest`; capture baseline E-01..E-09.
+1. **T-7d**: Validate console health evidence returns `Channel: PreviewLatest`; capture baseline E-01..E-09.
 2. **T-1d**: Capture full evidence baseline (E-04, E-05, E-06, E-08).
-3. **T+0** (cutover window): Suspend non-essential bulk operations; monitor `Get-Agt225Health` every 15 min.
+3. **T+0** (cutover window): Suspend non-essential bulk operations; monitor console health evidence every 15 min.
 4. **T+0 → T+24h**: After cutover banner clears, validate `Channel: GA`. Re-run §2.6, §3.6, §5.7 verification suites.
 5. **T+24h → T+7d**: Monitor KQL-01 / KQL-02 / KQL-03 daily for elevated failure rates. Microsoft typically issues post-cutover hotfixes during this window.
 6. **T+7d**: Capture post-migration evidence baseline; archive comparison artifacts.
@@ -1048,7 +933,7 @@ examiner-prod-2026Q1/
 
 | Mode | Symptom | Action |
 |---|---|---|
-| Flighting flag stuck | `Channel: preview-deprecated` after cutover | §2.4 procedure |
+| Availability unresolved | Capture actual role, entitlement, feature, and service-health evidence; no preview-deprecated contract is established | §2.4 procedure |
 | Template prerequisite false-fail | `prerequisiteState: incomplete` despite no underlying change | Re-apply per §5.5; if persistent, file Microsoft service request |
 | Audit correlation-ID format change | KQL queries that parse correlation IDs may break | Update KQL parsers per Microsoft cutover release notes |
 | Researcher scope drift to default-on | Cross-link §9 RC-A | Apply §9.4 immediately |
@@ -1074,13 +959,11 @@ examiner-prod-2026Q1/
 ### §16.2 Procedure
 
 1. **Enumerate Zone 3 production agents**:
-   ```powershell
-   $z3 = Get-Agt225InventoryExport -Format Json -Filter "zone eq ''Enterprise'' and lifecycleState eq ''Published''"
-   ```
+   Use the manual evidence map in §1.1 and the current portal workflow. Record before/after state and the authorized change ticket. No executable diagnostic or mutation helper is supplied for this example.
 2. **For each agent, compile the approval-chain record**:
-   - Agent metadata: `Get-Agt225Agent -Id <id> -ExpandApprovalHistory`
+   - Agent metadata: agent-detail evidence
    - Approval audit: KQL filtered to `ApprovalRequest.Approved` for the agent ID
-   - Template binding: `Get-Agt225TemplateStatus -AgentId <id>`
+   - Template binding: template and downstream-policy evidence
    - Custom Template Access Package binding: `Get-MgEntitlementManagementAccessPackage -AccessPackageId <id>`
 3. **Identify gaps**: agents without an `ApprovalRequest.Approved` audit event are SOX exceptions and must be:
    - Documented in the SOX exception log
@@ -1121,11 +1004,11 @@ After any Sev1 or Zone-3 Sev2 incident under Control 2.25, the incident commande
 
 1. The triggering symptom is no longer reproducible (validated by re-running the relevant pillar §N.6 verification block).
 2. All evidence E-01..E-08 captured to `AgentGov-Evidence-225`.
-3. Pester suite for the affected pillar passes (`Invoke-Pester -Path ./tests/trg-225-NN.tests.ps1`).
+3. The affected manual verification procedures are evidenced; no TRG-225 Pester files are supplied.
 4. KQL-01 (console availability) and KQL-02 (queue ingestion) return baseline metrics for the most recent 1 h bin.
 5. No outstanding Microsoft service request blocking — OR open service request documented with target ETA in the incident record.
 6. FINRA 3110 manual-review fallback (if activated per §3.4) is formally stood down with the registered principal''s sign-off.
-7. Affected zone(s) re-validated: 10% sample of agents in the affected zone returns expected state via `Get-Agt225Agent`.
+7. Affected zone(s) re-validated: 10% sample of agents in the affected zone returns expected state via agent-detail evidence.
 
 ### §X.2 Post-Incident Attestation (E-09)
 
@@ -1138,7 +1021,7 @@ Severity: <Sev1|Sev2|Sev3>
 Window: <start ISO8601> to <end ISO8601>
 Root cause: <RC code(s) from §N.2>
 Evidence bundle: AgentGov-Evidence-225/<incident-id>/ (E-01..E-08 verified present)
-Verification: §X.1 checklist all items pass; pester TRG-225-NN green
+Verification: §X.1 checklist and corresponding manual evidence complete; unresolved dependencies listed
 FINRA 3110 fallback: <Activated|Not activated>; if activated, stood down with registered principal sign-off on <date>
 Residual risk: <description>
 Risk Register update: <Y|N>; ticket <ref>
@@ -1162,8 +1045,8 @@ Within 5 business days of incident close, the incident commander updates this tr
 
 - [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
 - [Verification & Testing §X — Recovery validation tests](./verification-testing.md)
-- [PowerShell Setup §5 — `Invoke-Agt225EvidenceSnapshot`](./powershell-setup.md)
+- [PowerShell Setup §5 — the approved manual evidence/change process](./powershell-setup.md)
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Control 1.2 helper dependency correction only)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation verified 2026-11-09; tenant execution pending)*

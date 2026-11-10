@@ -1,14 +1,16 @@
 # Verification & Testing — Control 2.25: Microsoft Agent 365 Admin Center Governance Console
 
-**Dependency contract reviewed 2026-10-16 (documentation only):** the companion PowerShell inventory, approvals, templates, Researcher-policy and mutation adapters are not implemented against verified APIs and now stop with `ManualEvidenceRequired`. That outcome blocks acceptance; it is not `Clean`, `NotApplicable` or proof of an empty tenant. Supply validated feature-specific adapters or approved manual evidence before running dependent assertions. Historical UI dates and independent feature claims below are not reverified by this note.
+**Last Verified:** 2026-11-09 (live Microsoft documentation review; no tenant or UI execution).
+
+**Execution boundary:** this is a manual evidence-verification playbook, not a shipped Pester harness. The previous suites depended on undefined `Get-Agent365*` functions and undocumented Graph contracts. The companion PowerShell adapters stop with `ManualEvidenceRequired`; that outcome blocks acceptance and is not `Clean`, `NotApplicable`, or proof of an empty tenant. The JSON below defines illustrative firm evidence records, not Microsoft API response schemas or actual passing results. Implement and independently validate any evidence assembler, signer, schema validator, or automation adapter before relying on its output.
 
 > **Examiner-defensible evidence package** for Control 2.25. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, and internal audit that every Microsoft 365 AI agent surfaced through the Microsoft Agent 365 Admin Center is licensed, admin-approved, owned, governance-template-bound, exception-monitored, inventory-exported, and (for the Researcher with Computer Use capability) configured per documented zone policy.
 >
-> **Scope:** Commercial M365 tenants holding Microsoft 365 E7 ("Frontier Suite") **or** the standalone Microsoft Agent 365 license layered on a Microsoft 365 Copilot prerequisite. Microsoft Agent 365 reached general availability on **May 1, 2026**.
+> **Scope:** US commercial-cloud Microsoft 365. Microsoft Agent 365 is available as a standalone subscription for eligible Microsoft 365 subscriptions and is included in Microsoft 365 E7. Copilot is not a universal prerequisite for standalone Agent 365. At least one user must have a qualifying Agent 365 license assigned to enable Agent 365. Basic registry and governance capabilities also exist in Microsoft 365 plans; verify entitlement separately for policy templates, observability, and package API access. Microsoft Agent 365 reached general availability on **May 1, 2026**.
 >
 > **Companion controls:** [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) feeds the OWNER and INVENTORY namespaces. [2.26 Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) provides the identity-layer prerequisite that 2.25 governance templates rely on for Zone 3 access-package binding. [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) consumes the SIEM forwarding namespace. [3.6 Orphaned Agent Detection & Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) consumes the OWNER namespace outputs.
 >
-> **Last UI verified:** April 2026 against the post-GA Microsoft 365 admin center build 2026.04.x and the Microsoft Agent 365 Admin Center release of the same build.
+> **Last UI verified:** Not established by this review. The previous April 2026 "post-GA" build claim was inconsistent with the May 1, 2026 GA date and is withdrawn. Capture dated tenant evidence before operational sign-off.
 >
 > **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself confirm compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
 
@@ -16,15 +18,36 @@
 
 ## Document Conventions
 
+### Microsoft documentation verification ledger
+
+The following technical corrections apply to the control, its implementation guides, and all evidence acceptance below. Regulatory mappings, retention obligations, and firm approval policy are unchanged.
+
+| Claim checked | Verified product contract and evidence consequence | Primary Microsoft source |
+|---|---|---|
+| Availability and licensing | GA May 1, 2026; standalone Agent 365 with eligible Microsoft 365 subscriptions or included in E7. At least one qualifying user assignment enables Agent 365. Purchased SKU capacity alone does not establish assignment. Do not infer entitlement from guessed SKU prefixes. | [Overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview), [service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-agent-365/microsoft-agent-365) |
+| Roles | AI Administrator and Entra Global Admin manage agents; AI Reader and Entra Global Reader can view registry and insights. AI Governance Lead is a firm responsibility, not an Entra role. AI Administrator alone cannot configure Conditional Access or Entra access-package policies. | [Roles and permissions](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-roles-perms), [activation policies](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-actions#activate-agents) |
+| Navigation and request queue | Use **Agents > Overview** and **Agents > All agents > Registry / Requests**. Pending Requests shows three requests, newest first; it is not an oldest-first SLA report. Review the full Requests list and actual request dates. | [Agent management](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview), [requests](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-requests) |
+| Metrics and exceptions | Overview hero metrics are Agent registry, Active users, Agent run-time, and Registry sync. Agents with exceptions is an actionable count/view. A derived rate is **100 × sessions with errors / sessions** from supported per-agent Activity data for the same period; higher is worse, zero sessions means no rate. It is not a governance-template variance rate or a native Overview percentage. | [Overview metrics](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview#agent-card-details), [agent activity](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-activity) |
+| Registry coverage and export | Registry visibility depends on supported platform integrations; draft visibility currently covers Copilot Studio only. Learn describes CSV export and an Excel export with **All agents / Filtered agents** scope. Inspect the actual format, headers, filters, and source coverage. Approval attribution, zone, and template fields are firm evidence requirements, not guaranteed export columns. | [Registry](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-registry-overview) |
+| Graph and SDK | The documented package route is `/v1.0/copilot/admin/catalog/packages` (also documented in beta), with `CopilotPackages.Read.All` and Agent 365 licensing. Follow every opaque `@odata.nextLink`. Pending requests can be filtered with `requestStatus eq 'pending'`; `lastModifiedDateTime` is **not** the submission date. No cited source establishes `/beta/agentGovernance`, `/beta/admin/agent365`, `AgentGovernance.Read.All`, or the old helper names as Microsoft contracts. | [List packages](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/api/admin-settings/package/copilotpackages-list), [registry API overview](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/graph-api) |
+| Templates | Default template policies now include Entra network visibility, SharePoint content permissions insights, Purview Know your data, and Defender capabilities as well as identity, lifecycle, access, and audit policies. These are not exclusively custom additions. License assignment is documented during activation. Capture actual template and downstream policy state; a template name is not proof of enforcement. | [Lifecycle actions and default template policies](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-actions) |
+| Settings and suggestions | Security templates are under **Agents > Settings > Security templates**. Agent management rules have feature-specific scope; applying a template by rule is a one-time bulk action, not scheduled enforcement. No dedicated agent-suggestions policy or its availability date was established; keep that claim unresolved rather than infer GA or unavailability. | [Agent settings](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-settings) |
+| Lifecycle and updates | Install/Uninstall, Block/Unblock, and Delete/Restore/Permanently delete have distinct effects. Delete is soft deletion with a 30-day recovery window; permanent deletion is separate. Blocking Foundry or SharePoint agents affects Copilot Chat availability, not all source-platform execution. Pending updates leave the previous version accessible until approval. | [Agent actions](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-actions), [pending updates](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-requests#requested-agents-pending-update) |
+| Agent instances | Current documentation describes AI teammate instances with their own Entra identity, license, mailbox, OneDrive, and Teams presence. Historical May 1 preview references are not current feature-availability evidence and do not determine the firm's autonomy policy. | [Agent instances](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-instances) |
+| Researcher Computer Use | Use the admin **Agents > Researcher > Computer use** configuration. Capture all/specific/no-user scope, admin work-data access, and website policy. Even when admins enable work access, users must manually enable Work. The configuration source does not establish an October 2025 GA date, universal default-on, or a Graph policy endpoint; these claims are withdrawn. Test the tenant's available capability rather than assume availability. | [Researcher configuration](https://learn.microsoft.com/en-us/copilot/manage/researcher-agent-computer-use), [agent details](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#computer-use) |
+| SIEM retention and schema | These namespace/category names are firm evidence labels, not guaranteed native audit events. Validate source events, ingestion, and retrieval. Log Analytics analytics retention is at most 730 days; multi-year retention uses table total/long-term retention or separately retained exports, not a six-year workspace analytics setting. | [Log Analytics retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure) |
+
+**Unknowns requiring tenant evidence:** rollout-specific UI labels, actual license identifiers and assignments, per-platform inventory completeness, template enforcement, API response coverage, Researcher availability, and SIEM event mapping. No screenshots were captured and no tenant configuration was changed in this review.
+
 | Convention | Value |
 |---|---|
 | PowerShell baseline | PowerShell 7.4+ Core; `#Requires -Version 7.4` at the top of every executable script. |
-| Test framework | Pester 5.5+. All assertions use `Should` with `-Because` clauses to make examiner traceability explicit. |
+| Test framework | Manual checks below. Pester 5.5+ is an optional firm harness choice, not a delivered implementation. |
 | Output discipline | No `Write-Host`. All evidence emitted as structured `[pscustomobject]` instances via `Write-Output`, then serialized with `ConvertTo-Json -Depth 8` to evidence files. |
 | Evidence retention | Six (6) years on WORM-protected storage for the full signed evidence pack — aligning to FINRA Rule 4511 / SEC Rule 17a-4(f). The 3-year minimum applies only to non-supervisory administrative artifacts the firm has documented as out-of-scope of supervisory recordkeeping. |
 | Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (see §10.4). |
 | Run identifier | Every test run is tagged `AGT225-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
-| Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). At GA, **Entra Global Admin** and **AI Administrator** are the only Agent 365-capable administrative roles; **Entra Global Reader** provides read-only verification access. |
+| Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). **AI Administrator** and **Entra Global Admin** can manage agents; **AI Reader** and **Entra Global Reader** provide read-only verification access. |
 
 > This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under the regulations enumerated above. It is one component of a defensible AI governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices required by Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12), or the firm's own legal review.
 
@@ -34,16 +57,16 @@
 
 ### 0.1 Operator role prerequisites
 
-The operator running this playbook must hold one of the following Entra role assignments, scoped to the tenant under test, and activated through Microsoft Entra Privileged Identity Management (PIM) for the duration of the test run. Read-only assertions in §2–§9 are deliberately separated from any write actions; the Pester suites in this playbook **do not perform remediation**. Remediation runbooks referenced from failure paths (e.g., `Set-Agent365TemplateBulk`, `Invoke-Agent365PendingApprovalDrain`) live in the sister [PowerShell Setup](./powershell-setup.md) playbook and require their own change tickets and write scopes.
+Use documented product roles for the surface under review and separately assigned firm responsibilities for approval/sign-off. Apply the firm's PIM policy to privileged access. Read-only assertions in §2–§9 are separated from write actions; these manual verification procedures **do not perform remediation**. The previously named `Set-Agent365TemplateBulk` and `Invoke-Agent365PendingApprovalDrain` functions are not supplied implementations. Follow the supported portal procedure under an approved change ticket; companion mutation adapters stop with `ManualEvidenceRequired`.
 
 | Role (canonical) | Required for | PIM activation window |
 |---|---|---|
-| Entra Global Admin | Tenant-scope reads in §2 (license SKU enumeration), §6 (governance template definition reads), §8 (Researcher with Computer Use policy reads); emergency execution of remediation runbooks | 2 hours, JIT, with ticketed justification |
-| AI Administrator | Day-to-day reads against the Microsoft Agent 365 Admin Center: agent inventory (§3, §4, §5, §7), pending approvals queue (§3), governance template assignments (§6), exception-rate metric (§8), Researcher with Computer Use policy (§9). Read-only operations only in this playbook. | 4 hours, JIT |
-| Entra Global Reader | Evidence-only verification access where AI Administrator is unavailable; supports the dual-control witness pattern in §10.4 | 4 hours |
-| Purview Compliance Admin | Read access to Purview audit retention labels referenced by Agent 365 governance templates (§6); read access to the Audit (Premium) search that backs the SIEM forwarding evidence in §9 | 4 hours |
+| Entra Global Admin | Privileged tenant administration or emergency remediation when required; do not make this role a prerequisite for all read-only verification | 2 hours, JIT, with ticketed justification |
+| AI Administrator | Day-to-day Agents administration: pending requests (§3), ownership (§4), templates (§5), inventory (§6), activity evidence (§7), and Researcher settings (§8). Read-only operations only in this playbook; verify Billing and separate service permissions independently. | 4 hours, JIT |
+| AI Reader / Entra Global Reader | Evidence-only registry and insights access; use documented roles for each additional evidence source | Per firm policy |
+| Purview Compliance Admin | Purview-side evidence for template policy bindings (§5) and audit forwarding (§9); confirm the actual Audit and retention permissions required for the selected operation separately | 4 hours |
 | Power Platform Admin | Read access to Microsoft Copilot Studio environment governance metadata for agents that surface in Agent 365 from Copilot Studio (cross-referenced in §6) | 2 hours |
-| AI Governance Lead | Counter-signs the quarterly attestation packet in §13; reviews Pending Requests and Ownerless Agents governance cards on the documented cadence; signs the evidence pack in §10 | Standing assignment with quarterly recertification per Control 2.8 |
+| AI Governance Lead | Firm responsibility, not an Entra built-in role: counter-signs the quarterly attestation packet in §13; reviews governance evidence; signs the evidence pack in §10 | Standing assignment with quarterly recertification per Control 2.8 |
 | Compliance Officer | Counter-signs the quarterly attestation packet in §13 and signs Zone 3 governance template variances | Standing |
 | Information Security Officer | Reviews exception-rate threshold variances; reviews Researcher with Computer Use Zone 3 configurations | Standing |
 | Technology Risk Manager | Receives the §10 evidence pack and integrates it into the firm's technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC 2011-12) | Standing |
@@ -53,7 +76,7 @@ The operator running this playbook must hold one of the following Entra role ass
 
 ### 0.2 Module baseline
 
-Pin to specific module versions to keep evidence packs reproducible across machines and over time. Re-validate against newer module versions before promoting them to the standing schedule.
+The module list below is a historical firm harness example, not a Microsoft minimum or a validated Agent 365 module distribution. Manual portal verification does not require these modules. Validate each SDK operation and pin only the modules your approved implementation uses.
 
 ```powershell
 #Requires -Version 7.4
@@ -70,20 +93,20 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
 ```
 
-> **Note on Agent 365 admin Graph endpoints.** At GA, Microsoft exposes the Agent 365 governance objects (agent inventory, pending publish/activate requests, governance templates, ownerless agents) under the `/beta/agentGovernance` Graph branch. The exact noun names and module distribution (e.g., whether they ship in `Microsoft.Graph.Beta.Applications` or in a dedicated `Microsoft.Graph.Beta.AgentGovernance` module) are still settling across the 2026 Wave 1 release cycle. The functions referenced in this playbook (`Get-Agent365Inventory`, `Get-Agent365PendingApproval`, `Get-Agent365OwnerlessAgent`, `Get-Agent365GovernanceTemplateAssignment`, `Get-Agent365ExceptionMetric`, `Get-Agent365ResearcherComputerUsePolicy`) are thin wrappers in the sister [PowerShell Setup](./powershell-setup.md) playbook that abstract the underlying Graph URI. **Re-verify the module name and noun set after each Microsoft release wave.**
+> **Graph boundary:** use the documented package API and `CopilotPackages.Read.All` described in the ledger. The old `Get-Agent365*` names are neither Microsoft cmdlets nor implemented wrappers in the companion guide. There is no verified unified governance API or SDK module behind those names. Use manual evidence for fields and policies not supplied by an independently validated adapter.
 
 ### 0.3 PRE gates (must all pass before §2–§9 execute)
 
-The bootstrap script `Invoke-Agt225PreFlight.ps1` runs seven pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
+The operator records these seven pre-flight gates. `Invoke-Agt225PreFlight.ps1` is not supplied by this repository. A failed or unverified gate blocks acceptance; retain the gate results as `preflight-FAILED-<runId>.json` using the firm's approved evidence process.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
-| Module presence | PRE-01 | Confirms required modules loaded at the pinned versions in §0.2 | HALT |
-| Graph context | PRE-02 | Confirms `Connect-MgGraph` established with required scopes (`AgentGovernance.Read.All`, `Directory.Read.All`, `Application.Read.All`, `User.Read.All`, `Reports.Read.All`, `AuditLog.Read.All`) | HALT |
+| Module presence | PRE-01 | For optional automation only, confirms approved modules and documented operation contracts; manual review records this dependency as not used | HALT |
+| Graph context | PRE-02 | For optional package collection, confirms documented `CopilotPackages.Read.All`, role, tenant, and entitlement; grant other scopes only for their documented feature-specific operations | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| License gate | PRE-04 | Confirms tenant holds either Microsoft 365 E7 (`SkuPartNumber -like 'M365_E7*'`) **or** standalone Agent 365 (`SkuPartNumber -like 'Microsoft_Agent_365*'`), AND at least one Microsoft 365 Copilot SKU (`SkuPartNumber -like 'Microsoft_365_Copilot*'`) | HALT — Agent 365 requires both license layers |
-| Agent 365 admin blade reachability | PRE-05 | Probes `/beta/agentGovernance/inventory?$top=1` for HTTP 200 | If 404/403/501: HALT |
-| Clock skew gate | PRE-06 | Compares local UTC to the `Date` header from the Graph response; aborts if drift exceeds 60 seconds | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
+| License gate | PRE-04 | Confirms the feature's actual eligible subscription and assigned qualifying Agent 365 user entitlement; do not use guessed SKU-prefix matching | HALT — required feature entitlement or assignment not evidenced |
+| Agent 365 admin blade reachability | PRE-05 | Opens Agents > Overview and All agents > Registry under the intended role; optional API tests are recorded separately | If the required surface is inaccessible or unverified: HALT |
+| Clock skew gate | PRE-06 | Verifies capture-system UTC against the firm's trusted clock; the 60-second tolerance is firm policy, not a documented Agent 365 API guarantee | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
 | Evidence root writeable | PRE-07 | Confirms `$env:AGT225_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage (validated by checking the parent storage account's immutability policy where applicable) | HALT |
 
 ### 0.4 Run identifier and evidence root
@@ -107,7 +130,7 @@ Every evidence record produced in §2–§9 is written under `$script:EvidenceRo
 
 ## §1 Namespace Catalog
 
-The eight Verification Criteria from [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) (the "VCs") are evidenced by eight test namespaces. Each namespace produces independent evidence records that combine into a single signed evidence pack (§10). A ninth cross-cutting namespace (SIEM) rounds out the suite.
+The eight Verification Criteria from [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) (the "VCs") are evidenced by eight test namespaces. Each namespace produces independent evidence records that combine into a single signed evidence pack (§10). The eight namespaces include the cross-cutting SIEM evidence check; APPROVAL covers VC-2 and VC-4.
 
 | Namespace | Section | Evidences VC | Cadence | Owner |
 |---|---|---|---|---|
@@ -124,7 +147,7 @@ Each namespace section follows an identical 8-part structure, mirroring the sist
 
 1. **Criterion mapping** — explicit pointer to which numbered VC in Control 2.25 §Verification Criteria is satisfied.
 2. **Pre-conditions** — what must already be true (PRE gates passed; reference data present; Graph scopes granted).
-3. **Pester suite** — `Describe "AGT225-{NS}" { Context "Zone {1|2|3}" { It "..." } }` using PowerShell 7.4 / Pester 5.5 syntax.
+3. **Manual verification procedure** — collect current source evidence, reconcile firm policy, and record unresolved dependencies before assigning a result.
 4. **Sample passing JSON evidence record** — exact shape that flows into the evidence pack.
 5. **Sample failing JSON evidence record** with a remediation pointer to §11.
 6. **Examiner artifact** — filename pattern, retention duration, signing policy.
@@ -133,7 +156,7 @@ Each namespace section follows an identical 8-part structure, mirroring the sist
 
 ### 1.1 Evidence record schema (canonical)
 
-Every evidence record produced by every namespace MUST conform to this schema. The schema is enforced by `Test-Agt225EvidenceSchema` in §10.5; the pack assembler refuses to publish a pack containing any record that fails schema validation.
+Every evidence record produced by every namespace MUST conform to this schema. The firm's implemented validator must enforce this schema before signing. Neither Test-Agt225EvidenceSchema nor a validated pack assembler is supplied; see §10.5.
 
 ```json
 {
@@ -174,7 +197,7 @@ Field semantics:
 |---|---|---|
 | `control_id` | string | Always `"2.25"` for this playbook. |
 | `run_id` | string | Output of `New-Agt225RunId`; identical across every record in a single run. |
-| `run_timestamp` | ISO-8601 string | Captured at `BeforeAll` time, frozen for the run. |
+| `run_timestamp` | ISO-8601 string | Captured when the manual verification run starts, frozen for the run. |
 | `tenant_id` / `tenant_display_name` | string | From PRE-03. |
 | `cloud` | enum | `Commercial / Unknown`. |
 | `zone` | enum | `1 / 2 / 3 / all`. `all` is used for tenant-wide records (e.g., LICENSE, SIEM). |
@@ -188,7 +211,7 @@ Field semantics:
 | `evidence_artifacts` | array | Filenames (relative to evidence root) of the supporting artifacts. |
 | `regulator_mappings` | array | Citation tokens from the controlled vocabulary in §1.2. |
 | `remediation_ref` | string or null | A `TRG-{NS}-NN` pointer into §11 when `status != 'PASS'`. |
-| `operator_upn` | string | UPN of the operator who ran the test (from `Get-MgContext`). |
+| `operator_upn` | string | Verified operator identity from the evidence source; `Get-MgContext` is relevant only when optional Graph collection is used. |
 | `schema_version` | string | Always `"1.0"` for this playbook revision. |
 
 ### 1.2 Regulator mapping vocabulary
@@ -216,110 +239,23 @@ Field semantics:
 
 ### 2.1 Criterion mapping
 
-This namespace evidences **VC-1: Agent 365 licensing confirmed**. The test asserts that the tenant under examination holds a license entitlement that surfaces the Microsoft Agent 365 Admin Center governance console and its Agents blade — specifically Microsoft 365 E7 ("Frontier Suite") **or** standalone Microsoft Agent 365 layered on the required Microsoft 365 Copilot prerequisite. Without this entitlement, none of the downstream criteria (VC-2 through VC-8) can be evidenced because the governance surface itself is absent from the tenant.
+This namespace evidences **VC-1: Agent 365 licensing confirmed**. The test asserts that the tenant under examination holds a license entitlement that surfaces the Microsoft Agent 365 Admin Center governance console and its Agents blade — with the required feature-specific entitlements and at least one qualifying Agent 365 user assignment for Agent 365 enablement. Basic registry/governance access may exist through eligible Microsoft 365 plans without Agent 365-only features. Verify each criterion's entitlement separately.
 
 ### 2.2 Pre-conditions
 
-- PRE-01 through PRE-08 passed (§0.3).
+- PRE-01 through PRE-07 passed or explicitly recorded as unused optional automation dependencies (§0.3).
 - The operator has **AI Administrator** activated via PIM with a justification that references this playbook ID.
-- `Microsoft.Graph.Identity.DirectoryManagement` v2.25 imported.
+- Optional SDK collection uses independently validated operations and approved module pins; manual portal review does not require the historical module baseline.
 - The firm's License Catalog reference data (`license-catalog.json`, maintained by the Identity Engineering team per Control 2.4) is available at `$env:AGT225_LICENSE_CATALOG`. This file enumerates the SKU partnumbers the firm has procured and is the source of truth for whether a SKU is "current" or "deprecated".
 
-### 2.3 Pester suite
+### 2.3 Manual verification procedure
 
-```powershell
-#Requires -Version 7.4
-#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.5.0' }
+1. Open **Billing > Licenses** and record the actual product identifiers, purchased capacity, enabled service plans, and assigned users. Confirm at least one qualifying Agent 365 user assignment for Agent 365 enablement; distinguish basic Microsoft 365 registry access from Agent 365-only features.
+2. Record the eligible Microsoft 365 base subscription and the entitlement for each feature under test. Do not require a separate Copilot SKU solely because standalone Agent 365 is used.
+3. Open **Agents > Overview** and **Agents > All agents > Registry** under the intended role. Capture tenant ID, operator role, timestamp, and errors. API reachability is a separate test, not proof of portal access.
+4. Compare the observed identifiers with the firm's current, approved license catalog. Missing assignment evidence is `ERROR`/`ManualEvidenceRequired`, not PASS.
 
-Describe "AGT225-LICENSE" -Tag 'AGT225','VC-1' {
-
-    BeforeAll {
-        $script:runId   = $script:RunId
-        $script:runTs   = $script:RunTimestamp
-        $script:catalog = Get-Content $env:AGT225_LICENSE_CATALOG | ConvertFrom-Json
-        $script:skus = Get-MgSubscribedSku -All |
-            Select-Object SkuId, SkuPartNumber, ConsumedUnits,
-                          @{n='Enabled'; e={$_.PrepaidUnits.Enabled}}
-
-    }
-
-
-    Context "Tenant holds Agent 365-eligible license" {
-
-        It "has at least one M365 E7 OR standalone Agent 365 SKU with Enabled > 0" {
-            $eligible = $script:skus | Where-Object {
-                ($_.SkuPartNumber -like 'M365_E7*') -or
-                ($_.SkuPartNumber -like 'Microsoft_Agent_365*')
-            } | Where-Object Enabled -gt 0
-
-            $rec = New-Agt225EvidenceRecord -Namespace 'LICENSE' -Criterion 'VC-1' `
-                -Zone 'all' -SubjectId 'tenant-license-posture' -SubjectType 'inventory_export' `
-                -Status (if ($eligible) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Tenant holds at least one Agent 365-eligible SKU with Enabled > 0' `
-                -Observed @{ matched_skus = @($eligible | ForEach-Object SkuPartNumber) } `
-                -Expected @{ matched_skus = '>= 1 of M365_E7* or Microsoft_Agent_365*' } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4','SOX-404','OCC-2011-12') `
-                -RemediationRef (if (-not $eligible) { 'TRG-LICENSE-01' } else { $null })
-            $rec | Save-Agt225Evidence
-            $eligible | Should -Not -BeNullOrEmpty -Because 'VC-1 requires an Agent 365-bearing SKU'
-        }
-
-        It "has at least one Microsoft 365 Copilot prerequisite SKU with Enabled > 0" {
-            $copilot = $script:skus | Where-Object {
-                $_.SkuPartNumber -like 'Microsoft_365_Copilot*'
-            } | Where-Object Enabled -gt 0
-
-            $rec = New-Agt225EvidenceRecord -Namespace 'LICENSE' -Criterion 'VC-1' `
-                -Zone 'all' -SubjectId 'tenant-copilot-prereq' -SubjectType 'inventory_export' `
-                -Status (if ($copilot) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Tenant holds at least one Microsoft 365 Copilot prerequisite SKU' `
-                -Observed @{ matched_skus = @($copilot | ForEach-Object SkuPartNumber) } `
-                -Expected @{ matched_skus = '>= 1 of Microsoft_365_Copilot*' } `
-                -RegulatorMappings @('FINRA-25-07','OCC-2011-12') `
-                -RemediationRef (if (-not $copilot) { 'TRG-LICENSE-02' } else { $null })
-            $rec | Save-Agt225Evidence
-            $copilot | Should -Not -BeNullOrEmpty -Because 'Agent 365 requires the Copilot prerequisite'
-        }
-
-        It "Agents blade is reachable via Graph beta endpoint" {
-            $probe = $null
-            try { $probe = Invoke-MgGraphRequest -Method GET `
-                    -Uri 'https://graph.microsoft.com/beta/agentGovernance/inventory?$top=1' `
-                    -OutputType PSObject } catch { $probe = $_ }
-
-            $ok = $probe -and $probe.value -ne $null
-            $rec = New-Agt225EvidenceRecord -Namespace 'LICENSE' -Criterion 'VC-1' `
-                -Zone 'all' -SubjectId 'agent-365-blade-reachability' -SubjectType 'inventory_export' `
-                -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Agent 365 governance Graph endpoint returns 200 with inventory shape' `
-                -Observed @{ http_ok = [bool]$ok } `
-                -Expected @{ http_ok = $true } `
-                -RegulatorMappings @('FINRA-25-07','OCC-2011-12','FFIEC-MGMT') `
-                -RemediationRef (if (-not $ok) { 'TRG-LICENSE-03' } else { $null })
-            $rec | Save-Agt225Evidence
-            $ok | Should -BeTrue -Because 'Without blade reachability, VC-2..VC-8 cannot be evidenced'
-        }
-
-        It "License catalog reference data lists every observed SKU as 'current'" {
-            $observed = $script:skus | Where-Object Enabled -gt 0 | ForEach-Object SkuPartNumber
-            $deprecated = $observed | Where-Object {
-                ($script:catalog.skus | Where-Object partNumber -eq $_).status -eq 'deprecated'
-            }
-            $status = if ($deprecated.Count -eq 0) { 'PASS' } else { 'WARN' }
-            $rec = New-Agt225EvidenceRecord -Namespace 'LICENSE' -Criterion 'VC-1' `
-                -Zone 'all' -SubjectId 'license-catalog-currency' -SubjectType 'inventory_export' `
-                -Status $status `
-                -Assertion 'No SKU in tenant is flagged deprecated in firm license catalog' `
-                -Observed @{ deprecated_skus = @($deprecated) } `
-                -Expected @{ deprecated_skus = @() } `
-                -RegulatorMappings @('OCC-2011-12','FFIEC-MGMT') `
-                -RemediationRef (if ($deprecated.Count -gt 0) { 'TRG-LICENSE-04' } else { $null })
-            $rec | Save-Agt225Evidence
-            $deprecated.Count | Should -Be 0 -Because 'Deprecated SKUs warrant procurement review'
-        }
-    }
-}
-```
+Use the [licensing sources in the ledger](#microsoft-documentation-verification-ledger). Raw SKU counts alone do not prove this criterion.
 
 ### 2.4 Sample passing evidence record
 
@@ -338,8 +274,8 @@ Describe "AGT225-LICENSE" -Tag 'AGT225','VC-1' {
   "subject_type": "inventory_export",
   "status": "PASS",
   "assertion": "Tenant holds at least one Agent 365-eligible SKU with Enabled > 0",
-  "observed_value": { "matched_skus": ["M365_E7"] },
-  "expected_value": { "matched_skus": ">= 1 of M365_E7* or Microsoft_Agent_365*" },
+  "observed_value": { "qualifying_user_assignment_verified": true },
+  "expected_value": { "qualifying_user_assignment_verified": true },
   "evidence_artifacts": ["license-skus-AGT225-20260415-093012-a1b2c3d4.json"],
   "regulator_mappings": ["FINRA-4511","SEC-17a-4","SOX-404","OCC-2011-12"],
   "remediation_ref": null,
@@ -361,12 +297,12 @@ Describe "AGT225-LICENSE" -Tag 'AGT225','VC-1' {
   "zone": "all",
   "namespace": "LICENSE",
   "criterion": "VC-1",
-  "subject_id": "tenant-copilot-prereq",
+  "subject_id": "tenant-agent365-assignment",
   "subject_type": "inventory_export",
   "status": "FAIL",
-  "assertion": "Tenant holds at least one Microsoft 365 Copilot prerequisite SKU",
-  "observed_value": { "matched_skus": [] },
-  "expected_value": { "matched_skus": ">= 1 of Microsoft_365_Copilot*" },
+  "assertion": "A qualifying Agent 365 user assignment is evidenced",
+  "observed_value": { "qualifying_user_assignment_verified": false },
+  "expected_value": { "qualifying_user_assignment_verified": true },
   "evidence_artifacts": ["license-skus-AGT225-20260415-093012-a1b2c3d4.json"],
   "regulator_mappings": ["FINRA-25-07","OCC-2011-12"],
   "remediation_ref": "TRG-LICENSE-02",
@@ -389,16 +325,16 @@ Describe "AGT225-LICENSE" -Tag 'AGT225','VC-1' {
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
-| Z1 (Personal) | All four `It` blocks PASS | Catalog currency check WARNs | Eligible SKU or Copilot prereq missing |
-| Z2 (Team) | All four PASS | Catalog currency WARN | Same as Z1 — license absence blocks all downstream |
-| Z3 (Enterprise) | All four PASS, plus license has been re-attested in the trailing 90 days | Re-attestation > 90 days but < 180 days | Eligible SKU absent OR re-attestation > 180 days |
+| Z1 (Personal) | All four manual checks evidenced | Catalog currency check WARNs | Required feature entitlement or qualifying user assignment missing |
+| Z2 (Team) | All four manual checks evidenced | Catalog currency WARN | Same as Z1 — license absence blocks all downstream |
+| Z3 (Enterprise) | All four manual checks evidenced, plus license has been re-attested in the trailing 90 days | Re-attestation > 90 days but < 180 days | Required feature entitlement/assignment absent OR re-attestation > 180 days |
 
 ### 2.8 Regulator mapping
 
 | Test | FINRA-3110 | FINRA-4511 | FINRA-25-07 | SEC-17a-4 | SOX-404 | GLBA-501b | OCC-2011-12 | NYDFS-500 | FFIEC-MGMT |
 |---|---|---|---|---|---|---|---|---|---|
 | Eligible SKU present | — | ✓ | ✓ | ✓ | ✓ | — | ✓ | — | ✓ |
-| Copilot prereq present | — | — | ✓ | — | — | — | ✓ | — | ✓ |
+| Qualifying user assignment evidenced | — | — | ✓ | — | — | — | ✓ | — | ✓ |
 | Blade reachable | ✓ | — | ✓ | — | — | — | ✓ | — | ✓ |
 | Catalog currency | — | — | — | — | ✓ | — | ✓ | — | ✓ |
 
@@ -413,7 +349,7 @@ This namespace evidences **two** Verification Criteria simultaneously because th
 - **VC-2: Admin approval workflow enforced.** Quarterly sample of N ≥ 10 production agents shows non-null `approverUpn` and `approvalTimestamp`, and each approval traces to a Control 2.3 change ticket.
 - **VC-4: Pending requests resolved within firm SLA.** Pending publish/activate requests visible in the Agent 365 admin queue are resolved within the firm's documented SLA — illustratively 5 business days for Z2 and 1 business day for Z3 (the firm sets these in policy; this playbook reads `$env:AGT225_SLA_Z2_BD` and `$env:AGT225_SLA_Z3_BD`).
 
-> **Firm SLA values are illustrative.** The 5 BD / 1 BD values shown here are placeholders. The firm's AI Governance Council sets the production SLA values, documents them in policy, and re-affirms them annually. The Pester suite reads these values from environment variables so the threshold is not hard-coded into the test.
+> **Firm SLA values are illustrative.** The 5 BD / 1 BD values shown here are placeholders. The firm's AI Governance Council sets the production SLA values, documents them in policy, and re-affirms them annually. Manual review uses the firm's approved values; environment-variable names below are optional harness inputs, not evidence that a harness is implemented.
 
 ### 3.2 Pre-conditions
 
@@ -423,125 +359,15 @@ This namespace evidences **two** Verification Criteria simultaneously because th
 - Reference data: `$env:AGT225_APPROVAL_SAMPLE_N` (default 10) — sample size for VC-2.
 - Reference data: `$env:AGT225_SLA_Z2_BD` (default 5) and `$env:AGT225_SLA_Z3_BD` (default 1) — pending-request SLA in business days.
 
-### 3.3 Pester suite
+### 3.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-APPROVAL" -Tag 'AGT225','VC-2','VC-4' {
+1. Open **Agents > All agents > Requests**. Review all relevant request states (Pending review, Pending update, Pending activate), not only the three newest requests shown on Overview.
+2. Capture actual request dates, request type, agent identifier, disposition, reviewer, and the firm's zone classification. Compute age against the firm's business calendar and configured SLA.
+3. Reconcile approval samples with retained approval evidence and Control 2.3 tickets. Approver, approval date, and change-ticket ID may need approved manual records; they are not guaranteed registry export fields.
+4. For an approved test change in a non-production tenant, capture before/after request and availability state. Verify pending updates leave the previous version accessible before approval.
+5. If using the documented package request filters, follow all pages. Do not substitute package `lastModifiedDateTime` for request submission or approval time. Unavailable attribution or queue coverage blocks acceptance.
 
-    BeforeAll {
-        $script:n     = [int]($env:AGT225_APPROVAL_SAMPLE_N ?? 10)
-        $script:sla2  = [int]($env:AGT225_SLA_Z2_BD ?? 5)
-        $script:sla3  = [int]($env:AGT225_SLA_Z3_BD ?? 1)
-        $script:approved = Get-Agent365Inventory -Status 'Approved' -PageSize 999
-        $script:pending  = Get-Agent365PendingApproval -PageSize 999
-
-    }
-
-
-    Context "VC-2: Sample of approved agents has non-null approver + timestamp + change ticket" {
-
-        It "Quarterly sample of N>=10 approved agents per zone has non-null approverUpn" {
-            foreach ($zone in '2','3') {
-                $pool   = $script:approved | Where-Object zone -eq $zone
-                $sample = $pool | Get-Random -Count ([Math]::Min($script:n, $pool.Count))
-                $bad    = $sample | Where-Object { -not $_.approverUpn }
-                $rec = New-Agt225EvidenceRecord -Namespace 'APPROVAL' -Criterion 'VC-2' `
-                    -Zone $zone -SubjectId "approval-sample-z$zone" -SubjectType 'pending_approval' `
-                    -Status (if ($bad.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                    -Assertion "Z$zone approval sample (n=$($sample.Count)) has non-null approverUpn" `
-                    -Observed @{ sample_size = $sample.Count; null_approver_count = $bad.Count;
-                                 null_approver_ids = @($bad | ForEach-Object id) } `
-                    -Expected @{ null_approver_count = 0 } `
-                    -RegulatorMappings @('FINRA-3110','FINRA-4511','SEC-17a-3','SOX-404','OCC-2011-12') `
-                    -RemediationRef (if ($bad.Count -gt 0) { 'TRG-APPROVAL-01' } else { $null }) `
-                    | Save-Agt225Evidence
-                $bad.Count | Should -Be 0 -Because "VC-2 requires non-null approver in Z$zone sample"
-            }
-        }
-
-        It "Sample agents have non-null approvalTimestamp within the trailing 365 days" {
-            foreach ($zone in '2','3') {
-                $pool   = $script:approved | Where-Object zone -eq $zone
-                $sample = $pool | Get-Random -Count ([Math]::Min($script:n, $pool.Count))
-                $cutoff = (Get-Date).ToUniversalTime().AddDays(-365)
-                $bad    = $sample | Where-Object {
-                    -not $_.approvalTimestamp -or [datetime]$_.approvalTimestamp -lt $cutoff
-                }
-                $rec = New-Agt225EvidenceRecord -Namespace 'APPROVAL' -Criterion 'VC-2' `
-                    -Zone $zone -SubjectId "approval-timestamp-z$zone" -SubjectType 'pending_approval' `
-                    -Status (if ($bad.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                    -Assertion "Z$zone approval timestamps are non-null and within 365 days" `
-                    -Observed @{ stale_or_null_count = $bad.Count;
-                                 stale_ids = @($bad | ForEach-Object id) } `
-                    -Expected @{ stale_or_null_count = 0 } `
-                    -RegulatorMappings @('FINRA-4511','SEC-17a-4','SOX-302','SOX-404') `
-                    -RemediationRef (if ($bad.Count -gt 0) { 'TRG-APPROVAL-02' } else { $null }) `
-                    | Save-Agt225Evidence
-                $bad.Count | Should -Be 0 -Because 'Stale approvals warrant re-attestation per Control 2.8'
-            }
-        }
-
-        It "Each sampled approval resolves to a valid Control 2.3 change ticket" {
-            foreach ($zone in '2','3') {
-                $pool   = $script:approved | Where-Object zone -eq $zone
-                $sample = $pool | Get-Random -Count ([Math]::Min($script:n, $pool.Count))
-                $unresolved = @()
-                foreach ($a in $sample) {
-                    $r = Resolve-Agt225ChangeTicket -TicketId $a.changeTicketId
-                    if (-not $r.exists -or $r.state -notin @('Closed','Implemented')) {
-                        $unresolved += [pscustomobject]@{ agent_id = $a.id; ticket = $a.changeTicketId; state = $r.state }
-                    }
-                }
-                $rec = New-Agt225EvidenceRecord -Namespace 'APPROVAL' -Criterion 'VC-2' `
-                    -Zone $zone -SubjectId "approval-ticket-trace-z$zone" -SubjectType 'pending_approval' `
-                    -Status (if ($unresolved.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                    -Assertion "Z$zone approvals each trace to a closed Control 2.3 change ticket" `
-                    -Observed @{ unresolved_count = $unresolved.Count; unresolved = $unresolved } `
-                    -Expected @{ unresolved_count = 0 } `
-                    -RegulatorMappings @('FINRA-3110','FINRA-4511','SOX-404','OCC-2011-12','NYDFS-500') `
-                    -RemediationRef (if ($unresolved.Count -gt 0) { 'TRG-APPROVAL-03' } else { $null }) `
-                    | Save-Agt225Evidence
-                $unresolved.Count | Should -Be 0
-            }
-        }
-    }
-
-    Context "VC-4: Pending requests resolved within firm SLA" {
-
-        It "No Z2 pending request older than $script:sla2 business days" {
-            $cutoff   = (Get-Agt225BusinessDayOffset -BusinessDays $script:sla2 -Direction Backward).ToUniversalTime()
-            $breaches = $script:pending | Where-Object { $_.zone -eq '2' -and [datetime]$_.submittedAt -lt $cutoff }
-            $rec = New-Agt225EvidenceRecord -Namespace 'APPROVAL' -Criterion 'VC-4' `
-                -Zone '2' -SubjectId 'pending-sla-z2' -SubjectType 'pending_approval' `
-                -Status (if ($breaches.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion "No Z2 pending request older than $script:sla2 business days" `
-                -Observed @{ breach_count = $breaches.Count; breach_ids = @($breaches.id);
-                             cutoff_utc = $cutoff.ToString('o') } `
-                -Expected @{ breach_count = 0; sla_business_days = $script:sla2 } `
-                -RegulatorMappings @('FINRA-3110','FINRA-25-07','OCC-2011-12','FFIEC-MGMT') `
-                -RemediationRef (if ($breaches.Count -gt 0) { 'TRG-APPROVAL-04' } else { $null }) `
-                | Save-Agt225Evidence
-            $breaches.Count | Should -Be 0
-        }
-
-        It "No Z3 pending request older than $script:sla3 business days" {
-            $cutoff   = (Get-Agt225BusinessDayOffset -BusinessDays $script:sla3 -Direction Backward).ToUniversalTime()
-            $breaches = $script:pending | Where-Object { $_.zone -eq '3' -and [datetime]$_.submittedAt -lt $cutoff }
-            $rec = New-Agt225EvidenceRecord -Namespace 'APPROVAL' -Criterion 'VC-4' `
-                -Zone '3' -SubjectId 'pending-sla-z3' -SubjectType 'pending_approval' `
-                -Status (if ($breaches.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion "No Z3 pending request older than $script:sla3 business day(s)" `
-                -Observed @{ breach_count = $breaches.Count; breach_ids = @($breaches.id);
-                             cutoff_utc = $cutoff.ToString('o') } `
-                -Expected @{ breach_count = 0; sla_business_days = $script:sla3 } `
-                -RegulatorMappings @('FINRA-3110','FINRA-25-07','OCC-2011-12','NYDFS-500','FFIEC-MGMT') `
-                -RemediationRef (if ($breaches.Count -gt 0) { 'TRG-APPROVAL-05' } else { $null }) `
-                | Save-Agt225Evidence
-            $breaches.Count | Should -Be 0
-        }
-    }
-}
-```
+The [requests documentation](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-requests) is the portal contract; the firm's signed approval log supplies any missing evidence.
 
 ### 3.4 Sample passing evidence (VC-2)
 
@@ -640,7 +466,7 @@ Describe "AGT225-APPROVAL" -Tag 'AGT225','VC-2','VC-4' {
 
 ### 4.1 Criterion mapping
 
-This namespace evidences **VC-5: Ownerless Agents card is zero or actively remediated within 48 hours**. The Microsoft Agent 365 Admin Center surfaces an "Ownerless Agents" governance card; an agent appears here when its registered owner UPN no longer resolves to an active, enabled user object (e.g., owner left the firm, account disabled, lifecycle deprovisioning ran). This namespace asserts that either (a) the count is zero, or (b) every entry has an open remediation ticket aged ≤ 48 hours and bound to a designated interim owner per Control 3.6.
+This namespace evidences **VC-5: Ownerless Agents card is zero or actively remediated within 48 hours**. The Microsoft Agent 365 Admin Center surfaces an "Ownerless Agents" governance card; the native view identifies agents without assigned owners; disabled/departed-owner detection must also be reconciled against directory and source-platform evidence. This namespace asserts that either (a) the count is zero, or (b) every entry has an open remediation ticket aged ≤ 48 hours and bound to a designated interim owner per Control 3.6.
 
 ### 4.2 Pre-conditions
 
@@ -648,67 +474,14 @@ This namespace evidences **VC-5: Ownerless Agents card is zero or actively remed
 - AI Administrator activated.
 - Reference data: `$env:AGT225_REMEDIATION_TICKET_RESOLVER` (per Control 3.6) is the URL used by `Resolve-Agt225OwnerRemediationTicket` to validate that an open ticket exists for each ownerless agent.
 
-### 4.3 Pester suite
+### 4.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-OWNER" -Tag 'AGT225','VC-5' {
+1. Open **Agents > Overview > Agents without owners** and capture the resulting filtered registry list.
+2. Reconcile IDs with Control 1.2 and Control 3.6 sources using the same scope and capture time. The native card identifies agents without assigned owners; independently check disabled, departed, or otherwise invalid owners. Do not assume the card implements every firm orphan-detection rule.
+3. For each finding, verify a named interim owner, open remediation ticket, detection time, and due date against the existing zone thresholds.
+4. Capture the post-remediation owner from the agent detail view and source platform after an authorized change. An empty or unavailable source is not proof of zero findings.
 
-    BeforeAll {
-        $script:ownerless = Get-Agent365OwnerlessAgent -PageSize 999
-
-    }
-
-
-    Context "VC-5: Ownerless Agents card" {
-
-        It "Ownerless Agents count is zero, OR every entry has open remediation ticket aged <= 48h" {
-            $now = (Get-Date).ToUniversalTime()
-            $offenders = @()
-            foreach ($a in $script:ownerless) {
-                $t = Resolve-Agt225OwnerRemediationTicket -AgentId $a.id
-                $ageH = if ($t.exists) { ($now - [datetime]$t.openedAt).TotalHours } else { 9999 }
-                if (-not $t.exists -or $t.state -ne 'Open' -or $ageH -gt 48) {
-                    $offenders += [pscustomobject]@{
-                        agent_id       = $a.id
-                        display_name   = $a.displayName
-                        prior_owner    = $a.priorOwnerUpn
-                        ticket_exists  = [bool]$t.exists
-                        ticket_state   = $t.state
-                        ticket_age_h   = [math]::Round($ageH,1)
-                    }
-                }
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'OWNER' -Criterion 'VC-5' -Zone 'all' `
-                -SubjectId 'ownerless-agents-card' -SubjectType 'agent' `
-                -Status (if ($offenders.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'All ownerless agents are either nonexistent or under <=48h remediation' `
-                -Observed @{ ownerless_total = $script:ownerless.Count; offender_count = $offenders.Count;
-                             offenders = $offenders } `
-                -Expected @{ offender_count = 0 } `
-                -RegulatorMappings @('FINRA-3110','FINRA-4511','SOX-404','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if ($offenders.Count -gt 0) { 'TRG-OWNER-01' } else { $null }) `
-                | Save-Agt225Evidence
-            $offenders.Count | Should -Be 0 -Because 'VC-5 fails if any ownerless agent lacks a fresh open ticket'
-        }
-
-        It "No ownerless Z3 agent older than 24 hours regardless of ticket state" {
-            $z3old = $script:ownerless | Where-Object {
-                $_.zone -eq '3' -and ((Get-Date).ToUniversalTime() - [datetime]$_.detectedAt).TotalHours -gt 24
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'OWNER' -Criterion 'VC-5' -Zone '3' `
-                -SubjectId 'ownerless-z3-24h' -SubjectType 'agent' `
-                -Status (if ($z3old.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'No Z3 ownerless agent persists beyond 24 hours' `
-                -Observed @{ count = $z3old.Count; ids = @($z3old.id) } `
-                -Expected @{ count = 0 } `
-                -RegulatorMappings @('FINRA-3110','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if ($z3old.Count -gt 0) { 'TRG-OWNER-02' } else { $null }) `
-                | Save-Agt225Evidence
-            $z3old.Count | Should -Be 0
-        }
-    }
-}
-```
+Apply the [registry ownerless-agent guidance](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-registry-overview#agents-without-owners).
 
 ### 4.4 Sample passing evidence
 
@@ -770,7 +543,7 @@ Describe "AGT225-OWNER" -Tag 'AGT225','VC-5' {
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
-| Z1 | Always PASS — Z1 personal agents are owned by the user who created them; ownerless surfacing handled by lifecycle deprovisioning under Control 3.6 | — | — |
+| Z1 | Verify ownership or document an approved scope exclusion; no automatic PASS from zone alone | — | — |
 | Z2 | Count = 0 OR each entry has open ticket aged ≤ 48h | One entry approaching 48h (>36h) | Any entry without open ticket OR ticket aged > 48h |
 | Z3 | Count = 0 OR each entry has open ticket aged ≤ 24h | One entry approaching 24h (>18h) | Any entry without open ticket OR ticket aged > 24h |
 
@@ -795,103 +568,15 @@ This namespace evidences **VC-3: Governance template applied universally to Z2 a
 - AI Administrator activated.
 - Reference data: `$env:AGT225_TEMPLATE_BASELINE` JSON file enumerates the firm's approved template IDs and which are eligible for which zone.
 
-### 5.3 Pester suite
+### 5.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-TEMPLATE" -Tag 'AGT225','VC-3' {
+1. Capture the selected policy template during publication or activation and its current policy composition. Compare it with the firm's approved zone baseline.
+2. Verify the downstream Entra, Purview, SharePoint, and Defender policy configuration separately. Network visibility, Know your data, and content permissions insights are also in Microsoft's documented default template; do not identify a template as Custom solely from those policies.
+3. For Zone 3, capture the firm's required custom-template, access-package, assignment-policy, and reviewer evidence from the appropriate admin surfaces. Treat their association as an evidence join, not an assumed `entraAccessPackageId` Graph property.
+4. Use the appropriate privileged Entra role for Conditional Access or access-package policy configuration; AI Administrator alone cannot configure those policies. This verification does not perform those changes.
+5. Mark missing template, binding, or enforcement evidence unresolved. Registry presence and template naming are insufficient for PASS.
 
-    BeforeAll {
-        $script:agents    = Get-Agent365Inventory -PageSize 999
-        $script:templates = Get-Agent365GovernanceTemplateAssignment -PageSize 999
-        $script:baseline  = Get-Content $env:AGT225_TEMPLATE_BASELINE | ConvertFrom-Json
-
-    }
-
-
-    Context "VC-3: Z2 agents have Default OR Custom template assigned" {
-        It "Every Z2 agent has a non-null governance template" {
-            $z2 = $script:agents | Where-Object zone -eq '2'
-            $missing = $z2 | Where-Object {
-                -not ($script:templates | Where-Object agentId -eq $_.id).templateId
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'TEMPLATE' -Criterion 'VC-3' -Zone '2' `
-                -SubjectId 'z2-template-coverage' -SubjectType 'governance_template' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Every Z2 agent has a Default or Custom governance template assigned' `
-                -Observed @{ z2_total = $z2.Count; missing_count = $missing.Count;
-                             missing_ids = @($missing.id) } `
-                -Expected @{ missing_count = 0 } `
-                -RegulatorMappings @('FINRA-25-07','SOX-404','OCC-2011-12') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-TEMPLATE-01' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-    }
-
-    Context "VC-3: Z3 agents have Custom template + Entra Access Package binding" {
-        It "Every Z3 agent uses a Custom template (not Default)" {
-            $z3 = $script:agents | Where-Object zone -eq '3'
-            $offenders = $z3 | Where-Object {
-                $tpl = $script:templates | Where-Object agentId -eq $_.id
-                -not $tpl -or $tpl.templateKind -ne 'Custom'
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'TEMPLATE' -Criterion 'VC-3' -Zone '3' `
-                -SubjectId 'z3-custom-template' -SubjectType 'governance_template' `
-                -Status (if ($offenders.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Every Z3 agent uses a Custom template (not Default)' `
-                -Observed @{ z3_total = $z3.Count; offender_count = $offenders.Count;
-                             offender_ids = @($offenders.id) } `
-                -Expected @{ offender_count = 0 } `
-                -RegulatorMappings @('FINRA-3110','SOX-404','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if ($offenders.Count -gt 0) { 'TRG-TEMPLATE-02' } else { $null }) `
-                | Save-Agt225Evidence
-            $offenders.Count | Should -Be 0
-        }
-
-        It "Every Z3 Custom template is bound to a non-null Entra Access Package" {
-            $z3 = $script:agents | Where-Object zone -eq '3'
-            $unbound = @()
-            foreach ($a in $z3) {
-                $tpl = $script:templates | Where-Object agentId -eq $a.id
-                if ($tpl -and $tpl.templateKind -eq 'Custom' -and -not $tpl.entraAccessPackageId) {
-                    $unbound += $a.id
-                }
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'TEMPLATE' -Criterion 'VC-3' -Zone '3' `
-                -SubjectId 'z3-access-package-binding' -SubjectType 'governance_template' `
-                -Status (if ($unbound.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Every Z3 Custom template binds to a non-null Entra Access Package' `
-                -Observed @{ unbound_count = $unbound.Count; unbound_ids = $unbound } `
-                -Expected @{ unbound_count = 0 } `
-                -RegulatorMappings @('FINRA-3110','SOX-404','GLBA-501b','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if ($unbound.Count -gt 0) { 'TRG-TEMPLATE-03' } else { $null }) `
-                | Save-Agt225Evidence
-            $unbound.Count | Should -Be 0 -Because 'VC-3 requires Z3 Access Package binding for identity governance per Control 2.26'
-        }
-
-        It "Every Z3 Access Package referenced has a Reviewer assigned" {
-            $z3      = $script:agents | Where-Object zone -eq '3'
-            $apIds   = ($script:templates | Where-Object { $_.agentId -in $z3.id }).entraAccessPackageId | Sort-Object -Unique
-            $missing = @()
-            foreach ($apId in $apIds) {
-                $reviewers = Get-Agt225AccessPackageReviewer -AccessPackageId $apId
-                if (-not $reviewers -or $reviewers.Count -eq 0) { $missing += $apId }
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'TEMPLATE' -Criterion 'VC-3' -Zone '3' `
-                -SubjectId 'z3-access-package-reviewer' -SubjectType 'governance_template' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Every Z3-bound Access Package has at least one Reviewer' `
-                -Observed @{ access_package_count = $apIds.Count; missing_reviewer_count = $missing.Count;
-                             missing_ids = $missing } `
-                -Expected @{ missing_reviewer_count = 0 } `
-                -RegulatorMappings @('FINRA-3110','SOX-404','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-TEMPLATE-04' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-    }
-}
-```
+See [activation and default template policies](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-actions#activate-agents).
 
 ### 5.4 Sample passing evidence
 
@@ -965,7 +650,7 @@ Describe "AGT225-TEMPLATE" -Tag 'AGT225','VC-3' {
 
 ### 6.1 Criterion mapping
 
-This namespace evidences **VC-7: Inventory exported monthly, WORM-protected, ISO 8601-dated, 12 months retained, with required field set**. The Microsoft Agent 365 Admin Center exposes a tenant inventory of every agent (across Z1, Z2, Z3, every supported platform: Copilot, Copilot Studio, Microsoft Teams custom apps, third-party agent connectors). The firm's monthly governance process exports this inventory to WORM storage. This namespace asserts the export occurred, is well-formed, contains the required fields, and the trailing 12 months are present and unmodified.
+This namespace evidences **VC-7: Inventory exported monthly, WORM-protected, ISO 8601-dated, 12 months retained, with required field set**. The registry exposes agents discoverable through supported integrations; completeness across platforms, channels, draft states, and firm zones requires reconciliation. The firm's monthly governance process exports this inventory to WORM storage. This namespace asserts the export occurred, is well-formed, contains the required fields, and the trailing 12 months are present and unmodified.
 
 ### 6.2 Pre-conditions
 
@@ -974,108 +659,15 @@ This namespace evidences **VC-7: Inventory exported monthly, WORM-protected, ISO
 - Reference data: `$env:AGT225_INVENTORY_ARCHIVE_ROOT` — root path of the WORM archive (e.g., an Azure Storage container with an immutability policy or an Amazon S3 Object Lock bucket; the firm's storage architecture must satisfy SEC 17a-4(f) WORM requirements).
 - Reference data: `$env:AGT225_INVENTORY_REQUIRED_FIELDS` — JSON array of field names; defaults to the canonical set: `["agentId","displayName","publisher","platform","ownerUpn","status","deploymentScope","governanceTemplate","lastApprovalTimestamp","approverUpn","createdAt","updatedAt","zone","tenantId"]`.
 
-### 6.3 Pester suite
+### 6.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-INVENTORY" -Tag 'AGT225','VC-7' {
+1. Export from **Agents > All agents > Registry** with the intended **All agents / Filtered agents** scope recorded. Retain the original CSV or Excel file and capture applied filters and the export timestamp.
+2. Reconcile IDs and counts against the same source scope and collection time. Total agents does not change with filtering. Multiple representations of one agent and unsupported draft/platform coverage require an explicit reconciliation, not an arbitrary row-count tolerance.
+3. Compare every required firm evidence field with the actual headers. Supplement missing owner, zone, template, and approval attribution from approved sources with provenance. Do not manufacture values or claim the raw export contains all required columns.
+4. Verify the trailing 12 monthly artifacts, date-stamped names, signed hash manifest, and storage retention configuration. Retain native exports alongside any normalized JSON. A hash comparison detects a content change; it does not prove a storage immutability policy is enabled.
+5. Document collection gaps, absent months, incomplete fields, and source/format differences before assigning a result.
 
-    BeforeAll {
-        $script:requiredFields = $env:AGT225_INVENTORY_REQUIRED_FIELDS |
-            ConvertFrom-Json -ErrorAction SilentlyContinue
-        if (-not $script:requiredFields) {
-            $script:requiredFields = @('agentId','displayName','publisher','platform','ownerUpn',
-                                       'status','deploymentScope','governanceTemplate',
-                                       'lastApprovalTimestamp','approverUpn','createdAt','updatedAt',
-                                       'zone','tenantId')
-        }
-        $script:archive = $env:AGT225_INVENTORY_ARCHIVE_ROOT
-    }
-
-
-    Context "VC-7: Trailing 12 months of monthly exports present" {
-
-        It "Archive contains exactly one export per month for the trailing 12 months" {
-            $now = Get-Date
-            $expected = 0..11 | ForEach-Object { $now.AddMonths(-$_).ToString('yyyy-MM') }
-            $present  = Get-ChildItem $script:archive -Filter 'agent365-inventory-*.json' |
-                ForEach-Object {
-                    if ($_.Name -match 'agent365-inventory-(\d{4}-\d{2})-\d{2}\.json') { $matches[1] }
-                } | Sort-Object -Unique
-            $missing  = $expected | Where-Object { $_ -notin $present }
-            $rec = New-Agt225EvidenceRecord -Namespace 'INVENTORY' -Criterion 'VC-7' -Zone 'all' `
-                -SubjectId 'inventory-12mo-coverage' -SubjectType 'inventory_export' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Trailing 12 monthly exports present in WORM archive' `
-                -Observed @{ present_months = $present; missing_months = $missing } `
-                -Expected @{ missing_months = @() } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-3','SEC-17a-4','SOX-404','OCC-2011-12') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-INVENTORY-01' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-
-        It "Most recent monthly export filename matches ISO 8601 yyyy-MM-dd convention" {
-            $latest = Get-ChildItem $script:archive -Filter 'agent365-inventory-*.json' |
-                Sort-Object Name -Descending | Select-Object -First 1
-            $ok = $latest.Name -match '^agent365-inventory-\d{4}-\d{2}-\d{2}\.json$'
-            $rec = New-Agt225EvidenceRecord -Namespace 'INVENTORY' -Criterion 'VC-7' -Zone 'all' `
-                -SubjectId 'inventory-iso-naming' -SubjectType 'inventory_export' `
-                -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Latest export filename uses ISO 8601 date convention' `
-                -Observed @{ latest_filename = $latest.Name } `
-                -Expected @{ pattern = 'agent365-inventory-yyyy-MM-dd.json' } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4','SOX-404') `
-                -RemediationRef (if (-not $ok) { 'TRG-INVENTORY-02' } else { $null }) `
-                | Save-Agt225Evidence
-            $ok | Should -BeTrue
-        }
-
-        It "Most recent export contains all required fields and no null in mandatory columns" {
-            $latest    = Get-ChildItem $script:archive -Filter 'agent365-inventory-*.json' |
-                Sort-Object Name -Descending | Select-Object -First 1
-            $data      = Get-Content $latest.FullName | ConvertFrom-Json
-            $firstRow  = if ($data -is [array]) { $data[0] } else { $data.value[0] }
-            $missing   = $script:requiredFields | Where-Object { $_ -notin $firstRow.PSObject.Properties.Name }
-            $rec = New-Agt225EvidenceRecord -Namespace 'INVENTORY' -Criterion 'VC-7' -Zone 'all' `
-                -SubjectId 'inventory-required-fields' -SubjectType 'inventory_export' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Latest export contains all required fields' `
-                -Observed @{ source_file = $latest.Name; missing_fields = $missing } `
-                -Expected @{ required_fields = $script:requiredFields; missing_fields = @() } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-3','SEC-17a-4','SOX-404','OCC-2011-12') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-INVENTORY-03' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-
-        It "Each prior month's export retains its original SHA-256 hash (no tampering)" {
-            $manifest = Get-Content (Join-Path $script:archive 'inventory-hash-manifest.json') | ConvertFrom-Json
-            $tampered = @()
-            foreach ($entry in $manifest) {
-                $path = Join-Path $script:archive $entry.filename
-                if (-not (Test-Path $path)) {
-                    $tampered += [pscustomobject]@{ file = $entry.filename; reason = 'missing' }
-                } else {
-                    $h = (Get-FileHash $path -Algorithm SHA256).Hash
-                    if ($h -ne $entry.sha256) {
-                        $tampered += [pscustomobject]@{ file = $entry.filename; expected = $entry.sha256; observed = $h }
-                    }
-                }
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'INVENTORY' -Criterion 'VC-7' -Zone 'all' `
-                -SubjectId 'inventory-hash-integrity' -SubjectType 'inventory_export' `
-                -Status (if ($tampered.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Every archived export hash matches the manifest (immutable)' `
-                -Observed @{ tampered_count = $tampered.Count; tampered = $tampered } `
-                -Expected @{ tampered_count = 0 } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4','SOX-302','SOX-404') `
-                -RemediationRef (if ($tampered.Count -gt 0) { 'TRG-INVENTORY-04' } else { $null }) `
-                | Save-Agt225Evidence
-            $tampered.Count | Should -Be 0 -Because 'Hash mismatches indicate WORM violation requiring immediate IR escalation'
-        }
-    }
-}
-```
+See [registry export and coverage](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-registry-overview).
 
 ### 6.4 Sample passing evidence
 
@@ -1129,17 +721,17 @@ Describe "AGT225-INVENTORY" -Tag 'AGT225','VC-7' {
 
 | Property | Value |
 |---|---|
-| Filename | `agent365-inventory-yyyy-MM-dd.json` (the monthly export); `inventory-hash-manifest.json` (chain-of-custody manifest); `inventory-evidence-<runId>.ndjson` (Pester output) |
+| Filename | `agent365-inventory-yyyy-MM-dd.json` (the monthly export); `inventory-hash-manifest.json` (chain-of-custody manifest); `inventory-evidence-<runId>.ndjson` (manual verification records) |
 | Storage | WORM archive at `$env:AGT225_INVENTORY_ARCHIVE_ROOT` |
 | Retention | 6 years on WORM, with the firm's documented immutability policy referenced in the §10 attestation |
-| Signing | Each monthly export hash chained into the manifest, signed by AI Governance Lead at the time of monthly capture; the §10 pack additionally signs the Pester output |
+| Signing | Each monthly export hash chained into the manifest, signed by AI Governance Lead at the time of monthly capture; the §10 pack additionally signs the manual verification records |
 | Distribution | AI Governance Lead, Compliance Officer, Internal Audit |
 
 ### 6.7 Zone thresholds
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
-| All zones (this is a tenant-wide control) | All 4 `It` blocks PASS | One missing month within trailing 12, with a documented gap-explanation memo | Any hash tamper, OR > 1 missing month, OR required field absent in latest export |
+| All zones (this is a tenant-wide control) | All manual checks evidenced | One missing month within trailing 12, with a documented gap-explanation memo | Any hash tamper, OR > 1 missing month, OR required field absent in latest export |
 
 ### 6.8 Regulator mapping
 
@@ -1156,9 +748,9 @@ Describe "AGT225-INVENTORY" -Tag 'AGT225','VC-7' {
 
 ### 7.1 Criterion mapping
 
-This namespace evidences **VC-6: Exception rate monitored against a documented threshold (illustrative ≤ 5%) with three documented review cycles per year minimum**. The Microsoft Agent 365 Admin Center surfaces an "Exception Rate" metric — the percentage of agents that bypassed the standard governance template via a documented variance request. This namespace asserts the metric is below the firm's threshold and that the firm's AI Governance Council reviewed it on the documented cadence.
+This namespace evidences **VC-6: Exception rate monitored against a documented threshold (illustrative ≤ 5%) with the past three documented review cycles**. The native Overview surfaces Agents with exceptions as a count. A firm-derived rate uses sessions with errors divided by total sessions for the same supported Activity scope and time period; it does not measure governance-template bypasses. This namespace asserts the metric is below the firm's threshold and that the firm's AI Governance Council reviewed it on the documented cadence.
 
-> **Threshold is firm-set, not Microsoft-set.** The 5% value used as an illustrative example throughout this section is **not a Microsoft-published threshold**. The firm's AI Governance Council documents the threshold in policy (recommended starting point: 5%; mature programs frequently target 2%) and re-affirms it annually. The Pester suite reads the threshold from `$env:AGT225_EXCEPTION_THRESHOLD_PCT`.
+> **Threshold is firm-set, not Microsoft-set.** The 5% value used as an illustrative example throughout this section is **not a Microsoft-published threshold**. The firm's AI Governance Council documents the threshold in policy (recommended starting point: 5%; mature programs frequently target 2%) and re-affirms it annually. An optional firm harness may read the threshold from `$env:AGT225_EXCEPTION_THRESHOLD_PCT`.
 
 ### 7.2 Pre-conditions
 
@@ -1167,72 +759,15 @@ This namespace evidences **VC-6: Exception rate monitored against a documented t
 - Reference data: `$env:AGT225_EXCEPTION_THRESHOLD_PCT` (default 5).
 - Reference data: `$env:AGT225_EXCEPTION_REVIEW_LOG` — a JSON file of dated AI Governance Council review entries; produced by the council secretary per Control 4.5.
 
-### 7.3 Pester suite
+### 7.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-EXCEPTION" -Tag 'AGT225','VC-6' {
+1. Capture **Agents with exceptions** on Overview and the filtered registry view. Record this as a count, not a percentage.
+2. For supported agents, open **Activity** and record Exceptions (sessions with an error) and Sessions for the same date range and scope.
+3. If the firm uses a derived exception rate, calculate `100 * error_sessions / sessions`. Require a positive denominator and complete, comparable telemetry. Higher values are worse; no sessions or missing telemetry yields no rate, not zero or PASS.
+4. Compare only a validated rate with the firm's documented threshold and zone cap. Keep policy-template variance reporting in a separate firm register; it is not the native Exceptions measure.
+5. Confirm the three required review-cycle records and escalation decisions. Missing measurements or review evidence block acceptance.
 
-    BeforeAll {
-        $script:threshold = [double]($env:AGT225_EXCEPTION_THRESHOLD_PCT ?? 5)
-        $script:metric = Get-Agent365ExceptionMetric
-        $script:reviews = Get-Content $env:AGT225_EXCEPTION_REVIEW_LOG | ConvertFrom-Json
-
-    }
-
-
-    Context "VC-6: Exception rate below firm threshold" {
-
-        It "Tenant-wide exception rate is at or below firm threshold" {
-            $rate = $script:metric.exceptionRatePct
-            $ok   = $rate -le $script:threshold
-            $rec = New-Agt225EvidenceRecord -Namespace 'EXCEPTION' -Criterion 'VC-6' -Zone 'all' `
-                -SubjectId 'exception-rate-tenant' -SubjectType 'exception_metric' `
-                -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
-                -Assertion "Tenant exception rate <= $script:threshold%" `
-                -Observed @{ exception_rate_pct = $rate; numerator = $script:metric.exceptionAgents;
-                             denominator = $script:metric.totalAgents } `
-                -Expected @{ exception_rate_pct_max = $script:threshold } `
-                -RegulatorMappings @('FINRA-3110','FINRA-25-07','SOX-404','OCC-2011-12','FFIEC-MGMT') `
-                -RemediationRef (if (-not $ok) { 'TRG-EXCEPTION-01' } else { $null }) `
-                | Save-Agt225Evidence
-            $ok | Should -BeTrue
-        }
-
-        It "Z3 exception rate is at or below half of firm threshold" {
-            $rate = $script:metric.zoneRates | Where-Object zone -eq '3' | Select-Object -ExpandProperty rate
-            $cap  = $script:threshold / 2.0
-            $ok   = $rate -le $cap
-            $rec = New-Agt225EvidenceRecord -Namespace 'EXCEPTION' -Criterion 'VC-6' -Zone '3' `
-                -SubjectId 'exception-rate-z3' -SubjectType 'exception_metric' `
-                -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
-                -Assertion "Z3 exception rate <= $cap% (half of firm-wide threshold)" `
-                -Observed @{ exception_rate_pct = $rate } `
-                -Expected @{ exception_rate_pct_max = $cap } `
-                -RegulatorMappings @('FINRA-3110','SOX-404','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if (-not $ok) { 'TRG-EXCEPTION-02' } else { $null }) `
-                | Save-Agt225Evidence
-            $ok | Should -BeTrue
-        }
-
-        It "AI Governance Council has reviewed exception metric in each of the trailing three quarters" {
-            $now = Get-Date
-            $needed = 0..2 | ForEach-Object { (Get-Agt225Quarter -Date $now.AddMonths(-3 * $_)).label }
-            $present = $script:reviews | ForEach-Object { (Get-Agt225Quarter -Date ([datetime]$_.reviewDate)).label } | Sort-Object -Unique
-            $missing = $needed | Where-Object { $_ -notin $present }
-            $rec = New-Agt225EvidenceRecord -Namespace 'EXCEPTION' -Criterion 'VC-6' -Zone 'all' `
-                -SubjectId 'exception-review-cycles' -SubjectType 'exception_metric' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'AI Governance Council reviewed exception rate in each trailing 3 quarters' `
-                -Observed @{ needed_quarters = $needed; present_quarters = $present; missing = $missing } `
-                -Expected @{ missing = @() } `
-                -RegulatorMappings @('FINRA-3110','SOX-404','OCC-2011-12','FFIEC-MGMT') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-EXCEPTION-03' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-    }
-}
-```
+See [agent Activity metrics](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-details#agent-activity).
 
 ### 7.4 Sample passing evidence
 
@@ -1286,7 +821,7 @@ Describe "AGT225-EXCEPTION" -Tag 'AGT225','VC-6' {
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
-| Z1 | Always SKIPPED — Z1 has no governance-template binding to except from | — | — |
+| Z1 | Always SKIPPED — the firm has explicitly excluded this zone from this review; do not infer a native metric exclusion | — | — |
 | Z2 | Rate ≤ firm threshold (illustrative 5%) | Within 1 percentage point of threshold | Above threshold OR review cycle missed |
 | Z3 | Rate ≤ half of firm threshold (illustrative 2.5%) | Within 0.5 pp of cap | Above cap OR review cycle missed |
 
@@ -1304,7 +839,7 @@ Describe "AGT225-EXCEPTION" -Tag 'AGT225','VC-6' {
 
 ### 8.1 Criterion mapping
 
-This namespace evidences **VC-8: Researcher with Computer Use is configured per zone with a documented affirmative decision**. Researcher with Computer Use reached general availability in October 2025 for tenants holding any Microsoft 365 Copilot license (it is no longer Frontier-gated). Because the capability allows the agent to perform automated browser interactions (click, type, navigate) against arbitrary URLs, the firm must make and document an affirmative per-zone decision: enabled for which users, with which URL allow-list, and signed by which approvers.
+This namespace evidences **VC-8: Researcher with Computer Use is configured per zone with a documented affirmative decision**. The current configuration source documents user/group access, work-data access, and website policy controls; it does not substantiate the previous October 2025 GA or universal availability/default-on claims. Because the capability allows the agent to perform automated browser interactions (click, type, navigate) against arbitrary URLs, the firm must make and document an affirmative per-zone decision: enabled for which users, with which URL allow-list, and signed by which approvers.
 
 ### 8.2 Pre-conditions
 
@@ -1312,80 +847,15 @@ This namespace evidences **VC-8: Researcher with Computer Use is configured per 
 - AI Administrator activated.
 - Reference data: `$env:AGT225_RESEARCHER_DECISION_LOG` — a JSON file of the firm's per-zone affirmative decisions with signers and effective dates, owned by the AI Governance Council.
 
-### 8.3 Pester suite
+### 8.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-RESEARCHER" -Tag 'AGT225','VC-8' {
+1. Open the Microsoft 365 admin **Agents** page, select **Researcher**, and inspect **Computer use** if available. If absent, record an availability/rollout gap; do not infer a restrictive configuration.
+2. Capture the three documented controls: allowed users (all/specific/none), whether Researcher may access work data, and websites (all/allow specified/exclude specified).
+3. Reconcile the effective users/groups with the firm's zone membership and signed decision log. Zone is a firm classification, not a native `policy.z3` property.
+4. When work-data access is admin-enabled, users must still manually enable **Work** in Sources. When disabled, confirm that Work is unavailable. Test the approved and excluded websites in a controlled session without sensitive data.
+5. Verify the decision's age, required signers, effective group membership, and website rules. Do not infer universal default-on, an October 2025 GA date, or a supported Graph policy API.
 
-    BeforeAll {
-        $script:decision = Get-Content $env:AGT225_RESEARCHER_DECISION_LOG | ConvertFrom-Json
-        $script:policy = Get-Agent365ResearcherComputerUsePolicy
-
-    }
-
-
-    Context "VC-8: Per-zone affirmative decision present and signed" {
-
-        It "Z1, Z2, Z3 each have a current affirmative decision in the decision log" {
-            $missing = @()
-            foreach ($z in '1','2','3') {
-                $d = $script:decision | Where-Object zone -eq $z |
-                     Sort-Object effectiveDate -Descending | Select-Object -First 1
-                if (-not $d -or [datetime]$d.effectiveDate -lt (Get-Date).AddDays(-365)) {
-                    $missing += $z
-                }
-            }
-            $rec = New-Agt225EvidenceRecord -Namespace 'RESEARCHER' -Criterion 'VC-8' -Zone 'all' `
-                -SubjectId 'researcher-decision-coverage' -SubjectType 'researcher_policy' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Each zone has a signed affirmative decision <= 365 days old' `
-                -Observed @{ missing_zones = $missing } -Expected @{ missing_zones = @() } `
-                -RegulatorMappings @('FINRA-3110','FINRA-25-07','SOX-404','OCC-2011-12') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-RESEARCHER-01' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-
-        It "Z3 decision is signed by both AI Governance Lead and CISO" {
-            $d = $script:decision | Where-Object zone -eq '3' |
-                 Sort-Object effectiveDate -Descending | Select-Object -First 1
-            $needed = @('AIGovernanceLead','CISO')
-            $present = ($d.signers | ForEach-Object role) | Sort-Object -Unique
-            $missing = $needed | Where-Object { $_ -notin $present }
-            $rec = New-Agt225EvidenceRecord -Namespace 'RESEARCHER' -Criterion 'VC-8' -Zone '3' `
-                -SubjectId 'researcher-z3-dual-sign' -SubjectType 'researcher_policy' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Z3 affirmative decision is dual-signed by AI Governance Lead and CISO' `
-                -Observed @{ signers_present = $present; missing_roles = $missing } `
-                -Expected @{ signers_required = $needed } `
-                -RegulatorMappings @('FINRA-3110','SOX-404','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-RESEARCHER-02' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -Be 0
-        }
-
-        It "Tenant policy matches the documented decision (assignment scope and URL allow-list)" {
-            $d = $script:decision | Where-Object zone -eq '3' |
-                 Sort-Object effectiveDate -Descending | Select-Object -First 1
-            $scopeOk = ($script:policy.z3.assignmentScope -eq $d.assignmentScope)
-            $urlsOk  = -not (Compare-Object $script:policy.z3.urlAllowList $d.urlAllowList)
-            $ok = $scopeOk -and $urlsOk
-            $rec = New-Agt225EvidenceRecord -Namespace 'RESEARCHER' -Criterion 'VC-8' -Zone '3' `
-                -SubjectId 'researcher-z3-policy-match' -SubjectType 'researcher_policy' `
-                -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'Tenant Researcher policy for Z3 matches documented affirmative decision' `
-                -Observed @{ tenant_scope = $script:policy.z3.assignmentScope;
-                             tenant_urls  = $script:policy.z3.urlAllowList } `
-                -Expected @{ documented_scope = $d.assignmentScope;
-                             documented_urls  = $d.urlAllowList } `
-                -RegulatorMappings @('FINRA-3110','FINRA-25-07','SOX-404','GLBA-501b','OCC-2011-12','NYDFS-500') `
-                -RemediationRef (if (-not $ok) { 'TRG-RESEARCHER-03' } else { $null }) `
-                | Save-Agt225Evidence
-            $ok | Should -BeTrue -Because 'Drift between documented decision and tenant policy is a governance failure'
-        }
-    }
-}
-```
+Use [Researcher admin configuration](https://learn.microsoft.com/en-us/copilot/manage/researcher-agent-computer-use); retain screenshots locally in the approved evidence repository.
 
 ### 8.4 Sample passing evidence
 
@@ -1444,7 +914,7 @@ Describe "AGT225-RESEARCHER" -Tag 'AGT225','VC-8' {
 | Filename | `researcher-policy-<runId>.json`, `researcher-decision-log-<runId>.json`, `researcher-evidence-<runId>.ndjson` |
 | Storage | `$env:AGT225_EVIDENCE_ROOT/<runId>/researcher/` |
 | Retention | 6 years on WORM |
-| Signing | Decision log dual-signed by AI Governance Lead and CISO at decision time; pack-level signature on Pester output |
+| Signing | Decision log dual-signed by AI Governance Lead and CISO at decision time; pack-level signature on manual verification records |
 | Distribution | AI Governance Lead, CISO, Compliance Officer, Information Security Officer |
 
 ### 8.7 Zone thresholds
@@ -1477,66 +947,15 @@ This namespace is **cross-cutting** — it does not map to a single VC, but rath
 - Operator holds **Entra Global Reader** plus the SIEM platform's read role (e.g., Microsoft Sentinel Reader) for query execution.
 - Reference data: `$env:AGT225_SIEM_QUERY_ENDPOINT` (e.g., a Sentinel Log Analytics workspace ID), and `$env:AGT225_SIEM_QUERY_FN` — name of the saved KQL query that returns the trailing 7 days of Agent 365 governance events.
 
-### 9.3 Pester suite
+### 9.3 Manual verification procedure
 
-```powershell
-Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
+1. With the Control 3.9 operator, map each required evidence stream to its actual audit/telemetry source, connector, table, and documented operation names. The namespace labels in this playbook are firm labels, not native `AgentGovernanceCategory` fields.
+2. Trace an authorized, known test action from its source record into the SIEM, comparing agent ID, actor, event time, ingestion time, and result. A quiet period alone does not establish a broken pipeline or successful forwarding.
+3. Read the actual table retention configuration and separately retained export policy. For Log Analytics, analytics retention is at most 730 days; inspect **total retention / long-term retention** for multi-year storage. A workspace analytics value of 2192 days is not a valid test.
+4. Verify retrieval of retained data and the existing six-year evidence-archive requirement independently. Do not infer immutability from Log Analytics retention alone.
+5. Record unmapped categories, incomplete ingestion, failed retrieval, and missing retention evidence as unresolved, not as allowed quiet-category PASS results.
 
-    BeforeAll {
-        $script:siemEvents = Invoke-Agt225SiemQuery -SavedQuery $env:AGT225_SIEM_QUERY_FN -RangeDays 7
-    }
-
-
-    Context "Cross-cutting: Agent 365 events present in SIEM" {
-
-        It "SIEM has at least one Agent 365 governance event in trailing 7 days" {
-            $count = ($script:siemEvents | Measure-Object).Count
-            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (cross-cutting)' -Zone 'all' `
-                -SubjectId 'siem-event-presence' -SubjectType 'diagnostic_setting' `
-                -Status (if ($count -gt 0) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'SIEM ingest pipeline yields >=1 Agent 365 event in trailing 7d' `
-                -Observed @{ event_count_7d = $count } `
-                -Expected @{ event_count_7d_min = 1 } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4','SOX-404','OCC-2011-12','NYDFS-500','FFIEC-IS') `
-                -RemediationRef (if ($count -eq 0) { 'TRG-SIEM-01' } else { $null }) `
-                | Save-Agt225Evidence
-            $count | Should -BeGreaterThan 0
-        }
-
-        It "SIEM workspace retention is at least 6 years (2192 days)" {
-            $ret = Get-Agt225SiemRetentionDays -Endpoint $env:AGT225_SIEM_QUERY_ENDPOINT
-            $ok = $ret -ge 2192
-            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (cross-cutting)' -Zone 'all' `
-                -SubjectId 'siem-retention-config' -SubjectType 'diagnostic_setting' `
-                -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
-                -Assertion 'SIEM workspace retention >= 6 years (FINRA 4511 / SEC 17a-4)' `
-                -Observed @{ retention_days = $ret } `
-                -Expected @{ retention_days_min = 2192 } `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4','SOX-404','OCC-2011-12') `
-                -RemediationRef (if (-not $ok) { 'TRG-SIEM-02' } else { $null }) `
-                | Save-Agt225Evidence
-            $ok | Should -BeTrue
-        }
-
-        It "Each VC namespace has at least one event-type representative in trailing 30 days" {
-            $needed = @('LICENSE','APPROVAL','OWNER','TEMPLATE','INVENTORY','EXCEPTION','RESEARCHER')
-            $extended = Invoke-Agt225SiemQuery -SavedQuery "${env:AGT225_SIEM_QUERY_FN}_30d" -RangeDays 30
-            $observed = $extended.AgentGovernanceCategory | Sort-Object -Unique
-            $missing = $needed | Where-Object { $_ -notin $observed }
-            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (cross-cutting)' -Zone 'all' `
-                -SubjectId 'siem-namespace-coverage' -SubjectType 'diagnostic_setting' `
-                -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'WARN' }) `
-                -Assertion 'Each governance namespace produces at least one SIEM event in trailing 30d' `
-                -Observed @{ observed_categories = $observed; missing = $missing } `
-                -Expected @{ missing = @() } `
-                -RegulatorMappings @('FINRA-4511','SOX-404','OCC-2011-12') `
-                -RemediationRef (if ($missing.Count -gt 0) { 'TRG-SIEM-03' } else { $null }) `
-                | Save-Agt225Evidence
-            $missing.Count | Should -BeLessOrEqual 2 -Because 'Allow up to 2 quiet categories; > 2 indicates pipeline gap'
-        }
-    }
-}
-```
+See [Log Analytics data retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure).
 
 ### 9.4 Sample passing evidence
 
@@ -1548,9 +967,9 @@ Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
   "zone": "all", "namespace": "SIEM", "criterion": "VC-1..8 (cross-cutting)",
   "subject_id": "siem-retention-config", "subject_type": "diagnostic_setting",
   "status": "PASS",
-  "assertion": "SIEM workspace retention >= 6 years (FINRA 4511 / SEC 17a-4)",
-  "observed_value": { "retention_days": 2557 },
-  "expected_value": { "retention_days_min": 2192 },
+  "assertion": "SIEM table total retention and separate evidence archive meet the existing firm retention policy",
+  "observed_value": { "table_total_retention_days": 2557, "archive_policy_verified": true },
+  "expected_value": { "table_total_retention_days_min": 2192, "archive_policy_verified": true },
   "evidence_artifacts": ["siem-retention-AGT225-20260415-093012-a1b2c3d4.json"],
   "regulator_mappings": ["FINRA-4511","SEC-17a-4","SOX-404","OCC-2011-12"],
   "remediation_ref": null, "operator_upn": "agt225-runner@contoso.com", "schema_version": "1.0"
@@ -1588,7 +1007,7 @@ Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
 
 ### 9.7 Zone thresholds
 
-This namespace operates tenant-wide; no zone differentiation. PASS requires all three `It` blocks PASS; WARN allowed only on the namespace-coverage check (≤ 2 quiet categories); FAIL on either event-presence or retention-days failure.
+This namespace operates tenant-wide; no zone differentiation. PASS requires verified source mapping, known-event ingestion/retrieval, retention configuration, and archive evidence. Missing coverage remains unresolved; no quiet-category allowance substitutes for evidence.
 
 ### 9.8 Regulator mapping
 
@@ -1604,7 +1023,7 @@ This namespace operates tenant-wide; no zone differentiation. PASS requires all 
 
 ### 10.1 Pack layout
 
-After all namespace suites complete, `Build-Agt225EvidencePack` assembles a single signed pack at `$script:EvidenceRoot/pack/`:
+After all manual checks complete, the firm's validated assembly process (not supplied here as `Build-Agt225EvidencePack`) assembles a single signed pack at `$script:EvidenceRoot/pack/`:
 
 ```
 <runId>/
@@ -1663,11 +1082,11 @@ The pack is signed by the AI Governance Lead using a key managed in the firm's P
 
 ### 10.4 Merkle root
 
-Every evidence record file contributes a SHA-256 leaf hash (computed over the canonical JSON serialization). Leaves are sorted lexicographically by filename and combined pairwise into a binary Merkle tree; the root hash is recorded as `merkle_root_sha256` in `attestation.json`. Any tampering with any record after publication invalidates the root and is detectable by `Test-Agt225PackIntegrity`.
+Every evidence record file contributes a SHA-256 leaf hash (computed over the canonical JSON serialization). Leaves are sorted lexicographically by filename and combined pairwise into a binary Merkle tree; the root hash is recorded as `merkle_root_sha256` in `attestation.json`. A validated integrity checker must detect changed records; `Test-Agt225PackIntegrity` is an illustrative helper name, not a supplied implementation.
 
 ### 10.5 Schema validation
 
-Before signing, `Test-Agt225EvidenceSchema` validates every record against the §1.1 schema. Records failing schema validation are not signed; the pack assembler exits with a non-zero status and writes `schema-violation-<runId>.json` to the pack directory for triage.
+Before signing, the firm's implemented schema validator must validate every record against the §1.1 contract; `Test-Agt225EvidenceSchema` is not supplied here. Records failing schema validation are not signed; the pack assembler exits with a non-zero status and writes `schema-violation-<runId>.json` to the pack directory for triage.
 
 ### 10.6 Publication
 
@@ -1683,34 +1102,34 @@ Signed packs are published to `$env:AGT225_PACK_PUBLICATION_ROOT` (a WORM contai
 
 ## §11 Failure Triage Matrix
 
-When a Pester `It` block FAILs, the evidence record carries a `remediation_ref` of the form `TRG-{NS}-NN`. This matrix maps each ID to severity, SLA band, owner, and the remediation playbook section.
+When a manual verification check fails, the evidence record carries a `remediation_ref` of the form `TRG-{NS}-NN`. This matrix maps each ID to severity, SLA band, owner, and the remediation playbook section.
 
 | Triage ID | Severity | SLA to remediate | Owner | Remediation reference |
 |---|---|---|---|---|
-| TRG-LICENSE-01 | Critical | 1 BD | Procurement Lead + Entra Global Admin | Portal Walkthrough §2.1 (planned) |
-| TRG-LICENSE-02 | Critical | 1 BD | Procurement Lead | Portal Walkthrough §2.2 (planned) |
+| TRG-LICENSE-01 | Critical | 1 BD | Procurement Lead + Entra Global Admin | [Portal Walkthrough §0.3](./portal-walkthrough.md) |
+| TRG-LICENSE-02 | Critical | 1 BD | Procurement Lead | [Portal Walkthrough §0.3](./portal-walkthrough.md) |
 | TRG-LICENSE-03 | Critical | 4 hours | AI Administrator | [Troubleshooting](./troubleshooting.md) §3.1 |
-| TRG-LICENSE-04 | Medium | 30 days | Procurement Lead | Portal Walkthrough §2.3 (planned) |
-| TRG-APPROVAL-01 | High | 2 BD | AI Governance Lead | Portal Walkthrough §3.1 (planned) |
-| TRG-APPROVAL-02 | Medium | 5 BD | AI Governance Lead | Portal Walkthrough §3.2 (planned) |
-| TRG-APPROVAL-03 | High | 2 BD | Change Management Lead | Portal Walkthrough §3.3 (planned) |
+| TRG-LICENSE-04 | Medium | 30 days | Procurement Lead | [Portal Walkthrough §0.3](./portal-walkthrough.md) |
+| TRG-APPROVAL-01 | High | 2 BD | AI Governance Lead | [Portal Walkthrough §4](./portal-walkthrough.md) |
+| TRG-APPROVAL-02 | Medium | 5 BD | AI Governance Lead | [Portal Walkthrough §4](./portal-walkthrough.md) |
+| TRG-APPROVAL-03 | High | 2 BD | Change Management Lead | [Portal Walkthrough §4](./portal-walkthrough.md) |
 | TRG-APPROVAL-04 | High | 1 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §4.2 |
 | TRG-APPROVAL-05 | Critical | 4 hours | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §4.3 |
-| TRG-OWNER-01 | High | 48 hours | AI Governance Lead | Portal Walkthrough §4.1 (planned) |
-| TRG-OWNER-02 | Critical | 24 hours | AI Governance Lead | Portal Walkthrough §4.2 (planned) |
-| TRG-TEMPLATE-01 | High | 5 BD | AI Administrator | Portal Walkthrough §5.1 (planned) |
-| TRG-TEMPLATE-02 | Critical | 2 BD | AI Administrator | Portal Walkthrough §5.2 (planned) |
-| TRG-TEMPLATE-03 | Critical | 2 BD | Identity Engineering Lead | Portal Walkthrough §5.3 (planned) |
-| TRG-TEMPLATE-04 | High | 5 BD | Identity Engineering Lead | Portal Walkthrough §5.4 (planned) |
+| TRG-OWNER-01 | High | 48 hours | AI Governance Lead | [Portal Walkthrough §2.3](./portal-walkthrough.md) |
+| TRG-OWNER-02 | Critical | 24 hours | AI Governance Lead | [Portal Walkthrough §2.3](./portal-walkthrough.md) |
+| TRG-TEMPLATE-01 | High | 5 BD | AI Administrator | [Portal Walkthrough §8](./portal-walkthrough.md) |
+| TRG-TEMPLATE-02 | Critical | 2 BD | AI Administrator | [Portal Walkthrough §8](./portal-walkthrough.md) |
+| TRG-TEMPLATE-03 | Critical | 2 BD | Identity Engineering Lead | [Portal Walkthrough §8](./portal-walkthrough.md) |
+| TRG-TEMPLATE-04 | High | 5 BD | Identity Engineering Lead | [Portal Walkthrough §8](./portal-walkthrough.md) |
 | TRG-INVENTORY-01 | High | 5 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §5.1 |
 | TRG-INVENTORY-02 | Medium | 5 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §5.2 |
 | TRG-INVENTORY-03 | High | 5 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §5.3 |
 | TRG-INVENTORY-04 | Critical | 4 hours (IR escalation) | CISO + AI Governance Lead | [Troubleshooting](./troubleshooting.md) §6.1 |
-| TRG-EXCEPTION-01 | High | 30 days | AI Governance Lead | Portal Walkthrough §6.1 (planned) |
-| TRG-EXCEPTION-02 | Critical | 10 BD | AI Governance Lead + CISO | Portal Walkthrough §6.2 (planned) |
-| TRG-EXCEPTION-03 | Critical | 1 quarter | AI Governance Lead | Portal Walkthrough §6.3 (planned) |
-| TRG-RESEARCHER-01 | High | 30 days | AI Governance Lead | Portal Walkthrough §7.1 (planned) |
-| TRG-RESEARCHER-02 | Critical | 10 BD | AI Governance Lead + CISO | Portal Walkthrough §7.2 (planned) |
+| TRG-EXCEPTION-01 | High | 30 days | AI Governance Lead | [Portal Walkthrough §2.1](./portal-walkthrough.md) |
+| TRG-EXCEPTION-02 | Critical | 10 BD | AI Governance Lead + CISO | [Portal Walkthrough §2.1](./portal-walkthrough.md) |
+| TRG-EXCEPTION-03 | Critical | 1 quarter | AI Governance Lead | [Portal Walkthrough §2.1](./portal-walkthrough.md) |
+| TRG-RESEARCHER-01 | High | 30 days | AI Governance Lead | [Portal Walkthrough §9](./portal-walkthrough.md) |
+| TRG-RESEARCHER-02 | Critical | 10 BD | AI Governance Lead + CISO | [Portal Walkthrough §9](./portal-walkthrough.md) |
 | TRG-RESEARCHER-03 | Critical | 4 hours | AI Administrator | [PowerShell Setup](./powershell-setup.md) §7.3 |
 | TRG-SIEM-01 | High | 1 BD | Entra Security Admin | [Troubleshooting](./troubleshooting.md) §9.1 |
 | TRG-SIEM-02 | Critical | 5 BD | Entra Security Admin | [PowerShell Setup](./powershell-setup.md) §9.2 |
@@ -1745,7 +1164,7 @@ When assembling a quarterly attestation for an examiner, present the 2.25 eviden
 
 | Activity | Cadence | Owner |
 |---|---|---|
-| Run §2–§9 Pester suite | Daily (Z3-touching tests), Weekly (full suite), Monthly (with INVENTORY) | AI Administrator |
+| Run §2–§9 manual verification | Daily (Z3-touching tests), Weekly (full suite), Monthly (with INVENTORY) | AI Administrator |
 | Assemble §10 evidence pack | Monthly | AI Governance Lead |
 | Quarterly attestation packet | Quarterly (within 15 BD of quarter end) | AI Governance Lead + Compliance Officer |
 | Annual control re-baseline (review thresholds in §3, §7) | Annually | AI Governance Council |
@@ -1782,10 +1201,10 @@ Each quarterly review identifies up to three improvement items, recorded in the 
 
 - Control source of truth: [Control 2.25 — Microsoft Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)
 - Sister verification playbook (gold-standard structural template): [Control 2.26 verification-testing](../2.26/verification-testing.md)
-- Sibling playbooks for this control: Portal Walkthrough (planned) · [PowerShell Setup](./powershell-setup.md) · [Troubleshooting](./troubleshooting.md)
+- Sibling playbooks for this control: [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Troubleshooting](./troubleshooting.md)
 - Role catalog: [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md)
 - Regulatory mapping vocabulary: [`docs/reference/regulatory-mappings.md`](../../../reference/regulatory-mappings.md)
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation verified 2026-11-09; tenant execution pending)*
