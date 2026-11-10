@@ -21,8 +21,8 @@ Run each item; record PASS / FAIL / N/A and capture the named evidence artifact.
 | 2 | All FSI labels exist with planned duration and flags | PS: `Get-ComplianceTag` | `IsRecordLabel`/`Regulatory` match design; `RetentionDuration` matches schedule | `labels-YYYYMMDD.csv` |
 | 3 | Label policy distribution status is **Success** | Portal: Records management > Label policies | All FSI label policies show **Success** | Screenshot + `policies-YYYYMMDD.csv` |
 | 4 | Three AI-experience retention policies exist and are distributed | PS: `Get-RetentionCompliancePolicy` | `FSI-Copilot-AIExperiences-Retention`, `FSI-EnterpriseAIApps-Retention`, `FSI-OtherAIApps-Retention` all `DistributionStatus = Success` | `policies-YYYYMMDD.csv` |
-| 5 | Preservation Lock applied to Zone 3 retention policies | PS: `Get-RetentionCompliancePolicy | Where RetentionComplianceLockType -eq 'Lock'` | All Zone 3 policies show `Lock` | `lock-<policy>-YYYYMMDD.json` |
-| 6 | Test deletion is blocked during retention | Test scenario T-1 below | Deletion attempt fails with retention block; audit log records the block | Audit search export |
+| 5 | Preservation Lock applied to eligible Zone 3 retention policies | PS: `Get-RetentionCompliancePolicy`; compare every expected policy, including unlocked/missing results | Every expected eligible policy has `RestrictiveRetention = True`; unsupported configurations are recorded as gaps | `lock-<policy>-YYYYMMDD.json` |
+| 6 | Actual retention/record protection matches the design | Test scenario T-1 below | A locked record or regulatory record blocks working-item deletion; ordinary retention may instead preserve a deleted copy | Item-state evidence and available audit export |
 | 7 | Disposition review fires at retention end and produces reviewer audit trail | Test scenario T-2 below | Item appears in disposition queue; reviewer decision recorded | Disposition decision CSV export |
 | 8 | eDiscovery hold preserves content past retention disposition | Test scenario T-3 below | Item retained even though retention would dispose; release of hold restores normal behavior | Hold inventory export |
 | 9 | Audit log captures retention/deletion event types | Portal: Audit > Search | Event types in §5 of [PowerShell setup](./powershell-setup.md) all return results | Audit search CSV export |
@@ -38,21 +38,21 @@ Each scenario uses a **disposable test tenant container** (test SharePoint site,
 
 ### T-1: Retention prevents deletion within window
 
-**Goal:** Prove that retention actually blocks deletion.
+**Goal:** Verify the configured item-level protection, not an assumed universal deletion block. [Microsoft distinguishes ordinary retention, locked/unlocked records, and regulatory records](https://learn.microsoft.com/en-us/purview/records-management).
 
 1. **Setup.** Create a SharePoint document library scoped to the `FSI-Agent-Labels-Publish-Zone3` policy. Wait for label availability (≤24 h).
 2. **Apply.** Upload a test file `T1-retention-test.docx`. Apply the `FSI-Agent-BooksRecords-6Year` label.
 3. **Verify label applied.**
-    - Portal: file properties show the retention label and "Retain until <created+6yr>".
+    - Portal: file properties show the retention label and applicable record/lock state. Export the label definition separately; a label's written timestamp is not its retention-end date.
     - PS:
       ```powershell
       Get-PnPListItem -List 'Documents' -PageSize 10 |
           Where-Object { $_.FieldValues.FileLeafRef -eq 'T1-retention-test.docx' } |
-          Select-Object @{n='Label';e={$_.FieldValues._ComplianceTag}}, @{n='RetainUntil';e={$_.FieldValues._ComplianceTagWrittenTime}}
+          Select-Object @{n='Label';e={$_.FieldValues._ComplianceTag}}, @{n='LabelWrittenTime';e={$_.FieldValues._ComplianceTagWrittenTime}}
       ```
 4. **Attempt deletion.** Delete the file from SharePoint and from the second-stage Recycle Bin.
-5. **Expected.** Site collection administrators cannot permanently delete the file; it remains in the Preservation Hold Library. Audit log records `FileDeleted` followed by retention enforcement.
-6. **Capture.** Export an audit search filtered to the test file showing the retention block.
+5. **Expected.** For the intended regulatory-record or locked-record configuration, working-item deletion is blocked. If the specimen has ordinary retention, working-item deletion can succeed while a copy is preserved; that is not proof of a deletion lock. Record a design mismatch rather than treating every retention label as immutable.
+6. **Capture.** Record the item identifier, effective label/record state, attempted operation and result, and available audit evidence. Do not invent a universal retention-block event or item deletion-lock property.
 
 ### T-2: Disposition review fires and is auditable
 
@@ -60,7 +60,7 @@ Each scenario uses a **disposable test tenant container** (test SharePoint site,
 
 1. **Setup.** Create a temporary "smoke test" label `FSI-AgentTest-7Day` (7-day retention, action **Start a disposition review**, reviewer = test mailbox). Publish to a test site.
 2. **Apply** the test label to a test document.
-3. **Wait** 7 days (or accelerate by setting the `_ComplianceTagWrittenTime` to 8 days prior in a test-only environment — never in production).
+3. **Wait** for the configured retention trigger and processing window. Do not alter `_ComplianceTagWrittenTime` to simulate expiration; it is label metadata, not a supported test clock.
 4. **Verify** the item appears in **Records management > Disposition** queue.
 5. **Reviewer action.** As Stage 1 reviewer, choose **Approve disposal** with a justification.
 6. **Expected.** Item is disposed within ~1 day. The disposition record (item name, reviewer, justification, decision date) appears in the **Disposition** > **Disposed items** view and persists for the disposition retention period.
@@ -97,7 +97,7 @@ Each scenario uses a **disposable test tenant container** (test SharePoint site,
     ```powershell
     Set-RetentionComplianceRule -Identity 'FSI-Copilot-AIExperiences-6Year' -RetentionDuration 2920  # 8 years
     ```
-7. **Expected.** Succeeds. Capture the new value, then revert by extending again to your design value (because reducing back to 6 years is **not** allowed once extended).
+7. **Expected.** Succeeds. Capture the new value; the extension is irreversible and cannot be reverted to the shorter design value. Keep this dedicated test policy isolated.
 
 !!! warning "Do not run T-4 step 6 in production"
     Extending retention on a locked policy is itself irreversible. Run T-4 only against a dedicated test policy in a non-production tenant.
@@ -124,7 +124,7 @@ Bundle these artifacts under `evidence/1.9/YYYY-Q#/` for examination response:
 3. **Lock proof** — `lock-<policy>-YYYYMMDD.json` for every Zone 3 locked policy + portal screenshot per policy
 4. **Distribution proof** — Purview > Label policies > policy > Distribution status screenshot
 5. **AI-experience locations** — Purview > Data lifecycle management > Policies > each AI policy screenshot showing the AI-experience location enabled
-6. **T-1 evidence** — audit log export showing retention block on the test file
+6. **T-1 evidence** — effective item/label/record state, observed deletion result, and available audit export
 7. **T-2 evidence** — disposition decision row export
 8. **T-3 evidence** — hold inventory + release record
 9. **T-4 evidence** — PowerShell transcript showing locked-policy failures (steps 2 and 4)
@@ -189,4 +189,6 @@ Bundle these artifacts under `evidence/1.9/YYYY-Q#/` for examination response:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-09 (targeted retention-method documentation review only)
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (last UI verification May 2026)*
