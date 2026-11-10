@@ -78,7 +78,7 @@ For every SEV-1 (and SEV-2 where reportability is plausible):
 
 ```powershell
 $p = Get-RetentionCompliancePolicy -Identity 'FSI-Copilot-AIExperiences-Retention' -DistributionDetail
-$p | Select-Object Name, Mode, Enabled, DistributionStatus, RetentionComplianceLockType, *Location*
+$p | Select-Object Name, Mode, Enabled, DistributionStatus, RestrictiveRetention, *Location*
 Get-RetentionComplianceRule -Policy $p.Name |
     Select-Object Name, RetentionDuration, RetentionComplianceAction, ContentMatchQuery
 ```
@@ -106,9 +106,11 @@ For per-user diagnosis (Copilot/AI experiences), check the user's effective poli
 **Diagnostic:**
 
 ```powershell
-Get-RetentionCompliancePolicy | Where-Object RetentionComplianceLockType -eq 'Lock' |
-    Select-Object Name, Mode, Enabled, RetentionComplianceLockType, WhenChanged
+Get-RetentionCompliancePolicy |
+    Select-Object Name, Mode, Enabled, RestrictiveRetention, WhenChanged
 ```
+
+Compare this unfiltered output with every expected policy: `RestrictiveRetention = True` is the documented policy-level Preservation Lock proof, not an item-level deletion lock. Missing policies, missing properties, or false values are not passes. Adaptive scopes are unsupported, and locked label-publishing policies must contain only regulatory-record labels. See [Microsoft's eligibility and verification procedure](https://learn.microsoft.com/en-us/purview/retention-preservation-lock).
 
 **The matrix of permitted vs. denied actions on a locked policy:**
 
@@ -147,7 +149,7 @@ Get-RetentionCompliancePolicy | Where-Object RetentionComplianceLockType -eq 'Lo
 # Identify all policies + rules that could touch a given location
 $loc = 'ExchangeLocation'
 Get-RetentionCompliancePolicy | Where-Object { $_.$loc -contains 'All' -or $_.$loc.Count -gt 0 } |
-    Select-Object Name, Mode, Enabled, RetentionComplianceLockType, $loc
+    Select-Object Name, Mode, Enabled, RestrictiveRetention, $loc
 ```
 
 **Precedence model (in order):**
@@ -376,4 +378,6 @@ Get-CaseHoldRule  -Policy '<hold-policy-name>' | Select-Object Name, ContentMatc
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+**Last Verified:** 2026-11-09 (targeted retention-method documentation review only)
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (last UI verification May 2026)*
