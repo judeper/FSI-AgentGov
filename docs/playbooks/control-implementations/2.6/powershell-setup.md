@@ -14,7 +14,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety, Dataverse compatibility, and SHA-256 evidence emission.
 
-> **Scope.** This playbook automates **read-only evidence inventories** for [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Outputs feed your existing MRM program; they do not replace it.
+> **Scope.** This playbook contains illustrative **read-only evidence helpers** for [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Inventory and Foundry-run adapters are not implemented. Outputs feed your existing MRM program; they do not replace it.
 >
 > **Namespace.** All functions use the `FsiMRM` prefix to prevent collision with peer-control automation (`Agt36`, `Agt225`, `Agt226`).
 >
@@ -23,6 +23,11 @@
 ---
 
 ## §1 — Pre-flight: Modules, licenses, roles, and connection verification
+
+!!! warning "Collection adapters are not implemented"
+    The Power Platform, Purview and Agent 365 inventory branches and optional Foundry-run branch below deliberately emit `Error` with `ManualEvidenceRequired`. They are not native Microsoft MRM collectors. Use the supported manual procedures in the [portal walkthrough](./portal-walkthrough.md) and reconcile the raw evidence under [Verification §1.2](./verification-testing.md#12-population-of-in-scope-agents). Do not schedule these examples as a complete evidence pipeline until a separately validated adapter exists. A package manifest is not the signed/schema-validated examination assembler described in Verification §9.4.
+
+    The [Power Platform model inventory](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-agent-model-lifecycle), [Purview activity coverage](https://learn.microsoft.com/en-us/purview/ai-copilot-studio), and [Foundry evaluation workflow](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/observability) have distinct contracts. The documented [Copilot interaction export API](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/ai-services/interaction-export/aiinteractionhistory-getallenterpriseinteractions) is user-scoped, excludes Copilot Studio interactions and is not an agent/model inventory. `Get-AdminBot` and the former generic DSPM inventory route are not established by these sources. [Get-AzMLWorkspaceJob](https://learn.microsoft.com/en-us/powershell/module/az.machinelearningservices/get-azmlworkspacejob) lists Azure ML jobs; it has no `-ResourceId` parameter and does not establish a universal Foundry evaluation-run schema.
 
 ### 1.1 — Module version matrix
 
@@ -41,8 +46,7 @@ $FsiMRMModuleMatrix = @(
     @{ Name = 'Microsoft.Graph.Users';                     Min = '2.19.0' },
     @{ Name = 'ExchangeOnlineManagement';                  Min = '3.4.0'  },  # Purview / unified audit log
     @{ Name = 'Microsoft.PowerApps.Administration.PowerShell'; Min = '2.0.175' },
-    @{ Name = 'Az.Accounts';                               Min = '2.15.0' },  # Foundry workspace access
-    @{ Name = 'Az.MachineLearningServices';                Min = '1.0.0'  }   # Foundry evaluator runs (TODO: verify exact module surface for Foundry GA)
+    @{ Name = 'Az.Accounts';                               Min = '2.15.0' }   # Azure connection context only
 )
 
 function Test-FsiMRMModuleMatrix {
@@ -75,12 +79,12 @@ function Test-FsiMRMModuleMatrix {
 
 | Capability | Minimum license / SKU | Canonical role(s) |
 |---|---|---|
-| Power Platform CoE inventory | Power Apps per-user OR per-app for the CoE owner; CoE Starter Kit installed | **Power Platform Admin** |
-| DSPM for AI inventory of Copilot / Copilot Studio / Foundry / Entra-registered AI apps | Microsoft Purview (E5 Compliance or equivalent add-on); DSPM for AI enabled | **Purview Data Security AI Admin** + **Purview Compliance Admin** |
+| Power Platform inventory | Verify inventory enablement and authorized export scope; existing CoE exports are supplemental and the kit is no longer actively maintained | **Power Platform Admin** |
+| Purview AI activity evidence | Verify feature-specific licensing/onboarding; non-Microsoft-channel Copilot Studio interaction protection requires Purview pay-as-you-go | **Purview Compliance Admin**; additional content-viewer permission for prompts/responses |
 | Agent 365 Admin Center inventory | Agent 365 GA SKU in the tenant region (verify per Microsoft Learn) | **AI Administrator** |
-| Entra Agent ID enumeration | Entra ID P1 minimum; P2 recommended for Identity Governance lifecycle workflows | **Entra Global Reader** (read-only); **Entra Identity Governance Admin** for lifecycle exports |
-| Purview Unified Audit Log queries | E5 Compliance; audit log search enabled | **Purview Audit Admin** |
-| Azure AI Foundry evaluator-run export | Contributor on the Foundry workspace; Storage Blob Data Reader on the linked storage | **AI Administrator** + Foundry-workspace RBAC |
+| Entra Agent ID | Base Agent ID is available to all Entra customers; extended Entra agent security requires Agent 365 | Verify operation-specific read/governance permissions |
+| Purview Unified Audit Log queries | Appropriate Audit subscription, auditing enabled and search permission; [Standard supports search/export](https://learn.microsoft.com/en-us/purview/audit-solutions-overview), with Premium licensing needed for Premium capabilities | **Purview Audit Admin** |
+| Microsoft Foundry evaluator-run evidence | Supported project/evaluation workflow, Azure billing and operation-specific RBAC; manual export pending validated adapter | Foundry project permissions, not the Microsoft 365 **AI Administrator** role alone |
 | Evidence label application & WORM routing | Purview retention labels published; Records Management feature enabled | **Purview Records Manager** |
 
 All role activations for evidence collection should be performed via **PIM with a `ChangeTicketId`** in the activation justification — see [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for retention routing and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for audit-log / 17a-4(f) handoff.
@@ -168,35 +172,20 @@ All four helpers below return `[pscustomobject]` with a top-level `Status` ∈ `
 function Get-FsiAgentInventoryForMRM {
 <#
 .SYNOPSIS
-    Produces a unified AI-agent inventory for MRM Committee review by joining
-    Power Platform CoE (Copilot Studio agents), Purview DSPM for AI (Copilot,
-    Foundry, Entra-registered AI apps), and the Agent 365 Admin Center.
+    Emits explicit ManualEvidenceRequired errors for three inventory adapters
+    pending separately validated implementation.
 
 .DESCRIPTION
-    Read-only. Does NOT classify model tier — Tier is populated from the firm's
-    1.2 agent registry if supplied, otherwise emitted as 'Unassigned' with
-    Status='Pending' so the MRM Committee assigns it.
-
-    Each row is a [pscustomobject] with:
-      AgentId, DisplayName, Owner, Environment, UnderlyingModel, ModelVersion,
-      KnowledgeSources, LastValidationDate, NextValidationDate, Tier,
-      Source ∈ {PowerPlatformCoE, DSPMforAI, Agent365}, Status
-
-    Status values:
-      Clean         — all required MRM fields populated, validation in-window
-      Anomaly       — validation overdue, missing model card, or untiered with
-                      production usage signals
-      Pending       — newly discovered agent awaiting MRM Committee tiering
-      Error         — surface call failed; row preserved for audit
-
+    Read-only. No platform call or model-tier classification is performed.
+    Each error row carries AgentId, Source, Status and DisplayName (reason).
+    Source names preserve the sample contract; PowerPlatformCoE does not
+    imply that the retired CoE kit is a complete supported inventory.
 
 .PARAMETER RegistryPath
-    Optional path to the firm's 1.2 AI agent registry (CSV or JSON) used to
-    enrich rows with Tier, LastValidationDate, NextValidationDate.
+    Reserved for a future validated adapter; not consumed by this stub.
 
 .PARAMETER ValidationWindowDays
-    Days inside which a validation is considered current. Default 365 per
-    common MRM annual-revalidation cycles; Tier-1 agents may require shorter.
+    Reserved for a future validated adapter; no currentness is inferred.
 
 .OUTPUTS
     [pscustomobject] { RunUtc, Status, Findings[] }
@@ -207,51 +196,11 @@ function Get-FsiAgentInventoryForMRM {
         [ValidateRange(30,1095)][int]$ValidationWindowDays = 365
     )
 
-    $registry = @{}
-    if ($RegistryPath -and (Test-Path $RegistryPath)) {
-        try {
-            $entries = if ($RegistryPath -match '\.json$') { Get-Content $RegistryPath -Raw | ConvertFrom-Json }
-                       else { Import-Csv $RegistryPath }
-            foreach ($e in $entries) { $registry[$e.AgentId] = $e }
-        } catch {
-            Write-Warning "Registry load failed: $($_.Exception.Message). Tier/validation fields will be Unassigned."
-        }
-    }
-
     $findings = @()
 
-    # --- Source 1: Power Platform CoE (Copilot Studio agents) -------------
+    # --- Source 1: Power Platform inventory ------------------------------
     try {
-        $envs = Get-AdminPowerAppEnvironment -ErrorAction Stop
-        foreach ($env in $envs) {
-            # Copilot Studio agents surface as bots within the environment;
-            # use Get-AdminPowerAppEnvironment + Dataverse query in production.
-            # TODO: confirm the GA cmdlet name for Copilot Studio bot enumeration
-            # (currently Get-AdminBot in the BAP API; verify against your pinned
-            # Microsoft.PowerApps.Administration.PowerShell version).
-            try {
-                $bots = Get-AdminBot -EnvironmentName $env.EnvironmentName -ErrorAction Stop
-            } catch { $bots = @() }
-
-            foreach ($b in $bots) {
-                $reg = $registry[$b.BotName]
-                $row = [pscustomobject]@{
-                    AgentId            = $b.BotName
-                    DisplayName        = $b.DisplayName
-                    Owner              = $b.Owner.userPrincipalName
-                    Environment        = $env.DisplayName
-                    UnderlyingModel    = $reg.UnderlyingModel    # CoE does not always expose model assignment
-                    ModelVersion       = $reg.ModelVersion
-                    KnowledgeSources   = $reg.KnowledgeSources
-                    LastValidationDate = $reg.LastValidationDate
-                    NextValidationDate = $reg.NextValidationDate
-                    Tier               = if ($reg.Tier) { $reg.Tier } else { 'Unassigned' }
-                    Source             = 'PowerPlatformCoE'
-                    Status             = 'Pending'   # set below
-                }
-                $findings += (Resolve-FsiMRMRowStatus -Row $row -ValidationWindowDays $ValidationWindowDays)
-            }
-        }
+        throw 'ManualEvidenceRequired: retain supported Power Platform inventory/model exports and reconcile them with the approved register; no validated inventory adapter is implemented here.'
     } catch {
         $findings += [pscustomobject]@{
             AgentId='(power-platform-error)'; Source='PowerPlatformCoE';
@@ -261,65 +210,23 @@ function Get-FsiAgentInventoryForMRM {
 
     # --- Source 2: Purview DSPM for AI ------------------------------------
     try {
-            # DSPM for AI inventory is exposed via Microsoft Graph
-            # /security/dataSecurityAndGovernance/* surface (preview at time of writing).
-            # TODO: verify the GA endpoint path before production scheduling.
-            $dspmAgents = Invoke-MgGraphRequest -Method GET `
-                -Uri '/v1.0/security/dataSecurityAndGovernance/aiInteractionHistory?$top=999' `
-                -ErrorAction Stop
-            foreach ($a in $dspmAgents.value) {
-                $reg = $registry[$a.appId]
-                $row = [pscustomobject]@{
-                    AgentId            = $a.appId
-                    DisplayName        = $a.appDisplayName
-                    Owner              = $a.ownerUpn
-                    Environment        = $a.platform   # Copilot | CopilotStudio | Foundry | EntraRegistered
-                    UnderlyingModel    = $a.modelId
-                    ModelVersion       = $a.modelVersion
-                    KnowledgeSources   = ($a.dataSources -join ';')
-                    LastValidationDate = $reg.LastValidationDate
-                    NextValidationDate = $reg.NextValidationDate
-                    Tier               = if ($reg.Tier) { $reg.Tier } else { 'Unassigned' }
-                    Source             = 'DSPMforAI'
-                    Status             = 'Pending'
-                }
-                $findings += (Resolve-FsiMRMRowStatus -Row $row -ValidationWindowDays $ValidationWindowDays)
-            }
-        } catch {
-            $findings += [pscustomobject]@{
-                AgentId='(dspm-error)'; Source='DSPMforAI';
-                Status='Error'; DisplayName=$_.Exception.Message
-            }
+        throw 'ManualEvidenceRequired: collect supported Purview reports/activity evidence with scope and onboarding limitations; interaction history is not a tenant-wide agent/model inventory.'
+    } catch {
+        $findings += [pscustomobject]@{
+            AgentId='(dspm-error)'; Source='DSPMforAI';
+            Status='Error'; DisplayName=$_.Exception.Message
+        }
     }
 
     # --- Source 3: Agent 365 Admin Center ---------------------------------
     try {
-            # Package and identity APIs do not supply this model-risk row schema.
-            # A validated cross-plane adapter is required; never report a clean empty result.
-            throw 'ManualEvidenceRequired: reconcile Control 1.2 package/identity/environment evidence and approved model metadata; no generic Graph agents route is documented.'
-            foreach ($a in $a365.value) {
-                $reg = $registry[$a.id]
-                $row = [pscustomobject]@{
-                    AgentId            = $a.id
-                    DisplayName        = $a.displayName
-                    Owner              = $a.owner.userPrincipalName
-                    Environment        = 'Agent365'
-                    UnderlyingModel    = $a.modelBinding.modelId
-                    ModelVersion       = $a.modelBinding.modelVersion
-                    KnowledgeSources   = ($a.knowledge.sources -join ';')
-                    LastValidationDate = $reg.LastValidationDate
-                    NextValidationDate = $reg.NextValidationDate
-                    Tier               = if ($reg.Tier) { $reg.Tier } else { 'Unassigned' }
-                    Source             = 'Agent365'
-                    Status             = 'Pending'
-                }
-                $findings += (Resolve-FsiMRMRowStatus -Row $row -ValidationWindowDays $ValidationWindowDays)
-            }
-        } catch {
-            $findings += [pscustomobject]@{
-                AgentId='(agent365-error)'; Source='Agent365';
-                Status='Error'; DisplayName=$_.Exception.Message
-            }
+        # Package and identity APIs do not supply this model-risk row schema.
+        throw 'ManualEvidenceRequired: reconcile Control 1.2 package/identity/environment evidence and approved model metadata; no generic Graph agents route is documented.'
+    } catch {
+        $findings += [pscustomobject]@{
+            AgentId='(agent365-error)'; Source='Agent365';
+            Status='Error'; DisplayName=$_.Exception.Message
+        }
     }
 
     $aggregate = if ($findings.Status -contains 'Error') { 'Error' }
@@ -404,7 +311,11 @@ function Get-FsiAgentModelChangeFeed {
             if (-not $isModelChange) { continue }
             $effective = if ($m.actionRequiredByDateTime) { [datetime]$m.actionRequiredByDateTime } else { $null }
             $affected  = if ($InventoryFindings) {
-                @($InventoryFindings | Where-Object { $body -match [regex]::Escape("$($_.UnderlyingModel)") }).Count
+                @($InventoryFindings | Where-Object {
+                    $_.Status -ne 'Error' -and
+                    -not [string]::IsNullOrWhiteSpace([string]$_.UnderlyingModel) -and
+                    $body -match [regex]::Escape("$($_.UnderlyingModel)")
+                }).Count
             } else { 0 }
             $status = if ($effective -and $effective -gt (Get-Date) -and $affected -gt 0) { 'Anomaly' }
                       elseif ($affected -gt 0) { 'Pending' }
@@ -468,7 +379,7 @@ function Get-FsiAgentModelChangeFeed {
 
 ### 2.3 — `Export-FsiMRMEvidencePackage`
 
-Bundles the inventory, change feed, and (optionally) Foundry evaluator runs into a structured folder ready for MRM Committee review and 17a-4(f)-vendor ingestion. **Mutation safety is not required** — this helper writes only to the local evidence path supplied by the caller; downstream WORM routing is performed by [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) retention labels and the 17a-4(f) vendor pipeline.
+Bundles available outputs and explicit collection errors into a local diagnostic folder. It is not a complete or signed examination package, and it does not apply retention labels. **Mutation safety is not required** — this helper writes only to the local evidence path supplied by the caller; downstream WORM routing is performed by [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) retention labels and the 17a-4(f) vendor pipeline.
 
 ```powershell
 function Export-FsiMRMEvidencePackage {
@@ -492,16 +403,15 @@ function Export-FsiMRMEvidencePackage {
 
 
 .PARAMETER EvidencePath
-    Local folder to write into. Should be Purview-labeled (see Control 1.7) or
-    pre-mounted to your 17a-4(f) vendor staging area (see Control 1.9).
+    Local staging folder. A filesystem folder is not Purview-labeled; route
+    finalized evidence to the approved labeled/immutable store separately.
 
 .PARAMETER RegistryPath
     Optional 1.2 agent registry CSV/JSON; passed through to the inventory helper.
 
 .PARAMETER FoundryWorkspaceId
-    Optional Azure AI Foundry workspace resource ID. When supplied, the helper
-    enumerates evaluator runs and includes a structured index. Omit if Foundry
-    is not in scope for this MRM cycle.
+    Legacy scope hint. When supplied, emits a ManualEvidenceRequired error
+    artifact instead of claiming to enumerate Foundry evaluations.
 
 .PARAMETER ScriptVersion
     Tag used in the manifest. Default 'v1.4'.
@@ -571,19 +481,7 @@ function Export-FsiMRMEvidencePackage {
     # 3) Foundry evaluator runs (optional — caller provides workspace ID)
     if ($FoundryWorkspaceId) {
         try {
-            # TODO: confirm the GA cmdlet for Foundry evaluator-run enumeration
-            # in your pinned Az.MachineLearningServices version. The Foundry
-            # surface is moving; in the absence of a stable cmdlet, fall back
-            # to the REST API at /providers/Microsoft.MachineLearningServices/workspaces/{ws}/jobs.
-            $runs = Get-AzMLWorkspaceJob -ResourceId $FoundryWorkspaceId -ErrorAction Stop |
-                Where-Object { $_.Properties.jobType -eq 'evaluation' }
-            $runIndex = [pscustomobject]@{
-                RunUtc   = (Get-Date).ToUniversalTime()
-                WorkspaceId = $FoundryWorkspaceId
-                Status   = if ($runs.Count -eq 0) { 'Pending' } else { 'Clean' }
-                Findings = @($runs | Select-Object Id, Name, Status, CreatedAt, ModelVersion, EvaluatorIds)
-            }
-            _emit -Name 'foundry-evaluator-runs.json' -Object $runIndex
+            throw 'ManualEvidenceRequired: export native Foundry evaluation results, dataset/evaluator versions and run identifiers using the supported project workflow; no validated run-export adapter is implemented here.'
         } catch {
             _emit -Name 'foundry-evaluator-runs.json' -Object ([pscustomobject]@{
                 RunUtc=(Get-Date).ToUniversalTime(); WorkspaceId=$FoundryWorkspaceId
@@ -661,6 +559,9 @@ $pkg | Format-List PackagePath, Status, ArtifactCount
 
 ```powershell
 $inv = Get-FsiAgentInventoryForMRM -RegistryPath '.\registry.json'
+if ($inv.Status -eq 'Error') {
+    throw 'Inventory evidence is incomplete; reconcile manual evidence before generating a due-soon report.'
+}
 $now = Get-Date
 
 $dueSoon = $inv.Findings | Where-Object {
@@ -680,7 +581,13 @@ $dueSoon | Group-Object Bucket | Format-Table Name, Count
 
 ```powershell
 $inv  = Get-FsiAgentInventoryForMRM -RegistryPath '.\registry.json'
+if ($inv.Status -eq 'Error') {
+    throw 'Inventory evidence is incomplete; affected-agent counts cannot be inferred.'
+}
 $feed = Get-FsiAgentModelChangeFeed -InventoryFindings $inv.Findings -LookbackDays 180
+if ($feed.Status -eq 'Error') {
+    throw 'Change-feed collection failed; retain the error artifact and resolve it before issuing a disposition log.'
+}
 
 $dispositionLog = $feed.Findings | Where-Object Status -in @('Anomaly','Pending') |
     Select-Object Source, Id, Title, EffectiveUtc, AffectedAgentCount, DispositionDue, Status,
@@ -721,7 +628,7 @@ $index | ConvertTo-Json -Depth 5 |
 
 ### 4.1 — Azure Automation pattern
 
-Run the quarterly snapshot as an Azure Automation runbook with a managed identity granted the read-only roles in §1.2. **Do not** grant remediation roles to the runbook identity — this control's automation is read-only.
+Only after collection adapters and archival handoff are separately implemented and validated, consider an Azure Automation runbook with operation-specific permissions. The sample below uploads only a manifest, not the complete evidence package; it is not a deployable archival pipeline. **Do not** grant remediation roles to the runbook identity — this control's collection automation is read-only.
 
 ```powershell
 # Runbook entry point (PowerShell 7.2 Runbook, hybrid worker recommended for
@@ -750,7 +657,7 @@ Set-AzStorageBlobContent -Container 'mrm-evidence' `
 Where Automation is not approved, use a Windows Task Scheduler job on a hardened admin workstation. The task must:
 
 - Run under a least-privilege managed service account.
-- Write artifacts to a folder that is **inside** a Purview retention scope OR mounted to your 17a-4(f) vendor's secure ingestion share.
+- Stage artifacts locally and verify their separate ingestion into the approved labeled/immutable evidence store; a local filesystem folder is not inside a Purview retention-label scope.
 - Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §3).
 
 ### 4.3 — Retention routing
@@ -856,12 +763,11 @@ function Test-FsiMRMPackageIntegrity {
 
 | Symptom | Likely cause | First check | Cross-link |
 |---|---|---|---|
-| `Get-FsiAgentInventoryForMRM` returns 0 rows from DSPM for AI | DSPM for AI not provisioned, or Purview Data Security AI Admin role not active | Verify role activation in PIM and confirm DSPM for AI onboarding | [Troubleshooting playbook](./troubleshooting.md) |
-| `Get-FsiAgentInventoryForMRM` returns 0 rows from Agent 365 Admin Center | Agent 365 not GA in your region, or licensing not enabled | Confirm Agent 365 SKU per Microsoft Learn and verify the Agent 365 Admin Center inventory surface | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
-| `Export-FsiMRMEvidencePackage` writes Foundry artifact with `Status='Error'` and `Note=ResourceNotFound` | Foundry workspace ID malformed or RBAC missing | Validate full `/subscriptions/.../resourceGroups/.../providers/Microsoft.MachineLearningServices/workspaces/<name>` path; verify Contributor + Storage Blob Data Reader | [Troubleshooting playbook](./troubleshooting.md) |
-| Graph throttling (HTTP 429) on `aiInteractionHistory` or `messages` | DSPM for AI / Message Center pages aggressively at tenant scale | Implement `Retry-After` honoring; reduce `$top`; split runs by week | [Troubleshooting playbook](./troubleshooting.md) |
+| Inventory helper emits `ManualEvidenceRequired` | Inventory adapters are deliberately unimplemented | Collect and reconcile supported Power Platform, Purview and Agent 365 evidence; preserve the `Error` until collection is separately completed | [Verification §1.2](./verification-testing.md#12-population-of-in-scope-agents) |
+| Optional Foundry artifact has `Status='Error'` and `ManualEvidenceRequired` | No validated Foundry run-export adapter | Attach native run results with dataset/evaluator versions through the approved manual evidence process; a workspace ID alone does not collect runs | [Verification §4](./verification-testing.md#4-outcomes-analysis-evidence-test-outcomes-namespace) |
+| Graph throttling (HTTP 429) on Message Center `messages` | Supported change-feed reads exceed service limits | Honor `Retry-After`; preserve collection errors and coverage gaps | [Troubleshooting playbook](./troubleshooting.md) |
 | `Test-FsiMRMPackageIntegrity` reports `ShaMatch:Anomaly` | Artifact mutated after manifest write (possible WORM violation) | Treat as **incident**; preserve package and the divergent artifact; notify Purview Records Manager and Internal Audit | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
-| `Get-AdminBot` cmdlet not found | Module surface for Copilot Studio bot enumeration changed; module pinning drifted | Check pinned `Microsoft.PowerApps.Administration.PowerShell` version; review module release notes; substitute Dataverse query or BAP REST call as fallback | Baseline §1 |
+| Legacy copy calls `Get-AdminBot` or generic DSPM inventory route | Unsupported illustrative collector | Stop using that branch; use the supported inventory procedure rather than guessing another endpoint | [Portal walkthrough](./portal-walkthrough.md) |
 
 For full diagnostic flows, see the companion [Troubleshooting playbook](./troubleshooting.md).
 
@@ -885,4 +791,6 @@ For full diagnostic flows, see the companion [Troubleshooting playbook](./troubl
 
 ---
 
-*Updated: October 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (Agent 365 source contract only; no tenant/UI execution)*
+**Last Verified:** 2026-11-09 — targeted collection-contract documentation correction; unsupported adapters fail closed. No tenant/API execution.
+
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (collection-contract documentation only; no tenant/UI execution)*
