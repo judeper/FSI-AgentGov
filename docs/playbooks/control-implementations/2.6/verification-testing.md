@@ -6,7 +6,11 @@
 >
 > **Audience:** Compliance Officer, Internal Audit, MRM Committee secretariat, Model Risk Manager (independent validation function), AI Governance Lead. The detailed portal navigation and PowerShell automation that *produce* the evidence consumed here are in the sister [Portal Walkthrough](./portal-walkthrough.md) and [PowerShell Setup](./powershell-setup.md) playbooks; this playbook focuses on the audit and examination question: **is the firm's MRM program actually operating with these agents in it, and is the MRM Committee accepting the validation?**
 >
-> **Last UI verified:** April 2026.
+**Last Verified:** 2026-11-09 (live Microsoft documentation review; no tenant UI, screenshots, or administrative execution).
+
+**Historical UI verification:** April 2026. Re-test the documented procedures in the target tenant before accepting execution evidence.
+
+**Implementation boundary:** The evidence schema, signatures, Committee workflow, and examination-pack assembler below are firm-defined requirements, not built-in Microsoft features. The companion PowerShell helpers are illustrative and do not implement the signed, schema-validated assembler in §9.4. Unsupported inventory/evaluation adapters emit `Error`; a generated folder or hash manifest alone is not a completed verification.
 
 ---
 
@@ -19,7 +23,7 @@
 | Run identifier | Each verification cycle is tagged `MRM26-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Cycle cadence | Pre-deployment (§2), quarterly ongoing-monitoring (§3), risk-commensurate outcomes-analysis (§4 — *not* fixed annual), per-vendor-event vendor-model (§5), per-MRM-Committee-meeting effective-challenge (§6), continuous retention (§7), per-retirement event (§8), on-demand examination rehearsal (§9). |
 | Scoring | Every test emits one of `Clean / Anomaly / Pending / NotApplicable / Error` per §10. The MRM Committee — not this playbook — accepts or rejects the underlying validation. |
-| Evidence retention | Six (6) years on 17a-4(f)-compliant media (Purview retention label with deletion lock, or an approved 17a-4(f) vendor) for: model-classification decisions, Agent Cards, validation memos, MRM Committee minutes, monitoring reports, outcomes-analysis runs, vendor-model dispositions, and retirement records. The first two years must be readily accessible. |
+| Evidence retention | Six (6) years on 17a-4(f)-compliant media (verified item-level Purview record protection with separate policy-lock evidence as applicable, or an approved 17a-4(f) vendor) for: model-classification decisions, Agent Cards, validation memos, MRM Committee minutes, monitoring reports, outcomes-analysis runs, vendor-model dispositions, and retirement records. The first two years must be readily accessible. |
 
 > **Non-substitution.** Microsoft Purview DSPM for AI, the Agent 365 Admin Center, the Power Platform CoE export, Microsoft Copilot Studio Analytics, Azure AI Foundry monitoring and evaluators, and Microsoft Entra Agent ID are **inventory, evaluation, and evidence-collection surfaces**. They do **not** replace, and must not be presented to the MRM Committee or to examiners as a substitute for, the firm's MRM Committee, independent validation function, effective-challenge process, three-lines-of-defense governance, registered-principal supervision under FINRA Rule 3110, or 17a-4(f) books-and-records retention.
 
@@ -40,15 +44,17 @@
 
 ### 1.2 Population of in-scope agents
 
-The verification population is the **set of AI agents that the firm's model-classification process has classified as Tier 1 or Tier 2**. The population is anchored to three independent sources reconciled together:
+The verification population is the **set of AI agents that the firm's model-classification process has classified as Tier 1 or Tier 2**. Reconcile the firm's authoritative register with the following corroborating surfaces; none alone establishes complete tenant coverage:
 
 | Source | Surface | What it provides | Reconciliation rule |
 |---|---|---|---|
-| **A. Authoritative AI inventory** | Microsoft Purview DSPM for AI inventory export (cross-reference [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)) | Every Copilot, Copilot Studio, Foundry, and Entra-registered AI app the tenant has produced or exposed | Source of truth for "does this agent exist in the tenant?" |
-| **B. Agent 365 Admin Center inventory** | Agent 365 Admin Center → Agents (cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) | Every Agent 365-surfaced agent with publication / activation approval, governance template, owner, and license state | Source of truth for "is this agent governance-bound?" |
-| **C. Power Platform CoE export** | CoE Starter Kit → Copilot Studio inventory export (CSV / Power BI) | Every Copilot Studio agent across managed environments with environment, owner, last-modified, model selection | Source of truth for "is this agent under Power Platform governance?" |
+| **A. Authoritative model register + Purview activity evidence** | Firm's Agent Card register; supported DSPM / DSPM for AI (classic) reports and activity explorer (cross-reference [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)) | Firm-maintained ownership, tier and validation metadata; separately, observed AI interactions and sensitive-information signals for onboarded, supported apps | Reconcile observed activity to registered agents; absence of activity is not proof of absence of an agent |
+| **B. Agent 365 registry** | Microsoft 365 admin center → **Agents → All agents → Registry** (cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) | Registered/discovered agents and available details; publication/activation requests are reviewed separately under **Requests** | Record source, filters, visible fields, collection time and coverage gaps; do not infer missing approval, template or license fields |
+| **C. Power Platform inventory** | PPAC **Manage → Copilot Studio** (Model column) and supported inventory views/exports | Agent/environment/model evidence exposed by the current inventory; enrich owner and validation fields from the firm's register | Record inventory enablement, environment scope and any exclusions; retain raw exports and reconcile IDs |
 
-**Reconciliation produces a single in-scope register.** Every agent that appears in source A but not in source B is investigated as a potential governance gap (escalate to [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) or as orphaned (escalate to [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)). Every agent in source C without a corresponding entry in source A is flagged as a DSPM coverage gap.
+**Reconciliation produces a single in-scope register.** Investigate every unmatched ID and distinguish supported scope, onboarding, inactive agents and collection errors from actual governance gaps. Escalate unresolved governance or ownership gaps to [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) or [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). An agent in Power Platform without Purview activity is not automatically a DSPM defect.
+
+Microsoft's [model lifecycle guidance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-agent-model-lifecycle) documents current inventory/model sources. The [CoE Starter Kit dashboard](https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-monitor) is no longer actively maintained and excludes bots in Teams environments; an existing CoE export is supplemental, not a complete replacement. See the [Agent 365 registry](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-registry-overview) and [Purview's Copilot Studio coverage](https://learn.microsoft.com/en-us/purview/ai-copilot-studio) for their separate contracts.
 
 ### 1.3 Model-tiering coverage check
 
@@ -65,7 +71,7 @@ For each agent in the reconciled register, confirm exactly one of the following 
 
 ### 1.4 Evidence record schema
 
-Every test in §2–§9 emits one JSON evidence record conforming to the following schema. The §9.4 examination-readiness pack assembler refuses to publish a pack containing a record that fails schema validation.
+Every test in §2–§9 emits one JSON evidence record conforming to the following schema. The §9.4 examination-readiness pack assembler refuses to publish a pack containing a record that fails schema validation. Values below are synthetic examples, not current model-version or deployment claims.
 
 ```json
 {
@@ -125,7 +131,7 @@ Required sections (verifier checks each is present and non-empty):
 1. **Intended use** — what business decisions or recommendations the agent supports
 2. **Out-of-scope use** — what the agent must not be used for
 3. **Data** — every knowledge source, RAG corpus, training input, and customer-data category the agent touches (cross-reference [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md))
-4. **Underlying model and version** — the specific foundation model and provider; "Copilot Studio default" is **not** acceptable per the control's underlying-model admonition
+4. **Underlying model and version** — the selected foundation model, provider, default-versus-specific selection and any exposed version identifier; where an exact snapshot version is unavailable, record that limitation and the dated model-selection/lifecycle evidence rather than inventing a version ([model selection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-select-agent-model))
 5. **Limitations** — failure modes, edge cases, populations or scenarios where the agent is known to underperform
 6. **Performance benchmarks** — quantitative results from pre-deployment outcomes analysis (§4)
 7. **Known failure modes** — categorical list with mitigation or compensating control
@@ -139,10 +145,10 @@ The validation memo is authored by **personnel functionally independent of the m
 
 | Section | Expectation |
 |---|---|
-| Conceptual soundness | Validator's assessment of design appropriateness, methodology, assumptions, and stated limitations — citing the Agent Card, DSPM for AI inventory record, and Agent 365 governance template binding |
+| Conceptual soundness | Validator's assessment of design appropriateness, methodology, assumptions, and stated limitations — citing the Agent Card, reconciled inventory, available Purview activity evidence, and actual Agent 365 policy-template application where supported |
 | Data assessment | Validator's review of knowledge sources for appropriateness, quality, representativeness (cross-reference [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md)) |
 | Outcomes-analysis interpretation | Validator's reading of the Foundry evaluator runs (§4) — including any evaluator scores below the firm's threshold and the validator's recommendation (accept / accept-with-condition / reject) |
-| Implementation verification | Validator's confirmation that the agent in production matches the validated configuration — includes manifest hash, governance-template binding, Entra Agent ID binding (cross-reference [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md)) |
+| Implementation verification | Validator's confirmation that the agent in production matches the validated configuration — includes manifest hash, actual applied policies and identity binding (cross-reference [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md)); the firm's MRM approval record is separate from native policy templates |
 | Limitations and caveats | Validator's plain statement of what the validation does not cover |
 | Validator identity & independence | Named validator, role, line-of-defense, independence statement |
 | Validator signature | Wet, e-signature, or cryptographic signature with timestamp |
@@ -191,12 +197,14 @@ For each in-scope agent, the firm's monitoring report for the quarter combines:
 
 | Source | What the validator consumes |
 |---|---|
-| Copilot Studio Analytics | Conversation count, escalation / fallback rate, user-satisfaction (CSAT) where collected, response latency, error rate |
-| Azure AI Foundry monitoring (where the underlying model runs on Foundry) | Token usage, latency percentiles, model-side error rates, throttling events, content-filter triggers |
-| Microsoft Purview DSPM for AI interaction reports | Sensitive-prompt rate, sensitive-response rate, sentiment, customer-comment topic clustering, label-applied rate |
+| Copilot Studio **Monitor** (analytics) | Applicable conversational outcomes, sessions, escalations, CSAT and sentiment where available; customer comments summary is preview, not a required production evidence dependency |
+| Microsoft Foundry monitoring (where configured) | Available token, latency, error and quality/safety metrics; record Application Insights linkage, instrumentation, evaluation configuration and sampling rather than assuming every model deployment emits every metric |
+| Microsoft Purview DSPM / DSPM for AI (classic) reports and activity explorer | Supported interaction counts, sensitive interactions and risk signals for onboarded apps; derived rates require recorded numerator, denominator and coverage |
 | Application Insights / Azure Monitor (where wired up by the agent's developer) | Custom application telemetry: tool-call counts, knowledge-source-hit rates, downstream API latency |
 
 The validator (second line, not the model owner) signs a one-page summary stating: KPIs for the quarter, drift versus prior quarters, threshold-breach count, and whether the validator recommends continued operation or escalation.
+
+Use the [Copilot Studio Monitor overview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview), [Foundry observability guidance](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/observability), and [Purview app-specific guidance](https://learn.microsoft.com/en-us/purview/ai-copilot-studio). Copilot Studio Monitor data is available for up to **360 days**, with session details/transcripts in that UI for **28 days**; Dataverse transcript retention is separate. Export required evidence before its source window expires. The test panel does not populate Monitor analytics, and failed triggers that never deliver a payload do not start an analytics session.
 
 ### 3.2 Threshold-breach routing
 
@@ -245,8 +253,10 @@ For each outcomes-analysis run, confirm the following Foundry built-in evaluator
 |---|---|---|
 | Quality | groundedness, relevance, coherence, fluency | How accurately and coherently the agent answers from its grounding |
 | Safety | hate / unfairness, violence, sexual, self-harm, protected materials | Whether the agent produces or amplifies disallowed content |
-| Agent-specific | tool-call accuracy, task-completion, intent-resolution | Whether the agent invokes the correct tools, completes multi-step tasks, and resolves user intent |
+| Agent-specific | Tool Call Accuracy; Task Completion **(preview)**; Intent Resolution **(preview)** | Whether the agent invokes the correct tools, completes multi-step tasks, and resolves user intent; preview evaluators must not be treated as GA production dependencies |
 | Custom (firm-defined) | FSI-specific evaluators (e.g., Reg BI suitability heuristics, AML red-flag detection) | Validator-defined business-specific quality checks |
+
+Select evaluators from the live [built-in reference](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/built-in-evaluators) for the actual evaluation workflow, input format, region and model. Capture evaluator/version, judge-model deployment where required, release state and unsupported cases. Conversation-level evaluation requires `messages` data and skips turn-only evaluators; a skipped or unsupported evaluator is not a passing result. Where preview/custom tooling is unsuitable, record the gap and the firm's separately approved alternative evidence.
 
 **Evaluation dataset expectations:**
 
@@ -262,7 +272,7 @@ Each Foundry evaluator run produces a record retained alongside the validation m
 - Agent ID and version (manifest hash)
 - Underlying model and version at the time of the run
 - Evaluation dataset name and version
-- Per-evaluator score (numeric) plus any failed thresholds
+- Per-evaluator native result (numeric, categorical or pass/fail as applicable), explanations, thresholds and any skipped/failed executions
 - Validator's interpretation: pass / pass-with-condition / fail
 - Validator signature
 - Cross-reference into the MRM Committee minutes that disposed the run
@@ -389,7 +399,11 @@ For each Tier 1 agent that supports an in-scope FINRA business activity (broker-
 
 ### 7.2 Retention-label binding test
 
-For a sample of 10 records (or 100% if fewer than 10 exist this cycle) drawn proportionally across record classes, the verifier confirms the binding of a Purview retention label with `retentionDuration ≥ 6 years` and `deletionLocked = true` (or, for vendor-stored records, the vendor's 17a-4(f) attestation reference). Confirm via Purview compliance portal or via `Get-RetentionCompliancePolicy` per [PowerShell Setup](./powershell-setup.md) and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
+For a sample of 10 records (or 100% if fewer than 10 exist this cycle) drawn proportionally across record classes, retain **item-level proof** of the applied label, retention start/trigger, duration and record status, matched to the existing six-year minimum and the firm's approved schedule (or, for vendor-stored records, the vendor's 17a-4(f) attestation reference). A published policy alone does not prove a sampled item is labeled.
+
+In the Microsoft Purview portal, inspect the label definition and the actual SharePoint item. [Get-ComplianceTag](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-compliancetag?view=exchange-ps) reads label settings such as `RetentionDuration`; [Get-RetentionCompliancePolicy](https://learn.microsoft.com/en-us/purview/retention-preservation-lock) reads the policy, where `RestrictiveRetention = True` is proof of **Preservation Lock on that policy**, not a per-document deletion-lock field. The former `deletionLocked` test was not a documented Purview property.
+
+Distinguish [standard labels, locked/unlocked records and regulatory records](https://learn.microsoft.com/en-us/purview/records-management): ordinary retention can preserve a copy while permitting deletion from the working location; records can be unlockable; regulatory-record labels cannot be removed once applied. Publication scope, item application and policy lock are separate evidence. Regulatory-record labeling and Preservation Lock have irreversible effects; only authorized Records Management change procedures may configure them. This technical test does not determine regulatory adequacy.
 
 ### 7.3 Sample retrieve-and-restore test
 
@@ -398,8 +412,8 @@ For one record from each of the eight record classes, the verifier (Purview Comp
 | Test step | Expectation |
 |---|---|
 | Retrieval latency | Within firm's documented "readily accessible" SLA for records less than 2 years old (typically same business day) |
-| Content integrity | SHA-256 of retrieved bytes matches the SHA-256 stored in the original evidence record |
-| Immutability proof | Retention label still bound; deletion lock still enforced; tampering attempt would be auditable |
+| Content integrity | SHA-256 of retrieved bytes matches the retained artifact's recorded baseline; where SharePoint changed Office-file metadata on upload, retain and explain pre/post-ingestion baselines and use Microsoft's migrated-record validation guidance rather than silently accepting a mismatch |
+| Immutability proof | Applied label and actual item record protection remain in effect, with separate policy-lock evidence as applicable; use authorized non-production tests, not destructive production attempts |
 | Restoration to working location | Record can be restored to a read-only working location for examiner inspection without removing the immutability binding |
 
 `Anomaly` if any sample record fails latency, integrity, immutability, or restoration. `Anomaly` if a record older than 2 years cannot be retrieved within the firm's documented "near-line" SLA.
@@ -436,7 +450,7 @@ For each retirement (real or tabletop), the verifier confirms a retirement recor
 | Retirement effective date | UTC timestamp; date the agent ceased availability |
 | Reason for retirement | Business-driven / model-risk-driven / vendor-driven (model deprecation) / replacement / regulatory |
 | Disposition of in-flight conversations and pending tasks | Drained, transferred to replacement, or terminated with user notification |
-| Identity disposal | Entra Agent ID disabled; Power Platform solution archived; Agent 365 publication revoked |
+| Identity disposal | Actual identity/access removal and supported Agent 365 block/remove action recorded; Power Platform solution/configuration archived separately. Confirm each deployed channel is inaccessible; removing store availability alone is not universal retirement |
 | Knowledge-source / RAG corpus disposition | Retained for retention period or transferred to replacement agent (cross-reference [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md)) |
 | Communications to users | Notification text retained |
 | Evidence preservation | Development, validation, monitoring, outcomes-analysis, and retirement evidence bundled and bound to retention label per §7 |
@@ -546,7 +560,7 @@ The cycle attestation rolls up every assertion into a single MRM cycle status:
 
 ## Related Controls
 
-- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — Authoritative AI inventory feeding §1.2
+- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — Supported AI activity evidence corroborating §1.2
 - [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — 17a-4(f) WORM retention path for §7
 - [Control 1.9 — Data Retention and Deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — Retention schedule for validation evidence
 - [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — Supervisory review feeding §6.2
@@ -561,4 +575,4 @@ The cycle attestation rolls up every assertion into a single MRM cycle status:
 
 ---
 
-*Updated: September 2026 | Version: v1.6.2 | UI Verification Status: Current (content update only; UI last verified April 2026)*
+*Updated: November 2026 | Version: v1.6.2 | UI Verification Status: Needs Review (documentation reverified 2026-11-09; historical UI verification April 2026; tenant execution not tested)*
