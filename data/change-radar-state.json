@@ -2,8 +2,110 @@
   "version": 1,
   "sources": {
     "roadmap": {
-      "last_run": "2026-10-26T13:42:43Z",
+      "last_run": "2026-11-09T16:57:31Z",
       "items": {
+        "578869": {
+          "hash": "sha256:50e74c7e5a2407d4ba96f7bf8998befb8a74614e8b4793b527b48c5d7022d604",
+          "status": "In development",
+          "title": "Work IQ: Memory capabilities expand to agents",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573611": {
+          "hash": "sha256:ee560cfedba51bd6385f70f6bf738763d41a434ee6d22d2f7c62a2c09ad15a26",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - specify when receipts must contain a VAT number",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573610": {
+          "hash": "sha256:24145eb60a57d5c2d222e1a5139df17360dedd7579d2e6863cd456d986d90c68",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Use tags to mark processed emails",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573609": {
+          "hash": "sha256:c91ec29dcbce0d2c5b3f4abe424d3c55270b126a9de9f39c9afda637b48ddcc9",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Adding invited guests from calendar as participants to your expense",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573608": {
+          "hash": "sha256:15d900d9d83ba5cc146812d5e733a0b2b73ec9f8a177dc8325d2b429a936cfb3",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Change companies and environments in the web app",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573607": {
+          "hash": "sha256:bbeda671c75b1c10181756a2abc2c2338e41c11ec9f88d9386510c172910ad0a",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Set expense spend limits in Expense Management",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573606": {
+          "hash": "sha256:54d4ac981ddd3cfa57c04182757eec70a22eda0b5d355916a3079aaeafebc7c3",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Add tags for expenses as submitter",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573605": {
+          "hash": "sha256:8d8db93fdec7a7b3b49e7aebbafc7d88f2da611dd8cf27801c74b6c2945fa3e3",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Enable approving limits and alternate approvers when primary is not available",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573604": {
+          "hash": "sha256:74b227e740d57cc60e14bf30d6d1a73a8ace0f8e4a51932b29d3af683af3a020",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Create expense with no attachment",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573603": {
+          "hash": "sha256:2bad97ed0ff44172dafcfa1518c598e6916546bf2988a1d86607702c81e8c241",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Log the expense in a case of lost receipt",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573602": {
+          "hash": "sha256:9b464bc1ddcb6a8aef76607b12208742cd536d31781ce25017a4fe29cc54932c",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Split your expenses",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "578898": {
+          "hash": "sha256:5d7de739af138b7f261800b219d211210333f87fda6d65cfe0120ebe18559409",
+          "status": "In development",
+          "title": "Dynamics 365 Sales: Autonomously generate quotes and drive sales with Sales Development Agent",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573170": {
+          "hash": "sha256:445077ec63046a64599cf59cdcee655d9b75dc5a19a85a953ec6f3018ac96167",
+          "status": "In development",
+          "title": "Microsoft Copilot (Microsoft 365): New Microsoft 365 Copilot usage reports for Copilot Search, Connectors, and Agents for US Government customers",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "577834": {
+          "hash": "sha256:475d3a3a7a06b9cf53d80b6e0a0cd07553078034370b139bed72d112881d6b81",
+          "status": "In development",
+          "title": "Microsoft Copilot Studio: Copilot studio cost controls in MAC",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573256": {
+          "hash": "sha256:b6f9156fb04f309a5f767320d91f46ec67193db6082f3edd9d36f727a9b47efd",
+          "status": "In development",
+          "title": "Dynamics 365 Business Central: Expense Agent - Create expenses from credit card feeds",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "575278": {
+          "hash": "sha256:29ee25b27646816e562f6b5f8f596a2df45b7ce22921de3493b4b6a3d7545ce8",
+          "status": "Rolling out",
+          "title": "Microsoft Contact Center Intelligence: Universal connector for self-service omnichannel agents",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
+        "573265": {
+          "hash": "sha256:828cb7bf3dc84b48ea1d7be1af8eb00d56e1b42acee1ceafbd8c9339c653d28a",
+          "status": "Launched",
+          "title": "Dynamics 365 Business Central: Expense Agent mobile app",
+          "detected_at": "2026-11-09T16:57:31Z"
+        },
         "578077": {
           "hash": "sha256:e92f9ab3dc897ed52be0e43943d7801c6980db2fa38e7263f80831880f786fd6",
           "status": "Launched",
@@ -143,9 +245,9 @@
           "detected_at": "2026-10-26T13:42:43Z"
         },
         "576272": {
-          "hash": "sha256:02d6ca47c6ac8fa07d8107bc966e1cdc6b8d80d3693f5cf2f24227024b56f137",
+          "hash": "sha256:7d0aebdc9a2f3d672c304404ac32bf8673c61f414936fe28fa50a4c225272080",
           "status": "In development",
-          "title": "Copilot Studio: Computer Use for web browsing on GitHub Copilot Harness",
+          "title": "Copilot Studio: Computer Use for web browsing on Microsoft Copilot Harness",
           "detected_at": "2026-10-26T13:42:43Z"
         },
         "571305": {
@@ -527,8 +629,8 @@
           "detected_at": "2026-08-31T14:33:17Z"
         },
         "569475": {
-          "hash": "sha256:564d25939317f00e89dc21866929ff583633c99aa48850b614ddcd38c8e73bb3",
-          "status": "In development",
+          "hash": "sha256:23e7f859eb4b9c37823497ad55c832267bf0d336781eebaad118d67d35f32eb8",
+          "status": "Launched",
           "title": "Microsoft Copilot Studio: Agent Sharing amongst makers",
           "detected_at": "2026-08-31T14:33:17Z"
         },
@@ -569,8 +671,8 @@
           "detected_at": "2026-08-10T08:20:17Z"
         },
         "567886": {
-          "hash": "sha256:410cf6cc4ec256b96237c2e4d87d780a026baad21ef34e429fb97ca89b9f22e1",
-          "status": "In development",
+          "hash": "sha256:6e0a7b91789fc6b0cb0fd9d03e3a59070fb5dfd60e5ca38eb821cbee50e1faba",
+          "status": "Rolling out",
           "title": "Planner: AI-generated Status Reports in Planner Agent",
           "detected_at": "2026-08-10T08:20:17Z"
         },
@@ -599,14 +701,14 @@
           "detected_at": "2026-07-20T09:49:11Z"
         },
         "567670": {
-          "hash": "sha256:33c0f22d72b7a755712bc80898532b66c30004029f3963200e6d84a8c82929e0",
-          "status": "In development",
+          "hash": "sha256:2c8bd9ed98dcd8ec6b3be528c83a56313516707ffaf33f60a00a9ac3e66e4566",
+          "status": "Rolling out",
           "title": "Microsoft Copilot (Microsoft 365): Use Agent 365 agents within Microsoft 365 Copilot Chat and Declarative Agents",
           "detected_at": "2026-07-20T09:49:11Z"
         },
         "567671": {
-          "hash": "sha256:aacd7a0321f7ad9fe7c3ae26dd20fdda1ea492f103bf7c05f3a3f4b301230b75",
-          "status": "Rolling out",
+          "hash": "sha256:2090f214edd5067f68c37f8cd818151628c28984fca9d3f6200a1207c4395e53",
+          "status": "Launched",
           "title": "Planner: Planner Agent chat in Basic Plans",
           "detected_at": "2026-07-20T09:49:11Z"
         },
@@ -641,8 +743,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "566998": {
-          "hash": "sha256:6ea7c95a7021830b7bed473adf2a48b231a888eca627559bdf01dc1e2a1f0c3c",
-          "status": "In development",
+          "hash": "sha256:6644438a42a8673226a8ab7b1f362e7e8b807ac426bf612619d7fc7c86a928a3",
+          "status": "Launched",
           "title": "Microsoft Copilot Studio: Invoke agents as workflow steps with the agent node",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -653,7 +755,7 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "566314": {
-          "hash": "sha256:08d178d40f5dbc46e97b662d22e8d543c93d7af1dc895509806e91213736ec5c",
+          "hash": "sha256:3a699babbafc78456aa8f4b1edc13d9a937034fc2aa9ef1afb48d7cc103cd068",
           "status": "In development",
           "title": "Planner: Save AI-generated filters in Planner Agent chat",
           "detected_at": "2026-07-09T15:16:01Z"
@@ -713,14 +815,14 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "562221": {
-          "hash": "sha256:41b188dda92b0e59e461567288b6d994ce4d2ec13ff4b62bc14ca342de3e307e",
-          "status": "In development",
+          "hash": "sha256:1618746362d37379955346b0c6a36232a83ce3df06fc9ac606a9860afb45505d",
+          "status": "Launched",
           "title": "Microsoft Copilot Studio: Use MCP-compliant tools in agent workflows",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "562220": {
-          "hash": "sha256:e96919ae4797c37b5a7824feed3832aa1f19a94822c7f3d59e4f496c03511d20",
-          "status": "In development",
+          "hash": "sha256:94699586aac6eac249764c11adc1328eb221d919a063eb7bfcd195684fc02ac9",
+          "status": "Cancelled",
           "title": "Microsoft Copilot Studio: Supercharge your workflows with computer use",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -1019,8 +1121,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "545063": {
-          "hash": "sha256:867d4cedf6c55d7762dd88b1a30f5a9efc3dfcdbea82660cf3d51d950df3b8a4",
-          "status": "In development",
+          "hash": "sha256:556e0f77b0aee4138e925ff0e3659959b02272923bf613f2cbdeed114ef91230",
+          "status": "Launched",
           "title": "Microsoft Purview: Insider Risk Management- Insider risk management for agents",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -1156,15 +1258,9 @@
           "title": "Microsoft Copilot (Microsoft 365): Agent Mode in Excel",
           "detected_at": "2026-07-09T15:16:01Z"
         },
-        "506753": {
-          "hash": "sha256:967ba5b17c837ba5843ebc9403fe542881c28d6f8ac8082d3ca80b2b843edcca",
-          "status": "Launched",
-          "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] [1.02] Generate Word, Excel, and PowerPoint documents from agents built in Microsoft 365 Copilot",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
         "502546": {
-          "hash": "sha256:74db3086552a5d23b8cf7450255e8c62f9baf930c25a1342fd15f3658eb5d271",
-          "status": "In development",
+          "hash": "sha256:c8df6d9693508264cef5f74a091ab74fabef40e5066e1cd232f19e601decc87c",
+          "status": "Cancelled",
           "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users can create agents scoped on Custom connector containers ",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -1181,8 +1277,8 @@
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "502547": {
-          "hash": "sha256:9d2238a14c3427ed96891e15dd4087ec2ac3aa01d61eee91cfd3d462ea924c99",
-          "status": "In development",
+          "hash": "sha256:b1cb20d05b593915231fc4bd0470bede6e46d3571ee9a2955c7a7d83a8a47346",
+          "status": "Cancelled",
           "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] User can create agents scoped on specific item/ container using URL",
           "detected_at": "2026-07-09T15:16:01Z"
         },
@@ -1292,12 +1388,6 @@
           "hash": "sha256:5fc498f8fd0876778c969dad8a2d3a5941692c8cfe499973832bbade4c07b1a6",
           "status": "Launched",
           "title": "Microsoft Copilot (Microsoft 365): Microsoft Graph APIs for App & Agent Inventory and Details. ",
-          "detected_at": "2026-07-09T15:16:01Z"
-        },
-        "502867": {
-          "hash": "sha256:70f23292066d83ad1abfaa4c54f0ce2be0cf7b285bcb55d0da57fa847b5b825e",
-          "status": "Launched",
-          "title": "Microsoft 365 admin center: Agent Ownership Reassignment",
           "detected_at": "2026-07-09T15:16:01Z"
         },
         "499422": {

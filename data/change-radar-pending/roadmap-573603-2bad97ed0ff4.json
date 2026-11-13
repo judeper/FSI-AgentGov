@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:2bad97ed0ff44172dafcfa1518c598e6916546bf2988a1d86607702c81e8c241",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "February CY2027",
+  "id": 573603,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Expense Agent helps employees keep expense submissions moving when an original receipt is unavailable. It guides employees through providing the information needed to support the expense, generates supporting documentation from those details, and enables them to continue the reimbursement process without manually creating replacement documentation.</p>\n<p>Benefits<br>\n•\tProvides a guided process for documenting expenses when receipts are lost or unavailable.<br>\n•\tReduces manual effort by automatically generating supporting documentation from employee-provided information.<br>\n•\tCreates a more consistent lost-receipt process for employees and finance teams.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573603",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Log the expense in a case of lost receipt"
+}

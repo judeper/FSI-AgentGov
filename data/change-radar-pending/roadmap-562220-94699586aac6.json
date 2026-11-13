@@ -1,0 +1,25 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:94699586aac6eac249764c11adc1328eb221d919a063eb7bfcd195684fc02ac9",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "October CY2026",
+  "id": 562220,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Add resilient, AI-powered UI automation directly into your workflows with computer use tools. Makers can build reusable, goal-oriented automations that adapt dynamically to website or app changes, while admins maintain governance through access controls, hosted browser management, and environment-level permissions. Update: This roadmap item is no longer accurate and will be removed from the roadmap. We apologize for any inconvenience.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562220",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Cancelled",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Supercharge your workflows with computer use"
+}

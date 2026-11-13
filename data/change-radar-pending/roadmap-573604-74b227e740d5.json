@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:74b227e740d57cc60e14bf30d6d1a73a8ace0f8e4a51932b29d3af683af3a020",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "April CY2027",
+  "id": 573604,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Save time when recording lower-value expenses by creating them in Expense Agent without an attachment when the amount is below the limit you set on the Expense Agent Setup page. This gives you the flexibility to record qualifying expenses even when a receipt or supporting document isn’t available.</p>\n<p>Benefits<br>\n•\tCreate qualifying expenses without requiring an attachment at the time of submission.<br>\n•\tSet the amount limit that determines when an attachment isn’t required.<br>\n•\tRecord expenses below the configured limit even when a receipt or supporting document isn’t available.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573604",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Create expense with no attachment"
+}

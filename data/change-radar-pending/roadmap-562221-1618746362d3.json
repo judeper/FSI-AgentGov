@@ -1,0 +1,33 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:1618746362d37379955346b0c6a36232a83ce3df06fc9ac606a9860afb45505d",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "June CY2026",
+  "id": 562221,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "May CY2026",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)",
+    "Microsoft Copilot Studio"
+  ],
+  "raw_description": "<p>Integrate proprietary systems, dynamic knowledge sources, and custom actions into your agentic workflows with MCP support, accelerating extensibility while preserving workflow reliability. This integration improves reuse across agents and workflows, reduces duplication of integrations, and embraces an emerging open and extensible agent ecosystem.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562221",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Use MCP-compliant tools in agent workflows"
+}

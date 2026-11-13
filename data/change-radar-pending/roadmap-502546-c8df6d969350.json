@@ -1,0 +1,24 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:c8df6d9693508264cef5f74a091ab74fabef40e5066e1cd232f19e601decc87c",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "December CY2025",
+  "id": 502546,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<ol>\n<li>Makers can now scope their data in their agent created on custom connector data at a particular container.</li>\n<li>These containers will be defined during creation/updating of the custom connector.</li>\n</ol>\n<p>Note: This roadmap item is no longer accurate and will be removed from the roadmap. We apologize for any inconvenience.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502546",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Cancelled",
+  "suggested_controls": [
+    {
+      "id": "1.4",
+      "source": "keyword:connector"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users can create agents scoped on Custom connector containers "
+}

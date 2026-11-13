@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:24145eb60a57d5c2d222e1a5139df17360dedd7579d2e6863cd456d986d90c68",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "April CY2027",
+  "id": 573610,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "February CY2027",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Quickly see which expense-related emails have already been processed by Expense Agent, helping you distinguish processed from unprocessed messages with confidence. Expense Agent adds a **Processed by Expense Agent **tag in Outlook after a relevant email has been successfully processed.</p>\n<p>Benefits<br>\n•\tAutomatically marks successfully processed expense-related emails.<br>\n•\tProvides a clear processing-status indicator in Outlook, reducing the need to verify status manually.<br>\n•\tMakes it easier to distinguish processed from unprocessed expense-related emails.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573610",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - Use tags to mark processed emails"
+}

@@ -1,0 +1,28 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:50e74c7e5a2407d4ba96f7bf8998befb8a74614e8b4793b527b48c5d7022d604",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "December CY2026",
+  "id": 578869,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Work IQ"
+  ],
+  "raw_description": "<p>A new Work IQ MCP path, /memory/me/coreMemories, gives authorized agents access to a user’s memory profile. This profile enables agents to provide more personalized and relevant assistance. At launch, it includes Custom Instructions, Saved Memories, relevant work account data, and memories derived from chat history. The memory profile will continue to evolve and improve over time.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=578869",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    }
+  ],
+  "title": "Work IQ: Memory capabilities expand to agents"
+}

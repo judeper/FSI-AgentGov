@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:ee560cfedba51bd6385f70f6bf738763d41a434ee6d22d2f7c62a2c09ad15a26",
+  "detected_at": "2026-11-09T16:57:31Z",
+  "ga_date": "May CY2027",
+  "id": 573611,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "April CY2027",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Help ensure expense receipts include required company VAT information by applying your organization’s receipt validation rules. Expense Agent can check submitted receipts for a valid company VAT number (Tax ID) when your configured rules require one, and flag receipts for review or prevent them from moving forward based on your policies.</p>\n<p>Benefits<br>\n•\tConfigure when a company VAT number is required on submitted expense receipts.<br>\n•\tAutomatically validate required VAT information during expense processing.<br>\n•\tIdentify receipts that do not meet configured tax identification requirements and handle them according to your policies.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=573611",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Business Central: Expense Agent - specify when receipts must contain a VAT number"
+}
