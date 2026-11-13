@@ -48,10 +48,12 @@ This guide walks through end-to-end deployment of the UASD solution, from Datave
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Python | 3.9+ | Schema and configuration deployment scripts |
+| Python | 3.11+ | Deployment environment installing this repository's `scripts/requirements.txt` |
 | PowerShell | 7.0+ | Governance scripts (audit, export, import) |
 | Az.Accounts module | Latest | Dataverse OAuth authentication |
 | Microsoft.PowerApps.Administration.PowerShell module | Latest | On-demand sharing audit (Invoke-SharingAudit) |
+
+The shared `scripts/requirements.txt` dependency set includes `python-dateutil>=4.0.0`, which requires Python 3.11 or later. Companion deployment scripts have their own prerequisites; this change does not alter the Power Automate flow or PowerShell runtime requirements.
 
 ```powershell
 # Verify PowerShell version

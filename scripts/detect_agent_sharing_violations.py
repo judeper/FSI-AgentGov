@@ -15,7 +15,7 @@ Purpose
 
 Requirements
 ------------
-- Python 3.9+
+- Python 3.11+ (when installing scripts/requirements.txt)
 - msal>=1.30.0
 - requests>=2.32.0
 - Environment variables (BAP Admin API):

@@ -1,5 +1,6 @@
 # FSI Agent Governance Framework - Script Dependencies
 # Install with: pip install -r scripts/requirements.txt
+# Installing this complete requirement set requires Python 3.11+.
 
 # Core validation (no external dependencies required)
 # Python 3.9+ standard library is sufficient for:
@@ -33,4 +34,4 @@ openpyxl>=3.1.5        # Excel file manipulation
 # Required for Dataverse deployment (Conditional Access Automation)
 msal>=1.39.0           # MSAL authentication for Dataverse Web API
 requests>=2.34.2       # HTTP client for Dataverse REST calls
-python-dateutil>=3.0.0 # Date parsing for Dataverse exception expiry checks
+python-dateutil>=4.0.0 # Date parsing for Dataverse exception expiry checks

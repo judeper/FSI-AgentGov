@@ -87,6 +87,8 @@ Write-Output "Certificate Thumbprint: $($cert.Thumbprint)"
 
 The CAA solution requires Dataverse tables for persisting compliance results and baselines.
 
+Use **Python 3.11+** for the shared `scripts/requirements.txt` dependencies below; `python-dateutil>=4.0.0` requires Python 3.11 or later. This prerequisite applies to the Python deployment environment, not the PowerShell runbooks.
+
 ```bash
 # Navigate to the repository root
 cd /path/to/FSI-AgentGov

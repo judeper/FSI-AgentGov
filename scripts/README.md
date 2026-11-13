@@ -57,6 +57,10 @@ scripts/
 
 ### Python Environment
 
+Use **Python 3.11+** when installing the complete `scripts/requirements.txt` set. Its `python-dateutil>=4.0.0` dependency requires Python 3.11 or later and is used by `detect_agent_sharing_violations.py` and `remediate_agent_sharing.py` to parse exception expiry timestamps.
+
+The Python 3.9+ standard-library-only validation note in `requirements.txt` applies only when running those validators without installing the shared dependencies. The separate assessment engine retains its [Python 3.10+ prerequisite](../assessment/README.md).
+
 ```bash
 # Create virtual environment
 python -m venv .venv
@@ -73,7 +77,7 @@ pip install -r scripts/requirements.txt
 
 ### Required Modules
 
-- Python 3.9+
+- Python 3.11+ for the shared dependency set
 - `openpyxl` - For Excel template manipulation (install via requirements.txt)
 - `pypdf` - For whitepaper text extraction (install via requirements.txt)
 
