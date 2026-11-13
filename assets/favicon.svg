@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0078D4"/>
+      <stop offset="100%" stop-color="#005A9E"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield shape — blue gradient for favicon (renders on light browser tab) -->
+  <path d="M64 6 L114 28 L114 62 C114 90 92 112 64 124 C36 112 14 90 14 62 L14 28 Z"
+        fill="url(#shieldGrad)" />
+  <!-- Circuit nodes — white -->
+  <circle cx="64" cy="46" r="7" fill="#fff"/>
+  <circle cx="42" cy="72" r="5.5" fill="#fff" opacity="0.85"/>
+  <circle cx="86" cy="72" r="5.5" fill="#fff" opacity="0.85"/>
+  <circle cx="50" cy="94" r="4" fill="#fff" opacity="0.7"/>
+  <circle cx="78" cy="94" r="4" fill="#fff" opacity="0.7"/>
+  <!-- Circuit lines -->
+  <line x1="64" y1="53" x2="42" y2="72" stroke="#fff" stroke-width="2.2" opacity="0.6"/>
+  <line x1="64" y1="53" x2="86" y2="72" stroke="#fff" stroke-width="2.2" opacity="0.6"/>
+  <line x1="42" y1="72" x2="50" y2="94" stroke="#fff" stroke-width="2" opacity="0.5"/>
+  <line x1="86" y1="72" x2="78" y2="94" stroke="#fff" stroke-width="2" opacity="0.5"/>
+  <line x1="42" y1="72" x2="86" y2="72" stroke="#fff" stroke-width="2" opacity="0.45"/>
+</svg>
