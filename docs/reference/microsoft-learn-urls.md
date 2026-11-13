@@ -106,7 +106,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Create Custom MCP Server | https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server | Oct 2026 |
 | Safe Sharing / Credential Oversharing [Preview] | https://www.microsoft.com/en-us/microsoft-365/roadmap?filters=%5B%22Microsoft+Copilot+Studio%22%5D#Roadmap | Mar 2026 |
 | Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/manage-copilot-security-enhanced-admin-controls | Oct 2026 |
-| Agentic Center of Enablement [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/automate-governance-agentic-center-enablement | Oct 2026 |
+| Agentic Center of Enablement [Preview] | https://learn.microsoft.com/en-us/previous-versions/power-platform/release-plan/2026wave1/power-platform-governance-administration/automate-governance-agentic-center-enablement | Oct 2026 |
 | Agent Suggestions from M365 Copilot [Preview] | https://www.microsoft.com/en-us/microsoft-365/roadmap?filters=%5B%22Microsoft+Copilot+Studio%22%5D#Roadmap | Mar 2026 |
 | Copilot Studio guidance hub — What's new | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Oct 2026 |
 | Copilot Agent Kit overview (formerly Copilot Studio Kit) | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/kit-overview | Oct 2026 |
