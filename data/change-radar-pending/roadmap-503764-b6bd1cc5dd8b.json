@@ -1,0 +1,22 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:b6bd1cc5dd8be77e973e113091aee606a765606dcb189b350d1153074a6367fd",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": null,
+  "id": 503764,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503764",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "1.12",
+      "source": "keyword:insider risk"
+    }
+  ],
+  "title": "Microsoft Purview: Insider Risk Management-Data Security Alert Triage Agent in Insider Risk Management"
+}

@@ -1,0 +1,19 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:71722557fe5f9dbafd18c12072cc3b85923e3ebd0082b62a217386c1aa663ff1",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": "November CY2026",
+  "id": 579977,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Sellers can discover and act on lead and opportunity recommendations that are already prioritized for them in Sales agent. A single prioritized list helps sellers see what needs attention without monitoring each agent separately or prioritizing the actions themselves. Sellers can review each recommended action, understand its details and business context, and take action from the same experience.</p>\n<p>The initial release focuses on lead outreach actions from Sales qualification agent and opportunity risk actions from Sales opportunity agent. Sellers can discover leads that need outreach and opportunities that need attention, review the recommended next step and its context, and act to move customer conversations and opportunities forward.</p>\n<p>Recommended actions will be turned on by default. Additional agents, including custom agents, are a future direction and are not part of this initial release commitment.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=579977",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): Discover and act on recommended lead and opportunity actions in Sales agent"
+}

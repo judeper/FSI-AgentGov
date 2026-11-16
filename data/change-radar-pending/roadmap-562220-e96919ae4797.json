@@ -1,0 +1,22 @@
+{
+  "change_type": "withdrawn",
+  "content_hash": "sha256:e96919ae4797c37b5a7824feed3832aa1f19a94822c7f3d59e4f496c03511d20",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": null,
+  "id": 562220,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": null,
+  "products": [],
+  "raw_description": null,
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562220",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Withdrawn",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Microsoft Copilot Studio: Supercharge your workflows with computer use"
+}

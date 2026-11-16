@@ -1,0 +1,24 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:25c56ec3b88341c46013958e5be613272a2dbf823251580284c49aed7d01d12c",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": "April CY2027",
+  "id": 579980,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "December CY2026",
+  "products": [
+    "Dynamics 365 Business Central"
+  ],
+  "raw_description": "<p>Save time entering information into Business Central with Auto paste. Building on Autofill, Auto paste uses AI to identify relevant information from text or HTML copied to your clipboard and map it to the appropriate fields on a Business Central page.</p>\n<p><strong>Benefits</strong></p>\n<p>Reduce manual data entry when bringing information from external sources into Business Central.<br>\nPopulate multiple relevant fields from copied content instead of copying and pasting individual values.<br>\nExtend AI-assisted data entry to more everyday Business Central workflows.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=579980",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [
+    {
+      "id": "2.17",
+      "source": "keyword:workflow"
+    }
+  ],
+  "title": "Dynamics 365 Business Central: Copilot and agents - Fill forms faster with Autofill - Auto paste"
+}

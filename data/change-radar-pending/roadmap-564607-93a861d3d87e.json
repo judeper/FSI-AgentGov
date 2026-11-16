@@ -1,0 +1,28 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:93a861d3d87e7f1c1d20b96a39407a62b741102132105f5aa081364f74090ebd",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": "June CY2026",
+  "id": 564607,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>We’re introducing support for Model Context Protocol (MCP)-based agents in Microsoft 365 Copilot . This update enables developers to build Copilot agents using MCP servers and allows users to interact with these agents using familiar experiences. This change supports extensibility and improves agent capabilities for organizations.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=564607",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "Launched",
+  "suggested_controls": [
+    {
+      "id": "1.14",
+      "source": "keyword:mcp"
+    },
+    {
+      "id": "1.4",
+      "source": "keyword:mcp"
+    }
+  ],
+  "title": "Microsoft Copilot (Microsoft 365): MCP-Based Agent Enablement for U.S. Government Clouds"
+}

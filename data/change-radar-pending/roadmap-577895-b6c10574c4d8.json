@@ -1,0 +1,20 @@
+{
+  "change_type": "new",
+  "content_hash": "sha256:b6c10574c4d822b96ff827817dc1af858589d556de5b9596629f7135423cb36d",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": "March CY2027",
+  "id": 577895,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "September CY2026",
+  "products": [
+    "Dynamics 365 Contact Center",
+    "Dynamics 365 Customer Service"
+  ],
+  "raw_description": "<p>The quality evaluation historical dashboard provides aggregated insights from completed evaluations, helping organizations track quality trends over time. Users can view quality scores and trends across selected date ranges, with up to two years of historical data available.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=577895",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Dynamics 365 Contact Center: Quality Evaluation Agent - Review historical quality metrics in a unified dashboard"
+}

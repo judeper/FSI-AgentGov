@@ -1,0 +1,19 @@
+{
+  "change_type": "changed",
+  "content_hash": "sha256:9fd814f796a47660fd1d65f44c9baa28345c506f5c133ba2fcb979deac92e1da",
+  "detected_at": "2026-11-16T16:35:29Z",
+  "ga_date": "January CY2027",
+  "id": 503767,
+  "note": "Suggested mappings are UNCONFIRMED candidates for human review. Author the published entry by hand in data/change-radar/items.json; do not copy raw_description verbatim.",
+  "preview_date": "",
+  "products": [
+    "Microsoft Copilot (Microsoft 365)"
+  ],
+  "raw_description": "<p>Users will be able to upload files stored locally or in one drive to custom engine agents.</p>",
+  "roadmap_url": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503767",
+  "schema_version": 1,
+  "source": "roadmap",
+  "status": "In development",
+  "suggested_controls": [],
+  "title": "Microsoft Copilot (Microsoft 365): [Copilot Extensibility] Users will be able to upload files stored locally or in one drive to custom engine agents"
+}
