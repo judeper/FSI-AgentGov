@@ -144,7 +144,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Agent Management Essentials Hub** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-essentials-overview | Oct 2026 |
 | Agent Prerequisites | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites | Oct 2026 |
 | **Visual Governance Guide** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-visual-map | Oct 2026 |
-| **Deployment Checklist** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-checklist | Oct 2026 |
+| **Deployment Checklist** | https://learn.microsoft.com/en-us/microsoft-agent-365/admin/manage-copilot-agents-integrated-apps | Oct 2026 |
 | **Deployment Blueprint** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint | Oct 2026 |
 
 ### Microsoft Agent 365
