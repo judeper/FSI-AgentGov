@@ -494,7 +494,7 @@ A: This is a deliberate framework position (Council decision D3, accepted by use
 A: Yes — many controls (1.7, 2.12, 3.1, 3.10) appear in every Pattern 4–6 callout. This is expected; the mandatory-controls row is the union of regulatory triggers, not a partition.
 
 **Q: I'm a Microsoft FSI CSA. Where do I send a customer who says "we're starting our CAPE journey"?**
-A: Read `docs/reference/csa-quick-reference.md` and `docs/reference/csa-positioning-guide.md` (both Phase 4 deliverables) for the conversation playbook. The two-line summary: lead with the CAPE pattern conversation, anchor every pattern decision in the FSI Zone, and bring the Regulatory Exposure callout into the CCO meeting from day one.
+A: The two-line summary: lead with the CAPE pattern conversation, anchor every pattern decision in the FSI Zone, and bring the Regulatory Exposure callout into the CCO meeting from day one.
 
 **Q: How does the CAPE 90-day play interact with the FSI Phase 0/1/2 roadmap?**
 A: They are complementary, not competing. CAPE's 30-day Foundation phase corresponds approximately to the first half of FSI Phase 0; FSI Phase 0 is intentionally longer (60 days) because of the Zone 3 governance committee, managed-environment provisioning, and committee charter prerequisites. See `docs/framework/adoption-roadmap.md` for the side-by-side comparison (Phase 2 update).
@@ -536,9 +536,7 @@ This document paraphrases Microsoft CAPE materials with citation. No verbatim Mi
 - [`docs/framework/transformation-patterns.md`](../framework/transformation-patterns.md) — lean framework-layer summary of the six patterns with links back to this crosswalk for the deep-dives.
 - [`docs/framework/agentic-capability-drivers.md`](../framework/agentic-capability-drivers.md) — full FSI treatment of the five Capability Drivers and the 100–500 maturity scale, including the per-driver target profiles by pattern.
 - [`docs/framework/agentic-coe.md`](../framework/agentic-coe.md) — Frontier CoE blueprint adapted for FSI: four functions, three CoE shapes by FSI institution archetype, federation guardrail, anti-patterns.
-- [`docs/reference/cco-quick-reference.md`](cco-quick-reference.md) — CCO-facing surface mirroring the CSA Quick Reference: regulation → control → evidence artifact → examiner question → owning role. *(Phase 1 deliverable.)*
-- `docs/reference/csa-quick-reference.md` — Partner/CSA engagement summary; pattern-to-control quick lookup; conversation starters by audience. *(Phase 4 deliverable.)*
-- `docs/reference/csa-positioning-guide.md` — Positioning narrative and competitive differentiation. *(Phase 4 deliverable.)*
+- [`docs/reference/cco-quick-reference.md`](cco-quick-reference.md) — CCO-facing surface: regulation → control → evidence artifact → examiner question → owning role. *(Phase 1 deliverable.)*
 - [`docs/reference/nist-ai-rmf-crosswalk.md`](nist-ai-rmf-crosswalk.md) — NIST AI RMF GOVERN/MAP/MEASURE/MANAGE crosswalk; complementary to this document.
 - [`docs/reference/regulatory-mappings.md`](regulatory-mappings.md) — Regulation-to-control mapping (FINRA 4511, FINRA 3110, SEC 17a-3 and 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2, GLBA 501(b), Reg E, ECOA/Reg B, SOX, CFTC 1.31, NYDFS).
 - [`docs/reference/role-catalog.md`](role-catalog.md) — Canonical FSI role names, including the *Microsoft CAPE Role Mapping* cross-reference table.

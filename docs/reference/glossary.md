@@ -86,7 +86,7 @@ One of five dimensions in Microsoft's Agentic AI Maturity Model: AI Strategy & E
 The executive responsible for a financial institution's regulatory compliance program. In FSI-AgentGov, the CCO is a primary consumer of the [CCO Quick Reference](cco-quick-reference.md), which organizes examiner questions and regulatory mappings in CCO-readable language. The CCO typically owns the Govern function of the firm's AI CoE and holds final authority on Zone 3 agent approvals. Distinct from the CRO (risk focus) and CDAO (data/AI program focus).
 
 **CDAO (Chief Data and AI Officer)**
-Executive responsible for enterprise data strategy, analytics, and AI program management. Sometimes styled as Chief Digital and Analytics Officer. In FSI-AgentGov, the CDAO is the primary persona for the Frontier Readiness assessment — identifying the scale-breaker driver before committing to a CAPE pattern. See [CSA Quick Reference §7](csa-quick-reference.md#7-which-assessment-do-i-run-with-this-customer).
+Executive responsible for enterprise data strategy, analytics, and AI program management. Sometimes styled as Chief Digital and Analytics Officer. In FSI-AgentGov, the CDAO is the primary persona for the Frontier Readiness assessment — identifying the scale-breaker driver before committing to a CAPE pattern.
 
 **CISO (Chief Information Security Officer)**
 Executive responsible for organization's security program.
@@ -121,7 +121,7 @@ Unified dashboard in Power Platform Admin Center that consolidates governance, a
 Executive responsible for the enterprise risk management program. In FSI-AgentGov, the CRO is named in the exception-approval process for Zone 2+ agent deployments that require documented risk acceptance (for example, Pattern 3 deployments touching payroll or registered-person records). CRO sign-off on exception rationale is referenced in the Govern function anti-pattern guidance. Distinct from the CCO (compliance focus) and CDAO (data/AI program focus).
 
 **CSA (Cloud Solution Architect / Customer Success Architect)**
-Microsoft customer-facing technical roles that engage organizations on architecture, adoption, and enablement. In FSI-AgentGov, CSAs are a primary audience for the [CSA Quick Reference](csa-quick-reference.md) and [CSA Positioning Guide](csa-positioning-guide.md), which provide FSI-specific conversation guidance for customer engagements involving AI agent governance and CAPE materials. The two role titles are used interchangeably in this framework; the Quick Reference applies to both.
+Microsoft customer-facing technical roles that engage organizations on architecture, adoption, and enablement. The two role titles are used interchangeably.
 
 ---
 

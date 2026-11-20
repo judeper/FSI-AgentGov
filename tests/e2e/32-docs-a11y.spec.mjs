@@ -99,12 +99,6 @@ const SAMPLE_PAGES = [
     kind: "docs",
   },
   {
-    url: "/reference/csa-quick-reference/",
-    label: "Reference: CSA Quick Reference",
-    slug: "reference-csa-quick-reference",
-    kind: "docs",
-  },
-  {
     url: "/downloads/",
     label: "Downloads index",
     slug: "downloads-index",
@@ -633,10 +627,7 @@ test.describe("docs contrast probe (informational) @regression", () => {
         url: "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
         label: "Control 1.1",
       },
-      {
-        url: "/reference/csa-quick-reference/",
-        label: "CSA Quick Reference",
-      },
+      { url: "/reference/role-catalog/", label: "Role Catalog" },
     ];
 
     const probe = async () => {
