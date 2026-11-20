@@ -28,9 +28,7 @@ Process for managing agent development from creation through testing to producti
 List of approved connectors, actions, or data sources that agents can use. Opposite of blocklist. Sometimes abbreviated informally as "ALIM" in older internal materials; the canonical framework term is **Allowlist**.
 
 **Autonomy Cap**
-The maximum level of agent autonomy supported for a given pattern, zone, or use case. Required by FSI regulatory framework (e.g., Reg B fair lending, FINRA 3110 supervision) to prevent agents from exercising authority that requires a human supervisor. Each pattern in `microsoft-cape-crosswalk.md` documents its Autonomy Cap.
-
-*Source: FSI-AgentGov × Microsoft CAPE crosswalk; see `microsoft-cape-crosswalk.md`.*
+The maximum level of agent autonomy supported for a given pattern, zone, or use case. Required by FSI regulatory framework (e.g., Reg B fair lending, FINRA 3110 supervision) to prevent agents from exercising authority that requires a human supervisor.
 
 **Agent AI Model Rules**
 [Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) that control which AI models agents can use within an environment group. Configured in Power Platform Admin Center under Manage → Environment groups → Rules.
@@ -71,7 +69,7 @@ Emergency access account excluded from Conditional Access policies, used when no
 Committee that reviews and approves changes before production deployment.
 
 **CAPE (Copilot Acceleration Engineering)**
-Microsoft's strategic framework for accelerating enterprise agentic AI transformation. CAPE provides six Frontier Transformation Patterns, five Capability Drivers, and a Center of Excellence operating model. In FSI-AgentGov, CAPE's vocabulary (patterns, drivers, CoE functions) is adopted as the strategic layer that sits above the 79-control technical governance baseline. CAPE is industry-agnostic by design; FSI-AgentGov is the US financial-services regulatory overlay. See [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md).
+Microsoft's strategic framework for accelerating enterprise agentic AI transformation. CAPE provides six Frontier Transformation Patterns, five Capability Drivers, and a Center of Excellence operating model. In FSI-AgentGov, CAPE's vocabulary (patterns, drivers, CoE functions) is adopted as the strategic layer that sits above the 79-control technical governance baseline. CAPE is industry-agnostic by design; FSI-AgentGov is the US financial-services regulatory overlay.
 
 *Source: Microsoft CAPE Agentic Transformation Patterns Playbook ([aka.ms/AgenticTransformationPatterns](https://aka.ms/AgenticTransformationPatterns)).*
 
@@ -80,7 +78,7 @@ One of five dimensions in Microsoft's Agentic AI Maturity Model: AI Strategy & E
 
 **Note:** "Capability Driver" (or simply "Driver") is the FSI-AgentGov canonical term. Microsoft's source materials sometimes alternate "pillars" and "drivers" for the same concept; FSI-AgentGov adopts "Driver" exclusively to avoid collision with our four control families called "Pillars".
 
-*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md` and `agentic-capability-drivers.md` (Phase 2).*
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `agentic-capability-drivers.md` (Phase 2).*
 
 **CCO (Chief Compliance Officer)**
 The executive responsible for a financial institution's regulatory compliance program. In FSI-AgentGov, the CCO is a primary consumer of the [CCO Quick Reference](cco-quick-reference.md), which organizes examiner questions and regulatory mappings in CCO-readable language. The CCO typically owns the Govern function of the firm's AI CoE and holds final authority on Zone 3 agent approvals. Distinct from the CRO (risk focus) and CDAO (data/AI program focus).
@@ -139,7 +137,7 @@ Plan to restore systems after a disaster.
 **Drift (drift thesis)**
 The phenomenon where agents in production silently degrade in accuracy, relevance, or compliance posture over time without dramatic failure. Microsoft frames this as "agents don't fail dramatically; they slowly drift, giving wrong answers with confidence." For FSI, drift is the regulatory hook for FINRA 4511 / SEC 17a-4 ongoing supervision and OCC Bulletin 2026-13 (formerly OCC 2011-12) monitoring requirements. Mitigated by control 3.10 (Hallucination Tracking) and the Optimize CoE function.
 
-*Source: Microsoft CAPE Walking Deck; see `agent-lifecycle.md` and `microsoft-cape-crosswalk.md`.*
+*Source: Microsoft CAPE Walking Deck; see `agent-lifecycle.md`.*
 
 **Developer Environment**
 Personal sandbox environment for makers to build and test agents with limited governance requirements. Users can have up to 3 free developer environments. See [Create developer environment](https://learn.microsoft.com/en-us/power-platform/developer/create-developer-environment).
@@ -300,7 +298,7 @@ Federal regulator for national banks and federal savings associations.
 **Pattern (Frontier Transformation Pattern)**
 One of six design choices in Microsoft's CAPE framework describing how an organization deploys agents: Employee AI Enablement (1), Business Expert Empowerment (2), Workplace & IT Services (3), Core Business Process Transformation (4), External Engagement (5), AI-First Capabilities (6). Patterns are not stages — most organizations run multiple patterns simultaneously. Each pattern has a target maturity profile and a "scale-breaker" — the capability that will block scale first.
 
-*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md` and `transformation-patterns.md` (Phase 2).*
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `transformation-patterns.md` (Phase 2).*
 
 **Phishing-Resistant MFA**
 MFA that uses hardware keys (FIDO2) or Windows Hello, making it resistant to phishing attacks.
@@ -357,9 +355,9 @@ Maintaining records of activities for audit and compliance purposes.
 Real-time monitoring and protection of agent activities to prevent misuse.
 
 **Scale-breaker**
-The single capability dimension that will block an organization's ability to scale its agent portfolio, regardless of strength on other dimensions. Microsoft's diagnostic identifies five common scale-breaker signals: many pilots with no portfolio; one-off agents with no reuse; great demos with low adoption; licenses without usage; shadow agents appearing. Each FSI Pattern has a typical scale-breaker documented in `microsoft-cape-crosswalk.md`.
+The single capability dimension that will block an organization's ability to scale its agent portfolio, regardless of strength on other dimensions. Microsoft's diagnostic identifies five common scale-breaker signals: many pilots with no portfolio; one-off agents with no reuse; great demos with low adoption; licenses without usage; shadow agents appearing.
 
-*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md`.*
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook.*
 
 ---
 

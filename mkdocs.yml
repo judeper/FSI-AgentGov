@@ -807,7 +807,6 @@ nav:
       - ISO/IEC 42001 Mapping: reference/iso-42001-mapping.md
       - OWASP LLM Top 10 Crosswalk: reference/owasp-llm-top10-crosswalk.md
       - Microsoft Responsible AI v2 Mapping: reference/microsoft-rai-v2-mapping.md
-      - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
       - Agent Essentials Control Mapping: reference/agent-essentials-control-mapping.md
       - Power Platform SSPM Control Mapping: reference/power-platform-sspm-control-mapping.md
     - Role & Quick-Reference Cards:

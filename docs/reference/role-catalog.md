@@ -165,7 +165,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 | **Security Architect** | Organization | Defines security standards and reviews agent security configurations |
 | **SOC Analyst** | Organization | Monitors security alerts and investigates AI agent-related incidents — see [SOC Analyst Purview RBAC Role Matrix](purview-soc-analyst-roles.md) for required Purview role assignments |
 
-### Adoption Lead *[NEW in v1.5.0 — Microsoft CAPE alignment]*
+### Adoption Lead
 
 **Primary purpose:** Drives end-user enablement, training, and change management for AI agent adoption across the organization. The Adoption Lead orchestrates community engagement, builder enablement programs, and behavior-change campaigns to support safe and effective agent usage aligned to FSI governance requirements.
 
@@ -179,7 +179,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 
 **Related framework docs:** [Agentic Center of Excellence](../framework/agentic-coe.md), [Governance Cadence](../framework/governance-cadence.md), [Operating Model](../framework/operating-model.md)
 
-### Agent Product Owner *[NEW in v1.5.0 — Microsoft CAPE alignment]*
+### Agent Product Owner
 
 **Primary purpose:** Owns the lifecycle of an individual agent or agent product family from intake through retirement. The Agent Product Owner is accountable for scenario prioritization, roadmap planning, business-line alignment, and portfolio-level value delivery for one or more agents. This role operates at the portfolio layer above individual agent configurations.
 
@@ -193,7 +193,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 
 **Related framework docs:** [Agent Lifecycle](../framework/agent-lifecycle.md), [Agentic Center of Excellence](../framework/agentic-coe.md), [Governance Cadence](../framework/governance-cadence.md), [Operating Model](../framework/operating-model.md)
 
-### Executive Sponsor *[NEW in v1.5.0 — Microsoft CAPE alignment]*
+### Executive Sponsor
 
 **Primary purpose:** Board-level or senior executive lead accountable for the enterprise AI program, CoE charter, and strategic alignment of AI agent initiatives to business objectives. The Executive Sponsor provides governance oversight, removes organizational barriers, and ensures adequate resourcing for the AI governance program. In FSI organizations, the Executive Sponsor is typically a Board committee chair, Chief Operating Officer, or Chief Innovation Officer.
 
@@ -207,7 +207,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 
 **Related framework docs:** [Agentic Center of Excellence](../framework/agentic-coe.md), [Operating Model](../framework/operating-model.md), [Governance Cadence](../framework/governance-cadence.md), [Governance Fundamentals](../framework/governance-fundamentals.md)
 
-### Service Owner *[NEW in v1.5.0 — Microsoft CAPE alignment]*
+### Service Owner
 
 **Primary purpose:** Business process or service owner responsible for the end-to-end operational performance of a business service supported by an AI agent. The Service Owner defines service-level objectives, owns escalation procedures, coordinates with the Agent Product Owner on feature priorities, and is accountable for business outcomes. Examples include the HR Helpdesk Manager for an HR-support agent, the KYC Operations Manager for a KYC-screening agent, or the IT Service Desk Manager for an IT-support agent.
 
@@ -221,7 +221,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 
 **Related framework docs:** [Agentic Center of Excellence](../framework/agentic-coe.md), [Agent Lifecycle](../framework/agent-lifecycle.md), [Governance Cadence](../framework/governance-cadence.md)
 
-### Subject Matter Expert (SME) *[NEW in v1.5.0 — Microsoft CAPE alignment]*
+### Subject Matter Expert (SME)
 
 **Primary purpose:** Domain expert responsible for validating the accuracy, completeness, and currency of knowledge sources, training data, and agent-generated outputs within their area of expertise. The SME provides subject-matter review for RAG corpus content, validates agent responses against authoritative sources, and participates in bias and fairness testing. The SME is NOT necessarily a technical role or a registered person — examples include a compliance policy expert validating a compliance Q&A agent's knowledge base, a claims adjudication expert reviewing a claims-support agent's recommendations, or a tax specialist validating a tax-advisory agent's outputs.
 
@@ -237,33 +237,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 
 ---
 
-## Microsoft CAPE Role Mapping (cross-reference)
-
-> **Note:** Microsoft's CAPE Frontier CoE blueprint defines 10 roles (6 strategic + 4 edge). This table maps each CAPE role to its FSI-AgentGov canonical equivalent. The 5 net-new roles introduced in v1.5.0 (Executive Sponsor, Agent Product Owner, Subject Matter Expert, Service Owner, Adoption Lead) are defined in [Functional and Operational Roles](#functional-and-operational-roles) above.
->
-> **Position:** FSI-AgentGov retains canonical role names. CAPE role names are reference vocabulary used in `agentic-coe.md` and `microsoft-cape-crosswalk.md` only.
-
-### Strategic CoE roles (6)
-
-| CAPE role | FSI-AgentGov canonical role | Status | Notes |
-|---|---|---|---|
-| Executive Sponsor | Executive Sponsor | Map | Board-level AI program lead. See [Functional and Operational Roles](#executive-sponsor-new-in-v150-microsoft-cape-alignment) for full definition. |
-| Business Owner | Business Owner (existing) | Map | Existing role per Zone 3 Governance Committee; clarified in v1.5.0 to avoid CAPE name collision. |
-| CoE Lead | AI Governance Lead (existing) | Map | Functional equivalent in FSI-AgentGov context. |
-| Agent Product Owner | Agent Product Owner | Map | Lifecycle owner (intake → retire) for individual agents or product families. See [Functional and Operational Roles](#agent-product-owner-new-in-v150-microsoft-cape-alignment) for full definition. |
-| Platform & Operations | Power Platform Admin (existing) + Copilot Studio Agent Author (existing) | Map (split) | Two existing FSI roles cover this CAPE role. |
-| Security / Risk / Compliance | CISO + Chief Risk Officer + Chief Compliance Officer (existing trio) | Map (trio) | All three FSI roles together cover this CAPE role. Each retains independent FSI accountability. |
-
-### Edge / federated CoE roles (4)
-
-| CAPE role | FSI-AgentGov canonical role | Status | Notes |
-|---|---|---|---|
-| Makers (citizen developers) | (Implicit — agent authors in business units) | Implicit | FSI-AgentGov does not name a "Maker" role. The function exists as agent authors operating under Power Platform Admin and Copilot Studio Agent Author governance. |
-| Subject Matter Experts (SMEs) | Subject Matter Expert (SME) | Map | Domain expert who validates agent knowledge sources. See [Functional and Operational Roles](#subject-matter-expert-sme-new-in-v150-microsoft-cape-alignment) for full definition. |
-| Service Owners | Service Owner | Map | Business service owner responsible for an agent in production (e.g., HR helpdesk owner for an HR agent). See [Functional and Operational Roles](#service-owner-new-in-v150-microsoft-cape-alignment) for full definition. |
-| Adoption Leads | Adoption Lead | Map | Drives end-user enablement and change management. See [Functional and Operational Roles](#adoption-lead-new-in-v150-microsoft-cape-alignment) for full definition. |
-
-### Federation principle
+## Federation principle
 
 Federation of CoE roles to business units does NOT transfer regulated supervisory accountability. FINRA 3110 supervision, OCC Bulletin 2026-13 (formerly OCC 2011-12) model risk oversight, and SR 26-2 compliance remain with the named FSI roles (Chief Compliance Officer, Chief Risk Officer, AI Governance Lead) regardless of CoE shape (Centralized, Hybrid, or Federated). See `agentic-coe.md` (Phase 2) for the federation guardrail.
 

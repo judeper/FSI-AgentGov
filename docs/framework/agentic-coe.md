@@ -1,5 +1,5 @@
 ---
-description: "Microsoft's “Frontier Center of Excellence” concept (paraphrased from the Microsoft CAPE materials) describes a standing capability that runs an agent…"
+description: "Four-function Agentic Center of Excellence blueprint (Govern, Enable, Optimize, Scale) for governing and scaling AI agents in US financial services."
 ---
 # Agentic Center of Excellence
 
@@ -15,7 +15,7 @@ description: "Microsoft's “Frontier Center of Excellence” concept (paraphras
 
 ## Why a CoE matters for FSI agent governance
 
-Microsoft's "Frontier Center of Excellence" concept (paraphrased from the [Microsoft CAPE materials](../reference/microsoft-cape-crosswalk.md)) describes a standing capability that runs an agent portfolio as a long-lived program — not a one-time deployment project. The CoE is the team that owns the operating rhythm, intake, enablement, and portfolio-level performance signals. Microsoft frames this as four functions: **Govern, Enable, Optimize, Scale**, organized in one of three structural shapes — **Centralized, Hybrid, or Federated**.
+An Agentic Center of Excellence (CoE) is a standing capability that runs an agent portfolio as a long-lived program — not a one-time deployment project. The CoE is the team that owns the operating rhythm, intake, enablement, and portfolio-level performance signals across four functions — **Govern, Enable, Optimize, Scale** — organized in one of three structural shapes: **Centralized, Hybrid, or Federated**.
 
 US financial services organizations face a particular version of this problem. Regulated lines of business cannot tolerate "shadow agents" appearing on customer-impacting pathways without a documented supervisor (FINRA Rule 3110), a model risk tier (OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2), and a books-and-records pipeline (SEC 17a-4, FINRA 4511). At the same time, an FSI institution that centralizes every agent decision in one team will create a Gatekeeper bottleneck that pushes business lines to deploy outside the governance perimeter. The framework's job is to give institutions a CoE blueprint that scales enablement without sacrificing supervision.
 
@@ -46,7 +46,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 - Change-management approval for any prompt, model, or RAG-corpus change material under SR 26-2
 - Retirement decisions and records-retention disposition
 
-**Primary FSI roles:** AI Governance Lead, Chief Compliance Officer, Chief Risk Officer, CISO. See [role-catalog.md](../reference/role-catalog.md) for canonical role names and the CAPE Role Mapping cross-reference.
+**Primary FSI roles:** AI Governance Lead, Chief Compliance Officer, Chief Risk Officer, CISO. See [role-catalog.md](../reference/role-catalog.md) for canonical role names.
 
 **Key controls:** [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
@@ -56,7 +56,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 
 ### Function: Enable
 
-**Mandate.** Enable is the function that makes safe agent-building easier than unsafe agent-building. It owns the golden-path templates, knowledge-source curation patterns, builder training, and the FSI-specific design patterns that translate Microsoft CAPE patterns into Zone-1 / Zone-2 / Zone-3 implementations.
+**Mandate.** Enable is the function that makes safe agent-building easier than unsafe agent-building. It owns the golden-path templates, knowledge-source curation patterns, builder training, and the FSI-specific design patterns that translate transformation patterns into Zone-1 / Zone-2 / Zone-3 implementations.
 
 **Owns:**
 
@@ -124,7 +124,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 | **Hybrid** | Central CoE owns Govern + Enable; business lines own Optimize + Scale for their portfolios | Regional bank with multiple business lines; insurance carrier with several books of business; mid-tier asset manager | Moderate — Govern stays central, execution federates |
 | **Federated** | Federated builder enablement across business lines; central CoE owns Govern only | Global SIFI; large diversified institution with many regulated business lines | High — but Govern remains centrally accountable |
 
-The diagram below shows which CoE shape generally fits each CAPE pattern. Lighter-touch patterns (P1–P3) tolerate Federated execution because the named-principal accountability chain stays light; higher-gravity patterns (P4–P6) typically require Hybrid or Centralized so that release gates, model risk classification, and customer-facing review remain centrally consistent. The federation guardrail (later in this document) applies regardless of shape.
+The diagram below shows which CoE shape generally fits each transformation pattern. Lighter-touch patterns (P1–P3) tolerate Federated execution because the named-principal accountability chain stays light; higher-gravity patterns (P4–P6) typically require Hybrid or Centralized so that release gates, model risk classification, and customer-facing review remain centrally consistent. The federation guardrail (later in this document) applies regardless of shape.
 
 ```mermaid
 flowchart LR
@@ -161,7 +161,7 @@ flowchart LR
     C -.-> GR
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd`](../images/diagrams/source/cape/coe-structure-by-pattern.mmd). See the [Diagram Catalog](../reference/diagram-catalog.md) for export and licensing notes.
+See the [Diagram Catalog](../reference/diagram-catalog.md) for export and licensing notes.
 
 ### Shape: Centralized
 
@@ -219,7 +219,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pat
 
 ## The federation guardrail
 
-This guardrail is load-bearing for the federated and hybrid shapes. It is reproduced from the [Council Regulatory Counsel memo](../reference/microsoft-cape-crosswalk.md#13-the-frontier-center-of-excellence-govern-enable-optimize-scale) and applies regardless of which CoE shape an institution chooses.
+This guardrail is load-bearing for the federated and hybrid shapes and applies regardless of which CoE shape an institution chooses.
 
 > **Federating CoE roles to business units does NOT transfer regulated supervisory accountability. FINRA 3110 supervision, OCC Bulletin 2026-13 model risk oversight, Fed SR 26-2 obligations, and SOX 302/404 attestations remain with the named FSI roles regardless of where the CoE function operationally sits.**
 
@@ -245,7 +245,7 @@ Federated CoE shapes need disproportionately strong reporting infrastructure. Pi
 
 ## Decision rights at a glance
 
-The federation guardrail above states the principle. The diagram below visualizes how it lands in day-to-day decision rights. CAPE's framing — *centralize HOW scale works, not WHO builds everything* — sorts decisions into three columns: central CoE Govern decisions (cannot federate), shared decisions (central sets standards, business executes), and domain decisions (business line owns). Underneath all three columns sits the non-delegable named-principal layer: regardless of which CoE shape the institution chooses, FINRA 3110 supervision, OCC Bulletin 2026-13 / Fed SR 26-2 model risk, SOX 302/404 ICFR, and GLBA 501(b) safeguards remain with the named FSI roles called out in the [operating model](operating-model.md).
+The federation guardrail above states the principle. The diagram below visualizes how it lands in day-to-day decision rights. The core principle — *centralize HOW scale works, not WHO builds everything* — sorts decisions into three columns: central CoE Govern decisions (cannot federate), shared decisions (central sets standards, business executes), and domain decisions (business line owns). Underneath all three columns sits the non-delegable named-principal layer: regardless of which CoE shape the institution chooses, FINRA 3110 supervision, OCC Bulletin 2026-13 / Fed SR 26-2 model risk, SOX 302/404 ICFR, and GLBA 501(b) safeguards remain with the named FSI roles called out in the [operating model](operating-model.md).
 
 ```mermaid
 flowchart LR
@@ -287,7 +287,7 @@ flowchart LR
     DOMAIN --- GUARD
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/decision-rights.mmd`](../images/diagrams/source/cape/decision-rights.mmd). For canonical role names, see [Role Catalog](../reference/role-catalog.md). For the full RACI by lifecycle stage, see [Operating Model](operating-model.md). For export and licensing notes, see the [Diagram Catalog](../reference/diagram-catalog.md).
+For canonical role names, see [Role Catalog](../reference/role-catalog.md). For the full RACI by lifecycle stage, see [Operating Model](operating-model.md). For export and licensing notes, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 
@@ -377,7 +377,7 @@ This is a decision aid, not a prescription. Institutions vary; use the steps as 
 
 **Step 5 — Re-evaluate annually.** CoE shape is not a one-time decision. An institution that starts Centralized in year one may move to Hybrid in year three as the agent population grows and business-line maturity develops. The [governance cadence](governance-cadence.md) annual review is the right place to re-examine the shape choice.
 
-> See also: the [CAPE pattern × CoE shape recommendations](../reference/microsoft-cape-crosswalk.md#3-pattern-zone-fit-matrix) for pattern-specific shape guidance, and the [agentic capability drivers](agentic-capability-drivers.md) lens as a complementary diagnostic.
+> See also: [Frontier transformation patterns](transformation-patterns.md) for pattern overviews and the [agentic capability drivers](agentic-capability-drivers.md) lens as a complementary diagnostic.
 
 ---
 
@@ -388,7 +388,6 @@ This is a decision aid, not a prescription. Institutions vary; use the steps as 
 - [Governance cadence](governance-cadence.md) — review schedules and operating rhythm
 - [Capability drivers](agentic-capability-drivers.md) — the readiness lens for CoE shape selection (Phase 2 sibling document)
 - [Frontier transformation patterns](transformation-patterns.md) — what the CoE governs (Phase 2 sibling document)
-- [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) — pattern-by-pattern regulatory mapping with FSI Regulatory Exposure callouts
 - [Role catalog](../reference/role-catalog.md) — FSI canonical roles plus the five new roles introduced for the CoE blueprint (Executive Sponsor, Agent Product Owner, Subject Matter Expert, Service Owner, Adoption Lead)
 
 !!! info "Key controls supporting CoE operations"

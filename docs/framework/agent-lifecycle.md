@@ -440,7 +440,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 | **Improve** | Maintenance phase (updates, optimization, knowledge refresh) | Enable + Optimize | Agent Product Owner + Service Owner | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) |
 | **Retire** | Decommissioning phase (retirement decision, data retention, cleanup) | Govern | AI Governance Lead + Chief Compliance Officer | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
 
-**Cross-references:** See [Agentic Center of Excellence](agentic-coe.md) for the full treatment of the four CoE functions (Govern, Enable, Optimize, Scale) and the lifecycle × function ownership matrix. See [Role Catalog](../reference/role-catalog.md) for canonical role names and accountability definitions. See [Microsoft CAPE Crosswalk](../reference/microsoft-cape-crosswalk.md) for pattern-by-pattern regulatory implications.
+**Cross-references:** See [Agentic Center of Excellence](agentic-coe.md) for the full treatment of the four CoE functions (Govern, Enable, Optimize, Scale) and the lifecycle × function ownership matrix. See [Role Catalog](../reference/role-catalog.md) for canonical role names and accountability definitions.
 
 ### Stage-by-Stage FSI Implementation Notes
 

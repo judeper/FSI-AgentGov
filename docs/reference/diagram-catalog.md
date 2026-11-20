@@ -24,7 +24,7 @@ These five diagrams ship with v1.5.0 to help CSAs and architects translate Micro
 
 | Diagram | Location | Audience | Use case | Format | Editable source |
 |---|---|---|---|---|---|
-| Pattern × Zone matrix | [microsoft-cape-crosswalk.md §3](microsoft-cape-crosswalk.md#3-pattern-zone-fit-matrix) | CSA, FSI Architect | Customer briefing: "where does each CAPE pattern fit in our zone model?" | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/pattern-zone-matrix.mmd`](../images/diagrams/source/cape/pattern-zone-matrix.mmd) |
+| Pattern × Zone matrix | [transformation-patterns.md](../framework/transformation-patterns.md) | CSA, FSI Architect | Customer briefing: "where does each CAPE pattern fit in our zone model?" | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/pattern-zone-matrix.mmd`](../images/diagrams/source/cape/pattern-zone-matrix.mmd) |
 | CoE structure by pattern | [agentic-coe.md — three CoE shapes](../framework/agentic-coe.md#the-three-coe-shapes) | CIO, CSA | Executive briefing: "what CoE shape fits which pattern?" | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd`](../images/diagrams/source/cape/coe-structure-by-pattern.mmd) |
 | Decision rights framework | [agentic-coe.md — Decision rights at a glance](../framework/agentic-coe.md#decision-rights-at-a-glance) | CIO, CCO, CRO | "Who decides what?" — central vs shared vs domain decisions, plus the non-delegable named-principal layer | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/decision-rights.mmd`](../images/diagrams/source/cape/decision-rights.mmd) |
 | CAPE 90-day × FSI Phase timeline | [adoption-roadmap.md — CAPE 90-day plan × FSI](../framework/adoption-roadmap.md#cape-90-day-plan-fsi-phase-0-1-timeline) | CIO, CSA | Customer briefing: "how does Microsoft's 90-day plan map to FSI's adoption phases?" | Mermaid Gantt (in-doc) | [`docs/images/diagrams/source/cape/cape-fsi-timeline.mmd`](../images/diagrams/source/cape/cape-fsi-timeline.mmd) |
@@ -129,7 +129,6 @@ These diagrams visualize the FSI-AgentGov framework's mapping of Microsoft CAPE 
 
 ## Related documents
 
-- [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) — host of the Pattern × Zone diagram
 - [Agentic CoE](../framework/agentic-coe.md) — host of the CoE structure and decision rights diagrams
 - [Adoption Roadmap](../framework/adoption-roadmap.md) — host of the CAPE 90-day × FSI Phase timeline
 - [Agent Lifecycle](../framework/agent-lifecycle.md) — host of the 7-stage lifecycle diagram

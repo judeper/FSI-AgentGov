@@ -174,14 +174,13 @@ A [scale-breaker](../reference/glossary.md) is the single capability dimension t
 - Licenses purchased without measurable usage
 - Shadow agents appearing outside managed environments
 
-Each Frontier Transformation Pattern has typical scale-breakers documented in the [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md). Recognizing and addressing scale-breakers early is essential for sustainable agent deployment in regulated environments.
+Each Frontier Transformation Pattern has typical scale-breakers documented in [Agentic Capability Drivers](agentic-capability-drivers.md). Recognizing and addressing scale-breakers early is essential for sustainable agent deployment in regulated environments.
 
 ### For Full Treatment
 
 The framework provides a complete FSI translation of Microsoft's Capability Drivers model:
 
 - [Agentic Capability Drivers](agentic-capability-drivers.md) — Per-driver maturity profiles, scale-breaker analysis by pattern, FSI-translated 100–500 progression, and the explicit position on why FSI-AgentGov does not numerically merge the CAPE maturity scale with the FSI 0–4 control maturity scale
-- [Microsoft CAPE Crosswalk](../reference/microsoft-cape-crosswalk.md) — Six transformation patterns mapped to FSI control requirements, autonomy caps, and regulatory exposure analysis
 
 ---
 
