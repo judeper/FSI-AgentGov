@@ -111,10 +111,8 @@ const REP_PAGES = [
   // ── M2: customer-engagement reference pages (plan-checker MUST-FIX) ──────
   // These pages have no Mermaid and no diagram links so the auto-collected
   // MERMAID_PAGES set excludes them — but they are explicit "key reference
-  // materials" customers and CSAs land on. Walk them so any CSP / nav / asset
+  // materials" customers land on. Walk them so any CSP / nav / asset
   // regression is caught.
-  "/reference/csa-quick-reference/",
-  "/reference/csa-positioning-guide/",
   "/reference/role-catalog/",
   "/reference/regulatory-mappings/",
   "/reference/glossary/",

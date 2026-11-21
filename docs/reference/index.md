@@ -44,8 +44,6 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 | [Administrator Role Catalog](role-catalog.md) | Canonical admin role names, aliases, and Microsoft RBAC definitions. Use when authoring controls, playbooks, or RACI assignments to ensure consistent role naming. |
 | [SOC Analyst Purview Roles](purview-soc-analyst-roles.md) | Purview role assignments scoped for SOC and security-analyst personas. Use when configuring least-privilege Purview access for non-admin analyst roles. |
 | [CCO Quick Reference](cco-quick-reference.md) | **Examiner-facing.** Twelve questions an OCC, FINRA, or SEC examiner is likely to ask, each with a one-line CCO answer plus the supporting controls and playbooks. Use during exam prep or live examiner meetings. |
-| [CSA Quick Reference](csa-quick-reference.md) | **Customer-meeting lookup.** Conversation openers, pattern × zone quick-map, objection reframes, and decision trees for Microsoft CSAs. Use live in a customer meeting when you need fast FSI-specific positioning. |
-| [CSA Positioning Guide](csa-positioning-guide.md) | Long-form narrative companion for CSAs: 6-pattern conversation playbook, brand boundary, and complete objection-handling guide. Use when onboarding to the framework or preparing for a new customer engagement. |
 | [Examiner First-Day-Letter Response](examiner-first-day-letter-response.md) | Maps common examiner document requests to specific framework artifacts and evidence packages. Use when a regulatory examination letter arrives and you need to know which framework outputs satisfy each request. |
 
 ---
@@ -142,8 +140,6 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 
 **For CSAs and Account Teams:**
 
-- [CSA Quick Reference](csa-quick-reference.md) — Live meeting reference card
-- [CSA Positioning Guide](csa-positioning-guide.md) — Full onboarding and objection guide
 - [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) — Pattern × control deep-dives
 
 **For Platform Administrators:**

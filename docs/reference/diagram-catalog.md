@@ -133,8 +133,6 @@ These diagrams visualize the FSI-AgentGov framework's mapping of Microsoft CAPE 
 - [Agentic CoE](../framework/agentic-coe.md) — host of the CoE structure and decision rights diagrams
 - [Adoption Roadmap](../framework/adoption-roadmap.md) — host of the CAPE 90-day × FSI Phase timeline
 - [Agent Lifecycle](../framework/agent-lifecycle.md) — host of the 7-stage lifecycle diagram
-- [CSA Quick Reference](csa-quick-reference.md) — partner / CSA engagement summary
-- [CSA Positioning Guide](csa-positioning-guide.md) — positioning for CSA conversations
 
 ---
 

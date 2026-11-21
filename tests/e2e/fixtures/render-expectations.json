@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T00:45:40.970Z",
+  "generated_at": "2026-11-20T22:35:09.012Z",
   "source_root": "docs/",
   "site_url": "https://judeper.github.io/FSI-AgentGov/",
   "pages": {
@@ -4034,18 +4034,6 @@
       "expected_diagram_links": [],
       "expected_asset_links": []
     },
-    "/reference/csa-positioning-guide/": {
-      "source_md": "docs/reference/csa-positioning-guide.md",
-      "expected_mermaid_count": 0,
-      "expected_diagram_links": [],
-      "expected_asset_links": []
-    },
-    "/reference/csa-quick-reference/": {
-      "source_md": "docs/reference/csa-quick-reference.md",
-      "expected_mermaid_count": 0,
-      "expected_diagram_links": [],
-      "expected_asset_links": []
-    },
     "/reference/diagram-catalog/": {
       "source_md": "docs/reference/diagram-catalog.md",
       "expected_mermaid_count": 0,
@@ -4278,7 +4266,7 @@
     }
   },
   "summary": {
-    "total_pages": 697,
+    "total_pages": 695,
     "pages_with_mermaid": 26,
     "total_mermaid_blocks": 39,
     "total_diagram_links": 63,
