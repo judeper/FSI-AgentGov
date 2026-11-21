@@ -1,0 +1,718 @@
+/* ── Brand color tokens (FSI-optimized Microsoft palette) ── */
+:root {
+  --brand-primary:      #0078D4;
+  --brand-primary-dark: #005A9E;
+  --brand-accent:       #007A7E;
+  --brand-accent-vivid: #00B7C3;
+  --brand-surface:      #F3F2F1;
+  --brand-text:         #201F1E;
+  --brand-subtle:       #605E5C;
+}
+
+/* ── Light mode Material overrides ── */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        var(--brand-primary);
+  --md-primary-fg-color--light: #2B88D8;
+  --md-primary-fg-color--dark:  var(--brand-primary-dark);
+  --md-accent-fg-color:         var(--brand-accent);
+  --md-default-bg-color:        #FFFFFF;
+}
+
+/* ── Dark mode Material overrides ── */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #429CE3;
+  --md-accent-fg-color:         #3DD6E0;
+  --md-default-bg-color:        #1B1A19;
+  --brand-primary:              #429CE3;
+  --brand-primary-dark:         #005A9E;
+  --brand-accent:               #3DD6E0;
+  --brand-surface:              #2D2C2B;
+  --brand-text:                 #F3F2F1;
+  --brand-subtle:               #A19F9D;
+}
+
+/* ── Architecture diagram ── */
+.arch-diagram {
+  max-width: 720px;
+  margin: 1.5rem auto 2rem;
+}
+.arch-layer {
+  background: var(--brand-surface);
+  border-radius: 8px;
+  padding: 1rem 1rem 1.25rem;
+  text-align: center;
+}
+.arch-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brand-subtle);
+  margin-bottom: 0.75rem;
+}
+.arch-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.arch-card {
+  min-width: 120px;
+  flex: 1 1 120px;
+  max-width: 160px;
+  padding: 0.75rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  text-align: center;
+  color: #fff;
+}
+.arch-card strong { display: block; margin-bottom: 0.15rem; }
+.arch-zone   { background: var(--brand-primary); }
+.arch-pillar { background: var(--brand-accent); }
+.arch-reg    { background: var(--brand-primary-dark); }
+.arch-arrow {
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0.4rem 0;
+  color: var(--brand-subtle);
+}
+
+/* ── Control/playbook metadata field spacing ── */
+/* Bold labels separated by <br> in metadata blocks — add visual breathing room */
+.md-typeset p > strong:first-child {
+  color: var(--md-primary-fg-color);
+}
+.md-typeset br + strong {
+  display: inline-block;
+  margin-top: 0.4em;
+  color: var(--md-primary-fg-color);
+}
+
+/* ── A11y: WCAG 2.1 AA contrast overrides (AS5) ── */
+/*
+ * Closes 4 P1 + 1 P2 contrast findings:
+ *
+ *   F-A11Y-DOCS-CONTRAST-NAVTABS-01 (P1, site-wide)
+ *     Material default tints .md-tabs__link via primary-bg-color--light
+ *     (#b3d7f2 on #0078D4 = 3.0:1; AA needs 4.5:1 for normal text).
+ *     Forcing #ffffff yields 4.59:1 against #0078D4. The active tab
+ *     indicator is the bottom border, not the link colour, so visual
+ *     "current section" affordance is preserved.
+ *
+ *   F-A11Y-DOCS-CONTRAST-INLINELINK-03 (P1, /reference/csa-quick-reference,
+ *   /reference/role-catalog, /downloads)
+ *     axe link-in-text-block: brand link #0078D4 vs surrounding muted text
+ *     #757575 = 1.01:1 (WCAG 1.4.1 needs 3:1 between adjacent text colours
+ *     OR a non-colour cue such as underline). Material removes underlines
+ *     by default; FSI brand re-adds underline on body links so the
+ *     non-colour cue is always present. Buttons, navigation tabs, and
+ *     contents-sidebar entries are excluded so chrome surfaces stay clean.
+ *
+ *   F-A11Y-DOCS-CONTRAST-CODE-IN-LINK (P1, multiple reference pages)
+ *     Inline <code> nested inside an <a> inherits the brand link colour
+ *     (#0078D4) on Material's code background (#f5f5f5) = 4.15:1 — fails
+ *     4.5:1 normal-text threshold. Switching to --brand-primary-dark
+ *     (#005A9E) yields 6.52:1 while preserving the visual link affordance.
+ *
+ *   F-A11Y-DOCS-CONTRAST-VERSIONFACT-02 (P2, site-wide header version
+ *   badge) — Material's .md-source__facts (plural, the <ul> parent) sets
+ *     opacity: 0.75; opacity is a compositing operation on the whole
+ *     subtree and does not inherit, so overriding the leaf .md-source__fact
+ *     to opacity:1 has no effect. Restoring opacity:1 on the parent <ul>
+ *     AND forcing white on the leaf yields #ffffff on #0078D4 = 4.53:1.
+ *
+ *   F-A11Y-SPA-CONTRAST-DELTA-07 (P1, /assessment/) — SPA stepper buttons
+ *     used --md-default-fg-color--light (#6d6d6d) on
+ *     --md-default-fg-color--lightest (#ededed) = 4.41:1; below 4.5:1.
+ *     Explicit #595959 yields 5.98:1 while preserving the dim "inactive
+ *     step" affordance against the active (filled brand) step.
+ */
+[data-md-color-scheme="default"] .md-tabs__link,
+[data-md-color-scheme="default"] .md-tabs__link--active,
+[data-md-color-scheme="default"] .md-tabs__link:hover {
+  color: #ffffff;
+  opacity: 1;
+}
+
+/*
+ * .md-source__facts (plural) is Material's <ul> wrapper that applies
+ * opacity:0.75 to its entire subtree; .md-source__fact (singular) is each
+ * <li>. Restore full opacity on the wrapper AND force white on the leaves
+ * so axe's color-contrast reads the un-composited colour.
+ */
+[data-md-color-scheme="default"] .md-header__source .md-source__facts {
+  opacity: 1;
+}
+[data-md-color-scheme="default"] .md-header__source .md-source__fact,
+[data-md-color-scheme="default"] .md-header__source .md-source__repository {
+  color: #ffffff;
+}
+
+/*
+ * Body-link underline. Scoped to article/typeset content so navigation
+ * tabs, header chrome, footer, and the table-of-contents sidebar
+ * remain underline-free. Buttons, code-copy controls, and toc anchors
+ * keep their existing chrome treatment.
+ */
+.md-typeset a:not(.md-button):not(.md-content__button):not(.headerlink) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.md-typeset a:not(.md-button):not(.md-content__button):not(.headerlink):hover {
+  text-decoration-thickness: 2px;
+}
+
+/*
+ * Inline code inside a body link: darken to brand-primary-dark so the
+ * code text reaches 4.5:1 against Material's #f5f5f5 code background.
+ */
+.md-typeset a code {
+  color: var(--brand-primary-dark);
+}
+
+/* A11y (WCAG 2.1 AA): assessment landing-page destructive mini button.
+   The app applies inline opacity:0.7 to "Clear all assessment data", which
+   drops white-on-red contrast below AA. Keep full opacity for readability. */
+.assessment-container .ag-btn-danger.ag-btn-sm {
+  opacity: 1 !important;
+}
+.assessment-container .ag-btn-danger.ag-btn-sm:hover,
+.assessment-container .ag-btn-danger.ag-btn-sm:focus-visible {
+  opacity: 1 !important;
+}
+
+/* ── A11y: WCAG 2.1 AA contrast overrides for slate (dark) palette (AS21) ── */
+/*
+ * Closes F-A11Y-DARKMODE-VIOLATIONS-01 (P1, site-wide + 2 page-specific).
+ * AS5 closed every contrast issue for the default (light) palette but
+ * never verified slate. AS19b's dark-palette axe re-scan surfaced
+ * 11–25 serious color-contrast violations per page across the 8-page
+ * docs sample. Single root cause for all 6 site-wide chrome findings:
+ * Material's slate palette uses --md-primary-fg-color (#429CE3) as the
+ * background of .md-header and .md-tabs, but every white/tinted-white
+ * text token inside the header sits at 2.18:1 to 2.95:1 against that
+ * lighter blue — none reach the 4.5:1 AA normal-text threshold.
+ *
+ * Strategy: keep #429CE3 as the slate accent for body links (where it
+ * sits on the dark page bg #1B1A19 and reaches 7.7:1) but override the
+ * header-strip backgrounds to #003A70 — the deeper navy already used as
+ * the hero-gradient endpoint in slate (extra.css line 55), so no new
+ * colours are introduced. White on #003A70 = 11.42:1.
+ *
+ * Findings closed (axe color-contrast, dark palette, 8/8 docs sample):
+ *
+ *   F-A11Y-DARK-CHROME-NAVTABS         .md-tabs__link tinted to
+ *     (49 nodes, 8/8 pages, P1)        #c6e1f7 on #429ce3 = 2.18:1.
+ *                                      Forcing #ffffff on the new
+ *                                      #003A70 header bg = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-TITLE           .md-header__topic .md-ellipsis
+ *     (8 nodes, 8/8 pages, P1)         #ffffff on #429ce3 = 2.95:1.
+ *                                      Same #ffffff on #003A70 = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-SOURCELINK      .md-source__repository--active
+ *     (8 nodes, 8/8 pages, P1)         #ffffff on #429ce3 = 2.95:1.
+ *                                      Same #ffffff on #003A70 = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-VERSIONFACT     .md-source__fact--version inherits
+ *     (8 nodes, 8/8 pages, P1)         opacity:0.75 from .md-source__facts
+ *                                      parent (same root cause as the
+ *                                      light-mode finding AS5 fixed —
+ *                                      opacity is a compositing op that
+ *                                      does not inherit). Restore
+ *                                      opacity:1 on the parent <ul> AND
+ *                                      force #ffffff on the leaves;
+ *                                      result on #003A70 = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-ROOT-INHERIT    axe attributes some chrome
+ *     (8 nodes, 8/8 pages, P1)         surfaces to `:root` when it
+ *                                      cannot find a more specific
+ *                                      element. Resolved transitively
+ *                                      by the header-bg fix.
+ *
+ *   F-A11Y-DARK-CODEINLINK-REGRESSION  AS5's `.md-typeset a code` rule
+ *     (12 nodes, 1/8 pages, P1)        forced inline-code colour to
+ *     /reference/csa-quick-reference   --brand-primary-dark (#005A9E),
+ *                                      which works on the light-mode
+ *                                      code bg (#f5f5f5 = 6.52:1) but
+ *                                      fails on slate code bg (#272a35
+ *                                      = 2.01:1). Override to
+ *                                      var(--brand-primary) in slate
+ *                                      (which resolves to #429CE3) =
+ *                                      4.83:1.
+ *
+ *   F-A11Y-DARK-ARCHCARDS              .arch-zone (#ffffff on slate
+ *     (14 nodes, 1/8 pages, P1)        --brand-primary #429CE3 = 2.95:1)
+ *     home page                        and .arch-pillar (#ffffff on
+ *                                      slate --brand-accent #3DD6E0 =
+ *                                      1.76:1). Override the slate
+ *                                      backgrounds for these cards
+ *                                      specifically: arch-zone uses
+ *                                      brand-primary-dark #005A9E
+ *                                      (white text = 7.10:1),
+ *                                      arch-pillar uses light-mode
+ *                                      brand-accent #007A7E (white
+ *                                      text = 5.14:1). .arch-reg
+ *                                      already uses brand-primary-dark
+ *                                      and passes — no change.
+ */
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: #003A70;
+}
+[data-md-color-scheme="slate"] .md-tabs__link,
+[data-md-color-scheme="slate"] .md-tabs__link--active,
+[data-md-color-scheme="slate"] .md-tabs__link:hover,
+[data-md-color-scheme="slate"] .md-header__topic,
+[data-md-color-scheme="slate"] .md-header__topic .md-ellipsis {
+  color: #ffffff;
+  opacity: 1;
+}
+
+/*
+ * Match the light-mode .md-source__facts opacity fix (AS5):
+ * Material applies opacity:0.75 to the <ul> wrapper; opacity is a
+ * compositing op that doesn't inherit, so leaf colour overrides have
+ * no effect. Restore opacity:1 on the wrapper AND force white on the
+ * leaves so axe reads the un-composited colour.
+ */
+[data-md-color-scheme="slate"] .md-header__source .md-source__facts {
+  opacity: 1;
+}
+[data-md-color-scheme="slate"] .md-header__source .md-source__fact,
+[data-md-color-scheme="slate"] .md-header__source .md-source__repository {
+  color: #ffffff;
+}
+
+/*
+ * Inline <code> inside an <a> in body content: AS5's unscoped rule
+ * darkens to brand-primary-dark, which fails on slate code bg #272a35.
+ * In dark mode, switch to the (lighter) slate primary so it sits at
+ * 4.83:1 over the slate code bg.
+ */
+[data-md-color-scheme="slate"] .md-typeset a code {
+  color: var(--brand-primary);
+}
+
+/*
+ * Architecture diagram cards on the home page. Slate overrides for
+ * --brand-primary (#429CE3) and --brand-accent (#3DD6E0) are too light
+ * for white text. Use darker brand variants in slate so white text
+ * reaches AA on the home-page card chrome.
+ */
+[data-md-color-scheme="slate"] .arch-zone {
+  background: var(--brand-primary-dark);  /* #005A9E — white text 7.10:1 */
+}
+[data-md-color-scheme="slate"] .arch-pillar {
+  background: #007A7E;  /* light-mode brand-accent — white text 5.14:1 */
+}
+
+
+@media (max-width: 600px) {
+  .arch-card { min-width: 80px; max-width: 140px; font-size: 0.8rem; }
+}
+
+/* ── Home page: left-aligned hero + job router (WS1, tribunal-informed) ── */
+/*
+ * Replaces the old centered gradient hero + metric strip with a left-aligned
+ * "pick your job" front door. Uses Material CSS custom properties so it adapts
+ * to both the default and slate palettes without new contrast risk.
+ */
+.home-hero-layout {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.home-hero {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.home-hero h1 {
+  font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  /* UX-02 / UX-10: enforce full-strength color so h1 is never muted gray */
+  color: var(--md-default-fg-color);
+}
+.home-hero p {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 1.5rem;
+}
+.home-hero .md-button { margin: 0 .5rem .5rem 0; }
+
+/* Hero stat panel — product visual on the right side of the hero (UX-02) */
+.hero-stat-panel {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-self: flex-start;
+  background: var(--brand-surface);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  min-width: 200px;
+  max-width: 240px;
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.stat-num {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--brand-primary);
+}
+.stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.2rem;
+}
+
+/* Slate overrides for stat panel */
+[data-md-color-scheme="slate"] .hero-stat-panel {
+  background: var(--brand-surface);
+  border-color: var(--md-default-fg-color--lightest);
+  border-left-color: var(--brand-primary);
+}
+[data-md-color-scheme="slate"] .stat-num {
+  color: var(--brand-primary);
+}
+
+/* Responsive: collapse to single-column hero at narrow viewports */
+@media (max-width: 860px) {
+  .home-hero-layout {
+    flex-direction: column;
+  }
+  .hero-stat-panel {
+    max-width: 100%;
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .hero-stat-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Job-router cards: Material .grid.cards enhanced into task entry points */
+.job-cards.cards > ul > li {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--md-primary-fg-color);
+  border-radius: 8px;
+  transition: transform .15s ease, box-shadow .15s ease, border-left-color .15s ease;
+}
+.job-cards.cards > ul > li:hover,
+.job-cards.cards > ul > li:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .10);
+  border-left-color: var(--md-accent-fg-color);
+}
+.job-cards.cards > ul > li > p:first-child {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* Audience strip */
+.audience-strip ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: .4rem 1.5rem;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.audience-strip li {
+  padding: .3rem 0 .3rem .9rem;
+  border-left: 2px solid var(--md-primary-fg-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-cards.cards > ul > li { transition: none; }
+  .job-cards.cards > ul > li:hover,
+  .job-cards.cards > ul > li:focus-within { transform: none; }
+}
+
+/* ── UX-10 / ONBOARD-12: Darken heading and body text (WCAG AA headroom) ──
+ * Material's light palette sets --md-default-fg-color to rgba(0,0,0,0.87)
+ * (~#222) which technically passes 4.5:1 on white, but the rendered value
+ * can vary with opacity compositing. Force explicit values so headings are
+ * always full-strength and comfortably exceed AA.
+ * Scoped to default (light) palette only — slate palette is already dark.
+ */
+[data-md-color-scheme="default"] {
+  --md-default-fg-color:        #1A1918;   /* near-black, 18.2:1 on white */
+  --md-default-fg-color--light: #4A4845;   /* medium-dark, 9.2:1 on white  */
+}
+
+/* Headings in typeset content — force full-strength so none inherit muted
+   grays from Material's variable resolution. */
+[data-md-color-scheme="default"] .md-typeset h1,
+[data-md-color-scheme="default"] .md-typeset h2,
+[data-md-color-scheme="default"] .md-typeset h3,
+[data-md-color-scheme="default"] .md-typeset h4 {
+  color: #1A1918;
+}
+
+/* ── CONTROLS-13: Control table and chip contrast / density ── */
+/*
+ * Dense control tables (Zone-Specific Requirements, Roles & Responsibilities):
+ * add subtle row striping, stronger header, and breathing room so examiners
+ * can scan without losing track of their row.
+ */
+.md-typeset table:not([class]) {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.md-typeset table:not([class]) th {
+  font-weight: 700;
+  background-color: var(--brand-surface);
+  color: var(--md-default-fg-color);
+  border-bottom: 2px solid var(--md-default-fg-color--lightest);
+  padding: 0.55rem 0.75rem;
+}
+.md-typeset table:not([class]) td {
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+.md-typeset table:not([class]) tr:nth-child(even) td {
+  background-color: var(--brand-surface);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: var(--brand-surface);
+  color: var(--md-default-fg-color);
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* A11y (WCAG 2.1 AA): table-body links on striped rows.
+   Light-mode stripe background (#F3F2F1) pulls default link blue (#0078D4)
+   under 4.5:1 in dense control/reference tables. Darken only table links so
+   global body-link behavior (underline, hover thickness, visited affordance)
+   stays intact. */
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink) {
+  color: var(--brand-primary-dark);
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink):visited {
+  color: #4b2e83;
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink):hover,
+[data-md-color-scheme="default"] .md-typeset table:not([class]) a:not(.md-button):not(.md-content__button):not(.headerlink):focus-visible {
+  color: #004578;
+}
+
+/* ── UX-08: Supplemental feedback link (feedback-extra.html) ── */
+.fsi-feedback-extra {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 0.82rem;
+}
+.fsi-feedback-mailto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: var(--md-default-fg-color--light);
+  transition: color 0.15s ease;
+}
+.fsi-feedback-mailto:hover {
+  color: var(--md-primary-fg-color);
+}
+/* Override body-link underline rule from AS5 for this link — it already
+   carries the emoji icon as a non-colour cue, so underline is redundant. */
+.fsi-feedback-extra .fsi-feedback-mailto {
+  text-decoration: none;
+}
+.fsi-feedback-extra .fsi-feedback-mailto:hover {
+  text-decoration: underline;
+}
+
+/* ── Reading experience (WS3): comfort typography — color-neutral (no AA impact) ── */
+/*
+ * Cure the "wall of text / audit report" density flagged by the tribunal.
+ * Color-neutral on purpose: only line-height + heading rhythm change, so the
+ * documented WCAG AA contrast fixes are unaffected.
+ */
+.md-typeset {
+  line-height: 1.7;
+}
+.md-typeset h2 {
+  margin-top: 2.4em;
+  letter-spacing: -0.01em;
+}
+.md-typeset h3 {
+  margin-top: 1.8em;
+}
+
+/* ── WS6: homepage palette PILOT (warm-neutral + deep blue) ───────────────────
+ * Scoped to home-only elements (.home-hero / .job-cards / .audience-strip) so the
+ * rest of the site keeps the Microsoft-blue brand. This is the F1 pilot for you to
+ * evaluate, NOT a global swap (Juror D argued to keep MS-blue; decision pending).
+ * AA verified: #ffffff on #15497B = 9.25:1 (passes AA/AAA in both palettes).
+ */
+:root {
+  --fsi-deep-blue: #15497B;
+  --fsi-deep-blue-hover: #0F3A63;
+}
+
+.home-hero .md-button--primary {
+  background-color: var(--fsi-deep-blue);
+  border-color: var(--fsi-deep-blue);
+  color: #ffffff;
+}
+.home-hero .md-button--primary:hover {
+  background-color: var(--fsi-deep-blue-hover);
+  border-color: var(--fsi-deep-blue-hover);
+}
+
+/* Warm-neutral job cards with a deep-blue spine */
+.job-cards.cards > ul > li {
+  background-color: #faf8f5;
+  border-left-color: var(--fsi-deep-blue);
+}
+.job-cards.cards > ul > li:hover,
+.job-cards.cards > ul > li:focus-within {
+  border-left-color: var(--fsi-deep-blue);
+}
+.audience-strip li {
+  border-left-color: var(--fsi-deep-blue);
+}
+
+/* Slate: warm-dark card surface; brighten the spine so it stays visible on the
+   dark background. The deep-blue CTA keeps white text (9.25:1) unchanged. */
+[data-md-color-scheme="slate"] .job-cards.cards > ul > li {
+  background-color: #2a2724;
+  border-left-color: #5aa0e0;
+}
+[data-md-color-scheme="slate"] .audience-strip li {
+  border-left-color: #5aa0e0;
+}
+
+/* A11y (WCAG 2.1 AA): on the warm card surface (#faf8f5), Material's default
+   link colour #0078D4 = 4.27:1 (just fails). #005A9E = 6.63:1. Light scheme
+   only — the slate card surface (#2a2724) keeps the brighter link readable. */
+[data-md-color-scheme="default"] .job-cards.cards > ul > li a {
+  color: #005a9e;
+}
+
+/* A11y (WCAG 2.1 AA): slate primary-action buttons in docs content.
+   Material's slate primary background (#429CE3) leaves white button text at
+   2.95:1. Use brand-primary-dark for dark-mode content buttons; hover/focus
+   returns to brand-primary while staying >4.5:1 on white text. */
+[data-md-color-scheme="slate"] .md-button--primary {
+  background-color: #005a9e;
+  border-color: #005a9e;
+  color: #ffffff;
+}
+[data-md-color-scheme="slate"] .md-button--primary:hover,
+[data-md-color-scheme="slate"] .md-button--primary:focus-visible {
+  background-color: #0078d4;
+  border-color: #0078d4;
+  color: #ffffff;
+}
+
+/* Preserve the homepage pilot CTA palette in slate. */
+[data-md-color-scheme="slate"] .home-hero .md-button--primary {
+  background-color: var(--fsi-deep-blue);
+  border-color: var(--fsi-deep-blue);
+}
+[data-md-color-scheme="slate"] .home-hero .md-button--primary:hover,
+[data-md-color-scheme="slate"] .home-hero .md-button--primary:focus-visible {
+  background-color: var(--fsi-deep-blue-hover);
+  border-color: var(--fsi-deep-blue-hover);
+}
+
+/* Keep the injected print button aligned with the slate primary-action fix. */
+[data-md-color-scheme="slate"] #fsi-print-control-button {
+  background-color: #005a9e;
+  border-color: #005a9e;
+  color: #ffffff;
+}
+
+/* ── WS6: conservative, color-neutral component polish (site-wide) ── */
+.md-typeset .grid.cards > ul > li {
+  border-radius: 8px;
+}
+.md-typeset table:not([class]) th {
+  font-weight: 700;
+}
+
+/* Print-friendly checkboxes */
+@media print {
+  .task-list-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+  }
+  .task-list-item {
+    list-style: none;
+    margin-left: 0;
+  }
+}
+
+/* ── UX-03/04: Mobile-responsive table scroll ──────────────────────────────
+ *
+ * Problem: wide multi-column tables (regulatory mapping, zone/RACI, Control
+ * Explorer) overflow the viewport on 390px devices. Verified via DOM
+ * measurement: regulatory/zone tables overflow 211px (UX-04) and the Control
+ * Explorer table overflows 546px (UX-03) at 390px viewport width.
+ *
+ * Root causes (two distinct sites):
+ *
+ *   1. Markdown-generated tables (UX-04) — MkDocs Material 9.x wraps each
+ *      table in `.md-typeset__scrollwrap` (overflow-x:auto) but the wrapper
+ *      can fail to contain wide tables when ancestor padding/negative-margin
+ *      expands the scrollable area beyond the visible column width. Explicitly
+ *      reinforcing overflow-x:auto on both the wrapper and the inner table
+ *      element closes this gap.
+ *
+ *   2. Control Explorer (UX-03) — `.ce-layout` is a CSS grid with column
+ *      track `1fr`. CSS grid tracks with implicit `auto` minimum refuse to
+ *      shrink below the track's min-content size; the `.ce-table` min-width
+ *      (46rem) sets that floor, forcing the page to scroll. The fix is
+ *      `minmax(0, 1fr)` on the track (applied in control-explorer.css) so the
+ *      track can shrink to 0 and let `.ce-results { overflow-x:auto }` do its
+ *      job. The reinforcement below covers the outer CE container.
+ *
+ * Fixes applied:
+ *   - `.md-typeset__scrollwrap`: reinforce overflow-x:auto + WebKit touch
+ *     momentum scroll (UX-04).
+ *   - `.md-typeset table:not([class])`: keeps `max-width:100%` so the table
+ *     can never widen the scroll container itself (UX-04).
+ *   - `.ce-root`: max-width:100% + overflow-x:auto as a hard outer stop so
+ *     the CE widget never breaks page-level scroll (UX-03 outer container).
+ */
+.md-typeset__scrollwrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent table from expanding its own scroll container beyond the column */
+.md-typeset table:not([class]) {
+  max-width: 100%;
+}
+
+/* CE outer container: clamp to available width so layout overflow stops here */
+.ce-root {
+  max-width: 100%;
+  overflow-x: auto;
+}
