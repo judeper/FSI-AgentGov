@@ -82,7 +82,6 @@ The table below maps the most-frequently-requested Compliance Manager templates 
 - [Service Trust Portal Attestation Evidence Guide](service-trust-portal-attestation-guide.md) — Microsoft's own SOC 2 Type 2, ISO 27001/27017/27018/27701/42001, FedRAMP, and other attestation reports
 - [Regulatory Mappings](regulatory-mappings.md) — full crosswalk of US FSI regulations to framework controls
 - [NIST AI RMF Crosswalk](nist-ai-rmf-crosswalk.md) — 67/72 subcategory mapping to controls
-- [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) — alignment with Microsoft's Cloud Adoption Framework for AI
 - [Assessment Engine Coverage](assessment-coverage.md) — honest report of which framework controls have automated evaluators
 
 ---

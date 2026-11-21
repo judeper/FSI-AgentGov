@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T22:35:09.012Z",
+  "generated_at": "2026-11-20T23:27:11.851Z",
   "source_root": "docs/",
   "site_url": "https://judeper.github.io/FSI-AgentGov/",
   "pages": {
@@ -4119,12 +4119,6 @@
       "expected_diagram_links": [],
       "expected_asset_links": []
     },
-    "/reference/microsoft-cape-crosswalk/": {
-      "source_md": "docs/reference/microsoft-cape-crosswalk.md",
-      "expected_mermaid_count": 1,
-      "expected_diagram_links": [],
-      "expected_asset_links": []
-    },
     "/reference/microsoft-learn-urls/": {
       "source_md": "docs/reference/microsoft-learn-urls.md",
       "expected_mermaid_count": 0,
@@ -4266,9 +4260,9 @@
     }
   },
   "summary": {
-    "total_pages": 695,
-    "pages_with_mermaid": 26,
-    "total_mermaid_blocks": 39,
+    "total_pages": 694,
+    "pages_with_mermaid": 25,
+    "total_mermaid_blocks": 38,
     "total_diagram_links": 63,
     "total_asset_links": 6
   }

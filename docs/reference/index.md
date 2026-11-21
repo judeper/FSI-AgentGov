@@ -29,7 +29,6 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 | [ISO/IEC 42001 Mapping](iso-42001-mapping.md) | AI management system standard alignment. Use for organizations pursuing ISO 42001 certification or using it as a governance baseline. |
 | [OWASP LLM Top 10 Crosswalk](owasp-llm-top10-crosswalk.md) | Maps OWASP LLM-specific risks (prompt injection, model theft, etc.) to mitigating framework controls. Use during red-team and application-security reviews. |
 | [Microsoft Responsible AI v2 Mapping](microsoft-rai-v2-mapping.md) | Aligns Microsoft's Responsible AI principles (v2) to framework controls. Use when answering vendor-questionnaire or board-level RAI questions. |
-| [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) | **Comprehensive strategic reference.** Six Frontier Transformation Patterns × 79-control deep-dives with US FSI regulatory overlays. Use when a CAPE pattern conversation needs FSI governance grounding. |
 | [Agent Essentials Control Mapping](agent-essentials-control-mapping.md) | Maps Microsoft Agent Essentials capabilities to framework controls. Use when a customer asks what Agent Essentials covers vs. what requires additional configuration. |
 | [Power Platform SSPM Control Mapping](power-platform-sspm-control-mapping.md) | Maps Power Platform SaaS Security Posture Management recommendations to framework controls. Use when reviewing SSPM findings against the governance baseline. |
 
@@ -137,10 +136,6 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 - [Regulatory Mappings](regulatory-mappings.md) — Control-to-regulation traceability
 - [Evidence Standards](evidence-standards.md) — What to document for examinations
 - [Download the Compliance Officer Checklist →](../downloads/compliance-officer-checklist.xlsx)
-
-**For CSAs and Account Teams:**
-
-- [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) — Pattern × control deep-dives
 
 **For Platform Administrators:**
 
