@@ -3,7 +3,9 @@ description: "Complete guide to agent lifecycle governance from creation through
 ---
 # Agent Lifecycle
 
-> **Framework layer — Core track.** Governance requirements at each stage of the seven-stage CAPE lifecycle (Intake → Retire), with FSI regulatory hooks for examiner workpapers.
+> **Framework layer — Core track.** Governance requirements at each stage of the seven-stage lifecycle in [Microsoft's published guidance](https://learn.microsoft.com/en-us/agents/center-of-excellence/agent-lifecycle) (Intake → Retire), with FSI regulatory hooks for examiner workpapers.
+
+> The FSI mapping on this page is this framework's own. Microsoft hasn't reviewed or endorsed it.
 
 Complete guide to agent lifecycle governance from creation through decommissioning.
 
@@ -15,9 +17,9 @@ This guide covers the complete agent lifecycle with zone-specific governance req
 
 ---
 
-## CAPE 7-stage lifecycle with FSI regulatory hooks
+## 7-stage agent lifecycle with FSI regulatory hooks
 
-Microsoft CAPE describes a seven-stage lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that FSI institutions adopt as the canonical operational flow. Each stage carries an FSI hook — the controls and US regulatory regimes that examiners will trace through that stage. The diagram below is examiner-ready: drop it into a workpaper to show how the institution's agent lifecycle aligns with CAPE while honouring FINRA 4511, SEC 17a-3/4, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), FINRA 3110, and SOX 404. The full stage-by-stage FSI treatment is in the [Microsoft CAPE 7-Stage Lifecycle Alignment](#microsoft-cape-7-stage-lifecycle-alignment) section later in this document.
+Microsoft's published guidance describes a seven-stage lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that FSI institutions adopt as the canonical operational flow. Each stage carries an FSI hook — the controls and US regulatory regimes that examiners will trace through that stage. The diagram below is examiner-ready: drop it into a workpaper to show how the institution's agent lifecycle maps to Microsoft's published lifecycle while honouring FINRA 4511, SEC 17a-3/4, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), FINRA 3110, and SOX 404. The full stage-by-stage FSI treatment is in the [How this framework maps Microsoft's 7-stage lifecycle](#how-this-framework-maps-microsofts-7-stage-lifecycle) section later in this document.
 
 ```mermaid
 flowchart LR
@@ -52,7 +54,7 @@ flowchart LR
     S7 --- H7
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd`](../images/diagrams/source/cape/agent-lifecycle-7-stage.mmd). For canonical role assignments per stage, see the [CoE × Lifecycle ownership matrix](agentic-coe.md#coe-lifecycle-ownership-matrix). For export and reuse, see the [Diagram Catalog](../reference/diagram-catalog.md).
+Editable Mermaid source: [`docs/images/diagrams/source/patterns/agent-lifecycle-7-stage.mmd`](../images/diagrams/source/patterns/agent-lifecycle-7-stage.mmd). For canonical role assignments per stage, see the [CoE × Lifecycle ownership matrix](agentic-coe.md#coe-lifecycle-ownership-matrix). For export and reuse, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 
@@ -424,13 +426,13 @@ Maintain documentation at each phase for regulatory examinations:
 
 ---
 
-## Microsoft CAPE 7-Stage Lifecycle Alignment
+## How this framework maps Microsoft's 7-stage lifecycle
 
-Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that organizations use to manage agent portfolios at scale. FSI-AgentGov's lifecycle treatment (described above in this document) aligns with Microsoft's 7-stage model — they describe the same operational reality using different vocabularies. The two frameworks are compatible and complementary. This section maps the Microsoft CAPE stages to FSI-AgentGov's existing lifecycle phases, identifies the Center of Excellence function that owns each stage, and names the key controls that help meet regulatory requirements at each gate.
+Microsoft's published guidance describes a 7-stage agent lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that organizations use to manage agent portfolios at scale. FSI-AgentGov's lifecycle treatment (described above in this document) maps to Microsoft's 7-stage model — they describe the same operational reality using different vocabularies. The two frameworks are compatible and complementary. This section maps Microsoft's lifecycle stages to FSI-AgentGov's existing lifecycle phases, identifies the Center of Excellence function that owns each stage, and names the key controls that help meet regulatory requirements at each gate.
 
-### CAPE × FSI Lifecycle Mapping
+### Lifecycle mapping
 
-| Microsoft CAPE Stage | FSI-AgentGov Treatment | Primary CoE Function | Primary FSI Accountability Role | Key Controls |
+| Microsoft lifecycle stage | FSI-AgentGov Treatment | Primary CoE Function | Primary FSI Accountability Role | Key Controls |
 |---------------------|------------------------|---------------------|--------------------------------|--------------|
 | **Intake** | Creation phase (zone classification, business justification) | Govern | AI Governance Lead | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) |
 | **Triage** | Creation phase (risk assessment, approval routing) | Govern | AI Governance Lead + Chief Risk Officer | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
@@ -446,7 +448,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 #### Intake — Formal Request Capture
 
-**What it means in CAPE vocabulary.** Intake is the portfolio activity where the Center of Excellence receives agent requests from business lines, names an owner, and begins the formal governance pathway. In CAPE framing, every agent that reaches production should have entered through a documented intake process, not emerged as a shadow deployment.
+**What it means in Microsoft's published guidance.** Intake is the portfolio activity where the Center of Excellence receives agent requests from business lines, names an owner, and begins the formal governance pathway. In that framing, every agent that reaches production should have entered through a documented intake process, not emerged as a shadow deployment.
 
 **What it looks like in FSI practice.** An FSI institution's intake process captures the agent request in a structured format (business justification, data sources, user population, channel requirements). Zone classification occurs at intake — the AI Governance Lead applies the zone selection criteria from [Zones and Tiers](zones-and-tiers.md) based on data sensitivity, user scope, and regulatory exposure. For Zone 3 agents, intake triggers the governance committee approval pathway. For Zone 1 and Zone 2 agents, intake documents the request but may not require committee-level approval.
 
@@ -454,7 +456,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 #### Triage — Value × Risk × Feasibility Scoring
 
-**What it means in CAPE vocabulary.** Triage is the portfolio activity where the CoE evaluates whether the agent request should proceed, be deferred, or be rejected. CAPE recommends scoring on three dimensions: business value, technical feasibility, and risk exposure. The triage decision determines priority and resourcing.
+**What it means in Microsoft's published guidance.** Triage is the portfolio activity where the CoE evaluates whether the agent request should proceed, be deferred, or be rejected. Microsoft's published guidance recommends scoring on three dimensions: business value, technical feasibility, and risk exposure. The triage decision determines priority and resourcing.
 
 **What it looks like in FSI practice.** FSI triage adds regulatory exposure as a fourth dimension. An agent request that scores high on business value but touches customer data or executes decisions autonomously receives heightened scrutiny. The Chief Risk Officer (or delegate) participates in triage for any agent that may be classified as a model under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2. FINRA-supervised firms apply Rule 3110 supervision requirements at triage to identify whether the agent will produce communications subject to supervision. For Zone 3 agents, triage produces the initial risk tier and identifies the mandatory controls that must be in place before deployment.
 
@@ -462,15 +464,15 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 #### Build — Configuration and Knowledge Assembly
 
-**What it means in CAPE vocabulary.** Build is the stage where makers configure the agent, wire connectors, curate knowledge sources, and implement the conversational design. CAPE emphasizes that Build should follow golden-path templates provided by the Enable function to reduce maker friction and increase control consistency.
+**What it means in Microsoft's published guidance.** Build is the stage where makers configure the agent, wire connectors, curate knowledge sources, and implement the conversational design. Microsoft's published guidance emphasizes that Build should follow golden-path templates provided by the Enable function to reduce maker friction and increase control consistency.
 
 **What it looks like in FSI practice.** FSI builders work in managed environments (Control 2.1) segmented by zone. Zone 1 builders work in personal developer environments with self-service access. Zone 2 and Zone 3 builders work in controlled environments with documented change management and co-authoring restrictions. Knowledge sources are subject to RAG source integrity validation (Control 2.16) — an FSI agent that surfaces policy guidance or regulatory citations must draw from validated, version-controlled sources with named SME ownership. Connectors are subject to DLP policy enforcement (Control 1.5) and Advanced Connector Policies (Control 1.4) that prevent builders from wiring unapproved data pathways.
 
-**The most important governance gate at this stage.** Knowledge source validation before the agent answers its first user query. An agent that cites stale policy, deprecated procedures, or unvalidated external content creates both operational risk (wrong answers) and regulatory risk (unsupervised communications under FINRA Rule 3110, inaccurate disclosures under Reg BI). Control 2.16 requires knowledge sources to carry refresh dates, SME attestations, and version lineage — these fields support compliance with the CAPE "drift thesis" that agents slowly give increasingly wrong answers with full confidence when their knowledge sources are not maintained.
+**The most important governance gate at this stage.** Knowledge source validation before the agent answers its first user query. An agent that cites stale policy, deprecated procedures, or unvalidated external content creates both operational risk (wrong answers) and regulatory risk (unsupervised communications under FINRA Rule 3110, inaccurate disclosures under Reg BI). Control 2.16 requires knowledge sources to carry refresh dates, SME attestations, and version lineage — these fields support compliance with the "drift problem" described in Microsoft's published guidance: agents slowly give increasingly wrong answers with full confidence when their knowledge sources are not maintained.
 
 #### Deploy — Validation, Release Gate, and Channel Publication
 
-**What it means in CAPE vocabulary.** Deploy is the gate where an agent moves from development to production. CAPE recommends risk-proportionate release gates — lightweight for low-risk deployments, heavyweight for business-critical or external-facing agents. Deploy includes validation (functional, security, bias), release approval, and channel publication.
+**What it means in Microsoft's published guidance.** Deploy is the gate where an agent moves from development to production. Microsoft's published guidance recommends risk-proportionate release gates — lightweight for low-risk deployments, heavyweight for business-critical or external-facing agents. Deploy includes validation (functional, security, bias), release approval, and channel publication.
 
 **What it looks like in FSI practice.** FSI Deploy is a formal release gate for Zone 2 and Zone 3 agents. Zone 3 agents require governance committee approval (per [Operating Model](operating-model.md)) before production deployment. Testing and validation (Control 2.5) must demonstrate that the agent meets the zone-specific validation requirements documented in the Testing phase above. Change management (Control 2.3) produces a release record that names the approver, the deployment timestamp, and the change scope — this record supports compliance with SOX Section 404 IT general controls for financial reporting systems and OCC heightened standards for critical systems. Channel publication follows zone-specific channel policies (Zone 1 = Microsoft 365 Copilot Chat only; Zone 2 = internal channels; Zone 3 = all channels with approval).
 
@@ -478,15 +480,15 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 #### Monitor — Performance Tracking and Compliance Verification
 
-**What it means in CAPE vocabulary.** Monitor is the ongoing activity where the Optimize function tracks agent health, detects drift, and surfaces improvement opportunities. CAPE emphasizes that every agent in production without monitoring is accumulating risk — agents do not fail dramatically; they slowly drift, giving increasingly wrong answers with full confidence.
+**What it means in Microsoft's published guidance.** Monitor is the ongoing activity where the Optimize function tracks agent health, detects drift, and surfaces improvement opportunities. Microsoft's published guidance emphasizes that every agent in production without monitoring is accumulating risk — agents do not fail dramatically; they slowly drift, giving increasingly wrong answers with full confidence.
 
 **What it looks like in FSI practice.** FSI monitoring combines operational metrics (latency, error rate, user satisfaction) with compliance metrics (DLP denies, hallucination feedback, usage analytics). Control 3.2 requires usage tracking at frequencies that vary by zone (Zone 1 = monthly; Zone 2 = weekly; Zone 3 = daily). Hallucination feedback (Control 3.10) provides the signal that an agent's knowledge base has drifted or that the agent is operating outside its documented decision-rights boundary. For FINRA-supervised firms, monitoring includes supervisory review of agent-produced communications under Rule 3110 — the frequency and depth of review depend on the agent's risk tier and the communication type. For OCC-supervised banks, monitoring includes ongoing model performance validation under OCC Bulletin 2026-13 Section V (formerly OCC Bulletin 2011-12 Section V) for any agent classified as a model.
 
-**The most important governance gate at this stage.** Drift detection and re-validation triggers. The CAPE "drift thesis" — that agents slowly give wrong answers over time — maps directly to FINRA Rule 4511 and SEC Rules 17a-3/17a-4 books-and-records obligations. An agent that drifts into providing inaccurate policy guidance or incorrect regulatory citations is producing unreliable records. FSI institutions should document the monitoring cadence, the drift detection criteria, and the re-validation triggers in the agent's governance record. When drift is detected, the agent should be pulled from production until re-validated — this decision and the re-validation evidence become the examiner artifact that shows the institution maintained supervisory oversight throughout the agent's operational life.
+**The most important governance gate at this stage.** Drift detection and re-validation triggers. The "drift problem" in Microsoft's published guidance — that agents slowly give wrong answers over time — maps directly to FINRA Rule 4511 and SEC Rules 17a-3/17a-4 books-and-records obligations. An agent that drifts into providing inaccurate policy guidance or incorrect regulatory citations is producing unreliable records. FSI institutions should document the monitoring cadence, the drift detection criteria, and the re-validation triggers in the agent's governance record. When drift is detected, the agent should be pulled from production until re-validated — this decision and the re-validation evidence become the examiner artifact that shows the institution maintained supervisory oversight throughout the agent's operational life.
 
 #### Improve — Updates, Optimization, and Knowledge Refresh
 
-**What it means in CAPE vocabulary.** Improve is the stage where the CoE acts on monitoring signals to enhance the agent — updating knowledge sources, refining prompts, expanding capabilities, or adjusting scope. CAPE frames agents as products, not projects — products require ongoing improvement cycles, not one-time delivery.
+**What it means in Microsoft's published guidance.** Improve is the stage where the CoE acts on monitoring signals to enhance the agent — updating knowledge sources, refining prompts, expanding capabilities, or adjusting scope. Microsoft's published guidance frames agents as products, not projects — products require ongoing improvement cycles, not one-time delivery.
 
 **What it looks like in FSI practice.** FSI improvement follows change management (Control 2.3) with approval gates that vary by zone and by change materiality. Minor knowledge updates (refreshing a policy FAQ with the current version) may follow a lightweight approval process in Zone 1 and Zone 2. Material changes (adding a new connector, changing the model, expanding the agent's decision-rights boundary) require governance committee approval for Zone 3 agents. For OCC-supervised banks, material changes to an agent classified as a model trigger re-validation under SR 26-2 — the institution must document what changed, why it changed, and the validation evidence that the change did not degrade the agent's performance or introduce unacceptable risk.
 
@@ -494,7 +496,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 #### Retire — Retirement Decision, Data Retention, and Cleanup
 
-**What it means in CAPE vocabulary.** Retire is the formal stage where an agent is removed from production, its data is retained per policy, and its resources are cleaned up. CAPE emphasizes that retirement is not informal abandonment — it is a documented decision with a retention disposition.
+**What it means in Microsoft's published guidance.** Retire is the formal stage where an agent is removed from production, its data is retained per policy, and its resources are cleaned up. Microsoft's published guidance emphasizes that retirement is not informal abandonment — it is a documented decision with a retention disposition.
 
 **What it looks like in FSI practice.** FSI retirement carries regulatory retention obligations. SEC Rule 17a-4 and FINRA Rule 4511 require retention of books and records for specified periods (typically 6–7 years for most records, 10 years for some). An FSI agent that produced decisions, communications, or records during its operational life must have those outputs retained per the applicable regulation even after the agent is retired. Control 1.9 documents the retention requirements by data type and by regulation. Control 1.7 ensures that the agent's audit trail is retained along with its outputs. The retirement decision should document why the agent is being retired (low utilization, replaced by newer agent, business line sunset, regulatory exposure identified post-deployment) and should name the approver and the retention disposition.
 

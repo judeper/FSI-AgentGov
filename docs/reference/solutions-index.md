@@ -27,9 +27,9 @@ Each control's `automation` field in [`assessment/manifest/controls.json`](https
 
 Absence of a control from this catalog is not a coverage gap — it reflects the framework's selective-mapping principle, which helps keep the companion repository focused on automation that supports outcomes the native surfaces do not deliver on their own.
 
-## Discovering by CAPE alignment
+## Discovering by pattern, driver and CoE function
 
-Each live solution declares the Microsoft CAPE [Frontier Transformation Pattern](../framework/transformation-patterns.md) it supports, the [Agentic Capability Driver](../framework/agentic-capability-drivers.md) it strengthens, and the [Center of Excellence function](../framework/agentic-coe.md) (Govern, Enable, Optimize, or Scale) it serves. These tags let admins, AI Governance Leads, and CSAs filter the catalog by the lens that matters for the conversation in front of them — a pattern-first conversation pulls a different shortlist than a CoE-readiness conversation.
+Each live solution declares the [Frontier Transformation Pattern](../framework/transformation-patterns.md) it supports, the [Agentic Capability Driver](../framework/agentic-capability-drivers.md) it strengthens, and the [Center of Excellence function](../framework/agentic-coe.md) (Govern, Enable, Optimize, or Scale) it serves. These tags let admins and AI Governance Leads filter the catalog by the lens that matters for their review — a pattern-first review pulls a different shortlist than a CoE-readiness review.
 
 Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 79 controls and 36 companion solutions (35 live + 1 preview) for portfolio-level review.
 
@@ -117,9 +117,9 @@ Pattern, Driver, and CoE columns appear in the live inventory table below and ar
 - **Version:** v0.2.0-preview
 - **Status:** Preview
 - **Primary controls:** 1.2, 1.7, 2.1, 2.13, 3.1
-- **Patterns:** — (preview; CAPE alignment frontmatter not yet authored)
-- **Drivers:** — (preview; CAPE alignment frontmatter not yet authored)
-- **CoE function:** — (preview; CAPE alignment frontmatter not yet authored)
+- **Patterns:** — (preview; alignment front matter not yet authored)
+- **Drivers:** — (preview; alignment front matter not yet authored)
+- **CoE function:** — (preview; alignment front matter not yet authored)
 - **Summary:** Pre-build user intake workflow for AI agent requests — captures business case, classifies risk, routes for sponsor approval, and hands off to `agent-registry-automation`. MVP supports the Express path (low-risk personal agents) with sponsor 1-click approval. Suitable for pilot validation; broader production rollout requires customer governance sign-off.
 
 ### Agent Knowledge Source Scanner

@@ -1,8 +1,8 @@
-# CAPE Pattern Coverage Matrix
+# Pattern Coverage Matrix
 
 This page is **generated** by `scripts/generate_pattern_coverage.py` from `assessment/manifest/controls.json`. Do not edit by hand.
 
-It maps the 79 FSI-AgentGov controls to the 6 Microsoft CAPE Frontier Transformation Patterns. For each control:
+It maps the 79 FSI-AgentGov controls to the 6 Microsoft Frontier Transformation Patterns. For each control:
 
 - The **Patterns** column lists patterns where the control applies (`applicable_patterns`).
 - The **Critical For** column lists patterns where the control is mission-critical (`pattern_critical`).

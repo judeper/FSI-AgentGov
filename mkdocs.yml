@@ -109,7 +109,7 @@ exclude_docs: |
 not_in_nav: |
   playbooks/_shared/
   /assessment/pre-session/**
-  images/diagrams/source/cape/**
+  images/diagrams/source/patterns/**
   controls/CONTROL-INDEX.md
   reference/raci-matrix.md
 
@@ -836,7 +836,7 @@ nav:
       - Solutions Coverage Gaps: reference/solutions-coverage-gaps.md
       - Assessment Engine Coverage: reference/assessment-coverage.md
       - Frontier Readiness Coverage: reference/frontier-assessment-coverage.md
-      - CAPE Pattern Coverage: reference/pattern-coverage.md
+      - Pattern Coverage: reference/pattern-coverage.md
       - Known Limitations: reference/known-limitations.md
       - Versioning and Support: reference/versioning-and-support.md
     - Glossary, FAQ & Disclaimer:

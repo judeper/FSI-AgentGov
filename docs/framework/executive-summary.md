@@ -107,7 +107,7 @@ The framework follows an **adaptive governance** philosophy: controls scale prop
 
 ### Governance Maturity Levels
 
-Each control supports three named implementation tiers — Baseline, Recommended, and Regulated — each mapped to a numeric score (1, 2–3, and 4 respectively) used in automated assessment outputs. A Level 0 (Not Implemented) baseline is also tracked. See [Governance Fundamentals](governance-fundamentals.md#governance-maturity-levels) for the canonical definition, which also explicitly distinguishes this 0–4 control scale from the separate CAPE Capability Driver 100–500 organizational readiness scale.
+Each control supports three named implementation tiers — Baseline, Recommended, and Regulated — each mapped to a numeric score (1, 2–3, and 4 respectively) used in automated assessment outputs. A Level 0 (Not Implemented) baseline is also tracked. See [Governance Fundamentals](governance-fundamentals.md#governance-maturity-levels) for the canonical definition, which also explicitly distinguishes this 0–4 control scale from the separate Capability Driver 100–500 organizational readiness scale.
 
 ---
 

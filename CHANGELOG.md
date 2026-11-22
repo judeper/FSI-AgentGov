@@ -306,7 +306,7 @@ Investigated, no changes required. Exhaustive grep across the entire framework f
 
 ## [1.6.0] — May 10, 2026 (Solutions Discoverability Release)
 
-**Release theme:** Make the 35 companion solutions discoverable by Microsoft CAPE alignment metadata. Phase 6a tagged every solution README in the companion repo with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter; Phase 6b consumed those tags in the framework repo to enrich the Solutions Index and the Pattern Coverage matrix. No control catalog changes; no schema changes.
+**Release theme:** Make the 35 companion solutions discoverable by alignment metadata. Phase 6a tagged every solution README in the companion repo with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter; Phase 6b consumed those tags in the framework repo to enrich the Solutions Index and the Pattern Coverage matrix. No control catalog changes; no schema changes.
 
 **Upgrade safety:** No breaking changes. No control IDs renamed. No `controls.json` schema changes. Safe to upgrade in place. Existing Solutions Index consumers that grep on existing column headers continue to work — three new columns (Patterns, Drivers, CoE) were appended before Summary.
 
@@ -323,7 +323,7 @@ Added (in companion repo):
 
 Added:
 
-- `docs/reference/solutions-index.md` — three new columns (Patterns, Drivers, CoE) on the 35-solution table; same fields added to per-solution detail blocks; new "Discovering by CAPE alignment" intro section linking to framework documents
+- `docs/reference/solutions-index.md` — three new columns (Patterns, Drivers, CoE) on the 35-solution table; same fields added to per-solution detail blocks; new "Discovering by pattern, driver and CoE function" intro section linking to framework documents
 - `docs/reference/pattern-coverage.md` — regenerated with new `Solutions count` column on the coverage summary and a new "Solutions per pattern" section listing all 84 pattern declarations across the 35 solutions
 
 Modified:
@@ -368,23 +368,23 @@ Modified:
 
 ## [1.5.0] — May 10, 2026 (Microsoft Alignment Release)
 
-**Release theme:** FSI translation layer for Microsoft CAPE (Copilot Acceleration Engineering) materials. Adds vocabulary crosswalks, framework layer for CAPE concepts, assessment-engine support for CAPE Frontier Readiness scoring, and partner-facing reference docs (CSA + diagram catalog) — all as additive, non-breaking content.
+**Release theme:** FSI translation layer for Microsoft's published guidance. Adds vocabulary crosswalks, framework layer for the published concepts, assessment-engine support for the framework's Frontier Readiness scoring, and partner-facing reference docs (including a diagram catalog) — all as additive, non-breaking content.
 
-**Upgrade safety:** No breaking changes. No schema breaks. No control IDs renamed. Safe to upgrade in place. Existing `controls.json` schema is backward-compatible (only field additions). Existing assessment runs continue to work; CAPE Frontier scoring is opt-in via new `-AssessmentType` parameter.
+**Upgrade safety:** No breaking changes. No schema breaks. No control IDs renamed. Safe to upgrade in place. Existing `controls.json` schema is backward-compatible (only field additions). Existing assessment runs continue to work; Frontier scoring is opt-in via new `-AssessmentType` parameter.
 
 ### Phase 1 — Reference layer ([#199](https://github.com/judeper/FSI-AgentGov/pull/199), `f3e8edc4`)
 
 Added:
 
-- `docs/reference/microsoft-cape-crosswalk.md` — bridge document mapping the 6 CAPE patterns to FSI controls and regulatory exposure per pattern
+- a reference page (removed in November 2026)
 - `docs/reference/cco-quick-reference.md` — pocket lookup for compliance officers
 
 Modified:
 
-- `docs/framework/regulatory-framework.md` — CAPE pattern annotations
-- `docs/reference/glossary.md` — CAPE vocabulary additions
+- `docs/framework/regulatory-framework.md` — transformation pattern annotations
+- `docs/reference/glossary.md` — published-guidance vocabulary additions
 - `docs/reference/role-catalog.md` — expanded role entries
-- `scripts/verify_language_rules.py` — added Tier-2 banlist (CAPE vendor-marketing language) with `<!-- verify-language-rules: allow-second-tier -->` CSA annotation support
+- `scripts/verify_language_rules.py` — added Tier-2 banlist (vendor-marketing language) with `<!-- verify-language-rules: allow-second-tier -->` annotation support
 
 ### Phase 2 — Framework layer ([#201](https://github.com/judeper/FSI-AgentGov/pull/201), `429ab90c`)
 
@@ -396,8 +396,8 @@ Added:
 
 Modified:
 
-- `docs/framework/agent-lifecycle.md`, `governance-fundamentals.md`, `index.md`, `operating-model.md` — CAPE concept integration and cross-references
-- `docs/reference/microsoft-cape-crosswalk.md` — Phase 2 additions
+- `docs/framework/agent-lifecycle.md`, `governance-fundamentals.md`, `index.md`, `operating-model.md` — published-guidance concept integration and cross-references
+- a reference page (removed in November 2026)
 - `docs/reference/role-catalog.md` — CoE role additions
 
 ### Phase 3 — Assessment integration ([#202](https://github.com/judeper/FSI-AgentGov/pull/202), `0adf51df`)
@@ -424,24 +424,24 @@ Modified:
 
 Added:
 
-- `docs/reference/csa-quick-reference.md` — Microsoft FSI CSA pocket lookup (197 lines)
-- `docs/reference/csa-positioning-guide.md` — long-form CSA positioning narrative (390 lines)
+- a reference page (removed in November 2026)
+- a reference page (removed in November 2026)
 
 ### Phase 5 — Diagrams + Release closeout (this release)
 
 Added:
 
-- 5 net-new Mermaid diagrams embedded in framework and reference docs: Pattern × Zone matrix, CoE structure by pattern, Decision rights framework, CAPE 90-day × FSI Phase timeline, Agent lifecycle 7-stage
+- 5 net-new Mermaid diagrams embedded in framework and reference docs: Pattern × Zone matrix, CoE structure by pattern, Decision rights framework, 90-day × FSI Phase timeline, Agent lifecycle 7-stage
 - `docs/reference/diagram-catalog.md` — catalog of all repo diagrams (60+ existing + 5 new) with audience, use-case, and format columns
-- `docs/images/diagrams/source/cape/*.mmd` — editable Mermaid source files for CSA customer-deck export
+- `docs/images/diagrams/source/patterns/*.mmd` — Mermaid source files for export
 - `CHANGELOG.md` — this entry
 
 ### Hard rules and brand boundary
 
-This release adopts CAPE vocabulary as a translation layer, not as endorsement. FSI-AgentGov remains an independent FSI governance framework. Microsoft is not a publisher, sponsor, or reviewer of this content.
+This release adopts Microsoft's published vocabulary as a translation layer, not as endorsement. FSI-AgentGov remains an independent FSI governance framework. Microsoft is not a publisher, sponsor, or reviewer of this content.
 
 - **Tier-1 banlist enforced** — "ensures compliance", "guarantees", "will prevent", "eliminates risk" remain banned across all docs (0 hits at release).
-- **Tier-2 banlist** (CAPE vendor-marketing language: "self-improving", "autonomous decision-making", etc.) is suspended only inside CSA-facing reference docs via the `<!-- verify-language-rules: allow-second-tier -->` annotation, where CSAs need to teach customers to reframe the language.
+- **Tier-2 banlist** (vendor-marketing language: "self-improving", "autonomous decision-making", etc.) is suspended only inside partner-facing reference pages (removed in November 2026) via the `<!-- verify-language-rules: allow-second-tier -->` annotation, where readers need to learn to reframe the language.
 - **Pattern 6 D3 guardrail and Federation guardrail** appear verbatim in all partner-facing reference docs.
 - **No control IDs renamed**, no manifest schema breaks. `controls.json` gained 3 additive fields (`applicable_drivers`, `applicable_patterns`, `pattern_critical`).
 - **78-control catalog unchanged.** Pillar structure unchanged. Zone model unchanged.
@@ -495,7 +495,7 @@ Quality + assurance release. No control catalog changes. Ships an end-to-end Pla
 | Version | Period | File |
 |---------|--------|------|
 | **v1.6.x** (current) | May 2026 | [CHANGELOG.md](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) |
-| **v1.5.x** | May 2026 | [CHANGELOG.md](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md#150--may-10-2026-microsoft-cape-alignment-release) |
+| **v1.5.x** | May 2026 | [CHANGELOG.md](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md#150--may-10-2026-microsoft-alignment-release) |
 | **v1.4.x** | April 2026 | [CHANGELOG-v1.4.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.4.md) |
 | **v1.3.x** | March–April 2026 | [CHANGELOG-v1.3.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.3.md) |
 | **v1.1.x** | December 2025 | [CHANGELOG-v1.1.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.1.md) |

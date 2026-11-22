@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the 79-control × 6-pattern CAPE coverage matrix.
+"""Generate the 79-control × 6-pattern coverage matrix.
 
 Reads ``assessment/manifest/controls.json`` and writes a Markdown matrix
 to ``docs/reference/pattern-coverage.md`` showing which controls apply to
-which Microsoft CAPE Frontier Transformation Patterns and which are
+which Microsoft Frontier Transformation Patterns and which are
 pattern-critical.
 
 Run::
@@ -211,7 +211,7 @@ def render(controls: list[dict], solutions: list[dict] | None = None) -> str:  #
     lines: list[str] = []
 
     # --- Header ---
-    lines.append("# CAPE Pattern Coverage Matrix")
+    lines.append("# Pattern Coverage Matrix")
     lines.append("")
     lines.append(
         "This page is **generated** by `scripts/generate_pattern_coverage.py` "
@@ -220,7 +220,7 @@ def render(controls: list[dict], solutions: list[dict] | None = None) -> str:  #
     lines.append("")
     lines.append(
         f"It maps the {total_controls} FSI-AgentGov controls to the "
-        f"{len(PATTERNS)} Microsoft CAPE Frontier Transformation Patterns. "
+        f"{len(PATTERNS)} Microsoft Frontier Transformation Patterns. "
         "For each control:"
     )
     lines.append("")

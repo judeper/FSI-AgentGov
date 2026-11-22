@@ -495,9 +495,9 @@ Organizations should conduct separate analysis for state-specific requirements.
 
 ---
 
-## Microsoft CAPE alignment cross-reference
+## How this framework maps Microsoft's transformation patterns
 
-FSI-AgentGov has included a Microsoft CAPE alignment layer since v1.5.0 (current at v1.6.2) that maps Microsoft's six Frontier Transformation Patterns onto FSI zones, controls, and regulatory exposure. This alignment does not modify the underlying 79-control framework, which remains the definitive governance structure for US financial services AI deployments. CAPE is a Microsoft business-strategy framework designed to accelerate enterprise AI transformation, not a regulatory framework. Any deployment using CAPE Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
+FSI-AgentGov has included a mapping layer since v1.5.0 (current at v1.6.2) that maps Microsoft's six [Frontier Transformation Patterns](https://learn.microsoft.com/en-us/agents/adoption-patterns/) onto FSI zones, controls, and regulatory exposure. This mapping does not modify the underlying 79-control framework, which remains the definitive governance structure for US financial services AI deployments. Microsoft's published transformation guidance addresses business strategy for accelerating enterprise AI transformation, not a regulatory framework. Any deployment using Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
 
 **Pattern × Zone default mapping:**
 
@@ -514,7 +514,7 @@ FSI-AgentGov has included a Microsoft CAPE alignment layer since v1.5.0 (current
 **Cross-references:**
 
 - [CCO quick reference](../reference/cco-quick-reference.md) — examiner-facing FAQ with regulation → control → evidence artifact → owning role mapping (forthcoming Phase 1 Wave 2A)
-- [Glossary](../reference/glossary.md) — see "Capability Driver" entry for disambiguation of CAPE "capability drivers" vs FSI "pillars"
+- [Glossary](../reference/glossary.md) — see "Capability Driver" entry for disambiguation of Microsoft's "capability drivers" vs FSI "pillars"
 - [Role catalog](../reference/role-catalog.md) — canonical FSI role names and accountability definitions
 
 ---

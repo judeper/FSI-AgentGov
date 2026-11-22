@@ -1,7 +1,7 @@
 ---
 description: "This document is structured by examiner question, not by control or pattern."
 ---
-<!-- verify-language-rules: allow-second-tier reason: "CCO quick reference must quote CAPE and vendor marketing language verbatim (in scare quotes) so the CCO can teach reframing to staff and counter-position with examiners." -->
+<!-- verify-language-rules: allow-second-tier reason: "CCO quick reference must quote vendor marketing language verbatim (in scare quotes) so the CCO can teach reframing to staff and counter-position with examiners." -->
 
 # CCO Quick Reference — AI Agent Examination Readiness
 
@@ -183,9 +183,11 @@ The companion artifact that makes this document operational is the [Regulatory F
 
 ---
 
-### Q11 — Frontier patterns: "Your CIO has told us the firm is moving toward CAPE Pattern 5 and Pattern 6 deployments. What is your governance posture?"
+### Q11 — Frontier patterns: "Your CIO has told us the firm is moving toward Pattern 5 and Pattern 6 deployments. What is your governance posture?"
 
-**Short answer.** The framework recognizes Microsoft's six **CAPE Frontier Transformation Patterns** as a strategic vocabulary, and overlays each with FSI-specific guardrails. **Pattern 5 (External Engagement)** is **mandatory Zone 3** in FSI with the full FINRA 2210 / Reg BI / Reg E / Reg B / GLBA / state-AI-law stack engaged. **Pattern 6 (AI-First Capabilities)** carries an explicit framework guardrail: *"Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval."*
+**Short answer.** The framework recognizes Microsoft's six [**Frontier Transformation Patterns**](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) as a strategic vocabulary, and overlays each with FSI-specific guardrails. **Pattern 5 (External Engagement)** is **mandatory Zone 3** in FSI with the full FINRA 2210 / Reg BI / Reg E / Reg B / GLBA / state-AI-law stack engaged. **Pattern 6 (AI-First Capabilities)** carries an explicit framework guardrail: *"Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval."*
+
+> The FSI mapping on this page is this framework's own. Microsoft hasn't reviewed or endorsed it.
 
 **Supporting evidence.**
 
@@ -193,7 +195,7 @@ The companion artifact that makes this document operational is the [Regulatory F
 
 **Regulatory anchor.** **OCC Bulletin 2026-13 / Federal Reserve SR 26-2** (model risk for any decisioning model in Pattern 4 or Pattern 6), **FINRA Rule 2210 / 3110** (Pattern 5 customer-facing), **Reg BI** (Pattern 5 recommendations), **ECOA / Reg B** and **Fair Housing Act** (Pattern 4 KYC outcomes that influence credit), **BSA/AML 31 CFR 1020.220 + OFAC** (Pattern 4 KYC and CDD), **CFTC Rule 1.31** (records).
 
-**Examiner red flag.** The firm is operating a Pattern 6 deployment described in vendor materials as *"sense-decide-act loops,"* *"continuous learning loops,"* or *"self-improving systems"* against customer-impacting decisions, without documented regulator pre-approval. The framework's posture is that such deployments require a documented engagement with the firm's primary regulator(s) before production. Adopting Microsoft's Maturity Level 500 descriptors (such as *"AI-first culture, autonomous, self-improving"*) verbatim into the firm's own attestations is itself an examination risk — see [Agentic Capability Drivers](../framework/agentic-capability-drivers.md) for the FSI-translated maturity descriptors counsel should use instead.
+**Examiner red flag.** The firm is operating a Pattern 6 deployment described in vendor materials as *"sense-decide-act loops,"* *"continuous learning loops,"* or *"self-improving systems"* against customer-impacting decisions, without documented regulator pre-approval. The framework's posture is that such deployments require a documented engagement with the firm's primary regulator(s) before production. Adopting "autonomous" or "self-improving" language verbatim into the firm's own attestations is itself an examination risk — see [Agentic Capability Drivers](../framework/agentic-capability-drivers.md) for the FSI-translated maturity descriptors counsel should use instead.
 
 ---
 
@@ -214,17 +216,17 @@ The companion artifact that makes this document operational is the [Regulatory F
 
 ## Pattern-by-pattern compliance posture
 
-These are the headline compliance answers for each of Microsoft CAPE's six Frontier Transformation Patterns.
+These are the headline compliance answers for each of Microsoft's six [Frontier Transformation Patterns](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern).
 
 **Pattern 1 — Employee AI Enablement.** Default **Zone 1** (personal productivity). Promotes to Zone 2 when output is shared into team workflows and to Zone 3 when output reaches a customer or generates regulated content. Headline regulatory exposure is GLBA 501(b) (PII inadvertent disclosure) and FINRA 3110 (supervisor visibility into AI-assisted drafts).
 
 **Pattern 2 — Business Expert Empowerment.** Default **Zone 2**; **Zone 3 mandatory** when the SME domain is regulated (compliance, model risk, supervisory). The agent is advisory only — the named SME remains accountable for any answer relied upon for a regulatory or supervisory decision. Books-and-records (FINRA 4511, SEC 17a-4) attaches to the Q&A trail.
 
-**Pattern 3 — Workplace & IT Services.** Default **Zone 2** for non-regulated services; **Zone 3 mandatory** when the service touches payroll (SOX 404), trade settlement (FINRA 4511), HR records of registered persons (FINRA 3110), or customer files (Reg P / GLBA). CAPE's default Tier 2 placement understates risk in FSI for these cases — use the FSI Zone, not the CAPE Tier.
+**Pattern 3 — Workplace & IT Services.** Default **Zone 2** for non-regulated services; **Zone 3 mandatory** when the service touches payroll (SOX 404), trade settlement (FINRA 4511), HR records of registered persons (FINRA 3110), or customer files (Reg P / GLBA). Microsoft's published risk tiers place internal service agents in Tier 2 ([*Agentic Transformation Patterns Playbook*, Section 3](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)); that placement understates risk in FSI for these cases — use the FSI Zone, not Microsoft's risk tier.
 
 **Pattern 4 — Core Business Process Transformation.** **Zone 3 mandatory.** Highest-stakes pattern for FSI — KYC, claims, financial close, regulatory reporting each independently trigger model risk (OCC Bulletin 2026-13 / Fed SR 26-2), books-and-records (FINRA 4511 / SEC 17a-4 / CFTC 1.31), fair lending (Reg B / ECOA), BSA/AML (31 CFR 1020.220 + OFAC), and SOX 302/404 if financial close is in scope. Decisions must be reproducible from logged inputs, model version, and prompt.
 
-**Pattern 5 — External Engagement.** **Zone 3 mandatory.** Customer-facing — every interaction is simultaneously a FINRA 2210 communication, a Reg BI recommendation event (B-Ds), a Reg E EFT communication (where applicable), an ECOA / Reg B credit communication, a GLBA 501(b) privacy event, and a state-AI-disclosure event. The Org & Culture maturity threshold is *Defined / 300* before production, regardless of CAPE's lower pattern target.
+**Pattern 5 — External Engagement.** **Zone 3 mandatory.** Customer-facing — every interaction is simultaneously a FINRA 2210 communication, a Reg BI recommendation event (B-Ds), a Reg E EFT communication (where applicable), an ECOA / Reg B credit communication, a GLBA 501(b) privacy event, and a state-AI-disclosure event. The Org & Culture maturity threshold is *Defined / 300* before production, regardless of Microsoft's published lower pattern target.
 
 **Pattern 6 — AI-First Capabilities.** **Zone 3 mandatory, with the framework guardrail D3:** *"Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval."* Permitted Pattern 6 deployments in Zone 3 are (a) internal-only optimization or research orchestration, (b) customer-impacting flows with documented human supervisor approval per decision, or (c) deployments with documented OCC / Federal Reserve / SEC / FINRA / state-regulator pre-approval. Multi-agent chains require individual agent inventory (Control 2.17).
 
@@ -254,13 +256,15 @@ These are the headline compliance answers for each of Microsoft CAPE's six Front
 
 ## Source attribution and drift management
 
-This document paraphrases Microsoft CAPE materials and US financial-services regulatory guidance with citation. Where vendor or marketing language is reproduced inline (in scare quotes) for the purpose of teaching CCO staff how to reframe what they hear from sales, partners, or internal CIO presentations, the verbatim phrase carries an explicit reframing. No verbatim Microsoft text is otherwise reproduced.
+This document paraphrases Microsoft's published guidance and US financial-services regulatory guidance with citation. Where vendor or marketing language is reproduced inline (in scare quotes) for the purpose of teaching CCO staff how to reframe what they hear from sales, partners, or internal CIO presentations, the verbatim phrase carries an explicit reframing. No verbatim Microsoft text is otherwise reproduced.
 
-**Microsoft sources** (paraphrased with citation; tracked in the planned `cape-source-tracker.md`):
+**Microsoft sources** (paraphrased with citation):
 
-- Microsoft. *Agentic Transformation Patterns Playbook*. [aka.ms/AgenticTransformationPatterns](https://aka.ms/AgenticTransformationPatterns). Retrieved 2026-05-09.
-- Microsoft. *CAPE Frontier Transformation Patterns Walking Deck*. [aka.ms/CAPEAgenticeCOEWalkingDeck](https://aka.ms/CAPEAgenticeCOEWalkingDeck). Retrieved 2026-05-09.
-- Microsoft. *Agentic AI Maturity Model*. [aka.ms/AgentMaturityModel](https://aka.ms/AgentMaturityModel). Retrieved 2026-05-09.
+- Microsoft. [*Agentic transformation patterns*](https://learn.microsoft.com/en-us/agents/adoption-patterns/) (checked 21 Nov 2026).
+- Microsoft. [*Choose the right transformation pattern*](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) (checked 21 Nov 2026).
+- Microsoft. [*Build an agentic Center of Excellence*](https://learn.microsoft.com/en-us/agents/center-of-excellence/) (checked 21 Nov 2026).
+- Microsoft. [*Manage the agent lifecycle*](https://learn.microsoft.com/en-us/agents/center-of-excellence/agent-lifecycle) (checked 21 Nov 2026).
+- Microsoft. [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf) (checked 21 Nov 2026).
 
 **US financial-services regulatory sources** (cited inline above, listed here for completeness):
 
@@ -275,7 +279,7 @@ This document paraphrases Microsoft CAPE materials and US financial-services reg
 - NYDFS. Part 500 (Cybersecurity Requirements for Financial Services Companies).
 - State AI disclosure laws: California SB 1001 and SB 243; Utah SB 149; Colorado AI Act.
 
-**Drift management.** Microsoft CAPE materials are subject to vendor update cadence; FSI regulatory guidance is subject to rulemaking cycles (FINRA, SEC, OCC, Federal Reserve, CFPB, CFTC, state regulators). The Twelve Examiner Questions are FSI-authored and stable; the regulatory citations and CAPE pattern paraphrases will require updates when the underlying source changes. The framework maintains a `docs/reference/cape-source-tracker.md` (Phase 1 deliverable) for vendor source drift; the [Regulatory Framework](../framework/regulatory-framework.md) and the framework's `learn-monitor.yml` and `regulatory-monitoring.yml` CI workflows track regulatory drift.
+**Drift management.** Microsoft's published guidance is subject to vendor update cadence; FSI regulatory guidance is subject to rulemaking cycles (FINRA, SEC, OCC, Federal Reserve, CFPB, CFTC, state regulators). The Twelve Examiner Questions are FSI-authored and stable; the regulatory citations and pattern paraphrases will require updates when the underlying source changes. The [Regulatory Framework](../framework/regulatory-framework.md) and the framework's `learn-monitor.yml` and `regulatory-monitoring.yml` CI workflows track regulatory drift.
 
 This document is informational and does not constitute legal or regulatory advice. The framework supports compliance with the listed regulations through the cited controls and playbooks; individual firms should consult counsel for the specific application to their regulatory perimeter and use case.
 
