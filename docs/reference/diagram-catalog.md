@@ -4,31 +4,29 @@ description: "The FSI-AgentGov framework and its companion solutions repo carry 
 # Diagram Catalog
 
 !!! info "Audience"
-    Microsoft FSI Cloud Solution Architects (CSAs), partner architects, and FSI customer architects evaluating which diagrams to drop into customer decks, examiner evidence packs, or internal briefings.
+    Partner architects and FSI architects evaluating which diagrams to include in examiner evidence packs or internal briefings.
 
-The FSI-AgentGov framework and its companion solutions repo carry roughly 75 diagrams across architecture, lifecycle, governance, evidence, and integration. This catalog organizes them by audience and use case so a CSA preparing for a customer conversation can find the right artifact in one pass.
+The FSI-AgentGov framework and its companion solutions repo carry roughly 75 diagrams across architecture, lifecycle, governance, evidence, and integration. This catalog organizes them by audience and use case so a reader can find the right diagram in one pass.
 
 ---
 
 ## How to use this catalog
 
-- **CAPE-alignment diagrams (v1.5.0 net-new)** are Mermaid blocks rendered in-doc. The editable `.mmd` source lives at `docs/images/diagrams/source/cape/`. Open in [mermaid.live](https://mermaid.live) to export SVG/PNG for customer decks.
+- **Pattern diagrams (v1.5.0 net-new)** are Mermaid blocks rendered in-doc. The editable `.mmd` source lives at `docs/images/diagrams/source/patterns/`. Open in [mermaid.live](https://mermaid.live) to export SVG/PNG.
 - **Solutions repo diagrams** are PNG/SVG pairs published at `docs/images/diagrams/`. They originate in the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) companion repo. Use them when illustrating a specific solution's architecture in a deeper engagement.
 - The "Audience" column is a guide, not a gate. Most diagrams work in more than one conversation; the column lists the primary intended reader.
 
 ---
 
-## CAPE-alignment diagrams (v1.5.0 net-new)
-
-These five diagrams ship with v1.5.0 to help CSAs and architects translate Microsoft CAPE concepts into FSI-AgentGov framing during customer conversations.
+## Pattern diagrams (v1.5.0 net-new)
 
 | Diagram | Location | Audience | Use case | Format | Editable source |
 |---|---|---|---|---|---|
-| Pattern × Zone matrix | [transformation-patterns.md](../framework/transformation-patterns.md) | CSA, FSI Architect | Customer briefing: "where does each CAPE pattern fit in our zone model?" | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/pattern-zone-matrix.mmd`](../images/diagrams/source/cape/pattern-zone-matrix.mmd) |
-| CoE structure by pattern | [agentic-coe.md — three CoE shapes](../framework/agentic-coe.md#the-three-coe-shapes) | CIO, CSA | Executive briefing: "what CoE shape fits which pattern?" | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd`](../images/diagrams/source/cape/coe-structure-by-pattern.mmd) |
-| Decision rights framework | [agentic-coe.md — Decision rights at a glance](../framework/agentic-coe.md#decision-rights-at-a-glance) | CIO, CCO, CRO | "Who decides what?" — central vs shared vs domain decisions, plus the non-delegable named-principal layer | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/decision-rights.mmd`](../images/diagrams/source/cape/decision-rights.mmd) |
-| CAPE 90-day × FSI Phase timeline | [adoption-roadmap.md — CAPE 90-day plan × FSI](../framework/adoption-roadmap.md#cape-90-day-plan-fsi-phase-0-1-timeline) | CIO, CSA | Customer briefing: "how does Microsoft's 90-day plan map to FSI's adoption phases?" | Mermaid Gantt (in-doc) | [`docs/images/diagrams/source/cape/cape-fsi-timeline.mmd`](../images/diagrams/source/cape/cape-fsi-timeline.mmd) |
-| Agent lifecycle (7-stage, FSI-annotated) | [agent-lifecycle.md — top of page](../framework/agent-lifecycle.md#cape-7-stage-lifecycle-with-fsi-regulatory-hooks) | Power Platform Admin, CCO, examiner-facing reviewer | Examiner evidence: "lifecycle controls per stage with regulatory hooks (FINRA 4511, SEC 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12))" | Mermaid (in-doc) | [`docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd`](../images/diagrams/source/cape/agent-lifecycle-7-stage.mmd) |
+| Pattern × Zone matrix | [transformation-patterns.md](../framework/transformation-patterns.md) | FSI Architect | Governance briefing: "where does each pattern fit in our zone model?" | Mermaid (in-doc) | [`docs/images/diagrams/source/patterns/pattern-zone-matrix.mmd`](../images/diagrams/source/patterns/pattern-zone-matrix.mmd) |
+| CoE structure by pattern | [agentic-coe.md — three CoE shapes](../framework/agentic-coe.md#the-three-coe-shapes) | CIO | Executive briefing: "what CoE shape fits which pattern?" | Mermaid (in-doc) | [`docs/images/diagrams/source/patterns/coe-structure-by-pattern.mmd`](../images/diagrams/source/patterns/coe-structure-by-pattern.mmd) |
+| Decision rights framework | [agentic-coe.md — Decision rights at a glance](../framework/agentic-coe.md#decision-rights-at-a-glance) | CIO, CCO, CRO | "Who decides what?" — central vs shared vs domain decisions, plus the non-delegable named-principal layer | Mermaid (in-doc) | [`docs/images/diagrams/source/patterns/decision-rights.mmd`](../images/diagrams/source/patterns/decision-rights.mmd) |
+| 90-day × FSI Phase timeline | [adoption-roadmap.md — Microsoft's 90-day play × FSI](../framework/adoption-roadmap.md#microsofts-90-day-play-fsi-phase-0-1-timeline) | CIO | Governance briefing: "how does Microsoft's 90-day plan map to FSI's adoption phases?" | Mermaid Gantt (in-doc) | [`docs/images/diagrams/source/patterns/ninety-day-timeline.mmd`](../images/diagrams/source/patterns/ninety-day-timeline.mmd) |
+| Agent lifecycle (7-stage, FSI-annotated) | [agent-lifecycle.md — top of page](../framework/agent-lifecycle.md#7-stage-agent-lifecycle-with-fsi-regulatory-hooks) | Power Platform Admin, CCO, examiner-facing reviewer | Examiner evidence: "lifecycle controls per stage with regulatory hooks (FINRA 4511, SEC 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12))" | Mermaid (in-doc) | [`docs/images/diagrams/source/patterns/agent-lifecycle-7-stage.mmd`](../images/diagrams/source/patterns/agent-lifecycle-7-stage.mmd) |
 
 ---
 
@@ -40,12 +38,12 @@ The [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) 
 
 | Filename family | What it shows | Audience | Use case |
 |---|---|---|---|
-| `README-three-governance-zones.{png,svg}` | The Zone 1 / Zone 2 / Zone 3 model at a glance | CIO, CSA, FSI Architect | First-pass customer briefing on the FSI zone model |
-| `README-layer-3-playbooks-docsplaybooks.{png,svg}` | Three-layer architecture (Framework → Controls → Playbooks) | CSA, FSI Architect | Walking customers through how the framework is structured |
-| `README-implementation-steps.{png,svg}` | Implementation step flow (cross-solution) | Power Platform Admin, FSI Architect | Onboarding briefings for newly engaged customers |
+| `README-three-governance-zones.{png,svg}` | The Zone 1 / Zone 2 / Zone 3 model at a glance | CIO, FSI Architect | First-pass governance briefing on the FSI zone model |
+| `README-layer-3-playbooks-docsplaybooks.{png,svg}` | Three-layer architecture (Framework → Controls → Playbooks) | FSI Architect | Walking readers through how the framework is structured |
+| `README-implementation-steps.{png,svg}` | Implementation step flow (cross-solution) | Power Platform Admin, FSI Architect | Onboarding briefings for new implementations |
 | `index-blueprint-lifecycle-phases.{png,svg}` | Blueprint lifecycle phases (cross-solution) | FSI Architect, AI Governance Lead | Aligning solution rollouts to lifecycle phases |
 | `index-architecture-overview.{png,svg}` | Cross-solution architecture overview | FSI Architect | Initial architecture-level orientation |
-| `index-solution-overview.{png,svg}` (and `-2`, `-3`, `-4` variants) | Per-solution overview slides | CSA, FSI Architect | Picking the right solution for a customer use case |
+| `index-solution-overview.{png,svg}` (and `-2`, `-3`, `-4` variants) | Per-solution overview slides | FSI Architect | Picking the right solution for a firm's use case |
 | `index-daily-orchestration.{png,svg}` | Daily orchestration cadence | Service Owner, AI Governance Lead | Operating-rhythm conversations |
 
 ### Control-specific visualizations
@@ -86,7 +84,7 @@ The [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) 
 | Filename family | What it shows | Audience | Use case |
 |---|---|---|---|
 | `implementation-approval-approval-flow-architecture.{png,svg}` | Approval flow architecture | AI Governance Lead, Service Owner | Designing approval workflows for Zone 2 / Zone 3 |
-| `implementation-copilot-intake-intake-agent-architecture.{png,svg}` | Copilot intake agent architecture | AI Governance Lead, Power Platform Admin | Standing up the agent intake pipeline (CAPE Stage 1) |
+| `implementation-copilot-intake-intake-agent-architecture.{png,svg}` | Copilot intake agent architecture | AI Governance Lead, Power Platform Admin | Standing up the agent intake pipeline (Intake stage) |
 
 ### Evidence, audit, observability
 
@@ -108,9 +106,9 @@ The [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) 
 
 ---
 
-## How to export a Mermaid diagram for a customer deck
+## How to export a Mermaid diagram
 
-1. Locate the editable source — for CAPE-alignment diagrams, `docs/images/diagrams/source/cape/<diagram>.mmd`.
+1. Locate the editable source — for pattern diagrams, `docs/images/diagrams/source/patterns/<diagram>.mmd`.
 2. Open [mermaid.live](https://mermaid.live) and paste the file contents.
 3. Use **Actions → Download SVG** (preferred for slides — vector) or **Download PNG** (preferred for embedded screenshots).
 4. Or render locally with the Mermaid CLI:
@@ -123,16 +121,16 @@ The [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) 
 
 ## Brand boundary
 
-These diagrams visualize the FSI-AgentGov framework's mapping of Microsoft CAPE concepts (patterns, drivers, CoE shapes, the 90-day plan, the 7-stage lifecycle) to FSI-AgentGov controls and US regulatory regimes. They are **not** Microsoft-issued artifacts. Use them in customer conversations to illustrate the FSI-AgentGov framework's interpretation of how CAPE applies in US financial services. Do not represent them as Microsoft endorsement of any specific control implementation, regulatory position, or examiner outcome. Microsoft CAPE source materials carry their own canonical visualizations; this catalog supplements rather than replaces them.
+These diagrams visualize the FSI-AgentGov framework's mapping of Microsoft's [published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/) (patterns, drivers, CoE shapes, the 90-day plan, the 7-stage lifecycle) to FSI-AgentGov controls and US regulatory regimes. They are **not** Microsoft-issued artifacts. Do not represent them as Microsoft endorsement of any specific control implementation, regulatory position, or examiner outcome. Microsoft's published guidance carries its own canonical visualizations; this catalog supplements rather than replaces them.
 
 ---
 
 ## Related documents
 
 - [Agentic CoE](../framework/agentic-coe.md) — host of the CoE structure and decision rights diagrams
-- [Adoption Roadmap](../framework/adoption-roadmap.md) — host of the CAPE 90-day × FSI Phase timeline
+- [Adoption Roadmap](../framework/adoption-roadmap.md) — host of the 90-day × FSI Phase timeline
 - [Agent Lifecycle](../framework/agent-lifecycle.md) — host of the 7-stage lifecycle diagram
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | Audience: CSAs, partner architects, FSI customer architects*
+*Updated: May 2026 | Version: v1.6.2 | Audience: Partner architects, FSI architects*

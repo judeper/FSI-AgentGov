@@ -8,7 +8,7 @@ Financial Services. Two complementary assessments share the same orchestrator:
   assessment with a focused manual questionnaire. Audience: M365
   administrators, compliance officers preparing for audit.
 - **Frontier Readiness assessment** — A 25-question facilitator-led
-  self-diagnostic across the 5 capability drivers (Microsoft CAPE alignment).
+  self-diagnostic across the 5 capability drivers (aligned with Microsoft's published maturity model).
   Identifies the scale-breaker driver and pattern readiness for the 6
   Frontier Transformation Patterns. Audience: CIO, CDAO, AI Governance Lead,
   AI Program Sponsor.

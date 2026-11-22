@@ -130,7 +130,7 @@ The framework organizes 79 controls across four pillars:
 
 The framework's 79 controls describe *what to implement and how to verify it*. [Capability Drivers](../reference/glossary.md) describe *whether your organization is capable of implementing and operating it at scale*.
 
-Microsoft's Copilot Acceleration Engineering (CAPE) materials introduced five **Capability Drivers** as organizational readiness dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents sustainably. FSI-AgentGov adopted Capability Drivers as a first-class framework concept in v1.5.0 (current at v1.6.2), complementing — not replacing — the control-by-control governance lens. The five drivers are:
+Microsoft's [published maturity model](https://learn.microsoft.com/en-us/agents/adopt-overview) describes five **Capability Drivers** as organizational readiness dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents sustainably (see also the [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)). FSI-AgentGov adopted Capability Drivers as a first-class framework concept in v1.5.0 (current at v1.6.2), complementing — not replacing — the control-by-control governance lens. The five drivers are:
 
 | Capability Driver | What It Measures |
 |-------------------|------------------|
@@ -148,7 +148,7 @@ Each driver is measured on a 100–500 maturity scale (Initial → Repeatable �
 
 **Drivers** are the five **organizational readiness dimensions** listed above. Drivers answer *"Where is the organization weak?"*
 
-The terms must not be conflated. Microsoft's CAPE source materials occasionally use "pillar" for the five readiness dimensions in slide titles; FSI-AgentGov canonicalizes to "Capability Driver" exclusively to prevent collision with our control families. The framework language linter (`scripts/verify_language_rules.py`) enforces this discipline.
+The terms must not be conflated. Microsoft's published maturity model calls these dimensions pillars ([Adopt agentic AI at scale](https://learn.microsoft.com/en-us/agents/adopt-overview)); FSI-AgentGov canonicalizes to "Capability Driver" exclusively to prevent collision with our control families. The framework language linter (`scripts/verify_language_rules.py`) enforces this discipline.
 
 ### Framework Conceptual Model
 
@@ -180,7 +180,7 @@ Each Frontier Transformation Pattern has typical scale-breakers documented in [A
 
 The framework provides a complete FSI translation of Microsoft's Capability Drivers model:
 
-- [Agentic Capability Drivers](agentic-capability-drivers.md) — Per-driver maturity profiles, scale-breaker analysis by pattern, FSI-translated 100–500 progression, and the explicit position on why FSI-AgentGov does not numerically merge the CAPE maturity scale with the FSI 0–4 control maturity scale
+- [Agentic Capability Drivers](agentic-capability-drivers.md) — Per-driver maturity profiles, scale-breaker analysis by pattern, FSI-translated 100–500 progression, and the explicit position on why FSI-AgentGov does not numerically merge the organizational maturity scale with the FSI 0–4 control maturity scale
 
 ---
 
@@ -268,8 +268,8 @@ This is the **canonical control-maturity scale** for the FSI Agent Governance Fr
 | **2–3** | **Recommended** | Best-practice implementation meeting most production requirements | Zone 2 agents, general production scenarios |
 | **4** | **Regulated** | Comprehensive controls required for regulated or high-risk contexts | Zone 3 agents, customer-facing, examination-ready |
 
-!!! warning "Separate scale: CAPE 100–500 Capability Driver maturity"
-    The CAPE Capability Driver scale (L100 = Initial → L500 = Optimized) measures **organizational readiness** — whether the organization can deploy and sustain agents at scale. This is a *distinct dimension* from the 0–4 control implementation level above. A firm can achieve Level 4 (Regulated) on every control and still be at L200 on the Business Strategy Capability Driver. Do not conflate the two scales. See [Agentic Capability Drivers](agentic-capability-drivers.md) for the driver maturity model and the explicit rationale for keeping the scales separate.
+!!! warning "Separate scale: 100–500 Capability Driver maturity"
+    The Capability Driver scale (L100 = Initial → L500 = Optimized, using this framework's level names) measures **organizational readiness** — whether the organization can deploy and sustain agents at scale. This is a *distinct dimension* from the 0–4 control implementation level above. A firm can achieve Level 4 (Regulated) on every control and still be at L200 on the Business Strategy Capability Driver. Do not conflate the two scales. See [Agentic Capability Drivers](agentic-capability-drivers.md) for the driver maturity model and the explicit rationale for keeping the scales separate.
 
 ### Control Implementation Approach
 

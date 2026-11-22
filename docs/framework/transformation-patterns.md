@@ -1,12 +1,14 @@
 ---
-description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials describe six Frontier Transformation Patterns — recurring deployment shapes that organizations…"
+description: "Microsoft's published guidance describes six Frontier Transformation Patterns; this framework maps them to FSI governance zones, regulatory exposure profiles, and controls."
 ---
 # Frontier Transformation Patterns
 
-> **Framework layer — Advanced & Scaling track.** Maps the six CAPE Frontier Transformation Patterns to FSI governance zones, regulatory exposure profiles, and mandatory controls. M365 admins implementing controls can skip this page.
+> **Framework layer — Advanced & Scaling track.** Maps the six Frontier Transformation Patterns in [Microsoft's published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/) to FSI governance zones, regulatory exposure profiles, and mandatory controls. M365 admins implementing controls can skip this page.
+
+> The FSI mapping on this page is this framework's own. Microsoft hasn't reviewed or endorsed it.
 
 !!! info "Audience"
-    Primary: AI Governance Lead, CIO/CDO, AI Program Sponsor, FSI architect engaging with Microsoft FSI Customer Success Architects (CSAs).
+    Primary: AI Governance Lead, CIO/CDO, AI Program Sponsor, FSI architect.
     M365 admins implementing controls — you can safely skip this page and start with the [Adoption Roadmap](adoption-roadmap.md) or the [Control Catalog](../controls/index.md). Patterns name *what shape* an agent deployment takes; zones name *what regulatory exposure* it carries. Admin work is driven by zones and controls.
 
 > **Position:** Pattern is a first-class FSI-AgentGov framework concept (parallel to Zones, Pillars, and Capability Drivers). This page summarizes the six patterns, their default FSI zones, and their headline regulatory exposure.
@@ -15,13 +17,13 @@ description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials desc
 
 ## Why patterns matter for FSI governance
 
-Microsoft's Copilot Acceleration Engineering (CAPE) materials describe six **Frontier Transformation Patterns** — recurring deployment shapes that organizations adopt when scaling agentic AI. The patterns are framed as *design choices, not stages*: most organizations run two or three concurrently, each with a distinct user, data flow, and decision boundary (Source: Microsoft CAPE *Agentic Transformation Patterns Playbook*, pp. 4–6; *CAPE Walking Deck*, slides 4–14, paraphrased).
+Microsoft's [published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/) describes six **Frontier Transformation Patterns** — recurring deployment shapes that organizations adopt when scaling agentic AI. The patterns are framed as *design choices, not stages*: most organizations run two or three concurrently, each with a distinct user, data flow, and decision boundary (Source: [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1, paraphrased).
 
 FSI-AgentGov adopts "Pattern" as a first-class framework concept for three reasons:
 
-1. **Shared vocabulary with Microsoft conversations.** When a CSA, partner, or executive sponsor opens a discussion with "we want to deploy Pattern 5 in Q3," the FSI governance program needs to recognize the term, place it in the framework, and translate it into FSI zones and controls without re-litigating the vocabulary.
+1. **Shared vocabulary for governance discussions.** When a stakeholder opens a discussion with "we want to deploy Pattern 5 in Q3," the FSI governance program needs to recognize the term, place it in the framework, and translate it into FSI zones and controls without re-litigating the vocabulary.
 2. **Pattern-aware governance defaults.** Each pattern has a typical deployment shape — who the agent talks to, what data it touches, and how much decision authority it holds. Those defaults determine the **default FSI Zone**, the headline **regulatory exposure profile**, and the **subset of FSI controls that "light up"** for a given initiative. Naming the pattern up front shortens the path from intent to control list.
-3. **Loose, attribution-clean alignment.** Pattern is a *descriptive* classification of a deployment shape. It does **not** change the underlying 79-control framework, override the [zone classification authority](zones-and-tiers.md), or relieve the firm of any regulatory obligation. Where CAPE language and FSI requirements diverge, FSI requirements govern.
+3. **Loose, attribution-clean alignment.** Pattern is a *descriptive* classification of a deployment shape. It does **not** change the underlying 79-control framework, override the [zone classification authority](zones-and-tiers.md), or relieve the firm of any regulatory obligation. Where Microsoft's published guidance and FSI requirements diverge, FSI requirements govern.
 
 Patterns are an *additive lens*, not a replacement for the existing zones, pillars, or controls. An admin who never uses the word "pattern" can still implement the framework correctly; a governance lead who needs to map a CIO conversation onto controls benefits from the explicit mapping below.
 
@@ -46,7 +48,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 ### Pattern 1 — Employee AI Enablement
 
-**Microsoft framing.** Personal productivity and drafting assistance — research, summarization, scheduling, and individual workflow automation — where the human retains decision authority (paraphrased from CAPE *Patterns Playbook* pp. 7–8).
+**Microsoft framing.** Personal productivity and drafting assistance — research, summarization, scheduling, and individual workflow automation — where the human retains decision authority (paraphrased from the [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1).
 
 **Typical FSI shape.** The default entry point for Microsoft 365 Copilot and personal Microsoft Copilot Studio agents inside the firm. Common examples: drafting client communications before supervisor review, summarizing meeting notes, structuring research briefs, organizing calendar and inbox, generating internal memos. The human authors and is accountable for any output that reaches an external party.
 
@@ -56,7 +58,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 ### Pattern 2 — Business Expert Empowerment
 
-**Microsoft framing.** Knowledge agents that scale the judgment of a small number of subject-matter experts across a wider audience (paraphrased from CAPE *Patterns Playbook* pp. 9–10).
+**Microsoft framing.** Knowledge agents that scale the judgment of a small number of subject-matter experts across a wider audience (paraphrased from the [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1).
 
 **Typical FSI shape.** Knowledge agents grounded on the firm's policies, procedures, or reference data. Common examples: a compliance Q&A agent over the firm's WSP, a policy-interpretation assistant for branch managers, a model-documentation lookup for analysts, a supervisory-procedures helper for principals. The named SME — not the agent — owns each answer relied upon for a regulatory or supervisory decision.
 
@@ -66,17 +68,17 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 ### Pattern 3 — Workplace & IT Services
 
-**Microsoft framing.** Internal services (HR helpdesk, IT support, facilities) where agents operate end-to-end with human escalation (paraphrased from CAPE *Patterns Playbook* pp. 11–12).
+**Microsoft framing.** Internal services (HR helpdesk, IT support, facilities) where agents operate end-to-end with human escalation (paraphrased from the [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1).
 
 **Typical FSI shape.** Internal-service agents resolving routine requests within documented routing rules. Common examples: facilities ticket triage, IT password-reset assistance, HR benefits Q&A, equipment-request workflow. Pattern 3 is straightforward when the service is purely internal and non-regulated; it changes character as soon as it touches a regulated workflow.
 
 **Default FSI Zone.** Zone 2 for non-regulated internal services; Zone 3 when the service touches payroll (SOX 404 ICFR), trade settlement support (FINRA 4511 books and records), HR records of registered persons (FINRA 3110 supervision), or customer files (Reg P, GLBA).
 
-**Regulatory exposure (headline).** Low for purely internal services; SOX 302/404, FINRA 4511/3110, GLBA 501(b), and Reg P engage when the service crosses into financial close, supervision, customer-data, or payroll workflow. CAPE's industry-agnostic Tier 2 default understates the FSI exposure for those crossover cases.
+**Regulatory exposure (headline).** Low for purely internal services; SOX 302/404, FINRA 4511/3110, GLBA 501(b), and Reg P engage when the service crosses into financial close, supervision, customer-data, or payroll workflow. Microsoft's published risk tiers place internal service agents in Tier 2 ([*Agentic Transformation Patterns Playbook*, Section 3](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)). That industry-agnostic default understates the FSI exposure for those crossover cases.
 
 ### Pattern 4 — Core Business Process Transformation
 
-**Microsoft framing.** Agents woven into business-critical end-to-end flows. The CAPE *Patterns Playbook* explicitly cites claims processing (p. 16) and references invoice, supply-chain, and compliance workflows in the *Walking Deck* (slide 13, paraphrased).
+**Microsoft framing.** Agents woven into business-critical end-to-end flows. The [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1, explicitly cites claims processing (paraphrased).
 
 **Typical FSI shape.** The highest-stakes deployment shape in US financial services. Candidate flows include Know-Your-Customer (KYC) and ongoing customer due diligence; insurance and lending claims processing (intake, document classification, fraud-signal triage, adjuster routing, payment authorization); financial close (accruals, reconciliations, journal-entry generation, sub-ledger consolidation); order-to-cash and procure-to-pay; and regulatory reporting (data aggregation, schedule preparation, narrative drafting). Each candidate flow independently triggers a different US regulatory regime.
 
@@ -86,17 +88,17 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 ### Pattern 5 — External Engagement
 
-**Microsoft framing.** Customer- and partner-facing agents handling servicing, advisory support, intake, and engagement (paraphrased from CAPE *Patterns Playbook* pp. 19–22).
+**Microsoft framing.** Customer- and partner-facing agents handling servicing, advisory support, intake, and engagement (paraphrased from the [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1).
 
 **Typical FSI shape.** Agents that interact directly with end customers, prospects, or external partners. Common examples: a customer-servicing chat agent on the firm's website, an account-opening intake agent that captures customer information for a registered representative to review, a self-service insurance-claims FNOL (first notice of loss) agent, a partner-portal support agent for introducing brokers. Every customer-visible utterance is a "communication with the public" under FINRA Rule 2210 and may trigger Reg BI care obligations, Reg E disclosure requirements, ECOA/Reg B for any credit-touching interaction, and state AI-disclosure statutes (e.g., Colorado AI Act, NYC AEDT) where applicable.
 
-**Default FSI Zone.** **Zone 3 — mandatory.** External-facing agents do not deploy in Zone 1 or Zone 2 in FSI. The CAPE scale-breaker for this pattern (*Governance & Security at Level 500* — identity isolation and disclosure) maps directly to FSI's identity, disclosure, and supervision controls.
+**Default FSI Zone.** **Zone 3 — mandatory.** External-facing agents do not deploy in Zone 1 or Zone 2 in FSI. The scale-breaker in [Microsoft's published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) for this pattern (*Governance & Security at Level 500* — identity isolation and disclosure) maps directly to FSI's identity, disclosure, and supervision controls.
 
 **Regulatory exposure (headline).** Customer-facing: FINRA Rule 2210 (communications with the public — including pre-use principal approval and recordkeeping), Reg BI (care obligation, conflict-of-interest disclosure), ECOA/Reg B and FHA (fair lending in any credit-adjacent interaction), Reg E (electronic-funds disclosures), GLBA 501(b) for safeguarding of customer information, and state AI-disclosure statutes that increasingly require explicit notice that the customer is interacting with an AI. Customer-facing autonomy is the highest single source of examination and litigation exposure in the framework.
 
 ### Pattern 6 — AI-First Capabilities
 
-**Microsoft framing.** Net-new capabilities that did not exist before and are only possible with agentic AI — continuous optimization, predictive planning, multi-agent orchestration of novel workflows (paraphrased from CAPE *Patterns Playbook* pp. 23–24).
+**Microsoft framing.** Net-new capabilities that did not exist before and are only possible with agentic AI — continuous optimization, predictive planning, multi-agent orchestration of novel workflows (paraphrased from the [*Agentic Transformation Patterns Playbook*](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf), Section 1).
 
 **Typical FSI shape.** Capabilities that have no pre-AI analogue inside the firm. Candidate examples (illustrative, not endorsed): continuous portfolio-rebalancing recommendation engines, multi-agent workflows that orchestrate research analysts and trade-execution agents, predictive operational-resilience capabilities. By definition these capabilities are novel — there is no established control baseline, no examiner precedent, no peer comparison, and (often) no existing model risk inventory entry. That novelty itself is the risk.
 
@@ -121,7 +123,7 @@ A single agent deployment carries five distinct FSI-AgentGov classifications. Th
 | **Capability Driver** | What *organizational readiness dimension* must mature to scale this pattern? | Five drivers (AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, Organization & Culture). See [Capability Drivers](agentic-capability-drivers.md). |
 | **Controls** | What *actionable governance units* must be implemented? | Variable: a Pattern 1 / Zone 1 deployment may engage ~10 controls; a Pattern 4 / Zone 3 deployment engages most of the 79. |
 
-The diagnostic insight from Microsoft's CAPE materials — that the *weakest* Capability Driver is the scaling ceiling regardless of how strong the others are — applies to FSI but does not change the framework's per-control compliance posture. A firm may be capable of executing Pattern 4 organizationally yet still be required to implement the Pattern 4 mandatory controls before deployment. Capability maturity describes *capacity*; controls describe *obligation*.
+The diagnostic insight from [Microsoft's published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/) — that the *weakest* Capability Driver is the scaling ceiling regardless of how strong the others are — applies to FSI but does not change the framework's per-control compliance posture. A firm may be capable of executing Pattern 4 organizationally yet still be required to implement the Pattern 4 mandatory controls before deployment. Capability maturity describes *capacity*; controls describe *obligation*.
 
 A note on operating model: when a CoE federates Pattern 4 or Pattern 5 work across business-unit teams, the operational federation does **not** transfer the regulated supervisory accountability that FINRA 3110, OCC Bulletin 2026-13, or Fed SR 26-2 places on the firm. See [Agentic Center of Excellence](agentic-coe.md) for the FSI federation guardrails.
 

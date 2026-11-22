@@ -36,7 +36,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 
 ## Role & Quick-Reference Cards
 
-*For CSAs, CCOs, examiners, and SOC analysts needing fast answers during meetings or examinations.*
+*For CCOs, examiners, and SOC analysts needing fast answers during meetings or examinations.*
 
 | Document | Who it's for / when to use |
 |----------|---------------------------|
@@ -69,7 +69,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 | [Monitoring Architecture](monitoring-architecture.md) | Unified monitoring system and telemetry architecture across Purview, Sentinel, PPAC, and Agent 365. Use when designing the monitoring layer for a Zone 2–3 deployment. |
 | [Learn Monitor Guide](learn-monitor-guide.md) | How the documentation monitor works and how to interpret drift alerts. Use when the monitor flags a Microsoft Learn URL change that may affect framework accuracy. |
 | [Learn Monitor AI Enhancement](learn-monitor-ai-enhancement.md) | AI-assisted review implementation details for monitoring Microsoft Learn changes. Use when configuring or extending the autodoc pipeline. |
-| [Diagram Catalog](diagram-catalog.md) | Catalog of exportable PNG/SVG architecture diagrams. Use when building a customer presentation or an internal governance architecture review. |
+| [Diagram Catalog](diagram-catalog.md) | Catalog of exportable PNG/SVG architecture diagrams. Use when preparing a presentation or an internal governance architecture review. |
 | [Portal Paths Quick Reference](portal-paths-quick-reference.md) | Consolidated admin portal navigation shortcuts for all major control configuration paths. Use when following a playbook step that references a portal path. |
 | [Microsoft Learn URLs](microsoft-learn-urls.md) | Curated list of official documentation links for all major governance surfaces. Use when verifying that a control implementation reference points to current documentation. |
 | [FSI Configuration Examples](fsi-configuration-examples.md) | Financial services-specific sample configurations for common control scenarios. Use during a playbook walkthrough when you need concrete FSI-tuned values. |
@@ -90,7 +90,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 | [Solutions Coverage Gaps](solutions-coverage-gaps.md) | Gap analysis of the 49.4% of controls currently without a live companion solution. Use when prioritizing solution development or explaining to a customer why a control is playbook-led rather than solution-packaged. |
 | [Assessment Engine Coverage](assessment-coverage.md) | Per-control evaluator state (`auto_evaluable`, `manual_only`, `unimplemented_evaluator`). Use before running the assessment to set honest expectations about which controls will self-score vs. require manual responses. |
 | [Frontier Readiness Coverage](frontier-assessment-coverage.md) | Honest 0% auto-evaluator coverage report for the Frontier Readiness diagnostic (facilitator-answered). Use when a customer asks how automated the Frontier assessment is. |
-| [CAPE Pattern Coverage](pattern-coverage.md) | Generated 79×6 control-to-pattern matrix. Use when mapping a specific control to the CAPE pattern(s) it supports, or when building a pattern-specific control shortlist for a customer. |
+| [Pattern Coverage](pattern-coverage.md) | Generated 79×6 control-to-pattern matrix. Use when mapping a specific control to the pattern(s) it supports, or when building a pattern-specific control shortlist for your firm. |
 | [Known Limitations](known-limitations.md) | Documented framework constraint and workaround guidance. Use before a customer meeting or examination when you want to proactively name what the framework does not cover. |
 | [Versioning and Support](versioning-and-support.md) | SemVer policy, breaking-change definitions, and support windows for framework releases. Use when evaluating whether a control change in a framework PR requires a major, minor, or patch version bump. |
 
@@ -102,7 +102,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 
 | Document | Who it's for / when to use |
 |----------|---------------------------|
-| [Glossary](glossary.md) | 70+ terms and regulatory acronyms used across the framework. Use when a document uses an abbreviation (ALIM, CAPE, CCO, CDAO, CoE, etc.) you need to look up. |
+| [Glossary](glossary.md) | 70+ terms and regulatory acronyms used across the framework. Use when a document uses an abbreviation (ALIM, CCO, CDAO, CoE, etc.) you need to look up. |
 | [FAQ](faq.md) | Frequently asked questions organized by audience and topic. Use as the first stop when a question about zone classification, implementation timing, or regulatory scope doesn't have an obvious doc to cite. |
 | [Work IQ Governance Reference](work-iq-governance.md) | Governance considerations for Work IQ MCP tools, business skills, admin consent, data boundaries, and audit evidence. Use when Work IQ surfaces are being evaluated for Zone 2–3 use. |
 | [Compliance Manager Templates](compliance-manager-templates.md) | Microsoft Compliance Manager assessment templates aligned to framework controls. Use when a customer wants Compliance Manager scores alongside the framework assessment. |

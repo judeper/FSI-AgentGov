@@ -111,7 +111,7 @@ All 2 live companion solutions are tagged with metadata.
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.5 | 2026 | 35 companion solutions tagged with CAPE metadata |
+| 1.5 | 2026 | 35 companion solutions tagged with alignment metadata |
 """
 
 
@@ -262,7 +262,7 @@ def test_does_not_flag_history_section_quoting_old_count(monkeypatch, tmp_path):
 
 | Version | Notes |
 |---------|-------|
-| 1.5.0 | 35 companion solutions tagged with CAPE metadata |
+| 1.5.0 | 35 companion solutions tagged with alignment metadata |
 | 1.4.0 | 33 companion solutions in catalog |
 """
     _setup(

@@ -20,8 +20,6 @@ TIER 2 (Examiner-facing docs): Autonomous/self-improving language
 Tier 2 applies only to:
   docs/framework/**/*.md
   docs/controls/**/*.md
-  docs/reference/cape-*.md
-  docs/reference/microsoft-cape-crosswalk.md
   docs/reference/agentic-*.md
 
 Files can opt out of Tier 2 checks with:
@@ -63,7 +61,7 @@ TIER1_PATTERNS = [
 ]
 
 # TIER 2: Examiner-facing banned phrases (case-insensitive)
-# Applies only to framework/controls/reference CAPE/agentic docs
+# Applies only to framework/controls/reference agentic docs
 TIER2_PATTERNS = [
     (re.compile(r"\bself-improving\b", re.IGNORECASE), "self-improving"),
     (re.compile(r"\bself-optimis(ing|izing)\b", re.IGNORECASE), "self-optimising/self-optimizing"),
@@ -84,8 +82,6 @@ TIER2_SCOPE_PATTERNS = [
     "docs/framework/**/*.md",
     "docs/controls/*.md",
     "docs/controls/**/*.md",
-    "docs/reference/cape-*.md",
-    "docs/reference/microsoft-cape-crosswalk.md",
     "docs/reference/agentic-*.md",
 ]
 
@@ -298,8 +294,8 @@ def main(file_args: list[str] | None = None) -> int:
                     print(f"   Line {line_num}: [{phrase}]")
                     print(f"   > {line_text}")
                     print(
-                        "   Reframe using: see docs/reference/microsoft-cape-crosswalk.md "
-                        "FSI Maturity Translation Table."
+                        "   Reframe using: see docs/framework/agentic-capability-drivers.md "
+                        "(reframing notices)."
                     )
                     print("   (Or add allow comment if this is a Microsoft-source paraphrase page.)")
                     print()
@@ -343,8 +339,8 @@ def main(file_args: list[str] | None = None) -> int:
             "'without human review', 'agent decides/approves', etc."
         )
         print(
-            "   See docs/reference/microsoft-cape-crosswalk.md FSI Maturity "
-            "Translation Table for reframing.\n"
+            "   See docs/framework/agentic-capability-drivers.md "
+            "(reframing notices).\n"
         )
 
     print(f"Total: {total_violations} violation(s) in {files_with_violations} file(s).")

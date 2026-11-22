@@ -26,13 +26,15 @@ This roadmap provides a structured approach to implementing AI agent governance.
 | **Phase 1** | 2-6 months | Production Readiness | SoD, reporting, Zone 3 governance, first agents |
 | **Phase 2** | 6-12 months | Advanced Governance | Runtime protection, adversarial testing, steady-state |
 
-### CAPE 90-day plan × FSI Phase 0 → 1 timeline
+### Microsoft's 90-day play × FSI Phase 0 → 1 timeline
 
-The Microsoft CAPE *Agentic CoE Playbook* presents a 90-day operating roadmap (Days 0-30 Foundation → Days 30-60 Stand Up → Days 60-90 Scale). FSI's Phase 0 (0-60 days) and the start of Phase 1 (2-6 months) cover the same 90-day window with FSI-specific governance gates. The Gantt overlay below plots both tracks against a common 90-day axis so customers can see how the CAPE play maps onto FSI's adoption phases. Synthetic dates are used (Day 1 = 2025-01-01); the visual relativity is the point, not absolute calendar.
+Microsoft's published [*Agentic Transformation Patterns Playbook*, Section 4](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf) presents a 90-day play, and its [published action plan](https://learn.microsoft.com/en-us/agents/adoption-patterns/next-steps-action-plan) describes the three phases Foundation → Stand up → Scale. The three 30-day blocks below (Days 0-30 Foundation → Days 30-60 Stand Up → Days 60-90 Scale) are this framework's own layout; the public sources do not assign day ranges. FSI's Phase 0 (0-60 days) and the start of Phase 1 (2-6 months) cover the same 90-day window with FSI-specific governance gates. The Gantt overlay below plots both tracks against a common 90-day axis so readers can see how Microsoft's published play maps onto FSI's adoption phases. Synthetic dates are used (Day 1 = 2025-01-01); the visual relativity is the point, not absolute calendar.
+
+> The FSI mapping on this page is this framework's own. Microsoft hasn't reviewed or endorsed it.
 
 ```mermaid
 gantt
-    title CAPE 90-day Plan × FSI Adoption Phase 0 -> Phase 1 (90-day window)
+    title Microsoft 90-day Play × FSI Adoption Phase 0 -> Phase 1 (90-day window)
     dateFormat  YYYY-MM-DD
     axisFormat  Day %j
 
@@ -43,10 +45,10 @@ gantt
     Phase 0 W7-8 Operational readiness      :fsi4, after fsi3, 14d
     Phase 1 begins (SoD, reporting, Zone 3) :fsi5, after fsi4, 30d
 
-    section CAPE track (Microsoft 90-day play)
-    Days 0-30 What & Where Foundation       :cape1, 2025-01-01, 30d
-    Days 30-60 Build & Guard Stand Up       :cape2, after cape1, 30d
-    Days 60-90 Run & Decide Scale           :cape3, after cape2, 30d
+    section Microsoft phases (FSI 30-day layout)
+    Days 0-30 What & Where Foundation       :phase1, 2025-01-01, 30d
+    Days 30-60 Build & Guard Stand Up       :phase2, after phase1, 30d
+    Days 60-90 Run & Decide Scale           :phase3, after phase2, 30d
 
     section Joint milestones
     Owner named per initiative              :milestone, m1, 2025-01-15, 0d
@@ -55,7 +57,7 @@ gantt
     Phase 0 governance review (FSI Week 8)  :milestone, m4, 2025-02-26, 0d
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mmd`](../images/diagrams/source/cape/cape-fsi-timeline.mmd). For the full inventory of CAPE-alignment diagrams and export instructions, see the [Diagram Catalog](../reference/diagram-catalog.md).
+Editable Mermaid source: [`docs/images/diagrams/source/patterns/ninety-day-timeline.mmd`](../images/diagrams/source/patterns/ninety-day-timeline.mmd). For the full inventory of pattern diagrams and export instructions, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 

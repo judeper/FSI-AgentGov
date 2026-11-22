@@ -1,11 +1,13 @@
 ---
-description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials introduce Capability Drivers as the five organizational dimensions whose collective maturity…"
+description: "Microsoft's published maturity model describes five organizational readiness dimensions; this framework translates them into FSI vocabulary and per-pattern target profiles."
 ---
 # Agentic Capability Drivers
 
-> **Framework layer — Advanced & Scaling track.** Translates the five CAPE Capability Drivers (AI Strategy, Business Strategy, AI Governance & Security, Technology & Data, Organization & Culture) into FSI vocabulary for organizational readiness assessment. The 100–500 driver scale is *separate* from the 0–4 control implementation level — see [Governance Fundamentals](governance-fundamentals.md#governance-maturity-levels) for the canonical distinction.
+> **Framework layer — Advanced & Scaling track.** Translates the five Capability Drivers in [Microsoft's published maturity model](https://learn.microsoft.com/en-us/agents/adopt-overview) (AI Strategy, Business Strategy, AI Governance & Security, Technology & Data, Organization & Culture) into FSI vocabulary for organizational readiness assessment. The 100–500 driver scale is *separate* from the 0–4 control implementation level — see [Governance Fundamentals](governance-fundamentals.md#governance-maturity-levels) for the canonical distinction.
 
-> **Audience:** M365 administrators, AI Governance Lead, AI Program Sponsor / CIO / CDAO, FSI architects, Microsoft FSI Customer Success Architects (CSAs).
+> The FSI mapping on this page is this framework's own. Microsoft hasn't reviewed or endorsed it.
+
+> **Audience:** M365 administrators, AI Governance Lead, AI Program Sponsor / CIO / CDAO, FSI architects.
 > **Purpose:** FSI translation of Microsoft's five **Capability Drivers** and the 100–500 maturity scale, with per-driver target profiles by Frontier Transformation Pattern and an explicit position on why FSI-AgentGov does not numerically merge maturity scales.
 > **Position:** This document is the framework-layer deep-dive on organizational readiness drivers. It supplements — it does not replace — the FSI assessment engine, the per-control governance levels, or the Zone classification.
 
@@ -13,11 +15,11 @@ description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials intr
 
 ## Why drivers matter for FSI governance
 
-Microsoft's Copilot Acceleration Engineering (CAPE) materials introduce **Capability Drivers** as the five organizational dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents at scale. The drivers are AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, and Organization & Culture. Each is scored on a 100–500 maturity scale (Initial → Repeatable → Defined → Capable → Optimized). Microsoft positions the model as a **diagnostic for finding the weakest link**, not a scorecard to maximize: the weakest driver becomes the ceiling on how far any Frontier Transformation Pattern can scale (Source: *Patterns Playbook*, pp. 25–34; *Walking Deck*, slides 7–8).
+Microsoft's [published maturity model](https://learn.microsoft.com/en-us/agents/adopt-overview) describes **Capability Drivers** as the five organizational dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents at scale. The drivers are AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, and Organization & Culture. Each is scored on a 100–500 maturity scale ([*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)). This framework uses the level names Initial → Repeatable → Defined → Capable → Optimized. Microsoft's [published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/) positions the model as a **diagnostic for finding the weakest link**, not a scorecard to maximize: the weakest driver becomes the ceiling on how far any Frontier Transformation Pattern can scale.
 
 FSI-AgentGov adopts Capability Drivers as a first-class framework concept because the 79-control catalog answers a different question. Controls describe *what to implement and how to verify it*; drivers describe *whether the organization is capable of implementing and operating it*. A US financial-services firm can pass every Pillar 1 security control on the FSI assessment engine and still be incapable of scaling a Pattern 4 Core Business Process deployment because its Business Strategy driver is at L200 (no documented agent-supported process redesign, no named outcomes, no KPI ownership). The driver lens surfaces that gap before the deployment fails an examination.
 
-The vocabulary discipline is load-bearing. **Drivers are not Pillars.** *Pillar* in FSI-AgentGov refers to the four control families — Security (29), Management (27), Reporting (14), SharePoint (9) — and is reserved exclusively for them. *Capability Driver* (or simply *Driver*) refers to Microsoft's five organizational readiness dimensions and is reserved exclusively for them. CAPE source materials occasionally use "pillar" for the five dimensions in slide titles; FSI-AgentGov canonicalizes to "Capability Driver" and treats the alternative as non-canonical (see the *Capability Driver* entry in the [Glossary](../reference/glossary.md) and [`scripts/verify_language_rules.py`](https://github.com/judeper/FSI-AgentGov/blob/main/scripts/verify_language_rules.py) for enforcement scope).
+The vocabulary discipline is load-bearing. **Drivers are not Pillars.** *Pillar* in FSI-AgentGov refers to the four control families — Security (29), Management (27), Reporting (14), SharePoint (9) — and is reserved exclusively for them. *Capability Driver* (or simply *Driver*) refers to Microsoft's five organizational readiness dimensions and is reserved exclusively for them. Microsoft's published maturity model calls these five dimensions pillars ([Adopt agentic AI at scale](https://learn.microsoft.com/en-us/agents/adopt-overview)); FSI-AgentGov canonicalizes to "Capability Driver" and treats the alternative as non-canonical (see the *Capability Driver* entry in the [Glossary](../reference/glossary.md) and [`scripts/verify_language_rules.py`](https://github.com/judeper/FSI-AgentGov/blob/main/scripts/verify_language_rules.py) for enforcement scope).
 
 The framework promise is layered: **Drivers + the scale-breaker concept** give organizations a strategic readiness lens to plan transformation; **79 controls** give the actionable governance posture; **6 Frontier Transformation Patterns** give the deployment-shape lens; **3 Zones** give the regulatory classification. Each lens answers a different question. This document explains the driver lens; [Zones and Tiers](zones-and-tiers.md) and [transformation-patterns.md](transformation-patterns.md) explain the others.
 
@@ -39,7 +41,7 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 
 ### Driver 1 — AI Strategy & Experience
 
-**Microsoft framing.** CAPE positions this driver as the deliberate planning, investment, and evolution of AI across the enterprise — moving from ad-hoc pilots to a managed portfolio with executive sponsorship and a coherent experience strategy (Source: *Patterns Playbook*, pp. 28–29; *Walking Deck*, slide 7).
+**Microsoft framing.** Microsoft's published maturity model describes this driver as the deliberate planning, investment, and evolution of AI across the enterprise — moving from ad-hoc pilots to a managed portfolio with executive sponsorship and a coherent experience strategy (Source: [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 
 **FSI translation.** AI Strategy & Experience asks *who decides what gets built, who sponsors it, how it integrates with the firm's enterprise architecture, and how the portfolio is rationalized over time.* In FSI, the driver also carries an unspoken regulatory thread: agent investments that bypass the Architecture Review Board, the Model Risk Management committee, or the AI Governance Lead are precisely the agents that will appear in an exam without documentation. A high-maturity FSI organization on this driver has a published AI portfolio, named executive sponsors per pattern, and a documented sunset process for agents that fail to demonstrate value.
 
@@ -72,7 +74,7 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 
 ### Driver 2 — Business Strategy
 
-**Microsoft framing.** CAPE positions this driver as the depth of AI integration into business processes and outcome measurement — moving from technology pilots toward redesigned processes with named owners, success metrics, and measurable returns (Source: *Patterns Playbook*, pp. 29–30; *Walking Deck*, slide 7).
+**Microsoft framing.** Microsoft's published maturity model describes this driver as the depth of AI integration into business processes and outcome measurement — moving from technology pilots toward redesigned processes with named owners, success metrics, and measurable returns (Source: [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 
 **FSI translation.** Business Strategy asks *which processes have been deliberately redesigned around agents, who owns the business outcome, and how value is measured.* In FSI, the driver is regulator-relevant in a specific way: when an agent participates in a regulated process (KYC, claims adjudication, supervisory Q&A, regulatory reporting), the firm must be able to name the process owner, show the redesign artifacts, and produce the KPI evidence that supports the decision to deploy. A weak Business Strategy driver in an FSI shop typically presents as "we have lots of agents but cannot point to a redesigned process or a documented business owner" — which is the same evidence gap an OCC or FINRA examiner will surface.
 
@@ -105,7 +107,7 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 
 ### Driver 3 — AI Governance & Security
 
-**Microsoft framing.** CAPE positions this driver as risk management, compliance, monitoring, and responsible-AI practices — moving from informal guardrails toward proactive, integrated risk practices across the agent lifecycle (Source: *Patterns Playbook*, pp. 30–31; *Walking Deck*, slide 7).
+**Microsoft framing.** Microsoft's published maturity model describes this driver as risk management, compliance, monitoring, and responsible-AI practices — moving from informal guardrails toward proactive, integrated risk practices across the agent lifecycle (Source: [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 
 **FSI translation.** This is the driver where FSI organizations are typically strongest at the L100–L300 range and where the FSI-AgentGov 79-control catalog provides the most direct lift. The driver asks *whether risk classification is enforced by the platform (not by policy memos), whether audit trails reach the immutable retention thresholds the firm's regulators require, whether model risk is governed under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2, whether supervision under FINRA Rule 3110 is discharged by named registered persons, and whether bias and fair-lending exposure under Reg B / ECOA is tested before consumer-impacting deployment.* The L500 frontier in FSI is not "self-governing systems" — it is *predictive governance with human-in-the-loop change control and reasoning capture sufficient for examiner reconstruction*.
 
@@ -121,11 +123,11 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 | **L400 — Capable** | Cross-functional risk practices integrated across the lifecycle; [Sentinel detection content](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) operational; [adversarial testing program](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md); [bias and fairness assessment](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) before consumer-impacting deployment; [exception and override management](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) with reason capture. |
 | **L500 — Optimized** | Predictive governance: monitoring telemetry triggers proactive review; [hallucination feedback](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) drives change-managed retraining gated by independent validation; [conflict-of-interest testing](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) and [Reg B principal-reasons capture](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) automated; the agent recommends and the named supervisor approves and is accountable. |
 
-> **Reframing notice.** CAPE's L500 descriptor for this driver uses language ("predictive, self-optimising operations") that is a regulatory landmine in FSI. The reframing above ("predictive governance with human-in-the-loop change control") is canonical and is enforced repo-wide for `docs/framework/**`, `docs/controls/**`, and `docs/reference/cape-*.md`.
+> **Reframing notice.** The L500 descriptor for this driver in Microsoft's published maturity model ("predictive, self-optimising operations", [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)) is a regulatory landmine in FSI. The reframing above ("predictive governance with human-in-the-loop change control") is canonical and is enforced repo-wide for `docs/framework/**` and `docs/controls/**`.
 
 **Common scale-breakers.** AI Governance & Security becomes the ceiling when:
 
-- Organizations attempt **Pattern 5 — External Engagement** without identity isolation, customer disclosure, and reasoning capture sufficient for Reg BI and ECOA defense (CAPE marks this driver L500 as the Pattern 5 scale-breaker).
+- Organizations attempt **Pattern 5 — External Engagement** without identity isolation, customer disclosure, and reasoning capture sufficient for Reg BI and ECOA defense (Microsoft's published guidance marks this driver L500 as the Pattern 5 scale-breaker; [per-pattern profile](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) and [*Agentic Transformation Patterns Playbook*, Section 1](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 - Organizations attempt **Pattern 6 — AI-First Capabilities** with multi-agent chains where individual agents lack inventory entries, change-management coverage, or reasoning capture — i.e., the firm cannot reconstruct who decided what.
 
 **Related FSI controls.**
@@ -140,7 +142,7 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 
 ### Driver 4 — Technology & Data
 
-**Microsoft framing.** CAPE positions this driver as platform maturity, architecture, data quality, and telemetry — moving from fragmented tooling toward an integrated platform with high-quality grounding data, observability, and reuse (Source: *Patterns Playbook*, pp. 31–32; *Walking Deck*, slide 7).
+**Microsoft framing.** Microsoft's published maturity model describes this driver as platform maturity, architecture, data quality, and telemetry — moving from fragmented tooling toward an integrated platform with high-quality grounding data, observability, and reuse (Source: [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 
 **FSI translation.** Technology & Data is the driver most often confused with the FSI-AgentGov **Pillar 4 (SharePoint)** because both touch grounding data; the lens is broader. Technology & Data covers *the entire platform substrate* — Power Platform environment hygiene, identity (Entra Agent ID), telemetry pipelines (Sentinel, Agent 365 Observability SDK), RAG corpus integrity, and SharePoint as a knowledge source. In FSI the driver is regulator-relevant because *the data the agent retrieves is the record* — a stale or oversharing-exposed RAG corpus is a FINRA 4511 / SEC 17a-4 record-integrity issue, not just a quality issue. A high-maturity FSI shop on this driver runs Managed Environments with documented tier classification, version-controlled RAG corpora, item-level permission scanning of knowledge sources, and observability sufficient for incident reconstruction.
 
@@ -158,8 +160,8 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 
 **Common scale-breakers.** Technology & Data becomes the ceiling when:
 
-- Organizations attempt **Pattern 2 — Business Expert Empowerment** with low-quality or stale knowledge sources (CAPE marks this driver L300 as the Pattern 2 scale-breaker; in FSI this also produces a books-and-records integrity problem).
-- Organizations attempt **Pattern 6 — AI-First Capabilities** without orchestration architecture, multi-agent telemetry, or reusable patterns (CAPE marks this driver L500 as the Pattern 6 scale-breaker).
+- Organizations attempt **Pattern 2 — Business Expert Empowerment** with low-quality or stale knowledge sources (Microsoft's published guidance marks this driver L300 as the Pattern 2 scale-breaker; [per-pattern profile](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) and [*Agentic Transformation Patterns Playbook*, Section 1](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf); in FSI this also produces a books-and-records integrity problem).
+- Organizations attempt **Pattern 6 — AI-First Capabilities** without orchestration architecture, multi-agent telemetry, or reusable patterns (Microsoft's published guidance marks this driver L500 as the Pattern 6 scale-breaker; [per-pattern profile](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) and [*Agentic Transformation Patterns Playbook*, Section 1](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 
 **Related FSI controls.**
 
@@ -173,7 +175,7 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 
 ### Driver 5 — Organization & Culture
 
-**Microsoft framing.** CAPE positions this driver as adoption enablement, skills, and AI-positive culture — moving from low awareness toward an enterprise where AI is part of how work gets done, with documented skills paths and a community of practice (Source: *Patterns Playbook*, pp. 32–33; *Walking Deck*, slide 7).
+**Microsoft framing.** Microsoft's published maturity model describes this driver as adoption enablement, skills, and AI-positive culture — moving from low awareness toward an enterprise where AI is part of how work gets done, with documented skills paths and a community of practice (Source: [*Agentic Transformation Patterns Playbook*, Section 2](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)).
 
 **FSI translation.** Organization & Culture is the driver where FSI organizations are typically *weakest* relative to Microsoft's industry-agnostic baseline, and where the framework's biggest blind spot lives if drivers are not surfaced separately from controls. The driver asks *whether supervisors are trained to discharge their FINRA 3110 obligations over agent-assisted work, whether the maker community has access to FSI-aware enablement (not just generic training), whether customer-facing communications culture under FINRA 2210 has been updated to address AI-generated content, and whether the firm has documented the difference between an "AI-enabled associated person" and an "associated person who used an AI tool."* In FSI the L500 frontier on this driver is not "AI-first culture" untranslated — it is *trained-supervisor culture with documented review obligations and continuous-improvement discipline within change control*.
 
@@ -189,11 +191,11 @@ The sections that follow translate each driver into FSI vocabulary, rewrite the 
 | **L400 — Capable** | Curated maker community (federated CoE shape) with documented contribution paths; [Customer AI Disclosure](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) and [AI Marketing Claims](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) governance applied to all external surfaces; supervisor training records evidenced for examination. |
 | **L500 — Optimized** | Trained-supervisor culture with documented per-decision review obligations; continuous-improvement discipline operationalized within change control; the firm can demonstrate to an examiner that the supervisor — not the agent — is accountable for any decision the agent supported. |
 
-> **Reframing notice.** CAPE's L500 descriptor for this driver uses language ("AI-first culture, autonomous, self-improving") that, if adopted verbatim into supervisor or HR documentation, undermines the firm's FINRA 3110 supervision posture. The reframing above is canonical.
+> **Reframing notice.** Describing this driver's top level in "autonomous" or "self-improving" terms, if adopted into supervisor or HR documentation, undermines the firm's FINRA 3110 supervision posture. The reframing above is canonical.
 
 **Common scale-breakers.** Organization & Culture becomes the ceiling when:
 
-- Organizations attempt **Pattern 1 — Employee AI Enablement** at enterprise scale without supervisor training and acceptable-use enforcement (CAPE marks this driver L300 as the Pattern 1 scale-breaker; in FSI it doubles as a FINRA 3110 supervision gap).
+- Organizations attempt **Pattern 1 — Employee AI Enablement** at enterprise scale without supervisor training and acceptable-use enforcement (Microsoft's published guidance marks this driver L300 as the Pattern 1 scale-breaker; [per-pattern profile](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) and [*Agentic Transformation Patterns Playbook*, Section 1](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf); in FSI it doubles as a FINRA 3110 supervision gap).
 - Organizations attempt **Pattern 5 — External Engagement** without trained customer-facing personnel who understand the firm's AI disclosure obligations under state AI laws and FINRA 2210.
 
 **Related FSI controls.**
@@ -226,7 +228,7 @@ The FSI-defensible *anti-pattern* is to declare the scale-breaker "fixed" by a s
 
 ## Per-pattern target profiles
 
-The table below records FSI-AgentGov reference targets for each driver, by Frontier Transformation Pattern. The starred cell (`*`) in each row is the scale-breaker per CAPE — the driver that will block that pattern first if not at the indicated level. Cells without a star are the minimum maturity FSI-AgentGov recommends for examiner-defensible posture in the pattern's typical zone.
+The table below records FSI-AgentGov reference targets for each driver, by Frontier Transformation Pattern. The starred cell (`*`) in each row is the scale-breaker in [Microsoft's published guidance](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) — the driver that will block that pattern first if not at the indicated level. Cells without a star are the minimum maturity FSI-AgentGov recommends for examiner-defensible posture in the pattern's typical zone.
 
 | # | Pattern | AI Strategy & Experience | Business Strategy | AI Governance & Security | Technology & Data | Organization & Culture |
 |---|---|---|---|---|---|---|
@@ -237,11 +239,11 @@ The table below records FSI-AgentGov reference targets for each driver, by Front
 | **5** | External Engagement | L400 | L400 | **L500\*** | L400 | L400 |
 | **6** | AI-First Capabilities | L400 | L400 | L500 | **L500\*** | L400 |
 
-> **Reading the table.** The starred cell records the scale-breaker per CAPE (Source: *Patterns Playbook*, pp. 7–24; *Walking Deck*, slides 9–14, *Key Insight* slide 8). Non-starred cells are FSI-AgentGov's minimum recommended levels — they reflect the maturity an experienced US FSI deployment needs in order to achieve examiner-defensible posture for the pattern in its typical zone (Zone 1/2 for Patterns 1–2, Zone 2/3 for Pattern 3, **Zone 3 mandatory** for Patterns 4–6 per [Frontier Transformation Patterns](transformation-patterns.md)).
+> **Reading the table.** The starred cell records the scale-breaker in Microsoft's published guidance (Source: [per-pattern profile](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern) and [*Agentic Transformation Patterns Playbook*, Section 1](https://microsoft.github.io/PowerPnPGuidanceHub/guidance/agenttransformationpatterns/Agentic%20Transformation%20Patterns%20-%20Playbook.pdf)). Non-starred cells are FSI-AgentGov's minimum recommended levels — they reflect the maturity an experienced US FSI deployment needs in order to achieve examiner-defensible posture for the pattern in its typical zone (Zone 1/2 for Patterns 1–2, Zone 2/3 for Pattern 3, **Zone 3 mandatory** for Patterns 4–6 per [Frontier Transformation Patterns](transformation-patterns.md)).
 
 **These targets are FSI-AgentGov reference profiles, not Microsoft mandates.** Microsoft's source materials specify only the scale-breaker per pattern; they do not specify a target maturity for the other four drivers. The non-starred cells above are derived from FSI regulatory exposure: e.g., Pattern 4 requires Technology & Data at L400 (not L300) because [model risk management under OCC Bulletin 2026-13](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) requires version-controlled platform telemetry sufficient for independent validation. Pattern 5 requires Organization & Culture at L400 because customer-facing personnel must be trained on AI disclosure obligations before externalization. Pattern 6 requires AI Governance & Security at L500 because multi-agent orchestration without reasoning capture is an examiner red flag (see crosswalk Pattern 6 deep-dive).
 
-For organizations engaging Microsoft Customer Success Architects on Frontier Readiness assessments, present these targets together with the standard CAPE per-pattern profile so the conversation reflects both the industry-agnostic baseline and the FSI overlay.
+For a Frontier Readiness assessment, read these targets next to [Microsoft's published per-pattern profile](https://learn.microsoft.com/en-us/agents/adoption-patterns/choose-pattern), so the result shows both the industry-agnostic baseline and the FSI overlay.
 
 ---
 
@@ -253,19 +255,19 @@ FSI-AgentGov customers will encounter **three distinct maturity scales** in norm
 |---|---|---|
 | **Per-control governance levels** (Baseline / Recommended / Regulated) | Every control file in `docs/controls/pillar-*/` | The implementation depth of a single control, within control. |
 | **Assessment engine maturity** (0–4) | `assessment/manifest/controls.json` and the prefilled assessment report | Aggregated control evidence vs zone thresholds, across the 79-control catalog. |
-| **CAPE Capability Driver maturity** (100–500) | This document and the (Phase 3) Frontier Readiness parallel assessment | Strategic organizational readiness across the five drivers; diagnostic for finding the scale-breaker. |
+| **Capability Driver maturity** (100–500) | This document and the (Phase 3) Frontier Readiness parallel assessment | Strategic organizational readiness across the five drivers; diagnostic for finding the scale-breaker. |
 
-The three scales answer different questions. The per-control 3-level scale answers *"how deeply have I implemented this single control?"* The assessment engine 0–4 scale answers *"across the 79-control catalog, how close am I to the zone threshold for each control?"* The CAPE 100–500 driver scale answers *"as an organization, how ready am I to scale a Frontier Pattern across the enterprise?"*
+The three scales answer different questions. The per-control 3-level scale answers *"how deeply have I implemented this single control?"* The assessment engine 0–4 scale answers *"across the 79-control catalog, how close am I to the zone threshold for each control?"* The 100–500 driver scale answers *"as an organization, how ready am I to scale a Frontier Pattern across the enterprise?"*
 
 **Numerical merging produces false precision and obscures regulatory accountability.** A naive mapping (e.g., "Baseline = L200, Recommended = L300, Regulated = L400") would imply that implementing a control at Baseline level means the organization's AI Governance & Security driver is at L200. This is false. A Zone 3 agent can have all 79 controls at Regulated (4/4) while the firm's Business Strategy driver is at L100 (no documented outcomes, no KPIs, no business owner). A firm can be at L500 on the AI Governance & Security driver because it has predictive monitoring and reasoning capture, while a specific control like [4.8 (item-level permission scanning)](../controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md) is only at Recommended because the organization has not yet rolled it out to all SharePoint sites. The two readings are both correct because they answer different questions.
 
 **The FSI approach.** Read each scale on its own terms:
 
-- **Use this document's per-pattern target profiles as the strategic alignment lens.** For board reporting, capability-investment planning, and Microsoft CSA conversations.
+- **Use this document's per-pattern target profiles as the strategic alignment lens.** For board reporting and capability-investment planning.
 - **Use the assessment engine output as the operational lens.** For per-control remediation, examiner-facing evidence, and zone-threshold tracking.
 - **Use the per-control 3-level scale as the implementation depth lens.** For the playbook step the platform team is working through this week.
 
-For organizations engaging Microsoft on Frontier Readiness assessments, this document is the **translation layer** between Microsoft's industry-agnostic capability vocabulary and the FSI-AgentGov framework. Customers seeking a single "compliance score" should refer to the per-control assessment summary (0–4 maturity per control, plus the rollup), not to the CAPE driver scores.
+This document is the **translation layer** between Microsoft's industry-agnostic capability vocabulary and the FSI-AgentGov framework. Firms seeking a single "compliance score" should refer to the per-control assessment summary (0–4 maturity per control, plus the rollup), not to the driver scores.
 
 This design decision is recorded in the council deliberation that produced v1.5.0 (Council Splits S3 and S7, dissent preserved). Mathematical merging of the three scales is explicitly out of scope for v1.5.0 and is not on the v2.0.0 roadmap.
 
@@ -273,7 +275,7 @@ This design decision is recorded in the council deliberation that produced v1.5.
 
 ## How drivers interact with zones, pillars, patterns, and controls
 
-The five concepts in the FSI-AgentGov + CAPE vocabulary answer different questions and operate at different altitudes. Reading them together — rather than collapsing them into one — is what the framework's middle-layer architecture exists to support.
+The five concepts in the FSI-AgentGov vocabulary answer different questions and operate at different altitudes. Reading them together — rather than collapsing them into one — is what the framework's middle-layer architecture exists to support.
 
 | Concept | Question it answers | Type of lens |
 |---|---|---|
@@ -285,7 +287,7 @@ The five concepts in the FSI-AgentGov + CAPE vocabulary answer different questio
 
 **Concrete example.** An FSI organization at L300 on Organization & Culture attempts to deploy **Pattern 5 (External Engagement)** in **Zone 3** to a retail customer-servicing surface. The 79-control assessment passes — Pillar 1 (Security), Pillar 2 (Management), Pillar 3 (Reporting), Pillar 4 (SharePoint) controls are all at the Zone 3 thresholds. The deployment fails, six months in, because customer-facing personnel were not trained on AI disclosure obligations under state AI laws and FINRA 2210, and a state regulator opens an inquiry on a customer-misled allegation. The framework reads this as a *scale-breaker problem* — Organization & Culture at L300 was insufficient for Pattern 5's L400 minimum on this driver — *not a control problem*. The remedial action is not "add another control"; it is "invest in driver maturity" (specifically Controls [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md), [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), and [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md), implemented at the Regulated level for the customer-facing population).
 
-This is the load-bearing reason FSI-AgentGov adopts Capability Driver as a first-class framework concept rather than treating CAPE as a citation-only crosswalk: the driver lens surfaces failure modes that the control-by-control assessment does not.
+This is the load-bearing reason FSI-AgentGov adopts Capability Driver as a first-class framework concept rather than treating Microsoft's published maturity model as a citation-only crosswalk: the driver lens surfaces failure modes that the control-by-control assessment does not.
 
 ---
 
@@ -296,7 +298,7 @@ This is the load-bearing reason FSI-AgentGov adopts Capability Driver as a first
 - [Zones and Tiers](zones-and-tiers.md) — the regulatory classification this driver lens complements.
 - [Governance Fundamentals](governance-fundamentals.md) — the four-pillar control architecture the driver lens supplements; also the canonical definition of the 0–4 control maturity scale (distinct from the 100–500 driver scale).
 - [Glossary](../reference/glossary.md) — canonical definitions for *Capability Driver*, *Frontier Readiness*, *Pattern (Frontier Transformation Pattern)*, and *Scale-breaker*.
-- [Role catalog](../reference/role-catalog.md) — owner roles for each driver and CAPE-to-FSI role mapping.
+- [Role catalog](../reference/role-catalog.md) — owner roles for each driver.
 
 **Next →** [Agentic Center of Excellence](agentic-coe.md) — The CoE blueprint for developing driver capacity and governing pattern deployments at scale.
 

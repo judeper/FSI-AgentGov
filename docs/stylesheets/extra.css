@@ -101,7 +101,7 @@
  *     indicator is the bottom border, not the link colour, so visual
  *     "current section" affordance is preserved.
  *
- *   F-A11Y-DOCS-CONTRAST-INLINELINK-03 (P1, /reference/csa-quick-reference,
+ *   F-A11Y-DOCS-CONTRAST-INLINELINK-03 (P1,
  *   /reference/role-catalog, /downloads)
  *     axe link-in-text-block: brand link #0078D4 vs surrounding muted text
  *     #757575 = 1.01:1 (WCAG 1.4.1 needs 3:1 between adjacent text colours
@@ -235,7 +235,7 @@
  *
  *   F-A11Y-DARK-CODEINLINK-REGRESSION  AS5's `.md-typeset a code` rule
  *     (12 nodes, 1/8 pages, P1)        forced inline-code colour to
- *     /reference/csa-quick-reference   --brand-primary-dark (#005A9E),
+ *                                      --brand-primary-dark (#005A9E),
  *                                      which works on the light-mode
  *                                      code bg (#f5f5f5 = 6.52:1) but
  *                                      fails on slate code bg (#272a35

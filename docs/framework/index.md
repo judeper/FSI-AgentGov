@@ -46,8 +46,8 @@ Five interlocking concepts structure this framework. **Admins new to FSI AgentGo
 | **Zone** | Risk classification for an agent: Personal (Zone 1), Team (Zone 2), or Enterprise (Zone 3). Determines which controls apply, approval requirements, and retention periods. | [Zones and Tiers](zones-and-tiers.md) |
 | **Pillar** | Control family — Security (29 controls), Management (27), Reporting (14), SharePoint (9). Answers "what *category* is this control?" — not to be confused with Capability Drivers. | [Governance Fundamentals](governance-fundamentals.md#four-governance-pillars) |
 | **Control** | A single actionable governance unit — 79 total, each with Baseline / Recommended / Regulated implementation levels. The primary unit of day-to-day governance work. | [Control Catalog](../controls/index.md) |
-| **Pattern** ⚡ | Deployment shape (one of six CAPE Frontier Transformation Patterns). Useful for translating CIO conversations into zone and control requirements. | [Transformation Patterns](transformation-patterns.md) |
-| **Capability Driver** ⚡ | Organizational readiness dimension (one of five). Measured on a *separate* 100–500 CAPE scale — distinct from the 0–4 control implementation level. | [Capability Drivers](agentic-capability-drivers.md) |
+| **Pattern** ⚡ | Deployment shape (one of six Frontier Transformation Patterns). Useful for translating CIO conversations into zone and control requirements. | [Transformation Patterns](transformation-patterns.md) |
+| **Capability Driver** ⚡ | Organizational readiness dimension (one of five). Measured on a *separate* 100–500 scale — distinct from the 0–4 control implementation level. | [Capability Drivers](agentic-capability-drivers.md) |
 
 > **⚡ = Advanced & Scaling track.** M365 admins implementing controls can skip Pattern and Capability Driver entirely. Navigate to the [Adoption Roadmap](adoption-roadmap.md) or [Control Catalog](../controls/index.md) to begin implementation.
 
