@@ -53,7 +53,6 @@ theme:
     - search.highlight
     - search.share
     - content.code.copy
-    - announce.dismiss
   palette:
     - scheme: default
       primary: custom
