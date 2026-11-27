@@ -36,7 +36,7 @@ An attacker crafts inputs — directly, or indirectly through grounded content s
 
 | FSI Control | How It Helps | Coverage |
 |-------------|--------------|----------|
-| [1.8 — Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Detects and blocks prompt-injection and jailbreak attempts at runtime | Direct |
+| [1.8 — Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Microsoft Defender real-time protection evaluates tool invocations by Copilot Studio agents (Preview). Its default rule audits only; custom rules can block matching actions before they run. | Partial |
 | [1.21 — Adversarial Input Logging](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Captures suspicious inputs for detection, investigation, and tuning | Direct |
 | [1.27 — AI Agent Content Moderation Enforcement](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Moderates inputs/outputs to catch manipulation and unsafe content | Direct |
 | [2.16 — RAG Source Integrity Validation](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | Reduces indirect injection via poisoned or untrusted grounding sources | Direct |
@@ -56,7 +56,7 @@ The agent reveals sensitive data — PII, financial records, secrets, or restric
 | [1.13 — Sensitive Information Types (SITs) and Pattern Recognition](../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) | Identifies sensitive data so it can be protected and policy-controlled | Direct |
 | [1.14 — Data Minimization and Agent Scope Control](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Limits the data an agent can access to what it genuinely needs | Direct |
 | [1.16 — Information Rights Management (IRM) for Documents](../controls/pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Enforces usage rights on documents the agent may reference | Direct |
-| [1.22 — Information Barriers for AI Agents](../controls/pillar-1-security/1.22-information-barriers.md) | Segregates data between groups to prevent cross-disclosure | Direct |
+| [1.22 — Information Barriers for AI Agents](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers restrict two-way communication and collaboration between groups and users in Teams, SharePoint, and OneDrive; they do not restrict email messages including Exchange Online. Agent Builder applies IB policies in its people picker, so users in conflicting segments can't share a new agent with each other; agents already shared stay accessible. | Partial |
 | [4.1 — SharePoint IAG / Restricted Content Discovery](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | Surfaces over-shared content before it reaches an agent's grounding scope | Direct |
 | [4.7 — Microsoft 365 Copilot Data Governance](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | Governs what Copilot can ground on across the M365 estate | Direct |
 | [4.8 — Item-Level Permission Scanning for Agent Knowledge Sources](../controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md) | Detects over-permissioned items in agent knowledge sources | Direct |
@@ -117,7 +117,7 @@ The agent is granted excessive functionality, permissions, or autonomy, so that 
 | [1.4 — Advanced Connector Policies (ACP)](../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Limits the external actions an agent can perform via connectors | Direct |
 | [2.8 — Access Control and Segregation of Duties](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Prevents any single agent or identity from holding excessive authority | Direct |
 | [2.17 — Multi-Agent Orchestration Limits](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Bounds agent-to-agent delegation and chained autonomy | Direct |
-| [2.26 — Entra Agent ID — Identity Governance for Agents](../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) | Gives agents governed identities so their privileges can be managed and revoked | Direct |
+| [2.26 — Entra Agent ID — Identity Governance for Agents](../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) | Copilot Studio creates Entra Agent IDs for new agents; agents created before Entra Agent ID was available in May 2026 continue using app registrations until a future migration. Agent Builder agents currently don't use Agent IDs. Conditional Access on the agent identity is currently enforced only when the agent runs in Microsoft Teams. | Partial |
 
 ---
 
